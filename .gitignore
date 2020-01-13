@@ -1,0 +1,9 @@
+*.pyc
+.ipynb_checkpoints/
+
+# Jupyter Widget
+node_modules/
+dist/
+static/
+*.egg-info*
+

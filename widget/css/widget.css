@@ -1,0 +1,239 @@
+#widgetContainer{
+  height:312px;
+  width:100%;
+  display:inline-flex;
+}
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+#mult-graph-container{
+  display: inline-flex;
+}
+.recommendationStaticContentOuter{
+  scroll-snap-align: start;
+  border: 0.5px solid #bcbdbd;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: inline-block;
+  text-align: left;
+  /* padding-left: 20px; */
+  /* padding-top: 10px; */
+  height: 100%;
+  box-sizing: border-box;
+  width: 100%;
+  position: relative;
+}
+.recommendationContentOuter{
+  /* overflow: scroll; */
+  /* Prevents unneccesary x-scroll for specified facet */
+  /* width:  100%; */
+  /*height: 225px;*/
+  display: flex;
+  /* display: inline-block;*/
+  margin-left: 10px;
+  text-align: left;
+}
+.vega-embed {
+  position: relative;
+  display: inline-block;
+  /* padding-right: 38px; */
+  flex: 1 0 auto;
+  padding-right: 10px !important;
+}
+/* .vega-embed:hover{
+  border: solid 1px;
+  border-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.5);
+  cursor: pointer;
+}   */
+.vega-embed:checked{
+  border: solid 1px;
+  border-color: blue;
+}
+.recommendationContentInner{
+  /*width: auto;
+  max-width: 150%;*/
+  /*display: inline-block;*/
+  /*margin-left: 8px;*/
+  text-align: left;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  /* overflow-x: auto; */
+  overflow-x: initial;
+  padding-right: 50px;
+  /*height: 280px;*/
+  /* width: max-content;
+  overflow-x: auto; */
+  /* height: 100px; */
+}
+
+.toolDiv{
+  position: relative;
+  top: -20px;
+  left: -5px;
+}
+.fa {
+  color:gray;
+}
+.fa:hover{
+  color:black;
+}
+.graph-container{
+  height: 250px;
+  max-height: 270px;
+  margin: 10px 0px 5px 5px;
+  padding: 0px 0px 0px 0px;
+  overflow-y: auto;
+}
+#mainVizTitle{
+  font-size: 20px;
+  display: inline-block;
+  left: 10%;
+  top: 0px;
+  position: absolute;
+}
+#mainVizContainer{
+  padding: 10px 10px 0px 0px;
+  /* position: absolute; */
+  border: 0.5px solid #bcbdbd;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  min-width: 30%;
+  height: 100%;
+}
+
+#mainVizInnerContainer{
+  width: 300px;
+  height: 245px;
+  top: 21%;
+  left: 3%;
+  position: absolute;
+}
+#tabBanner{
+  width: auto;
+  overflow: hidden;
+  min-width: 70%;
+}
+#exportBtn{
+  position: absolute;
+  top: 20px;
+  left: 235px;
+  font-size: 20px;
+}
+#alertBox{
+  position: absolute;
+  left: 33%;
+  width: 65%;
+  bottom: 6%;
+  padding: 5px 30px 5px 10px;
+}
+/* canvas{
+  width: 229px;
+  height: 245px;
+} */
+/* Override .fade default to show tab*/
+.fade {
+  opacity:1;
+}
+/* Copied from bootstrap.css */
+.nav {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  padding-left: 0;
+  margin-bottom: 0;
+  list-style: none;
+}
+
+.nav-link {
+  display: block;
+  padding: 0.5rem 1rem;
+}
+
+.nav-link:hover, .nav-link:focus {
+  text-decoration: none;
+}
+
+.nav-link.disabled {
+  color: #6c757d;
+  pointer-events: none;
+  cursor: default;
+}
+
+.nav-tabs {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.nav-tabs .nav-item {
+  margin-bottom: -1px;
+}
+
+.nav-tabs .nav-link {
+  border: 1px solid transparent;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}
+
+.nav-tabs .nav-link:hover, .nav-tabs .nav-link:focus {
+  border-color: #e9ecef #e9ecef #dee2e6;
+}
+
+.nav-tabs .nav-link.disabled {
+  color: #6c757d;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-item.show .nav-link {
+  color: #495057;
+  background-color: #fff;
+  border-color: #dee2e6 #dee2e6 #fff;
+}
+
+.nav-tabs .dropdown-menu {
+  margin-top: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.nav-pills .nav-link {
+  border-radius: 0.25rem;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  color: #fff;
+  background-color: #007bff;
+}
+
+.nav-fill .nav-item {
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+.nav-justified .nav-item {
+  -ms-flex-preferred-size: 0;
+  flex-basis: 0;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.tab-content > .tab-pane {
+  display: none;
+}
+
+.tab-content > .active {
+  display: block;
+}
