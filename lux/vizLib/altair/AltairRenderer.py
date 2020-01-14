@@ -26,6 +26,6 @@ class AltairRenderer:
 		chart = chart.chart.to_dict()
 		# del chart["datasets"]
 		# chart["data"] =  { "name": 'chartData' }
-		chart["width"] = 180
+		chart["width"] = 160
 		chart["height"] = 150
 		return chart
