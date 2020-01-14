@@ -13,7 +13,8 @@ import '../css/widget.css'
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import {Tabs,Tab, Alert} from 'react-bootstrap';
+import {Tabs,Tab} from 'react-bootstrap';
+// import Alert from 'react-bootstrap';
 // import { useAlert } from "react-alert";
 // import TabComponent from './tab';
 import ChartGalleryComponent from './chartGallery';
@@ -112,15 +113,15 @@ export class JupyterWidgetView extends DOMWidgetView {
           <Tab eventKey={actionResult.action} title={actionResult.action} >
             <ChartGalleryComponent graphSpec={actionResult.vspec}/> 
           </Tab>);
-        let alertBtn;
-        if (this.state.showAlert){
-          alertBtn= <Alert id="alertBox" 
-                           key="infoAlert" 
-                           variant="info" 
-                           dismissible>
-            Exported selected visualizations to Python variable `widget.selectedVis`
-          </Alert>
-        }
+        // let alertBtn;
+        // if (this.state.showAlert){
+        //   alertBtn= <Alert id="alertBox" 
+        //                    key="infoAlert" 
+        //                    variant="info" 
+        //                    dismissible>
+        //     Exported selected visualizations to Python variable `widget.selectedVis`
+        //   </Alert>
+        // }
         return (<div id="widgetContainer">
                   <CurrentViewComponent currentViewSpec={this.state.currentView}/>
                   <div id="tabBanner">
@@ -128,12 +129,12 @@ export class JupyterWidgetView extends DOMWidgetView {
                       {tabItems}
                     </Tabs>
                   </div>
-                  <i  id="exportBtn" 
+                  {/* <i  id="exportBtn" 
                       className='fa fa-upload' 
                       title='Export selected visualization into variable'
                       onClick={this.exportSelection}
-                  />
-                  {alertBtn}                  
+                  /> */}
+                  {/* {alertBtn}                   */}
                 </div>);
       }
       changeHandler(event:any){
