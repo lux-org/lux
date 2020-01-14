@@ -41,10 +41,15 @@ def enhance(dobj):
 			newSpec = dobj.spec.copy()
 			newSpec.append(Column(cVar))
 			tempDataObj = DataObj(dobj.dataset, newSpec)
-			tempDataObj.score = interestingness(tempDataObj)
+			if (dobj.dataset.cardinality[cVar]<10):
+				tempDataObj.score = interestingness(tempDataObj)
+			else:
+				tempDataObj.score = -1 
 
 			tempDataObj.compile()
 			output.append(tempDataObj.compiled)
-	recommendation["collection"] = DataObjCollection(output)
+	output = DataObjCollection(output)
+	output.sort(removeInvalid=True)
+	recommendation["collection"] = output
 	result.addResult(recommendation,dobj)
 	return result
