@@ -7,7 +7,8 @@ Lux is a Python library that makes data science easier by automating certain asp
 
 <img src="examples/img/capabilities.png"
      alt="Lux capabilities"
-     style="width:300px" />
+     width="400px"
+     height="200px" />
 
 Lux provides a suite of capabilities as outlined in the hierarchy from the most basic (automatic encoding) to most complex (predictive recommendations).
 
@@ -43,7 +44,9 @@ dobj = lux.DataObj(dataset,[lux.Column(["Weight","Displacement"]),lux.Column("?"
 
 ### Analytics Modules: 
 
-Lux comes with a set of analytics capabilities. We can compose  For example, we can ask which car brands have a time series of Displacement simliar to that of Pontiac cars. 
+Lux comes with a set of analytics capabilities. We can compose multiple DataObjects or DataObjectCollections to perform a specified task. 
+
+For example, we can ask which car brands have a time series of Displacement simliar to that of Pontiac cars. 
 
     query = lux.DataObj(dataset,[lux.Column("Year",channel="x"),
                             lux.Column("Displacement",channel="y"),
@@ -61,7 +64,16 @@ Lux comes with a set of analytics capabilities. We can compose  For example, we 
 
 ### Predictive Recommendation: 
 
+Lux has an extensible logic that determines the appropriate analytics modules to call based on the user’s current state (i.e., the attributes and values they’re interested in). By calling the `showMore` command, Lux guides users to potential next-steps in the their exploration.
 
-# Installation
+In this example, the users is interested in `Acceleration` and `Horsepower`, Lux generates three sets of recommendations, organized as separate tabs on the widget.
 
-To install lux: 
+    dobj = lux.DataObj(dataset,[lux.Column("Acceleration",dataModel="measure"),
+                                lux.Column("Horsepower",dataModel="measure")])
+    result = dobj.showMore()
+
+<img src="examples/img/ShowMore.gif"
+     alt="Show More Recommendations"
+     style="width:600px" />
+
+For more detailed examples of how to use Lux, checkout this demo [notebook](https://github.com/lux-org/lux/blob/master/examples/demo.ipynb). 
