@@ -1,29 +1,32 @@
-# lux
-[![Build Status](https://travis-ci.org/lux-org/lux.svg?branch=master)](https://travis-ci.org/lux-org/lux)
+<p align="center"><a href="#"><img width=77% alt="" src="examples/img/logo.png"></a></p>
+<h2 align="center">A Python API for Intelligent Visual Discovery</h2>
 
-Lux is a Python library that makes data science easier by automating certain aspects of the data exploration process. Lux is designed to facillitate faster experimentation with data, even when the user doesn't have a clear idea of what they're looking for.
+<p align="center">
+<a href="https://travis-ci.org/lux-org/lux"><img alt="Build Status" src="https://travis-ci.org/lux-org/lux.svg?branch=master" align="center"></a>
+</p>
+
+Lux is a Python library that makes data science easier by automating certain aspects of the data exploration process. Lux is designed to facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for.
 
 ## Features
-
-<img src="examples/img/capabilities.png"
-     alt="Lux capabilities"
-     width="400px"
-     height="200px" />
-
-Lux provides a suite of capabilities as outlined in the hierarchy from the most basic (automatic encoding) to most complex (predictive recommendations).
-
+<p align="center">
+    <img src="examples/img/capabilities.png"
+        alt="Lux capabilities"
+        width="400px"
+        height="200px" />
+</p>
+Lux provides a suite of capabilities as outlined in the hierarchy above from the most basic (automatic encoding) to the most complex (predictive recommendations).
 
 ### Automatic Encoding: 
 Lux is built on the principle that users should always be able to visualize anything they specify, without having to think about *how* the visualization should look like. Lux automatically determines the mark and channel mappings based on a set of [best practices](http://hosteddocs.ittoolbox.com/fourshowmeautomaticpresentations.pdf) from [Tableau](https://www.tableau.com). The visualizations are rendered via [Altair](https://github.com/altair-viz/altair/tree/master/altair) into [Vega-Lite](https://github.com/vega/vega-lite) specifications.
 
-    
+```python    
     import lux
     # Load a dataset into Lux
     dataset = lux.Dataset("data/car.csv")
 
     dobj = lux.DataObj(dataset,[lux.Column("Acceleration"),
                                 lux.Column("Horsepower")])
-    
+```    
 <img src="examples/img/specifiedVis.png"
      alt="Specified Visualization"
      style="width:200px" />
@@ -34,7 +37,7 @@ Lux implements a set of enumeration logic that generates a visualization collect
 
 Here, we want to look at how the attributes `Weight` and `Displacement` depend on all other dimension variables.
 
-```
+```python
 dobj = lux.DataObj(dataset,[lux.Column(["Weight","Displacement"]),lux.Column("?",dataModel="dimension")])
 ```
 
@@ -46,8 +49,8 @@ dobj = lux.DataObj(dataset,[lux.Column(["Weight","Displacement"]),lux.Column("?"
 
 Lux comes with a set of analytics capabilities. We can compose multiple DataObjects or DataObjectCollections to perform a specified task. 
 
-For example, we can ask which car brands have a time series of Displacement simliar to that of Pontiac cars. 
-
+For example, we can ask which car brands have a time series of Displacement similar to that of Pontiac cars. 
+```python
     query = lux.DataObj(dataset,[lux.Column("Year",channel="x"),
                             lux.Column("Displacement",channel="y"),
                             lux.Row("Brand","pontiac")])
@@ -57,23 +60,30 @@ For example, we can ask which car brands have a time series of Displacement siml
                                 lux.Row("Brand","?")])
 
     result = dobj.similarPattern(query,topK=5)
-
+```
 <img src="examples/img/SimilarityDemo.gif"
      alt="Similar Patterns"
      style="width:600px" />
 
 ### Predictive Recommendation: 
 
-Lux has an extensible logic that determines the appropriate analytics modules to call based on the user’s current state (i.e., the attributes and values they’re interested in). By calling the `showMore` command, Lux guides users to potential next-steps in the their exploration.
+Lux has an extensible logic that determines the appropriate analytics modules to call based on the user’s current state (i.e., the attributes and values they’re interested in). By calling the `showMore` command, Lux guides users to potential next-steps in their exploration.
 
-In this example, the users is interested in `Acceleration` and `Horsepower`, Lux generates three sets of recommendations, organized as separate tabs on the widget.
-
+In this example, the user is interested in `Acceleration` and `Horsepower`, Lux generates three sets of recommendations, organized as separate tabs on the widget.
+ 
+```python
     dobj = lux.DataObj(dataset,[lux.Column("Acceleration",dataModel="measure"),
                                 lux.Column("Horsepower",dataModel="measure")])
     result = dobj.showMore()
-
+```
 <img src="examples/img/ShowMore.gif"
      alt="Show More Recommendations"
      style="width:600px" />
+ 
+ The left-hand side of the widget shows the Current View, which corresponds to the attributes that have been selected. On the right, Lux recommends:
 
-For more detailed examples of how to use Lux, checkout this demo [notebook](https://github.com/lux-org/lux/blob/master/examples/demo.ipynb). 
+ - Enhance: Adds an additional attribute to the current selection
+ - Filter: Adds a filter to the current selection, while keeping X and Y fixed
+ - Generalize: Removes an attribute to display a more general trend
+ 
+For more detailed examples of how to use Lux, check out this demo [notebook](https://github.com/lux-org/lux/blob/master/examples/demo.ipynb). 
