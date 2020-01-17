@@ -85,5 +85,27 @@ In this example, the user is interested in `Acceleration` and `Horsepower`, Lux 
  - Enhance: Adds an additional attribute to the current selection
  - Filter: Adds a filter to the current selection, while keeping X and Y fixed
  - Generalize: Removes an attribute to display a more general trend
- 
+
+# Installation
+
+There are two components of Lux: 1) Python Lux API (inside `lux/`)and 2) the jupyter widget frontend (inside `widget/`). 
+
+To install the Python Lux API: 
+```bash
+pip install --user -r requirements.txt
+cd lux/
+python setup.py install
+```
+To install the widget, we need to install webpack:  
+```bash
+npm install --save-dev webpack webpack-cli
+```
+Then, we can install the jupyter widget using the custom installation script: 
+```bash
+cd widget/
+npm install
+sh install.sh
+```
+
+
 For more detailed examples of how to use Lux, check out this demo [notebook](https://github.com/lux-org/lux/blob/master/examples/demo.ipynb). 
