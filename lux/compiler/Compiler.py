@@ -1,7 +1,7 @@
 from lux.dataObj.Row import Row
 from lux.dataObj.Column import Column
 from lux.dataset.Dataset import Dataset
-
+from lux.utils.utils import convert2List, applyDataTransformations
 
 class Compiler:
 	def __init__(self):
@@ -73,15 +73,15 @@ class Compiler:
 		fAttr = ''
 		# TODO: This needs to be rewritten in a recursive manner so that the channel and other specification can be inheritted
 		if len(colSpecs) > 0:
-			colAttrs.append(populateOptions(dobj, colSpecs[0]))
+			colAttrs.append(Compiler.populateOptions(dobj, colSpecs[0]))
 
 		# TODO: Note that this needs to be modified so that we can put in constraints such as:
 		# Column("?", dataModel = "measure") --> enumerate over all the attributes that are measures
 		#
 		if len(colSpecs) > 1:
-			colAttrs.append(populateOptions(dobj, colSpecs[1]))
+			colAttrs.append(Compiler.populateOptions(dobj, colSpecs[1]))
 		if len(rowSpecs) > 0:
-			rowVals = populateOptions(dobj, rowSpecs[0])  # populate rowvals with all unique possibilities
+			rowVals = Compiler.populateOptions(dobj, rowSpecs[0])  # populate rowvals with all unique possibilities
 			fAttr = rowSpecs[0].fAttribute
 		if all(len(attrs) <= 1 for attrs in colAttrs) and len(
 				rowVals) <= 1:  # changed condition to check if every column attribute has at least one attribute
@@ -230,37 +230,21 @@ class Compiler:
 			resultDict[leftover_channel] = leftover_encoding
 		dobj.spec = list(resultDict.values())
 		return dobj
-def convert2List(x):
-	'''
-	"a" --> ["a"]
-	["a","b"] --> ["a","b"]
-	'''
-	if type(x) != list:
-		return [x]
-	else:
-		return x
-
-
-def applyDataTransformations(dataset, fAttribute, fVal):
-	transformedDataset = Dataset(filename=dataset.filename, schema=dataset.schema)
-	transformedDataset.df = dataset.df[dataset.df[fAttribute] == fVal]
-	return transformedDataset
-
-
-def populateOptions(dobj, rowCol):
-	if rowCol.className == "Column":
-		if rowCol.columnName == "?":
-			options = set(dobj.dataset.attrList)  # all attributes
-			if (rowCol.dataType != ""):
-				options = options.intersection(set(dobj.dataset.dataType[rowCol.dataType]))
-			if (rowCol.dataModel != ""):
-				options = options.intersection(set(dobj.dataset.dataModel[rowCol.dataModel]))
-			options = list(options)
-		else:
-			options = convert2List(rowCol.columnName)
-	elif rowCol.className == "Row":
-		if rowCol.fVal == "?":
-			options = dobj.dataset.df[rowCol.fAttribute].unique()
-		else:
-			options = convert2List(rowCol.fVal)
-	return options
+	@staticmethod
+	def populateOptions(dobj, rowCol):
+		if rowCol.className == "Column":
+			if rowCol.columnName == "?":
+				options = set(dobj.dataset.attrList)  # all attributes
+				if (rowCol.dataType != ""):
+					options = options.intersection(set(dobj.dataset.dataType[rowCol.dataType]))
+				if (rowCol.dataModel != ""):
+					options = options.intersection(set(dobj.dataset.dataModel[rowCol.dataModel]))
+				options = list(options)
+			else:
+				options = convert2List(rowCol.columnName)
+		elif rowCol.className == "Row":
+			if rowCol.fVal == "?":
+				options = dobj.dataset.df[rowCol.fAttribute].unique()
+			else:
+				options = convert2List(rowCol.fVal)
+		return options

@@ -126,12 +126,12 @@ def test_autoencodingColorScatterChart():
 	dobj = lux.DataObj(dataset,[lux.Column("Horsepower"),lux.Column("Acceleration",channel="color"),lux.Column("Origin")])
 	checkAttributeOnChannel(dobj,"Acceleration","color")
 def test_populateOptions():
-	from lux.compiler.Compiler import populateOptions
+	from lux.compiler.Compiler import Compiler
 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
 	dobj = lux.DataObj(dataset,[lux.Column("?"),lux.Column("MilesPerGal")])
-	assert listEqual(populateOptions(dobj, dobj.spec[0]), list(dobj.dataset.df.columns))
+	assert listEqual(Compiler.populateOptions(dobj, dobj.spec[0]), list(dobj.dataset.df.columns))
 	dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure"),lux.Column("MilesPerGal")])
-	assert listEqual(populateOptions(dobj, dobj.spec[0]), ['Acceleration','Weight','Horsepower','MilesPerGal','Displacement'])
+	assert listEqual(Compiler.populateOptions(dobj, dobj.spec[0]), ['Acceleration','Weight','Horsepower','MilesPerGal','Displacement'])
 
 def listEqual(l1,l2):
     l1.sort()

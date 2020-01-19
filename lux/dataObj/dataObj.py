@@ -13,7 +13,6 @@ class DataObj:
     This can be based on what the user has specified or what is created as outputs.
     It can be a visualization, group of data points, column, etc and does not have to be fully specified.
     '''
-
     def __init__(self, dataset, spec=[], title=""):
         self.dataset = dataset  # may be inefficient use of memory
         self.transformedDataset = dataset
@@ -33,13 +32,6 @@ class DataObj:
             return f"<Data Obj: {str(self.spec)} -- {self.score:.2f}>"
         else:
             return f"<Data Obj: {str(self.spec)}>"
-
-        # def __str__(self):
-        # 	vis = self.display()
-        # 	if (vis):
-        # 		return vis
-        # 	else:
-        # 		return f"<Data Obj: {str(self.dataset)} -- {str(self.spec)}>"
 
     def compile(self, enumerateCollection=True):
         dobj = self
@@ -136,32 +128,6 @@ class DataObj:
                     withoutWildmarkCopy.spec.remove(spec)
         return withoutWildmarkCopy
 
-    # TODO: move to global class method when there is an overall module for API
-    # def fromDataFrame(df):
-    # 	'''
-    #	Example
-    # 	import pandas as pd
-    # 	df = pd.read_csv("data/cars.csv")
-    # 	[name of package].fromDataFrame(df)
-    #   e.g. pd.Dataframe
-    # 	'''
-    # 	from dataset.Dataset import Dataset
-    # 	dataset = Dataset(df = df)
-    # 	return DataObj(dataset)
-    # Mappers to Action classes
-
-    # TODO: move to global class method when there is an overall module for API
-    # def fromDataFrame(df):
-    # 	'''
-    #	Example
-    # 	import pandas as pd
-    # 	df = pd.read_csv("data/cars.csv")
-    # 	[name of package].fromDataFrame(df)
-    #   e.g. pd.Dataframe
-    # 	'''
-    # 	from dataset.Dataset import Dataset
-    # 	dataset = Dataset(df = df)
-    # 	return DataObj(dataset)
     # Mappers to Action classes
     def correlation(self):
         from lux.action.Correlation import correlation
@@ -178,53 +144,18 @@ class DataObj:
     def toJSON(self,currentView=""):
         dobj_dict = {}
         # Current View (if any)
-        if (type(self.compiled).__name__ == "DataObj"):
-            dobj_dict["currentView"] = self.compiled.renderVSpec()
+        dobj_dict["currentView"] = lux.Result.currentViewToJSON(self,currentView)
+        # Recommended Collection
         if (type(self.compiled).__name__ == "DataObjCollection"):
-            # if the compiled object is a collection, see if we can remove the elements with "?" and generate a Current View
-            specifiedDobj = self.getVariableFieldsRemoved()
-            if (specifiedDobj.spec!=[]): specifiedDobj.compile(enumerateCollection=False)
-            if (currentView!=""):
-                dobj_dict["currentView"] = currentView.compiled.renderVSpec()
-            elif (specifiedDobj.isEmpty()):
-                dobj_dict["currentView"] = {}
-            else:
-                specifiedDobj.compile(enumerateCollection=False)
-                dobj_dict["currentView"] = specifiedDobj.compiled.renderVSpec()
             if (self.recommendation=={}):
                 self.recommendation = {"action": "Vis Collection",
                     "collection":self.compiled
                 }
-        # Recommended Collection
-        dobj_dict["recommendations"] = []
-        import copy
-        recCopy= copy.copy(self.recommendation)
-        if (recCopy != {}):
-            recCopy["vspec"] = []
-            for vis in recCopy["collection"].collection:
-                chart = vis.renderVSpec()
-                recCopy["vspec"].append(chart)
-            dobj_dict["recommendations"].append(recCopy)
-            # delete DataObjectCollection since not JSON serializable
-            del dobj_dict["recommendations"][0]["collection"]
+        dobj_dict["recommendations"] = lux.Result.recToJSON(self.recommendation)
         return dobj_dict
-
+    
     def display(self, renderer="altair", currentView=""):
-        # render this data object as: vis, columns, etc.?
-        # import widgetDisplay
-        # if (renderer=="altair"):
-        # 	renderer = AltairRenderer()
-        # chart = renderer.createVis(self.compiled)
-        # widget = widgetDisplay.Mockup(graphSpecs = [chart.to_dict()])
-        # return widget
-        # return chart
-        import displayWidget
-        widgetJSON = self.toJSON(currentView=currentView)
-        widget = displayWidget.DisplayWidget(
-            # data=json.loads(self.dataset.df.to_json(orient='records')),
-            currentView=widgetJSON["currentView"],
-            recommendations=widgetJSON["recommendations"]
-        )
+        widget = lux.Result.display(self,renderer=renderer,currentView=currentView)
         return widget
         
     def filter(self):
@@ -247,34 +178,10 @@ class DataObj:
         # Merge the two Result object from the two actions
         result.mergeResult(result2)
         return result
-    def preprocess(self):
-        from lux.service.patternSearch import preprocessing
-        preprocessing.aggregate(self)
-        preprocessing.interpolate(self, 100)
-        preprocessing.normalize(self)
     def similarPattern(self,query,topK=-1):
-        from lux.service.patternSearch.similarityDistance import euclideanDist
-        from lux.compiler.Compiler import applyDataTransformations
-        result = lux.Result()
-        rowSpecs = list(filter(lambda x: x.className == "Row", query.spec))
-        if(len(rowSpecs) == 1):
-            query.dataset = applyDataTransformations(query.dataset,rowSpecs[0].fAttribute,rowSpecs[0].fVal)
-            query.preprocess()
-            #for loop to create assign euclidean distance
-            recommendation = {"action":"Similarity",
-                                   "description":"Show other charts that are visually similar to the Current View."}
-            for dobj in self.compiled.collection:
-                dobj.preprocess()
-                dobj.score = euclideanDist(query, dobj)
-            self.compiled.normalizeScore(invertOrder=True)
-            self.compiled.sort(removeInvalid=True)
-            if(topK!=-1):
-                self.compiled = self.compiled.topK(topK)
-            recommendation["collection"] = self.compiled
-            result.addResult(recommendation,dobj)
-            return result
-        else:
-            print("Query needs to have 1 row value")
+        from lux.action.Similarity import similarPattern
+        return similarPattern(self,query,topK)
+    
     def showMore(self):
         currentViewExist = self.compiled.spec!=[]
         result = lux.Result()

@@ -11,15 +11,8 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 # Fields marked as "Optional" may be commented out.
 
 setup(
-    name='lux',  # PyPI Name (pip install [name])
-
-    # Versions should comply with PEP 440:
-    # https://www.python.org/dev/peps/pep-0440/
-    #
-    # For a discussion on single-sourcing the version across setup.py and the
-    # project code, see
-    # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.3.1',  # Required
+    name='python-lux',  # PyPI Name (pip install [name])
+    version='0.0.1',  # Required
     description='A Python API for Intelligent Visual Discovery',  # Project description (Optional)
     long_description=long_description,  # Optional
     long_description_content_type='text/markdown',  # Optional (see note above)
@@ -37,10 +30,9 @@ setup(
         'Programming Language :: Python :: 3'
     ],
     keywords='visualization analytics data-science insight discovery',  # Optional
-
     # When your source code is in a subdirectory under the project root, e.g.
     # `src/`, it is necessary to specify the `package_dir` argument.
-    package_dir={'': 'src'},  # Optional
+    package_dir={'': 'lux'},  # Optional
 
     # You can just specify package directories manually here if your project is
     # simple. Or you can use find_packages().
