@@ -29,7 +29,7 @@ class Compiler:
 				expandedDobj.title = f"{rcObj.fAttribute}={rcObj.fVal}"
 		return expandedDobj
 
-	def generateCollection(self, colAttrs, rowList, fAttr, dobj):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]
+	def generateCollection(self, colAttrs, rowList, dobj):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]
 		from lux.dataObj.dataObj import DataObj
 		from lux.dataObj.DataObjCollection import DataObjCollection
 		collection = []
@@ -66,12 +66,11 @@ class Compiler:
 			colAttrs.append(Compiler.populateOptions(dobj, colSpec))
 		if len(rowSpecs) > 0:
 			rowList = Compiler.populateOptions(dobj, rowSpecs[0])  # populate rowvals with all unique possibilities
-			fAttr = rowSpecs[0].fAttribute
 		if all(len(attrs) <= 1 for attrs in colAttrs) and len(rowList) <= 1:  # changed condition to check if every column attribute has at least one attribute
 			# If DataObj does not represent a collection, return False.
 			return False
 		else:
-			collection = self.generateCollection(colAttrs, rowList, fAttr, dobj)
+			collection = self.generateCollection(colAttrs, rowList, dobj)
 			return collection
 	@classmethod
 	def determineEncoding(cls, dobj):
@@ -233,13 +232,16 @@ class Compiler:
 				rcCopy.columnName = optStr
 				rcOptions.append(rcCopy)
 		elif rowCol.className == "Row":
-			if rowCol.fVal == "?":
-				options = dobj.dataset.df[rowCol.fAttribute].unique()
-			else:
-				options = convert2List(rowCol.fVal)
 			rcOptions = []
-			for optStr in options:
-				rcCopy = copy.copy(rowCol)
-				rcCopy.fVal = optStr
-				rcOptions.append(rcCopy)
+			fAttrLst = convert2List(rowCol.fAttribute)
+			for fAttr in fAttrLst:
+				if rowCol.fVal == "?":
+					options = dobj.dataset.df[fAttr].unique()
+				else:
+					options = convert2List(rowCol.fVal)	
+				for optStr in options:
+					rcCopy = copy.copy(rowCol)
+					rcCopy.fAttribute = fAttr
+					rcCopy.fVal = optStr
+					rcOptions.append(rcCopy)
 		return rcOptions

@@ -29,7 +29,7 @@ def test_underspecifiedVisCollection():
 	dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure"),lux.Column("?",dataModel="measure")])
 	assert len(dobj.compiled.collection) == 25
 	# TODO: Jay: this example is not working, need pairwise combination of measure values (mostly counts now?)	
-def test_underspecifiedVisCollection_Z():
+def test_underspecifiedVisCollection_Zval():
 	# check if the number of charts is correct
 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
 	dobj = lux.DataObj(dataset, [lux.Column("MilesPerGal"), lux.Row("Origin", "?")])
@@ -61,6 +61,12 @@ def test_underspecifiedVisCollection_Z():
 		return numRows
 	totalNumRows= sum(list(dobj.compiled.map(getNumDataPoints)))
 	assert totalNumRows == 392
+
+def test_underspecifiedVisCollection_Zattr():
+	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
+	dobj = lux.DataObj(dataset,[lux.Column(["Horsepower"]),lux.Column("Weight"),lux.Row(["Origin","Cylinders"],"?")])
+	assert len(dobj.compiled.collection) == 8 
+
 def test_specifiedChannelEnforcedVisCollection():
 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
 	dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure"),lux.Column("MilesPerGal",channel="x")])
