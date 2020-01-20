@@ -92,6 +92,12 @@ export class JupyterWidgetView extends DOMWidgetView {
           activeTab: selectedTab
         });
       }      
+      onListChanged(selected) {
+        console.log("onListChanged:",selected)
+        // this.setState({
+        //   selected: selected
+        // });
+      }
       exportSelection() {
         console.log("export selection")
         this.setState(
@@ -111,7 +117,11 @@ export class JupyterWidgetView extends DOMWidgetView {
         console.log("this.state.activeTab:",this.state.activeTab)
         const tabItems = this.state.recommendations.map((actionResult,idx) =>
           <Tab eventKey={actionResult.action} title={actionResult.action} >
-            <ChartGalleryComponent graphSpec={actionResult.vspec}/> 
+            <ChartGalleryComponent 
+                multiple={true}
+                maxSelectable={10}
+                onChange={this.onListChanged.bind(this)}
+                graphSpec={actionResult.vspec}/> 
           </Tab>);
         let alertBtn;
         if (this.state.showAlert){
@@ -132,7 +142,7 @@ export class JupyterWidgetView extends DOMWidgetView {
                   <i  id="exportBtn" 
                       className='fa fa-upload' 
                       title='Export selected visualization into variable'
-                      onClick={this.exportSelection}
+                      onClick={(e) => this.exportSelection()}
                   />
                   {alertBtn}                  
                 </div>);
