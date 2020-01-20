@@ -29,37 +29,28 @@ class Compiler:
 				expandedDobj.title = f"{rcObj.fAttribute}={rcObj.fVal}"
 		return expandedDobj
 
-	def generateCollection(self, colAttrs, rowVals, fAttr, dobj):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]
-		# TODO: add logic for picking x and y axis
-
+	def generateCollection(self, colAttrs, rowList, fAttr, dobj):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]
 		from lux.dataObj.dataObj import DataObj
 		from lux.dataObj.DataObjCollection import DataObjCollection
-
-		# for attrs in colAttrs:
-		# 	for attr in attrs:
-		# 		print (attr)
-
 		collection = []
 		# generate combinations of column attributes recursively by continuing to accumulate attributes for len(colAtrr) times
 		def combine(colAttrs, accum):
 			last = (len(colAttrs) == 1)
 			n = len(colAttrs[0])
 			for i in range(n):
-				item = accum + [colAttrs[0][i]]
+				columnList = accum + [colAttrs[0][i]]
 				if last:
-					columnList = list(map(Column, item))
-					if len(rowVals) > 0: # if we have rows, generate combinations for each row.
-						for row in rowVals:
-							fVal = row
-							transformedDataset = applyDataTransformations(dobj.dataset, fAttr, fVal)  # rename?
-							specLst = columnList + [Row(fAttr, fVal)]
-							dataObj = DataObj(transformedDataset, specLst, title=f"{fAttr}={fVal}")
+					if len(rowList) > 0: # if we have rows, generate combinations for each row.
+						for row in rowList:
+							transformedDataset = applyDataTransformations(dobj.dataset, row.fAttribute, row.fVal)  # rename?
+							specLst = columnList + [row]
+							dataObj = DataObj(transformedDataset, specLst, title=f"{row.fAttribute}={row.fVal}")
 							collection.append(dataObj)
 					else:
 						dataObj = DataObj(dobj.dataset, columnList)
 						collection.append(dataObj)
 				else:
-					combine(colAttrs[1:], item)
+					combine(colAttrs[1:], columnList)
 
 		combine(colAttrs, [])
 		return DataObjCollection(collection)
@@ -69,26 +60,18 @@ class Compiler:
 		colSpecs = sorted(list(filter(lambda x: x.className == "Column", dobj.spec)), key=lambda x: x.channel) # sort by channel x,y,z
 		rowSpecs = list(filter(lambda x: x.className == "Row", dobj.spec))
 		colAttrs = []
-		rowVals = []
+		rowList = []
 		fAttr = ''
-		# TODO: This needs to be rewritten in a recursive manner so that the channel and other specification can be inheritted
-		if len(colSpecs) > 0:
-			colAttrs.append(Compiler.populateOptions(dobj, colSpecs[0]))
-
-		# TODO: Note that this needs to be modified so that we can put in constraints such as:
-		# Column("?", dataModel = "measure") --> enumerate over all the attributes that are measures
-		#
-		if len(colSpecs) > 1:
-			colAttrs.append(Compiler.populateOptions(dobj, colSpecs[1]))
+		for colSpec in colSpecs:
+			colAttrs.append(Compiler.populateOptions(dobj, colSpec))
 		if len(rowSpecs) > 0:
-			rowVals = Compiler.populateOptions(dobj, rowSpecs[0])  # populate rowvals with all unique possibilities
+			rowList = Compiler.populateOptions(dobj, rowSpecs[0])  # populate rowvals with all unique possibilities
 			fAttr = rowSpecs[0].fAttribute
-		if all(len(attrs) <= 1 for attrs in colAttrs) and len(
-				rowVals) <= 1:  # changed condition to check if every column attribute has at least one attribute
+		if all(len(attrs) <= 1 for attrs in colAttrs) and len(rowList) <= 1:  # changed condition to check if every column attribute has at least one attribute
 			# If DataObj does not represent a collection, return False.
 			return False
 		else:
-			collection = self.generateCollection(colAttrs, rowVals, fAttr, dobj)
+			collection = self.generateCollection(colAttrs, rowList, fAttr, dobj)
 			return collection
 	@classmethod
 	def determineEncoding(cls, dobj):
@@ -103,7 +86,6 @@ class Compiler:
 
 		'''
 		# TODO: possibly implement chart alternatives as a list of possible encodings
-		# TODO: Need to generalize this import to other rendering mechanisms
 
 		# Count number of measures and dimensions
 		Ndim = 0
@@ -215,8 +197,10 @@ class Compiler:
 			if (len(sAttr) == 1):  # if specified in dobj
 				# remove the specified channel from autoChannel (matching by value, since channel key may not be same)
 				for i in list(autoChannel.keys()):
-					if (autoChannel[i].columnName == sAttr[0].columnName):
+					if ((autoChannel[i].columnName == sAttr[0].columnName) 
+						and (autoChannel[i].channel==sVal)): # need to ensure that the channel is the same (edge case when duplicate Cols with same attribute name)
 						autoChannel.pop(i)
+						break
 				sAttr[0].channel = sVal
 				resultDict[sVal] = sAttr[0]
 			elif (len(sAttr) > 1):
@@ -232,6 +216,7 @@ class Compiler:
 		return dobj
 	@staticmethod
 	def populateOptions(dobj, rowCol):
+		import copy
 		if rowCol.className == "Column":
 			if rowCol.columnName == "?":
 				options = set(dobj.dataset.attrList)  # all attributes
@@ -242,9 +227,19 @@ class Compiler:
 				options = list(options)
 			else:
 				options = convert2List(rowCol.columnName)
+			rcOptions = []
+			for optStr in options:
+				rcCopy = copy.copy(rowCol)
+				rcCopy.columnName = optStr
+				rcOptions.append(rcCopy)
 		elif rowCol.className == "Row":
 			if rowCol.fVal == "?":
 				options = dobj.dataset.df[rowCol.fAttribute].unique()
 			else:
 				options = convert2List(rowCol.fVal)
-		return options
+			rcOptions = []
+			for optStr in options:
+				rcCopy = copy.copy(rowCol)
+				rcCopy.fVal = optStr
+				rcOptions.append(rcCopy)
+		return rcOptions

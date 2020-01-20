@@ -61,7 +61,11 @@ def test_underspecifiedVisCollection_Z():
 		return numRows
 	totalNumRows= sum(list(dobj.compiled.map(getNumDataPoints)))
 	assert totalNumRows == 392
-
+def test_specifiedChannelEnforcedVisCollection():
+	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
+	dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure"),lux.Column("MilesPerGal",channel="x")])
+	for di in dobj.compiled.collection:
+		assert di.getByColumnName("MilesPerGal")[0].channel == "x"
 def test_autoencodingScatter():
 	# No channel specified
 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
@@ -129,9 +133,11 @@ def test_populateOptions():
 	from lux.compiler.Compiler import Compiler
 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
 	dobj = lux.DataObj(dataset,[lux.Column("?"),lux.Column("MilesPerGal")])
-	assert listEqual(Compiler.populateOptions(dobj, dobj.spec[0]), list(dobj.dataset.df.columns))
+	colLst = list(map(lambda x: x.columnName, Compiler.populateOptions(dobj, dobj.spec[0])))
+	assert listEqual(colLst, list(dobj.dataset.df.columns))
 	dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure"),lux.Column("MilesPerGal")])
-	assert listEqual(Compiler.populateOptions(dobj, dobj.spec[0]), ['Acceleration','Weight','Horsepower','MilesPerGal','Displacement'])
+	colLst = list(map(lambda x: x.columnName, Compiler.populateOptions(dobj, dobj.spec[0])))
+	assert listEqual(colLst,['Acceleration','Weight','Horsepower','MilesPerGal','Displacement'])
 
 def listEqual(l1,l2):
     l1.sort()
