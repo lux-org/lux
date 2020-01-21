@@ -56,7 +56,8 @@ class ChartGalleryComponent extends Component<chartGalleryProps,any> {
                         selected={this.state.selected.indexOf(idx) > -1 } 
                         onClick={(e) => this.onItemSelected(idx)}>
                             <VegaLite spec={item}  
-                                    padding={{left: 10, top: 5, right: 5, bottom: 5}} />
+                                    padding={{left: 10, top: 5, right: 5, bottom: 5}}
+                                    actions={false} />
                     </SelectableCard>
                     {/* <ToolComponent graphIdx={idx}/> */}
                 </div>  

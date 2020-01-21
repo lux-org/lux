@@ -128,14 +128,22 @@ export class JupyterWidgetView extends DOMWidgetView {
                 onChange={this.onListChanged.bind(this,tabIdx)}
                 graphSpec={actionResult.vspec}/> 
           </Tab>);
+        let exportBtn;
+        if (tabItems.length>0){
+          exportBtn = <i  id="exportBtn" 
+                          className='fa fa-upload' 
+                          title='Export selected visualization into variable'
+                          onClick={(e) => this.exportSelection()}
+                      />
+        }
         let alertBtn;
         if (this.state.showAlert){
           alertBtn= <Alert id="alertBox" 
                            key="infoAlert" 
                            variant="info" 
                            dismissible>
-            Exported selected visualizations to Python variable `widget.selectedVis`
-          </Alert>
+                      Exported selected visualizations to Python variable `widget.selectedVisLst`
+                    </Alert>
         }
         return (<div id="widgetContainer">
                   <CurrentViewComponent currentViewSpec={this.state.currentView}/>
@@ -144,11 +152,7 @@ export class JupyterWidgetView extends DOMWidgetView {
                       {tabItems}
                     </Tabs>
                   </div>
-                  <i  id="exportBtn" 
-                      className='fa fa-upload' 
-                      title='Export selected visualization into variable'
-                      onClick={(e) => this.exportSelection()}
-                  />
+                  {exportBtn}
                   {alertBtn}                  
                 </div>);
       }
