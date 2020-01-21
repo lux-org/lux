@@ -12,7 +12,7 @@ import '../css/widget.css'
 
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-
+import _ from 'lodash';
 import {Tabs,Tab, Alert} from 'react-bootstrap';
 // import Alert from 'react-bootstrap';
 // import { useAlert } from "react-alert";
@@ -49,29 +49,29 @@ export class JupyterWidgetView extends DOMWidgetView {
   initialize(){    
     let view = this;
     interface WidgetProps{
-      value:any,
       currentView:object,
       recommendations:any[],
       activeTab:any,
-      showAlert:boolean
+      showAlert:boolean,
+      selectedRec:object,
+      selectedVisLst:object[]
     }
     class ReactWidget extends React.Component<JupyterWidgetView,WidgetProps> {
       constructor(props:any){
         super(props);
         console.log("view:",props);
         this.state = {
-          value: props.model.get("value"),
           currentView :  props.model.get("current_view"),
           recommendations:  props.model.get("recommendations"),
           activeTab: props.activeTab,
-          showAlert:false
+          showAlert:false,
+          selectedRec:{},
+          selectedVisLst:[]
         }
         console.log("this.state:",this.state)
         // This binding is necessary to make `this` work in the callback
-        this.changeHandler = this.changeHandler.bind(this);
         this.handleSelect = this.handleSelect.bind(this);
         this.exportSelection = this.exportSelection.bind(this);
-        
       }
   
       onChange(model:any){// called when the variable is changed in the view.model
@@ -81,7 +81,7 @@ export class JupyterWidgetView extends DOMWidgetView {
         view.listenTo(view.model,"change",this.onChange.bind(this));
       }
       componentDidUpdate(){ //triggered after component is updated
-        console.log(view.model.get("value"));
+        console.log("componentDidUpdate:",view.model.get("selectedVisLst"));
         view.model.save_changes(); // instead of touch (which leads to callback issues), we have to use save_changes
       }
   
@@ -92,11 +92,16 @@ export class JupyterWidgetView extends DOMWidgetView {
           activeTab: selectedTab
         });
       }      
-      onListChanged(selected) {
-        console.log("onListChanged:",selected)
-        // this.setState({
-        //   selected: selected
-        // });
+      onListChanged(tabIdx,selectedLst) {
+        this.state.selectedRec[tabIdx] = selectedLst
+        var selectedVisLst = [] 
+        for (var tabID of Object.keys(this.state.selectedRec)){
+            selectedVisLst[tabID] = _.clone(_.omit(this.state.recommendations[tabID],"vspec"))
+            selectedVisLst[tabID]["vspec"] = _.at(this.state.recommendations[tabID].vspec,this.state.selectedRec[tabID])
+        }
+        this.setState({
+          selectedVisLst: selectedVisLst
+        });
       }
       exportSelection() {
         console.log("export selection")
@@ -111,16 +116,16 @@ export class JupyterWidgetView extends DOMWidgetView {
                   showAlert:false
            }));
         },7000);
-  
+        view.model.set('selectedVisLst',this.state.selectedVisLst);
       }
       render(){
         console.log("this.state.activeTab:",this.state.activeTab)
-        const tabItems = this.state.recommendations.map((actionResult,idx) =>
+        const tabItems = this.state.recommendations.map((actionResult,tabIdx) =>
           <Tab eventKey={actionResult.action} title={actionResult.action} >
             <ChartGalleryComponent 
                 multiple={true}
                 maxSelectable={10}
-                onChange={this.onListChanged.bind(this)}
+                onChange={this.onListChanged.bind(this,tabIdx)}
                 graphSpec={actionResult.vspec}/> 
           </Tab>);
         let alertBtn;
@@ -146,13 +151,6 @@ export class JupyterWidgetView extends DOMWidgetView {
                   />
                   {alertBtn}                  
                 </div>);
-      }
-      changeHandler(event:any){
-        var inputVal = event.target.value
-        this.setState(state => ({
-          value: inputVal
-        }));
-        view.model.set('value',inputVal);
       }
     }
     const $app = document.createElement("div");

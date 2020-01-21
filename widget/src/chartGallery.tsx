@@ -21,6 +21,7 @@ class ChartGalleryComponent extends Component<chartGalleryProps,any> {
         this.state = initialState;
     }
     onItemSelected(index) {
+        // Implementation based on https://codepen.io/j-burgos/pen/VpQxLv
         this.setState((prevState, props) => {
           if (props.multiple) {
             var selectedIndexes = prevState.selected;
