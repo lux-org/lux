@@ -1,8 +1,9 @@
+import lux
 from lux.dataObj.Row import Row
 from lux.dataObj.Column import Column
 from lux.dataset.Dataset import Dataset
 from lux.utils.utils import convert2List, applyDataTransformations
-
+from typing import List, Dict
 class Compiler:
 	def __init__(self):
 		self.name = "Compiler"
@@ -10,7 +11,20 @@ class Compiler:
 	def __repr__(self):
 		return f"<Compiler>"
 
-	def expandUnderspecified(self, dobj):
+	def expandUnderspecified(self, dobj : lux.dataObj.DataObj):
+		"""
+		Given a underspecified DataObject, populate the dataType and dataModel information accordingly
+		
+		Parameters
+		----------
+		dobj : lux.dataObj.DataObj
+			Underspecified DataObj input
+		
+		Returns
+		-------
+		expandedDobj : lux.dataObj.DataObj
+			DataObj with dataType and dataModel information
+		"""		
 		# Automatic type conversion (only for single attributes not lists of attributes)
 		import copy
 		expandedDobj = copy.deepcopy(dobj)  # Preserve the original dobj
@@ -28,8 +42,101 @@ class Compiler:
 				expandedDobj.dataset = applyDataTransformations(expandedDobj.dataset, fAttribute=rcObj.fAttribute, fVal = rcObj.fVal) 
 				expandedDobj.title = f"{rcObj.fAttribute}={rcObj.fVal}"
 		return expandedDobj
+	def enumerateCollection(self, dobj: lux.dataObj.DataObj):
+		"""
+		Given a partial specification, enumerate items in the collection via populateOption, 
+		then call the recursive generateCollection to iterate over the resulting list combinations.
+		
+		Parameters
+		----------
+		dobj : lux.dataObj.DataObj
+			Input DataObject
+		
+		Returns
+		-------
+		collection: lux.dataObj.DataObjectCollection
+			Resulting DataObjectCollection
+		"""		
+		# Get all the column and row object, assign the attribute names to variables
+		colSpecs = sorted(list(filter(lambda x: x.className == "Column", dobj.spec)), key=lambda x: x.channel) # sort by channel x,y,z
+		rowSpecs = list(filter(lambda x: x.className == "Row", dobj.spec))
+		colAttrs = []
+		rowList = []
+		fAttr = ''
+		for colSpec in colSpecs:
+			colAttrs.append(Compiler.populateOptions(dobj, colSpec))
+		if len(rowSpecs) > 0:
+			rowList = Compiler.populateOptions(dobj, rowSpecs[0])  # populate rowvals with all unique possibilities
+		if all(len(attrs) <= 1 for attrs in colAttrs) and len(rowList) <= 1:  # changed condition to check if every column attribute has at least one attribute
+			# If DataObj does not represent a collection, return False.
+			return False
+		else:
+			collection = self.generateCollection(colAttrs, rowList, dobj)
+			return collection
+	@staticmethod
+	def populateOptions(dobj: lux.dataObj.DataObj, rowCol):
+		"""
+		Given a row or column object, return the list of available values that satisfies the dataType or dataModel constraints
+		
+		Parameters
+		----------
+		dobj : lux.dataObj.DataObj
+			[description]
+		rowCol : Row or Column Object
+			Input row or column object with wildcard or list
+		
+		Returns
+		-------
+		rcOptions: List
+			List of expanded Column or Row objects 
+		"""		
+		import copy
+		if rowCol.className == "Column":
+			if rowCol.columnName == "?":
+				options = set(dobj.dataset.attrList)  # all attributes
+				if (rowCol.dataType != ""):
+					options = options.intersection(set(dobj.dataset.dataType[rowCol.dataType]))
+				if (rowCol.dataModel != ""):
+					options = options.intersection(set(dobj.dataset.dataModel[rowCol.dataModel]))
+				options = list(options)
+			else:
+				options = convert2List(rowCol.columnName)
+			rcOptions = []
+			for optStr in options:
+				rcCopy = copy.copy(rowCol)
+				rcCopy.columnName = optStr
+				rcOptions.append(rcCopy)
+		elif rowCol.className == "Row":
+			rcOptions = []
+			fAttrLst = convert2List(rowCol.fAttribute)
+			for fAttr in fAttrLst:
+				if rowCol.fVal == "?":
+					options = dobj.dataset.df[fAttr].unique()
+				else:
+					options = convert2List(rowCol.fVal)	
+				for optStr in options:
+					rcCopy = copy.copy(rowCol)
+					rcCopy.fAttribute = fAttr
+					rcCopy.fVal = optStr
+					rcOptions.append(rcCopy)
+		return rcOptions
 
-	def generateCollection(self, colAttrs, rowList, dobj):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]
+	def generateCollection(self, colAttrs: List[Row], rowList: List[Column], dobj: lux.dataObj.DataObj):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]								
+		"""
+		Generates combinations for visualization collection given a list of row and column values
+
+		Parameters
+		----------
+		colAttrs : List
+			List of 
+		dobj : lux.dataObj.DataObj
+			Partial DataObj input
+
+		Returns
+		-------
+		lux.dataObj.DataObjCollection
+			Resulting DataObjectCollection
+		"""		
 		from lux.dataObj.dataObj import DataObj
 		from lux.dataObj.DataObjCollection import DataObjCollection
 		collection = []
@@ -55,34 +162,29 @@ class Compiler:
 		combine(colAttrs, [])
 		return DataObjCollection(collection)
 
-	def enumerateCollection(self, dobj):
-		# Get all the column and row object, assign the attribute names to variables
-		colSpecs = sorted(list(filter(lambda x: x.className == "Column", dobj.spec)), key=lambda x: x.channel) # sort by channel x,y,z
-		rowSpecs = list(filter(lambda x: x.className == "Row", dobj.spec))
-		colAttrs = []
-		rowList = []
-		fAttr = ''
-		for colSpec in colSpecs:
-			colAttrs.append(Compiler.populateOptions(dobj, colSpec))
-		if len(rowSpecs) > 0:
-			rowList = Compiler.populateOptions(dobj, rowSpecs[0])  # populate rowvals with all unique possibilities
-		if all(len(attrs) <= 1 for attrs in colAttrs) and len(rowList) <= 1:  # changed condition to check if every column attribute has at least one attribute
-			# If DataObj does not represent a collection, return False.
-			return False
-		else:
-			collection = self.generateCollection(colAttrs, rowList, dobj)
-			return collection
 	@classmethod
-	def determineEncoding(cls, dobj):
+	def determineEncoding(cls, dobj: lux.dataObj.DataObj):
 		'''
-		determineEncoding populates dobj with the appropriate mark type and channel information
+		Populates DataObject with the appropriate mark type and channel information based on ShowMe logic
+		Currently support up to 3 dimensions or measures
+		
+		Parameters
+		----------
+		dobj : lux.dataObj.DataObj
+			DataObj input
 
+		Returns
+		-------
+		dobj : lux.dataObj.DataObj
+			output DataObj with `mark` and `channel` specified
+
+		Notes
+		-----
 		Implementing automatic encoding from Tableau's VizQL
 		Mackinlay, J. D., Hanrahan, P., & Stolte, C. (2007).
 		Show Me: Automatic presentation for visual analysis.
 		IEEE Transactions on Visualization and Computer Graphics, 13(6), 1137–1144.
 		https://doi.org/10.1109/TVCG.2007.70594
-
 		'''
 		# TODO: possibly implement chart alternatives as a list of possible encodings
 
@@ -183,8 +285,29 @@ class Compiler:
 			dobj = cls.enforceSpecifiedChannel(dobj, autoChannel) 
 			dobj.spec.extend(rowLst)  # add back the preserved row objects
 		return dobj
+
 	@staticmethod
-	def enforceSpecifiedChannel(dobj, autoChannel):
+	def enforceSpecifiedChannel(dobj:lux.dataObj.DataObj, autoChannel: Dict[str,str]):
+		"""
+		Enforces that the channels specified in the DataObj by users overrides the showMe autoChannels
+		
+		Parameters
+		----------
+		dobj : lux.dataObj.DataObj
+			Input DataObject without channel specification
+		autoChannel : Dict[str,str]
+			Key-value pair in the form [channel: attributeName] specifying the showMe recommended channel location
+		
+		Returns
+		-------
+		dobj : lux.dataObj.DataObj
+			Input DataObject with channel specification combining both original and autoChannel specification
+		
+		Raises
+		------
+		ValueError
+			Ensures no more than one attribute is placed in the same channel
+		"""		
 		resultDict = {}  # result of enforcing specified channel will be stored in resultDict
 		specifiedDict = {}  # specifiedDict={"x":[],"y":[list of Dobj with y specified as channel]}
 		# create a dictionary of specified channels in the given dobj
@@ -213,35 +336,3 @@ class Compiler:
 			resultDict[leftover_channel] = leftover_encoding
 		dobj.spec = list(resultDict.values())
 		return dobj
-	@staticmethod
-	def populateOptions(dobj, rowCol):
-		import copy
-		if rowCol.className == "Column":
-			if rowCol.columnName == "?":
-				options = set(dobj.dataset.attrList)  # all attributes
-				if (rowCol.dataType != ""):
-					options = options.intersection(set(dobj.dataset.dataType[rowCol.dataType]))
-				if (rowCol.dataModel != ""):
-					options = options.intersection(set(dobj.dataset.dataModel[rowCol.dataModel]))
-				options = list(options)
-			else:
-				options = convert2List(rowCol.columnName)
-			rcOptions = []
-			for optStr in options:
-				rcCopy = copy.copy(rowCol)
-				rcCopy.columnName = optStr
-				rcOptions.append(rcCopy)
-		elif rowCol.className == "Row":
-			rcOptions = []
-			fAttrLst = convert2List(rowCol.fAttribute)
-			for fAttr in fAttrLst:
-				if rowCol.fVal == "?":
-					options = dobj.dataset.df[fAttr].unique()
-				else:
-					options = convert2List(rowCol.fVal)	
-				for optStr in options:
-					rcCopy = copy.copy(rowCol)
-					rcCopy.fAttribute = fAttr
-					rcCopy.fVal = optStr
-					rcOptions.append(rcCopy)
-		return rcOptions
