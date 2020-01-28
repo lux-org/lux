@@ -1,4 +1,3 @@
-import lux
 from lux.dataObj.Row import Row
 from lux.dataObj.Column import Column
 from lux.dataset.Dataset import Dataset
@@ -11,18 +10,18 @@ class Compiler:
 	def __repr__(self):
 		return f"<Compiler>"
 
-	def expandUnderspecified(self, dobj : lux.dataObj.DataObj):
+	def expandUnderspecified(self, dobj):
 		"""
 		Given a underspecified DataObject, populate the dataType and dataModel information accordingly
 		
 		Parameters
 		----------
-		dobj : lux.dataObj.DataObj
+		dobj : lux.dataObj.dataObj.DataObj
 			Underspecified DataObj input
 		
 		Returns
 		-------
-		expandedDobj : lux.dataObj.DataObj
+		expandedDobj : lux.dataObj.dataObj.DataObj
 			DataObj with dataType and dataModel information
 		"""		
 		# Automatic type conversion (only for single attributes not lists of attributes)
@@ -42,19 +41,19 @@ class Compiler:
 				expandedDobj.dataset = applyDataTransformations(expandedDobj.dataset, fAttribute=rcObj.fAttribute, fVal = rcObj.fVal) 
 				expandedDobj.title = f"{rcObj.fAttribute}={rcObj.fVal}"
 		return expandedDobj
-	def enumerateCollection(self, dobj: lux.dataObj.DataObj):
+	def enumerateCollection(self, dobj):
 		"""
 		Given a partial specification, enumerate items in the collection via populateOption, 
 		then call the recursive generateCollection to iterate over the resulting list combinations.
 		
 		Parameters
 		----------
-		dobj : lux.dataObj.DataObj
+		dobj : lux.dataObj.dataObj.DataObj
 			Input DataObject
 		
 		Returns
 		-------
-		collection: lux.dataObj.DataObjectCollection
+		collection: lux.dataObj.dataObj.DataObjectCollection
 			Resulting DataObjectCollection
 		"""		
 		# Get all the column and row object, assign the attribute names to variables
@@ -74,13 +73,13 @@ class Compiler:
 			collection = self.generateCollection(colAttrs, rowList, dobj)
 			return collection
 	@staticmethod
-	def populateOptions(dobj: lux.dataObj.DataObj, rowCol):
+	def populateOptions(dobj, rowCol):
 		"""
 		Given a row or column object, return the list of available values that satisfies the dataType or dataModel constraints
 		
 		Parameters
 		----------
-		dobj : lux.dataObj.DataObj
+		dobj : lux.dataObj.dataObj.DataObj
 			[description]
 		rowCol : Row or Column Object
 			Input row or column object with wildcard or list
@@ -121,7 +120,7 @@ class Compiler:
 					rcOptions.append(rcCopy)
 		return rcOptions
 
-	def generateCollection(self, colAttrs: List[Row], rowList: List[Column], dobj: lux.dataObj.DataObj):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]								
+	def generateCollection(self, colAttrs: List[Row], rowList: List[Column], dobj):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]								
 		"""
 		Generates combinations for visualization collection given a list of row and column values
 
@@ -129,7 +128,7 @@ class Compiler:
 		----------
 		colAttrs : List
 			List of 
-		dobj : lux.dataObj.DataObj
+		dobj : lux.dataObj.dataObj.DataObj
 			Partial DataObj input
 
 		Returns
@@ -163,19 +162,19 @@ class Compiler:
 		return DataObjCollection(collection)
 
 	@classmethod
-	def determineEncoding(cls, dobj: lux.dataObj.DataObj):
+	def determineEncoding(cls, dobj):
 		'''
 		Populates DataObject with the appropriate mark type and channel information based on ShowMe logic
 		Currently support up to 3 dimensions or measures
 		
 		Parameters
 		----------
-		dobj : lux.dataObj.DataObj
+		dobj : lux.dataObj.dataObj.DataObj
 			DataObj input
 
 		Returns
 		-------
-		dobj : lux.dataObj.DataObj
+		dobj : lux.dataObj.dataObj.DataObj
 			output DataObj with `mark` and `channel` specified
 
 		Notes
@@ -287,20 +286,20 @@ class Compiler:
 		return dobj
 
 	@staticmethod
-	def enforceSpecifiedChannel(dobj:lux.dataObj.DataObj, autoChannel: Dict[str,str]):
+	def enforceSpecifiedChannel(dobj, autoChannel: Dict[str,str]):
 		"""
 		Enforces that the channels specified in the DataObj by users overrides the showMe autoChannels
 		
 		Parameters
 		----------
-		dobj : lux.dataObj.DataObj
+		dobj : lux.dataObj.dataObj.DataObj
 			Input DataObject without channel specification
 		autoChannel : Dict[str,str]
 			Key-value pair in the form [channel: attributeName] specifying the showMe recommended channel location
 		
 		Returns
 		-------
-		dobj : lux.dataObj.DataObj
+		dobj : lux.dataObj.dataObj.DataObj
 			Input DataObject with channel specification combining both original and autoChannel specification
 		
 		Raises
