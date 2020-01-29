@@ -148,9 +148,9 @@ export class JupyterWidgetView extends DOMWidgetView {
         return (<div id="widgetContainer">
                   <CurrentViewComponent currentViewSpec={this.state.currentView}/>
                   <div id="tabBanner">
-                    <Tabs activeKey={this.state.activeTab} id="tabBannerList" onSelect={this.handleSelect}>
-                      {tabItems}
-                    </Tabs>
+                      <Tabs activeKey={this.state.activeTab} id="tabBannerList" onSelect={this.handleSelect}>
+                        {tabItems}
+                      </Tabs>
                   </div>
                   {exportBtn}
                   {alertBtn}                  
