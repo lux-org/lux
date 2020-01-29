@@ -2,7 +2,12 @@
 <h2 align="center">A Python API for Intelligent Visual Discovery</h2>
 
 <p align="center">
-<a href="https://travis-ci.org/lux-org/lux"><img alt="Build Status" src="https://travis-ci.org/lux-org/lux.svg?branch=master" align="center"></a>
+    <a href="https://travis-ci.org/lux-org/lux">
+        <img alt="Build Status" src="https://travis-ci.org/lux-org/lux.svg?branch=master" align="center">
+    </a>
+    <a href='https://lux-api.readthedocs.io/en/latest/?badge=latest'>
+        <img src='https://readthedocs.org/projects/lux-api/badge/?version=latest' alt='Documentation Status'  align="center"/>
+    </a>
 </p>
 
 Lux is a Python library that makes data science easier by automating certain aspects of the data exploration process. Lux is designed to facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for.

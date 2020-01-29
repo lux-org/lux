@@ -1,11 +1,11 @@
 class AltairChart:
-	'''
-	Chart Object represents one Altair chart
-	The common utilities for charts (independent of chart types) should go here.
-	'''
+	"""
+	AltairChart is a representation of a chart. 
+	Common utilities for charts that is independent of chart types should go here.
+	"""			
 	def __init__(self, dobj):
 		self.dobj = dobj
-		self.dataURL = self.dobj.dataset.df#"chartData"
+		self.dataURL = self.dobj.dataset.df #"chartData"
 		self.tooltip = True
 		self.chart = self.initializeChart()
 		self.addTooltip()
@@ -28,6 +28,5 @@ class AltairChart:
 			self.chart = self.chart.encode().properties(
 				title = chartTitle
 			)
-
 	def initializeChart(self):
 		return NotImplemented
