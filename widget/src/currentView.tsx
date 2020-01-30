@@ -28,7 +28,10 @@ class CurrentViewComponent extends Component<currentViewProps,any> {
                 </div>
             );
         }else{
-            return null
+            return (
+                <div className="placeHolderVizContainer">
+                </div>
+            )
         }
         
     }
