@@ -1,4 +1,4 @@
-<p align="center"><a href="#"><img width=77% alt="" src="examples/img/logo.png"></a></p>
+<p align="center"><a href="#"><img width=77% alt="" src="https://github.com/lux-org/lux/blob/master/examples/img/logo.png?raw=true"></a></p>
 <h2 align="center">A Python API for Intelligent Visual Discovery</h2>
 
 <p align="center">
@@ -14,7 +14,7 @@ Lux is a Python library that makes data science easier by automating certain asp
 
 ## Features
 <p align="center">
-    <img src="examples/img/capabilities.png"
+    <img src="https://github.com/lux-org/lux/blob/master/examples/img/capabilities.png?raw=true"
         alt="Lux capabilities"
         width="400px"
         height="200px" />
@@ -32,7 +32,7 @@ Lux is built on the principle that users should always be able to visualize anyt
     dobj = lux.DataObj(dataset,[lux.Column("Acceleration"),
                                 lux.Column("Horsepower")])
 ```    
-<img src="examples/img/specifiedVis.png"
+<img src="https://github.com/lux-org/lux/blob/master/examples/img/specifiedVis.png?raw=true"
      alt="Specified Visualization"
      style="width:200px" />
 
@@ -46,7 +46,7 @@ Here, we want to look at how the attributes `Weight` and `Displacement` depend o
 dobj = lux.DataObj(dataset,[lux.Column(["Weight","Displacement"]),lux.Column("?",dataModel="dimension")])
 ```
 
-<img src="examples/img/PartialSpecificationDemo.gif"
+<img src="https://github.com/lux-org/lux/blob/master/examples/img/PartialSpecificationDemo.gif?raw=true"
      alt="Specified Visualization"
      style="width:600px" />
 
@@ -66,7 +66,7 @@ For example, we can ask which car brands have a time series of Displacement simi
 
     result = dobj.similarPattern(query,topK=5)
 ```
-<img src="examples/img/SimilarityDemo.gif"
+<img src="https://github.com/lux-org/lux/blob/master/examples/img/SimilarityDemo.gif?raw=true"
      alt="Similar Patterns"
      style="width:600px" />
 
@@ -81,7 +81,7 @@ In this example, the user is interested in `Acceleration` and `Horsepower`, Lux 
                                 lux.Column("Horsepower",dataModel="measure")])
     result = dobj.showMore()
 ```
-<img src="examples/img/ShowMore.gif"
+<img src="https://github.com/lux-org/lux/blob/master/examples/img/ShowMore.gif?raw=true"
      alt="Show More Recommendations"
      style="width:600px" />
  
