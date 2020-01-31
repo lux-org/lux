@@ -6,4 +6,4 @@ node_modules/
 dist/
 static/
 *.egg-info*
-
+build/

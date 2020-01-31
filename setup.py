@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 from os import path
 
-here = path.abspath(path.dirname(__file__))
+HERE = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(path.join(HERE, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 # Arguments marked as "Required" below must be included for upload to PyPI.
@@ -12,13 +12,13 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='lux-api',  # PyPI Name (pip install [name])
-    version='0.0.1',  # Required
-    description='A Python API for Intelligent Visual Discovery',  # Project description (Optional)
+    version='0.1.1',  # Required
+    description='A Python API for Intelligent Data Discovery',  # Project description (Optional)
     long_description=long_description,  # Optional
     long_description_content_type='text/markdown',  # Optional (see note above)
     url='https://github.com/lux-org/lux',  # Optional
-    author='Doris Jung-Lin Lee',  # Optional
-    author_email='dorisjunglinlee@gmail.com',  # Optional
+    maintainer='Doris Jung-Lin Lee',  # Optional
+    maintainer_email='dorisjunglinlee@gmail.com',  # Optional
     classifiers=[  # Optional
         'Development Status :: 1 - Planning',
         'Intended Audience :: Developers',
@@ -30,20 +30,8 @@ setup(
         'Programming Language :: Python :: 3'
     ],
     keywords='visualization analytics data-science insight discovery',  # Optional
-    # When your source code is in a subdirectory under the project root, e.g.
-    # `src/`, it is necessary to specify the `package_dir` argument.
-    package_dir={'': 'lux'},  # Optional
-
-    # You can just specify package directories manually here if your project is
-    # simple. Or you can use find_packages().
-    #
-    # Alternatively, if you just want to distribute a single Python file, use
-    # the `py_modules` argument instead as follows, which will expect a file
-    # called `my_module.py` to exist:
-    #
-    #   py_modules=["my_module"],
-    #
-    packages=find_packages(where='src'),  # Required
+    include_data_package=True,
+    packages=find_packages(),  # Required
     python_requires='>=3.5',
     install_requires=['pandas','altair'],  # Optional
     extras_require={  # Optional
