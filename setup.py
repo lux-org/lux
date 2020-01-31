@@ -11,7 +11,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 # Fields marked as "Optional" may be commented out.
 
 setup(
-    name='python-lux',  # PyPI Name (pip install [name])
+    name='lux-api',  # PyPI Name (pip install [name])
     version='0.0.1',  # Required
     description='A Python API for Intelligent Visual Discovery',  # Project description (Optional)
     long_description=long_description,  # Optional
