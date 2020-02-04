@@ -22,7 +22,7 @@ copyright = '2020, Doris Jung-Lin Lee'
 author = 'Doris Jung-Lin Lee'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = '0.1.2'
 
 
 # -- General configuration ---------------------------------------------------
