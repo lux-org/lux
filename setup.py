@@ -12,7 +12,7 @@ with open(path.join(HERE, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='lux-api',  # PyPI Name (pip install [name])
-    version='0.1.1',  # Required
+    version='0.1.2',  # Required
     description='A Python API for Intelligent Data Discovery',  # Project description (Optional)
     long_description=long_description,  # Optional
     long_description_content_type='text/markdown',  # Optional (see note above)

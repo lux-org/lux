@@ -25,9 +25,12 @@ class Result:
         return dobj_dict
     
     def display(self, renderer="altair", currentView=""):
-        import displayWidget
+        import pkgutil
+        if (pkgutil.find_loader("luxWidget") is None):
+            raise Exception("luxWidget is not install. Run `npm i lux-widget' to install the Jupyter widget.\nSee more at: https://github.com/lux-org/lux-widget")
+        import luxWidget
         widgetJSON = self.toJSON(currentView=currentView)
-        widget = displayWidget.DisplayWidget(
+        widget = luxWidget.LuxWidget(
             # data=json.loads(self.dataset.df.to_json(orient='records')),
             currentView=widgetJSON["currentView"],
             recommendations=widgetJSON["recommendations"]
