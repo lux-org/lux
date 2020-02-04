@@ -5,6 +5,9 @@
     <a href="https://travis-ci.org/lux-org/lux">
         <img alt="Build Status" src="https://travis-ci.org/lux-org/lux.svg?branch=master" align="center">
     </a>
+    <a href="https://badge.fury.io/py/lux-api">
+        <img src="https://badge.fury.io/py/lux-api.svg" alt="PyPI version" height="18" align="center">
+    </a>
     <a href='https://lux-api.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/lux-api/badge/?version=latest' alt='Documentation Status'  align="center"/>
     </a>
@@ -91,7 +94,21 @@ In this example, the user is interested in `Acceleration` and `Horsepower`, Lux 
  - Filter: Adds a filter to the current selection, while keeping X and Y fixed
  - Generalize: Removes an attribute to display a more general trend
 
-# Installation
+# Quick Start Installation
+
+Install the Python Lux API through [PyPI](https://pypi.org/project/lux-api/): 
+
+```bash
+pip install lux-api
+```
+
+Install the Lux Jupyter widget through [npm](https://www.npmjs.com/package/lux-widget): 
+
+```bash
+npm i lux-widget
+```
+
+# Manual Installation (dev)
 
 There are two components of Lux: 1) Python Lux API (inside `lux/`)and 2) the jupyter widget frontend (inside `widget/`). 
 
@@ -112,5 +129,6 @@ npm install
 sh install.sh
 ```
 
-
 For more detailed examples of how to use Lux, check out this demo [notebook](https://github.com/lux-org/lux/blob/master/examples/demo.ipynb). 
+
+Lux is undergoing active development. Please report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues).
