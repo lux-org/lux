@@ -122,11 +122,12 @@ To install the widget, we need to install webpack:
 ```bash
 npm install --save-dev webpack webpack-cli
 ```
-Then, we can install the jupyter widget using the custom installation script: 
+Then, we can install the [Lux Jupyter widget](https://github.com/lux-org/lux-widget) using the custom installation script: 
 ```bash
-cd widget/
+git clone git@github.com:lux-org/lux-widget.git
+cd lux-widget/
 npm install
-sh install.sh
+bash install.sh
 ```
 
 For more detailed examples of how to use Lux, check out this demo [notebook](https://github.com/lux-org/lux/blob/master/examples/demo.ipynb). 
