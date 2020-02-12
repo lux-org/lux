@@ -13,7 +13,7 @@
     </a>
 </p>
 
-Lux is a Python library that makes data science easier by automating certain aspects of the data exploration process. Lux is designed to facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for.
+Lux is a Python library that makes data science easier by automating certain aspects of the data exploration process. Lux is designed to facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Here are some [slides](http://dorisjunglinlee.com/files/RISE_Winter_Retreat_Slides.pdf) from a recent talk on Lux.
 
 ## Features
 <p align="center">
