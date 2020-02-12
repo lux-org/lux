@@ -13,7 +13,23 @@
     </a>
 </p>
 
-Lux is a Python library that makes data science easier by automating certain aspects of the data exploration process. Lux is designed to facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Here are some [slides](http://dorisjunglinlee.com/files/RISE_Winter_Retreat_Slides.pdf) from a recent talk on Lux.
+Lux is a Python library that makes data science easier by automating certain aspects of the data exploration process. Lux is designed to facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Lux is integrated with [an interactive Jupyter widget](https://github.com/lux-org/lux-widget) that allows users to quickly browse through large collections of data directly within their Jupyter notebooks.
+
+Here are some [slides](http://dorisjunglinlee.com/files/RISE_Winter_Retreat_Slides.pdf) from a recent talk on Lux.
+
+## Quick Start
+
+Install the Python Lux API through [PyPI](https://pypi.org/project/lux-api/): 
+
+```bash
+pip install lux-api
+```
+
+Install the Lux Jupyter widget through [npm](https://www.npmjs.com/package/lux-widget): 
+
+```bash
+npm i lux-widget
+```
 
 ## Features
 <p align="center">
@@ -94,23 +110,9 @@ In this example, the user is interested in `Acceleration` and `Horsepower`, Lux 
  - Filter: Adds a filter to the current selection, while keeping X and Y fixed
  - Generalize: Removes an attribute to display a more general trend
 
-# Quick Start Installation
+## Manual Installation (dev)
 
-Install the Python Lux API through [PyPI](https://pypi.org/project/lux-api/): 
-
-```bash
-pip install lux-api
-```
-
-Install the Lux Jupyter widget through [npm](https://www.npmjs.com/package/lux-widget): 
-
-```bash
-npm i lux-widget
-```
-
-# Manual Installation (dev)
-
-There are two components of Lux: 1) Python Lux API (inside `lux/`)and 2) the jupyter widget frontend (inside `widget/`). 
+There are two components of Lux: 1) Python Lux API (this repo)and 2) the Jupyter widget frontend (inside [lux-widget](https://github.com/lux-org/lux-widget)). 
 
 To install the Python Lux API: 
 ```bash
