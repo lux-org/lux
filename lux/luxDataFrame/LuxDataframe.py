@@ -1,8 +1,8 @@
 import pandas as pd
 class LuxDataFrame(pd.DataFrame):
-    # normal properties
+    # MUST register here for new properties!!
     _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType','computeDataType',
-                 'dataModelLookup','dataModel','uniqueValues','cardinality'] # must register here for new properties!!
+                 'dataModelLookup','dataModel','uniqueValues','cardinality'] 
 
     def __init__(self,*args, schema = [], **kw):
         self.context = []
@@ -114,6 +114,5 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = {}
 
         for dimension in self.columns:
-            print(self[dimension].unique())
             self.uniqueValues[dimension] = self[dimension].unique()
             self.cardinality[dimension] = len(self.uniqueValues[dimension])
