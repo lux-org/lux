@@ -20,8 +20,5 @@ class LuxDataFrame(pd.DataFrame):
         self.context.append(luxThing)
 
 
-def delegate(bool):
-    if bool:
-        pd.DataFrame = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = LuxDataFrame
-    else:
-        pd.DataFrame = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = originalDF
+
+
