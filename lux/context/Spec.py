@@ -10,7 +10,7 @@ class Spec:
 		# self.value = ""
 		# self.filterOp = ""
 		# self.attributeGroup = []
-		# self.valueGroup = []
+		# self.valueGroup = ["USA","Japan", ...]
 		# self.type = "Attribute", "Filter", "Group"
 		# self.parseDescription()
 		# Properties
