@@ -44,6 +44,8 @@ class Validator:
 				spec.type = "valueGroup"
 	@staticmethod
 	def validateSpec(luxDataFrame):
+		def existsInDF(value,uniqueValues):
+			return any(value in vals for vals in uniqueValues)
 		# 1. Parse all string specification into Spec objects (nice-to-have)
 		# 2. Validate that the parsed specification is corresponds to the content in the LuxDataframe.
 		context = luxDataFrame.getContext()
@@ -53,23 +55,21 @@ class Validator:
 			checkAttrExists = spec.attribute in luxDataFrame.attrList
 			checkValExists = spec.value in uniqueVals
 			checkAttrExistsGroup = all(attr in luxDataFrame.attrList for attr in spec.attributeGroup)
-			checkValExistsGroup = all(self.existsInDF(val,uniqueVals) for val in spec.valueGroup)
-
+			checkValExistsGroup = all(existsInDF(val,uniqueVals) for val in spec.valueGroup)
+			
 			if spec.attribute and not checkAttrExists:
 				printWarning = True
 			elif spec.value and not checkValExists:
 				printWarning = True
-			elif spec.attributeGroup and not checkAttrExistsGroup:
+			elif spec.attributeGroup and not (spec.attributeGroup=="?" or checkAttrExistsGroup):
 				printWarning = True
-			elif spec.valueGroup and not checkValExistsGroup:
+			elif spec.valueGroup and not (spec.valueGroup=="?" or checkValExistsGroup):
 				printWarning = True
 
 		if printWarning:
 			#print warning
 			raise ValueError("Input spec is inconsistent with DataFrame.")
-	def existsInDF(self,value,uniqueValues):
-		return any(value in vals for vals in uniqueValues)
-
+		
 
 
 
