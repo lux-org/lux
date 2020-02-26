@@ -1,5 +1,6 @@
 import pandas as pd
-from ..compiler.Validator import Validator
+from lux.compiler.Validator import Validator
+from lux.compiler.Compiler import Compiler
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType','computeDataType',
@@ -22,7 +23,7 @@ class LuxDataFrame(pd.DataFrame):
     def _refreshContext(self):
         Validator.parseSpec(self)
         Validator.validateSpec(self)
-        # compiler.compile(self)
+        Compiler.compile(self)
     def setContext(self,context):
         self.context = context
         self._refreshContext()
