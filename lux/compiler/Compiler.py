@@ -33,9 +33,9 @@ class Compiler:
             compiled = compiler.expandUnderspecified(dobj)  # autofill data type/model information
             compiled = compiler.determineEncoding(compiled)  # autofill viz related information
             self.compiled = compiled
-	def expandUnderspecified(self, dobj):
+	def expandUnderspecified(self, luxDataFrame):
 		"""
-		Given a underspecified DataObject, populate the dataType and dataModel information accordingly
+		Given a underspecified Spec, populate the dataType and dataModel information accordingly
 		
 		Parameters
 		----------
@@ -47,23 +47,22 @@ class Compiler:
 		expandedDobj : lux.dataObj.dataObj.DataObj
 			DataObj with dataType and dataModel information
 		"""		
-		# Automatic type conversion (only for single attributes not lists of attributes)
 		import copy
-		expandedDobj = copy.deepcopy(dobj)  # Preserve the original dobj
+		expandedContext = copy.deepcopy(luxDataFrame.getViewColletion)  # Preserve the original dobj
 
-		for rcObj in expandedDobj.spec:
-			if (rcObj.className == "Column" and rcObj.columnName != "?"):
-				if (type(rcObj.columnName)==list and len(rcObj.columnName)==1):
-					# Make `Column <['Horsepower']>` --> `Column <'Horsepower'>`
-					rcObj.columnName = rcObj.columnName[0]
-				if (rcObj.dataType == ""):
-					rcObj.dataType = dobj.dataset.dataTypeLookup[rcObj.columnName]
-				if (rcObj.dataModel == ""):
-					rcObj.dataModel = dobj.dataset.dataModelLookup[rcObj.columnName]
-			if (rcObj.className == "Row"):
-				expandedDobj.dataset = applyDataTransformations(expandedDobj.dataset, fAttribute=rcObj.fAttribute, fVal = rcObj.fVal) 
-				expandedDobj.title = f"{rcObj.fAttribute}={rcObj.fVal}"
-		return expandedDobj
+		for spec in expandedContext:
+
+			# expand spec
+			# if (spec.type in "attributeGroup" and len(spec.attributeGroup) == 1): # case when attribute group has only one element
+			# 	spec.attribute = spec.attributeGroup[0]
+			if (spec.dataType == ""):
+				spec.dataType = luxDataFrame.dataTypeLookup[spec.attribute]
+			if (spec.dataModel == ""):
+				spec.dataModel = luxDataFrame.dataModelLookup[spec.attribute]
+
+		luxDataFrame.view = expandedView
+		return luxDataFrame
+
 	def enumerateCollection(self, dobj):
 		"""
 		Given a partial specification, enumerate items in the collection via populateOption, 
