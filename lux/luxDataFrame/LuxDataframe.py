@@ -3,7 +3,7 @@ from ..compiler.Validator import Validator
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType','computeDataType',
-                 'dataModelLookup','dataModel','uniqueValues','cardinality'] 
+                 'dataModelLookup','dataModel','uniqueValues','cardinality,'_expandedContext']
 
     def __init__(self,*args, schema = [], **kw):
         self.context = []
