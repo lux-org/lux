@@ -9,7 +9,30 @@ class Compiler:
 
 	def __repr__(self):
 		return f"<Compiler>"
-
+	@staticmethod
+	def compile(luxDataFrame):
+        # 1. If the DataObj represent a collection, then compile it into a collection. Otherwise, return False
+        # Input: DataObj --> Output: DataObjCollection/False
+        if (enumerateCollection):
+            dataObjCollection = compiler.enumerateCollection(dobj)
+        else:
+            dataObjCollection = False
+        # 2. For every DataObject in the DataObject Collection, expand underspecified
+        # Output : DataObj/DataObjectCollection
+        if (dataObjCollection):
+            self.compiled = dataObjCollection  # Preserve any dataObjectCollection specification
+            compiledCollection = []
+            for dataObj in dataObjCollection.collection:
+                compiled = compiler.expandUnderspecified(dataObj)  # autofill data type/model information
+                compiled = compiler.determineEncoding(compiled)  # autofill viz related information
+                compiledCollection.append(compiled)
+            # print ("uncompiled:",dataObj)
+            # print ("compiled:",compiled)
+            self.compiled.collection = compiledCollection  # return DataObjCollection
+        else:
+            compiled = compiler.expandUnderspecified(dobj)  # autofill data type/model information
+            compiled = compiler.determineEncoding(compiled)  # autofill viz related information
+            self.compiled = compiled
 	def expandUnderspecified(self, dobj):
 		"""
 		Given a underspecified DataObject, populate the dataType and dataModel information accordingly
