@@ -3,11 +3,12 @@ from ..compiler.Validator import Validator
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType','computeDataType',
-                 'dataModelLookup','dataModel','uniqueValues','cardinality,'_expandedContext']
+                 'dataModelLookup','dataModel','uniqueValues','cardinality']
 
     def __init__(self,*args, schema = [], **kw):
         self.context = []
         self.spec = []
+        self.viewCollection = ""
         self.schema = schema
         super(LuxDataFrame, self).__init__(*args, **kw)
         self.computeStats()
@@ -16,7 +17,8 @@ class LuxDataFrame(pd.DataFrame):
     @property
     def _constructor(self):
         return LuxDataFrame
-
+    def setViewCollection(self,viewCollection):
+        self.viewCollection = viewCollection 
     def _refreshContext(self):
         Validator.parseSpec(self)
         Validator.validateSpec(self)
@@ -96,6 +98,7 @@ class LuxDataFrame(pd.DataFrame):
                 else:
                     self.dataModel["measure"].remove(key)
                     self.dataModel["dimension"].append(key)
+        self.dataModelLookup = self.reverseMapping(self.dataModel)
 
 
     def mapping(self, rmap):

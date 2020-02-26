@@ -3,6 +3,8 @@ from lux.dataObj.Column import Column
 from lux.dataset.Dataset import Dataset
 from lux.utils.utils import convert2List, applyDataTransformations
 from typing import List, Dict
+
+from lux.compiler.ViewCollection import ViewCollection
 class Compiler:
 	def __init__(self):
 		self.name = "Compiler"
@@ -10,30 +12,27 @@ class Compiler:
 	def __repr__(self):
 		return f"<Compiler>"
 	@staticmethod
-	def compile(luxDataFrame):
-        # 1. If the DataObj represent a collection, then compile it into a collection. Otherwise, return False
-        # Input: DataObj --> Output: DataObjCollection/False
-        if (enumerateCollection):
-            dataObjCollection = compiler.enumerateCollection(dobj)
-        else:
-            dataObjCollection = False
-        # 2. For every DataObject in the DataObject Collection, expand underspecified
-        # Output : DataObj/DataObjectCollection
-        if (dataObjCollection):
-            self.compiled = dataObjCollection  # Preserve any dataObjectCollection specification
-            compiledCollection = []
-            for dataObj in dataObjCollection.collection:
-                compiled = compiler.expandUnderspecified(dataObj)  # autofill data type/model information
-                compiled = compiler.determineEncoding(compiled)  # autofill viz related information
-                compiledCollection.append(compiled)
-            # print ("uncompiled:",dataObj)
-            # print ("compiled:",compiled)
-            self.compiled.collection = compiledCollection  # return DataObjCollection
-        else:
-            compiled = compiler.expandUnderspecified(dobj)  # autofill data type/model information
-            compiled = compiler.determineEncoding(compiled)  # autofill viz related information
-            self.compiled = compiled
-	def expandUnderspecified(self, luxDataFrame):
+	def compile(ldf):
+		# 1. If the DataObj represent a collection, then compile it into a collection. Otherwise, return False
+		# Input: DataObj --> Output: DataObjCollection/False
+		# if (enumerateCollection):
+		ldf = Compiler.enumerateCollection(ldf) 
+		# else:
+		# 	dataObjCollection = False
+		# 2. For every DataObject in the DataObject Collection, expand underspecified
+		# Output : DataObj/DataObjectCollection
+		
+		# compiledCollection = []
+		for view in ldf.viewCollection: # these two function calls directly mutates the View object
+			Compiler.expandUnderspecified(ldf, view)  # autofill data type/model information
+			Compiler.determineEncoding(ldf, view)  # autofill viz related information			
+			# compiledCollection.append(ldf.getView())
+		# print ("uncompiled:",dataObj)
+		# print ("compiled:",compiled)
+		# ldf.setView()
+		# self.compiled.collection = compiledCollection  # return DataObjCollection
+	@staticmethod
+	def expandUnderspecified(ldf, view):
 		"""
 		Given a underspecified Spec, populate the dataType and dataModel information accordingly
 		
@@ -47,8 +46,9 @@ class Compiler:
 		expandedDobj : lux.dataObj.dataObj.DataObj
 			DataObj with dataType and dataModel information
 		"""		
+		# TODO: copy might not be neccesary
 		import copy
-		expandedContext = copy.deepcopy(luxDataFrame.getViewColletion)  # Preserve the original dobj
+		expandedContext = copy.deepcopy(ldf.viewCollection)  # Preserve the original dobj
 
 		for spec in expandedContext:
 
@@ -56,14 +56,13 @@ class Compiler:
 			# if (spec.type in "attributeGroup" and len(spec.attributeGroup) == 1): # case when attribute group has only one element
 			# 	spec.attribute = spec.attributeGroup[0]
 			if (spec.dataType == ""):
-				spec.dataType = luxDataFrame.dataTypeLookup[spec.attribute]
+				spec.dataType = ldf.dataTypeLookup[spec.attribute]
 			if (spec.dataModel == ""):
-				spec.dataModel = luxDataFrame.dataModelLookup[spec.attribute]
+				spec.dataModel = ldf.dataModelLookup[spec.attribute]
 
-		luxDataFrame.view = expandedView
-		return luxDataFrame
-
-	def enumerateCollection(self, dobj):
+		ldf.setView(expandedContext)
+	@staticmethod
+	def enumerateCollection(ldf):
 		"""
 		Given a partial specification, enumerate items in the collection via populateOption, 
 		then call the recursive generateCollection to iterate over the resulting list combinations.
@@ -78,22 +77,26 @@ class Compiler:
 		collection: lux.dataObj.dataObj.DataObjectCollection
 			Resulting DataObjectCollection
 		"""		
+		vcol = ViewCollection([]) #placeholder
+		# TODO: compute the views for the collection
 		# Get all the column and row object, assign the attribute names to variables
-		colSpecs = sorted(list(filter(lambda x: x.className == "Column", dobj.spec)), key=lambda x: x.channel) # sort by channel x,y,z
-		rowSpecs = list(filter(lambda x: x.className == "Row", dobj.spec))
-		colAttrs = []
-		rowList = []
-		fAttr = ''
-		for colSpec in colSpecs:
-			colAttrs.append(Compiler.populateOptions(dobj, colSpec))
-		if len(rowSpecs) > 0:
-			rowList = Compiler.populateOptions(dobj, rowSpecs[0])  # populate rowvals with all unique possibilities
-		if all(len(attrs) <= 1 for attrs in colAttrs) and len(rowList) <= 1:  # changed condition to check if every column attribute has at least one attribute
-			# If DataObj does not represent a collection, return False.
-			return False
-		else:
-			collection = self.generateCollection(colAttrs, rowList, dobj)
-			return collection
+		# colSpecs = sorted(list(filter(lambda x: x.className == "Column", dobj.spec)), key=lambda x: x.channel) # sort by channel x,y,z
+		# rowSpecs = list(filter(lambda x: x.className == "Row", dobj.spec))
+		# colAttrs = []
+		# rowList = []
+		# fAttr = ''
+		# for colSpec in colSpecs:
+		# 	colAttrs.append(Compiler.populateOptions(dobj, colSpec))
+		# if len(rowSpecs) > 0:
+		# 	rowList = Compiler.populateOptions(dobj, rowSpecs[0])  # populate rowvals with all unique possibilities
+		# if all(len(attrs) <= 1 for attrs in colAttrs) and len(rowList) <= 1:  # changed condition to check if every column attribute has at least one attribute
+		# 	# If DataObj does not represent a collection, return False.
+		# 	return False
+		# else:
+		# 	vcol = Compiler.generateCollection(colAttrs, rowList, dobj)
+		# 	return vcol
+		ldf.setCollection(vcol)
+		return ldf
 	@staticmethod
 	def populateOptions(dobj, rowCol):
 		"""
@@ -141,8 +144,8 @@ class Compiler:
 					rcCopy.fVal = optStr
 					rcOptions.append(rcCopy)
 		return rcOptions
-
-	def generateCollection(self, colAttrs: List[Row], rowList: List[Column], dobj):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]								
+	@staticmethod
+	def generateCollection(colAttrs: List[Row], rowList: List[Column], dobj):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]								
 		"""
 		Generates combinations for visualization collection given a list of row and column values
 
@@ -158,33 +161,34 @@ class Compiler:
 		lux.dataObj.DataObjCollection
 			Resulting DataObjectCollection
 		"""		
-		from lux.dataObj.dataObj import DataObj
-		from lux.dataObj.DataObjCollection import DataObjCollection
+		# from lux.dataObj.dataObj import DataObj
+		# from lux.dataObj.DataObjCollection import DataObjCollection
+		# collection = []
 		collection = []
-		# generate combinations of column attributes recursively by continuing to accumulate attributes for len(colAtrr) times
-		def combine(colAttrs, accum):
-			last = (len(colAttrs) == 1)
-			n = len(colAttrs[0])
-			for i in range(n):
-				columnList = accum + [colAttrs[0][i]]
-				if last:
-					if len(rowList) > 0: # if we have rows, generate combinations for each row.
-						for row in rowList:
-							transformedDataset = applyDataTransformations(dobj.dataset, row.fAttribute, row.fVal)  # rename?
-							specLst = columnList + [row]
-							dataObj = DataObj(transformedDataset, specLst, title=f"{row.fAttribute}={row.fVal}")
-							collection.append(dataObj)
-					else:
-						dataObj = DataObj(dobj.dataset, columnList)
-						collection.append(dataObj)
-				else:
-					combine(colAttrs[1:], columnList)
+		# TODO: generate combinations of column attributes recursively by continuing to accumulate attributes for len(colAtrr) times
+		# def combine(colAttrs, accum):
+		# 	last = (len(colAttrs) == 1)
+		# 	n = len(colAttrs[0])
+		# 	for i in range(n):
+		# 		columnList = accum + [colAttrs[0][i]]
+		# 		if last:
+		# 			if len(rowList) > 0: # if we have rows, generate combinations for each row.
+		# 				for row in rowList:
+		# 					transformedDataset = applyDataTransformations(dobj.dataset, row.fAttribute, row.fVal)  # rename?
+		# 					specLst = columnList + [row]
+		# 					dataObj = DataObj(transformedDataset, specLst, title=f"{row.fAttribute}={row.fVal}")
+		# 					collection.append(dataObj)
+		# 			else:
+		# 				dataObj = DataObj(dobj.dataset, columnList)
+		# 				collection.append(dataObj)
+		# 		else:
+		# 			combine(colAttrs[1:], columnList)
 
-		combine(colAttrs, [])
-		return DataObjCollection(collection)
+		# combine(colAttrs, [])
+		return ViewCollection(collection)
 
-	@classmethod
-	def determineEncoding(cls, dobj):
+	@staticmethod
+	def determineEncoding(ldf,view):
 		'''
 		Populates DataObject with the appropriate mark type and channel information based on ShowMe logic
 		Currently support up to 3 dimensions or measures
@@ -207,105 +211,104 @@ class Compiler:
 		IEEE Transactions on Visualization and Computer Graphics, 13(6), 1137–1144.
 		https://doi.org/10.1109/TVCG.2007.70594
 		'''
-		# TODO: possibly implement chart alternatives as a list of possible encodings
-
+		# TODO: Directly mutate view
 		# Count number of measures and dimensions
-		Ndim = 0
-		Nmsr = 0
-		rowLst = []
-		for spec in dobj.spec:
-			if (spec.className == "Column"):
-				if (spec.dataModel == "dimension"):
-					Ndim += 1
-				elif (spec.dataModel == "measure"):
-					Nmsr += 1
-			if (spec.className == "Row"):  # preserve to add back to dobj later
-				rowLst.append(spec)
-		# Helper function (TODO: Move this into utils)
-		def lineOrBar(dimension, measure):
-			dimType = dimension.dataType
-			if (dimType == "date" or dimType == "oridinal"):
-				# chart = LineChart(dobj)
-				return "line", {"x": dimension, "y": measure}
-			else:  # unordered categorical
-				# chart = BarChart(dobj)
-				return "bar", {"x": measure, "y": dimension}
-		# TODO: if cardinality large than 6 then sort bars
+		# Ndim = 0
+		# Nmsr = 0
+		# rowLst = []
+		# for spec in dobj.spec:
+		# 	if (spec.className == "Column"):
+		# 		if (spec.dataModel == "dimension"):
+		# 			Ndim += 1
+		# 		elif (spec.dataModel == "measure"):
+		# 			Nmsr += 1
+		# 	if (spec.className == "Row"):  # preserve to add back to dobj later
+		# 		rowLst.append(spec)
+		# # Helper function (TODO: Move this into utils)
+		# def lineOrBar(dimension, measure):
+		# 	dimType = dimension.dataType
+		# 	if (dimType == "date" or dimType == "oridinal"):
+		# 		# chart = LineChart(dobj)
+		# 		return "line", {"x": dimension, "y": measure}
+		# 	else:  # unordered categorical
+		# 		# chart = BarChart(dobj)
+		# 		return "bar", {"x": measure, "y": dimension}
+		# # TODO: if cardinality large than 6 then sort bars
 
-		# ShowMe logic + additional heuristics
-		countCol = Column("count()", dataModel="measure")
-		xAttr = dobj.getObjFromChannel("x")
-		yAttr = dobj.getObjFromChannel("y")
-		zAttr = dobj.getObjFromChannel("z")
-		autoChannel={}
-		if (Ndim == 0 and Nmsr == 1):
-			# Histogram with Count on the y axis
-			measure = dobj.getObjByDataModel("measure")[0]
-			dobj.spec.append(countCol)
-			# measure.channel = "x"
-			autoChannel = {"x": measure, "y": countCol}
-			dobj.mark = "histogram"
-		elif (Ndim == 1 and (Nmsr == 0 or Nmsr == 1)):
-			# Line or Bar Chart
-			# if x is unspecified
-			if (Nmsr == 0):
-				dobj.spec.append(countCol)
-			dimension = dobj.getObjByDataModel("dimension")[0]
-			measure = dobj.getObjByDataModel("measure")[0]
-			# measure.channel = "x"
-			dobj.mark, autoChannel = lineOrBar(dimension, measure)
-		elif (Ndim == 2 and (Nmsr == 0 or Nmsr == 1)):
-			# Line or Bar chart broken down by the dimension
-			dimensions = dobj.getObjByDataModel("dimension")
-			d1 = dimensions[0]
-			d2 = dimensions[1]
-			if (dobj.dataset.cardinality[d1.columnName] < dobj.dataset.cardinality[d2.columnName]):
-				# d1.channel = "color"
-				dobj.removeColumnFromSpec(d1.columnName)
-				dimension = d2
-				colorAttr = d1
-			else:
-				if (d1.columnName == d2.columnName):
-					dobj.spec.pop(
-						0)  # if same attribute then removeColumnFromSpec will remove both dims, we only want to remove one
-				else:
-					dobj.removeColumnFromSpec(d2.columnName)
-				dimension = d1
-				colorAttr = d2
-			# Colored Bar/Line chart with Count as default measure
-			if (Nmsr == 0):
-				dobj.spec.append(countCol)
-			measure = dobj.getObjByDataModel("measure")[0]
-			dobj.mark, autoChannel = lineOrBar(dimension, measure)
-			autoChannel["color"] = colorAttr
-		elif (Ndim == 0 and Nmsr == 2):
-			# Scatterplot
-			dobj.mark = "scatter"
-			autoChannel = {"x": dobj.spec[0],
-						   "y": dobj.spec[1]}
-		elif (Ndim == 1 and Nmsr == 2):
-			# Scatterplot broken down by the dimension
-			measure = dobj.getObjByDataModel("measure")
-			m1 = measure[0]
-			m2 = measure[1]
+		# # ShowMe logic + additional heuristics
+		# countCol = Column("count()", dataModel="measure")
+		# xAttr = dobj.getObjFromChannel("x")
+		# yAttr = dobj.getObjFromChannel("y")
+		# zAttr = dobj.getObjFromChannel("z")
+		# autoChannel={}
+		# if (Ndim == 0 and Nmsr == 1):
+		# 	# Histogram with Count on the y axis
+		# 	measure = dobj.getObjByDataModel("measure")[0]
+		# 	dobj.spec.append(countCol)
+		# 	# measure.channel = "x"
+		# 	autoChannel = {"x": measure, "y": countCol}
+		# 	dobj.mark = "histogram"
+		# elif (Ndim == 1 and (Nmsr == 0 or Nmsr == 1)):
+		# 	# Line or Bar Chart
+		# 	# if x is unspecified
+		# 	if (Nmsr == 0):
+		# 		dobj.spec.append(countCol)
+		# 	dimension = dobj.getObjByDataModel("dimension")[0]
+		# 	measure = dobj.getObjByDataModel("measure")[0]
+		# 	# measure.channel = "x"
+		# 	dobj.mark, autoChannel = lineOrBar(dimension, measure)
+		# elif (Ndim == 2 and (Nmsr == 0 or Nmsr == 1)):
+		# 	# Line or Bar chart broken down by the dimension
+		# 	dimensions = dobj.getObjByDataModel("dimension")
+		# 	d1 = dimensions[0]
+		# 	d2 = dimensions[1]
+		# 	if (dobj.dataset.cardinality[d1.columnName] < dobj.dataset.cardinality[d2.columnName]):
+		# 		# d1.channel = "color"
+		# 		dobj.removeColumnFromSpec(d1.columnName)
+		# 		dimension = d2
+		# 		colorAttr = d1
+		# 	else:
+		# 		if (d1.columnName == d2.columnName):
+		# 			dobj.spec.pop(
+		# 				0)  # if same attribute then removeColumnFromSpec will remove both dims, we only want to remove one
+		# 		else:
+		# 			dobj.removeColumnFromSpec(d2.columnName)
+		# 		dimension = d1
+		# 		colorAttr = d2
+		# 	# Colored Bar/Line chart with Count as default measure
+		# 	if (Nmsr == 0):
+		# 		dobj.spec.append(countCol)
+		# 	measure = dobj.getObjByDataModel("measure")[0]
+		# 	dobj.mark, autoChannel = lineOrBar(dimension, measure)
+		# 	autoChannel["color"] = colorAttr
+		# elif (Ndim == 0 and Nmsr == 2):
+		# 	# Scatterplot
+		# 	dobj.mark = "scatter"
+		# 	autoChannel = {"x": dobj.spec[0],
+		# 				   "y": dobj.spec[1]}
+		# elif (Ndim == 1 and Nmsr == 2):
+		# 	# Scatterplot broken down by the dimension
+		# 	measure = dobj.getObjByDataModel("measure")
+		# 	m1 = measure[0]
+		# 	m2 = measure[1]
 
-			colorAttr = dobj.getObjByDataModel("dimension")[0]
-			dobj.removeColumnFromSpec(colorAttr)
+		# 	colorAttr = dobj.getObjByDataModel("dimension")[0]
+		# 	dobj.removeColumnFromSpec(colorAttr)
 
-			dobj.mark = "scatter"
-			autoChannel = {"x": m1,
-						   "y": m2,
-						   "color": colorAttr}
-		elif (Ndim == 0 and Nmsr == 3):
-			# Scatterplot with color
-			dobj.mark = "scatter"
-			autoChannel = {"x": dobj.spec[0],
-						   "y": dobj.spec[1],
-						   "color": dobj.spec[2]}
-		if (autoChannel!={}):
-			dobj = cls.enforceSpecifiedChannel(dobj, autoChannel) 
-			dobj.spec.extend(rowLst)  # add back the preserved row objects
-		return dobj
+		# 	dobj.mark = "scatter"
+		# 	autoChannel = {"x": m1,
+		# 				   "y": m2,
+		# 				   "color": colorAttr}
+		# elif (Ndim == 0 and Nmsr == 3):
+		# 	# Scatterplot with color
+		# 	dobj.mark = "scatter"
+		# 	autoChannel = {"x": dobj.spec[0],
+		# 				   "y": dobj.spec[1],
+		# 				   "color": dobj.spec[2]}
+		# if (autoChannel!={}):
+		# 	dobj = Compiler.enforceSpecifiedChannel(dobj, autoChannel) 
+		# 	dobj.spec.extend(rowLst)  # add back the preserved row objects
+		pass
 
 	@staticmethod
 	def enforceSpecifiedChannel(dobj, autoChannel: Dict[str,str]):
