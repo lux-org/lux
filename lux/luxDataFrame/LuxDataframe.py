@@ -18,7 +18,7 @@ class LuxDataFrame(pd.DataFrame):
         return LuxDataFrame
 
     def _refreshContext(self):
-        # validator.parseSpec(self)
+        Validator.parseSpec(self)
         Validator.validateSpec(self)
         # compiler.compile(self)
     def setContext(self,context):

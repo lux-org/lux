@@ -27,18 +27,21 @@ class Validator:
 
 	def __repr__(self):
 		return f"<Validator>"
-	def parseSpec(self):
-		pass
+
+	@staticmethod
+	def parseSpec(luxDataFrame):
 		# do parsing ....
 		# after parsing
-		# if spec.attribute :
-		# 	spec.type = "attribute"
-		# elif spec.value :
-		# 	spec.type = "value"
-		# elif spec.attributeGroup:
-		# 	spec.type = "attributeGroup"
-		# elif spec.valueGroup:
-		# 	spec.type = "valueGroup"
+		context = luxDataFrame.getContext()
+		for spec in context:
+			if spec.attribute :
+				spec.type = "attribute"
+			elif spec.value :
+				spec.type = "value"
+			elif spec.attributeGroup:
+				spec.type = "attributeGroup"
+			elif spec.valueGroup:
+				spec.type = "valueGroup"
 	@staticmethod
 	def validateSpec(luxDataFrame):
 		# 1. Parse all string specification into Spec objects (nice-to-have)
