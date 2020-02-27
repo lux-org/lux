@@ -1,22 +1,18 @@
-from lux.interestingness.valueBasedInterestingness import valueBasedInterestingness
-from lux.interestingness.relationshipBasedInterestingness import relationshipBasedInterestingness
-def interestingness(dobj):
-	dobjCompiled = dobj.compiled
-	numAttributes = len(dobj.getObjByRowColType("Column"))
+from lux.interestingness.skewScore import skewScore
+from lux.interestingness.kurtosisScore import kurtosisScore
+from lux.interestingness.peakScore import *
+def interestingness(measures, dimensions, data, filterVar="", filterVal=""):
+	numAttributes = len(measures) + len(dimensions)
 	if numAttributes == 1:
-		attrType = dobjCompiled.spec[0].dataModel
-		if attrType == "measure":
-			return(valueBasedInterestingness(dobjCompiled))
+		if len(measures) == 1
+			return(skewScore(measures[0],data))
 		elif attrType == "dimension":
 			return(0.5)
 			#from interestingness import countBasedInterestingness
 			#return(countBasedinterstingness(dobjCompiled))
 	elif numAttributes == 2:
-		numMeasure = len(dobjCompiled.getObjByDataModel("measure"))
-		numDimension = len(dobjCompiled.getObjByDataModel("dimension"))
-
-		if numMeasure == 2:
-			return(relationshipBasedInterestingness(dobjCompiled))
+		if len(measures) == 2:
+			return(mutualInformationScore(measures, data))
 		elif numMeasure == 1 and numDimension == 1:
 			return(0.5)
 			#from interstingness import distributionBasedInterestingness
