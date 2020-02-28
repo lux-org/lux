@@ -8,7 +8,7 @@ class View:
         self.specLst = specifiedSpecLst
 
     def __repr__(self):
-        return NotImplemented
+        return f"<View: {str(self.specLst)}>"
 
 
     '''
