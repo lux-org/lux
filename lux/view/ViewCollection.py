@@ -1,14 +1,19 @@
 from lux.vizLib.altair.AltairRenderer import AltairRenderer
 
-class ViewCollection:
+class ViewCollection():
 	'''
 	ViewCollection is a list of View objects. 
 	'''
 	def __init__(self,collection):
-		self.collection=collection
+		self._collection=collection
+
+	def __getitem__(self, key):
+		return self._collection[key]
+	def __setitem__(self, key, value):
+		self._collection[key] = value
 
 	def __repr__(self):
-		return f"<ViewCollection: {str(self.collection)}>"
+		return f"<ViewCollection: {str(self._collection)}>"
 
 	def map(self,function):
 		# generalized way of applying a function to each element

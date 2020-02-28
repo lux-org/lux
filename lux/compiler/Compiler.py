@@ -4,7 +4,7 @@ from lux.dataset.Dataset import Dataset
 from lux.utils.utils import convert2List, applyDataTransformations
 from typing import List, Dict
 
-from lux.compiler.ViewCollection import ViewCollection
+from lux.view.ViewCollection import ViewCollection
 class Compiler:
 	def __init__(self):
 		self.name = "Compiler"
