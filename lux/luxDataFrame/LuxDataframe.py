@@ -6,11 +6,11 @@ class LuxDataFrame(pd.DataFrame):
     _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType','computeDataType',
                  'dataModelLookup','dataModel','uniqueValues','cardinality','viewCollection']
 
-    def __init__(self,*args, schema = [], **kw):
+    def __init__(self,*args, **kw):
         self.context = []
         self.spec = []
         self.viewCollection = ""
-        self.schema = schema
+        self.schema = []
         super(LuxDataFrame, self).__init__(*args, **kw)
         self.computeStats()
         self.computeDatasetMetadata()
@@ -24,7 +24,7 @@ class LuxDataFrame(pd.DataFrame):
         print("refreshing")
         Validator.parseSpec(self)
         Validator.validateSpec(self)
-        Compiler.compile(self)
+        # Compiler.compile(self)
     def setContext(self,context):
         self.context = context
         self._refreshContext()
