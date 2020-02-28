@@ -4,7 +4,7 @@ from lux.compiler.Compiler import Compiler
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType','computeDataType',
-                 'dataModelLookup','dataModel','uniqueValues','cardinality']
+                 'dataModelLookup','dataModel','uniqueValues','cardinality','viewCollection']
 
     def __init__(self,*args, schema = [], **kw):
         self.context = []
@@ -21,6 +21,7 @@ class LuxDataFrame(pd.DataFrame):
     def setViewCollection(self,viewCollection):
         self.viewCollection = viewCollection 
     def _refreshContext(self):
+        print("refreshing")
         Validator.parseSpec(self)
         Validator.validateSpec(self)
         Compiler.compile(self)
