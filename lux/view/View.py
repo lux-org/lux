@@ -9,7 +9,7 @@ class View:
         self.title = ""
 
     def __repr__(self):
-        return NotImplemented
+        return f"<View: {str(self.specLst)}>"
 
 
     '''
