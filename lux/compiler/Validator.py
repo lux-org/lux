@@ -1,3 +1,5 @@
+from lux.utils.utils import convert2List
+
 class Validator:
 	'''
 	lux.setContext("Horsepower")
@@ -42,6 +44,8 @@ class Validator:
 				spec.type = "attributeGroup"
 			elif spec.valueGroup:
 				spec.type = "valueGroup"
+
+
 	@staticmethod
 	def validateSpec(luxDataFrame):
 		def existsInDF(value,uniqueValues):
@@ -69,10 +73,64 @@ class Validator:
 		if printWarning:
 			#print warning
 			raise ValueError("Input spec is inconsistent with DataFrame.")
-		
-
-
 
 		# lux.setContext(lux.Spec(attr = "Horsepower"))
 		# lux.setContext(lux.Spec(attr = "A")) --> Warning
 
+	@staticmethod
+	def populateOptions(luxDataFrame):
+		"""
+		Given a row or column object, return the list of available values that satisfies the dataType or dataModel constraints
+
+		Parameters
+		----------
+		dobj : lux.dataObj.dataObj.DataObj
+			[description]
+		rowCol : Row or Column Object
+			Input row or column object with wildcard or list
+
+		Returns
+		-------
+		rcOptions: List
+			List of expanded Column or Row objects
+		"""
+		import copy
+		for spec in luxDataFrame.spec:
+			specOptions = []
+			if "attribute" in spec.type:
+				if spec.attribute == "?":
+					options = set(luxDataFrame.attrList)  # all attributes
+					if (spec.dataType != ""):
+						options = options.intersection(set(luxDataFrame.dataType[spec.dataType]))
+					if (spec.dataModel != ""):
+						options = options.intersection(set(luxDataFrame.dataModel[spec.dataModel]))
+					options = list(options)
+				else:
+					if spec.attribute:
+						options = convert2List(spec.attribute)
+					else:
+						options = convert2List(spec.attributeGroup)
+				for optStr in options:
+					specCopy = copy.copy(spec)
+					specCopy.attribute = optStr
+					specOptions.append(specCopy)
+
+			elif "value" in spec.type:
+				if spec.attribute:
+					attrLst = convert2List(spec.attribute)
+				else:
+					attrLst = convert2List(spec.attributeGroup)
+				for attr in attrLst:
+					if spec.value == "?":
+						options = luxDataFrame.uniqueValues[attr]
+					else:
+						if spec.value:
+							options = convert2List(spec.value)
+						else:
+							options = convert2List(spec.valueGroup)
+					for optStr in options:
+						specCopy = copy.copy(spec)
+						specCopy.attribute = attr
+						specCopy.value = optStr
+						specOptions.append(specCopy)
+		return specOptions

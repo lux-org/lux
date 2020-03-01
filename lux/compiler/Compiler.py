@@ -23,7 +23,8 @@ class Compiler:
 		# Output : DataObj/DataObjectCollection
 		
 		# compiledCollection = []
-		for view in ldf.viewCollection: # these two function calls directly mutates the View object
+		#TODO make viewCollection iterable
+		for view in ldf.viewCollection.collection: # these two function calls directly mutates the View object
 			Compiler.expandUnderspecified(ldf, view)  # autofill data type/model information
 			Compiler.determineEncoding(ldf, view)  # autofill viz related information			
 			# compiledCollection.append(ldf.getView())
@@ -77,75 +78,29 @@ class Compiler:
 		collection: lux.dataObj.dataObj.DataObjectCollection
 			Resulting DataObjectCollection
 		"""		
-		vcol = ViewCollection([]) #placeholder
+		# vcol = ViewCollection([]) #placeholder
 		# TODO: compute the views for the collection
 		# Get all the column and row object, assign the attribute names to variables
-		# colSpecs = sorted(list(filter(lambda x: x.className == "Column", dobj.spec)), key=lambda x: x.channel) # sort by channel x,y,z
-		# rowSpecs = list(filter(lambda x: x.className == "Row", dobj.spec))
-		# colAttrs = []
-		# rowList = []
-		# fAttr = ''
-		# for colSpec in colSpecs:
-		# 	colAttrs.append(Compiler.populateOptions(dobj, colSpec))
-		# if len(rowSpecs) > 0:
-		# 	rowList = Compiler.populateOptions(dobj, rowSpecs[0])  # populate rowvals with all unique possibilities
-		# if all(len(attrs) <= 1 for attrs in colAttrs) and len(rowList) <= 1:  # changed condition to check if every column attribute has at least one attribute
-		# 	# If DataObj does not represent a collection, return False.
-		# 	return False
-		# else:
-		# 	vcol = Compiler.generateCollection(colAttrs, rowList, dobj)
-		# 	return vcol
-		ldf.setCollection(vcol)
+		specs = sorted(list(filter(lambda x: x.attribute or x.attributeGroup, ldf.spec)), key=lambda x: x.channel) # sort by channel x,y,z
+		operations = list(filter(lambda x: x.filterOp, ldf.spec))
+		attrs = []
+		ops = []
+		for spec in specs:
+			attrs.append(Compiler.populateOptions(ldf, spec))
+		if len(operations) > 0:
+			ops = Compiler.populateOptions(ldf, operations)  # populate rowvals with all unique possibilities
+		if all(len(attrs) <= 1 for attr in attrs) and len(ops) <= 1:
+			# changed condition to check if every column attribute has at least one attribute
+			# If DataObj does not represent a collection, return False.
+			pass
+		else:
+			underspecifiedVcol = Compiler.generateCollection(attrs, ops, ldf)
+			ldf.viewCollection = underspecifiedVcol
+
 		return ldf
+
 	@staticmethod
-	def populateOptions(dobj, rowCol):
-		"""
-		Given a row or column object, return the list of available values that satisfies the dataType or dataModel constraints
-		
-		Parameters
-		----------
-		dobj : lux.dataObj.dataObj.DataObj
-			[description]
-		rowCol : Row or Column Object
-			Input row or column object with wildcard or list
-		
-		Returns
-		-------
-		rcOptions: List
-			List of expanded Column or Row objects 
-		"""		
-		import copy
-		if rowCol.className == "Column":
-			if rowCol.columnName == "?":
-				options = set(dobj.dataset.attrList)  # all attributes
-				if (rowCol.dataType != ""):
-					options = options.intersection(set(dobj.dataset.dataType[rowCol.dataType]))
-				if (rowCol.dataModel != ""):
-					options = options.intersection(set(dobj.dataset.dataModel[rowCol.dataModel]))
-				options = list(options)
-			else:
-				options = convert2List(rowCol.columnName)
-			rcOptions = []
-			for optStr in options:
-				rcCopy = copy.copy(rowCol)
-				rcCopy.columnName = optStr
-				rcOptions.append(rcCopy)
-		elif rowCol.className == "Row":
-			rcOptions = []
-			fAttrLst = convert2List(rowCol.fAttribute)
-			for fAttr in fAttrLst:
-				if rowCol.fVal == "?":
-					options = dobj.dataset.df[fAttr].unique()
-				else:
-					options = convert2List(rowCol.fVal)	
-				for optStr in options:
-					rcCopy = copy.copy(rowCol)
-					rcCopy.fAttribute = fAttr
-					rcCopy.fVal = optStr
-					rcOptions.append(rcCopy)
-		return rcOptions
-	@staticmethod
-	def generateCollection(colAttrs: List[Row], rowList: List[Column], dobj):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]								
+	def generateCollection(attrs: List[Row], ops: List[Column], ldf):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]
 		"""
 		Generates combinations for visualization collection given a list of row and column values
 
@@ -161,30 +116,31 @@ class Compiler:
 		lux.dataObj.DataObjCollection
 			Resulting DataObjectCollection
 		"""		
-		# from lux.dataObj.dataObj import DataObj
+		from lux.compiler.View import View
 		# from lux.dataObj.DataObjCollection import DataObjCollection
 		# collection = []
 		collection = []
 		# TODO: generate combinations of column attributes recursively by continuing to accumulate attributes for len(colAtrr) times
-		# def combine(colAttrs, accum):
-		# 	last = (len(colAttrs) == 1)
-		# 	n = len(colAttrs[0])
-		# 	for i in range(n):
-		# 		columnList = accum + [colAttrs[0][i]]
-		# 		if last:
-		# 			if len(rowList) > 0: # if we have rows, generate combinations for each row.
-		# 				for row in rowList:
-		# 					transformedDataset = applyDataTransformations(dobj.dataset, row.fAttribute, row.fVal)  # rename?
-		# 					specLst = columnList + [row]
-		# 					dataObj = DataObj(transformedDataset, specLst, title=f"{row.fAttribute}={row.fVal}")
-		# 					collection.append(dataObj)
-		# 			else:
-		# 				dataObj = DataObj(dobj.dataset, columnList)
-		# 				collection.append(dataObj)
-		# 		else:
-		# 			combine(colAttrs[1:], columnList)
+		def combine(colAttrs, accum):
+			last = (len(colAttrs) == 1)
+			n = len(colAttrs[0])
+			for i in range(n):
+				columnList = accum + [colAttrs[0][i]]
+				if last:
+					if len(ops) > 0: # if we have rows, generate combinations for each row.
+						for row in ops:
+							#transformedDataset = applyDataTransformations(ldf, row.fAttribute, row.fVal)  # rename?
+							specLst = columnList + [row]
+							#dataObj = DataObj(transformedDataset, specLst, title=f"{row.fAttribute}={row.fVal}")
+							view = View(specLst,title=f"{row.fAttribute}={row.fVal}")
+							collection.append(view)
+					else:
+						view = View(columnList)
+						collection.append(view)
+				else:
+					combine(colAttrs[1:], columnList)
 
-		# combine(colAttrs, [])
+		combine(attrs, [])
 		return ViewCollection(collection)
 
 	@staticmethod

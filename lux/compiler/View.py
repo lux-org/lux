@@ -6,6 +6,7 @@ class View:
 
     def __init__(self, specifiedSpecLst):
         self.specLst = specifiedSpecLst
+        self.title = ""
 
     def __repr__(self):
         return NotImplemented

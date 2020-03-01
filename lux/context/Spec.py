@@ -2,7 +2,7 @@ class Spec:
 	'''
 	Spec is the object representation of a single unit of the specification.
 	'''
-	def __init__(self, description="",attribute="",value="",
+	def __init__(self, description="",attribute="",value="", axis="",
 				filterOp="",attributeGroup=[],valueGroup=[], channel="",
 				dataType="",dataModel="",aggregation = "", binning="", weight=""):
 		# Descriptor
@@ -10,6 +10,7 @@ class Spec:
 		# Description gets comiled to either an attribute, value, attributeGroup or valueGroup
 		self.attribute = attribute
 		self.value = value
+		self.axis = axis
 		self.filterOp = filterOp
 		self.attributeGroup = attributeGroup
 		self.valueGroup = valueGroup
