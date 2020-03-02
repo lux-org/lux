@@ -2,8 +2,8 @@ class Spec:
 	'''
 	Spec is the object representation of a single unit of the specification.
 	'''
-	def __init__(self, description="",attribute="",value="",
-				filterOp="",attributeGroup=[],valueGroup=[], channel="",
+	def __init__(self, description="",attribute=[],value=[],
+				filterOp="", channel="",
 				dataType="",dataModel="",aggregation = "", binning="", weight=""):
 		# Descriptor
 		self.description = description
@@ -11,8 +11,8 @@ class Spec:
 		self.attribute = attribute
 		self.value = value
 		self.filterOp = filterOp
-		self.attributeGroup = attributeGroup
-		self.valueGroup = valueGroup
+		# self.attributeGroup = attributeGroup
+		# self.valueGroup = valueGroup
 		self.type = "" # automatically generated in validateSpec: ["attribute", "value", "attributeGroup", "valueGroup"]
 		# self.parseDescription()
 		# Properties
@@ -26,8 +26,6 @@ class Spec:
 	def __repr__(self):
 		repr =  f"Spec < description:{str(self.description)},"+ \
 			   f"attribute:{str(self.attribute)},"+ \
-			   f"value:{str(self.value)},"+ \
-			   f"attributeGroup:{str(self.attributeGroup)}>"+\
-			   f"valueGroup:{str(self.valueGroup)}>"
+			   f"value:{str(self.value)}>"
 		return repr
 
