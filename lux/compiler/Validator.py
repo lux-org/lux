@@ -17,7 +17,7 @@ class Validator:
 	lux.setContext("Horsepower","Origin=?")
 		--> [lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="?", type= "valueGroup")]
 
-		-->[[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="USA", type= "value")],
+		-->[[lux.Spec(attr ="Horsepower", type= " attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="USA", type= "value")],
 			[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="UK", type= "value")],
 			[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="Japan", type= "value")] ]
 
@@ -44,6 +44,7 @@ class Validator:
 				spec.type = "attributeGroup"
 			elif spec.valueGroup:
 				spec.type = "valueGroup"
+		Validator.populateOptions(luxDataFrame)
 
 
 	@staticmethod
@@ -57,7 +58,7 @@ class Validator:
 		printWarning = False
 		for spec in context:
 			checkAttrExists = spec.attribute in luxDataFrame.attrList
-			checkValExists = spec.value in uniqueVals
+			checkValExists = spec.axis and spec.value in uniqueVals[spec.axis]
 			checkAttrExistsGroup = all(attr in luxDataFrame.attrList for attr in spec.attributeGroup)
 			checkValExistsGroup = all(existsInDF(val,uniqueVals) for val in spec.valueGroup)
 			
@@ -95,7 +96,7 @@ class Validator:
 			List of expanded Column or Row objects
 		"""
 		import copy
-		for spec in luxDataFrame.spec:
+		for spec in luxDataFrame.context:
 			specOptions = []
 			if "attribute" in spec.type:
 				if spec.attribute == "?":
@@ -114,12 +115,13 @@ class Validator:
 					specCopy = copy.copy(spec)
 					specCopy.attribute = optStr
 					specOptions.append(specCopy)
-
+				luxDataFrame.cols.append(specOptions)
 			elif "value" in spec.type:
-				if spec.attribute:
-					attrLst = convert2List(spec.attribute)
-				else:
-					attrLst = convert2List(spec.attributeGroup)
+				# if spec.attribute:
+				# 	attrLst = convert2List(spec.attribute)
+				# else:
+				# 	attrLst = convert2List(spec.attributeGroup)
+				attrLst = convert2List(spec.axis)
 				for attr in attrLst:
 					if spec.value == "?":
 						options = luxDataFrame.uniqueValues[attr]
@@ -130,7 +132,8 @@ class Validator:
 							options = convert2List(spec.valueGroup)
 					for optStr in options:
 						specCopy = copy.copy(spec)
-						specCopy.attribute = attr
+						specCopy.axis = attr
 						specCopy.value = optStr
 						specOptions.append(specCopy)
-		return specOptions
+				# luxDataFrame.rows.append(specOptions)
+				luxDataFrame.rows = specOptions

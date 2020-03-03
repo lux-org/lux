@@ -4,9 +4,9 @@ class View:
     '''
 
 
-    def __init__(self, specifiedSpecLst):
+    def __init__(self, specifiedSpecLst,title=""):
         self.specLst = specifiedSpecLst
-        self.title = ""
+        self.title = title
 
     def __repr__(self):
         return f"<View: {str(self.specLst)}>"

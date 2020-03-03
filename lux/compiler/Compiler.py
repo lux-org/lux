@@ -1,8 +1,6 @@
-from lux.dataObj.Row import Row
-from lux.dataObj.Column import Column
-from lux.dataset.Dataset import Dataset
-from lux.utils.utils import convert2List, applyDataTransformations
+from lux.context import Spec
 from typing import List, Dict
+from lux.view.View import View
 
 from lux.view.ViewCollection import ViewCollection
 class Compiler:
@@ -16,7 +14,7 @@ class Compiler:
 		# 1. If the DataObj represent a collection, then compile it into a collection. Otherwise, return False
 		# Input: DataObj --> Output: DataObjCollection/False
 		# if (enumerateCollection):
-		ldf = Compiler.enumerateCollection(ldf) 
+		Compiler.enumerateCollection(ldf)
 		# else:
 		# 	dataObjCollection = False
 		# 2. For every DataObject in the DataObject Collection, expand underspecified
@@ -24,7 +22,7 @@ class Compiler:
 		
 		# compiledCollection = []
 		#TODO make viewCollection iterable
-		for view in ldf.viewCollection.collection: # these two function calls directly mutates the View object
+		for view in ldf.viewCollection: # these two function calls directly mutates the View object
 			Compiler.expandUnderspecified(ldf, view)  # autofill data type/model information
 			Compiler.determineEncoding(ldf, view)  # autofill viz related information			
 			# compiledCollection.append(ldf.getView())
@@ -49,19 +47,21 @@ class Compiler:
 		"""		
 		# TODO: copy might not be neccesary
 		import copy
-		expandedContext = copy.deepcopy(ldf.viewCollection)  # Preserve the original dobj
+		views = copy.deepcopy(ldf.viewCollection)  # Preserve the original dobj
 
-		for spec in expandedContext:
+		for view in views:
 
 			# expand spec
 			# if (spec.type in "attributeGroup" and len(spec.attributeGroup) == 1): # case when attribute group has only one element
 			# 	spec.attribute = spec.attributeGroup[0]
-			if (spec.dataType == ""):
-				spec.dataType = ldf.dataTypeLookup[spec.attribute]
-			if (spec.dataModel == ""):
-				spec.dataModel = ldf.dataModelLookup[spec.attribute]
+			for spec in view.specLst:
+				if spec.attribute:
+					if (spec.dataType == ""):
+						spec.dataType = ldf.dataTypeLookup[spec.attribute]
+					if (spec.dataModel == ""):
+						spec.dataModel = ldf.dataModelLookup[spec.attribute]
 
-		ldf.setView(expandedContext)
+		ldf.setViewCollection(views)
 	@staticmethod
 	def enumerateCollection(ldf):
 		"""
@@ -81,26 +81,24 @@ class Compiler:
 		# vcol = ViewCollection([]) #placeholder
 		# TODO: compute the views for the collection
 		# Get all the column and row object, assign the attribute names to variables
-		specs = sorted(list(filter(lambda x: x.attribute or x.attributeGroup, ldf.spec)), key=lambda x: x.channel) # sort by channel x,y,z
-		operations = list(filter(lambda x: x.filterOp, ldf.spec))
-		attrs = []
-		ops = []
-		for spec in specs:
-			attrs.append(Compiler.populateOptions(ldf, spec))
-		if len(operations) > 0:
-			ops = Compiler.populateOptions(ldf, operations)  # populate rowvals with all unique possibilities
-		if all(len(attrs) <= 1 for attr in attrs) and len(ops) <= 1:
-			# changed condition to check if every column attribute has at least one attribute
-			# If DataObj does not represent a collection, return False.
-			pass
-		else:
-			underspecifiedVcol = Compiler.generateCollection(attrs, ops, ldf)
-			ldf.viewCollection = underspecifiedVcol
-
-		return ldf
+		# specs = sorted(list(filter(lambda x: x.attribute or x.attributeGroup, ldf.spec)), key=lambda x: x.channel) # sort by channel x,y,z
+		# operations = list(filter(lambda x: x.filterOp, ldf.spec))
+		# attrs = []
+		# ops = []
+		# for spec in specs:
+		# 	attrs.append(Compiler.populateOptions(ldf, spec))
+		# if len(operations) > 0:
+		# 	ops = Compiler.populateOptions(ldf, operations)  # populate rowvals with all unique possibilities
+		# if len(ldf.cols)>1 and len(ldf.rows) <= 1:
+		# 	# changed condition to check if every column attribute has at least one attribute
+		# 	# If DataObj does not represent a collection, return False.
+		# 	pass
+		# else:
+		underspecifiedVcol = Compiler.generateCollection(ldf.cols, ldf.rows, ldf)
+		ldf.viewCollection = underspecifiedVcol
 
 	@staticmethod
-	def generateCollection(attrs: List[Row], ops: List[Column], ldf):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]
+	def generateCollection(cols: List[Spec], rows: List[Spec], ldf):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]
 		"""
 		Generates combinations for visualization collection given a list of row and column values
 
@@ -115,10 +113,8 @@ class Compiler:
 		-------
 		lux.dataObj.DataObjCollection
 			Resulting DataObjectCollection
-		"""		
-		from lux.compiler.View import View
+		"""
 		# from lux.dataObj.DataObjCollection import DataObjCollection
-		# collection = []
 		collection = []
 		# TODO: generate combinations of column attributes recursively by continuing to accumulate attributes for len(colAtrr) times
 		def combine(colAttrs, accum):
@@ -127,12 +123,12 @@ class Compiler:
 			for i in range(n):
 				columnList = accum + [colAttrs[0][i]]
 				if last:
-					if len(ops) > 0: # if we have rows, generate combinations for each row.
-						for row in ops:
+					if len(rows) > 0: # if we have rows, generate combinations for each row.
+						for row in rows:
 							#transformedDataset = applyDataTransformations(ldf, row.fAttribute, row.fVal)  # rename?
 							specLst = columnList + [row]
 							#dataObj = DataObj(transformedDataset, specLst, title=f"{row.fAttribute}={row.fVal}")
-							view = View(specLst,title=f"{row.fAttribute}={row.fVal}")
+							view = View(specLst,title=f"{row.axis}={row.value}")
 							collection.append(view)
 					else:
 						view = View(columnList)
@@ -140,7 +136,7 @@ class Compiler:
 				else:
 					combine(colAttrs[1:], columnList)
 
-		combine(attrs, [])
+		combine(cols, [])
 		return ViewCollection(collection)
 
 	@staticmethod
