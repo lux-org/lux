@@ -36,14 +36,15 @@ class Validator:
 		# after parsing
 		context = luxDataFrame.getContext()
 		for spec in context:
-			if spec.attribute :
+			if spec.attribute:
 				spec.type = "attribute"
-			elif spec.value :
+			if spec.value:
 				spec.type = "value"
-			elif spec.attributeGroup:
+			if spec.attribute == "?" or isinstance(spec.attribute,list):
 				spec.type = "attributeGroup"
-			elif spec.valueGroup:
+			if spec.value == "?" or isinstance(spec.value,list):
 				spec.type = "valueGroup"
+
 		Validator.populateOptions(luxDataFrame)
 
 
@@ -57,19 +58,23 @@ class Validator:
 		uniqueVals = luxDataFrame.uniqueValues
 		printWarning = False
 		for spec in context:
-			checkAttrExists = spec.attribute in luxDataFrame.attrList
-			checkValExists = spec.axis and spec.value in uniqueVals[spec.axis]
-			checkAttrExistsGroup = all(attr in luxDataFrame.attrList for attr in spec.attributeGroup)
-			checkValExistsGroup = all(existsInDF(val,uniqueVals) for val in spec.valueGroup)
-			
-			if spec.attribute and not checkAttrExists:
-				printWarning = True
-			elif spec.value and not checkValExists:
-				printWarning = True
-			elif spec.attributeGroup and not (spec.attributeGroup=="?" or checkAttrExistsGroup):
-				printWarning = True
-			elif spec.valueGroup and not (spec.valueGroup=="?" or checkValExistsGroup):
-				printWarning = True
+			if isinstance(spec.attribute,list):
+				checkAttrExistsGroup = all(attr in luxDataFrame.attrList for attr in spec.attribute)
+				if spec.attribute and not (spec.attribute == "?" or checkAttrExistsGroup):
+					printWarning = True
+			else:
+				checkAttrExists = spec.attribute in luxDataFrame.attrList
+				if spec.attribute and not checkAttrExists:
+					printWarning = True
+
+			if isinstance(spec.value, list):
+				checkValExistsGroup = all(existsInDF(val, uniqueVals) for val in spec.value)
+				if spec.value and not (spec.value == "?" or checkValExistsGroup):
+					printWarning = True
+			else:
+				checkValExists = spec.axis and spec.value in uniqueVals[spec.axis]
+				if spec.value and not checkValExists:
+					printWarning = True
 
 		if printWarning:
 			#print warning
@@ -107,13 +112,11 @@ class Validator:
 						options = options.intersection(set(luxDataFrame.dataModel[spec.dataModel]))
 					options = list(options)
 				else:
-					if spec.attribute:
-						options = convert2List(spec.attribute)
-					else:
-						options = convert2List(spec.attributeGroup)
+					options = convert2List(spec.attribute)
 				for optStr in options:
 					specCopy = copy.copy(spec)
 					specCopy.attribute = optStr
+					specCopy.type = "attribute"
 					specOptions.append(specCopy)
 				luxDataFrame.cols.append(specOptions)
 			elif "value" in spec.type:
@@ -126,14 +129,12 @@ class Validator:
 					if spec.value == "?":
 						options = luxDataFrame.uniqueValues[attr]
 					else:
-						if spec.value:
-							options = convert2List(spec.value)
-						else:
-							options = convert2List(spec.valueGroup)
+						options = convert2List(spec.value)
 					for optStr in options:
 						specCopy = copy.copy(spec)
 						specCopy.axis = attr
 						specCopy.value = optStr
+						specCopy.type = "value"
 						specOptions.append(specCopy)
 				# luxDataFrame.rows.append(specOptions)
 				luxDataFrame.rows = specOptions

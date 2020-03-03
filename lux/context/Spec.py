@@ -2,7 +2,6 @@ class Spec:
 	'''
 	Spec is the object representation of a single unit of the specification.
 	'''
-<<<<<<< HEAD
 	def __init__(self, description="",attribute="",value="", axis="",
 				filterOp="",attributeGroup=[],valueGroup=[], channel="",
 				dataType="",dataModel="",aggregation = "", binning="", weight=""):
@@ -28,6 +27,8 @@ class Spec:
 	def __repr__(self):
 		repr =  f"Spec < description:{str(self.description)},"+ \
 			   f"attribute:{str(self.attribute)},"+ \
-			   f"value:{str(self.value)}>"
+			   f"value:{str(self.value)}>" + \
+			   f"dataModel:{str(self.dataModel)}," + \
+				f"dataType:{str(self.dataType)}"
 		return repr
 
