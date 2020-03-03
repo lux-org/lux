@@ -22,16 +22,16 @@ class Compiler:
 		
 		# compiledCollection = []
 		#TODO make viewCollection iterable
-		for view in ldf.viewCollection: # these two function calls directly mutates the View object
-			Compiler.expandUnderspecified(ldf, view)  # autofill data type/model information
-			Compiler.determineEncoding(ldf, view)  # autofill viz related information			
+		Compiler.expandUnderspecified(ldf)  # autofill data type/model information
+		for view in ldf.viewCollection:
+			Compiler.determineEncoding(ldf,view)  # autofill viz related information
 			# compiledCollection.append(ldf.getView())
 		# print ("uncompiled:",dataObj)
 		# print ("compiled:",compiled)
 		# ldf.setView()
 		# self.compiled.collection = compiledCollection  # return DataObjCollection
 	@staticmethod
-	def expandUnderspecified(ldf, view):
+	def expandUnderspecified(ldf):
 		"""
 		Given a underspecified Spec, populate the dataType and dataModel information accordingly
 		
@@ -48,7 +48,6 @@ class Compiler:
 		# TODO: copy might not be neccesary
 		import copy
 		views = copy.deepcopy(ldf.viewCollection)  # Preserve the original dobj
-
 		for view in views:
 
 			# expand spec
@@ -60,7 +59,6 @@ class Compiler:
 						spec.dataType = ldf.dataTypeLookup[spec.attribute]
 					if (spec.dataModel == ""):
 						spec.dataModel = ldf.dataModelLookup[spec.attribute]
-
 		ldf.setViewCollection(views)
 	@staticmethod
 	def enumerateCollection(ldf):
@@ -163,6 +161,113 @@ class Compiler:
 		IEEE Transactions on Visualization and Computer Graphics, 13(6), 1137–1144.
 		https://doi.org/10.1109/TVCG.2007.70594
 		'''
+
+		# TODO: Directly mutate view
+		# Count number of measures and dimensions
+		Ndim = 0
+		Nmsr = 0
+		rowLst = []
+		for spec in view.specLst:
+			print(spec)
+			if (spec.type == "attribute"):
+				if (spec.dataModel == "dimension"):
+					Ndim += 1
+				elif (spec.dataModel == "measure"):
+					Nmsr += 1
+			if (spec.type == "value"):  # preserve to add back to dobj later
+				rowLst.append(spec)
+		# Helper function (TODO: Move this into utils)
+		print(Ndim,Nmsr)
+		def lineOrBar(dimension, measure):
+			dimType = dimension.dataType
+			if (dimType == "date" or dimType == "oridinal"):
+				# chart = LineChart(dobj)
+				return "line", {"x": dimension, "y": measure}
+			else:  # unordered categorical
+				# chart = BarChart(dobj)
+				return "bar", {"x": measure, "y": dimension}
+		# TODO: if cardinality large than 6 then sort bars
+
+		# ShowMe logic + additional heuristics
+		countCol = Spec("count()", dataModel="measure")
+		# xAttr = view.getObjFromChannel("x") # not used as of now
+		# yAttr = view.getObjFromChannel("y")
+		# zAttr = view.getObjFromChannel("z")
+		autoChannel={}
+		if (Ndim == 0 and Nmsr == 1):
+			print(1)
+			# Histogram with Count on the y axis
+			measure = view.getObjByDataModel("measure")[0]
+			view.specLst.append(countCol)
+			# measure.channel = "x"
+			autoChannel = {"x": measure, "y": countCol}
+			view.mark = "histogram"
+		elif (Ndim == 1 and (Nmsr == 0 or Nmsr == 1)):
+			print(2)
+			# Line or Bar Chart
+			# if x is unspecified
+			if (Nmsr == 0):
+				view.specLst.append(countCol)
+			dimension = view.getObjByDataModel("dimension")[0]
+			measure = view.getObjByDataModel("measure")[0]
+			# measure.channel = "x"
+			view.mark, autoChannel = lineOrBar(dimension, measure)
+		elif (Ndim == 2 and (Nmsr == 0 or Nmsr == 1)):
+			print(3)
+			# Line or Bar chart broken down by the dimension
+			dimensions = view.getObjByDataModel("dimension")
+			d1 = dimensions[0]
+			d2 = dimensions[1]
+			if (ldf.cardinality[d1.columnName] < ldf.cardinality[d2.columnName]):
+				# d1.channel = "color"
+				view.removeColumnFromSpec(d1.columnName)
+				dimension = d2
+				colorAttr = d1
+			else:
+				if (d1.columnName == d2.columnName):
+					view.specLst.pop(
+						0)  # if same attribute then removeColumnFromSpec will remove both dims, we only want to remove one
+				else:
+					view.removeColumnFromSpec(d2.columnName)
+				dimension = d1
+				colorAttr = d2
+			# Colored Bar/Line chart with Count as default measure
+			if (Nmsr == 0):
+				view.specLst.append(countCol)
+			measure = view.getObjByDataModel("measure")[0]
+			view.mark, autoChannel = lineOrBar(dimension, measure)
+			autoChannel["color"] = colorAttr
+		elif (Ndim == 0 and Nmsr == 2):
+			print(4)
+			# Scatterplot
+			view.mark = "scatter"
+			autoChannel = {"x": view.specLst[0],
+						   "y": view.specLst[1]}
+		elif (Ndim == 1 and Nmsr == 2):
+			print(5)
+			# Scatterplot broken down by the dimension
+			measure = view.getObjByDataModel("measure")
+			m1 = measure[0]
+			m2 = measure[1]
+
+			colorAttr = view.getObjByDataModel("dimension")[0]
+			view.removeColumnFromSpec(colorAttr)
+
+			view.mark = "scatter"
+			autoChannel = {"x": m1,
+						   "y": m2,
+						   "color": colorAttr}
+		elif (Ndim == 0 and Nmsr == 3):
+			print(6)
+			# Scatterplot with color
+			view.mark = "scatter"
+			autoChannel = {"x": view.specLst[0],
+						   "y": view.specLst[1],
+						   "color": view.specLst[2]}
+		if (autoChannel!={}):
+			view = Compiler.enforceSpecifiedChannel(view, autoChannel)
+			view.specLst.extend(rowLst)  # add back the preserved row objects
+
 		# TODO: Directly mutate view
 		# Count number of measures and dimensions
 		# Ndim = 0
@@ -258,12 +363,12 @@ class Compiler:
 		# 				   "y": dobj.spec[1],
 		# 				   "color": dobj.spec[2]}
 		# if (autoChannel!={}):
-		# 	dobj = Compiler.enforceSpecifiedChannel(dobj, autoChannel) 
+		# 	dobj = Compiler.enforceSpecifiedChannel(dobj, autoChannel)
 		# 	dobj.spec.extend(rowLst)  # add back the preserved row objects
 		pass
 
 	@staticmethod
-	def enforceSpecifiedChannel(dobj, autoChannel: Dict[str,str]):
+	def enforceSpecifiedChannel(view, autoChannel: Dict[str,str]):
 		"""
 		Enforces that the channels specified in the DataObj by users overrides the showMe autoChannels
 		
@@ -288,14 +393,14 @@ class Compiler:
 		specifiedDict = {}  # specifiedDict={"x":[],"y":[list of Dobj with y specified as channel]}
 		# create a dictionary of specified channels in the given dobj
 		for val in autoChannel.keys():
-			specifiedDict[val] = dobj.getObjFromChannel(val)
+			specifiedDict[val] = view.getObjFromChannel(val)
 			resultDict[val] = ""
 		# for every element, replace with what's in specifiedDict if specified
 		for sVal, sAttr in specifiedDict.items():
 			if (len(sAttr) == 1):  # if specified in dobj
 				# remove the specified channel from autoChannel (matching by value, since channel key may not be same)
 				for i in list(autoChannel.keys()):
-					if ((autoChannel[i].columnName == sAttr[0].columnName) 
+					if ((autoChannel[i].attribute == sAttr[0].attribute)
 						and (autoChannel[i].channel==sVal)): # need to ensure that the channel is the same (edge case when duplicate Cols with same attribute name)
 						autoChannel.pop(i)
 						break
@@ -310,5 +415,5 @@ class Compiler:
 		for leftover_channel, leftover_encoding in zip(leftover_channels, autoChannel.values()):
 			leftover_encoding.channel = leftover_channel
 			resultDict[leftover_channel] = leftover_encoding
-		dobj.spec = list(resultDict.values())
-		return dobj
+		view.speLst = list(resultDict.values())
+		return view
