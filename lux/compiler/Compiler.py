@@ -23,15 +23,9 @@ class Compiler:
 		# Output : DataObj/DataObjectCollection
 		
 		# compiledCollection = []
-		#TODO make viewCollection iterable
 		Compiler.expandUnderspecified(ldf)  # autofill data type/model information
 		for view in ldf.viewCollection:
 			Compiler.determineEncoding(ldf,view)  # autofill viz related information
-			# compiledCollection.append(ldf.getView())
-		# print ("uncompiled:",dataObj)
-		# print ("compiled:",compiled)
-		# ldf.setView()
-		# self.compiled.collection = compiledCollection  # return DataObjCollection
 	@staticmethod
 	# def expandUnderspecified(ldf: LuxDataFrame):
 	def expandUnderspecified(ldf):
@@ -89,7 +83,7 @@ class Compiler:
 					if len(ldf.rows) > 0: # if we have rows, generate combinations for each row.
 						for row in ldf.rows:
 							specLst = columnList + [row]
-							view = View(specLst,title=f"{row.attr}={row.value}")
+							view = View(specLst,title=f"{row.attribute}={row.value}")
 							collection.append(view)
 					else:
 						view = View(columnList)
@@ -99,7 +93,6 @@ class Compiler:
 
 		combine(ldf.cols, [])
 		ldf.viewCollection = ViewCollection(collection)
-
 	@staticmethod
 	# def determineEncoding(ldf: LuxDataFrame,view: View):
 	def determineEncoding(ldf, view: View):
@@ -133,7 +126,7 @@ class Compiler:
 		Nmsr = 0
 		rowLst = []
 		for spec in view.specLst:
-			print(spec)
+			# print(spec)
 			if (spec.type == "attribute"):
 				if (spec.dataModel == "dimension"):
 					Ndim += 1
@@ -142,7 +135,6 @@ class Compiler:
 			if (spec.type == "value"):  # preserve to add back to dobj later
 				rowLst.append(spec)
 		# Helper function (TODO: Move this into utils)
-		print(Ndim,Nmsr)
 		def lineOrBar(dimension, measure):
 			dimType = dimension.dataType
 			if (dimType == "date" or dimType == "oridinal"):
@@ -275,5 +267,5 @@ class Compiler:
 		for leftover_channel, leftover_encoding in zip(leftover_channels, autoChannel.values()):
 			leftover_encoding.channel = leftover_channel
 			resultDict[leftover_channel] = leftover_encoding
-		view.speLst = list(resultDict.values())
+		view.specLst = list(resultDict.values())
 		return view

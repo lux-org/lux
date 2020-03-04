@@ -60,24 +60,27 @@ class Validator:
 		context = luxDataFrame.getContext()
 		uniqueVals = luxDataFrame.uniqueValues
 		printWarning = False
+		print (context)
 		for spec in context:
+			if ((spec.attribute and spec.attribute == "?") or (spec.value and spec.value=="?")):
+				continue
 			if isinstance(spec.attribute,list):
 				checkAttrExistsGroup = all(attr in luxDataFrame.attrList for attr in spec.attribute)
-				if spec.attribute and not (spec.attribute == "?" or checkAttrExistsGroup):
+				if spec.attribute and not checkAttrExistsGroup:
 					printWarning = True
 			else:
-				checkAttrExists = spec.attribute in luxDataFrame.attrList
-				if spec.attribute and not checkAttrExists:
-					printWarning = True
+					checkAttrExists = spec.attribute in luxDataFrame.attrList
+					if spec.attribute and not checkAttrExists:
+						printWarning = True
 
-				checkValExists = spec.attribute and spec.value in uniqueVals[spec.attribute]
-				if spec.value and not checkValExists:
-					printWarning = True
-
+					checkValExists = spec.attribute and spec.value in uniqueVals[spec.attribute]
+					if spec.value and not checkValExists:
+						printWarning = True
+			
 			if isinstance(spec.value, list):
-				checkValExistsGroup = all(existsInDF(val, uniqueVals) for val in spec.value)
-				if spec.value and not (spec.value == "?" or checkValExistsGroup):
-					printWarning = True
+					checkValExistsGroup = all(existsInDF(val, uniqueVals) for val in spec.value)
+					if spec.value and not checkValExistsGroup:
+						printWarning = True
 
 
 		if printWarning:
@@ -129,7 +132,7 @@ class Validator:
 				# 	attrLst = convert2List(spec.attribute)
 				# else:
 				# 	attrLst = convert2List(spec.attributeGroup)
-				attrLst = convert2List(spec.attr)
+				attrLst = convert2List(spec.attribute)
 				for attr in attrLst:
 					if spec.value == "?":
 						options = luxDataFrame.uniqueValues[attr]
