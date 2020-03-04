@@ -24,6 +24,7 @@ class Spec:
 			
 	def __repr__(self):
 		repr =  f"Spec < description:{str(self.description)},"+ \
+			   f"channel:{str(self.channel)},"+ \
 			   f"attribute:{str(self.attribute)},"+ \
 			   f"value:{str(self.value)}>" + \
 			   f"dataModel:{str(self.dataModel)}," + \

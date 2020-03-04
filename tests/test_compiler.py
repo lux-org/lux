@@ -11,33 +11,31 @@ def test_underspecifiedSingleVis():
 
 def test_underspecifiedVisCollection():
 	df = pd.read_csv("lux/data/car.csv")
-	# change pandas dtype to datetype
-	df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+	df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
 	df.setContext([lux.Spec(attribute = ["Horsepower","Weight","Acceleration"]),lux.Spec(attribute = "Year")])
 	assert len(df.viewCollection)==3
 	assert df.viewCollection[0].mark == "line" 
 	for vc in df.viewCollection: 
 		assert (vc.getObjFromChannel("x")[0].attribute == "Year")
-# 	dobj = lux.DataObj(dataset,[lux.Column("?"),lux.Column("Year",channel="x")])
-# 	assert len(dobj.compiled.collection) == len(dobj.dataset.df.columns)
-# 	# TODO: Doris need to debug showMe enforceSpecifiedChannel 2 dim, 0 msr (count()) cases
-# 	# for obj in dobj.compiled.collection: 
-# 	# 	assert obj.getObjFromChannel("x")[0].columnName == "Year"
+	df.setContext([lux.Spec(attribute = "?"),lux.Spec(attribute = "Year")])
+	assert len(df.viewCollection) == len(df.columns)
+	for vc in df.viewCollection: 
+		assert (vc.getObjFromChannel("x")[0].attribute == "Year")
+	df.setContext([lux.Spec(attribute = "?",dataType="quantitative"),lux.Spec(attribute = "Year")])
+	assert len(df.viewCollection) == 5 
 
-# 	dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure"),lux.Column("MilesPerGal",channel="y")])
-# 	for obj in dobj.compiled.collection: 
-# 		assert obj.getObjFromChannel("y")[0].columnName == "MilesPerGal"
+	df.setContext([lux.Spec(attribute = "?", dataModel="measure"),lux.Spec(attribute="MilesPerGal",channel="y")])
+	for vc in df.viewCollection: 
+		print (vc.getObjFromChannel("y")[0].attribute == "MilesPerGal")
 	
-# 	dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure"),lux.Column("?",dataModel="measure")])
-# 	assert len(dobj.compiled.collection) == 25
-# 	# TODO: Jay: this example is not working, need pairwise combination of measure values (mostly counts now?)	
-# def test_underspecifiedVisCollection_Zval():
-# 	# check if the number of charts is correct
-# 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
-# 	dobj = lux.DataObj(dataset, [lux.Column("MilesPerGal"), lux.Row("Origin", "?")])
-# 	assert type(dobj.compiled).__name__ == "DataObjCollection"
-# 	assert len(dobj.compiled.collection) == 3
+	df.setContext([lux.Spec(attribute = "?", dataModel="measure"),lux.Spec(attribute = "?", dataModel="measure")])
+	assert len(df.viewCollection) == 25 
 
+def test_underspecifiedVisCollection_Zval():
+	# check if the number of charts is correct
+	df = pd.read_csv("lux/data/car.csv")
+	df.setContext([lux.Spec(attribute = "Origin", filterOp="=",value="?"),lux.Spec(attribute = "MilesPerGal")])
+	assert len(df.viewCollection)==3
 # 	dobj = lux.DataObj(dataset,[lux.Column("Horsepower"),lux.Column("Brand"),lux.Row("Origin",["Japan","USA"])])
 # 	assert type(dobj.compiled).__name__ == "DataObjCollection"
 # 	assert len(dobj.compiled.collection) == 2
