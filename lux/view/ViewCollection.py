@@ -11,7 +11,8 @@ class ViewCollection():
 		return self._collection[key]
 	def __setitem__(self, key, value):
 		self._collection[key] = value
-
+	def __len__(self):
+		return len(self._collection)
 	def __repr__(self):
 		return f"<ViewCollection: {str(self._collection)}>"
 
