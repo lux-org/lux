@@ -19,8 +19,8 @@ class View:
     def getObjByDataModel(self, dmodel):
         return list(filter(lambda x: x.dataModel == dmodel if hasattr(x, "dataModel") else False, self.specLst))
 
-    def removeColumnFromSpec(self, columnName):
-        self.spec = list(filter(lambda x: x.columnName != columnName, self.specLst))
+    def removeColumnFromSpec(self, attribute):
+        self.spec = list(filter(lambda x: x.attribute != attribute, self.specLst))
     '''
     Possibly add more helper functions for retrieving information fro specified SpecLst 
     '''

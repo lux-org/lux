@@ -1,4 +1,5 @@
 from lux.utils.utils import convert2List
+# from ..luxDataFrame.LuxDataframe import LuxDataFrame
 
 class Validator:
 	'''
@@ -31,6 +32,7 @@ class Validator:
 		return f"<Validator>"
 
 	@staticmethod
+	# def parseSpec(luxDataFrame: LuxDataFrame):
 	def parseSpec(luxDataFrame):
 		# do parsing ....
 		# after parsing
@@ -49,6 +51,7 @@ class Validator:
 
 
 	@staticmethod
+	# def validateSpec(luxDataFrame: LuxDataFrame):
 	def validateSpec(luxDataFrame):
 		def existsInDF(value,uniqueValues):
 			return any(value in vals for vals in uniqueValues)
@@ -67,14 +70,15 @@ class Validator:
 				if spec.attribute and not checkAttrExists:
 					printWarning = True
 
+				checkValExists = spec.attribute and spec.value in uniqueVals[spec.attribute]
+				if spec.value and not checkValExists:
+					printWarning = True
+
 			if isinstance(spec.value, list):
 				checkValExistsGroup = all(existsInDF(val, uniqueVals) for val in spec.value)
 				if spec.value and not (spec.value == "?" or checkValExistsGroup):
 					printWarning = True
-			else:
-				checkValExists = spec.axis and spec.value in uniqueVals[spec.axis]
-				if spec.value and not checkValExists:
-					printWarning = True
+
 
 		if printWarning:
 			#print warning
@@ -84,6 +88,7 @@ class Validator:
 		# lux.setContext(lux.Spec(attr = "A")) --> Warning
 
 	@staticmethod
+	# def populateOptions(luxDataFrame: LuxDataFrame):
 	def populateOptions(luxDataFrame):
 		"""
 		Given a row or column object, return the list of available values that satisfies the dataType or dataModel constraints
@@ -124,7 +129,7 @@ class Validator:
 				# 	attrLst = convert2List(spec.attribute)
 				# else:
 				# 	attrLst = convert2List(spec.attributeGroup)
-				attrLst = convert2List(spec.axis)
+				attrLst = convert2List(spec.attr)
 				for attr in attrLst:
 					if spec.value == "?":
 						options = luxDataFrame.uniqueValues[attr]
@@ -132,7 +137,7 @@ class Validator:
 						options = convert2List(spec.value)
 					for optStr in options:
 						specCopy = copy.copy(spec)
-						specCopy.axis = attr
+						specCopy.attribute = attr
 						specCopy.value = optStr
 						specCopy.type = "value"
 						specOptions.append(specCopy)
