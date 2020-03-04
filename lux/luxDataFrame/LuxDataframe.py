@@ -21,6 +21,8 @@ class LuxDataFrame(pd.DataFrame):
     def setViewCollection(self,viewCollection):
         self.viewCollection = viewCollection 
     def _refreshContext(self):
+        self.computeStats()
+        self.computeDatasetMetadata()
         Validator.parseSpec(self)
         Validator.validateSpec(self)
         Compiler.compile(self)
@@ -58,14 +60,6 @@ class LuxDataFrame(pd.DataFrame):
         self.computeDataModel()
 
     def computeDataType(self):
-        # df = self
-        # self.dataType = {
-        # 	"quantitative":list(dfw.dtypes[df.dtypes=="float64"].keys()) + list(df.dtypes[df.dtypes=="int64"].keys()),
-        # 	"categorical":list(df.dtypes[df.dtypes=="object"].keys()),
-        # 	"ordinal": [],
-        # 	"date":[]
-        # }
-
         for attr in self.attrList:
             if self.dtypes[attr] == "float64" or self.dtypes[attr] == "int64":
                 if self.cardinality[attr] < 10:
@@ -74,6 +68,8 @@ class LuxDataFrame(pd.DataFrame):
                     self.dataTypeLookup[attr] = "quantitative"
             elif self.dtypes[attr] == "object":
                 self.dataTypeLookup[attr] = "categorical"
+            elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
+                self.dataTypeLookup[attr] = "date"
         # # Override with schema specified types
         for attrInfo in self.schema:
             key = list(attrInfo.keys())[0]
@@ -106,7 +102,6 @@ class LuxDataFrame(pd.DataFrame):
 
     def mapping(self, rmap):
         groupMap = {}
-        uniqueVal = list(set(rmap.values()))
         for val in ["quantitative", "ordinal", "categorical", "date"]:
             groupMap[val] = list(filter(lambda x: rmap[x] == val, rmap))
         return groupMap
@@ -118,7 +113,6 @@ class LuxDataFrame(pd.DataFrame):
             for val in map[valKey]:
                 reverseMap[val] = valKey
         return reverseMap
-
 
     def computeStats(self):
         # precompute statistics
