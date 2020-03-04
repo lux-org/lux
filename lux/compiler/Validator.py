@@ -2,29 +2,6 @@ from lux.utils.utils import convert2List
 # from ..luxDataFrame.LuxDataframe import LuxDataFrame
 
 class Validator:
-	'''
-	lux.setContext("Horsepower")
-	--> lux.Spec(attr = "Horsepower", type= "attribute")
-
-	lux.setContext("Horsepower", lux.Spec("MilesPerGal",channel="x"))
-		--> [lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(attr ="MilesPerGal", type= "attribute",channel="x")]
-
-	lux.setContext("Horsepower","Origin=USA")
-		--> [lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="USA", type= "value")]
-
-	lux.setContext("Horsepower","USA")
-		--> [lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="USA", type= "value")]
-
-	lux.setContext("Horsepower","Origin=?")
-		--> [lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="?", type= "valueGroup")]
-
-		-->[[lux.Spec(attr ="Horsepower", type= " attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="USA", type= "value")],
-			[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="UK", type= "value")],
-			[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="Japan", type= "value")] ]
-
-	lux.setContext(["Horsepower","MPG","Acceleration"])
-		--> [lux.Spec(attrGroup = ["Horsepower","MPG","Acceleration"], type= "attributeGroup")]
-	'''
 	def __init__(self):
 		self.name = "Validator"
 
@@ -32,44 +9,25 @@ class Validator:
 		return f"<Validator>"
 
 	@staticmethod
-	# def parseSpec(luxDataFrame: LuxDataFrame):
-	def parseSpec(luxDataFrame):
-		# do parsing ....
-		# after parsing
-		context = luxDataFrame.getContext()
-		for spec in context:
-			if spec.attribute:
-				spec.type = "attribute"
-			if spec.value:
-				spec.type = "value"
-			if spec.attribute == "?" or isinstance(spec.attribute,list):
-				spec.type = "attributeGroup"
-			if spec.value == "?" or isinstance(spec.value,list):
-				spec.type = "valueGroup"
-
-		Validator.populateOptions(luxDataFrame)
-
-
-	@staticmethod
-	# def validateSpec(luxDataFrame: LuxDataFrame):
-	def validateSpec(luxDataFrame):
+	# def validateSpec(ldf: LuxDataFrame):
+	def validateSpec(ldf):
+		Validator.populateOptions(ldf)
 		def existsInDF(value,uniqueValues):
 			return any(value in vals for vals in uniqueValues)
 		# 1. Parse all string specification into Spec objects (nice-to-have)
 		# 2. Validate that the parsed specification is corresponds to the content in the LuxDataframe.
-		context = luxDataFrame.getContext()
-		uniqueVals = luxDataFrame.uniqueValues
+		context = ldf.getContext()
+		uniqueVals = ldf.uniqueValues
 		printWarning = False
-		print (context)
 		for spec in context:
 			if ((spec.attribute and spec.attribute == "?") or (spec.value and spec.value=="?")):
 				continue
 			if isinstance(spec.attribute,list):
-				checkAttrExistsGroup = all(attr in luxDataFrame.attrList for attr in spec.attribute)
+				checkAttrExistsGroup = all(attr in ldf.attrList for attr in spec.attribute)
 				if spec.attribute and not checkAttrExistsGroup:
 					printWarning = True
 			else:
-					checkAttrExists = spec.attribute in luxDataFrame.attrList
+					checkAttrExists = spec.attribute in ldf.attrList
 					if spec.attribute and not checkAttrExists:
 						printWarning = True
 
@@ -91,8 +49,8 @@ class Validator:
 		# lux.setContext(lux.Spec(attr = "A")) --> Warning
 
 	@staticmethod
-	# def populateOptions(luxDataFrame: LuxDataFrame):
-	def populateOptions(luxDataFrame):
+	# def populateOptions(ldf: LuxDataFrame):
+	def populateOptions(ldf):
 		"""
 		Given a row or column object, return the list of available values that satisfies the dataType or dataModel constraints
 
@@ -109,15 +67,15 @@ class Validator:
 			List of expanded Column or Row objects
 		"""
 		import copy
-		for spec in luxDataFrame.context:
+		for spec in ldf.context:
 			specOptions = []
 			if "attribute" in spec.type:
 				if spec.attribute == "?":
-					options = set(luxDataFrame.attrList)  # all attributes
+					options = set(ldf.attrList)  # all attributes
 					if (spec.dataType != ""):
-						options = options.intersection(set(luxDataFrame.dataType[spec.dataType]))
+						options = options.intersection(set(ldf.dataType[spec.dataType]))
 					if (spec.dataModel != ""):
-						options = options.intersection(set(luxDataFrame.dataModel[spec.dataModel]))
+						options = options.intersection(set(ldf.dataModel[spec.dataModel]))
 					options = list(options)
 				else:
 					options = convert2List(spec.attribute)
@@ -126,7 +84,7 @@ class Validator:
 					specCopy.attribute = optStr
 					specCopy.type = "attribute"
 					specOptions.append(specCopy)
-				luxDataFrame.cols.append(specOptions)
+				ldf.cols.append(specOptions)
 			elif "value" in spec.type:
 				# if spec.attribute:
 				# 	attrLst = convert2List(spec.attribute)
@@ -135,7 +93,7 @@ class Validator:
 				attrLst = convert2List(spec.attribute)
 				for attr in attrLst:
 					if spec.value == "?":
-						options = luxDataFrame.uniqueValues[attr]
+						options = ldf.uniqueValues[attr]
 					else:
 						options = convert2List(spec.value)
 					for optStr in options:
@@ -144,5 +102,5 @@ class Validator:
 						specCopy.value = optStr
 						specCopy.type = "value"
 						specOptions.append(specCopy)
-				# luxDataFrame.rows.append(specOptions)
-				luxDataFrame.rows = specOptions
+				# ldf.rows.append(specOptions)
+				ldf.rows = specOptions

@@ -2,7 +2,6 @@ from lux.context import Spec
 from typing import List, Dict
 from lux.view.View import View
 # from ..luxDataFrame.LuxDataframe import LuxDataFrame
-
 from lux.view.ViewCollection import ViewCollection
 class Compiler:
 	def __init__(self):
@@ -11,8 +10,7 @@ class Compiler:
 	def __repr__(self):
 		return f"<Compiler>"
 	@staticmethod
-	# def compile(ldf: LuxDataFrame):
-	def compile(ldf):
+	def compile(ldf ):
 		# 1. If the DataObj represent a collection, then compile it into a collection. Otherwise, return False
 		# Input: DataObj --> Output: DataObjCollection/False
 		# if (enumerateCollection):
@@ -35,7 +33,7 @@ class Compiler:
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
-			Underspecified DataObj input
+			LuxDataFrame with underspecified context
 		
 		Returns
 		-------
@@ -66,7 +64,7 @@ class Compiler:
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
-			Underspecified DataObj input
+			LuxDataFrame with underspecified context
 
 		Returns
 		-------
@@ -103,7 +101,7 @@ class Compiler:
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
-			Underspecified DataObj input
+			LuxDataFrame with underspecified context
 		view : lux.view.View
 
 		Returns
@@ -227,7 +225,7 @@ class Compiler:
 		Parameters
 		----------
 		view : lux.view.View
-			Input DataObject without channel specification
+			Input View without channel specification
 		autoChannel : Dict[str,str]
 			Key-value pair in the form [channel: attributeName] specifying the showMe recommended channel location
 		
