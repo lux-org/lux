@@ -1,9 +1,11 @@
+import typing
 class Spec:
 	'''
 	Spec is the object representation of a single unit of the specification.
 	'''
-	def __init__(self, description="",attribute="",value="", filterOp="", channel="",
-				 dataType="",dataModel="",aggregation = "", binning="", weight=""):
+	def __init__(self, description:str ="",attribute: typing.Union[str,list] ="",value: typing.Union[str,list]="",
+				 filterOp:str ="", channel:str ="", dataType:str="",dataModel:str="",
+				 aggregation:str = "", binning:str="", weight:float=1):
 		# Descriptor
 		self.description = description
 		# Description gets comiled to either an attribute, value, attributeGroup or valueGroup

@@ -30,12 +30,21 @@ def test_underspecifiedVisCollection():
 	
 	df.setContext([lux.Spec(attribute = "?", dataModel="measure"),lux.Spec(attribute = "?", dataModel="measure")])
 	assert len(df.viewCollection) == 25 
+def test_parse():
+	df = pd.read_csv("lux/data/car.csv")
+	df.setContext([lux.Spec("Origin=?"),lux.Spec(attribute = "MilesPerGal")])
+	assert len(df.viewCollection)==3
 
+	df = pd.read_csv("lux/data/car.csv")
+	df.setContext([lux.Spec("Origin=?"),lux.Spec("MilesPerGal")])
+	assert len(df.viewCollection)==3
 def test_underspecifiedVisCollection_Zval():
 	# check if the number of charts is correct
 	df = pd.read_csv("lux/data/car.csv")
 	df.setContext([lux.Spec(attribute = "Origin", filterOp="=",value="?"),lux.Spec(attribute = "MilesPerGal")])
 	assert len(df.viewCollection)==3
+
+
 # 	dobj = lux.DataObj(dataset,[lux.Column("Horsepower"),lux.Column("Brand"),lux.Row("Origin",["Japan","USA"])])
 # 	assert type(dobj.compiled).__name__ == "DataObjCollection"
 # 	assert len(dobj.compiled.collection) == 2
