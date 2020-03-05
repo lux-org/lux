@@ -40,7 +40,4 @@ class ExecutionEngine:
     @staticmethod
     def executeFilter(view, filters, ldf):
         for filter in filters:
-            if view.data:
-                view.data = view.data[view.data[filter.attribute] == filter.value]
-            else:
-                view.data = ldf[ldf[filter.attribute] == filter.value]
+            view.data = ldf[ldf[filter.attribute] == filter.value]
