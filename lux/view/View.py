@@ -8,12 +8,17 @@ class View:
         self.specLst = specifiedSpecLst
         self.title = title
         self.mark = ""
+        self.data = None
 
     def __repr__(self):
         return f"<View: Mark: {self.mark} Specs: {str(self.specLst)}>"
 
     def getObjFromChannel(self, channel):
         specObj = list(filter(lambda x: x.channel == channel if hasattr(x, "channel") else False, self.specLst))
+        return specObj
+
+    def getFiltersFromSpec(self):
+        specObj = list(filter(lambda x: x.value, self.specLst))
         return specObj
 
     def getObjByDataModel(self, dmodel):

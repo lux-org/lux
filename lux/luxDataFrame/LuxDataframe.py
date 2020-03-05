@@ -1,7 +1,9 @@
 import pandas as pd
+import lux
 from lux.compiler.Validator import Validator
 from lux.compiler.Compiler import Compiler
 from lux.compiler.Parser import Parser
+from lux.executor.ExecutionEngine import ExecutionEngine
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType','computeDataType',
@@ -37,17 +39,21 @@ class LuxDataFrame(pd.DataFrame):
     def __repr__(self):
         # TODO: _repr_ gets called from _repr_html, need to get rid of this call
         return ""
-    def _repr_html_(self):
-        import luxWidget
-        import json
-        widgetJSON = json.load(open("mockWidgetJSON.json",'r'))
-        widget = luxWidget.LuxWidget(
-            currentView=widgetJSON["currentView"],
-            recommendations=widgetJSON["recommendations"]
-        )
-        # return widget
-        from IPython.display import display
-        display(widget)
+    # def _repr_html_(self):
+    #     import luxWidget
+    #     import json
+    #
+    #     result = lux.Result()
+    #     result.mergeResult(self.overview())
+    #
+    #     widgetJSON = json.load(open("mockWidgetJSON.json",'r'))
+    #     widget = luxWidget.LuxWidget(
+    #         currentView=widgetJSON["currentView"],
+    #         recommendations=widgetJSON["recommendations"]
+    #     )
+    #     # return widget
+    #     from IPython.display import display
+    #     display(widget)
 
     def computeDatasetMetadata(self):
         self.attrList = list(self.columns)
@@ -123,3 +129,20 @@ class LuxDataFrame(pd.DataFrame):
         for dimension in self.columns:
             self.uniqueValues[dimension] = self[dimension].unique()
             self.cardinality[dimension] = len(self.uniqueValues[dimension])
+
+    def display(self, renderer="altair", currentView=""):
+        ExecutionEngine.execute(self)
+        widget = lux.Result.display(self, renderer=renderer, currentView=currentView)
+        return widget
+
+    # Mappers to Action classes
+    def correlation(self):
+        from lux.action.Correlation import correlation
+        return correlation(self)
+
+    def showMore(self):
+        currentViewExist = self.compiled.spec!=[]
+        ExecutionEngine.execute(self)  # data is available for each view in the spec.
+        result = lux.Result()
+        result.mergeResult(self.overview())
+        return result
