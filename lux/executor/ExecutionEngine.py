@@ -21,7 +21,7 @@ class ExecutionEngine:
                 ExecutionEngine.executeFilter(view, filters, ldf)
             else:
                 view.data = ldf
-
+            # Select relevant data based on attribute information
             attributes = []
             xAttribute = view.getObjFromChannel("x")
             yAttribute = view.getObjFromChannel("y")
@@ -32,12 +32,8 @@ class ExecutionEngine:
             if yAttribute and yAttribute[0].attribute:
                 attributes.append(yAttribute[0].attribute)
             if zAttribute and zAttribute[0].attribute:
-                attributes.appeend(zAttribute[0].attribute)
-
-            print(attributes)
+                attributes.append(zAttribute[0].attribute)
             view.data = view.data[attributes]
-
-        # TODO:Select relevant data based on attribute information
 
         return ldf 
 
