@@ -15,9 +15,12 @@ class ExecutionEngine:
         '''
         viewCollection = ldf.viewCollection
         for view in viewCollection:
+            
             filters = view.getFiltersFromSpec()
-            if filters:
+            if (filters):
                 ExecutionEngine.executeFilter(view, filters, ldf)
+            else:
+                view.data = ldf
 
             attributes = []
             xAttribute = view.getObjFromChannel("x")
@@ -32,7 +35,7 @@ class ExecutionEngine:
                 attributes.appeend(zAttribute[0].attribute)
 
             print(attributes)
-            view.data = ldf[attributes]
+            view.data = view.data[attributes]
 
         # TODO:Select relevant data based on attribute information
 
@@ -42,6 +45,6 @@ class ExecutionEngine:
     def executeFilter(view, filters, ldf):
         for filter in filters:
             if view.data:
-                view.data = view.data[filter.attribute == filter.value]
+                view.data = view.data[view.data[filter.attribute] == filter.value]
             else:
-                view.data = ldf[filter.attribute == filter.value]
+                view.data = ldf[ldf[filter.attribute] == filter.value]
