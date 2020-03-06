@@ -18,7 +18,7 @@ class ViewCollection():
 
 	def map(self,function):
 		# generalized way of applying a function to each element
-		return map(function, self.collection)
+		return map(function, self._collection)
 	
 	def get(self,fieldName):
 		# Get the value of the field for all objects in the collection
@@ -33,21 +33,21 @@ class ViewCollection():
 
 	def sort(self, removeInvalid=True, descending = True):
 		# remove the items that have invalid (-1) score
-		if (removeInvalid): self.collection = list(filter(lambda x: x.score!=-1,self.collection))
+		if (removeInvalid): self._collection = list(filter(lambda x: x.score!=-1,self._collection))
 		# sort in-place by “score” by default if available, otherwise user-specified field to sort by
-		self.collection.sort(key=lambda x: x.score, reverse=descending)
+		self._collection.sort(key=lambda x: x.score, reverse=descending)
 
 	def topK(self,k):
 		#sort and truncate list to first K items
 		self.sort()
-		return ViewCollection(self.collection[:k])
+		return ViewCollection(self._collection[:k])
 	def bottomK(self,k):
 		#sort and truncate list to first K items
 		self.sort(descending=False)
-		return ViewCollection(self.collection[:k])
+		return ViewCollection(self._collection[:k])
 	def normalizeScore(self, invertOrder = False):
 		maxScore = max(list(self.get("score")))
-		for dobj in self.collection:
+		for dobj in self._collection:
 			dobj.score = dobj.score/maxScore
 			if (invertOrder): dobj.score = 1 - dobj.score 
 	

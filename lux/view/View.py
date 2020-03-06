@@ -8,9 +8,10 @@ class View:
 		self.title = title
 		self.mark = ""
 		self.data = None
+		self.score = 0.0
 
 	def __repr__(self):
-		return f"<View: Mark: {self.mark} Specs: {str(self.specLst)}>"
+		return f"<View: Mark: {self.mark}, Specs: {str(self.specLst)}, Score:{self.score}>"
 
 	def getObjFromChannel(self, channel):
 		specObj = list(filter(lambda x: x.channel == channel if hasattr(x, "channel") else False, self.specLst))

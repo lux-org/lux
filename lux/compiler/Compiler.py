@@ -10,23 +10,24 @@ class Compiler:
 	def __repr__(self):
 		return f"<Compiler>"
 	@staticmethod
-	def compile(ldf ):
+	def compile(ldf,viewCollection):
 		# 1. If the DataObj represent a collection, then compile it into a collection. Otherwise, return False
 		# Input: DataObj --> Output: DataObjCollection/False
 		# if (enumerateCollection):
-		Compiler.enumerateCollection(ldf)
+		viewCollection = Compiler.enumerateCollection(ldf,viewCollection)
 		# else:
 		# 	dataObjCollection = False
 		# 2. For every DataObject in the DataObject Collection, expand underspecified
 		# Output : DataObj/DataObjectCollection
 		
 		# compiledCollection = []
-		Compiler.expandUnderspecified(ldf)  # autofill data type/model information
-		for view in ldf.viewCollection:
+		viewCollection = Compiler.expandUnderspecified(ldf,viewCollection)  # autofill data type/model information
+		for view in viewCollection:
 			Compiler.determineEncoding(ldf,view)  # autofill viz related information
+		return viewCollection
 	@staticmethod
 	# def expandUnderspecified(ldf: LuxDataFrame):
-	def expandUnderspecified(ldf):
+	def expandUnderspecified(ldf,viewCollection):
 		"""
 		Given a underspecified Spec, populate the dataType and dataModel information accordingly
 		
@@ -34,29 +35,21 @@ class Compiler:
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context
-		
-		Returns
-		-------
-		Returns Nothing
 		"""		
 		# TODO: copy might not be neccesary
 		import copy
-		views = copy.deepcopy(ldf.viewCollection)  # Preserve the original dobj
+		views = copy.deepcopy(viewCollection)  # Preserve the original dobj
 		for view in views:
-
-			# expand spec
-			# if (spec.type in "attributeGroup" and len(spec.attributeGroup) == 1): # case when attribute group has only one element
-			# 	spec.attribute = spec.attributeGroup[0]
 			for spec in view.specLst:
 				if spec.attribute:
 					if (spec.dataType == ""):
 						spec.dataType = ldf.dataTypeLookup[spec.attribute]
 					if (spec.dataModel == ""):
 						spec.dataModel = ldf.dataModelLookup[spec.attribute]
-		ldf.setViewCollection(views)
+		return views
 	@staticmethod
 	# def enumerateCollection(ldf: LuxDataFrame):
-	def enumerateCollection(ldf):
+	def enumerateCollection(ldf,viewCollection):
 		"""
 		Given specifications that have been expanded thorught populateOptions,
 		recursively iterate over the resulting list combinations to generate a View collection.
@@ -90,7 +83,7 @@ class Compiler:
 					combine(colAttrs[1:], columnList)
 
 		combine(ldf.cols, [])
-		ldf.viewCollection = ViewCollection(collection)
+		return ViewCollection(collection)
 	@staticmethod
 	# def determineEncoding(ldf: LuxDataFrame,view: View):
 	def determineEncoding(ldf, view: View):
@@ -123,6 +116,7 @@ class Compiler:
 		Ndim = 0
 		Nmsr = 0
 		rowLst = []
+		
 		for spec in view.specLst:
 			# print(spec)
 			if (spec.type == "attribute"):
@@ -132,6 +126,7 @@ class Compiler:
 					Nmsr += 1
 			if (spec.type == "value"):  # preserve to add back to dobj later
 				rowLst.append(spec)
+		# print ("Ndim,Nmsr:",Ndim,Nmsr)
 		# Helper function (TODO: Move this into utils)
 		def lineOrBar(dimension, measure):
 			dimType = dimension.dataType
