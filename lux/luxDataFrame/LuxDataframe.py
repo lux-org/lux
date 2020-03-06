@@ -8,12 +8,12 @@ import luxWidget
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType', 
-                 'dataModelLookup','dataModel','uniqueValues','cardinality','viewCollection','cols','rows','widget']
+                 'dataModelLookup','dataModel','uniqueValues','cardinality',
+                 'viewCollection','cols','rows','widget', 'recommendations']
 
     def __init__(self,*args, **kw):
         self.context = []
         self.spec = []
-        self.viewCollection = ""
         self.schema = []
         super(LuxDataFrame, self).__init__(*args, **kw)
         self.computeStats()
@@ -140,10 +140,10 @@ class LuxDataFrame(pd.DataFrame):
         return self.widget
     def _repr_html_(self):
         from IPython.display import display
-        widget = self.renderWidget()
-        display(widget)
+        self.renderWidget()
+        display(self.widget)
 
-    def renderWidget(self, renderer:str ="altair", inputCurrentView="") -> luxWidget.LuxWidget:
+    def renderWidget(self, renderer:str ="altair", inputCurrentView=""):
         """
         Generate a LuxWidget based on the LuxDataFrame
         
@@ -152,25 +152,19 @@ class LuxDataFrame(pd.DataFrame):
         renderer : str, optional
             Choice of visualization rendering library, by default "altair"
         inputCurrentView : lux.LuxDataFrame, optional
-            User-specified current view to override defaul Current View, by default ""
-        
-        Returns
-        -------
-        luxWidget.LuxWidget
-            Returned widget (also stored as self.widget)
+            User-specified current view to override defaul Current View, by default 
         """        
         import pkgutil
         if (pkgutil.find_loader("luxWidget") is None):
             raise Exception("luxWidget is not install. Run `npm i lux-widget' to install the Jupyter widget.\nSee more at: https://github.com/lux-org/lux-widget")
-        # widgetJSON = self.toJSON(inputCurrentView=inputCurrentView)
+        widgetJSON = self.toJSON(inputCurrentView=inputCurrentView)
         # For debugging purposes
-        import json
-        widgetJSON = json.load(open("mockWidgetJSON.json",'r'))
+        # import json
+        # widgetJSON = json.load(open("mockWidgetJSON.json",'r'))
         self.widget = luxWidget.LuxWidget(
             currentView=widgetJSON["currentView"],
             recommendations=widgetJSON["recommendations"]
         )
-        return self.widget
 
     def toJSON(self, inputCurrentView=""):
         dobj_dict = {}
@@ -184,16 +178,18 @@ class LuxDataFrame(pd.DataFrame):
         #     dobj.recommendations.append(visCollection)
         # # Recommended Collection
         # dobj_dict["recommendations"] = LuxDataFrame.recToJSON(self.resultsJSON)
+        dobj_dict["recommendations"] = [] # temp
         return dobj_dict
     
     @staticmethod
-    def currentViewToJSON(vc, inputCurrentView=""):
+    def currentViewToJSON(vc:lux.view.ViewCollection, inputCurrentView=""):
         currentViewSpec = {}
         numVC = len(vc) #number of views in the view collection
         if (numVC==1):
             currentViewSpec = vc[0].renderVSpec()
         elif (numVC>1):
             pass
+        
         #     # if the compiled object is a collection, see if we can remove the elements with "?" and generate a Current View
         #     specifiedDobj = currentViewDobj.getVariableFieldsRemoved()
         #     if (specifiedDobj.spec!=[]): specifiedDobj.compile(enumerateCollection=False)
@@ -205,22 +201,22 @@ class LuxDataFrame(pd.DataFrame):
         #         specifiedDobj.compile(enumerateCollection=False)
         #         currentViewSpec = specifiedDobj.compiled.renderVSpec()
         return currentViewSpec
-    # @staticmethod
-    # def recToJSON(recDataObjs):
-    #     recLst = []
-    #     import copy
-    #     recCopy = copy.deepcopy(recDataObjs)
-    #     # for the case of single DataObject display of vis collection 
-    #     if (type(recCopy)!=list): recCopy = [recCopy]
-    #     for idx,rec in enumerate(recCopy):
-    #         if (rec != {}):
-    #             rec["vspec"] = []
-    #             for vis in rec["collection"].collection:
-    #                 chart = vis.renderVSpec()
-    #                 rec["vspec"].append(chart)
-    #             recLst.append(rec)
-    #             # delete DataObjectCollection since not JSON serializable
-    #             del recLst[idx]["collection"]
-    #     return recLst
+    @staticmethod
+    def recToJSON(recs:lux.view.ViewCollection):
+        recLst = []
+        import copy
+        recCopy = copy.deepcopy(recs)
+        # for the case of single DataObject display of vis collection 
+        if (type(recCopy)!=list): recCopy = [recCopy]
+        for idx,rec in enumerate(recCopy):
+            if (rec != {}):
+                rec["vspec"] = []
+                for vis in rec["collection"].collection:
+                    chart = vis.renderVSpec()
+                    rec["vspec"].append(chart)
+                recLst.append(rec)
+                # delete DataObjectCollection since not JSON serializable
+                del recLst[idx]["collection"]
+        return recLst
 
 
