@@ -4,10 +4,11 @@ from lux.compiler.Validator import Validator
 from lux.compiler.Compiler import Compiler
 from lux.compiler.Parser import Parser
 from lux.executor.ExecutionEngine import ExecutionEngine
+import luxWidget
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
-    _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType','computeDataType',
-                 'dataModelLookup','dataModel','uniqueValues','cardinality','viewCollection','cols','rows']
+    _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType', 
+                 'dataModelLookup','dataModel','uniqueValues','cardinality','viewCollection','cols','rows','widget']
 
     def __init__(self,*args, **kw):
         self.context = []
@@ -39,22 +40,10 @@ class LuxDataFrame(pd.DataFrame):
     def __repr__(self):
         # TODO: _repr_ gets called from _repr_html, need to get rid of this call
         return ""
-    # def _repr_html_(self):
-    #     import luxWidget
-    #     import json
-    #
-    #     result = lux.Result()
-    #     result.mergeResult(self.overview())
-    #
-    #     widgetJSON = json.load(open("mockWidgetJSON.json",'r'))
-    #     widget = luxWidget.LuxWidget(
-    #         currentView=widgetJSON["currentView"],
-    #         recommendations=widgetJSON["recommendations"]
-    #     )
-    #     # return widget
-    #     from IPython.display import display
-    #     display(widget)
 
+    #######################################################
+    ############ Metadata, type, model schema #############
+    #######################################################
     def computeDatasetMetadata(self):
         self.attrList = list(self.columns)
         self.cols = []
@@ -130,19 +119,108 @@ class LuxDataFrame(pd.DataFrame):
             self.uniqueValues[dimension] = self[dimension].unique()
             self.cardinality[dimension] = len(self.uniqueValues[dimension])
 
-    def display(self, renderer="altair", currentView=""):
-        ExecutionEngine.execute(self)
-        widget = lux.Result.display(self, renderer=renderer, currentView=currentView)
-        return widget
-
-    # Mappers to Action classes
+    #######################################################
+    ############## Mappers to Action classes ##############
+    #######################################################
     def correlation(self):
         from lux.action.Correlation import correlation
         return correlation(self)
 
-    def showMore(self):
-        currentViewExist = self.compiled.spec!=[]
-        ExecutionEngine.execute(self)  # data is available for each view in the spec.
-        result = lux.Result()
-        result.mergeResult(self.overview())
-        return result
+    # def showMore(self):
+    #     currentViewExist = self.compiled.spec!=[]
+    #     ExecutionEngine.execute(self)  # data is available for each view in the spec.
+    #     result = lux.Result()
+    #     result.mergeResult(self.overview())
+    #     return result
+
+    #######################################################
+    ############## LuxWidget Result Display ###############
+    #######################################################
+    def getWidget(self):
+        return self.widget
+    def _repr_html_(self):
+        from IPython.display import display
+        widget = self.renderWidget()
+        display(widget)
+
+    def renderWidget(self, renderer:str ="altair", inputCurrentView="") -> luxWidget.LuxWidget:
+        """
+        Generate a LuxWidget based on the LuxDataFrame
+        
+        Parameters
+        ----------
+        renderer : str, optional
+            Choice of visualization rendering library, by default "altair"
+        inputCurrentView : lux.LuxDataFrame, optional
+            User-specified current view to override defaul Current View, by default ""
+        
+        Returns
+        -------
+        luxWidget.LuxWidget
+            Returned widget (also stored as self.widget)
+        """        
+        import pkgutil
+        if (pkgutil.find_loader("luxWidget") is None):
+            raise Exception("luxWidget is not install. Run `npm i lux-widget' to install the Jupyter widget.\nSee more at: https://github.com/lux-org/lux-widget")
+        # widgetJSON = self.toJSON(inputCurrentView=inputCurrentView)
+        # For debugging purposes
+        import json
+        widgetJSON = json.load(open("mockWidgetJSON.json",'r'))
+        self.widget = luxWidget.LuxWidget(
+            currentView=widgetJSON["currentView"],
+            recommendations=widgetJSON["recommendations"]
+        )
+        return self.widget
+
+    def toJSON(self, inputCurrentView=""):
+        dobj_dict = {}
+        from lux.executor.ExecutionEngine import ExecutionEngine
+        ExecutionEngine.execute(self.viewCollection,self)
+        dobj_dict["currentView"] = LuxDataFrame.currentViewToJSON(self.viewCollection,inputCurrentView)
+        # if (dobj.recommendations==[]):
+        #     visCollection = {"action": "Vis Collection",
+        #         "collection":dobj.compiled
+        #     }
+        #     dobj.recommendations.append(visCollection)
+        # # Recommended Collection
+        # dobj_dict["recommendations"] = LuxDataFrame.recToJSON(self.resultsJSON)
+        return dobj_dict
+    
+    @staticmethod
+    def currentViewToJSON(vc, inputCurrentView=""):
+        currentViewSpec = {}
+        numVC = len(vc) #number of views in the view collection
+        if (numVC==1):
+            currentViewSpec = vc[0].renderVSpec()
+        elif (numVC>1):
+            pass
+        #     # if the compiled object is a collection, see if we can remove the elements with "?" and generate a Current View
+        #     specifiedDobj = currentViewDobj.getVariableFieldsRemoved()
+        #     if (specifiedDobj.spec!=[]): specifiedDobj.compile(enumerateCollection=False)
+        #     if (currentView!=""):
+        #         currentViewSpec = currentView.compiled.renderVSpec()
+        #     elif (specifiedDobj.isEmpty()):
+        #         currentViewSpec = {}
+        #     else:
+        #         specifiedDobj.compile(enumerateCollection=False)
+        #         currentViewSpec = specifiedDobj.compiled.renderVSpec()
+        return currentViewSpec
+    # @staticmethod
+    # def recToJSON(recDataObjs):
+    #     recLst = []
+    #     import copy
+    #     recCopy = copy.deepcopy(recDataObjs)
+    #     # for the case of single DataObject display of vis collection 
+    #     if (type(recCopy)!=list): recCopy = [recCopy]
+    #     for idx,rec in enumerate(recCopy):
+    #         if (rec != {}):
+    #             rec["vspec"] = []
+    #             for vis in rec["collection"].collection:
+    #                 chart = vis.renderVSpec()
+    #                 rec["vspec"].append(chart)
+    #             recLst.append(rec)
+    #             # delete DataObjectCollection since not JSON serializable
+    #             del recLst[idx]["collection"]
+    #     return recLst
+
+

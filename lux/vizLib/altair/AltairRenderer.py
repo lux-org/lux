@@ -12,31 +12,30 @@ class AltairRenderer:
 		pass
 	def __repr__(self):
 		return f"AltairRenderer"
-	def createVis(self,dobj):
+	def createVis(self,view):
 		"""
 		Input DataObject and return a visualization specification
 		
 		Parameters
 		----------
-		dobj : lux.DataObj
-			Input DataObject
+		view: lux.view.View
+			Input View (with data)
 		
 		Returns
 		-------
 		chart : altair.Chart
 			Output Altair Chart Object
 		"""		
-		if (dobj.mark =="histogram"):
-			chart = Histogram(dobj)
-		elif (dobj.mark =="bar"):
-			chart = BarChart(dobj)
-		elif (dobj.mark =="scatter"):
-			chart = ScatterChart(dobj)
-		elif (dobj.mark =="line"):
-			chart = LineChart(dobj)
+		if (view.mark =="histogram"):
+			chart = Histogram(view)
+		elif (view.mark =="bar"):
+			chart = BarChart(view)
+		elif (view.mark =="scatter"):
+			chart = ScatterChart(view)
+		elif (view.mark =="line"):
+			chart = LineChart(view)
 		chart = chart.chart.to_dict()
-		# del chart["datasets"]
-		# chart["data"] =  { "name": 'chartData' }
+		chart["data"] =  { "values": view.data.to_dict(orient='records') }
 		chart["width"] = 160
 		chart["height"] = 150
 		return chart
