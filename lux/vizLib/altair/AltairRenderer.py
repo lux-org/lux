@@ -25,7 +25,7 @@ class AltairRenderer:
 		-------
 		chart : altair.Chart
 			Output Altair Chart Object
-		"""		
+		"""	
 		if (view.mark =="histogram"):
 			chart = Histogram(view)
 		elif (view.mark =="bar"):
@@ -34,8 +34,11 @@ class AltairRenderer:
 			chart = ScatterChart(view)
 		elif (view.mark =="line"):
 			chart = LineChart(view)
-		chart = chart.chart.to_dict()
-		chart["data"] =  { "values": view.data.to_dict(orient='records') }
-		chart["width"] = 160
-		chart["height"] = 150
-		return chart
+		else:
+			chart = None
+		if (chart):
+			chart = chart.chart.to_dict()
+			chart["data"] =  { "values": view.data.to_dict(orient='records') }
+			chart["width"] = 160
+			chart["height"] = 150
+			return chart

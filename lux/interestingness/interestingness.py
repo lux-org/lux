@@ -1,6 +1,7 @@
 from lux.interestingness.valueBasedInterestingness import valueBasedInterestingness
 from lux.interestingness.relationshipBasedInterestingness import relationshipBasedInterestingness
 def interestingness(dobj):
+	# TODO: add back if (ldf.dataset.cardinality[cVar]>10): then score -1 for categorical values
 	dobjCompiled = dobj.compiled
 	numAttributes = len(dobj.getObjByRowColType("Column"))
 	if numAttributes == 1:
