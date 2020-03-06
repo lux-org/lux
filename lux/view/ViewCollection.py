@@ -50,5 +50,5 @@ class ViewCollection():
 		for dobj in self.collection:
 			dobj.score = dobj.score/maxScore
 			if (invertOrder): dobj.score = 1 - dobj.score 
-
+	
 	

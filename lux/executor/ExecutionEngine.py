@@ -6,21 +6,17 @@ class ExecutionEngine:
     def __repr__(self):
         return f"<ExecutionEngine>"
     @staticmethod
-    def execute(ldf):
+    def execute(viewCollection:ViewCollection, ldf):
         '''
         Given a ViewCollection, fetch the data required to render the view
         1) Apply filters
         2) Retreive relevant attribute
         3) return a DataFrame with relevant results
         '''
-        viewCollection = ldf.viewCollection
         for view in viewCollection:
             
-            filters = view.getFiltersFromSpec()
-            if (filters):
-                ExecutionEngine.executeFilter(view, filters, ldf)
-            else:
-                view.data = ldf
+            ExecutionEngine.executeFilter(view, ldf)
+            
             # Select relevant data based on attribute information
             attributes = []
             xAttribute = view.getObjFromChannel("x")
@@ -34,10 +30,17 @@ class ExecutionEngine:
             if zAttribute and zAttribute[0].attribute:
                 attributes.append(zAttribute[0].attribute)
             view.data = view.data[attributes]
-
+            # TODO (Jaywoo): ExecutionEngine.executeAggregate(view,ldf)
         return ldf 
-
     @staticmethod
-    def executeFilter(view, filters, ldf):
-        for filter in filters:
-            view.data = ldf[ldf[filter.attribute] == filter.value]
+    def executeAggregate(view, ldf):
+        # TODO (Jaywoo)
+        return NotImplemented
+    @staticmethod
+    def executeFilter(view, ldf):
+        filters = view.getFiltersFromSpec()
+        if (filters):
+            for filter in filters:
+                view.data = ldf[ldf[filter.attribute] == filter.value]
+        else:
+            view.data = ldf

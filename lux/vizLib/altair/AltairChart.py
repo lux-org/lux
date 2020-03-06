@@ -3,27 +3,27 @@ class AltairChart:
 	AltairChart is a representation of a chart. 
 	Common utilities for charts that is independent of chart types should go here.
 	"""			
-	def __init__(self, dobj):
-		self.dobj = dobj
-		self.dataURL = self.dobj.dataset.df #"chartData"
+	def __init__(self, view):
+		self.view = view
+		self.dataURL = "chartData"
 		self.tooltip = True
 		self.chart = self.initializeChart()
-		self.addTooltip()
+		# self.addTooltip()
 		self.encodeColor()
 		self.addTitle()
 	def __repr__(self):
-		return f"AltairChart <{str(self.dobj)}>"
+		return f"AltairChart <{str(self.view)}>"
 	def addTooltip(self):
 		if (self.tooltip): 
-			self.chart = self.chart.encode(tooltip=list(self.dobj.dataset.df.columns))
+			self.chart = self.chart.encode(tooltip=list(self.view.data.df.columns))
 	def encodeColor(self):
-		colorAttr = self.dobj.getObjFromChannel("color")
+		colorAttr = self.view.getObjFromChannel("color")
 		if (len(colorAttr)==1):
 			self.chart = self.chart.encode(color=colorAttr[0].columnName)
 		elif (len(colorAttr)>1):
 			raise ValueError("There should not be more than one attribute specified in the same channel.")
 	def addTitle(self):
-		chartTitle = self.dobj.title
+		chartTitle = self.view.title
 		if chartTitle:
 			self.chart = self.chart.encode().properties(
 				title = chartTitle
