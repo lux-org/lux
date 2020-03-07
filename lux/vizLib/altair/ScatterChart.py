@@ -1,5 +1,5 @@
 from lux.vizLib.altair.AltairChart import AltairChart
-import altair as alt
+import altair as alt 
 alt.data_transformers.disable_max_rows()
 class ScatterChart(AltairChart):
 	def __init__(self,dobj):
@@ -9,7 +9,8 @@ class ScatterChart(AltairChart):
 	def initializeChart(self):
 		xAttr = self.view.getObjFromChannel("x")[0].attribute
 		yAttr = self.view.getObjFromChannel("y")[0].attribute
-		chart = alt.Chart(self.dataURL).mark_circle().encode(
+
+		chart = alt.Chart(self.data).mark_circle().encode(
 		    x=alt.X(xAttr,scale=alt.Scale(zero=False),type="quantitative"),
 		    y=alt.Y(yAttr,scale=alt.Scale(zero=False),type="quantitative")
 		)

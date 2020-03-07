@@ -63,13 +63,13 @@ class LuxDataFrame(pd.DataFrame):
         for attr in self.attrList:
             if self.dtypes[attr] == "float64" or self.dtypes[attr] == "int64":
                 if self.cardinality[attr] < 10:
-                    self.dataTypeLookup[attr] = "categorical"
+                    self.dataTypeLookup[attr] = "nominal"
                 else:
                     self.dataTypeLookup[attr] = "quantitative"
             elif self.dtypes[attr] == "object":
-                self.dataTypeLookup[attr] = "categorical"
+                self.dataTypeLookup[attr] = "nominal"
             elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
-                self.dataTypeLookup[attr] = "date"
+                self.dataTypeLookup[attr] = "temporal"
         # # Override with schema specified types
         for attrInfo in self.schema:
             key = list(attrInfo.keys())[0]
@@ -84,7 +84,7 @@ class LuxDataFrame(pd.DataFrame):
         # TODO: Need to be modified to take in schema for overriding defaults
         self.dataModel = {
             "measure": self.dataType["quantitative"],
-            "dimension": self.dataType["ordinal"] + self.dataType["categorical"] + self.dataType["date"]
+            "dimension": self.dataType["ordinal"] + self.dataType["nominal"] + self.dataType["temporal"]
         }
         # Override with schema specified types
         for attrInfo in self.schema:
@@ -102,7 +102,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def mapping(self, rmap):
         groupMap = {}
-        for val in ["quantitative", "ordinal", "categorical", "date"]:
+        for val in ["quantitative", "ordinal", "nominal", "temporal"]:
             groupMap[val] = list(filter(lambda x: rmap[x] == val, rmap))
         return groupMap
 

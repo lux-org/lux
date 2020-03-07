@@ -31,7 +31,6 @@ class Result:
         import luxWidget
         widgetJSON = self.toJSON(currentView=currentView)
         widget = luxWidget.LuxWidget(
-            # data=json.loads(self.dataset.df.to_json(orient='records')),
             currentView=widgetJSON["currentView"],
             recommendations=widgetJSON["recommendations"]
         )

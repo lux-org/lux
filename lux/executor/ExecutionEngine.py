@@ -14,14 +14,12 @@ class ExecutionEngine:
         3) return a DataFrame with relevant results
         '''
         for view in viewCollection:
-            
             ExecutionEngine.executeFilter(view, ldf)
-            
             # Select relevant data based on attribute information
             attributes = []
             xAttribute = view.getObjFromChannel("x")
             yAttribute = view.getObjFromChannel("y")
-            zAttribute = view.getObjFromChannel("z")
+            zAttribute = view.getObjFromChannel("color")
 
             if xAttribute and xAttribute[0].attribute:
                 attributes.append(xAttribute[0].attribute)
@@ -31,7 +29,6 @@ class ExecutionEngine:
                 attributes.append(zAttribute[0].attribute)
             view.data = view.data[attributes]
             # TODO (Jaywoo): ExecutionEngine.executeAggregate(view,ldf)
-        return ldf 
     @staticmethod
     def executeAggregate(view, ldf):
         # TODO (Jaywoo)
