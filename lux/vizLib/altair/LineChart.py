@@ -5,20 +5,20 @@ class LineChart(AltairChart):
 	def __init__(self,dobj):
 		super().__init__(dobj)
 	def __repr__(self):
-		return f"Line Chart <{str(self.dobj)}>"
+		return f"Line Chart <{str(self.view)}>"
 	def initializeChart(self):
 		self.tooltip = False # tooltip looks weird for line chart
-		xAttr = self.dobj.getObjFromChannel("x")[0]
-		yAttr = self.dobj.getObjFromChannel("y")[0]
+		xAttr = self.view.getObjFromChannel("x")[0]
+		yAttr = self.view.getObjFromChannel("y")[0]
 		if (yAttr.dataModel == "measure"):		
-			xAttrSpec = alt.X(xAttr.columnName, type = "ordinal")
-			yAttrSpec = alt.Y(yAttr.columnName,type="quantitative", aggregate="mean")
+			xAttrSpec = alt.X(xAttr.attribute, type = "ordinal")
+			yAttrSpec = alt.Y(yAttr.attribute,type="quantitative", aggregate="mean")
 		else:
-			xAttrSpec = alt.X(xAttr.columnName,type="quantitative", aggregate="mean")
-			yAttrSpec = alt.Y(yAttr.columnName, type = "ordinal")
-		if (yAttr.columnName=="count()"):
+			xAttrSpec = alt.X(xAttr.attribute,type="quantitative", aggregate="mean")
+			yAttrSpec = alt.Y(yAttr.attribute, type = "ordinal")
+		if (yAttr.attribute=="count()"):
 			yAttrSpec = alt.Y("Record",type="quantitative", aggregate="count")
-		chart = alt.Chart(self.dataURL).mark_line().encode(
+		chart = alt.Chart(self.data).mark_line().encode(
 			    x = xAttrSpec,
 			    # TODO: need to change aggregate to non-default function, read aggFunc info in somewhere
 			    y = yAttrSpec
