@@ -4,7 +4,6 @@ from lux.compiler.Validator import Validator
 from lux.compiler.Compiler import Compiler
 from lux.compiler.Parser import Parser
 from lux.executor.ExecutionEngine import ExecutionEngine
-import luxWidget
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType', 
@@ -168,6 +167,7 @@ class LuxDataFrame(pd.DataFrame):
         inputCurrentView : lux.LuxDataFrame, optional
             User-specified current view to override defaul Current View, by default 
         """       
+        import luxWidget
         self.showMore() # compute the recommendations
         import pkgutil
         if (pkgutil.find_loader("luxWidget") is None):
@@ -208,7 +208,7 @@ class LuxDataFrame(pd.DataFrame):
             currentViewSpec = vc[0].renderVSpec()
         elif (numVC>1):
             pass
-        
+        # This behavior is jarring to user, so comment out for now
         #     # if the compiled object is a collection, see if we can remove the elements with "?" and generate a Current View
         #     specifiedDobj = currentViewDobj.getVariableFieldsRemoved()
         #     if (specifiedDobj.spec!=[]): specifiedDobj.compile(enumerateCollection=False)
