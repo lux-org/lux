@@ -5,12 +5,12 @@ class Histogram(AltairChart):
 	def __init__(self,dobj):
 		super().__init__(dobj)
 	def __repr__(self):
-		return f"Histogram <{str(self.dobj)}>"
+		return f"Histogram <{str(self.view)}>"
 	def initializeChart(self):
 		self.tooltip = False
-		xAttr = self.dobj.getObjFromChannel("x")[0].columnName
-		yAttr = self.dobj.getObjFromChannel("y")[0].columnName
-		#measures = list(filter(lambda x: x.dataModel=="measure" if hasattr(x,"dataModel") else False,self.dobj.spec))
+		xAttr = self.view.getObjFromChannel("x")[0].attribute
+		yAttr = self.view.getObjFromChannel("y")[0].attribute
+		#measures = list(filter(lambda x: x.dataModel=="measure" if hasattr(x,"dataModel") else False,self.view.spec))
 		if (yAttr=="count()"):
 			chart = alt.Chart(self.data).mark_bar().encode(
 				alt.X(xAttr, type="quantitative", bin=alt.Bin(maxbins=50)),

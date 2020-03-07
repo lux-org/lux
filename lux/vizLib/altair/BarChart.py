@@ -5,20 +5,20 @@ class BarChart(AltairChart):
 	def __init__(self,dobj):
 		super().__init__(dobj)
 	def __repr__(self):
-		return f"Bar Chart <{str(self.dobj)}>"
+		return f"Bar Chart <{str(self.view)}>"
 	def initializeChart(self):
 		self.tooltip = False
-		xAttr = self.dobj.getObjFromChannel("x")[0]
-		yAttr = self.dobj.getObjFromChannel("y")[0]
+		xAttr = self.view.getObjFromChannel("x")[0]
+		yAttr = self.view.getObjFromChannel("y")[0]
 		if (xAttr.dataModel == "measure"):
-			yAttrField = alt.Y(yAttr.columnName, type = "nominal",sort="-x")
-			xAttrField = alt.X(xAttr.columnName,type="quantitative", aggregate="mean")#TODO: fix to non-default aggregate function
+			yAttrField = alt.Y(yAttr.attribute, type = "nominal",sort="-x")
+			xAttrField = alt.X(xAttr.attribute,type="quantitative", aggregate="mean") #TODO: fix to non-default aggregate function
 		else:
-			xAttrField = alt.X(xAttr.columnName, type = "nominal",sort="-y")
-			yAttrField = alt.Y(yAttr.columnName,type="quantitative", aggregate="mean")#TODO: fix to non-default aggregate function
-		if (yAttr.columnName=="count()"):
+			xAttrField = alt.X(xAttr.attribute, type = "nominal",sort="-y")
+			yAttrField = alt.Y(yAttr.attribute,type="quantitative", aggregate="mean") #TODO: fix to non-default aggregate function
+		if (yAttr.attribute=="count()"):
 			yAttrField = alt.Y("Record",type="quantitative", aggregate="count")
-		if (xAttr.columnName=="count()"):
+		if (xAttr.attribute=="count()"):
 			xAttrField = alt.X("Record",type="quantitative", aggregate="count")
 		chart = alt.Chart(self.data).mark_bar().encode(
 			    y = yAttrField,
