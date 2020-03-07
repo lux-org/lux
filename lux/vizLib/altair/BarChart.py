@@ -20,7 +20,7 @@ class BarChart(AltairChart):
 			yAttrField = alt.Y("Record",type="quantitative", aggregate="count")
 		if (xAttr.columnName=="count()"):
 			xAttrField = alt.X("Record",type="quantitative", aggregate="count")
-		chart = alt.Chart(self.dataURL).mark_bar().encode(
+		chart = alt.Chart(self.data).mark_bar().encode(
 			    y = yAttrField,
 			    x = xAttrField
 			)

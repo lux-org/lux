@@ -19,9 +19,9 @@ def enhance(ldf):
 			cxtNew = context.copy()
 			cxtNew.append(lux.Spec(attribute = qVar))
 			view = lux.view.View.View(cxtNew)
+			output.append(view)
 	vc = lux.view.ViewCollection.ViewCollection(output)
-	vc = Compiler.compile(ldf,vc)
-	print ("resulting vc:",vc)
+	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
 	ExecutionEngine.execute(vc,ldf)
 	# Then use the data populated in the view collection to compute score
 	for view in vc:

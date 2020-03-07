@@ -36,7 +36,7 @@ def filter(dobj):
 				completedFilters.append(row.fAttribute)
 	#if Row is not specified, create filters using unique values from all categorical variables in the dataset
 	else:
-		categoricalVars = dobj.dataset.dataType['categorical']
+		categoricalVars = dobj.dataset.dataType['nominal']
 		columnSpec = dobj.getObjByRowColType("Column")
 		for cat in categoricalVars:
 			uniqueValues = dobj.dataset.df[cat].unique()

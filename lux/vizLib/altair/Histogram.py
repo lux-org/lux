@@ -12,12 +12,12 @@ class Histogram(AltairChart):
 		yAttr = self.dobj.getObjFromChannel("y")[0].columnName
 		#measures = list(filter(lambda x: x.dataModel=="measure" if hasattr(x,"dataModel") else False,self.dobj.spec))
 		if (yAttr=="count()"):
-			chart = alt.Chart(self.dataURL).mark_bar().encode(
+			chart = alt.Chart(self.data).mark_bar().encode(
 				alt.X(xAttr, type="quantitative", bin=alt.Bin(maxbins=50)),
 				alt.Y(yAttr)
 			)
 		else:
-			chart = alt.Chart(self.dataURL).mark_bar().encode(
+			chart = alt.Chart(self.data).mark_bar().encode(
 				alt.X(xAttr),
 				alt.Y(yAttr, type="quantitative", bin=alt.Bin(maxbins=50))
 			)

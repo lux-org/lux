@@ -1,3 +1,5 @@
+import pandas as pd
+import altair as alt
 class AltairChart:
 	"""
 	AltairChart is a representation of a chart. 
@@ -5,7 +7,10 @@ class AltairChart:
 	"""			
 	def __init__(self, view):
 		self.view = view
-		self.dataURL = "chartData"
+		# self.data = pd.read_json(view.data.to_json())
+		# from vega_datasets import data
+		# self.data = data.cars.url
+		self.data = "chartData"
 		self.tooltip = True
 		self.chart = self.initializeChart()
 		# self.addTooltip()
@@ -19,7 +24,7 @@ class AltairChart:
 	def encodeColor(self):
 		colorAttr = self.view.getObjFromChannel("color")
 		if (len(colorAttr)==1):
-			self.chart = self.chart.encode(color=colorAttr[0].columnName)
+			self.chart = self.chart.encode(color=alt.Color(colorAttr[0].attribute,type=colorAttr[0].dataType))
 		elif (len(colorAttr)>1):
 			raise ValueError("There should not be more than one attribute specified in the same channel.")
 	def addTitle(self):
