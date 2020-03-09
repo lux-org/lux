@@ -128,6 +128,9 @@ class LuxDataFrame(pd.DataFrame):
     def correlation(self):
         from lux.action.Correlation import correlation
         return correlation(self)
+    def distribution(self):
+        from lux.action.Distribution import distribution
+        return distribution(self)
     def enhance(self):
         from lux.action.Enhance import enhance
         return enhance(self)
@@ -144,7 +147,11 @@ class LuxDataFrame(pd.DataFrame):
         #     result.mergeResult(self.overview())
         
         #instead of results now, what recommendation is simply a list of ViewCollection
-        self.recommendation.append(self.enhance())
+
+        # self.recommendation.append(self.correlation())
+        self.setContext([lux.Spec("?",dataModel="measure")]) # Jaywoo
+        self.recommendation.append(self.distribution())
+        # self.recommendation.append(self.enhance())
 
     #######################################################
     ############## LuxWidget Result Display ###############

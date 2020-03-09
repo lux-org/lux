@@ -29,10 +29,22 @@ class ExecutionEngine:
                 attributes.append(zAttribute[0].attribute)
             view.data = view.data[attributes]
             # TODO (Jaywoo): ExecutionEngine.executeAggregate(view,ldf)
+            # ExecutionEngine.executeAggregate(view, ldf)
+
     @staticmethod
-    def executeAggregate(view, ldf):
+    def executeAggregate(view, ldf, aggregate = "count"):
         # TODO (Jaywoo)
-        return NotImplemented
+        # get attribute
+        # aggreagte in spec
+        # horsepower by origin -> lux.spec(horsepower,aggregate = "mean") lux.spec(attribute = Origin)
+        # need to add aggregate spec in the compiling stage(inside compiler.determinEncoding)
+        xAttr = view.getObjFromChannel("x")[0]
+        yAttr = view.getObjFromChannel("y")[0]
+        if (yAttr.attribute == "count()"):
+            groupbyAttr = xAttr
+        if (xAttr.attribute == "count()"):
+            groupbyAttr = yAttr
+        view.data = view.data.groupby(groupbyAttr.attribute).count()
     @staticmethod
     def executeFilter(view, ldf):
         filters = view.getFiltersFromSpec()
