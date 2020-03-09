@@ -33,7 +33,7 @@ class Parser:
 		parsedContext = ldf.getContext()
 		for spec in parsedContext:
 			if (spec.description):
-				if (spec.description in ldf.columns):# if spec.description in the list of attributes
+				if (spec.description in ldf.columns or spec.description == "?"):# if spec.description in the list of attributes
 					spec.attribute = spec.description
 				elif any(ext in [">","<","="] for ext in spec.description): # spec.description contain ">","<". or "="
 					# then parse it and assign to spec.attribute, spec.filterOp, spec.values

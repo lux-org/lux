@@ -78,6 +78,7 @@ class Compiler:
 		views = copy.deepcopy(viewCollection)  # Preserve the original dobj
 		for view in views:
 			for spec in view.specLst:
+				print(spec.attribute)
 				if spec.attribute:
 					if (spec.dataType == ""):
 						spec.dataType = ldf.dataTypeLookup[spec.attribute]
@@ -157,7 +158,7 @@ class Compiler:
 			dimension = view.getObjByDataModel("dimension")[0]
 			measure = view.getObjByDataModel("measure")[0]
 			# measure.channel = "x"
-			view.mark, autoChannel = lineOrBar(dimension, measure)
+			view.mark, autoChannel = lineOrBar(dimension, measure) # Jaywoo measures to be aggregated? if user specified it, override compiler logic. avg for all other cases
 		elif (Ndim == 2 and (Nmsr == 0 or Nmsr == 1)):
 			# Line or Bar chart broken down by the dimension
 			dimensions = view.getObjByDataModel("dimension")
