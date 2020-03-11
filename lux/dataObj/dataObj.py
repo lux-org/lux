@@ -168,11 +168,11 @@ class DataObj:
     def overview(self):
         dataset = self.dataset
         from lux.action.Distribution import distribution
-        dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure")])
+        dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure")]) # Jaywoo
         result = dobj.distribution()
 
         from lux.action.Correlation import correlation
-        dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure"),lux.Column("?",dataModel="measure")])
+        dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure"),lux.Column("?",dataModel="measure")]) # Jaywoo
         result2 = dobj.correlation()
 
         # Merge the two Result object from the two actions

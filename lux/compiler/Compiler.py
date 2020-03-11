@@ -78,7 +78,6 @@ class Compiler:
 		views = copy.deepcopy(viewCollection)  # Preserve the original dobj
 		for view in views:
 			for spec in view.specLst:
-				print(spec.attribute)
 				if spec.attribute:
 					if (spec.dataType == ""):
 						spec.dataType = ldf.dataTypeLookup[spec.attribute]

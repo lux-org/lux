@@ -36,6 +36,8 @@ class LuxDataFrame(pd.DataFrame):
     def setContext(self,context):
         self.context = context
         self._refreshContext(context)
+    def to_pandas(self):
+        return lux.luxDataFrame.originalDF(self,copy=False)
     def addToContext(self,context): 
         self.context.extend(context)
     def getContext(self):
@@ -149,9 +151,9 @@ class LuxDataFrame(pd.DataFrame):
         #instead of results now, what recommendation is simply a list of ViewCollection
 
         # self.recommendation.append(self.correlation())
-        self.setContext([lux.Spec("?",dataModel="measure")]) # Jaywoo
-        self.recommendation.append(self.distribution())
-        # self.recommendation.append(self.enhance())
+        # self.setContext([lux.Spec("?",dataModel="measure")]) # Jaywoo
+        # self.recommendation.append(self.distribution())
+        self.recommendation.append(self.enhance())
 
     #######################################################
     ############## LuxWidget Result Display ###############
