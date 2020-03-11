@@ -14,11 +14,11 @@ class Histogram(AltairChart):
 		if (yAttr=="count()"):
 			chart = alt.Chart(self.data).mark_bar().encode(
 				alt.X(xAttr, type="quantitative", bin=alt.Bin(maxbins=50)),
-				alt.Y(yAttr)
+				alt.Y(yAttr, type="quantitative")
 			)
 		else:
 			chart = alt.Chart(self.data).mark_bar().encode(
-				alt.X(xAttr),
+				alt.X(xAttr, type="quantitative"),
 				alt.Y(yAttr, type="quantitative", bin=alt.Bin(maxbins=50))
 			)
 		return chart 

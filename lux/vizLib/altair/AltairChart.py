@@ -8,9 +8,11 @@ class AltairChart:
 	def __init__(self, view):
 		self.view = view
 		# self.data = pd.read_json(view.data.to_json())
-		# from vega_datasets import data
-		# self.data = data.cars.url
-		self.data = "chartData"
+		from vega_datasets import data
+		self.data = data.cars.url
+		# self.data = "chartData"
+		# self.data = view.data.to_pandas()
+		# print(type(self.data),"test")
 		self.tooltip = True
 		self.chart = self.initializeChart()
 		# self.addTooltip()
