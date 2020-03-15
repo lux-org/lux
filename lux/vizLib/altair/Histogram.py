@@ -2,8 +2,8 @@ from lux.vizLib.altair.AltairChart import AltairChart
 import altair as alt
 alt.data_transformers.disable_max_rows()
 class Histogram(AltairChart):
-	def __init__(self,dobj):
-		super().__init__(dobj)
+	def __init__(self,view):
+		super().__init__(view)
 	def __repr__(self):
 		return f"Histogram <{str(self.view)}>"
 	def initializeChart(self):

@@ -21,12 +21,16 @@ class View:
 		specObj = list(filter(lambda x: x.value, self.specLst))
 		return specObj
 
+	def getAttributesFromSpec(self):
+		specObj = list(filter(lambda x: not(hasattr(x, "value")), self.specLst))
+		return specObj
+
 	def getObjByDataModel(self, dmodel):
 		return list(filter(lambda x: x.dataModel == dmodel if hasattr(x, "dataModel") else False, self.specLst))
 
 	def removeColumnFromSpec(self, attribute):
 		self.spec = list(filter(lambda x: x.attribute != attribute, self.specLst))
-	
+
 	def renderVSpec(self, renderer="altair"):
 		from lux.vizLib.altair.AltairRenderer import AltairRenderer
 		if (renderer == "altair"):

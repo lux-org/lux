@@ -1,23 +1,22 @@
 from lux.interestingness.valueBasedInterestingness import valueBasedInterestingness
 from lux.interestingness.relationshipBasedInterestingness import relationshipBasedInterestingness
-def interestingness(dobj):
+def interestingness(view,ldf):
 	# TODO: add back if (ldf.dataset.cardinality[cVar]>10): then score -1 for categorical values
-	dobjCompiled = dobj.compiled
-	numAttributes = len(dobj.getObjByRowColType("Column"))
-	if numAttributes == 1:
-		attrType = dobjCompiled.spec[0].dataModel
+	numAttrs = len(view.getAttributesFromSpec())
+	if numAttrs == 1:
+		attrType = view.specLst[0].dataModel
 		if attrType == "measure":
-			return(valueBasedInterestingness(dobjCompiled))
+			return(valueBasedInterestingness(view,ldf))
 		elif attrType == "dimension":
 			return(0.5)
 			#from interestingness import countBasedInterestingness
 			#return(countBasedinterstingness(dobjCompiled))
-	elif numAttributes == 2:
-		numMeasure = len(dobjCompiled.getObjByDataModel("measure"))
-		numDimension = len(dobjCompiled.getObjByDataModel("dimension"))
+	elif numAttrs == 2:
+		numMeasure = len(view.getObjByDataModel("measure"))
+		numDimension = len(view.getObjByDataModel("dimension"))
 
 		if numMeasure == 2:
-			return(relationshipBasedInterestingness(dobjCompiled))
+			return(relationshipBasedInterestingness(view,ldf))
 		elif numMeasure == 1 and numDimension == 1:
 			return(0.5)
 			#from interstingness import distributionBasedInterestingness

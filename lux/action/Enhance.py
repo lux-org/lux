@@ -12,6 +12,10 @@ def enhance(ldf):
 	# Collect variables that already exist in the context
 	context = ldf.getContext()
 	existingVars = [spec.attribute for spec in context]
+
+	vc = ldf.viewCollection
+	ExecutionEngine.execute(vc,ldf)
+	vc = vc.topK(5)
 	
 	# First loop through all variables to create new view collection
 	for qVar in ldf.columns:

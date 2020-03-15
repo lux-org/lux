@@ -16,18 +16,19 @@ class ExecutionEngine:
         for view in viewCollection:
             ExecutionEngine.executeFilter(view, ldf)
             # Select relevant data based on attribute information
-            attributes = []
+            attributes = set([])
             xAttribute = view.getObjFromChannel("x")
             yAttribute = view.getObjFromChannel("y")
             zAttribute = view.getObjFromChannel("color")
+            aggregateAttrs = ["count()"]
 
-            if xAttribute and xAttribute[0].attribute:
-                attributes.append(xAttribute[0].attribute)
-            if yAttribute and yAttribute[0].attribute:
-                attributes.append(yAttribute[0].attribute)
-            if zAttribute and zAttribute[0].attribute:
-                attributes.append(zAttribute[0].attribute)
-            view.data = view.data[attributes]
+            if xAttribute and xAttribute[0].attribute and xAttribute[0].attribute not in aggregateAttrs:
+                attributes.add(xAttribute[0].attribute)
+            if yAttribute and yAttribute[0].attribute and yAttribute[0].attribute not in aggregateAttrs:
+                attributes.add(yAttribute[0].attribute)
+            if zAttribute and zAttribute[0].attribute and zAttribute[0].attribute not in aggregateAttrs:
+                attributes.add(zAttribute[0].attribute)
+            view.data = view.data[list(attributes)]
             # TODO (Jaywoo): ExecutionEngine.executeAggregate(view,ldf)
             # ExecutionEngine.executeAggregate(view, ldf)
 

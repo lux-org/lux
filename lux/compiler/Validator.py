@@ -72,7 +72,6 @@ class Validator:
 			if "attribute" in spec.type:
 				if spec.attribute == "?":
 					options = set(ldf.attrList)  # all attributes
-					print(options)
 					if (spec.dataType != ""):
 						options = options.intersection(set(ldf.dataType[spec.dataType]))
 					if (spec.dataModel != ""):
