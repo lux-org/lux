@@ -78,6 +78,8 @@ class Compiler:
 		views = copy.deepcopy(viewCollection)  # Preserve the original dobj
 		for view in views:
 			for spec in view.specLst:
+				if spec.description == "?":
+					spec.description = ""
 				if spec.attribute:
 					if (spec.dataType == ""):
 						spec.dataType = ldf.dataTypeLookup[spec.attribute]
@@ -137,7 +139,7 @@ class Compiler:
 		# TODO: if cardinality large than 6 then sort bars
 
 		# ShowMe logic + additional heuristics
-		countCol = Spec("count()", dataModel="measure")
+		countCol = Spec( attribute="count()", dataModel="measure")
 		# xAttr = view.getObjFromChannel("x") # not used as of now
 		# yAttr = view.getObjFromChannel("y")
 		# zAttr = view.getObjFromChannel("z")

@@ -39,7 +39,7 @@ class AltairRenderer:
 		if (chart):
 			chart = chart.chart.to_dict()
 			# this is a bit of a work around because altair must take a pandas dataframe and we can only generate a luxDataFrame
-			chart["data"] =  { "values": view.data.to_dict(orient='records') }
+			# chart["data"] =  { "values": view.data.to_dict(orient='records') }
 			chart["width"] = 160
 			chart["height"] = 150
 			return chart
