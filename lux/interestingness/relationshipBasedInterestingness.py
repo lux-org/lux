@@ -7,7 +7,7 @@ def relationshipBasedInterestingness(view,ldf):
 	m1 = measures[0].columnName
 	m2 = measures[1].columnName
 
-	if len(view.getFiltersFromSpec()) == 0:
+	if len(view.getFilterSpecs()) == 0:
 		from sklearn.metrics import mutual_info_score
 		import numpy as np
 		from math import sqrt
@@ -22,7 +22,7 @@ def relationshipBasedInterestingness(view,ldf):
 		return(mi)
 
 	else:
-		row = view.getFiltersFromSpec()[0]
+		row = view.getFilterSpecs()[0]
 		filteredData = ldf[ldf[row.fAttribute] == row.fVal]
 		if len(filteredData) > 20: # should have at least 20 datapoints to compute a correlation
 			m1Val = filteredData[m1]

@@ -67,13 +67,13 @@ Shows possible visualizations when filtered by categorical variables in the data
 def filter(ldf):
 	recommendation = {"action":"Filter",
 						   "description":"Shows possible visualizations when filtered by categorical variables in the data object's dataset."}
-	filters = ldf.rows
+	filters = ldf.getFilterSpecs()
 	filterValues = []
 	output = []
 	#if Row is specified, create visualizations where data is filtered by all values of the Row's categorical variable
 	if len(filters) > 0:
 		completedFilters = []
-		columnSpec = ldf.cols
+		columnSpec = ldf.getAttrsSpecs()
 		#get unique values for all categorical values specified and creates corresponding filters
 		for row in filters:
 			if row.attribute not in completedFilters:
@@ -84,7 +84,7 @@ def filter(ldf):
 					if uniqueValues[i] not in filterValues:
 						#create new Data Object
 						newSpec = columnSpec.copy()
-						newFilter = lux.Spec(attribute = row.attribute, value = uniqueValues[i])
+						newFilter = lux.Spec(attribute = row.attribute, value = uniqueValues[i], type = "value")
 						newSpec.append(newFilter)
 						tempView = View(newSpec)
 						tempView.score = interestingness(tempView,ldf)
@@ -93,18 +93,20 @@ def filter(ldf):
 	#if Row is not specified, create filters using unique values from all categorical variables in the dataset
 	else:
 		categoricalVars = ldf.dataType['nominal']
-		columnSpec = ldf.cols
+		columnSpec = ldf.getAttrsSpecs()
 		for cat in categoricalVars:
 			uniqueValues = ldf[cat].unique()
 			for i in range(0, len(uniqueValues)):
 				newSpec = columnSpec.copy()
-				newFilter = lux.Spec(attribute=cat, value=uniqueValues[i])
+				newFilter = lux.Spec(attribute=cat, value=uniqueValues[i], type = "value")
 				newSpec.append(newFilter)
 				tempView = View(newSpec)
 				tempView.score = interestingness(tempView,ldf)
 				output.append(tempView)
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
-
+	vc = vc.topK(20)
+	ExecutionEngine.execute(vc,ldf)
 	recommendation["collection"] = vc
+	# print(vc)
 	return recommendation
