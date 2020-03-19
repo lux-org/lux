@@ -124,8 +124,8 @@ class Compiler:
 					Ndim += 1
 				elif (spec.dataModel == "measure"):
 					Nmsr += 1
-			if (spec.value):  # preserve to add back to dobj later
-				rowLst.append(spec)
+			# if (spec.value):  # preserve to add back to dobj later Jaywoo
+			# 	rowLst.append(spec)
 		# print ("Ndim,Nmsr:",Ndim,Nmsr)
 		# Helper function (TODO: Move this into utils)
 		def lineOrBar(dimension, measure):

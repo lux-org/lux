@@ -2,7 +2,7 @@ from lux.interestingness.valueBasedInterestingness import valueBasedInterestingn
 from lux.interestingness.relationshipBasedInterestingness import relationshipBasedInterestingness
 def interestingness(view,ldf):
 	# TODO: add back if (ldf.dataset.cardinality[cVar]>10): then score -1 for categorical values
-	numAttrs = len(view.getAttributesFromSpec())
+	numAttrs = len(view.getAttrsSpecs())
 	if numAttrs == 1:
 		attrType = view.specLst[0].dataModel
 		if attrType == "measure":
