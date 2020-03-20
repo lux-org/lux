@@ -1,3 +1,4 @@
+from lux.context.Spec import Spec
 class View:
 	'''
 	View Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
@@ -17,8 +18,12 @@ class View:
 		specObj = list(filter(lambda x: x.channel == channel if hasattr(x, "channel") else False, self.specLst))
 		return specObj
 
-	def getFiltersFromSpec(self):
-		specObj = list(filter(lambda x: x.value, self.specLst))
+	def getAttrsSpecs(self):
+		specObj = list(filter(lambda x: x.type == "attribute", self.specLst))
+		return specObj
+
+	def getFilterSpecs(self):
+		specObj = list(filter(lambda x: x.type == "value", self.specLst))
 		return specObj
 
 	def getAttributesFromSpec(self):
@@ -30,6 +35,26 @@ class View:
 
 	def removeColumnFromSpec(self, attribute):
 		self.spec = list(filter(lambda x: x.attribute != attribute, self.specLst))
+
+	def removeColumnFromSpecNew(self, attribute):
+		newSpec = []
+		for i in range(0, len(self.specLst)):
+			if "attribute" in self.specLst[i].type:
+				columnSpec = []
+				columnNames = self.specLst[i].attribute
+				# if only one variable in a column, columnName results in a string and not a list so
+				# you need to differentiate the cases
+				if isinstance(columnNames, list):
+					for column in columnNames:
+						if column != attribute:
+							columnSpec.append(column)
+					newSpec.append(Spec(columnSpec))
+				else:
+					if columnNames != attribute:
+						newSpec.append(Spec(attribute = columnNames))
+			else:
+				newSpec.append(self.specLst[i])
+		self.specLst = newSpec
 
 	def renderVSpec(self, renderer="altair"):
 		from lux.vizLib.altair.AltairRenderer import AltairRenderer

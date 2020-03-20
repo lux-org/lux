@@ -124,6 +124,14 @@ class LuxDataFrame(pd.DataFrame):
             self.uniqueValues[dimension] = self[dimension].unique()
             self.cardinality[dimension] = len(self.uniqueValues[dimension])
 
+    def getAttrsSpecs(self):
+        specObj = list(filter(lambda x: x.type == "attribute", self.context))
+        return specObj
+
+    def getFilterSpecs(self):
+        specObj = list(filter(lambda x: x.type == "value", self.context))
+        return specObj
+
     #######################################################
     ############## Mappers to Action classes ##############
     #######################################################
@@ -144,7 +152,7 @@ class LuxDataFrame(pd.DataFrame):
         return generalize(self)
     def similarPattern(self,query,topK=-1):
         from lux.action.Similarity import similarPattern
-        return similarPattern(self,query,topK)
+        return self.recommendation.append(similarPattern(self,query,topK))
 
     def showMore(self):
         # TODO (Jaywoo): add back old logic after all actions are implemented
@@ -161,8 +169,8 @@ class LuxDataFrame(pd.DataFrame):
         #instead of results now, what recommendation is simply a list of ViewCollection
 
         self.recommendation.append(self.enhance()) #this works
-        # self.recommendation.append(self.filter())
-        # self.recommendation.append(self.generalize())
+        self.recommendation.append(self.filter())
+        self.recommendation.append(self.generalize())
         self.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
         self.recommendation.append(self.correlation())  #this works partially
         self.setContext([lux.Spec("?",dataModel="measure")])

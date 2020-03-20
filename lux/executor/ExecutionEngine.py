@@ -48,7 +48,7 @@ class ExecutionEngine:
         view.data = view.data.groupby(groupbyAttr.attribute).count()
     @staticmethod
     def executeFilter(view, ldf):
-        filters = view.getFiltersFromSpec()
+        filters = view.getFilterSpecs()
         if (filters):
             for filter in filters:
                 view.data = ldf[ldf[filter.attribute] == filter.value]
