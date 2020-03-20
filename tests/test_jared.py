@@ -19,11 +19,11 @@ def test_computeStats():
     for column in df.columns:
         assert len(pd.Series(df.uniqueValues[column]).drop_duplicates()) == df.cardinality[column]
 
-def test_computeDatasetMetadata():
-    df = pd.read_csv("lux/data/car.csv")
+# def test_computeDatasetMetadata():
+#     df = pd.read_csv("lux/data/car.csv")
 
-    print(df.dataType)
+#     print(df.dataType)
     
-    assert False
+#     assert False
 
 
