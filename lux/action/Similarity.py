@@ -2,105 +2,105 @@ import lux
 import pandas as pd
 import math
 import numpy as np
-def aggregate(dobj):
+from lux.executor.ExecutionEngine import ExecutionEngine
+from lux.view.ViewCollection import ViewCollection
+def aggregate(view):
 # find y axis then aggregate on it
-	if dobj.getObjFromChannel("x") and dobj.getObjFromChannel("y"):
+    if view.getObjFromChannel("x") and view.getObjFromChannel("y"):
 
-		xAxis = dobj.getObjFromChannel("x")[0].columnName
-		yAxis = dobj.getObjFromChannel("y")[0].columnName
+        xAxis = view.getObjFromChannel("x")[0].attribute
+        yAxis = view.getObjFromChannel("y")[0].attribute
 
-		dobj.transformedDataset = lux.Dataset(dobj.dataset.filename, dobj.dataset.schema)
+        view.data = view.data[[xAxis,yAxis]].groupby(xAxis,as_index=False).agg({yAxis:'mean'}).copy()
 
-		dobj.transformedDataset.df = dobj.dataset.df[[xAxis,yAxis]].groupby(xAxis,as_index=False).agg({yAxis:'mean'})
+def interpolate(view,length):
 
-def interpolate(dobj, length):
+    if view.getObjFromChannel("x") and view.getObjFromChannel("y"):
 
-	if dobj.getObjFromChannel("x") and dobj.getObjFromChannel("y"):
+        xAxis = view.getObjFromChannel("x")[0].attribute
+        yAxis = view.getObjFromChannel("y")[0].attribute
 
-		xAxis = dobj.getObjFromChannel("x")[0].columnName
-		yAxis = dobj.getObjFromChannel("y")[0].columnName
+        if xAxis and yAxis:
+            yVals = view.data[yAxis]
+            xVals = view.data[xAxis]
+            n = length
 
-		df = dobj.transformedDataset.df
+            interpolatedXVals = [0.0]*(length+1)
+            interpolatedYVals = [0.0]*(length+1)
 
-		if xAxis and yAxis:
-			yVals = df[yAxis]
-			xVals = df[xAxis]
+            granularity = (xVals[len(xVals)-1] - xVals[0]) / n
 
-			n = length
+            count = 0
 
-			interpolatedXVals = [0.0]*(length+1)
-			interpolatedYVals = [0.0]*(length+1)
+            for i in range(1,n):
+                interpolatedX = xVals[0] + i * granularity
+                interpolatedXVals[i] = interpolatedX
 
-			granularity = (xVals[len(xVals)-1] - xVals[0]) / n
-
-			count = 0
-
-			for i in range(1,n):
-				interpolatedX = xVals[0] + i * granularity
-				interpolatedXVals[i] = interpolatedX
-
-				while xVals[count] < interpolatedX:
-					if(count < len(xVals)):
-						count += 1
-				if xVals[count] == interpolatedX:
-					interpolatedYVals[i] = yVals[count]
-				else:
-					xDiff = xVals[count] - xVals[count-1]
-					yDiff = yVals[count] - yVals[count-1]
-					interpolatedYVals[i] = yVals[count-1] + (interpolatedX - xVals[count-1]) / xDiff * yDiff
-
-			dobj.transformedDataset.df = pd.DataFrame(list(zip(interpolatedXVals, interpolatedYVals)),columns = [xAxis, yAxis])
+                while xVals[count] < interpolatedX:
+                    if(count < len(xVals)):
+                        count += 1
+                if xVals[count] == interpolatedX:
+                    interpolatedYVals[i] = yVals[count]
+                else:
+                    xDiff = xVals[count] - xVals[count-1]
+                    yDiff = yVals[count] - yVals[count-1]
+                    interpolatedYVals[i] = yVals[count-1] + (interpolatedX - xVals[count-1]) / xDiff * yDiff
+            view.data = pd.DataFrame(list(zip(interpolatedXVals, interpolatedYVals)),columns = [xAxis, yAxis])
 
 # interpolate dataset
 
-def normalize(dobj):
+def normalize(view):
 
-	if dobj.getObjFromChannel("y"):
-		yAxis = dobj.getObjFromChannel("y")[0].columnName
-		df = dobj.transformedDataset.df
-		max = df[yAxis].max()
-		min = df[yAxis].min()
+    if view.getObjFromChannel("y"):
+        yAxis = view.getObjFromChannel("y")[0].attribute
+        max = view.data[yAxis].max()
+        min = view.data[yAxis].min()
+        if(max == min or (max-min<1)):
+            return
+        view.data[yAxis] = (view.data[yAxis] - min) / (max - min)
 
-		if(max == min or (max-min<1)):
-			return
+def euclideanDist(queryView,view):
 
-		dobj.transformedDataset.df[yAxis] = (df[yAxis] - min) / (max - min)
+    if queryView.getObjFromChannel("y") and view.getObjFromChannel("y"):
 
-def euclideanDist(query,dobj):
+        viewYAxis = view.getObjFromChannel("y")[0].attribute
+        queryYAxis = queryView.getObjFromChannel("y")[0].attribute
 
-    if dobj.getObjFromChannel("y") and query.getObjFromChannel("y"):
+        viewVector = view.data[viewYAxis].values
+        queryVector = queryView.data[queryYAxis].values
+        score = np.linalg.norm(viewVector - queryVector)
 
-        dobjYAxis = dobj.getObjFromChannel("y")[0].columnName
-        queryYAxis = query.getObjFromChannel("y")[0].columnName
-
-        dobjVector = dobj.transformedDataset.df[dobjYAxis].values
-        queryVector = query.transformedDataset.df[queryYAxis].values
-        return np.linalg.norm(dobjVector - queryVector)
+        return score
     else:
         print("no y axis detected")
         return 0
-def preprocess(dobj):
-    aggregate(dobj)
-    interpolate(dobj, 100)
-    normalize(dobj)
-def similarPattern(dobj,query,topK=-1):
-    result = lux.Result()
-    rowSpecs = list(filter(lambda x: x.className == "Row", query.spec))
+def preprocess(view):
+    aggregate(view)
+    interpolate(view, 100)
+    normalize(view)
+def similarPattern(ldf,queryContext,topK=-1):
+    rowSpecs = list(filter(lambda x: x.value != "", queryContext))
     if(len(rowSpecs) == 1):
-        query.dataset = lux.utils.utils.applyDataTransformations(query.dataset,rowSpecs[0].fAttribute,rowSpecs[0].fVal)
-        preprocess(query)
+        searchSpaceVC = ViewCollection(ldf.viewCollection.collection.copy())
+        ExecutionEngine.execute(searchSpaceVC,ldf)
+
+        ldf.setContext(queryContext)
+        queryVC = ldf.viewCollection
+        ExecutionEngine.execute(queryVC, ldf)
+        queryView = queryVC[0]
+        preprocess(queryView)
         #for loop to create assign euclidean distance
         recommendation = {"action":"Similarity",
                                "description":"Show other charts that are visually similar to the Current View."}
-        for di in dobj.compiled.collection:
-            preprocess(di)
-            di.score = euclideanDist(query, di)
-        dobj.compiled.normalizeScore(invertOrder=True)
-        dobj.compiled.sort(removeInvalid=True)
+        for view in searchSpaceVC:
+            preprocess(view)
+            view.score = euclideanDist(queryView, view)
+        searchSpaceVC.normalizeScore(invertOrder=True)
+        searchSpaceVC.sort(removeInvalid=True)
         if(topK!=-1):
-            dobj.compiled = dobj.compiled.topK(topK)
-        recommendation["collection"] = dobj.compiled
-        result.addResult(recommendation,dobj)
-        return result
+            searchSpaceVC = searchSpaceVC.topK(topK)
+        recommendation["collection"] = searchSpaceVC
+        print(recommendation)
+        return recommendation
     else:
         print("Query needs to have 1 row value")

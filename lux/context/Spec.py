@@ -5,7 +5,7 @@ class Spec:
 	'''
 	def __init__(self, description:str ="",attribute: typing.Union[str,list] ="",value: typing.Union[str,list]="",
 				 filterOp:str ="", channel:str ="", dataType:str="",dataModel:str="",
-				 aggregation:str = "", binning:str="", weight:float=1):
+				 aggregation:str = "", binning:str="", weight:float=1, type:str = "attribute"):
 		# Descriptor
 		self.description = description
 		# Description gets comiled to either an attribute, value, attributeGroup or valueGroup
@@ -14,7 +14,7 @@ class Spec:
 		self.filterOp = filterOp
 		# self.attributeGroup = attributeGroup
 		# self.valueGroup = valueGroup
-		self.type = "" # automatically generated in validateSpec: ["attribute", "value", "attributeGroup", "valueGroup"]
+		self.type = type # automatically generated in validateSpec: ["attribute", "value", "attributeGroup", "valueGroup"]
 		# self.parseDescription()
 		# Properties
 		self.channel = channel
