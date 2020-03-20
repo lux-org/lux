@@ -1,26 +1,31 @@
 class Parser:
 	'''
 	lux.setContext("Horsepower")
-	--> lux.Spec(attr = "Horsepower", type= "attribute")
+	--> lux.Spec(attribute = "Horsepower", type= "attribute")
 
 	lux.setContext("Horsepower", lux.Spec("MilesPerGal",channel="x"))
-		--> [lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(attr ="MilesPerGal", type= "attribute",channel="x")]
+		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="MilesPerGal", type= "attribute",channel="x")]
 
 	lux.setContext("Horsepower","Origin=USA")
-		--> [lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="USA", type= "value")]
+		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value ="USA", type= "value")]
 
 	lux.setContext("Horsepower","USA")
-		--> [lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="USA", type= "value")]
+		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value ="USA", type= "value")]
 
 	lux.setContext("Horsepower","Origin=?")
-		--> [lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="?", type= "valueGroup")]
+		-->[lux.Spec(attribute ="Horsepower", type= " attribute"), lux.Spec(attribute ="Origin", fOp = "=", value ="?", type= "valueGroup")]
 
+		Then populateOptions compiles "?" into :
 		-->[[lux.Spec(attr ="Horsepower", type= " attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="USA", type= "value")],
 			[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="UK", type= "value")],
 			[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="Japan", type= "value")] ]
 
+	
+	lux.setContext("Horsepower","Origin=USA/Japan")
+		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value =["USA","Japan"], type= "valueGroup")]
+
 	lux.setContext(["Horsepower","MPG","Acceleration"])
-		--> [lux.Spec(attrGroup = ["Horsepower","MPG","Acceleration"], type= "attributeGroup")]
+		--> [lux.Spec(attr= ["Horsepower","MPG","Acceleration"], type= "attributeGroup")]
 	'''
 
 	@staticmethod
@@ -53,6 +58,65 @@ class Parser:
 				spec.type = "attributeGroup"
 			if spec.value == "?" or isinstance(spec.value,list):
 				spec.type = "valueGroup"
+		Parser.populateOptions(ldf)
 		ldf.context = parsedContext
+		
+	@staticmethod
+	# def populateOptions(ldf: LuxDataFrame):
+	def populateOptions(ldf):
+		"""
+		Given a row or column object, return the list of available values that satisfies the dataType or dataModel constraints
+
+		Parameters
+		----------
+		dobj : lux.dataObj.dataObj.DataObj
+			[description]
+		rowCol : Row or Column Object
+			Input row or column object with wildcard or list
+
+		Returns
+		-------
+		rcOptions: List
+			List of expanded Column or Row objects
+		"""
+		import copy
+		from lux.utils.utils import convert2List
+		for spec in ldf.context:
+			specOptions = []
+			if "attribute" in spec.type:
+				if spec.attribute == "?":
+					options = set(ldf.attrList)  # all attributes
+					if (spec.dataType != ""):
+						options = options.intersection(set(ldf.dataType[spec.dataType]))
+					if (spec.dataModel != ""):
+						options = options.intersection(set(ldf.dataModel[spec.dataModel]))
+					options = list(options)
+				else:
+					options = convert2List(spec.attribute)
+				for optStr in options:
+					specCopy = copy.copy(spec)
+					specCopy.attribute = optStr
+					specCopy.type = "attribute"
+					specOptions.append(specCopy)
+				ldf.cols.append(specOptions)
+			elif "value" in spec.type:
+				# if spec.attribute:
+				# 	attrLst = convert2List(spec.attribute)
+				# else:
+				# 	attrLst = convert2List(spec.attributeGroup)
+				attrLst = convert2List(spec.attribute)
+				for attr in attrLst:
+					if spec.value == "?":
+						options = ldf.uniqueValues[attr]
+					else:
+						options = convert2List(spec.value)
+					for optStr in options:
+						specCopy = copy.copy(spec)
+						specCopy.attribute = attr
+						specCopy.value = optStr
+						specCopy.type = "value"
+						specOptions.append(specCopy)
+				# ldf.rows.append(specOptions)
+				ldf.rows = specOptions
 
 		
