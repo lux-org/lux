@@ -143,7 +143,7 @@ class Compiler:
 
 		# ShowMe logic + additional heuristics
 		#countCol = Spec( attribute="count()", dataModel="measure")
-		countCol = Spec( attribute="Count of Records", aggregation="count", dataModel="measure")
+		countCol = Spec( attribute="Record", aggregation="count", dataModel="measure")
 		# xAttr = view.getObjFromChannel("x") # not used as of now
 		# yAttr = view.getObjFromChannel("y")
 		# zAttr = view.getObjFromChannel("z")
