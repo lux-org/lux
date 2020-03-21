@@ -168,13 +168,13 @@ class LuxDataFrame(pd.DataFrame):
         
         #instead of results now, what recommendation is simply a list of ViewCollection
 
-        self.recommendation.append(self.enhance()) #this works
-        self.recommendation.append(self.filter())
+        # self.recommendation.append(self.enhance()) #this works
+        # self.recommendation.append(self.filter())
         self.recommendation.append(self.generalize())
-        self.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
-        self.recommendation.append(self.correlation())  #this works partially
-        self.setContext([lux.Spec("?",dataModel="measure")])
-        self.recommendation.append(self.distribution())  #this works
+        # self.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
+        # self.recommendation.append(self.correlation())  #this works partially
+        # self.setContext([lux.Spec("?",dataModel="measure")])
+        # self.recommendation.append(self.distribution())  #this works
 
 
     #######################################################
