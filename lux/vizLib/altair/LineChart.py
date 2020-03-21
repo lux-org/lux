@@ -10,14 +10,15 @@ class LineChart(AltairChart):
 		self.tooltip = False # tooltip looks weird for line chart
 		xAttr = self.view.getObjFromChannel("x")[0]
 		yAttr = self.view.getObjFromChannel("y")[0]
+		
 		if (yAttr.dataModel == "measure"):		
 			xAttrSpec = alt.X(xAttr.attribute, type = "ordinal")
-			yAttrSpec = alt.Y(yAttr.attribute,type="quantitative", aggregate="mean")
+			yAttrSpec = alt.Y(yAttr.attribute,type="quantitative", aggregate=yAttr.aggregation)
 		else:
-			xAttrSpec = alt.X(xAttr.attribute,type="quantitative", aggregate="mean")
+			xAttrSpec = alt.X(xAttr.attribute,type="quantitative", aggregate=xAttr.aggregation)
 			yAttrSpec = alt.Y(yAttr.attribute, type = "ordinal")
-		if (yAttr.attribute=="count()"):
-			yAttrSpec = alt.Y("Record",type="quantitative", aggregate="count")
+		# if (yAttr.attribute=="count()"):
+		# 	yAttrSpec = alt.Y("Count of Records",type="quantitative", aggregate="count")
 		chart = alt.Chart(self.data).mark_line().encode(
 			    x = xAttrSpec,
 			    # TODO: need to change aggregate to non-default function, read aggFunc info in somewhere

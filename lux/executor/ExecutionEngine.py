@@ -17,16 +17,13 @@ class ExecutionEngine:
             ExecutionEngine.executeFilter(view, ldf)
             # Select relevant data based on attribute information
             attributes = set([])
-            xAttribute = view.getObjFromChannel("x")
-            yAttribute = view.getObjFromChannel("y")
-            zAttribute = view.getObjFromChannel("color")
-
-            if (xAttribute):
-                attributes.add(xAttribute[0].attribute)
-            if (yAttribute):
-                attributes.add(yAttribute[0].attribute)
-            if (zAttribute):
-                attributes.add(zAttribute[0].attribute)
+            for spec in view.specLst:
+                if (spec.attribute):
+                    if (spec.attribute=="Count of Records"):
+                        view.data.reset_index(level=0, inplace=True)
+                        attributes.add("index")
+                    else:
+                        attributes.add(spec.attribute)
             view.data = view.data[list(attributes)]
             ExecutionEngine.executeAggregate(view, ldf)
 
@@ -39,18 +36,25 @@ class ExecutionEngine:
         # need to add aggregate spec in the compiling stage(inside compiler.determinEncoding)
         xAttr = view.getObjFromChannel("x")[0]
         yAttr = view.getObjFromChannel("y")[0]
-
+        
         groupbyAttr =""
         if (yAttr.aggregation!=""):
             groupbyAttr = xAttr
+            measureAttr = yAttr
             aggFunc = yAttr.aggregation
         if (xAttr.aggregation!=""):
             groupbyAttr = yAttr
+            measureAttr = xAttr
             aggFunc = xAttr.aggregation
         
-        if (groupbyAttr!=""):
-            groupbyResult = view.data.groupby(groupbyAttr.attribute)
-            view.data = groupbyResult.agg(aggFunc).reset_index()
+        if (measureAttr!=""):
+            if (measureAttr.attribute=="Count of Records"):
+                countSeries = view.data.groupby(groupbyAttr.attribute).count().iloc[:,0]
+                countSeries.name = "Count of Records"
+                view.data = countSeries.to_frame().reset_index()
+            else:
+                groupbyResult = view.data.groupby(groupbyAttr.attribute)
+                view.data = groupbyResult.agg(aggFunc).reset_index()
     @staticmethod
     def executeFilter(view, ldf):
         filters = view.getFilterSpecs()

@@ -28,6 +28,7 @@ class Spec:
 		repr =  f"Spec < description:{str(self.description)},"+ \
 			   f"channel:{str(self.channel)},"+ \
 			   f"attribute:{str(self.attribute)},"+ \
+			   f"aggregation:{str(self.aggregation)},"+ \
 			   f"value:{str(self.value)}>" + \
 			   f"dataModel:{str(self.dataModel)}," + \
 				f"dataType:{str(self.dataType)}"
