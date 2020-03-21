@@ -24,7 +24,8 @@ class Parser:
 	lux.setContext("Horsepower","Origin=USA/Japan")
 		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value =["USA","Japan"], type= "valueGroup")]
 
-	lux.setContext(["Horsepower","MPG","Acceleration"])
+	lux.setContext(["Horsepower","MPG","Acceleration"],"Origin")
+	lux.setContext("Horsepower/MPG/Acceleration", "Origin")
 		--> [lux.Spec(attr= ["Horsepower","MPG","Acceleration"], type= "attributeGroup")]
 	'''
 
