@@ -19,8 +19,9 @@ class ExecutionEngine:
             attributes = set([])
             for spec in view.specLst:
                 if (spec.attribute):
-                    if (spec.attribute=="Count of Records"):
-                        view.data.reset_index(level=0, inplace=True)
+                    if (spec.attribute=="Record"):
+                        if ('index' not in view.data.columns):
+                            view.data.reset_index(level=0, inplace=True)
                         attributes.add("index")
                     else:
                         attributes.add(spec.attribute)
@@ -38,6 +39,7 @@ class ExecutionEngine:
         yAttr = view.getObjFromChannel("y")[0]
         
         groupbyAttr =""
+        measureAttr =""
         if (yAttr.aggregation!=""):
             groupbyAttr = xAttr
             measureAttr = yAttr
@@ -48,9 +50,9 @@ class ExecutionEngine:
             aggFunc = xAttr.aggregation
         
         if (measureAttr!=""):
-            if (measureAttr.attribute=="Count of Records"):
+            if (measureAttr.attribute=="Record"):
                 countSeries = view.data.groupby(groupbyAttr.attribute).count().iloc[:,0]
-                countSeries.name = "Count of Records"
+                countSeries.name = "Record"
                 view.data = countSeries.to_frame().reset_index()
             else:
                 groupbyResult = view.data.groupby(groupbyAttr.attribute)

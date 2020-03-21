@@ -7,21 +7,19 @@ class BarChart(AltairChart):
 	def __repr__(self):
 		return f"Bar Chart <{str(self.view)}>"
 	def initializeChart(self):
-		print ("Barchart")
 		self.tooltip = False
 		xAttr = self.view.getObjFromChannel("x")[0]
 		yAttr = self.view.getObjFromChannel("y")[0]
-		print (self.data.columns)
 		if (xAttr.dataModel == "measure"):
 			yAttrField = alt.Y(yAttr.attribute, type = "nominal",sort="-x")
-			xAttrField = alt.X(xAttr.attribute,type="quantitative") 
+			xAttrField = alt.X(xAttr.attribute,type="quantitative",title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}") 
 		else:
 			xAttrField = alt.X(xAttr.attribute, type = "nominal",sort="-y")
-			yAttrField = alt.Y(yAttr.attribute,type="quantitative") 
+			yAttrField = alt.Y(yAttr.attribute,type="quantitative",title=f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}") 
 		# if (yAttr.attribute=="count()"):
-		# 	yAttrField = alt.Y("Count of Records",type="quantitative", aggregate="count")
+		# 	yAttrField = alt.Y("Record",type="quantitative", aggregate="count")
 		# if (xAttr.attribute=="count()"):
-		# 	xAttrField = alt.X("Count of Records",type="quantitative", aggregate="count")
+		# 	xAttrField = alt.X("Record",type="quantitative", aggregate="count")
 		chart = alt.Chart(self.data).mark_bar().encode(
 			    y = yAttrField,
 			    x = xAttrField
