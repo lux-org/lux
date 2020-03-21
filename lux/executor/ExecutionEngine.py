@@ -20,20 +20,18 @@ class ExecutionEngine:
             xAttribute = view.getObjFromChannel("x")
             yAttribute = view.getObjFromChannel("y")
             zAttribute = view.getObjFromChannel("color")
-            aggregateAttrs = ["count()"]
 
-            if xAttribute and xAttribute[0].attribute and xAttribute[0].attribute not in aggregateAttrs:
+            if (xAttribute):
                 attributes.add(xAttribute[0].attribute)
-            if yAttribute and yAttribute[0].attribute and yAttribute[0].attribute not in aggregateAttrs:
+            if (yAttribute):
                 attributes.add(yAttribute[0].attribute)
-            if zAttribute and zAttribute[0].attribute and zAttribute[0].attribute not in aggregateAttrs:
+            if (zAttribute):
                 attributes.add(zAttribute[0].attribute)
             view.data = view.data[list(attributes)]
-            # TODO (Jaywoo): ExecutionEngine.executeAggregate(view,ldf)
-            # ExecutionEngine.executeAggregate(view, ldf)
+            ExecutionEngine.executeAggregate(view, ldf)
 
     @staticmethod
-    def executeAggregate(view, ldf, aggregate = "count"):
+    def executeAggregate(view, ldf):
         # TODO (Jaywoo)
         # get attribute
         # aggreagte in spec
@@ -41,11 +39,18 @@ class ExecutionEngine:
         # need to add aggregate spec in the compiling stage(inside compiler.determinEncoding)
         xAttr = view.getObjFromChannel("x")[0]
         yAttr = view.getObjFromChannel("y")[0]
-        if (yAttr.attribute == "count()"):
+
+        groupbyAttr =""
+        if (yAttr.aggregation!=""):
             groupbyAttr = xAttr
-        if (xAttr.attribute == "count()"):
+            aggFunc = yAttr.aggregation
+        if (xAttr.aggregation!=""):
             groupbyAttr = yAttr
-        view.data = view.data.groupby(groupbyAttr.attribute).count()
+            aggFunc = xAttr.aggregation
+        
+        if (groupbyAttr!=""):
+            groupbyResult = view.data.groupby(groupbyAttr.attribute)
+            view.data = groupbyResult.agg(aggFunc).reset_index()
     @staticmethod
     def executeFilter(view, ldf):
         filters = view.getFilterSpecs()
