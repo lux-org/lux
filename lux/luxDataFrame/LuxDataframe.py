@@ -3,7 +3,7 @@ import lux
 from lux.compiler.Validator import Validator
 from lux.compiler.Compiler import Compiler
 from lux.compiler.Parser import Parser
-from lux.executor.ExecutionEngine import ExecutionEngine
+from lux.executor.PandasExecutor import PandasExecutor
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType', 
@@ -215,8 +215,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def toJSON(self, inputCurrentView=""):
         widgetSpec = {}
-        from lux.executor.ExecutionEngine import ExecutionEngine
-        ExecutionEngine.execute(self.viewCollection,self)
+        PandasExecutor.execute(self.viewCollection,self)
         widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.viewCollection,inputCurrentView)
         
         widgetSpec["recommendation"] = []

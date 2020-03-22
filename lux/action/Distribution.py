@@ -30,7 +30,7 @@ import lux
 # 	return result
 
 
-from lux.executor.ExecutionEngine import ExecutionEngine
+from lux.executor.PandasExecutor import PandasExecutor
 def distribution(ldf):
 	# Enumerate --> compute the scores for each item in the collection
 	# -->  return DataObjectCollection with the scores
@@ -39,7 +39,7 @@ def distribution(ldf):
 	recommendation = {"action":"Distribution",
 						   "description":"Show univariate count distributions of different attributes in the dataset."}
 	vc = ldf.viewCollection
-	ExecutionEngine.execute(vc,ldf)
+	PandasExecutor.execute(vc,ldf)
 	for view in vc:
 		# measure = obj.getObjByDataModel("measure")[0]
 		# msr = measure.columnName
