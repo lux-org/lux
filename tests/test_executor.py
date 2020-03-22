@@ -35,3 +35,8 @@ def test_filter():
     ExecutionEngine.execute(df.viewCollection,df)
     
     assert len(df.viewCollection[0].data) == len(df[df["Origin"]=="USA"])
+
+def test_binning():
+    df = pd.read_csv("lux/data/car.csv")
+    df.setContext([lux.Spec(attribute = "Horsepower")])
+    ExecutionEngine.execute(df.viewCollection,df)

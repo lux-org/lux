@@ -26,7 +26,10 @@ class ExecutionEngine:
                     else:
                         attributes.add(spec.attribute)
             view.data = view.data[list(attributes)]
-            ExecutionEngine.executeAggregate(view, ldf)
+            if (view.mark =="bar" or view.mark =="line"):
+                ExecutionEngine.executeAggregate(view, ldf)
+            elif (view.mark =="histogram"):
+                ExecutionEngine.executeBinning(view, ldf)
 
     @staticmethod
     def executeAggregate(view, ldf):
@@ -58,6 +61,17 @@ class ExecutionEngine:
                 groupbyResult = view.data.groupby(groupbyAttr.attribute)
                 view.data = groupbyResult.agg(aggFunc).reset_index()
     @staticmethod
+    def executeBinning(view, ldf):
+        import numpy as np
+        import pandas as pd # is this import going to be conflicting with LuxDf?
+        binAttribute = list(filter(lambda x: x.binSize!=0,view.specLst))[0]
+        counts,binEdges = np.histogram(ldf[binAttribute.attribute],bins=binAttribute.binSize)
+        #binEdges of size N+1, so need to compute binCenter as the bin location
+        binCenter = np.mean(np.vstack([binEdges[0:-1],binEdges[1:]]), axis=0)
+        # TODO: Should view.data be a LuxDataFrame or a Pandas DataFrame?
+        view.data = pd.DataFrame(np.array([binCenter,counts]).T,columns=[binAttribute.attribute, "Count of Records (binned)"])        
+        
+    @staticmethod
     def executeFilter(view, ldf):
         filters = view.getFilterSpecs()
         if (filters):
@@ -65,3 +79,4 @@ class ExecutionEngine:
                 view.data = ldf[ldf[filter.attribute] == filter.value]
         else:
             view.data = ldf
+    
