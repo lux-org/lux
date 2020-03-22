@@ -5,7 +5,7 @@ class Spec:
 	'''
 	def __init__(self, description:str ="",attribute: typing.Union[str,list] ="",value: typing.Union[str,list]="",
 				 filterOp:str ="", channel:str ="", dataType:str="",dataModel:str="",
-				 aggregation:str = "", binning:str="", weight:float=1, type:str = "attribute"):
+				 aggregation:str = "", binSize:int=0, weight:float=1, type:str = "attribute"):
 		# Descriptor
 		self.description = description
 		# Description gets comiled to either an attribute, value, attributeGroup or valueGroup
@@ -21,7 +21,7 @@ class Spec:
 		self.dataType = dataType
 		self.dataModel = dataModel
 		self.aggregation = aggregation
-		self.binning = binning
+		self.binSize = binSize
 		self.weight = weight
 			
 	def __repr__(self):
@@ -31,6 +31,7 @@ class Spec:
 			   f"aggregation:{str(self.aggregation)},"+ \
 			   f"value:{str(self.value)}>" + \
 			   f"dataModel:{str(self.dataModel)}," + \
-				f"dataType:{str(self.dataType)}"
+				f"dataType:{str(self.dataType)},"+\
+				f"binSize:{str(self.binSize)}"
 		return repr
 

@@ -152,6 +152,11 @@ class Compiler:
 			# Histogram with Count on the y axis
 			measure = view.getObjByDataModel("measure")[0]
 			view.specLst.append(countCol)
+			# If no bin specified, then default as 10
+			print (measure.binSize)
+			if (measure.binSize == 0):
+				print ("inside")
+				measure.binSize = 10
 			# measure.channel = "x"
 			autoChannel = {"x": measure, "y": countCol}
 			view.mark = "histogram"
