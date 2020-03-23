@@ -187,7 +187,7 @@ class LuxDataFrame(pd.DataFrame):
         self.renderWidget()
         display(self.widget)
     def displayPandas(self):
-        print(self.toPandas())
+        return self.toPandas()
 
     def renderWidget(self, renderer:str ="altair", inputCurrentView=""):
         """
