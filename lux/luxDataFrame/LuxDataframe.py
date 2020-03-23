@@ -36,7 +36,7 @@ class LuxDataFrame(pd.DataFrame):
     def setContext(self,context):
         self.context = context
         self._refreshContext(context)
-    def to_pandas(self):
+    def toPandas(self):
         return lux.luxDataFrame.originalDF(self,copy=False)
     def addToContext(self,context): 
         self.context.extend(context)
@@ -186,6 +186,8 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import display
         self.renderWidget()
         display(self.widget)
+    def displayPandas(self):
+        return self.toPandas()
 
     def renderWidget(self, renderer:str ="altair", inputCurrentView=""):
         """
