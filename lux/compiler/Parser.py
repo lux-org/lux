@@ -1,11 +1,14 @@
 class Parser:
 	'''
+	DONE
 	lux.setContext("Horsepower")
 	--> lux.Spec(attribute = "Horsepower", type= "attribute")
 
+	DONE
 	lux.setContext("Horsepower", lux.Spec("MilesPerGal",channel="x"))
 		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="MilesPerGal", type= "attribute",channel="x")]
 
+	DONE
 	lux.setContext("Horsepower","Origin=USA")
 		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value ="USA", type= "value")]
 
