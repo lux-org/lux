@@ -35,22 +35,6 @@ class LuxDataFrame(pd.DataFrame):
         self.setViewCollection(viewCollection)
     def setContext(self,context):
         self.context = context
-        newContext = []
-        for s in context:
-            if type(s) is str:
-                if "=" in s:
-                    eqInd = s.index("=")
-                    var = s[0:eqInd]
-                    if var in self.columns:
-                        tempSpec = lux.Spec(attribute = var, filterOp = "=", value = s[eqInd+1:], type = "value")
-                        newContext.append(tempSpec)
-                elif s in self.columns:
-                    tempSpec = lux.Spec(attribute = s, type = "attribute")
-                    newContext.append(tempSpec)
-            elif type(s) is lux.Spec:
-                newContext.append(s)
-        print(newContext)
-        self.context = newContext
         self._refreshContext(context)
     def toPandas(self):
         return lux.luxDataFrame.originalDF(self,copy=False)
