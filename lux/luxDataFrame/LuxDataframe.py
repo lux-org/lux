@@ -155,27 +155,16 @@ class LuxDataFrame(pd.DataFrame):
         return self.recommendation.append(similarPattern(self,query,topK))
 
     def showMore(self):
-        # TODO (Jaywoo): add back old logic after all actions are implemented
-        # Old logic: 
-        # currentViewExist = self.compiled.spec!=[]
-        # result = lux.Result()
-        # if (currentViewExist):
-        #     result.mergeResult(self.enhance())
-        #     result.mergeResult(self.filter())
-        #     result.mergeResult(self.generalize())
-        # else: 
-        #     result.mergeResult(self.overview())
-        
-        #instead of results now, what recommendation is simply a list of ViewCollection
-
-        # self.recommendation.append(self.enhance()) #this works
-        # self.recommendation.append(self.filter())
-        self.recommendation.append(self.generalize())
-        # self.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
-        # self.recommendation.append(self.correlation())  #this works partially
-        # self.setContext([lux.Spec("?",dataModel="measure")])
-        # self.recommendation.append(self.distribution())  #this works
-
+        currentViewExist = self.viewCollection!=[]
+        if (currentViewExist):
+            self.recommendation.append(self.enhance()) 
+            self.recommendation.append(self.filter())
+            self.recommendation.append(self.generalize())
+        else: 
+            self.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
+            self.recommendation.append(self.correlation())  #this works partially
+            self.setContext([lux.Spec("?",dataModel="measure")])
+            self.recommendation.append(self.distribution())  
 
     #######################################################
     ############## LuxWidget Result Display ###############
