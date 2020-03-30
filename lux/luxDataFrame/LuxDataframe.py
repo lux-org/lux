@@ -62,13 +62,17 @@ class LuxDataFrame(pd.DataFrame):
 
     def computeDataType(self):
         for attr in self.attrList:
-            if self.dtypes[attr] == "float64" or self.dtypes[attr] == "int64":
+            
+            if self.dtypes[attr] == "float64" or self.dtypes[attr] == "int64" or self.dtypes[attr] == "object":
                 if self.cardinality[attr] < 10:
                     self.dataTypeLookup[attr] = "nominal"
                 else:
                     self.dataTypeLookup[attr] = "quantitative"
-            elif self.dtypes[attr] == "object":
-                self.dataTypeLookup[attr] = "nominal"
+            # Eliminate this clause because a single NaN value can cause the dtype to be object
+            # elif self.dtypes[attr] == "object":
+            #     self.dataTypeLookup[attr] = "nominal"
+            
+            # TODO: quick check if attribute is of type time (auto-detect logic borrow from Zenvisage data import)
             elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
                 self.dataTypeLookup[attr] = "temporal"
         # # Override with schema specified types
