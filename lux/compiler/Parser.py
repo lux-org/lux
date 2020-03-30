@@ -1,14 +1,18 @@
+import lux
 class Parser:
 	'''
+	DONE
 	lux.setContext("Horsepower")
 	--> lux.Spec(attribute = "Horsepower", type= "attribute")
 
+	DONE
 	lux.setContext("Horsepower", lux.Spec("MilesPerGal",channel="x"))
 		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="MilesPerGal", type= "attribute",channel="x")]
 
+	DONE
 	lux.setContext("Horsepower","Origin=USA")
 		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value ="USA", type= "value")]
-
+	
 	lux.setContext("Horsepower","USA")
 		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value ="USA", type= "value")]
 
@@ -19,12 +23,14 @@ class Parser:
 		-->[[lux.Spec(attr ="Horsepower", type= " attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="USA", type= "value")],
 			[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="UK", type= "value")],
 			[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="Japan", type= "value")] ]
-
 	
+	DONE
 	lux.setContext("Horsepower","Origin=USA/Japan")
 		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value =["USA","Japan"], type= "valueGroup")]
 
-	lux.setContext(["Horsepower","MPG","Acceleration"])
+	DONE
+	lux.setContext(["Horsepower","MPG","Acceleration"],"Origin")
+	lux.setContext("Horsepower/MPG/Acceleration", "Origin")
 		--> [lux.Spec(attr= ["Horsepower","MPG","Acceleration"], type= "attributeGroup")]
 	'''
 
@@ -36,6 +42,52 @@ class Parser:
 		'''
 		import re
 		parsedContext = ldf.getContext()
+		newContext = []
+		#checks for and converts users' string inputs into lux specifications
+		for s in parsedContext:
+			validValues = []
+
+			if type(s) is list:
+				validValues = []
+				for v in s:
+					if type(v) is str and v in ldf.columns:
+						validValues.append(v)
+				tempSpec = lux.Spec(attribute = validValues, type = "attribute")
+				newContext.append(tempSpec)
+			if type(s) is str:
+				#case where user specifies a filter
+				if "=" in s:
+					eqInd = s.index("=")
+					var = s[0:eqInd]
+					if "?" in s:
+						validValues = "?"
+					if "/" in s:
+						values = s[eqInd+1:].split("/")
+						for v in values:
+							if v in ldf[var].unique():
+								validValues.append(v)
+					else:
+						validValues = s[eqInd+1:]
+					if var in ldf.columns:
+						tempSpec = lux.Spec(attribute = var, filterOp = "=", value = validValues, type = "value")
+						newContext.append(tempSpec)
+				#case where user specifies a variable
+				else:
+					if "/" in s:
+						values = s.split("/")
+						for v in values:
+							if v in ldf.columns:
+								validValues.append(v)
+					else:
+						validValues = s
+					tempSpec = lux.Spec(attribute = validValues, type = "attribute")
+					newContext.append(tempSpec)
+			elif type(s) is lux.Spec:
+				newContext.append(s)
+		#print(newContext)
+		parsedContext = newContext
+		ldf.context = newContext
+
 		for spec in parsedContext:
 			if (spec.description):
 				if (spec.description in ldf.columns or spec.description == "?"):# if spec.description in the list of attributes

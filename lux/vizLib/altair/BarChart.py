@@ -12,14 +12,14 @@ class BarChart(AltairChart):
 		yAttr = self.view.getObjFromChannel("y")[0]
 		if (xAttr.dataModel == "measure"):
 			yAttrField = alt.Y(yAttr.attribute, type = "nominal",sort="-x")
-			xAttrField = alt.X(xAttr.attribute,type="quantitative", aggregate="mean") #TODO: fix to non-default aggregate function
+			xAttrField = alt.X(xAttr.attribute,type="quantitative",title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}") 
 		else:
 			xAttrField = alt.X(xAttr.attribute, type = "nominal",sort="-y")
-			yAttrField = alt.Y(yAttr.attribute,type="quantitative", aggregate="mean") #TODO: fix to non-default aggregate function
-		if (yAttr.attribute=="count()"):
-			yAttrField = alt.Y("Record",type="quantitative", aggregate="count")
-		if (xAttr.attribute=="count()"):
-			xAttrField = alt.X("Record",type="quantitative", aggregate="count")
+			yAttrField = alt.Y(yAttr.attribute,type="quantitative",title=f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}") 
+		# if (yAttr.attribute=="count()"):
+		# 	yAttrField = alt.Y("Record",type="quantitative", aggregate="count")
+		# if (xAttr.attribute=="count()"):
+		# 	xAttrField = alt.X("Record",type="quantitative", aggregate="count")
 		chart = alt.Chart(self.data).mark_bar().encode(
 			    y = yAttrField,
 			    x = xAttrField

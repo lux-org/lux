@@ -3,7 +3,7 @@ import lux
 from lux.compiler.Validator import Validator
 from lux.compiler.Compiler import Compiler
 from lux.compiler.Parser import Parser
-from lux.executor.ExecutionEngine import ExecutionEngine
+from lux.executor.PandasExecutor import PandasExecutor
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType', 
@@ -36,7 +36,7 @@ class LuxDataFrame(pd.DataFrame):
     def setContext(self,context):
         self.context = context
         self._refreshContext(context)
-    def to_pandas(self):
+    def toPandas(self):
         return lux.luxDataFrame.originalDF(self,copy=False)
     def addToContext(self,context): 
         self.context.extend(context)
@@ -62,13 +62,17 @@ class LuxDataFrame(pd.DataFrame):
 
     def computeDataType(self):
         for attr in self.attrList:
-            if self.dtypes[attr] == "float64" or self.dtypes[attr] == "int64":
+            
+            if self.dtypes[attr] == "float64" or self.dtypes[attr] == "int64" or self.dtypes[attr] == "object":
                 if self.cardinality[attr] < 10:
                     self.dataTypeLookup[attr] = "nominal"
                 else:
                     self.dataTypeLookup[attr] = "quantitative"
-            elif self.dtypes[attr] == "object":
-                self.dataTypeLookup[attr] = "nominal"
+            # Eliminate this clause because a single NaN value can cause the dtype to be object
+            # elif self.dtypes[attr] == "object":
+            #     self.dataTypeLookup[attr] = "nominal"
+            
+            # TODO: quick check if attribute is of type time (auto-detect logic borrow from Zenvisage data import)
             elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
                 self.dataTypeLookup[attr] = "temporal"
         # # Override with schema specified types
@@ -155,27 +159,16 @@ class LuxDataFrame(pd.DataFrame):
         return self.recommendation.append(similarPattern(self,query,topK))
 
     def showMore(self):
-        # TODO (Jaywoo): add back old logic after all actions are implemented
-        # Old logic: 
-        # currentViewExist = self.compiled.spec!=[]
-        # result = lux.Result()
-        # if (currentViewExist):
-        #     result.mergeResult(self.enhance())
-        #     result.mergeResult(self.filter())
-        #     result.mergeResult(self.generalize())
-        # else: 
-        #     result.mergeResult(self.overview())
-        
-        #instead of results now, what recommendation is simply a list of ViewCollection
-
-        self.recommendation.append(self.enhance()) #this works
-        self.recommendation.append(self.filter())
-        self.recommendation.append(self.generalize())
-        self.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
-        self.recommendation.append(self.correlation())  #this works partially
-        self.setContext([lux.Spec("?",dataModel="measure")])
-        self.recommendation.append(self.distribution())  #this works
-
+        currentViewExist = self.viewCollection!=[]
+        if (currentViewExist):
+            self.recommendation.append(self.enhance()) 
+            self.recommendation.append(self.filter())
+            self.recommendation.append(self.generalize())
+        else: 
+            self.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
+            self.recommendation.append(self.correlation())  #this works partially
+            self.setContext([lux.Spec("?",dataModel="measure")])
+            self.recommendation.append(self.distribution())  
 
     #######################################################
     ############## LuxWidget Result Display ###############
@@ -186,6 +179,8 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import display
         self.renderWidget()
         display(self.widget)
+    def displayPandas(self):
+        return self.toPandas()
 
     def renderWidget(self, renderer:str ="altair", inputCurrentView=""):
         """
@@ -215,8 +210,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def toJSON(self, inputCurrentView=""):
         widgetSpec = {}
-        from lux.executor.ExecutionEngine import ExecutionEngine
-        ExecutionEngine.execute(self.viewCollection,self)
+        PandasExecutor.execute(self.viewCollection,self)
         widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.viewCollection,inputCurrentView)
         
         widgetSpec["recommendation"] = []

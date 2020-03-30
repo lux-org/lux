@@ -130,6 +130,9 @@ class Compiler:
 		# Helper function (TODO: Move this into utils)
 		def lineOrBar(dimension, measure):
 			dimType = dimension.dataType
+			# If no aggregation function is specified, then default as average
+			if (measure.aggregation==""):
+				measure.aggregation = "mean"
 			if (dimType == "temporal" or dimType == "oridinal"):
 				# chart = LineChart(dobj)
 				return "line", {"x": dimension, "y": measure}
@@ -139,7 +142,8 @@ class Compiler:
 		# TODO: if cardinality large than 6 then sort bars
 
 		# ShowMe logic + additional heuristics
-		countCol = Spec( attribute="count()", dataModel="measure")
+		#countCol = Spec( attribute="count()", dataModel="measure")
+		countCol = Spec( attribute="Record", aggregation="count", dataModel="measure")
 		# xAttr = view.getObjFromChannel("x") # not used as of now
 		# yAttr = view.getObjFromChannel("y")
 		# zAttr = view.getObjFromChannel("z")
@@ -148,6 +152,9 @@ class Compiler:
 			# Histogram with Count on the y axis
 			measure = view.getObjByDataModel("measure")[0]
 			view.specLst.append(countCol)
+			# If no bin specified, then default as 10
+			if (measure.binSize == 0):
+				measure.binSize = 10
 			# measure.channel = "x"
 			autoChannel = {"x": measure, "y": countCol}
 			view.mark = "histogram"
@@ -181,6 +188,7 @@ class Compiler:
 			# Colored Bar/Line chart with Count as default measure
 			if (Nmsr == 0):
 				view.specLst.append(countCol)
+			print (view)
 			measure = view.getObjByDataModel("measure")[0]
 			view.mark, autoChannel = lineOrBar(dimension, measure)
 			autoChannel["color"] = colorAttr
