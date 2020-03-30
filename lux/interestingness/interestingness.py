@@ -2,44 +2,14 @@ from lux.interestingness.valueBasedInterestingness import valueBasedInterestingn
 from lux.interestingness.relationshipBasedInterestingness import relationshipBasedInterestingness
 
 def interestingness(view,ldf):
-	# print()
-	# print(view)
-	# print(view.getAttrsSpecs())
-	# # TODO: add back if (ldf.dataset.cardinality[cVar]>10): then score -1 for categorical values
-	# numAttrs = len(view.getAttrsSpecs())
-	# if numAttrs == 1:
-	# 	attrType = view.specLst[0].dataModel
-	# 	if attrType == "measure":
-	# 		return(valueBasedInterestingness(view,ldf))
-	# 	elif attrType == "dimension":
-	# 		return(0.5)
-	# 		#from interestingness import countBasedInterestingness
-	# 		#return(countBasedinterstingness(dobjCompiled))
-	# elif numAttrs == 2:
-	# 	numMeasure = len(view.getObjByDataModel("measure"))
-	# 	numDimension = len(view.getObjByDataModel("dimension"))
-
-	# 	if numMeasure == 2:
-	# 		return(relationshipBasedInterestingness(view,ldf))
-	# 	elif numMeasure == 1 and numDimension == 1:
-	# 		return(0.5)
-	# 		#from interstingness import distributionBasedInterestingness
-	# 		#return(distributionBasedInterestingness(dobjCompiled))
-	# 	else:
-	# 		return(0)
-	# else:
-	# 	return(0.5)
+	import pandas as pd
+	import numpy as np
+	from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
 
-
-
-	# n_dim = len(view.getObjByDataModel('dimension'))
-	# n_msr = len(view.getObjByDataModel('measure'))
-	print ("view:",view)
 	n_dim = 0
 	n_msr = 0
 	for spec in view.specLst:
-		print (spec)
 		if (spec.attribute and spec.attribute!="Record"):
 			if (spec.dataModel == 'dimension'):
 				n_dim += 1
@@ -47,54 +17,123 @@ def interestingness(view,ldf):
 				n_msr += 1
 	n_filter = len(view.getFilterSpecs())
 
-	print("n_dim, n_msr, n_filter:",n_dim, n_msr, n_filter)
-	
-
-	# Some other testing I'm doing
-	
-	# print(ldf[view.spec[0].attribute].sum(skipna = True))
-	# print(view.getAttrsSpecs()[0].attribute)
-	# print(view.getAttrsSpecs())
-	# print([x.attribute for x in view.getAttrsSpecs()])
-	# return 0.5
-
-
 	# Bar Chart (Count)
 	if (n_dim == 1 and n_msr == 0 and n_filter == 0):
-		return 0.5
-		# return skewness()
+		v = ldf[view.getAttrsSpecs()[0].attribute]
+		C = len(v.unique())
+		D = (0.5) ** C
+
+		if (is_datetime(v)):
+			v = v.astype('int')
+
+		return skewness(D, v)
 	elif (n_dim == 1 and n_msr == 0 and n_filter == 1):
-		return 0.5
-		# return filtered_dist_shape_diff()
+		v = ldf[view.getAttrsSpecs()[0].attribute]
+		filter_spec = view.getFilterSpecs()[0]
+		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[view.getAttrsSpecs()[0].attribute]
+
+		if (len(v_filter) < len(v)):
+			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
+
+		return filtered_dist_shape_diff(v, v_filter)
 	
 	# Histogram (Count)
 	elif (n_dim == 0 and n_msr == 1 and n_filter == 0):
-		return 0.5
-		# return agg_value_magnitude()
+		v = ldf[view.getAttrsSpecs()[0].attribute]
+		
+		return agg_value_magnitude(v)
 	elif (n_dim == 0 and n_msr == 1 and n_filter == 1):
-		return 0.5
-		# return filtered_hist_shape_diff()
+		v = ldf[view.getAttrsSpecs()[0].attribute]
+		C = len(v.unique())
+
+		# if c < 40 # c == cardinality (number of unique values)
+		if (C >= 40):
+			return 0
+
+		filter_spec = view.getFilterSpecs()[0]
+		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[view.getAttrsSpecs()[0].attribute]
+
+		if (len(v_filter) < len(v)):
+			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
+
+		v_bin = v
+		v_filter_bin = v_filter
+
+		if (filter_spec.binSize > 0):
+			v_bin = np.histogram(v, bins=filter_spec.binSize)[0]
+			v_filter_bin = np.histogram(v_filter, bins=filter_spec.binSize)[0]
+
+		return filtered_hist_shape_diff(v, v_filter, v_bin, v_filter_bin)
 
 	# Bar Chart
 	elif (n_dim == 1 and n_msr == 1 and n_filter == 0):
-		return 0.5
-		# return unevenness()
+		v = ldf[view.getAttrsSpecs()[0].attribute]
+		C = len(v.unique())
+		D = (0.5) ** C
+		v_flat = pd.Series([1 / C] * len(v))
+		if (is_datetime(v)):
+			v = v.astype('int')
+		
+		return unevenness(D, v, v_flat)
 	elif (n_dim == 1 and n_msr == 1 and n_filter == 1):
-		return 0.5
+		v = ldf[view.getAttrsSpecs()[0].attribute]
+		C = len(v.unique())
+
 		# if c < 40 # c == cardinality (number of unique values)
-		# return deviation()
+		if (C >= 40):
+			return 0
+
+		filter_spec = view.getFilterSpecs()[0]
+		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[view.getAttrsSpecs()[0].attribute]
+
+		if (len(v_filter) < len(v)):
+			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
+
+		v_bin = v
+		v_filter_bin = v_filter
+
+		if (filter_spec.binSize > 0):
+			v_bin = np.histogram(v, bins=filter_spec.binSize)[0]
+			v_filter_bin = np.histogram(v_filter, bins=filter_spec.binSize)[0]
+
+		return deviation(v, v_filter, v_bin, v_filter_bin)
 
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2 and n_filter == 0):
-		return 0.5
-		# return mutual_information()
+		v_x = ldf[view.getAttrsSpecs()[0].attribute]
+		v_y = ldf[view.getAttrsSpecs()[1].attribute]
+
+		return mutual_information(v_x, v_y)
 	elif (n_dim == 0 and n_msr == 2 and n_filter == 1):
-		return 0.5
-		# return monotonicity()
+		filter_spec = view.getFilterSpecs()[0]
+		ldf_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
+
+		v_x = ldf_filter[view.getAttrsSpecs()[0].attribute]
+		v_y = ldf_filter[filter_spec.attribute]
+
+		return monotonicity(v_x, v_y)
 
 	# Default
 	else:
 		return 0.5
+
+
+
+
+def apply_filter(df, attribute, op, val):
+	if (op == '='):
+		return df[df[attribute] == val]
+	elif (op == '<'):
+		return df[df[attribute] < val]
+	elif (op == '>'):
+		return df[df[attribute] > val]
+	elif (op == '<='):
+		return df[df[attribute] <= val]
+	elif (op == '>='):
+		return df[df[attribute] >= val]
+	elif (op == '!='):
+		return df[df[attribute] != val]
+	return df
 
 
 
@@ -118,10 +157,9 @@ def filtered_dist_shape_diff(v, v_filter):
 	from scipy.spatial.distance import euclidean
 
 	# Norm for vector magnitude
-	from np.linalg import norm
+	from numpy.linalg import norm
 
-	# return 0.1 * (norm(v_filter) / norm(v)) * euclidean(v, v_filter)
-	return 0.5
+	return 0.1 * (norm(v_filter) / norm(v)) * euclidean(v, v_filter)
 
 ##############################
 
@@ -139,16 +177,13 @@ def agg_value_magnitude(v):
 
 # N_dim = 0, N_msr = 1, N_filter = 1
 def filtered_hist_shape_diff(v, v_filter):
-	# TODO: Jared
-
 	# Euclidean distance as L2 function
 	from scipy.spatial.distance import euclidean
 
 	# Norm for vector magnitude
-	from np.linalg import norm
+	from numpy.linalg import norm
 
-	# return (norm(v_filter) / norm(v)) * euclidean(BIN?? v, BIN?? v_filter)
-	return 0.5
+	return (norm(v_filter) / norm(v)) * euclidean(v_bin, v_filter_bin)
 
 ##############################
 
@@ -163,25 +198,20 @@ def filtered_hist_shape_diff(v, v_filter):
 
 # N_dim = 1, N_msr = 1, N_filter = 0
 def unevenness(D, v, v_flat):
-	# TODO: Jared
 	# Euclidean distance as L2 function
 	from scipy.spatial.distance import euclidean
 	
-	# return D * euclidean(v, v_flat)
-	return 0.5
+	return D * euclidean(v, v_flat)
 
 # N_dim = 1, N_msr = 1, N_filter = 1
-def deviation(v, v_filter):
-	# TODO: Jared
-
+def deviation(v, v_filter, v_bin, v_filter_bin):
 	# Euclidean distance as L2 function
 	from scipy.spatial.distance import euclidean
 
 	# Norm for vector magnitude
-	from np.linalg import norm
+	from numpy.linalg import norm
 
-	# return (norm(v_filter) / norm(v)) * euclidean(BIN????? v, BIN?????? v_filter)
-	return 0.5
+	return (norm(v_filter) / norm(v)) * euclidean(v_bin, v_filter_bin)
 
 ##############################
 
@@ -196,18 +226,14 @@ def deviation(v, v_filter):
 
 # N_dim = 0, N_msr = 2, N_filter = 0
 def mutual_information(v_x, v_y):
-	# TODO: Jared
 	from sklearn.metrics import mutual_info_score
 
-	# return mutual_info_score(v_x, v_y)
-	return 0.5
+	return mutual_info_score(v_x, v_y)
 
 # N_dim = 0, N_msr = 2, N_filter = 1
 def monotonicity(v_x, v_y):
-	# TODO: Jared
 	from scipy.stats import spearmanr
 
-	# return (spearmanr(v_x, v_y)[0]) ** 2
-	return 0.5
+	return (spearmanr(v_x, v_y)[0]) ** 2
 
 ##############################
