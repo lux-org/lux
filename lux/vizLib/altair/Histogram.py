@@ -9,16 +9,9 @@ class Histogram(AltairChart):
 	def initializeChart(self):
 		self.tooltip = False
 		xAttr = self.view.getObjFromChannel("x")[0].attribute
-		yAttr = self.view.getObjFromChannel("y")[0].attribute
-		#measures = list(filter(lambda x: x.dataModel=="measure" if hasattr(x,"dataModel") else False,self.view.spec))
-		if (yAttr=="count()"):
-			chart = alt.Chart(self.data).mark_bar().encode(
-				alt.X(xAttr, type="quantitative", bin=alt.Bin(maxbins=50)),
-				alt.Y(yAttr, type="quantitative")
-			)
-		else:
-			chart = alt.Chart(self.data).mark_bar().encode(
-				alt.X(xAttr, type="quantitative"),
-				alt.Y(yAttr, type="quantitative", bin=alt.Bin(maxbins=50))
-			)
+
+		chart = alt.Chart(self.data).mark_bar(size=12).encode(
+			alt.X(xAttr, type="quantitative"),#, bin=alt.Bin(maxbins=50)),
+			alt.Y("Count of Records (binned)", type="quantitative")
+		)
 		return chart 

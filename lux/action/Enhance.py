@@ -1,7 +1,7 @@
 import lux
 from lux.interestingness.interestingness import interestingness
 from lux.compiler.Compiler import Compiler
-from lux.executor.ExecutionEngine import ExecutionEngine
+from lux.executor.PandasExecutor import PandasExecutor
 '''
 Shows possible visualizations when an additional attribute is added to the current view
 '''
@@ -14,7 +14,7 @@ def enhance(ldf):
 	existingVars = [spec.attribute for spec in context]
 
 	vc = ldf.viewCollection
-	ExecutionEngine.execute(vc,ldf)
+	PandasExecutor.execute(vc,ldf)
 	vc = vc.topK(5)
 	
 	# First loop through all variables to create new view collection
@@ -26,7 +26,7 @@ def enhance(ldf):
 			output.append(view)
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
-	ExecutionEngine.execute(vc,ldf)
+	PandasExecutor.execute(vc,ldf)
 	# Then use the data populated in the view collection to compute score
 	for view in vc:
 		# TODO (Jaywoo): fix interestingness function

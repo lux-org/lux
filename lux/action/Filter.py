@@ -59,7 +59,7 @@ import lux
 from lux.interestingness.interestingness import interestingness
 from lux.view.View import View
 from lux.view.ViewCollection import ViewCollection
-from lux.executor.ExecutionEngine import ExecutionEngine
+from lux.executor.PandasExecutor import PandasExecutor
 from lux.compiler.Compiler import Compiler
 '''
 Shows possible visualizations when filtered by categorical variables in the data object's dataset
@@ -106,7 +106,7 @@ def filter(ldf):
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
 	vc = vc.topK(20)
-	ExecutionEngine.execute(vc,ldf)
+	PandasExecutor.execute(vc,ldf)
 	recommendation["collection"] = vc
 	# print(vc)
 	return recommendation

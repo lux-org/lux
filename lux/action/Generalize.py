@@ -53,7 +53,7 @@ import scipy.stats
 import numpy as np
 from lux.view.View import View
 from lux.compiler.Compiler import Compiler
-from lux.executor.ExecutionEngine import ExecutionEngine
+from lux.executor.PandasExecutor import PandasExecutor
 from lux.interestingness.valueBasedInterestingness import valueBasedInterestingness
 # from compiler.Compiler import Compiler
 '''
@@ -95,6 +95,6 @@ def generalize(ldf):
 		output.append(tempView)
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
-	ExecutionEngine.execute(vc,ldf)
+	PandasExecutor.execute(vc,ldf)
 	recommendation["collection"] = vc
 	return recommendation

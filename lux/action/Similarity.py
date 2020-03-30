@@ -2,7 +2,7 @@ import lux
 import pandas as pd
 import math
 import numpy as np
-from lux.executor.ExecutionEngine import ExecutionEngine
+from lux.executor.PandasExecutor import PandasExecutor
 from lux.view.ViewCollection import ViewCollection
 def aggregate(view):
 # find y axis then aggregate on it
@@ -82,11 +82,11 @@ def similarPattern(ldf,queryContext,topK=-1):
     rowSpecs = list(filter(lambda x: x.value != "", queryContext))
     if(len(rowSpecs) == 1):
         searchSpaceVC = ViewCollection(ldf.viewCollection.collection.copy())
-        ExecutionEngine.execute(searchSpaceVC,ldf)
+        PandasExecutor.execute(searchSpaceVC,ldf)
 
         ldf.setContext(queryContext)
         queryVC = ldf.viewCollection
-        ExecutionEngine.execute(queryVC, ldf)
+        PandasExecutor.execute(queryVC, ldf)
         queryView = queryVC[0]
         preprocess(queryView)
         #for loop to create assign euclidean distance
