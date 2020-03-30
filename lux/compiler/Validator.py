@@ -11,7 +11,7 @@ class Validator:
 	# def validateSpec(ldf: LuxDataFrame):
 	def validateSpec(ldf):
 		def existsInDF(value,uniqueValues):
-			return any(value in uniqueValues[vals] for vals in uniqueValues)
+			return any(value in vals for vals in uniqueValues)
 		# 1. Parse all string specification into Spec objects (nice-to-have)
 		# 2. Validate that the parsed specification is corresponds to the content in the LuxDataframe.
 		context = ldf.getContext()
@@ -29,17 +29,14 @@ class Validator:
 					if spec.attribute and not checkAttrExists:
 						printWarning = True
 
-					if isinstance(spec.value, list):
-						checkValExists = spec.attribute in uniqueVals and all(v in uniqueVals[spec.attribute] for v in spec.value)
-					else:
-						checkValExists = spec.attribute in uniqueVals and spec.value in uniqueVals[spec.attribute]
+					checkValExists = spec.attribute and spec.value in uniqueVals[spec.attribute]
 					if spec.value and not checkValExists:
 						printWarning = True
 			
 			if isinstance(spec.value, list):
-				checkValExistsGroup = all(existsInDF(val, uniqueVals) for val in spec.value)
-				if spec.value and not checkValExistsGroup:
-					printWarning = True
+					checkValExistsGroup = all(existsInDF(val, uniqueVals) for val in spec.value)
+					if spec.value and not checkValExistsGroup:
+						printWarning = True
 
 
 		if printWarning:

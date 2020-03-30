@@ -12,7 +12,7 @@ class Parser:
 	DONE
 	lux.setContext("Horsepower","Origin=USA")
 		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value ="USA", type= "value")]
-	
+
 	lux.setContext("Horsepower","USA")
 		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value ="USA", type= "value")]
 
@@ -23,8 +23,7 @@ class Parser:
 		-->[[lux.Spec(attr ="Horsepower", type= " attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="USA", type= "value")],
 			[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="UK", type= "value")],
 			[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="Japan", type= "value")] ]
-	
-	DONE
+
 	lux.setContext("Horsepower","Origin=USA/Japan")
 		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value =["USA","Japan"], type= "valueGroup")]
 
@@ -59,8 +58,6 @@ class Parser:
 				if "=" in s:
 					eqInd = s.index("=")
 					var = s[0:eqInd]
-					if "?" in s:
-						validValues = "?"
 					if "/" in s:
 						values = s[eqInd+1:].split("/")
 						for v in values:
@@ -84,7 +81,7 @@ class Parser:
 					newContext.append(tempSpec)
 			elif type(s) is lux.Spec:
 				newContext.append(s)
-		#print(newContext)
+		print(newContext)
 		parsedContext = newContext
 		ldf.context = newContext
 
