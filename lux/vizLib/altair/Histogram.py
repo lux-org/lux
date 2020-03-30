@@ -11,7 +11,7 @@ class Histogram(AltairChart):
 		xAttr = self.view.getObjFromChannel("x")[0].attribute
 
 		chart = alt.Chart(self.data).mark_bar(size=12).encode(
-			alt.X(xAttr, type="quantitative"),#, bin=alt.Bin(maxbins=50)),
+			alt.X(xAttr, type=xAttr.dataType),#, bin=alt.Bin(maxbins=50)),
 			alt.Y("Count of Records (binned)", type="quantitative")
 		)
 		return chart 

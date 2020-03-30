@@ -11,11 +11,11 @@ class BarChart(AltairChart):
 		xAttr = self.view.getObjFromChannel("x")[0]
 		yAttr = self.view.getObjFromChannel("y")[0]
 		if (xAttr.dataModel == "measure"):
-			yAttrField = alt.Y(yAttr.attribute, type = "nominal",sort="-x")
-			xAttrField = alt.X(xAttr.attribute,type="quantitative",title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}") 
+			yAttrField = alt.Y(yAttr.attribute, type = yAttr.dataType,sort="-x")
+			xAttrField = alt.X(xAttr.attribute,type=xAttr.dataType,title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}")
 		else:
-			xAttrField = alt.X(xAttr.attribute, type = "nominal",sort="-y")
-			yAttrField = alt.Y(yAttr.attribute,type="quantitative",title=f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}") 
+			xAttrField = alt.X(xAttr.attribute, type = xAttr.dataType,sort="-y")
+			yAttrField = alt.Y(yAttr.attribute,type=yAttr.dataType,title=f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}")
 		# if (yAttr.attribute=="count()"):
 		# 	yAttrField = alt.Y("Record",type="quantitative", aggregate="count")
 		# if (xAttr.attribute=="count()"):
