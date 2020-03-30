@@ -10,8 +10,8 @@ class ScatterChart(AltairChart):
 		xAttr = self.view.getObjFromChannel("x")[0].attribute
 		yAttr = self.view.getObjFromChannel("y")[0].attribute
 		chart = alt.Chart(self.data).mark_circle().encode(
-		    x=alt.X(xAttr,scale=alt.Scale(zero=False),type="quantitative"),
-		    y=alt.Y(yAttr,scale=alt.Scale(zero=False),type="quantitative")
+		    x=alt.X(xAttr,scale=alt.Scale(zero=False),type=xAttr.dataType),
+		    y=alt.Y(yAttr,scale=alt.Scale(zero=False),type=yAttr.dataType)
 		)
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		chart = chart.interactive() # If you want to enable Zooming and Panning

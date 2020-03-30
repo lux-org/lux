@@ -11,12 +11,12 @@ class LineChart(AltairChart):
 		xAttr = self.view.getObjFromChannel("x")[0]
 		yAttr = self.view.getObjFromChannel("y")[0]
 		
-		if (yAttr.dataModel == "measure"):		
-			xAttrSpec = alt.X(xAttr.attribute, type = "ordinal")
-			yAttrSpec = alt.Y(yAttr.attribute,type="quantitative",title=f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}")
+		if (yAttr.dataModel == "measure"):
+			xAttrSpec = alt.X(xAttr.attribute, type = xAttr.dataType)
+			yAttrSpec = alt.Y(yAttr.attribute,type= yAttr.dataType, title=f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}")
 		else:
-			xAttrSpec = alt.X(xAttr.attribute,type="quantitative",title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}")
-			yAttrSpec = alt.Y(yAttr.attribute, type = "ordinal")
+			xAttrSpec = alt.X(xAttr.attribute,type= xAttr.dataType, title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}")
+			yAttrSpec = alt.Y(yAttr.attribute, type = yAttr.dataType)
 		# if (yAttr.attribute=="count()"):
 		# 	yAttrSpec = alt.Y("Record",type="quantitative", aggregate="count")
 		chart = alt.Chart(self.data).mark_line().encode(
