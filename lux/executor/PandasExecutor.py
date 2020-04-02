@@ -36,7 +36,6 @@ class PandasExecutor(Executor):
     def executeAggregate(view, ldf):
         xAttr = view.getObjFromChannel("x")[0]
         yAttr = view.getObjFromChannel("y")[0]
-        
         groupbyAttr =""
         measureAttr =""
         if (yAttr.aggregation!=""):
