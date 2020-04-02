@@ -110,8 +110,8 @@ class Parser:
 				spec.type = "attributeGroup"
 			if spec.value == "?" or isinstance(spec.value,list):
 				spec.type = "valueGroup"
-		Parser.populateOptions(ldf)
 		ldf.context = parsedContext
+		Parser.populateOptions(ldf)
 		
 	@staticmethod
 	# def populateOptions(ldf: LuxDataFrame):
@@ -170,5 +170,18 @@ class Parser:
 						specOptions.append(specCopy)
 				# ldf.rows.append(specOptions)
 				ldf.rows = specOptions
+		# if len(ldf.rows) > 0:
+		# 	print("More than 1 filter")
+		# 	newSpec = []
+		# 	for spec in ldf.context:
+		# 		if spec.type == "attribute":
+		# 			for r in ldf.rows:
+		# 				newSpec.append([spec, r])
+		# 	if len(newSpec) == 1:
+		# 		ldf.context = newSpec[0]
+		# 		print(ldf.context)
+		# 	else:
+		# 		ldf.context = newSpec
+		# 		print(ldf.context)
 
 		
