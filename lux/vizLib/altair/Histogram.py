@@ -8,10 +8,10 @@ class Histogram(AltairChart):
 		return f"Histogram <{str(self.view)}>"
 	def initializeChart(self):
 		self.tooltip = False
-		xAttr = self.view.getObjFromChannel("x")[0].attribute
+		xAttr = self.view.getObjFromChannel("x")[0]
 
 		chart = alt.Chart(self.data).mark_bar(size=12).encode(
-			alt.X(xAttr, type=xAttr.dataType),#, bin=alt.Bin(maxbins=50)),
+			alt.X(xAttr.attribute, type=xAttr.dataType),#, bin=alt.Bin(maxbins=50)),
 			alt.Y("Count of Records (binned)", type="quantitative")
 		)
 		return chart 
