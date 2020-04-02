@@ -156,7 +156,9 @@ class LuxDataFrame(pd.DataFrame):
         return generalize(self)
     def similarPattern(self,query,topK=-1):
         from lux.action.Similarity import similarPattern
-        return self.recommendation.append(similarPattern(self,query,topK))
+        self.recommendation.append(similarPattern(self,query,topK))
+        self.renderWidget()
+        display(self.widget)
 
     def showMore(self):
         currentViewExist = self.viewCollection!=[]

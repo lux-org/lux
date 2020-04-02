@@ -25,14 +25,14 @@ def interpolate(view,length):
             xVals = view.data[xAxis]
             n = length
 
-            interpolatedXVals = [0.0]*(length+1)
-            interpolatedYVals = [0.0]*(length+1)
+            interpolatedXVals = [0.0]*(length)
+            interpolatedYVals = [0.0]*(length)
 
             granularity = (xVals[len(xVals)-1] - xVals[0]) / n
 
             count = 0
 
-            for i in range(1,n):
+            for i in range(0,n):
                 interpolatedX = xVals[0] + i * granularity
                 interpolatedXVals[i] = interpolatedX
 
@@ -100,7 +100,6 @@ def similarPattern(ldf,queryContext,topK=-1):
         if(topK!=-1):
             searchSpaceVC = searchSpaceVC.topK(topK)
         recommendation["collection"] = searchSpaceVC
-        print(recommendation)
         return recommendation
     else:
         print("Query needs to have 1 row value")
