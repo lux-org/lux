@@ -58,8 +58,8 @@ class Parser:
 				if "=" in s:
 					eqInd = s.index("=")
 					var = s[0:eqInd]
-					if "/" in s:
-						values = s[eqInd+1:].split("/")
+					if "|" in s:
+						values = s[eqInd+1:].split("|")
 						for v in values:
 							if v in ldf[var].unique():
 								validValues.append(v)
@@ -70,8 +70,8 @@ class Parser:
 						newContext.append(tempSpec)
 				#case where user specifies a variable
 				else:
-					if "/" in s:
-						values = s.split("/")
+					if "|" in s:
+						values = s.split("|")
 						for v in values:
 							if v in ldf.columns:
 								validValues.append(v)
@@ -81,7 +81,6 @@ class Parser:
 					newContext.append(tempSpec)
 			elif type(s) is lux.Spec:
 				newContext.append(s)
-		print(newContext)
 		parsedContext = newContext
 		ldf.context = newContext
 
@@ -157,6 +156,8 @@ class Parser:
 				for attr in attrLst:
 					if spec.value == "?":
 						options = ldf.uniqueValues[attr]
+						specInd = ldf.context.index(spec)
+						ldf.context[specInd] = lux.Spec(attribute = spec.attribute, filterOp = "=", value = list(options), type = "valueGroup")
 					else:
 						options = convert2List(spec.value)
 					for optStr in options:
@@ -167,18 +168,3 @@ class Parser:
 						specOptions.append(specCopy)
 				# ldf.rows.append(specOptions)
 				ldf.rows = specOptions
-		# if len(ldf.rows) > 0:
-		# 	print("More than 1 filter")
-		# 	newSpec = []
-		# 	for spec in ldf.context:
-		# 		if spec.type == "attribute":
-		# 			for r in ldf.rows:
-		# 				newSpec.append([spec, r])
-		# 	if len(newSpec) == 1:
-		# 		ldf.context = newSpec[0]
-		# 		print(ldf.context)
-		# 	else:
-		# 		ldf.context = newSpec
-		# 		print(ldf.context)
-
-		
