@@ -58,8 +58,8 @@ class Parser:
 				if "=" in s:
 					eqInd = s.index("=")
 					var = s[0:eqInd]
-					if "/" in s:
-						values = s[eqInd+1:].split("/")
+					if "|" in s:
+						values = s[eqInd+1:].split("|")
 						for v in values:
 							if v in ldf[var].unique():
 								validValues.append(v)
@@ -70,8 +70,8 @@ class Parser:
 						newContext.append(tempSpec)
 				#case where user specifies a variable
 				else:
-					if "/" in s:
-						values = s.split("/")
+					if "|" in s:
+						values = s.split("|")
 						for v in values:
 							if v in ldf.columns:
 								validValues.append(v)
@@ -81,7 +81,6 @@ class Parser:
 					newContext.append(tempSpec)
 			elif type(s) is lux.Spec:
 				newContext.append(s)
-		print(newContext)
 		parsedContext = newContext
 		ldf.context = newContext
 
@@ -107,8 +106,8 @@ class Parser:
 				spec.type = "attributeGroup"
 			if spec.value == "?" or isinstance(spec.value,list):
 				spec.type = "valueGroup"
-		Parser.populateOptions(ldf)
 		ldf.context = parsedContext
+		Parser.populateOptions(ldf)
 		
 	@staticmethod
 	# def populateOptions(ldf: LuxDataFrame):
@@ -157,6 +156,8 @@ class Parser:
 				for attr in attrLst:
 					if spec.value == "?":
 						options = ldf.uniqueValues[attr]
+						specInd = ldf.context.index(spec)
+						ldf.context[specInd] = lux.Spec(attribute = spec.attribute, filterOp = "=", value = list(options), type = "valueGroup")
 					else:
 						options = convert2List(spec.value)
 					for optStr in options:
@@ -167,5 +168,3 @@ class Parser:
 						specOptions.append(specCopy)
 				# ldf.rows.append(specOptions)
 				ldf.rows = specOptions
-
-		
