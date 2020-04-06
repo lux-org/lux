@@ -33,6 +33,9 @@ class View:
 	def getObjByDataModel(self, dmodel):
 		return list(filter(lambda x: x.dataModel == dmodel if hasattr(x, "dataModel") else False, self.specLst))
 
+	def getObjByDataType(self, dtype):
+		return list(filter(lambda x: x.dataType == dtype if hasattr(x, "dataType") else False, self.specLst))
+
 	def removeColumnFromSpec(self, attribute):
 		self.spec = list(filter(lambda x: x.attribute != attribute, self.specLst))
 
