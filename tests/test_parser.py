@@ -51,7 +51,7 @@ def test_case5():
 	assert(ldf.context[1].type == "value")
 	assert(ldf.context[1].value == "USA")
 
-	ldf.setContext(["Horsepower/MilesPerGal/Weight", "Origin=USA"])
+	ldf.setContext(["Horsepower|MilesPerGal|Weight", "Origin=USA"])
 	assert(type(ldf.context[0]) is lux.Spec)
 	assert(ldf.context[0].attribute == ["Horsepower", "MilesPerGal", "Weight"])
 	assert(ldf.context[0].type == "attributeGroup")
