@@ -11,16 +11,18 @@ def interestingness(view,ldf):
 	n_msr = 0
 	for spec in view.specLst:
 		if (spec.attribute and spec.attribute!="Record"):
-			if (spec.dataModel == 'dimension'):
+			if (spec.dataModel == 'dimension' and len(spec.filterOp) == 0):
 				n_dim += 1
 			if (spec.dataModel == 'measure'):
 				n_msr += 1
 	n_filter = len(view.getFilterSpecs())
+	
+	attr_specs = [spec for spec in view.getAttrsSpecs() if spec.attribute != "Record"]
 
 	# Bar Chart (Count)
 	if (n_dim == 1 and n_msr == 0 and n_filter == 0):
-		v = ldf[view.getAttrsSpecs()[0].attribute]
-		C = len(v.unique())
+		v = ldf[attr_specs[0].attribute].value_counts()
+		C = len(v)
 		D = (0.5) ** C
 
 		if (is_datetime(v)):
@@ -28,9 +30,10 @@ def interestingness(view,ldf):
 
 		return skewness(D, v)
 	elif (n_dim == 1 and n_msr == 0 and n_filter == 1):
-		v = ldf[view.getAttrsSpecs()[0].attribute]
+		v = ldf[attr_specs[0].attribute].value_counts()
 		filter_spec = view.getFilterSpecs()[0]
-		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[view.getAttrsSpecs()[0].attribute]
+		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
+		v_filter = v.filter(items=v_filter.keys())
 
 		if (len(v_filter) < len(v)):
 			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
@@ -39,11 +42,11 @@ def interestingness(view,ldf):
 	
 	# Histogram (Count)
 	elif (n_dim == 0 and n_msr == 1 and n_filter == 0):
-		v = ldf[view.getAttrsSpecs()[0].attribute]
+		v = ldf[attr_specs[0].attribute]
 		
 		return agg_value_magnitude(v)
 	elif (n_dim == 0 and n_msr == 1 and n_filter == 1):
-		v = ldf[view.getAttrsSpecs()[0].attribute]
+		v = ldf[attr_specs[0].attribute]
 		C = len(v.unique())
 
 		# if c < 40 # c == cardinality (number of unique values)
@@ -51,7 +54,7 @@ def interestingness(view,ldf):
 			return 0
 
 		filter_spec = view.getFilterSpecs()[0]
-		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[view.getAttrsSpecs()[0].attribute]
+		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
 
 		if (len(v_filter) < len(v)):
 			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
@@ -67,7 +70,7 @@ def interestingness(view,ldf):
 
 	# Bar Chart
 	elif (n_dim == 1 and n_msr == 1 and n_filter == 0):
-		v = ldf[view.getAttrsSpecs()[0].attribute]
+		v = ldf[attr_specs[0].attribute]
 		C = len(v.unique())
 		D = (0.5) ** C
 		v_flat = pd.Series([1 / C] * len(v))
@@ -76,7 +79,7 @@ def interestingness(view,ldf):
 		
 		return unevenness(D, v, v_flat)
 	elif (n_dim == 1 and n_msr == 1 and n_filter == 1):
-		v = ldf[view.getAttrsSpecs()[0].attribute]
+		v = ldf[attr_specs[0].attribute]
 		C = len(v.unique())
 
 		# if c < 40 # c == cardinality (number of unique values)
@@ -84,7 +87,7 @@ def interestingness(view,ldf):
 			return 0
 
 		filter_spec = view.getFilterSpecs()[0]
-		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[view.getAttrsSpecs()[0].attribute]
+		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
 
 		if (len(v_filter) < len(v)):
 			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
@@ -100,15 +103,15 @@ def interestingness(view,ldf):
 
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2 and n_filter == 0):
-		v_x = ldf[view.getAttrsSpecs()[0].attribute]
-		v_y = ldf[view.getAttrsSpecs()[1].attribute]
+		v_x = ldf[attr_specs[0].attribute]
+		v_y = ldf[attr_specs[1].attribute]
 
 		return mutual_information(v_x, v_y)
 	elif (n_dim == 0 and n_msr == 2 and n_filter == 1):
 		filter_spec = view.getFilterSpecs()[0]
 		ldf_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
 
-		v_x = ldf_filter[view.getAttrsSpecs()[0].attribute]
+		v_x = ldf_filter[attr_specs[0].attribute]
 		v_y = ldf_filter[filter_spec.attribute]
 
 		return monotonicity(v_x, v_y)
