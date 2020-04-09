@@ -19,7 +19,7 @@ class LuxDataFrame(pd.DataFrame):
         super(LuxDataFrame, self).__init__(*args, **kw)
         self.computeStats()
         self.computeDatasetMetadata()
-        
+        self.DEBUG_FRONTEND = True
 
     @property
     def _constructor(self):
@@ -162,15 +162,18 @@ class LuxDataFrame(pd.DataFrame):
 
     def showMore(self):
         currentViewExist = self.viewCollection!=[]
-        if (currentViewExist):
-            self.recommendation.append(self.enhance()) 
-            self.recommendation.append(self.filter())
+        if (self.DEBUG_FRONTEND):
             self.recommendation.append(self.generalize())
-        else: 
-            self.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
-            self.recommendation.append(self.correlation())  #this works partially
-            self.setContext([lux.Spec("?",dataModel="measure")])
-            self.recommendation.append(self.distribution())  
+        else:
+            if (currentViewExist):
+                self.recommendation.append(self.enhance()) 
+                self.recommendation.append(self.filter())
+                self.recommendation.append(self.generalize())
+            else: 
+                self.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
+                self.recommendation.append(self.correlation())  #this works partially
+                self.setContext([lux.Spec("?",dataModel="measure")])
+                self.recommendation.append(self.distribution())  
 
     #######################################################
     ############## LuxWidget Result Display ###############
