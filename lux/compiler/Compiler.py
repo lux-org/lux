@@ -52,7 +52,7 @@ class Compiler:
 					if len(ldf.rows) > 0: # if we have rows, generate combinations for each row.
 						for row in ldf.rows:
 							specLst = columnList + [row]
-							view = View(specLst,title=f"{row.attribute}={row.value}")
+							view = View(specLst,title=f"{row.attribute} {row.filterOp} {row.value}")
 							collection.append(view)
 					else:
 						view = View(columnList)
