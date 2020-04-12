@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from lux.interestingness.interestingness import interestingness
 
+# The following test cases are labelled for views with <Ndim, Nmsr, Nfilter>
 
 def test_interestingness_1_0_0():
     df = pd.read_csv("lux/data/car.csv")
@@ -53,12 +54,12 @@ def test_interestingness_0_2_0():
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
     df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Acceleration")])
-    assert np.isclose(interestingness(df.viewCollection[0],df), 2.380094490856495, atol=.01)
+    assert np.isclose(interestingness(df.viewCollection[0],df), 0.433151292343172, atol=.01)
 
 
 def test_interestingness_0_2_1():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-    df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Acceleration", filterOp=">",value = 10)])
+    df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Acceleration"),lux.Spec(attribute = "Acceleration", filterOp=">",value = 10)])
     assert np.isclose(interestingness(df.viewCollection[0],df), 0.39945113787283737, atol=.01)

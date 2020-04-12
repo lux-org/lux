@@ -1,5 +1,3 @@
-from lux.interestingness.valueBasedInterestingness import valueBasedInterestingness
-from lux.interestingness.relationshipBasedInterestingness import relationshipBasedInterestingness
 from lux.executor.PandasExecutor import PandasExecutor
 def interestingness(view,ldf):
 	import pandas as pd
@@ -13,10 +11,9 @@ def interestingness(view,ldf):
 		if (spec.attribute and spec.attribute!="Record"):
 			if (spec.dataModel == 'dimension' and len(spec.filterOp) == 0):
 				n_dim += 1
-			if (spec.dataModel == 'measure'):
+			if (spec.dataModel == 'measure' and len(spec.filterOp) == 0):
 				n_msr += 1
 	n_filter = len(view.getFilterSpecs())
-	
 	attr_specs = [spec for spec in view.getAttrsSpecs() if spec.attribute != "Record"]
 
 	# Bar Chart (Count)
@@ -102,17 +99,12 @@ def interestingness(view,ldf):
 		return deviation(v, v_filter, v_bin, v_filter_bin)
 
 	# Scatter Plot
-	elif (n_dim == 0 and n_msr == 2 and n_filter == 0):
+	elif (n_dim == 0 and n_msr == 2):
+		if (n_filter==1):
+			filter_spec = view.getFilterSpecs()[0]
+			ldf = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
 		v_x = ldf[attr_specs[0].attribute]
 		v_y = ldf[attr_specs[1].attribute]
-
-		return mutual_information(v_x, v_y)
-	elif (n_dim == 0 and n_msr == 2 and n_filter == 1):
-		filter_spec = view.getFilterSpecs()[0]
-		ldf_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
-
-		v_x = ldf_filter[attr_specs[0].attribute]
-		v_y = ldf_filter[filter_spec.attribute]
 
 		return monotonicity(v_x, v_y)
 
@@ -206,6 +198,8 @@ def deviation(v, v_filter, v_bin, v_filter_bin):
 
 # N_dim = 0, N_msr = 2, N_filter = 0
 def mutual_information(v_x, v_y):
+	#Interestingness metric for two measure attributes
+  	#Calculate maximal information coefficient (see Murphy pg 61) or Pearson's correlation
 	from sklearn.metrics import mutual_info_score
 
 	return mutual_info_score(v_x, v_y)
