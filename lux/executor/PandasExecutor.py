@@ -70,8 +70,25 @@ class PandasExecutor(Executor):
     def executeFilter(view, ldf):
         filters = view.getFilterSpecs()
         if (filters):
+            # TODO: Need to handle OR logic
             for filter in filters:
-                view.data = ldf[ldf[filter.attribute] == filter.value]
+                view.data = PandasExecutor.applyFilter(ldf,filter.attribute,filter.filterOp,filter.value)
         else:
             view.data = ldf
     
+    @staticmethod
+    def applyFilter(df, attribute, op, val):
+        if (op == '='):
+            return df[df[attribute] == val]
+        elif (op == '<'):
+            return df[df[attribute] < val]
+        elif (op == '>'):
+            print ("here")
+            return df[df[attribute] > val]
+        elif (op == '<='):
+            return df[df[attribute] <= val]
+        elif (op == '>='):
+            return df[df[attribute] >= val]
+        elif (op == '!='):
+            return df[df[attribute] != val]
+        return df

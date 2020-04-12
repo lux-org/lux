@@ -1,6 +1,6 @@
 from lux.interestingness.valueBasedInterestingness import valueBasedInterestingness
 from lux.interestingness.relationshipBasedInterestingness import relationshipBasedInterestingness
-
+from lux.executor.PandasExecutor import PandasExecutor
 def interestingness(view,ldf):
 	import pandas as pd
 	import numpy as np
@@ -32,7 +32,7 @@ def interestingness(view,ldf):
 	elif (n_dim == 1 and n_msr == 0 and n_filter == 1):
 		v = ldf[attr_specs[0].attribute].value_counts()
 		filter_spec = view.getFilterSpecs()[0]
-		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
+		v_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
 		v_filter = v.filter(items=v_filter.keys())
 
 		if (len(v_filter) < len(v)):
@@ -54,7 +54,7 @@ def interestingness(view,ldf):
 			return 0
 
 		filter_spec = view.getFilterSpecs()[0]
-		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
+		v_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
 
 		if (len(v_filter) < len(v)):
 			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
@@ -87,7 +87,7 @@ def interestingness(view,ldf):
 			return 0
 
 		filter_spec = view.getFilterSpecs()[0]
-		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
+		v_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
 
 		if (len(v_filter) < len(v)):
 			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
@@ -109,7 +109,7 @@ def interestingness(view,ldf):
 		return mutual_information(v_x, v_y)
 	elif (n_dim == 0 and n_msr == 2 and n_filter == 1):
 		filter_spec = view.getFilterSpecs()[0]
-		ldf_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
+		ldf_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
 
 		v_x = ldf_filter[attr_specs[0].attribute]
 		v_y = ldf_filter[filter_spec.attribute]
@@ -119,29 +119,6 @@ def interestingness(view,ldf):
 	# Default
 	else:
 		return 0.5
-
-
-
-
-def apply_filter(df, attribute, op, val):
-	if (op == '='):
-		return df[df[attribute] == val]
-	elif (op == '<'):
-		return df[df[attribute] < val]
-	elif (op == '>'):
-		return df[df[attribute] > val]
-	elif (op == '<='):
-		return df[df[attribute] <= val]
-	elif (op == '>='):
-		return df[df[attribute] >= val]
-	elif (op == '!='):
-		return df[df[attribute] != val]
-	return df
-
-
-
-
-
 
 
 ##### Bar Chart (Count) #####
