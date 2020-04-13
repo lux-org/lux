@@ -37,6 +37,11 @@ def filter(ldf):
 	#if Row is not specified, create filters using unique values from all categorical variables in the dataset
 	else:
 		categoricalVars = ldf.dataType['nominal']
+		allCategoricalVars = ldf.dataType['nominal']
+
+		for spec in columnSpec:
+				if spec.attribute in allCategoricalVars:
+					categoricalVars.remove(spec.attribute)
 		for cat in categoricalVars:
 			uniqueValues = ldf[cat].unique()
 			for i in range(0, len(uniqueValues)):
