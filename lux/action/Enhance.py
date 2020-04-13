@@ -10,16 +10,17 @@ def enhance(ldf):
 					"description":"Shows possible visualizations when an additional attribute is added to the current view."}
 	output = []
 	# Collect variables that already exist in the context
-	context = ldf.getContext()
+	context = ldf.getAttrsSpecs()
+	# context = [spec for spec in context if isinstance(spec.attribute,str)]
 	existingVars = [spec.attribute for spec in context]
+	# if we too many column attributes, return no views.
+	if(len(context)>2):
+		recommendation["collection"] = []
+		return recommendation
 
-	vc = ldf.viewCollection
-	PandasExecutor.execute(vc,ldf)
-	vc = vc.topK(5)
-	
 	# First loop through all variables to create new view collection
 	for qVar in ldf.columns:
-		if qVar not in existingVars:
+		if qVar not in existingVars and ldf.dataTypeLookup[qVar] != "temporal":
 			cxtNew = context.copy()
 			cxtNew.append(lux.Spec(attribute = qVar))
 			view = lux.view.View.View(cxtNew)
