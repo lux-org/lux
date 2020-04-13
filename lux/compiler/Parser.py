@@ -100,18 +100,8 @@ class Parser:
 			#after parsing:
 			if spec.attribute == "?" or isinstance(spec.attribute,list):
 				spec.type = "attributeGroup"
-			elif spec.attribute:
-				spec.type = "attribute"
-				if (spec.dataType == ""):
-					spec.dataType = ldf.dataTypeLookup[spec.attribute]
-				if (spec.dataModel == ""):
-					spec.dataModel = ldf.dataModelLookup[spec.attribute]
 			if spec.value == "?" or isinstance(spec.value,list):
 				spec.type = "valueGroup"
-			elif spec.value:
-				spec.type = "value"
-
-		Parser.populateOptions(ldf)
 
 		ldf.context = parsedContext
 		Parser.populateOptions(ldf)
