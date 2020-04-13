@@ -1,5 +1,6 @@
-from lux.executor.PandasExecutor import PandasExecutor
-from lux.utils import utils
+from lux.interestingness.valueBasedInterestingness import valueBasedInterestingness
+from lux.interestingness.relationshipBasedInterestingness import relationshipBasedInterestingness
+
 def interestingness(view,ldf):
 	import pandas as pd
 	import numpy as np
@@ -8,18 +9,15 @@ def interestingness(view,ldf):
 
 	n_dim = 0
 	n_msr = 0
-	
-	filterSpecs = utils.getFilterSpecs(view.specLst)
-	viewAttrsSpecs = utils.getAttrsSpecs(view.specLst)
-
-	for spec in viewAttrsSpecs:
-		if (spec.attribute!="Record"):
-			if (spec.dataModel == 'dimension'):
+	for spec in view.specLst:
+		if (spec.attribute and spec.attribute!="Record"):
+			if (spec.dataModel == 'dimension' and len(spec.filterOp) == 0):
 				n_dim += 1
 			if (spec.dataModel == 'measure'):
 				n_msr += 1
-	n_filter = len(filterSpecs)
-	attr_specs = [spec for spec in viewAttrsSpecs if spec.attribute != "Record"]
+	n_filter = len(view.getFilterSpecs())
+	
+	attr_specs = [spec for spec in view.getAttrsSpecs() if spec.attribute != "Record"]
 
 	# Bar Chart (Count)
 	if (n_dim == 1 and n_msr == 0 and n_filter == 0):
@@ -33,8 +31,8 @@ def interestingness(view,ldf):
 		return skewness(D, v)
 	elif (n_dim == 1 and n_msr == 0 and n_filter == 1):
 		v = ldf[attr_specs[0].attribute].value_counts()
-		filter_spec = filterSpecs[0]
-		v_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
+		filter_spec = view.getFilterSpecs()[0]
+		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
 		v_filter = v.filter(items=v_filter.keys())
 
 		if (len(v_filter) < len(v)):
@@ -55,8 +53,8 @@ def interestingness(view,ldf):
 		if (C >= 40):
 			return 0
 
-		filter_spec = filterSpecs[0]
-		v_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
+		filter_spec = view.getFilterSpecs()[0]
+		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
 
 		if (len(v_filter) < len(v)):
 			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
@@ -88,8 +86,8 @@ def interestingness(view,ldf):
 		if (C >= 40):
 			return 0
 
-		filter_spec = filterSpecs[0]
-		v_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
+		filter_spec = view.getFilterSpecs()[0]
+		v_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
 
 		if (len(v_filter) < len(v)):
 			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
@@ -104,29 +102,46 @@ def interestingness(view,ldf):
 		return deviation(v, v_filter, v_bin, v_filter_bin)
 
 	# Scatter Plot
-	elif (n_dim == 0 and n_msr == 2):
-		if (n_filter==1):
-			filter_spec = filterSpecs[0]
-			ldf = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
-			return ldf.size
+	elif (n_dim == 0 and n_msr == 2 and n_filter == 0):
 		v_x = ldf[attr_specs[0].attribute]
 		v_y = ldf[attr_specs[1].attribute]
+
+		return mutual_information(v_x, v_y)
+	elif (n_dim == 0 and n_msr == 2 and n_filter == 1):
+		filter_spec = view.getFilterSpecs()[0]
+		ldf_filter = apply_filter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
+
+		v_x = ldf_filter[attr_specs[0].attribute]
+		v_y = ldf_filter[filter_spec.attribute]
+
 		return monotonicity(v_x, v_y)
-	# Scatterplot colored by Dimension
-	elif (n_dim == 1 and n_msr == 2):
-		colorAttr = view.getObjFromChannel("color")[0].attribute
-		
-		C = ldf.cardinality[colorAttr]
-		if (C<40):
-			return 1/C
-		else:
-			return -1
-	# Scatterplot colored by Measure
-	elif (n_msr == 1 and n_msr == 2):
-		return 0.2
+
 	# Default
 	else:
 		return 0.5
+
+
+
+
+def apply_filter(df, attribute, op, val):
+	if (op == '='):
+		return df[df[attribute] == val]
+	elif (op == '<'):
+		return df[df[attribute] < val]
+	elif (op == '>'):
+		return df[df[attribute] > val]
+	elif (op == '<='):
+		return df[df[attribute] <= val]
+	elif (op == '>='):
+		return df[df[attribute] >= val]
+	elif (op == '!='):
+		return df[df[attribute] != val]
+	return df
+
+
+
+
+
 
 
 ##### Bar Chart (Count) #####
@@ -214,8 +229,6 @@ def deviation(v, v_filter, v_bin, v_filter_bin):
 
 # N_dim = 0, N_msr = 2, N_filter = 0
 def mutual_information(v_x, v_y):
-	#Interestingness metric for two measure attributes
-  	#Calculate maximal information coefficient (see Murphy pg 61) or Pearson's correlation
 	from sklearn.metrics import mutual_info_score
 
 	return mutual_info_score(v_x, v_y)
@@ -223,7 +236,7 @@ def mutual_information(v_x, v_y):
 # N_dim = 0, N_msr = 2, N_filter = 1
 def monotonicity(v_x, v_y):
 	from scipy.stats import spearmanr
+
 	return (spearmanr(v_x, v_y)[0]) ** 2
-	# import scipy.stats
-	# return abs(scipy.stats.pearsonr(v_x,v_y)[0])
+
 ##############################
