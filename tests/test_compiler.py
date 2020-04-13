@@ -6,8 +6,8 @@ def test_underspecifiedSingleVis():
 	df.setContext([lux.Spec(attribute = "MilesPerGal"),lux.Spec(attribute = "Weight")])
 	assert len(df.viewCollection)==1
 	assert df.viewCollection[0].mark == "scatter"
-	# assert dobj.compiled.spec[0].dataType=="quantitative"
-	# assert dobj.compiled.spec[0].dataModel=="measure"
+	for attr in df.viewCollection[0].specLst: assert attr.dataModel=="measure"
+	for attr in df.viewCollection[0].specLst: assert attr.dataType=="quantitative"
 
 def test_underspecifiedVisCollection():
 	df = pd.read_csv("lux/data/car.csv")
