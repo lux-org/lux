@@ -46,13 +46,18 @@ def test_filter():
 def test_inequalityfilter():
     df = pd.read_csv("lux/data/car.csv")
     df.setContext([lux.Spec(attribute = "Horsepower", filterOp=">",value=50),lux.Spec(attribute = "MilesPerGal")])
-    PandasExecutor.execute(df.viewCollection,df)
+    PandasExecutor.executeFilter(df.viewCollection[0],df)
     assert len(df) > len(df.viewCollection[0].data)
-
+    assert len(df.viewCollection[0].data) == 386 
     df.setContext([lux.Spec(attribute = "Horsepower", filterOp="<=",value=100),lux.Spec(attribute = "MilesPerGal")])
-    PandasExecutor.execute(df.viewCollection,df)
+    PandasExecutor.executeFilter(df.viewCollection[0],df)
     assert len(df.viewCollection[0].data) == len(df[df["Horsepower"]<=100]) == 242
 
+    # Test end-to-end
+    PandasExecutor.execute(df.viewCollection,df)
+    Nbins =list(filter(lambda x: x.binSize!=0 , df.viewCollection[0].specLst))[0].binSize
+    assert len(df.viewCollection[0].data) == Nbins
+    
 def test_binning():
     df = pd.read_csv("lux/data/car.csv")
     df.setContext([lux.Spec(attribute = "Horsepower")])

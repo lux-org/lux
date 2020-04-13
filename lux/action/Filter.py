@@ -85,7 +85,7 @@ def filter(ldf):
 					if uniqueValues[i] not in filterValues:
 						#create new Data Object
 						newSpec = columnSpec.copy()
-						newFilter = lux.Spec(attribute = row.attribute, value = uniqueValues[i], type = "value")
+						newFilter = lux.Spec(attribute = row.attribute, value = uniqueValues[i])
 						newSpec.append(newFilter)
 						tempView = View(newSpec)
 						tempView.score = interestingness(tempView,ldf)
@@ -98,7 +98,7 @@ def filter(ldf):
 			uniqueValues = ldf[cat].unique()
 			for i in range(0, len(uniqueValues)):
 				newSpec = columnSpec.copy()
-				newFilter = lux.Spec(attribute=cat, value=uniqueValues[i], type = "value")
+				newFilter = lux.Spec(attribute=cat, value=uniqueValues[i])
 				newSpec.append(newFilter)
 				tempView = View(newSpec)
 				tempView.score = interestingness(tempView,ldf)

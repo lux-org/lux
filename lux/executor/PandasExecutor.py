@@ -85,7 +85,6 @@ class PandasExecutor(Executor):
         elif (op == '<'):
             return df[df[attribute] < val]
         elif (op == '>'):
-            print ("here")
             return df[df[attribute] > val]
         elif (op == '<='):
             return df[df[attribute] <= val]
