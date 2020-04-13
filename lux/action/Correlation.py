@@ -32,7 +32,7 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 			else:
 				view.score = -1
 	vc = vc.topK(10)
-	vc.sort(removeInvalid=True))
+	vc.sort(removeInvalid=True)
 	recommendation["collection"] = vc
 	return recommendation
 
