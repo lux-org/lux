@@ -47,10 +47,11 @@ def distribution(ldf):
 		fieldVals = list(ldf[fieldName])
 		if (ldf.dataModelLookup[fieldName]=="measure"):
 			# view.score = np.abs(scipy.stats.skew(fieldVals))
-			view.score = 0.5
+			# view.score = 0.5
+			view.score = interestingness(view,ldf)
 		else: # TODO: this should be based on interestingness (i.e, deviation case)
 			# obj.score = interestingness(obj)
-			view.score = 0.5
+			view.score = interestingness(view,ldf)
 
 	vc.sort()
 	recommendation["collection"] = vc

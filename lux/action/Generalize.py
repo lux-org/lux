@@ -54,7 +54,7 @@ import numpy as np
 from lux.view.View import View
 from lux.compiler.Compiler import Compiler
 from lux.executor.PandasExecutor import PandasExecutor
-from lux.interestingness.valueBasedInterestingness import valueBasedInterestingness
+
 # from compiler.Compiler import Compiler
 '''
 Shows possible visualizations when one attribute or filter from the current context is removed
