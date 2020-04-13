@@ -26,7 +26,6 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 		msr2Vals = list(ldf[msr2])
 
 		if (ignoreTranspose):
-			# print(msr1,msr2)
 			checkTranspose = checkTransposeNotComputed(ldf,msr1,msr2)
 		else:
 			checkTranspose = True
@@ -34,6 +33,11 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 			view.score = np.abs(scipy.stats.pearsonr(msr1Vals,msr2Vals)[0])
 		else:
 			view.score = -1
+
+		if(msr1 == msr2):
+			#remove if measures are the same
+			view.score = -1
+
 	vc.sort(removeInvalid=True)
 	recommendation["collection"] = vc
 	return recommendation
