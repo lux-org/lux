@@ -31,8 +31,7 @@ def enhance(ldf):
 	PandasExecutor.execute(vc,ldf)
 	# Then use the data populated in the view collection to compute score
 	for view in vc:
-		# TODO (Jaywoo): fix interestingness function
-		view.score = 0.5 #interestingness(tempDataObj)
+		view.score = interestingness(view,ldf)
 		output.append(view)
 		# TODO: if (ldf.dataset.cardinality[cVar]>10): score is -1. add in interestingness
 	vc.sort(removeInvalid=True)
