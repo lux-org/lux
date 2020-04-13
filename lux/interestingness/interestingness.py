@@ -18,7 +18,6 @@ def interestingness(view,ldf):
 				n_dim += 1
 			if (spec.dataModel == 'measure'):
 				n_msr += 1
-
 	n_filter = len(filterSpecs)
 	attr_specs = [spec for spec in viewAttrsSpecs if spec.attribute != "Record"]
 
@@ -109,9 +108,9 @@ def interestingness(view,ldf):
 		if (n_filter==1):
 			filter_spec = filterSpecs[0]
 			ldf = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
+			return ldf.size
 		v_x = ldf[attr_specs[0].attribute]
 		v_y = ldf[attr_specs[1].attribute]
-
 		return monotonicity(v_x, v_y)
 	# Scatterplot colored by Dimension
 	elif (n_dim == 1 and n_msr == 2):
