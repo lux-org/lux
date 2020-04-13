@@ -59,3 +59,14 @@ def test_case5():
 	assert(ldf.context[1].attribute == "Origin")
 	assert(ldf.context[1].type == "value")
 	assert(ldf.context[1].value == "USA")
+
+def test_case6():
+	ldf = pd.read_csv("lux/data/car.csv")
+	ldf.setContext(["Horsepower", "Origin=?"])
+	assert(type(ldf.context[0]) is lux.Spec)
+	assert(ldf.context[0].type == "attribute")
+	assert(ldf.context[0].attribute == "Horsepower")
+	assert(type(ldf.context[1]) is lux.Spec)
+	assert(ldf.context[1].attribute == "Origin")
+	assert(ldf.context[1].type == "valueGroup")
+	assert(ldf.context[1].value == ["USA","Japan","Europe"])
