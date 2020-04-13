@@ -1,5 +1,6 @@
 from lux.view.ViewCollection import ViewCollection
 from lux.executor.Executor import Executor
+from lux.utils import utils
 class PandasExecutor(Executor):
     def __init__(self):
         self.name = "PandasExecutor"
@@ -69,7 +70,7 @@ class PandasExecutor(Executor):
         
     @staticmethod
     def executeFilter(view, ldf):
-        filters = view.getFilterSpecs()
+        filters = utils.getFilterSpecs(view.specLst)
         if (filters):
             # TODO: Need to handle OR logic
             for filter in filters:

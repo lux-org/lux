@@ -1,4 +1,5 @@
 from lux.executor.PandasExecutor import PandasExecutor
+from lux.utils import utils
 def interestingness(view,ldf):
 	import pandas as pd
 	import numpy as np
@@ -13,8 +14,10 @@ def interestingness(view,ldf):
 				n_dim += 1
 			if (spec.dataModel == 'measure' and len(spec.filterOp) == 0):
 				n_msr += 1
-	n_filter = len(view.getFilterSpecs())
-	attr_specs = [spec for spec in view.getAttrsSpecs() if spec.attribute != "Record"]
+	filterSpecs = utils.getFilterSpecs(view.specLst)
+	viewAttrsSpecs = utils.getAttrsSpecs(view.specLst)
+	n_filter = len(filterSpecs)
+	attr_specs = [spec for spec in viewAttrsSpecs if spec.attribute != "Record"]
 
 	# Bar Chart (Count)
 	if (n_dim == 1 and n_msr == 0 and n_filter == 0):
@@ -28,7 +31,7 @@ def interestingness(view,ldf):
 		return skewness(D, v)
 	elif (n_dim == 1 and n_msr == 0 and n_filter == 1):
 		v = ldf[attr_specs[0].attribute].value_counts()
-		filter_spec = view.getFilterSpecs()[0]
+		filter_spec = filterSpecs[0]
 		v_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
 		v_filter = v.filter(items=v_filter.keys())
 
@@ -50,7 +53,7 @@ def interestingness(view,ldf):
 		if (C >= 40):
 			return 0
 
-		filter_spec = view.getFilterSpecs()[0]
+		filter_spec = filterSpecs[0]
 		v_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
 
 		if (len(v_filter) < len(v)):
@@ -83,7 +86,7 @@ def interestingness(view,ldf):
 		if (C >= 40):
 			return 0
 
-		filter_spec = view.getFilterSpecs()[0]
+		filter_spec = filterSpecs[0]
 		v_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
 
 		if (len(v_filter) < len(v)):
@@ -101,7 +104,7 @@ def interestingness(view,ldf):
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
 		if (n_filter==1):
-			filter_spec = view.getFilterSpecs()[0]
+			filter_spec = filterSpecs[0]
 			ldf = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
 		v_x = ldf[attr_specs[0].attribute]
 		v_y = ldf[attr_specs[1].attribute]

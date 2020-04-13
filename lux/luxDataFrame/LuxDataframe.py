@@ -128,14 +128,6 @@ class LuxDataFrame(pd.DataFrame):
             self.uniqueValues[dimension] = self[dimension].unique()
             self.cardinality[dimension] = len(self.uniqueValues[dimension])
 
-    def getAttrsSpecs(self):
-        specObj = list(filter(lambda x: x.type == "attribute", self.context))
-        return specObj
-
-    def getFilterSpecs(self):
-        specObj = list(filter(lambda x: x.type == "value", self.context))
-        return specObj
-
     #######################################################
     ############## Mappers to Action classes ##############
     #######################################################
