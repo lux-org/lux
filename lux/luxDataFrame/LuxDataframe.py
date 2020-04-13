@@ -19,7 +19,7 @@ class LuxDataFrame(pd.DataFrame):
         super(LuxDataFrame, self).__init__(*args, **kw)
         self.computeStats()
         self.computeDatasetMetadata()
-        self.DEBUG_FRONTEND = True
+        self.DEBUG_FRONTEND = False
 
     @property
     def _constructor(self):
