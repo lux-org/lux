@@ -46,7 +46,8 @@ def distribution(ldf):
 		fieldName = list(filter(lambda x: x.attribute!="count()", view.specLst))[0].attribute
 		fieldVals = list(ldf[fieldName])
 		if (ldf.dataModelLookup[fieldName]=="measure"):
-			view.score = np.abs(scipy.stats.skew(fieldVals))
+			# view.score = np.abs(scipy.stats.skew(fieldVals))
+			view.score = 0.5
 		else: # TODO: this should be based on interestingness (i.e, deviation case)
 			# obj.score = interestingness(obj)
 			view.score = 0.5

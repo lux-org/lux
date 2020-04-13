@@ -60,6 +60,7 @@ class PandasExecutor(Executor):
         import numpy as np
         import pandas as pd # is this import going to be conflicting with LuxDf?
         binAttribute = list(filter(lambda x: x.binSize!=0,view.specLst))[0]
+        #TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
         counts,binEdges = np.histogram(ldf[binAttribute.attribute],bins=binAttribute.binSize)
         #binEdges of size N+1, so need to compute binCenter as the bin location
         binCenter = np.mean(np.vstack([binEdges[0:-1],binEdges[1:]]), axis=0)
