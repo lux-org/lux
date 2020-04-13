@@ -15,7 +15,7 @@ def filter(ldf):
 	filterValues = []
 	output = []
 	#if Row is specified, create visualizations where data is filtered by all values of the Row's categorical variable
-	columnSpec = utils.getAttrsSpecs(ldf.context)
+	columnSpec = utils.getAttrsSpecs(ldf.viewCollection[0].specLst)
 	if len(filters) > 0:
 		completedFilters = []
 		#get unique values for all categorical values specified and creates corresponding filters
