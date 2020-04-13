@@ -4,7 +4,7 @@ class Spec:
 	Spec is the object representation of a single unit of the specification.
 	'''
 	def __init__(self, description:str ="",attribute: typing.Union[str,list] ="",value: typing.Union[str,list]="",
-				 filterOp:str ="", channel:str ="", dataType:str="",dataModel:str="",
+				 filterOp:str ="=", channel:str ="", dataType:str="",dataModel:str="",
 				 aggregation:str = "", binSize:int=0, weight:float=1, type:str = ""):
 		# Descriptor
 		self.description = description
