@@ -5,7 +5,6 @@ from lux.executor.PandasExecutor import PandasExecutor
 
 # change ignoreTranspose to false for now.
 def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
-	import scipy.stats
 	import numpy as np
 
 	recommendation = {"action":"Correlation",
@@ -21,22 +20,17 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 		if len(measures)<2 : raise ValueError(f"Can not compute correlation between {[x.attribute for x in ldf.columns]} since less than 2 measure values present.")
 		msr1 = measures[0].attribute
 		msr2 = measures[1].attribute
-
-		msr1Vals = list(ldf[msr1])
-		msr2Vals = list(ldf[msr2])
-
-		if (ignoreTranspose):
-			checkTranspose = checkTransposeNotComputed(ldf,msr1,msr2)
-		else:
-			checkTranspose = True
-		if (checkTranspose):
-			view.score = np.abs(scipy.stats.pearsonr(msr1Vals,msr2Vals)[0])
-		else:
+		if(ignoreIdentity and msr1 == msr2): #remove if measures are the same
 			view.score = -1
-
-		if(msr1 == msr2):
-			#remove if measures are the same
-			view.score = -1
+		else:
+			if (ignoreTranspose):
+				checkTranspose = checkTransposeNotComputed(ldf,msr1,msr2)
+			else:
+				checkTranspose = True
+			if (checkTranspose):
+				view.score = interestingness(view,ldf)
+			else:
+				view.score = -1
 
 	vc.sort(removeInvalid=True)
 	recommendation["collection"] = vc

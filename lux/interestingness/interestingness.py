@@ -113,7 +113,18 @@ def interestingness(view,ldf):
 		v_y = ldf[attr_specs[1].attribute]
 
 		return monotonicity(v_x, v_y)
-
+	# Scatterplot colored by Dimension
+	elif (n_dim == 1 and n_msr == 2):
+		colorAttr = view.getObjFromChannel("color")[0].attribute
+		
+		C = ldf.cardinality[colorAttr]
+		if (C<40):
+			return 1/C
+		else:
+			return -1
+	# Scatterplot colored by Measure
+	elif (n_msr == 1 and n_msr == 2):
+		return 0.2
 	# Default
 	else:
 		return 0.5
@@ -213,7 +224,7 @@ def mutual_information(v_x, v_y):
 # N_dim = 0, N_msr = 2, N_filter = 1
 def monotonicity(v_x, v_y):
 	from scipy.stats import spearmanr
-
 	return (spearmanr(v_x, v_y)[0]) ** 2
-
+	# import scipy.stats
+	# return abs(scipy.stats.pearsonr(v_x,v_y)[0])
 ##############################
