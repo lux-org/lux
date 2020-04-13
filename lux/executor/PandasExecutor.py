@@ -1,5 +1,6 @@
 from lux.view.ViewCollection import ViewCollection
 from lux.executor.Executor import Executor
+from lux.utils import utils
 class PandasExecutor(Executor):
     def __init__(self):
         self.name = "PandasExecutor"
@@ -20,11 +21,12 @@ class PandasExecutor(Executor):
             attributes = set([])
             for spec in view.specLst:
                 if (spec.attribute):
-                    if (spec.attribute=="Record"):
-                        if ('index' not in view.data.columns):
-                            view.data.reset_index(level=0, inplace=True)
-                        attributes.add("index")
-                    else:
+                    # if (spec.attribute=="Record"):
+                    #     if ('index' not in view.data.columns):
+                    #         view.data.reset_index(level=0, inplace=True)
+                    #     attributes.add("index")
+                    # else:
+                    if (spec.attribute!="Record"):
                         attributes.add(spec.attribute)
             view.data = view.data[list(attributes)]
             if (view.mark =="bar" or view.mark =="line"):
@@ -49,9 +51,20 @@ class PandasExecutor(Executor):
         
         if (measureAttr!=""):
             if (measureAttr.attribute=="Record"):
-                countSeries = view.data.groupby(groupbyAttr.attribute).count().iloc[:,0]
-                countSeries.name = "Record"
-                view.data = countSeries.to_frame().reset_index()
+                # if (type(view.data).__name__=="DataFrame" or type(view.data).__name__=="LuxDataFrame" ):
+                #     countSeries = view.data.iloc[:,0]
+
+                # countSeries = view.data.groupby(groupbyAttr.attribute).count().iloc[:,0]
+                # countSeries = view.data.value_counts()
+
+                # countSeries.name = "Record"
+                # countSeries.index.name = groupbyAttr.attribute
+                # countDf = countSeries.reset_index()
+                # view.data = lux.LuxDataFrame(countDf)
+                view.data= view.data.reset_index()
+                view.data = view.data.groupby(groupbyAttr.attribute).count().reset_index()
+                view.data = view.data.rename(columns={"index":"Record"})
+
             else:
                 groupbyResult = view.data.groupby(groupbyAttr.attribute)
                 view.data = groupbyResult.agg(aggFunc).reset_index()
@@ -60,6 +73,7 @@ class PandasExecutor(Executor):
         import numpy as np
         import pandas as pd # is this import going to be conflicting with LuxDf?
         binAttribute = list(filter(lambda x: x.binSize!=0,view.specLst))[0]
+        #TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
         counts,binEdges = np.histogram(ldf[binAttribute.attribute],bins=binAttribute.binSize)
         #binEdges of size N+1, so need to compute binCenter as the bin location
         binCenter = np.mean(np.vstack([binEdges[0:-1],binEdges[1:]]), axis=0)
@@ -68,10 +82,26 @@ class PandasExecutor(Executor):
         
     @staticmethod
     def executeFilter(view, ldf):
-        filters = view.getFilterSpecs()
+        filters = utils.getFilterSpecs(view.specLst)
         if (filters):
+            # TODO: Need to handle OR logic
             for filter in filters:
-                view.data = ldf[ldf[filter.attribute] == filter.value]
+                view.data = PandasExecutor.applyFilter(ldf,filter.attribute,filter.filterOp,filter.value)
         else:
             view.data = ldf
     
+    @staticmethod
+    def applyFilter(df, attribute, op, val):
+        if (op == '=' or op == ''):
+            return df[df[attribute] == val]
+        elif (op == '<'):
+            return df[df[attribute] < val]
+        elif (op == '>'):
+            return df[df[attribute] > val]
+        elif (op == '<='):
+            return df[df[attribute] <= val]
+        elif (op == '>='):
+            return df[df[attribute] >= val]
+        elif (op == '!='):
+            return df[df[attribute] != val]
+        return df
