@@ -28,12 +28,15 @@ def enhance(ldf):
 			output.append(view)
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
+	
 	PandasExecutor.execute(vc,ldf)
 	# Then use the data populated in the view collection to compute score
 	for view in vc:
 		view.score = interestingness(view,ldf)
 		output.append(view)
 		# TODO: if (ldf.dataset.cardinality[cVar]>10): score is -1. add in interestingness
+	
+	vc = vc.topK(10)
 	vc.sort(removeInvalid=True)
 	recommendation["collection"] = vc
 	return recommendation
