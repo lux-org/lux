@@ -62,8 +62,7 @@ class Compiler:
 
 		combine(ldf.cols, [])
 		return ViewCollection(collection)
-	@staticmethod
-	# def expandUnderspecified(ldf: LuxDataFrame):
+
 	def expandUnderspecified(ldf,viewCollection):
 		"""
 		Given a underspecified Spec, populate the dataType and dataModel information accordingly
@@ -85,6 +84,8 @@ class Compiler:
 						spec.dataType = ldf.dataTypeLookup[spec.attribute]
 					if (spec.dataModel == ""):
 						spec.dataModel = ldf.dataModelLookup[spec.attribute]
+				if spec.value:
+					view.title = f"{spec.attribute}={spec.value}"
 		return views
 	@staticmethod
 	# def determineEncoding(ldf: LuxDataFrame,view: View):
@@ -126,7 +127,6 @@ class Compiler:
 					Nmsr += 1
 			# if (spec.value):  # preserve to add back to dobj later Jaywoo
 			# 	rowLst.append(spec)
-		# print ("Ndim,Nmsr:",Ndim,Nmsr)
 		# Helper function (TODO: Move this into utils)
 		def lineOrBar(dimension, measure):
 			dimType = dimension.dataType
@@ -143,7 +143,7 @@ class Compiler:
 
 		# ShowMe logic + additional heuristics
 		#countCol = Spec( attribute="count()", dataModel="measure")
-		countCol = Spec( attribute="Record", aggregation="count", dataModel="measure")
+		countCol = Spec( attribute="Record", aggregation="count", dataModel="measure", dataType="quantitative")
 		# xAttr = view.getObjFromChannel("x") # not used as of now
 		# yAttr = view.getObjFromChannel("y")
 		# zAttr = view.getObjFromChannel("z")
@@ -188,7 +188,6 @@ class Compiler:
 			# Colored Bar/Line chart with Count as default measure
 			if (Nmsr == 0):
 				view.specLst.append(countCol)
-			print (view)
 			measure = view.getObjByDataModel("measure")[0]
 			view.mark, autoChannel = lineOrBar(dimension, measure)
 			autoChannel["color"] = colorAttr

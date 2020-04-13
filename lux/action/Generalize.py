@@ -69,7 +69,10 @@ def generalize(ldf):
 	excludedColumns = []
 	columnSpec = ldf.getAttrsSpecs()
 	rowSpecs = ldf.getFilterSpecs()
-
+	# if we do no have enough column attributes or too many, return no views.
+	if(len(columnSpec)<2 or len(columnSpec)>4):
+		recommendation["collection"] = []
+		return recommendation
 	for spec in columnSpec:
 		columns = spec.attribute
 		if type(columns) == list:
