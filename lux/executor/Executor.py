@@ -1,4 +1,5 @@
 from lux.view.ViewCollection import ViewCollection
+from lux.utils import utils
 class Executor:
     def __init__(self):
         self.name = "Executor"
@@ -73,7 +74,7 @@ class Executor:
         
     @staticmethod
     def executeFilter(view, ldf):
-        filters = view.getFilterSpecs()
+        filters = utils.getFilterSpecs(view.specLst)
         if (filters):
             for filter in filters:
                 view.data = ldf[ldf[filter.attribute] == filter.value]

@@ -49,6 +49,7 @@ class ViewCollection():
 		maxScore = max(list(self.get("score")))
 		for dobj in self.collection:
 			dobj.score = dobj.score/maxScore
-			if (invertOrder): dobj.score = 1 - dobj.score 
+			if (invertOrder): dobj.score = 1 - dobj.score
+
 	
 	
