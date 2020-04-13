@@ -53,7 +53,7 @@ class Parser:
 						validValues.append(v)
 				tempSpec = lux.Spec(attribute = validValues, type = "attribute")
 				newContext.append(tempSpec)
-			if type(s) is str:
+			elif type(s) is str:
 				#case where user specifies a filter
 				if "=" in s:
 					eqInd = s.index("=")
@@ -97,12 +97,6 @@ class Parser:
 				else: # then it is probably a value 
 					spec.values = spec.description
 
-			#after parsing:
-			if spec.attribute == "?" or isinstance(spec.attribute,list):
-				spec.type = "attributeGroup"
-			if spec.value == "?" or isinstance(spec.value,list):
-				spec.type = "valueGroup"
-
 		ldf.context = parsedContext
 		Parser.populateOptions(ldf)
 		
@@ -128,7 +122,7 @@ class Parser:
 		from lux.utils.utils import convert2List
 		for spec in ldf.context:
 			specOptions = []
-			if "attribute" in spec.type:
+			if  spec.value=="" : # attribute
 				if spec.attribute == "?":
 					options = set(ldf.attrList)  # all attributes
 					if (spec.dataType != ""):
@@ -141,10 +135,9 @@ class Parser:
 				for optStr in options:
 					specCopy = copy.copy(spec)
 					specCopy.attribute = optStr
-					specCopy.type = "attribute"
 					specOptions.append(specCopy)
 				ldf.cols.append(specOptions)
-			elif "value" in spec.type:
+			else:
 				# if spec.attribute:
 				# 	attrLst = convert2List(spec.attribute)
 				# else:
@@ -154,14 +147,13 @@ class Parser:
 					if spec.value == "?":
 						options = ldf.uniqueValues[attr]
 						specInd = ldf.context.index(spec)
-						ldf.context[specInd] = lux.Spec(attribute = spec.attribute, filterOp = "=", value = list(options), type = "valueGroup")
+						ldf.context[specInd] = lux.Spec(attribute = spec.attribute, filterOp = "=", value = list(options))
 					else:
 						options = convert2List(spec.value)
 					for optStr in options:
 						specCopy = copy.copy(spec)
 						specCopy.attribute = attr
 						specCopy.value = optStr
-						specCopy.type = "value"
 						specOptions.append(specCopy)
 				# ldf.rows.append(specOptions)
 				ldf.rows = specOptions

@@ -54,7 +54,7 @@ import numpy as np
 from lux.view.View import View
 from lux.compiler.Compiler import Compiler
 from lux.executor.PandasExecutor import PandasExecutor
-
+from lux.utils import utils
 # from compiler.Compiler import Compiler
 '''
 Shows possible visualizations when one attribute or filter from the current context is removed
@@ -67,8 +67,8 @@ def generalize(ldf):
 						   "description":"Remove one attribute or filter to observe a more general trend."}
 	output = []
 	excludedColumns = []
-	columnSpec = ldf.getAttrsSpecs()
-	rowSpecs = ldf.getFilterSpecs()
+	columnSpec = utils.getAttrsSpecs(ldf.context)
+	rowSpecs = utils.getFilterSpecs(ldf.context)
 	# if we do no have enough column attributes or too many, return no views.
 	if(len(columnSpec)<2 or len(columnSpec)>4):
 		recommendation["collection"] = []

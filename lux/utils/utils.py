@@ -1,4 +1,3 @@
-import lux
 def convert2List(x):
 	'''
 	"a" --> ["a"]
@@ -10,7 +9,11 @@ def convert2List(x):
 		return x
 
 
-def applyDataTransformations(dataset, fAttribute, fVal):
-	transformedDataset = lux.Dataset(filename=dataset.filename, schema=dataset.schema)
-	transformedDataset.df = dataset.df[dataset.df[fAttribute] == fVal]
-	return transformedDataset
+def getAttrsSpecs(specLst):
+	specObj = list(filter(lambda x: x.value=="", specLst))
+	return specObj
+
+
+def getFilterSpecs(specLst):
+	specObj = list(filter(lambda x: x.value!="", specLst))
+	return specObj

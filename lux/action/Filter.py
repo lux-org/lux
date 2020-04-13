@@ -61,19 +61,20 @@ from lux.view.View import View
 from lux.view.ViewCollection import ViewCollection
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.compiler.Compiler import Compiler
+from lux.utils import utils
 '''
 Shows possible visualizations when filtered by categorical variables in the data object's dataset
 '''
 def filter(ldf):
 	recommendation = {"action":"Filter",
 						   "description":"Shows possible visualizations when filtered by categorical variables in the data object's dataset."}
-	filters = ldf.getFilterSpecs()
+	filters = utils.getFilterSpecs(ldf.context)
 	filterValues = []
 	output = []
 	#if Row is specified, create visualizations where data is filtered by all values of the Row's categorical variable
+	columnSpec = utils.getAttrsSpecs(ldf.context)
 	if len(filters) > 0:
 		completedFilters = []
-		columnSpec = ldf.getAttrsSpecs()
 		#get unique values for all categorical values specified and creates corresponding filters
 		for row in filters:
 			if row.attribute not in completedFilters:
@@ -93,7 +94,6 @@ def filter(ldf):
 	#if Row is not specified, create filters using unique values from all categorical variables in the dataset
 	else:
 		categoricalVars = ldf.dataType['nominal']
-		columnSpec = ldf.getAttrsSpecs()
 		for cat in categoricalVars:
 			uniqueValues = ldf[cat].unique()
 			for i in range(0, len(uniqueValues)):

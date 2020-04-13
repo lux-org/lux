@@ -2,6 +2,7 @@ import lux
 from lux.interestingness.interestingness import interestingness
 from lux.compiler.Compiler import Compiler
 from lux.executor.PandasExecutor import PandasExecutor
+from lux.utils import utils
 '''
 Shows possible visualizations when an additional attribute is added to the current view
 '''
@@ -10,7 +11,7 @@ def enhance(ldf):
 					"description":"Shows possible visualizations when an additional attribute is added to the current view."}
 	output = []
 	# Collect variables that already exist in the context
-	context = ldf.getAttrsSpecs()
+	context = utils.getAttrsSpecs(ldf.context)
 	# context = [spec for spec in context if isinstance(spec.attribute,str)]
 	existingVars = [spec.attribute for spec in context]
 	# if we too many column attributes, return no views.

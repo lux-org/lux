@@ -18,18 +18,6 @@ class View:
 		specObj = list(filter(lambda x: x.channel == channel if hasattr(x, "channel") else False, self.specLst))
 		return specObj
 
-	def getAttrsSpecs(self):
-		specObj = list(filter(lambda x: x.type == "attribute", self.specLst))
-		return specObj
-
-	def getFilterSpecs(self):
-		specObj = list(filter(lambda x: x.type == "value", self.specLst))
-		return specObj
-
-	def getAttributesFromSpec(self):
-		specObj = list(filter(lambda x: not(hasattr(x, "value")), self.specLst))
-		return specObj
-
 	def getObjByDataModel(self, dmodel):
 		return list(filter(lambda x: x.dataModel == dmodel if hasattr(x, "dataModel") else False, self.specLst))
 
@@ -42,7 +30,7 @@ class View:
 	def removeColumnFromSpecNew(self, attribute):
 		newSpec = []
 		for i in range(0, len(self.specLst)):
-			if "attribute" in self.specLst[i].type:
+			if self.specLst[i].value=="": # spec is type attribute
 				columnSpec = []
 				columnNames = self.specLst[i].attribute
 				# if only one variable in a column, columnName results in a string and not a list so

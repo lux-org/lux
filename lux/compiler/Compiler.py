@@ -84,8 +84,6 @@ class Compiler:
 						spec.dataType = ldf.dataTypeLookup[spec.attribute]
 					if (spec.dataModel == ""):
 						spec.dataModel = ldf.dataModelLookup[spec.attribute]
-				if spec.value:
-					view.title = f"{spec.attribute}={spec.value}"
 		return views
 	@staticmethod
 	# def determineEncoding(ldf: LuxDataFrame,view: View):
