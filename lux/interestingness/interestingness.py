@@ -8,14 +8,17 @@ def interestingness(view,ldf):
 
 	n_dim = 0
 	n_msr = 0
-	for spec in view.specLst:
-		if (spec.attribute and spec.attribute!="Record"):
-			if (spec.dataModel == 'dimension' and len(spec.filterOp) == 0):
-				n_dim += 1
-			if (spec.dataModel == 'measure' and len(spec.filterOp) == 0):
-				n_msr += 1
+	
 	filterSpecs = utils.getFilterSpecs(view.specLst)
 	viewAttrsSpecs = utils.getAttrsSpecs(view.specLst)
+
+	for spec in viewAttrsSpecs:
+		if (spec.attribute!="Record"):
+			if (spec.dataModel == 'dimension'):
+				n_dim += 1
+			if (spec.dataModel == 'measure'):
+				n_msr += 1
+
 	n_filter = len(filterSpecs)
 	attr_specs = [spec for spec in viewAttrsSpecs if spec.attribute != "Record"]
 
