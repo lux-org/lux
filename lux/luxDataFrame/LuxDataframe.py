@@ -159,9 +159,15 @@ class LuxDataFrame(pd.DataFrame):
             self.recommendation.append(self.generalize())
         else:
             if (currentViewExist):
-                self.recommendation.append(self.enhance()) 
-                self.recommendation.append(self.filter())
-                self.recommendation.append(self.generalize())
+                enhance = self.enhance()
+                filter = self.filter()
+                generalize = self.generalize()
+                if enhance['collection']:
+                    self.recommendation.append(enhance)
+                if filter['collection']:
+                    self.recommendation.append(filter)
+                if generalize['collection']:
+                    self.recommendation.append(generalize)
             else: 
                 self.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
                 self.recommendation.append(self.correlation())  #this works partially
