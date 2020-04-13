@@ -48,7 +48,7 @@ def filter(ldf):
 				output.append(tempView)
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
-	vc = vc.topK(20)
+	vc = vc.topK(10)
 	PandasExecutor.execute(vc,ldf)
 	recommendation["collection"] = vc
 	# print(vc)

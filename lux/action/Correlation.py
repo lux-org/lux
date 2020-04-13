@@ -31,8 +31,8 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 				view.score = interestingness(view,ldf)
 			else:
 				view.score = -1
-
-	vc.sort(removeInvalid=True)
+	vc = vc.topK(10)
+	vc.sort(removeInvalid=True))
 	recommendation["collection"] = vc
 	return recommendation
 
