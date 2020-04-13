@@ -111,20 +111,18 @@ class Compiler:
 		IEEE Transactions on Visualization and Computer Graphics, 13(6), 1137–1144.
 		https://doi.org/10.1109/TVCG.2007.70594
 		'''
-
-		# TODO: Directly mutate view
 		# Count number of measures and dimensions
 		Ndim = 0
 		Nmsr = 0
-		rowLst = []
+		filters = []
 		for spec in view.specLst:
-			if (spec.attribute):
+			if (spec.value==""):
 				if (spec.dataModel == "dimension"):
 					Ndim += 1
 				elif (spec.dataModel == "measure"):
 					Nmsr += 1
-			# if (spec.value):  # preserve to add back to dobj later Jaywoo
-			# 	rowLst.append(spec)
+			else:  # preserve to add back to specLst later
+				filters.append(spec)
 		# Helper function (TODO: Move this into utils)
 		def lineOrBar(dimension, measure):
 			dimType = dimension.dataType
@@ -215,7 +213,7 @@ class Compiler:
 						   "color": view.specLst[2]}
 		if (autoChannel!={}):
 			view = Compiler.enforceSpecifiedChannel(view, autoChannel)
-			view.specLst.extend(rowLst)  # add back the preserved row objects
+			view.specLst.extend(filters)  # add back the preserved filters
 
 	@staticmethod
 	def enforceSpecifiedChannel(view: View, autoChannel: Dict[str,str]):
