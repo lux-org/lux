@@ -62,15 +62,15 @@ class LuxDataFrame(pd.DataFrame):
 
     def computeDataType(self):
         for attr in self.attrList:
-            
-            if self.dtypes[attr] == "float64" or self.dtypes[attr] == "int64" or self.dtypes[attr] == "object":
-                if self.cardinality[attr] < 10:
+            #TODO: Think about dropping NaN values
+            if self.dtypes[attr] == "float64" or self.dtypes[attr] == "int64":
+                if self.cardinality[attr] < 10: #TODO:nominal with high value breaks system
                     self.dataTypeLookup[attr] = "nominal"
                 else:
                     self.dataTypeLookup[attr] = "quantitative"
             # Eliminate this clause because a single NaN value can cause the dtype to be object
-            # elif self.dtypes[attr] == "object":
-            #     self.dataTypeLookup[attr] = "nominal"
+            elif self.dtypes[attr] == "object":
+                self.dataTypeLookup[attr] = "nominal"
             
             # TODO: quick check if attribute is of type time (auto-detect logic borrow from Zenvisage data import)
             elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
@@ -161,6 +161,7 @@ class LuxDataFrame(pd.DataFrame):
         display(self.widget)
 
     def showMore(self):
+        self.recommendation = []
         currentViewExist = self.viewCollection!=[]
         if (self.DEBUG_FRONTEND):
             self.recommendation.append(self.generalize())
@@ -174,6 +175,7 @@ class LuxDataFrame(pd.DataFrame):
                 self.recommendation.append(self.correlation())  #this works partially
                 self.setContext([lux.Spec("?",dataModel="measure")])
                 self.recommendation.append(self.distribution())  
+
 
     #######################################################
     ############## LuxWidget Result Display ###############
