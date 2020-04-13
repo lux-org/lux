@@ -39,8 +39,8 @@ def interestingness(view,ldf):
 
 		if (len(v_filter) < len(v)):
 			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
-
-		return filtered_dist_shape_diff(v, v_filter)
+		sig = len(v_filter)
+		return sig * filtered_dist_shape_diff(v, v_filter)
 	
 	# Histogram (Count)
 	elif (n_dim == 0 and n_msr == 1 and n_filter == 0):
@@ -67,8 +67,8 @@ def interestingness(view,ldf):
 		if (filter_spec.binSize > 0):
 			v_bin = np.histogram(v, bins=filter_spec.binSize)[0]
 			v_filter_bin = np.histogram(v_filter, bins=filter_spec.binSize)[0]
-
-		return filtered_hist_shape_diff(v, v_filter, v_bin, v_filter_bin)
+		sig = len(v_filter)
+		return sig*filtered_hist_shape_diff(v, v_filter, v_bin, v_filter_bin)
 
 	# Bar Chart
 	elif (n_dim == 1 and n_msr == 1 and n_filter == 0):
@@ -93,15 +93,15 @@ def interestingness(view,ldf):
 
 		if (len(v_filter) < len(v)):
 			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
-
+			
 		v_bin = v
 		v_filter_bin = v_filter
 
 		if (filter_spec.binSize > 0):
 			v_bin = np.histogram(v, bins=filter_spec.binSize)[0]
 			v_filter_bin = np.histogram(v_filter, bins=filter_spec.binSize)[0]
-
-		return deviation(v, v_filter, v_bin, v_filter_bin)
+		sig = len(v_filter)
+		return sig*deviation(v, v_filter, v_bin, v_filter_bin)
 
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
@@ -126,7 +126,7 @@ def interestingness(view,ldf):
 		return 0.2
 	# Default
 	else:
-		return 0.5
+		return -1
 
 
 ##### Bar Chart (Count) #####

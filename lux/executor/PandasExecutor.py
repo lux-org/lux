@@ -92,7 +92,7 @@ class PandasExecutor(Executor):
     
     @staticmethod
     def applyFilter(df, attribute, op, val):
-        if (op == '=' or op == ''):
+        if (op == '='):
             return df[df[attribute] == val]
         elif (op == '<'):
             return df[df[attribute] < val]
