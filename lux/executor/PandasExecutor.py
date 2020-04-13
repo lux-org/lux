@@ -21,11 +21,12 @@ class PandasExecutor(Executor):
             attributes = set([])
             for spec in view.specLst:
                 if (spec.attribute):
-                    if (spec.attribute=="Record"):
-                        if ('index' not in view.data.columns):
-                            view.data.reset_index(level=0, inplace=True)
-                        attributes.add("index")
-                    else:
+                    # if (spec.attribute=="Record"):
+                    #     if ('index' not in view.data.columns):
+                    #         view.data.reset_index(level=0, inplace=True)
+                    #     attributes.add("index")
+                    # else:
+                    if (spec.attribute!="Record"):
                         attributes.add(spec.attribute)
             view.data = view.data[list(attributes)]
             if (view.mark =="bar" or view.mark =="line"):
@@ -50,9 +51,20 @@ class PandasExecutor(Executor):
         
         if (measureAttr!=""):
             if (measureAttr.attribute=="Record"):
-                countSeries = view.data.groupby(groupbyAttr.attribute).count().iloc[:,0]
-                countSeries.name = "Record"
-                view.data = countSeries.to_frame().reset_index()
+                # if (type(view.data).__name__=="DataFrame" or type(view.data).__name__=="LuxDataFrame" ):
+                #     countSeries = view.data.iloc[:,0]
+
+                # countSeries = view.data.groupby(groupbyAttr.attribute).count().iloc[:,0]
+                # countSeries = view.data.value_counts()
+
+                # countSeries.name = "Record"
+                # countSeries.index.name = groupbyAttr.attribute
+                # countDf = countSeries.reset_index()
+                # view.data = lux.LuxDataFrame(countDf)
+                view.data= view.data.reset_index()
+                view.data = view.data.groupby(groupbyAttr.attribute).count().reset_index()
+                view.data = view.data.rename(columns={"index":"Record"})
+
             else:
                 groupbyResult = view.data.groupby(groupbyAttr.attribute)
                 view.data = groupbyResult.agg(aggFunc).reset_index()

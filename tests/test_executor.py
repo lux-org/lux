@@ -62,3 +62,11 @@ def test_binning():
     df = pd.read_csv("lux/data/car.csv")
     df.setContext([lux.Spec(attribute = "Horsepower")])
     PandasExecutor.execute(df.viewCollection,df)
+    Nbins =list(filter(lambda x: x.binSize!=0 , df.viewCollection[0].specLst))[0].binSize
+    assert len(df.viewCollection[0].data) == Nbins
+
+def test_record():
+    df = pd.read_csv("lux/data/car.csv")
+    df.setContext([lux.Spec(attribute = "Cylinders")])
+    PandasExecutor.execute(df.viewCollection,df)
+    assert len(df.viewCollection[0].data) == len(df["Cylinders"].unique())
