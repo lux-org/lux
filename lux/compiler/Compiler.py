@@ -1,7 +1,7 @@
 from lux.context import Spec
 from typing import List, Dict
 from lux.view.View import View
-# from ..luxDataFrame.LuxDataframe import LuxDataFrame
+from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.view.ViewCollection import ViewCollection
 class Compiler:
 	def __init__(self):
@@ -11,7 +11,7 @@ class Compiler:
 		return f"<Compiler>"
 		
 	@staticmethod
-	def compile(ldf,viewCollection,enumerateCollection=True):
+	def compile(ldf:LuxDataFrame, viewCollection: ViewCollection, enumerateCollection=True) -> ViewCollection:
 		# 1. If the DataObj represent a collection, then compile it into a collection. Otherwise, return False
 		# Input: DataObj --> Output: DataObjCollection/False
 		if (enumerateCollection):
@@ -26,8 +26,7 @@ class Compiler:
 			Compiler.determineEncoding(ldf,view)  # autofill viz related information
 		return viewCollection
 	@staticmethod
-	# def enumerateCollection(ldf: LuxDataFrame):
-	def enumerateCollection(ldf,viewCollection):
+	def enumerateCollection(ldf:LuxDataFrame, viewCollection: ViewCollection) -> ViewCollection:
 		"""
 		Given specifications that have been expanded thorught populateOptions,
 		recursively iterate over the resulting list combinations to generate a View collection.
@@ -88,8 +87,7 @@ class Compiler:
 					view.title = f"{spec.attribute} {spec.filterOp} {spec.value}"
 		return views
 	@staticmethod
-	# def determineEncoding(ldf: LuxDataFrame,view: View):
-	def determineEncoding(ldf, view: View):
+	def determineEncoding(ldf: LuxDataFrame,view: View):
 		'''
 		Populates View with the appropriate mark type and channel information based on ShowMe logic
 		Currently support up to 3 dimensions or measures
