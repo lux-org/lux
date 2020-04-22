@@ -1,18 +1,13 @@
 import pandas as pd
-import lux
-from lux.compiler.Validator import Validator
-from lux.compiler.Compiler import Compiler
-from lux.compiler.Parser import Parser
-from lux.executor.PandasExecutor import PandasExecutor
+from lux.context.Spec import Spec
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
-    _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType', 
+    _metadata = ['context','schema','attrList','dataTypeLookup','dataType', 
                  'dataModelLookup','dataModel','uniqueValues','cardinality',
                  'viewCollection','cols','rows','widget', 'recommendation']
 
     def __init__(self,*args, **kw):
         self.context = []
-        self.spec = []
         self.schema = []
         self.recommendation=[]
         self.viewCollection = []
@@ -24,9 +19,19 @@ class LuxDataFrame(pd.DataFrame):
     @property
     def _constructor(self):
         return LuxDataFrame
+    
+    # @property
+    # def context(self):
+    #     return self.context
+    
+    
     def setViewCollection(self,viewCollection):
         self.viewCollection = viewCollection 
     def _refreshContext(self,context):
+        from lux.compiler.Validator import Validator
+        from lux.compiler.Compiler import Compiler
+        from lux.compiler.Parser import Parser
+        from lux.executor.PandasExecutor import PandasExecutor
         self.computeStats()
         self.computeDatasetMetadata()
         Parser.parse(self)
@@ -37,6 +42,7 @@ class LuxDataFrame(pd.DataFrame):
         self.context = context
         self._refreshContext(context)
     def toPandas(self):
+        import lux.luxDataFrame
         return lux.luxDataFrame.originalDF(self,copy=False)
     def addToContext(self,context): 
         self.context.extend(context)
@@ -169,9 +175,9 @@ class LuxDataFrame(pd.DataFrame):
                 if generalize['collection']:
                     self.recommendation.append(generalize)
             else: 
-                self.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
+                self.setContext([Spec("?",dataModel="measure"),Spec("?",dataModel="measure")])
                 self.recommendation.append(self.correlation())  #this works partially
-                self.setContext([lux.Spec("?",dataModel="measure")])
+                self.setContext([Spec("?",dataModel="measure")])
                 self.recommendation.append(self.distribution())  
 
 
@@ -214,6 +220,7 @@ class LuxDataFrame(pd.DataFrame):
         )
 
     def toJSON(self, inputCurrentView=""):
+        from lux.executor.PandasExecutor import PandasExecutor
         widgetSpec = {}
         PandasExecutor.execute(self.viewCollection,self)
         widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.viewCollection,inputCurrentView)
@@ -233,7 +240,7 @@ class LuxDataFrame(pd.DataFrame):
         return widgetSpec
     
     @staticmethod
-    def currentViewToJSON(vc:lux.view.ViewCollection, inputCurrentView=""):
+    def currentViewToJSON(vc, inputCurrentView=""):
         currentViewSpec = {}
         numVC = len(vc) #number of views in the view collection
         if (numVC==1):
@@ -253,7 +260,7 @@ class LuxDataFrame(pd.DataFrame):
         #         currentViewSpec = specifiedDobj.compiled.renderVSpec()
         return currentViewSpec
     @staticmethod
-    def recToJSON(recs:lux.view.ViewCollection):
+    def recToJSON(recs):
         recLst = []
         import copy
         recCopy = copy.deepcopy(recs)

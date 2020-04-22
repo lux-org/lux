@@ -1,41 +1,8 @@
-import lux
+from lux.context.Spec import Spec
+from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 class Parser:
-	'''
-	DONE
-	lux.setContext("Horsepower")
-	--> lux.Spec(attribute = "Horsepower", type= "attribute")
-
-	DONE
-	lux.setContext("Horsepower", lux.Spec("MilesPerGal",channel="x"))
-		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="MilesPerGal", type= "attribute",channel="x")]
-
-	DONE
-	lux.setContext("Horsepower","Origin=USA")
-		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value ="USA", type= "value")]
-
-	lux.setContext("Horsepower","USA")
-		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value ="USA", type= "value")]
-
-	lux.setContext("Horsepower","Origin=?")
-		-->[lux.Spec(attribute ="Horsepower", type= " attribute"), lux.Spec(attribute ="Origin", fOp = "=", value ="?", type= "valueGroup")]
-
-		Then populateOptions compiles "?" into :
-		-->[[lux.Spec(attr ="Horsepower", type= " attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="USA", type= "value")],
-			[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="UK", type= "value")],
-			[lux.Spec(attr ="Horsepower", type= "attribute"), lux.Spec(fAttr = "Origin", fOp = "=", fVal="Japan", type= "value")] ]
-
-	lux.setContext("Horsepower","Origin=USA/Japan")
-		--> [lux.Spec(attribute ="Horsepower", type= "attribute"), lux.Spec(attribute ="Origin", fOp = "=", value =["USA","Japan"], type= "valueGroup")]
-
-	DONE
-	lux.setContext(["Horsepower","MPG","Acceleration"],"Origin")
-	lux.setContext("Horsepower/MPG/Acceleration", "Origin")
-		--> [lux.Spec(attr= ["Horsepower","MPG","Acceleration"], type= "attributeGroup")]
-	'''
-
 	@staticmethod
-	# def parse(context: list[lux.Spec]):
-	def parse(ldf):
+	def parse(ldf: LuxDataFrame) -> None:
 		'''
 		Parse takes the description from the input Spec and assign it into the appropriate spec.attribute, spec.filterOp, and spec.value
 		'''
@@ -51,7 +18,7 @@ class Parser:
 				for v in s:
 					if type(v) is str and v in ldf.columns:
 						validValues.append(v)
-				tempSpec = lux.Spec(attribute = validValues, type = "attribute")
+				tempSpec = Spec(attribute = validValues, type = "attribute")
 				newContext.append(tempSpec)
 			elif type(s) is str:
 				#case where user specifies a filter
@@ -66,7 +33,7 @@ class Parser:
 					else:
 						validValues = s[eqInd+1:]
 					if var in ldf.columns:
-						tempSpec = lux.Spec(attribute = var, filterOp = "=", value = validValues, type = "value")
+						tempSpec = Spec(attribute = var, filterOp = "=", value = validValues, type = "value")
 						newContext.append(tempSpec)
 				#case where user specifies a variable
 				else:
@@ -77,9 +44,9 @@ class Parser:
 								validValues.append(v)
 					else:
 						validValues = s
-					tempSpec = lux.Spec(attribute = validValues, type = "attribute")
+					tempSpec = Spec(attribute = validValues, type = "attribute")
 					newContext.append(tempSpec)
-			elif type(s) is lux.Spec:
+			elif type(s) is Spec:
 				newContext.append(s)
 		parsedContext = newContext
 		ldf.context = newContext
@@ -101,8 +68,7 @@ class Parser:
 		Parser.populateOptions(ldf)
 		
 	@staticmethod
-	# def populateOptions(ldf: LuxDataFrame):
-	def populateOptions(ldf):
+	def populateOptions(ldf: LuxDataFrame) -> None:
 		"""
 		Given a row or column object, return the list of available values that satisfies the dataType or dataModel constraints
 
@@ -147,7 +113,7 @@ class Parser:
 					if spec.value == "?":
 						options = ldf.uniqueValues[attr]
 						specInd = ldf.context.index(spec)
-						ldf.context[specInd] = lux.Spec(attribute = spec.attribute, filterOp = "=", value = list(options))
+						ldf.context[specInd] = Spec(attribute = spec.attribute, filterOp = "=", value = list(options))
 					else:
 						options = convert2List(spec.value)
 					for optStr in options:
