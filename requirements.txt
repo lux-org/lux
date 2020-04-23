@@ -7,3 +7,4 @@ pandas>=0.25.3
 pytest==5.3.1
 pytest-cov==2.8.1
 scikit-learn==0.22
+luxWidget==0.0.7
