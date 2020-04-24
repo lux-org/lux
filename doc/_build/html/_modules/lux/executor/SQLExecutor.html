@@ -78,8 +78,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started/installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/FAQ.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/example.html">Example</a></li>
+</ul>
+
             
           
         </div>
@@ -143,7 +153,7 @@
   <h1>Source code for lux.executor.SQLExecutor</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">lux.executor.Executor</span> <span class="kn">import</span> <span class="n">Executor</span>
 <span class="kn">from</span> <span class="nn">lux.view.ViewCollection</span> <span class="kn">import</span> <span class="n">ViewCollection</span>
-<div class="viewcode-block" id="SQLExecutor"><a class="viewcode-back" href="../../../source/lux.executor.html#lux.executor.SQLExecutor.SQLExecutor">[docs]</a><span class="k">class</span> <span class="nc">SQLExecutor</span><span class="p">(</span><span class="n">Executor</span><span class="p">):</span>
+<div class="viewcode-block" id="SQLExecutor"><a class="viewcode-back" href="../../../source/reference/lux.executor.html#lux.executor.SQLExecutor.SQLExecutor">[docs]</a><span class="k">class</span> <span class="nc">SQLExecutor</span><span class="p">(</span><span class="n">Executor</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Executor&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">selection</span> <span class="o">=</span> <span class="p">[]</span>
@@ -152,7 +162,7 @@
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;Executor&gt;&quot;</span>
-<div class="viewcode-block" id="SQLExecutor.execute"><a class="viewcode-back" href="../../../source/lux.executor.html#lux.executor.SQLExecutor.SQLExecutor.execute">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="SQLExecutor.execute"><a class="viewcode-back" href="../../../source/reference/lux.executor.html#lux.executor.SQLExecutor.SQLExecutor.execute">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">viewCollection</span><span class="p">:</span><span class="n">ViewCollection</span><span class="p">,</span> <span class="n">ldf</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Given a ViewCollection, fetch the data required to render the view</span>
@@ -178,7 +188,7 @@
             <span class="k">elif</span> <span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">mark</span> <span class="o">==</span><span class="s2">&quot;histogram&quot;</span><span class="p">):</span>
                 <span class="n">Executor</span><span class="o">.</span><span class="n">executeBinning</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">ldf</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SQLExecutor.executeAggregate"><a class="viewcode-back" href="../../../source/lux.executor.html#lux.executor.SQLExecutor.SQLExecutor.executeAggregate">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="SQLExecutor.executeAggregate"><a class="viewcode-back" href="../../../source/reference/lux.executor.html#lux.executor.SQLExecutor.SQLExecutor.executeAggregate">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">executeAggregate</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">ldf</span><span class="p">):</span>
         <span class="c1"># TODO (Jaywoo)</span>
         <span class="c1"># get attribute</span>
@@ -207,7 +217,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">groupbyResult</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">groupbyAttr</span><span class="o">.</span><span class="n">attribute</span><span class="p">)</span>
                 <span class="n">view</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">groupbyResult</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">aggFunc</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span></div>
-<div class="viewcode-block" id="SQLExecutor.executeBinning"><a class="viewcode-back" href="../../../source/lux.executor.html#lux.executor.SQLExecutor.SQLExecutor.executeBinning">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="SQLExecutor.executeBinning"><a class="viewcode-back" href="../../../source/reference/lux.executor.html#lux.executor.SQLExecutor.SQLExecutor.executeBinning">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">executeBinning</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">ldf</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
         <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> <span class="c1"># is this import going to be conflicting with LuxDf?</span>
@@ -218,7 +228,7 @@
         <span class="c1"># TODO: Should view.data be a LuxDataFrame or a Pandas DataFrame?</span>
         <span class="n">view</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">binCenter</span><span class="p">,</span><span class="n">counts</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">binAttribute</span><span class="o">.</span><span class="n">attribute</span><span class="p">,</span> <span class="s2">&quot;Count of Records (binned)&quot;</span><span class="p">])</span>        </div>
         
-<div class="viewcode-block" id="SQLExecutor.executeFilter"><a class="viewcode-back" href="../../../source/lux.executor.html#lux.executor.SQLExecutor.SQLExecutor.executeFilter">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="SQLExecutor.executeFilter"><a class="viewcode-back" href="../../../source/reference/lux.executor.html#lux.executor.SQLExecutor.SQLExecutor.executeFilter">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">executeFilter</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">ldf</span><span class="p">):</span>
         <span class="n">whereClause</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">filters</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">getFilterSpecs</span><span class="p">()</span>

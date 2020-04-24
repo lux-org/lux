@@ -78,8 +78,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/getting_started/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/getting_started/installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/guide/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/guide/FAQ.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/guide/example.html">Example</a></li>
+</ul>
+
             
           
         </div>
@@ -144,12 +154,12 @@
 <span></span><span class="kn">from</span> <span class="nn">lux.vizLib.altair.AltairChart</span> <span class="kn">import</span> <span class="n">AltairChart</span>
 <span class="kn">import</span> <span class="nn">altair</span> <span class="k">as</span> <span class="nn">alt</span>
 <span class="n">alt</span><span class="o">.</span><span class="n">data_transformers</span><span class="o">.</span><span class="n">disable_max_rows</span><span class="p">()</span>
-<div class="viewcode-block" id="BarChart"><a class="viewcode-back" href="../../../../source/lux.vizLib.altair.html#lux.vizLib.altair.BarChart.BarChart">[docs]</a><span class="k">class</span> <span class="nc">BarChart</span><span class="p">(</span><span class="n">AltairChart</span><span class="p">):</span>
+<div class="viewcode-block" id="BarChart"><a class="viewcode-back" href="../../../../source/reference/lux.vizLib.altair.html#lux.vizLib.altair.BarChart.BarChart">[docs]</a><span class="k">class</span> <span class="nc">BarChart</span><span class="p">(</span><span class="n">AltairChart</span><span class="p">):</span>
 	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dobj</span><span class="p">):</span>
 		<span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dobj</span><span class="p">)</span>
 	<span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Bar Chart &lt;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">)</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
-<div class="viewcode-block" id="BarChart.initializeChart"><a class="viewcode-back" href="../../../../source/lux.vizLib.altair.html#lux.vizLib.altair.BarChart.BarChart.initializeChart">[docs]</a>	<span class="k">def</span> <span class="nf">initializeChart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BarChart.initializeChart"><a class="viewcode-back" href="../../../../source/reference/lux.vizLib.altair.html#lux.vizLib.altair.BarChart.BarChart.initializeChart">[docs]</a>	<span class="k">def</span> <span class="nf">initializeChart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">tooltip</span> <span class="o">=</span> <span class="kc">False</span>
 		<span class="n">xAttr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 		<span class="n">yAttr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>

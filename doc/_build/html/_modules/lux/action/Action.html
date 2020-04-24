@@ -78,8 +78,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started/installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/FAQ.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/example.html">Example</a></li>
+</ul>
+
             
           
         </div>
@@ -141,7 +151,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for lux.action.Action</h1><div class="highlight"><pre>
-<div class="viewcode-block" id="Action"><a class="viewcode-back" href="../../../source/lux.action.html#lux.action.Action.Action">[docs]</a><span></span><span class="k">class</span> <span class="nc">Action</span><span class="p">:</span>
+<div class="viewcode-block" id="Action"><a class="viewcode-back" href="../../../source/reference/lux.action.html#lux.action.Action.Action">[docs]</a><span></span><span class="k">class</span> <span class="nc">Action</span><span class="p">:</span>
 	<span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">	Abstract class definition of Action</span>
 <span class="sd">	&#39;&#39;&#39;</span>
@@ -152,16 +162,16 @@
 	<span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;Action: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
 			
-<div class="viewcode-block" id="Action.check_requirement"><a class="viewcode-back" href="../../../source/lux.action.html#lux.action.Action.Action.check_requirement">[docs]</a>	<span class="k">def</span> <span class="nf">check_requirement</span><span class="p">(</span><span class="n">dobj</span><span class="p">):</span>
+<div class="viewcode-block" id="Action.check_requirement"><a class="viewcode-back" href="../../../source/reference/lux.action.html#lux.action.Action.Action.check_requirement">[docs]</a>	<span class="k">def</span> <span class="nf">check_requirement</span><span class="p">(</span><span class="n">dobj</span><span class="p">):</span>
 		<span class="c1"># Check whether data object has the right set of requirements to execute this action</span>
 		<span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="Action.compute"><a class="viewcode-back" href="../../../source/lux.action.html#lux.action.Action.Action.compute">[docs]</a>	<span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="n">dobj</span><span class="p">):</span>
+<div class="viewcode-block" id="Action.compute"><a class="viewcode-back" href="../../../source/reference/lux.action.html#lux.action.Action.Action.compute">[docs]</a>	<span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="n">dobj</span><span class="p">):</span>
 		<span class="c1"># Enumerate --&gt; compute the scores for each item in the collection </span>
 		<span class="c1"># --&gt;  return DataObjectCollection with the scores </span>
 		<span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="Action.displayAsWidget"><a class="viewcode-back" href="../../../source/lux.action.html#lux.action.Action.Action.displayAsWidget">[docs]</a>	<span class="k">def</span> <span class="nf">displayAsWidget</span><span class="p">():</span>
+<div class="viewcode-block" id="Action.displayAsWidget"><a class="viewcode-back" href="../../../source/reference/lux.action.html#lux.action.Action.Action.displayAsWidget">[docs]</a>	<span class="k">def</span> <span class="nf">displayAsWidget</span><span class="p">():</span>
 		<span class="c1"># display result in widget</span>
 		<span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
