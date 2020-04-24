@@ -7,3 +7,5 @@ pandas>=0.25.3
 pytest==5.3.1
 pytest-cov==2.8.1
 scikit-learn==0.22
+Sphinx==3.0.2
+sphinx-rtd-theme==0.4.3

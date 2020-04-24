@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lux.action.Similarity &mdash; Lux 0.1.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Lux
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Lux</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>lux.action.Similarity</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lux.action.Similarity</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">lux</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">lux.executor.PandasExecutor</span> <span class="kn">import</span> <span class="n">PandasExecutor</span>
+<span class="kn">from</span> <span class="nn">lux.view.ViewCollection</span> <span class="kn">import</span> <span class="n">ViewCollection</span>
+<div class="viewcode-block" id="aggregate"><a class="viewcode-back" href="../../../source/lux.action.html#lux.action.Similarity.aggregate">[docs]</a><span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="n">view</span><span class="p">):</span>
+<span class="c1"># find y axis then aggregate on it</span>
+    <span class="k">if</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">):</span>
+
+        <span class="n">xAxis</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attribute</span>
+        <span class="n">yAxis</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attribute</span>
+
+        <span class="n">view</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">data</span><span class="p">[[</span><span class="n">xAxis</span><span class="p">,</span><span class="n">yAxis</span><span class="p">]]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">xAxis</span><span class="p">,</span><span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="n">yAxis</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="interpolate"><a class="viewcode-back" href="../../../source/lux.action.html#lux.action.Similarity.interpolate">[docs]</a><span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="n">view</span><span class="p">,</span><span class="n">length</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">):</span>
+
+        <span class="n">xAxis</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attribute</span>
+        <span class="n">yAxis</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attribute</span>
+
+        <span class="k">if</span> <span class="n">xAxis</span> <span class="ow">and</span> <span class="n">yAxis</span><span class="p">:</span>
+            <span class="n">yVals</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">yAxis</span><span class="p">]</span>
+            <span class="n">xVals</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">xAxis</span><span class="p">]</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">length</span>
+
+            <span class="n">interpolatedXVals</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+            <span class="n">interpolatedYVals</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+
+            <span class="n">granularity</span> <span class="o">=</span> <span class="p">(</span><span class="n">xVals</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">xVals</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">xVals</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">n</span>
+
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+                <span class="n">interpolatedX</span> <span class="o">=</span> <span class="n">xVals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">granularity</span>
+                <span class="n">interpolatedXVals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">interpolatedX</span>
+
+                <span class="k">while</span> <span class="n">xVals</span><span class="p">[</span><span class="n">count</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">interpolatedX</span><span class="p">:</span>
+                    <span class="k">if</span><span class="p">(</span><span class="n">count</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">xVals</span><span class="p">)):</span>
+                        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">xVals</span><span class="p">[</span><span class="n">count</span><span class="p">]</span> <span class="o">==</span> <span class="n">interpolatedX</span><span class="p">:</span>
+                    <span class="n">interpolatedYVals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">yVals</span><span class="p">[</span><span class="n">count</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">xDiff</span> <span class="o">=</span> <span class="n">xVals</span><span class="p">[</span><span class="n">count</span><span class="p">]</span> <span class="o">-</span> <span class="n">xVals</span><span class="p">[</span><span class="n">count</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">yDiff</span> <span class="o">=</span> <span class="n">yVals</span><span class="p">[</span><span class="n">count</span><span class="p">]</span> <span class="o">-</span> <span class="n">yVals</span><span class="p">[</span><span class="n">count</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">interpolatedYVals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">yVals</span><span class="p">[</span><span class="n">count</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">interpolatedX</span> <span class="o">-</span> <span class="n">xVals</span><span class="p">[</span><span class="n">count</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">xDiff</span> <span class="o">*</span> <span class="n">yDiff</span>
+            <span class="n">view</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">interpolatedXVals</span><span class="p">,</span> <span class="n">interpolatedYVals</span><span class="p">)),</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">xAxis</span><span class="p">,</span> <span class="n">yAxis</span><span class="p">])</span></div>
+
+<span class="c1"># interpolate dataset</span>
+
+<div class="viewcode-block" id="normalize"><a class="viewcode-back" href="../../../source/lux.action.html#lux.action.Similarity.normalize">[docs]</a><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">view</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">):</span>
+        <span class="n">yAxis</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attribute</span>
+        <span class="nb">max</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">yAxis</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="nb">min</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">yAxis</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">max</span> <span class="o">==</span> <span class="nb">min</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">max</span><span class="o">-</span><span class="nb">min</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">)):</span>
+            <span class="k">return</span>
+        <span class="n">view</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">yAxis</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">yAxis</span><span class="p">]</span> <span class="o">-</span> <span class="nb">min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="nb">max</span> <span class="o">-</span> <span class="nb">min</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="euclideanDist"><a class="viewcode-back" href="../../../source/lux.action.html#lux.action.Similarity.euclideanDist">[docs]</a><span class="k">def</span> <span class="nf">euclideanDist</span><span class="p">(</span><span class="n">queryView</span><span class="p">,</span><span class="n">view</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">queryView</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">):</span>
+
+        <span class="n">viewYAxis</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attribute</span>
+        <span class="n">queryYAxis</span> <span class="o">=</span> <span class="n">queryView</span><span class="o">.</span><span class="n">getObjFromChannel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attribute</span>
+
+        <span class="n">viewVector</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">viewYAxis</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">queryVector</span> <span class="o">=</span> <span class="n">queryView</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">queryYAxis</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">viewVector</span> <span class="o">-</span> <span class="n">queryVector</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">score</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;no y axis detected&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+<div class="viewcode-block" id="preprocess"><a class="viewcode-back" href="../../../source/lux.action.html#lux.action.Similarity.preprocess">[docs]</a><span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">view</span><span class="p">):</span>
+    <span class="n">aggregate</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
+    <span class="n">interpolate</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">normalize</span><span class="p">(</span><span class="n">view</span><span class="p">)</span></div>
+<div class="viewcode-block" id="similarPattern"><a class="viewcode-back" href="../../../source/lux.action.html#lux.action.Similarity.similarPattern">[docs]</a><span class="k">def</span> <span class="nf">similarPattern</span><span class="p">(</span><span class="n">ldf</span><span class="p">,</span><span class="n">queryContext</span><span class="p">,</span><span class="n">topK</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">rowSpecs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">value</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">queryContext</span><span class="p">))</span>
+    <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rowSpecs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">searchSpaceVC</span> <span class="o">=</span> <span class="n">ViewCollection</span><span class="p">(</span><span class="n">ldf</span><span class="o">.</span><span class="n">viewCollection</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">searchSpaceVC</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+
+        <span class="n">ldf</span><span class="o">.</span><span class="n">setContext</span><span class="p">(</span><span class="n">queryContext</span><span class="p">)</span>
+        <span class="n">queryVC</span> <span class="o">=</span> <span class="n">ldf</span><span class="o">.</span><span class="n">viewCollection</span>
+        <span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">queryVC</span><span class="p">,</span> <span class="n">ldf</span><span class="p">)</span>
+        <span class="n">queryView</span> <span class="o">=</span> <span class="n">queryVC</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">preprocess</span><span class="p">(</span><span class="n">queryView</span><span class="p">)</span>
+        <span class="c1">#for loop to create assign euclidean distance</span>
+        <span class="n">recommendation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;action&quot;</span><span class="p">:</span><span class="s2">&quot;Similarity&quot;</span><span class="p">,</span>
+                               <span class="s2">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Show other charts that are visually similar to the Current View.&quot;</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="n">searchSpaceVC</span><span class="p">:</span>
+            <span class="n">preprocess</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
+            <span class="n">view</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">euclideanDist</span><span class="p">(</span><span class="n">queryView</span><span class="p">,</span> <span class="n">view</span><span class="p">)</span>
+        <span class="n">searchSpaceVC</span><span class="o">.</span><span class="n">normalizeScore</span><span class="p">(</span><span class="n">invertOrder</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">searchSpaceVC</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">removeInvalid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">topK</span><span class="o">!=-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">searchSpaceVC</span> <span class="o">=</span> <span class="n">searchSpaceVC</span><span class="o">.</span><span class="n">topK</span><span class="p">(</span><span class="n">topK</span><span class="p">)</span>
+        <span class="n">recommendation</span><span class="p">[</span><span class="s2">&quot;collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">searchSpaceVC</span>
+        <span class="k">return</span> <span class="n">recommendation</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Query needs to have 1 row value&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Doris Jung-Lin Lee
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
