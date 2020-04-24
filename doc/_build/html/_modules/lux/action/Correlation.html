@@ -78,8 +78,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started/installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/FAQ.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/example.html">Example</a></li>
+</ul>
+
             
           
         </div>
@@ -147,7 +157,7 @@
 <span class="kn">from</span> <span class="nn">lux.executor.PandasExecutor</span> <span class="kn">import</span> <span class="n">PandasExecutor</span>
 
 <span class="c1"># change ignoreTranspose to false for now.</span>
-<div class="viewcode-block" id="correlation"><a class="viewcode-back" href="../../../source/lux.action.html#lux.action.Correlation.correlation">[docs]</a><span class="k">def</span> <span class="nf">correlation</span><span class="p">(</span><span class="n">ldf</span><span class="p">,</span><span class="n">ignoreIdentity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ignoreTranspose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="correlation"><a class="viewcode-back" href="../../../source/reference/lux.action.html#lux.action.Correlation.correlation">[docs]</a><span class="k">def</span> <span class="nf">correlation</span><span class="p">(</span><span class="n">ldf</span><span class="p">,</span><span class="n">ignoreIdentity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ignoreTranspose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 	<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 	<span class="n">recommendation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;action&quot;</span><span class="p">:</span><span class="s2">&quot;Correlation&quot;</span><span class="p">,</span>
@@ -179,7 +189,7 @@
 	<span class="n">recommendation</span><span class="p">[</span><span class="s2">&quot;collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vc</span>
 	<span class="k">return</span> <span class="n">recommendation</span></div>
 
-<div class="viewcode-block" id="checkTransposeNotComputed"><a class="viewcode-back" href="../../../source/lux.action.html#lux.action.Correlation.checkTransposeNotComputed">[docs]</a><span class="k">def</span> <span class="nf">checkTransposeNotComputed</span><span class="p">(</span><span class="n">ldf</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+<div class="viewcode-block" id="checkTransposeNotComputed"><a class="viewcode-back" href="../../../source/reference/lux.action.html#lux.action.Correlation.checkTransposeNotComputed">[docs]</a><span class="k">def</span> <span class="nf">checkTransposeNotComputed</span><span class="p">(</span><span class="n">ldf</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
 	<span class="c1"># how to know if these are just columns?</span>
 	<span class="n">transposeExist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:(</span><span class="n">x</span><span class="o">.</span><span class="n">specLst</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attribute</span><span class="o">==</span><span class="n">b</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">specLst</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">attribute</span><span class="o">==</span><span class="n">a</span><span class="p">),</span><span class="n">ldf</span><span class="o">.</span><span class="n">viewCollection</span><span class="p">))</span> <span class="c1"># Jaywoo</span>
 	<span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">transposeExist</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>

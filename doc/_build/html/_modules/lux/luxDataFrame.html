@@ -78,8 +78,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/getting_started/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/getting_started/installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/guide/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/guide/FAQ.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/guide/example.html">Example</a></li>
+</ul>
+
             
           
         </div>
@@ -147,7 +157,7 @@
 <span class="c1"># Keep variable scope of original pandas df</span>
 <span class="n">originalDF</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>
 
-<div class="viewcode-block" id="setOption"><a class="viewcode-back" href="../../source/lux.luxDataFrame.html#lux.luxDataFrame.setOption">[docs]</a><span class="k">def</span> <span class="nf">setOption</span><span class="p">(</span><span class="n">overridePandas</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="setOption"><a class="viewcode-back" href="../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.setOption">[docs]</a><span class="k">def</span> <span class="nf">setOption</span><span class="p">(</span><span class="n">overridePandas</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">overridePandas</span><span class="p">):</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">parsers</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">LuxDataFrame</span>
     <span class="k">else</span><span class="p">:</span>

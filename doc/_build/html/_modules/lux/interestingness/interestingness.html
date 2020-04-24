@@ -78,8 +78,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started/installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/FAQ.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/example.html">Example</a></li>
+</ul>
+
             
           
         </div>
@@ -143,7 +153,7 @@
   <h1>Source code for lux.interestingness.interestingness</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">lux.executor.PandasExecutor</span> <span class="kn">import</span> <span class="n">PandasExecutor</span>
 <span class="kn">from</span> <span class="nn">lux.utils</span> <span class="kn">import</span> <span class="n">utils</span>
-<div class="viewcode-block" id="interestingness"><a class="viewcode-back" href="../../../source/lux.interestingness.html#lux.interestingness.interestingness.interestingness">[docs]</a><span class="k">def</span> <span class="nf">interestingness</span><span class="p">(</span><span class="n">view</span><span class="p">,</span><span class="n">ldf</span><span class="p">):</span>
+<div class="viewcode-block" id="interestingness"><a class="viewcode-back" href="../../../source/reference/lux.interestingness.html#lux.interestingness.interestingness.interestingness">[docs]</a><span class="k">def</span> <span class="nf">interestingness</span><span class="p">(</span><span class="n">view</span><span class="p">,</span><span class="n">ldf</span><span class="p">):</span>
 	<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 	<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 	<span class="kn">from</span> <span class="nn">pandas.api.types</span> <span class="kn">import</span> <span class="n">is_datetime64_any_dtype</span> <span class="k">as</span> <span class="n">is_datetime</span>
@@ -275,13 +285,13 @@
 <span class="c1">##### Bar Chart (Count) #####</span>
 
 <span class="c1"># N_dim = 1, N_msr = 0, N_filter = 0</span>
-<div class="viewcode-block" id="skewness"><a class="viewcode-back" href="../../../source/lux.interestingness.html#lux.interestingness.interestingness.skewness">[docs]</a><span class="k">def</span> <span class="nf">skewness</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<div class="viewcode-block" id="skewness"><a class="viewcode-back" href="../../../source/reference/lux.interestingness.html#lux.interestingness.interestingness.skewness">[docs]</a><span class="k">def</span> <span class="nf">skewness</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
 	<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">skew</span>
 
 	<span class="k">return</span> <span class="n">D</span> <span class="o">*</span> <span class="n">skew</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
 
 <span class="c1"># N_dim = 1, N_msr = 0, N_filter = 1</span>
-<div class="viewcode-block" id="filtered_dist_shape_diff"><a class="viewcode-back" href="../../../source/lux.interestingness.html#lux.interestingness.interestingness.filtered_dist_shape_diff">[docs]</a><span class="k">def</span> <span class="nf">filtered_dist_shape_diff</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v_filter</span><span class="p">):</span>
+<div class="viewcode-block" id="filtered_dist_shape_diff"><a class="viewcode-back" href="../../../source/reference/lux.interestingness.html#lux.interestingness.interestingness.filtered_dist_shape_diff">[docs]</a><span class="k">def</span> <span class="nf">filtered_dist_shape_diff</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v_filter</span><span class="p">):</span>
 	<span class="c1"># TODO: Jared</span>
 
 	<span class="c1"># Euclidean distance as L2 function</span>
@@ -303,11 +313,11 @@
 <span class="c1">##### Histogram (Count) #####</span>
 
 <span class="c1"># N_dim = 0, N_msr = 1, N_filter = 0</span>
-<div class="viewcode-block" id="agg_value_magnitude"><a class="viewcode-back" href="../../../source/lux.interestingness.html#lux.interestingness.interestingness.agg_value_magnitude">[docs]</a><span class="k">def</span> <span class="nf">agg_value_magnitude</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+<div class="viewcode-block" id="agg_value_magnitude"><a class="viewcode-back" href="../../../source/reference/lux.interestingness.html#lux.interestingness.interestingness.agg_value_magnitude">[docs]</a><span class="k">def</span> <span class="nf">agg_value_magnitude</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
 	<span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
 
 <span class="c1"># N_dim = 0, N_msr = 1, N_filter = 1</span>
-<div class="viewcode-block" id="filtered_hist_shape_diff"><a class="viewcode-back" href="../../../source/lux.interestingness.html#lux.interestingness.interestingness.filtered_hist_shape_diff">[docs]</a><span class="k">def</span> <span class="nf">filtered_hist_shape_diff</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v_filter</span><span class="p">):</span>
+<div class="viewcode-block" id="filtered_hist_shape_diff"><a class="viewcode-back" href="../../../source/reference/lux.interestingness.html#lux.interestingness.interestingness.filtered_hist_shape_diff">[docs]</a><span class="k">def</span> <span class="nf">filtered_hist_shape_diff</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v_filter</span><span class="p">):</span>
 	<span class="c1"># Euclidean distance as L2 function</span>
 	<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">euclidean</span>
 
@@ -328,14 +338,14 @@
 <span class="c1">##### Bar Chart #####</span>
 
 <span class="c1"># N_dim = 1, N_msr = 1, N_filter = 0</span>
-<div class="viewcode-block" id="unevenness"><a class="viewcode-back" href="../../../source/lux.interestingness.html#lux.interestingness.interestingness.unevenness">[docs]</a><span class="k">def</span> <span class="nf">unevenness</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">v_flat</span><span class="p">):</span>
+<div class="viewcode-block" id="unevenness"><a class="viewcode-back" href="../../../source/reference/lux.interestingness.html#lux.interestingness.interestingness.unevenness">[docs]</a><span class="k">def</span> <span class="nf">unevenness</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">v_flat</span><span class="p">):</span>
 	<span class="c1"># Euclidean distance as L2 function</span>
 	<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">euclidean</span>
 	
 	<span class="k">return</span> <span class="n">D</span> <span class="o">*</span> <span class="n">euclidean</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v_flat</span><span class="p">)</span></div>
 
 <span class="c1"># N_dim = 1, N_msr = 1, N_filter = 1</span>
-<div class="viewcode-block" id="deviation"><a class="viewcode-back" href="../../../source/lux.interestingness.html#lux.interestingness.interestingness.deviation">[docs]</a><span class="k">def</span> <span class="nf">deviation</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v_filter</span><span class="p">,</span> <span class="n">v_bin</span><span class="p">,</span> <span class="n">v_filter_bin</span><span class="p">):</span>
+<div class="viewcode-block" id="deviation"><a class="viewcode-back" href="../../../source/reference/lux.interestingness.html#lux.interestingness.interestingness.deviation">[docs]</a><span class="k">def</span> <span class="nf">deviation</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v_filter</span><span class="p">,</span> <span class="n">v_bin</span><span class="p">,</span> <span class="n">v_filter_bin</span><span class="p">):</span>
 	<span class="c1"># Euclidean distance as L2 function</span>
 	<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">euclidean</span>
 
@@ -356,7 +366,7 @@
 <span class="c1">##### Scatter Plot #####</span>
 
 <span class="c1"># N_dim = 0, N_msr = 2, N_filter = 0</span>
-<div class="viewcode-block" id="mutual_information"><a class="viewcode-back" href="../../../source/lux.interestingness.html#lux.interestingness.interestingness.mutual_information">[docs]</a><span class="k">def</span> <span class="nf">mutual_information</span><span class="p">(</span><span class="n">v_x</span><span class="p">,</span> <span class="n">v_y</span><span class="p">):</span>
+<div class="viewcode-block" id="mutual_information"><a class="viewcode-back" href="../../../source/reference/lux.interestingness.html#lux.interestingness.interestingness.mutual_information">[docs]</a><span class="k">def</span> <span class="nf">mutual_information</span><span class="p">(</span><span class="n">v_x</span><span class="p">,</span> <span class="n">v_y</span><span class="p">):</span>
 	<span class="c1">#Interestingness metric for two measure attributes</span>
   	<span class="c1">#Calculate maximal information coefficient (see Murphy pg 61) or Pearson&#39;s correlation</span>
 	<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mutual_info_score</span>
@@ -364,7 +374,7 @@
 	<span class="k">return</span> <span class="n">mutual_info_score</span><span class="p">(</span><span class="n">v_x</span><span class="p">,</span> <span class="n">v_y</span><span class="p">)</span></div>
 
 <span class="c1"># N_dim = 0, N_msr = 2, N_filter = 1</span>
-<div class="viewcode-block" id="monotonicity"><a class="viewcode-back" href="../../../source/lux.interestingness.html#lux.interestingness.interestingness.monotonicity">[docs]</a><span class="k">def</span> <span class="nf">monotonicity</span><span class="p">(</span><span class="n">v_x</span><span class="p">,</span> <span class="n">v_y</span><span class="p">):</span>
+<div class="viewcode-block" id="monotonicity"><a class="viewcode-back" href="../../../source/reference/lux.interestingness.html#lux.interestingness.interestingness.monotonicity">[docs]</a><span class="k">def</span> <span class="nf">monotonicity</span><span class="p">(</span><span class="n">v_x</span><span class="p">,</span> <span class="n">v_y</span><span class="p">):</span>
 	<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">spearmanr</span>
 	<span class="k">return</span> <span class="p">(</span><span class="n">spearmanr</span><span class="p">(</span><span class="n">v_x</span><span class="p">,</span> <span class="n">v_y</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span></div>
 	<span class="c1"># import scipy.stats</span>

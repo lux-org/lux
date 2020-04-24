@@ -78,8 +78,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started/installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/FAQ.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/example.html">Example</a></li>
+</ul>
+
             
           
         </div>
@@ -143,7 +153,7 @@
   <h1>Source code for lux.executor.Executor</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">lux.view.ViewCollection</span> <span class="kn">import</span> <span class="n">ViewCollection</span>
 <span class="kn">from</span> <span class="nn">lux.utils</span> <span class="kn">import</span> <span class="n">utils</span>
-<div class="viewcode-block" id="Executor"><a class="viewcode-back" href="../../../source/lux.executor.html#lux.executor.Executor.Executor">[docs]</a><span class="k">class</span> <span class="nc">Executor</span><span class="p">:</span>
+<div class="viewcode-block" id="Executor"><a class="viewcode-back" href="../../../source/reference/lux.executor.html#lux.executor.Executor.Executor">[docs]</a><span class="k">class</span> <span class="nc">Executor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract class for the execution engine that fetches data for a given view on a LuxDataFrame</span>
 <span class="sd">    &quot;&quot;&quot;</span>    
@@ -152,18 +162,18 @@
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;Executor&gt;&quot;</span>
-<div class="viewcode-block" id="Executor.execute"><a class="viewcode-back" href="../../../source/lux.executor.html#lux.executor.Executor.Executor.execute">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Executor.execute"><a class="viewcode-back" href="../../../source/reference/lux.executor.html#lux.executor.Executor.Executor.execute">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">viewCollection</span><span class="p">:</span><span class="n">ViewCollection</span><span class="p">,</span> <span class="n">ldf</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span></div>
 
-<div class="viewcode-block" id="Executor.executeAggregate"><a class="viewcode-back" href="../../../source/lux.executor.html#lux.executor.Executor.Executor.executeAggregate">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Executor.executeAggregate"><a class="viewcode-back" href="../../../source/reference/lux.executor.html#lux.executor.Executor.Executor.executeAggregate">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">executeAggregate</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">ldf</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span></div>
-<div class="viewcode-block" id="Executor.executeBinning"><a class="viewcode-back" href="../../../source/lux.executor.html#lux.executor.Executor.Executor.executeBinning">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Executor.executeBinning"><a class="viewcode-back" href="../../../source/reference/lux.executor.html#lux.executor.Executor.Executor.executeBinning">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">executeBinning</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">ldf</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span></div>
         
-<div class="viewcode-block" id="Executor.executeFilter"><a class="viewcode-back" href="../../../source/lux.executor.html#lux.executor.Executor.Executor.executeFilter">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Executor.executeFilter"><a class="viewcode-back" href="../../../source/reference/lux.executor.html#lux.executor.Executor.Executor.executeFilter">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">executeFilter</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">ldf</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span></div></div>
 </pre></div>

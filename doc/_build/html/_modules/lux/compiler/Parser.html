@@ -78,8 +78,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started/installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/FAQ.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/guide/example.html">Example</a></li>
+</ul>
+
             
           
         </div>
@@ -143,7 +153,7 @@
   <h1>Source code for lux.compiler.Parser</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">lux.context.Spec</span> <span class="kn">import</span> <span class="n">Spec</span>
 <span class="kn">from</span> <span class="nn">lux.luxDataFrame.LuxDataframe</span> <span class="kn">import</span> <span class="n">LuxDataFrame</span>
-<div class="viewcode-block" id="Parser"><a class="viewcode-back" href="../../../source/lux.compiler.html#lux.compiler.Parser.Parser">[docs]</a><span class="k">class</span> <span class="nc">Parser</span><span class="p">:</span>
+<div class="viewcode-block" id="Parser"><a class="viewcode-back" href="../../../source/reference/lux.compiler.html#lux.compiler.Parser.Parser">[docs]</a><span class="k">class</span> <span class="nc">Parser</span><span class="p">:</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	The parser takes in the user&#39;s input context specification,</span>
 <span class="sd">	then generates the Lux internal specification through lux.Spec</span>
@@ -154,7 +164,7 @@
 <span class="sd">	populateWildcardOptions</span>
 
 <span class="sd">	&quot;&quot;&quot;</span>	
-<div class="viewcode-block" id="Parser.parse"><a class="viewcode-back" href="../../../source/lux.compiler.html#lux.compiler.Parser.Parser.parse">[docs]</a>	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Parser.parse"><a class="viewcode-back" href="../../../source/reference/lux.compiler.html#lux.compiler.Parser.Parser.parse">[docs]</a>	<span class="nd">@staticmethod</span>
 	<span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">ldf</span><span class="p">:</span> <span class="n">LuxDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Given the string description from the input Spec,</span>
@@ -231,7 +241,7 @@
 		<span class="n">ldf</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">parsedContext</span>
 		<span class="n">Parser</span><span class="o">.</span><span class="n">populateWildcardOptions</span><span class="p">(</span><span class="n">ldf</span><span class="p">)</span></div>
 		
-<div class="viewcode-block" id="Parser.populateWildcardOptions"><a class="viewcode-back" href="../../../source/lux.compiler.html#lux.compiler.Parser.Parser.populateWildcardOptions">[docs]</a>	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Parser.populateWildcardOptions"><a class="viewcode-back" href="../../../source/reference/lux.compiler.html#lux.compiler.Parser.Parser.populateWildcardOptions">[docs]</a>	<span class="nd">@staticmethod</span>
 	<span class="k">def</span> <span class="nf">populateWildcardOptions</span><span class="p">(</span><span class="n">ldf</span><span class="p">:</span> <span class="n">LuxDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Given wildcards and constraints in the LuxDataFrame&#39;s context, </span>
