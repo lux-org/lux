@@ -216,8 +216,20 @@ class LuxDataFrame(pd.DataFrame):
         # print(widgetJSON["recommendation"])
         self.widget = luxWidget.LuxWidget(
             currentView=widgetJSON["currentView"],
-            recommendations=widgetJSON["recommendation"]
+            recommendations=widgetJSON["recommendation"],
+            context=self.contextToJSON()
         )
+
+    def contextToJSON(self):
+        from lux.utils import utils
+
+        filterSpecs = utils.getFilterSpecs(self.context)
+        attrsSpecs = utils.getAttrsSpecs(self.context)
+        
+        specs = {}
+        specs['attributes'] = [spec.attribute for spec in attrsSpecs]
+        specs['filters'] = [spec.attribute for spec in filterSpecs]
+        return specs
 
     def toJSON(self, inputCurrentView=""):
         from lux.executor.PandasExecutor import PandasExecutor
