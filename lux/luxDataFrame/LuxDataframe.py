@@ -180,8 +180,9 @@ class LuxDataFrame(pd.DataFrame):
     #######################################################
     def getWidget(self):
         return self.widget
-    def _repr_html_(self):
+    def show(self):
         from IPython.display import display
+        self.showMore() # compute the recommendations
         self.renderWidget()
         display(self.widget)
     def displayPandas(self):
@@ -199,7 +200,6 @@ class LuxDataFrame(pd.DataFrame):
             User-specified current view to override defaul Current View, by default 
         """       
         import luxWidget
-        self.showMore() # compute the recommendations
         import pkgutil
         if (pkgutil.find_loader("luxWidget") is None):
             raise Exception("luxWidget is not install. Run `npm i lux-widget' to install the Jupyter widget.\nSee more at: https://github.com/lux-org/lux-widget")
