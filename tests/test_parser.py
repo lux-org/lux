@@ -57,3 +57,10 @@ def test_case6():
 	assert(type(ldf.context[1]) is lux.Spec)
 	assert(ldf.context[1].attribute == "Origin")
 	assert(ldf.context[1].value == ["USA","Japan","Europe"])
+
+# TODO: Need to support this case
+'''
+lux.setContext(["Horsepower","MPG","Acceleration"],"Origin")
+	lux.setContext("Horsepower/MPG/Acceleration", "Origin")
+		--> [Spec(attr= ["Horsepower","MPG","Acceleration"], type= "attributeGroup")]
+'''
