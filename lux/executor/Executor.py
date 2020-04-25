@@ -1,6 +1,9 @@
 from lux.view.ViewCollection import ViewCollection
 from lux.utils import utils
 class Executor:
+    """
+    Abstract class for the execution engine that fetches data for a given view on a LuxDataFrame
+    """    
     def __init__(self):
         self.name = "Executor"
 

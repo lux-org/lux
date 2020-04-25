@@ -1,4 +1,7 @@
+import pandas
 from lux.view.ViewCollection import ViewCollection
+from lux.view.View import View
+from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
 class PandasExecutor(Executor):
@@ -8,7 +11,7 @@ class PandasExecutor(Executor):
     def __repr__(self):
         return f"<PandasExecutor>"
     @staticmethod
-    def execute(viewCollection:ViewCollection, ldf):
+    def execute(viewCollection:ViewCollection, ldf:LuxDataFrame):
         '''
         Given a ViewCollection, fetch the data required to render the view
         1) Apply filters
@@ -21,11 +24,6 @@ class PandasExecutor(Executor):
             attributes = set([])
             for spec in view.specLst:
                 if (spec.attribute):
-                    # if (spec.attribute=="Record"):
-                    #     if ('index' not in view.data.columns):
-                    #         view.data.reset_index(level=0, inplace=True)
-                    #     attributes.add("index")
-                    # else:
                     if (spec.attribute!="Record"):
                         attributes.add(spec.attribute)
             view.data = view.data[list(attributes)]
@@ -35,7 +33,7 @@ class PandasExecutor(Executor):
                 PandasExecutor.executeBinning(view, ldf)
 
     @staticmethod
-    def executeAggregate(view, ldf):
+    def executeAggregate(view: View, ldf: LuxDataFrame):
         xAttr = view.getObjFromChannel("x")[0]
         yAttr = view.getObjFromChannel("y")[0]
         groupbyAttr =""
@@ -51,17 +49,7 @@ class PandasExecutor(Executor):
         
         if (measureAttr!=""):
             if (measureAttr.attribute=="Record"):
-                # if (type(view.data).__name__=="DataFrame" or type(view.data).__name__=="LuxDataFrame" ):
-                #     countSeries = view.data.iloc[:,0]
-
-                # countSeries = view.data.groupby(groupbyAttr.attribute).count().iloc[:,0]
-                # countSeries = view.data.value_counts()
-
-                # countSeries.name = "Record"
-                # countSeries.index.name = groupbyAttr.attribute
-                # countDf = countSeries.reset_index()
-                # view.data = lux.LuxDataFrame(countDf)
-                view.data= view.data.reset_index()
+                view.data = view.data.reset_index()
                 view.data = view.data.groupby(groupbyAttr.attribute).count().reset_index()
                 view.data = view.data.rename(columns={"index":"Record"})
 
@@ -91,7 +79,26 @@ class PandasExecutor(Executor):
             view.data = ldf
     
     @staticmethod
-    def applyFilter(df, attribute, op, val):
+    def applyFilter(df: pandas.DataFrame, attribute:str, op: str, val: object) -> pandas.DataFrame:
+        """
+        Helper function for applying filter to a dataframe
+        
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            Dataframe to filter on
+        attribute : str
+            Filter attribute
+        op : str
+            Filter operation, '=', '<', '>', '<=', '>=', '!='
+        val : object
+            Filter value 
+        
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe resulting from the filter operation
+        """        
         if (op == '='):
             return df[df[attribute] == val]
         elif (op == '<'):
