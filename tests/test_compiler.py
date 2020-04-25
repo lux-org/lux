@@ -12,12 +12,12 @@ def test_underspecifiedSingleVis():
 def test_underspecifiedVisCollection():
 	df = pd.read_csv("lux/data/car.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
-	df.setContext([lux.Spec(attribute = ["Horsepower","Weight","Acceleration"]),lux.Spec(attribute = "Year")])
+	df.setContext([lux.Spec(attribute = ["Horsepower","Weight","Acceleration"]),lux.Spec(attribute = "Year",channel="x")])
 	assert len(df.viewCollection)==3
 	assert df.viewCollection[0].mark == "line" 
 	for vc in df.viewCollection: 
 		assert (vc.getObjFromChannel("x")[0].attribute == "Year")
-	df.setContext([lux.Spec(attribute = "?"),lux.Spec(attribute = "Year")])
+	df.setContext([lux.Spec(attribute = "?"),lux.Spec(attribute = "Year",channel="x")])
 	assert len(df.viewCollection) == len(df.columns)
 	for vc in df.viewCollection: 
 		assert (vc.getObjFromChannel("x")[0].attribute == "Year")

@@ -1,19 +1,13 @@
 import pandas as pd
-import lux
-from lux.compiler.Validator import Validator
-from lux.compiler.Compiler import Compiler
-from lux.compiler.Parser import Parser
-from lux.executor.PandasExecutor import PandasExecutor
+from lux.context.Spec import Spec
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
-    _metadata = ['context','spec','schema','attrList','dataTypeLookup','dataType', 
+    _metadata = ['context','attrList','dataTypeLookup','dataType', 
                  'dataModelLookup','dataModel','uniqueValues','cardinality',
                  'viewCollection','cols','rows','widget', 'recommendation']
 
     def __init__(self,*args, **kw):
         self.context = []
-        self.spec = []
-        self.schema = []
         self.recommendation=[]
         self.viewCollection = []
         super(LuxDataFrame, self).__init__(*args, **kw)
@@ -24,9 +18,19 @@ class LuxDataFrame(pd.DataFrame):
     @property
     def _constructor(self):
         return LuxDataFrame
+    
+    # @property
+    # def context(self):
+    #     return self.context
+    
+    
     def setViewCollection(self,viewCollection):
         self.viewCollection = viewCollection 
     def _refreshContext(self,context):
+        from lux.compiler.Validator import Validator
+        from lux.compiler.Compiler import Compiler
+        from lux.compiler.Parser import Parser
+        from lux.executor.PandasExecutor import PandasExecutor
         self.computeStats()
         self.computeDatasetMetadata()
         Parser.parse(self)
@@ -37,6 +41,7 @@ class LuxDataFrame(pd.DataFrame):
         self.context = context
         self._refreshContext(context)
     def toPandas(self):
+        import lux.luxDataFrame
         return lux.luxDataFrame.originalDF(self,copy=False)
     def addToContext(self,context): 
         self.context.extend(context)
@@ -47,7 +52,7 @@ class LuxDataFrame(pd.DataFrame):
         return ""
 
     #######################################################
-    ############ Metadata, type, model schema #############
+    ############ Metadata: data type, model #############
     #######################################################
     def computeDatasetMetadata(self):
         self.attrList = list(self.columns)
@@ -75,33 +80,16 @@ class LuxDataFrame(pd.DataFrame):
             # TODO: quick check if attribute is of type time (auto-detect logic borrow from Zenvisage data import)
             elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
                 self.dataTypeLookup[attr] = "temporal"
-        # # Override with schema specified types
-        for attrInfo in self.schema:
-            key = list(attrInfo.keys())[0]
-            if ("dataType" in attrInfo[key]):
-                self.dataTypeLookup[key] = attrInfo[key]["dataType"]
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         # 	if self.cardinality[attr]>50:
         self.dataType = self.mapping(self.dataTypeLookup)
 
 
     def computeDataModel(self):
-        # TODO: Need to be modified to take in schema for overriding defaults
         self.dataModel = {
             "measure": self.dataType["quantitative"],
             "dimension": self.dataType["ordinal"] + self.dataType["nominal"] + self.dataType["temporal"]
         }
-        # Override with schema specified types
-        for attrInfo in self.schema:
-            key = list(attrInfo.keys())[0]
-            if ("dataModel" in attrInfo[key]):
-                dataModel = attrInfo[key]["dataModel"]
-                if (dataModel == "measure"):
-                    self.dataModel["dimension"].remove(key)
-                    self.dataModel["measure"].append(key)
-                else:
-                    self.dataModel["measure"].remove(key)
-                    self.dataModel["dimension"].append(key)
         self.dataModelLookup = self.reverseMapping(self.dataModel)
 
 
@@ -169,9 +157,9 @@ class LuxDataFrame(pd.DataFrame):
                 if generalize['collection']:
                     self.recommendation.append(generalize)
             else: 
-                self.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
+                self.setContext([Spec("?",dataModel="measure"),Spec("?",dataModel="measure")])
                 self.recommendation.append(self.correlation())  #this works partially
-                self.setContext([lux.Spec("?",dataModel="measure")])
+                self.setContext([Spec("?",dataModel="measure")])
                 self.recommendation.append(self.distribution())  
 
 
@@ -210,10 +198,23 @@ class LuxDataFrame(pd.DataFrame):
         # print(widgetJSON["recommendation"])
         self.widget = luxWidget.LuxWidget(
             currentView=widgetJSON["currentView"],
-            recommendations=widgetJSON["recommendation"]
+            recommendations=widgetJSON["recommendation"],
+            context=self.contextToJSON()
         )
 
+    def contextToJSON(self):
+        from lux.utils import utils
+
+        filterSpecs = utils.getFilterSpecs(self.context)
+        attrsSpecs = utils.getAttrsSpecs(self.context)
+        
+        specs = {}
+        specs['attributes'] = [spec.attribute for spec in attrsSpecs]
+        specs['filters'] = [spec.attribute for spec in filterSpecs]
+        return specs
+
     def toJSON(self, inputCurrentView=""):
+        from lux.executor.PandasExecutor import PandasExecutor
         widgetSpec = {}
         PandasExecutor.execute(self.viewCollection,self)
         widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.viewCollection,inputCurrentView)
@@ -233,7 +234,7 @@ class LuxDataFrame(pd.DataFrame):
         return widgetSpec
     
     @staticmethod
-    def currentViewToJSON(vc:lux.view.ViewCollection, inputCurrentView=""):
+    def currentViewToJSON(vc, inputCurrentView=""):
         currentViewSpec = {}
         numVC = len(vc) #number of views in the view collection
         if (numVC==1):
@@ -253,7 +254,7 @@ class LuxDataFrame(pd.DataFrame):
         #         currentViewSpec = specifiedDobj.compiled.renderVSpec()
         return currentViewSpec
     @staticmethod
-    def recToJSON(recs:lux.view.ViewCollection):
+    def recToJSON(recs):
         recLst = []
         import copy
         recCopy = copy.deepcopy(recs)
