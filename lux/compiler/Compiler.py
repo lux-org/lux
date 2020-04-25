@@ -61,7 +61,7 @@ class Compiler:
 
 		combine(ldf.cols, [])
 		return ViewCollection(collection)
-
+	@staticmethod
 	def expandUnderspecified(ldf,viewCollection):
 		"""
 		Given a underspecified Spec, populate the dataType and dataModel information accordingly
