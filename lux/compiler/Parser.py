@@ -28,11 +28,11 @@ class Parser:
 					if "|" in s:
 						values = s[eqInd+1:].split("|")
 						for v in values:
-							if v in ldf[var].unique():
+							if v in ldf.uniqueValues[var]:
 								validValues.append(v)
 					else:
 						validValues = s[eqInd+1:]
-					if var in ldf.columns:
+					if var in ldf.columns or var in ldf.attrList:
 						tempSpec = Spec(attribute = var, filterOp = "=", value = validValues, type = "value")
 						newContext.append(tempSpec)
 				#case where user specifies a variable
@@ -40,7 +40,7 @@ class Parser:
 					if "|" in s:
 						values = s.split("|")
 						for v in values:
-							if v in ldf.columns:
+							if v in ldf.columns or v in ldf.attrList:
 								validValues.append(v)
 					else:
 						validValues = s
@@ -53,7 +53,7 @@ class Parser:
 
 		for spec in parsedContext:
 			if (spec.description):
-				if (spec.description in ldf.columns or spec.description == "?"):# if spec.description in the list of attributes
+				if ((spec.description in ldf.columns or spec.description in ldf.attrList) or spec.description == "?"):# if spec.description in the list of attributes
 					spec.attribute = spec.description
 				elif any(ext in [">","<","="] for ext in spec.description): # spec.description contain ">","<". or "="
 					# then parse it and assign to spec.attribute, spec.filterOp, spec.values

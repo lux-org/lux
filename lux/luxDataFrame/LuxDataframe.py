@@ -1,4 +1,5 @@
 import pandas as pd
+import psycopg2
 from lux.context.Spec import Spec
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
@@ -16,6 +17,9 @@ class LuxDataFrame(pd.DataFrame):
         self.computeDatasetMetadata()
         self.DEBUG_FRONTEND = False
 
+        self.SQLconnection = ""
+        self.table_name = ""
+
     @property
     def _constructor(self):
         return LuxDataFrame
@@ -32,8 +36,12 @@ class LuxDataFrame(pd.DataFrame):
         from lux.compiler.Compiler import Compiler
         from lux.compiler.Parser import Parser
         from lux.executor.PandasExecutor import PandasExecutor
-        self.computeStats()
-        self.computeDatasetMetadata()
+        if self.SQLconnection == "":
+            self.computeStats()
+            self.computeDatasetMetadata()
+        else:
+            self.computeSQLStats()
+            self.computeSQLDatasetMetadata()
         Parser.parse(self)
         Validator.validateSpec(self)
         viewCollection = Compiler.compile(self,self.viewCollection)
@@ -133,6 +141,91 @@ class LuxDataFrame(pd.DataFrame):
         for dimension in self.columns:
             self.uniqueValues[dimension] = self[dimension].unique()
             self.cardinality[dimension] = len(self.uniqueValues[dimension])
+
+    #######################################################
+    ########## SQL Metadata, type, model schema ###########
+    #######################################################
+
+    def setSQLConnection(self, connection, t_name):
+        self.SQLconnection = connection
+        self.table_name = t_name
+        self.computeSQLDatasetMetadata()
+
+    def computeSQLDatasetMetadata(self):
+        self.getSQLAttributes()
+        self.computeSQLStats()
+        self.cols = []
+        self.rows = []
+        self.dataTypeLookup = {}
+        self.dataType = {}
+        #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this 
+        #####      in the initialization and do it just once
+        self.computeSQLDataType()
+        self.dataModelLookup = {}
+        self.dataModel = {}
+        self.computeDataModel()
+
+    def computeSQLStats(self):
+        # precompute statistics
+        self.uniqueValues = {}
+        self.cardinality = {}
+
+        self.getSQLUniqueValues()
+        self.getSQLCardinality()
+
+    def getSQLAttributes(self):
+        if "." in self.table_name:
+            table_name = self.table_name[self.table_name.index(".")+1:]
+        else:
+            table_name = self.table_name
+        attr_query = "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{}'".format(table_name)
+        attributes = pd.read_sql(attr_query, self.SQLconnection)
+        self.attrList = list(attributes["column_name"])
+
+    def getSQLCardinality(self):
+        cardinality = {}
+        for attr in self.attrList:
+            card_query = pd.read_sql("SELECT Count(Distinct({})) FROM {}".format(attr, self.table_name), self.SQLconnection)
+            cardinality[attr] = list(card_query["count"])[0]
+        self.cardinality = cardinality
+
+    def getSQLUniqueValues(self):
+        uniqueVals = {}
+        for attr in self.attrList:
+            unique_query = pd.read_sql("SELECT Distinct({}) FROM {}".format(attr, self.table_name), self.SQLconnection)
+            uniqueVals[attr] = list(unique_query[attr])
+        self.uniqueValues = uniqueVals
+
+    def computeSQLDataType(self):
+        dataTypeLookup = {}
+        sqlDTypes = {}
+        if "." in self.table_name:
+            table_name = self.table_name[self.table_name.index(".")+1:]
+        else:
+            table_name = self.table_name
+        #get the data types of the attributes in the SQL table
+        for attr in self.attrList:
+            datatype_query = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{}' AND COLUMN_NAME = '{}'".format(table_name, attr)
+            datatype = list(pd.read_sql(datatype_query, self.SQLconnection)['data_type'])[0]
+            sqlDTypes[attr] = datatype
+
+        dataType = {"quantitative":[], "ordinal":[], "nominal":[], "temporal":[]}
+        for attr in self.attrList:
+            if sqlDTypes[attr] in ["character", "character varying", "boolean"]:
+                dataTypeLookup[attr] = "nominal"
+                dataType["nominal"].append(attr)
+            elif sqlDTypes[attr] in ["real", "smallint", "smallserial", "serial"]:
+                if self.cardinality[attr] < 10:
+                    dataTypeLookup[attr] = "nominal"
+                    dataType["nominal"].append(attr)
+                else:
+                    dataTypeLookup[attr] = "quantitative"
+                    dataType["quantitative"].append(attr)
+            elif "time" in sqlDTypes[attr]:
+                dataTypeLookup[attr] = "temporal"
+                dataType["temporal"].append(attr)
+        self.dataTypeLookup = dataTypeLookup
+        self.dataType = dataType
 
     #######################################################
     ############## Mappers to Action classes ##############
