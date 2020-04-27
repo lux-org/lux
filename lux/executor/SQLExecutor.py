@@ -1,3 +1,4 @@
+from lux.executor.Executor import Executor
 from lux.view.ViewCollection import ViewCollection
 class SQLExecutor(Executor):
     def __init__(self):
@@ -79,7 +80,7 @@ class SQLExecutor(Executor):
         whereClause = []
         filters = view.getFilterSpecs()
         if (filters):
-            for f in range(0,len(filters):
+            for f in range(0,len(filters)):
                 if f == 0:
                     whereClause.append("WHERE")
                 whereClause.extend([filters[f].attribute, filters[f].filterOp, filters[f].value])

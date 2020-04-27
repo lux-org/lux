@@ -1,11 +1,32 @@
 from lux.context.Spec import Spec
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 class Parser:
+	"""
+	The parser takes in the user's input context specification,
+	then generates the Lux internal specification through lux.Spec
+
+	Methods
+    -------
+	parse
+	populateWildcardOptions
+
+	"""	
 	@staticmethod
 	def parse(ldf: LuxDataFrame) -> None:
-		'''
-		Parse takes the description from the input Spec and assign it into the appropriate spec.attribute, spec.filterOp, and spec.value
-		'''
+		"""
+		Given the string description from the input Spec,
+		assign the appropriate spec.attribute, spec.filterOp, and spec.value
+		
+		Parameters
+		----------
+		ldf : LuxDataFrame
+			LuxDataFrame with fully specified context consisting of lux.Spec objects
+		
+		Examples
+        --------
+		>>> ldf.context = ["Horsepower", "Origin=USA"]
+		>>> ldf.context
+		"""		
 		import re
 		parsedContext = ldf.getContext()
 		newContext = []
@@ -65,25 +86,19 @@ class Parser:
 					spec.values = spec.description
 
 		ldf.context = parsedContext
-		Parser.populateOptions(ldf)
+		Parser.populateWildcardOptions(ldf)
 		
 	@staticmethod
-	def populateOptions(ldf: LuxDataFrame) -> None:
+	def populateWildcardOptions(ldf: LuxDataFrame) -> None:
 		"""
-		Given a row or column object, return the list of available values that satisfies the dataType or dataModel constraints
-
+		Given wildcards and constraints in the LuxDataFrame's context, 
+		return the list of available values that satisfies the dataType or dataModel constraints
+		
 		Parameters
 		----------
-		dobj : lux.dataObj.dataObj.DataObj
-			[description]
-		rowCol : Row or Column Object
-			Input row or column object with wildcard or list
-
-		Returns
-		-------
-		rcOptions: List
-			List of expanded Column or Row objects
-		"""
+		ldf : LuxDataFrame
+			LuxDataFrame with row or cols populated with available wildcard options
+		"""		
 		import copy
 		from lux.utils.utils import convert2List
 		for spec in ldf.context:
@@ -103,11 +118,7 @@ class Parser:
 					specCopy.attribute = optStr
 					specOptions.append(specCopy)
 				ldf.cols.append(specOptions)
-			else:
-				# if spec.attribute:
-				# 	attrLst = convert2List(spec.attribute)
-				# else:
-				# 	attrLst = convert2List(spec.attributeGroup)
+			else: # filters
 				attrLst = convert2List(spec.attribute)
 				for attr in attrLst:
 					if spec.value == "?":
@@ -121,5 +132,4 @@ class Parser:
 						specCopy.attribute = attr
 						specCopy.value = optStr
 						specOptions.append(specCopy)
-				# ldf.rows.append(specOptions)
 				ldf.rows = specOptions

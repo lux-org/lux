@@ -3,13 +3,12 @@ import psycopg2
 from lux.context.Spec import Spec
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
-    _metadata = ['context','schema','attrList','dataTypeLookup','dataType', 
+    _metadata = ['context','attrList','dataTypeLookup','dataType', 
                  'dataModelLookup','dataModel','uniqueValues','cardinality',
                  'viewCollection','cols','rows','widget', 'recommendation']
 
     def __init__(self,*args, **kw):
         self.context = []
-        self.schema = []
         self.recommendation=[]
         self.viewCollection = []
         super(LuxDataFrame, self).__init__(*args, **kw)
@@ -61,7 +60,7 @@ class LuxDataFrame(pd.DataFrame):
         return ""
 
     #######################################################
-    ############ Metadata, type, model schema #############
+    ############ Metadata: data type, model #############
     #######################################################
     def computeDatasetMetadata(self):
         self.attrList = list(self.columns)
@@ -89,33 +88,16 @@ class LuxDataFrame(pd.DataFrame):
             # TODO: quick check if attribute is of type time (auto-detect logic borrow from Zenvisage data import)
             elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
                 self.dataTypeLookup[attr] = "temporal"
-        # # Override with schema specified types
-        for attrInfo in self.schema:
-            key = list(attrInfo.keys())[0]
-            if ("dataType" in attrInfo[key]):
-                self.dataTypeLookup[key] = attrInfo[key]["dataType"]
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         # 	if self.cardinality[attr]>50:
         self.dataType = self.mapping(self.dataTypeLookup)
 
 
     def computeDataModel(self):
-        # TODO: Need to be modified to take in schema for overriding defaults
         self.dataModel = {
             "measure": self.dataType["quantitative"],
             "dimension": self.dataType["ordinal"] + self.dataType["nominal"] + self.dataType["temporal"]
         }
-        # Override with schema specified types
-        for attrInfo in self.schema:
-            key = list(attrInfo.keys())[0]
-            if ("dataModel" in attrInfo[key]):
-                dataModel = attrInfo[key]["dataModel"]
-                if (dataModel == "measure"):
-                    self.dataModel["dimension"].remove(key)
-                    self.dataModel["measure"].append(key)
-                else:
-                    self.dataModel["measure"].remove(key)
-                    self.dataModel["dimension"].append(key)
         self.dataModelLookup = self.reverseMapping(self.dataModel)
 
 
@@ -309,8 +291,20 @@ class LuxDataFrame(pd.DataFrame):
         # print(widgetJSON["recommendation"])
         self.widget = luxWidget.LuxWidget(
             currentView=widgetJSON["currentView"],
-            recommendations=widgetJSON["recommendation"]
+            recommendations=widgetJSON["recommendation"],
+            context=self.contextToJSON()
         )
+
+    def contextToJSON(self):
+        from lux.utils import utils
+
+        filterSpecs = utils.getFilterSpecs(self.context)
+        attrsSpecs = utils.getAttrsSpecs(self.context)
+        
+        specs = {}
+        specs['attributes'] = [spec.attribute for spec in attrsSpecs]
+        specs['filters'] = [spec.attribute for spec in filterSpecs]
+        return specs
 
     def toJSON(self, inputCurrentView=""):
         from lux.executor.PandasExecutor import PandasExecutor
