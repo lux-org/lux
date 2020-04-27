@@ -37,7 +37,7 @@ class Parser:
 			if type(s) is list:
 				validValues = []
 				for v in s:
-					if type(v) is str and v in ldf.columns:
+					if type(v) is str and (v in ldf.columns or v in ldf.attrList):
 						validValues.append(v)
 				tempSpec = Spec(attribute = validValues, type = "attribute")
 				newContext.append(tempSpec)
@@ -61,7 +61,7 @@ class Parser:
 					if "|" in s:
 						values = s.split("|")
 						for v in values:
-							if v in ldf.columns or v in ldf.attrList:
+							if (v in ldf.columns or v in ldf.attrList) or v in ldf.attrList:
 								validValues.append(v)
 					else:
 						validValues = s
