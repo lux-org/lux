@@ -124,18 +124,19 @@ class Compiler:
 			else:  # preserve to add back to specLst later
 				filters.append(spec)
 		# Helper function (TODO: Move this into utils)
-		def lineOrBar(dimension, measure):
+		def lineOrBar(ldf,dimension, measure):
 			dimType = dimension.dataType
 			# If no aggregation function is specified, then default as average
 			if (measure.aggregation==""):
 				measure.aggregation = "mean"
 			if (dimType == "temporal" or dimType == "oridinal"):
-				# chart = LineChart(dobj)
 				return "line", {"x": dimension, "y": measure}
 			else:  # unordered categorical
-				# chart = BarChart(dobj)
+				# if cardinality large than 5 then sort bars
+				if ldf.cardinality[dimension.attribute]>5:
+					dimension.sort = "ascending"
 				return "bar", {"x": measure, "y": dimension}
-		# TODO: if cardinality large than 6 then sort bars
+		
 
 		# ShowMe logic + additional heuristics
 		#countCol = Spec( attribute="count()", dataModel="measure")
@@ -162,7 +163,7 @@ class Compiler:
 			dimension = view.getObjByDataModel("dimension")[0]
 			measure = view.getObjByDataModel("measure")[0]
 			# measure.channel = "x"
-			view.mark, autoChannel = lineOrBar(dimension, measure) # Jaywoo measures to be aggregated? if user specified it, override compiler logic. avg for all other cases
+			view.mark, autoChannel = lineOrBar(ldf,dimension, measure) # Jaywoo measures to be aggregated? if user specified it, override compiler logic. avg for all other cases
 		elif (Ndim == 2 and (Nmsr == 0 or Nmsr == 1)):
 			# Line or Bar chart broken down by the dimension
 			dimensions = view.getObjByDataModel("dimension")
@@ -185,7 +186,7 @@ class Compiler:
 			if (Nmsr == 0):
 				view.specLst.append(countCol)
 			measure = view.getObjByDataModel("measure")[0]
-			view.mark, autoChannel = lineOrBar(dimension, measure)
+			view.mark, autoChannel = lineOrBar(ldf,dimension, measure)
 			autoChannel["color"] = colorAttr
 		elif (Ndim == 0 and Nmsr == 2):
 			# Scatterplot
