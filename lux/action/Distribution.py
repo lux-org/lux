@@ -9,8 +9,10 @@ def distribution(ldf):
 	# -->  return DataObjectCollection with the scores
 	import scipy.stats
 	import numpy as np
+	ldf.setContext([lux.Spec("?",dataModel="measure")])
 	recommendation = {"action":"Distribution",
 						   "description":"Show univariate count distributions of different attributes in the dataset."}
+	# self.setContext([Spec("?",dataModel="measure")])
 	vc = ldf.viewCollection
 	PandasExecutor.execute(vc,ldf)
 	for view in vc:
@@ -27,6 +29,7 @@ def distribution(ldf):
 			view.score = interestingness(view,ldf)
 
 	vc.sort()
+	ldf.clearContext()
 	recommendation["collection"] = vc
 	# dobj.recommendations.append(recommendation)
 	return recommendation

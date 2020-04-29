@@ -30,7 +30,7 @@ class LuxDataFrame(pd.DataFrame):
     
     def setViewCollection(self,viewCollection):
         self.viewCollection = viewCollection 
-    def _refreshContext(self,context):
+    def _refreshContext(self):
         from lux.compiler.Validator import Validator
         from lux.compiler.Compiler import Compiler
         from lux.compiler.Parser import Parser
@@ -47,7 +47,10 @@ class LuxDataFrame(pd.DataFrame):
         self.setViewCollection(viewCollection)
     def setContext(self,context):
         self.context = context
-        self._refreshContext(context)
+        self._refreshContext()
+    def clearContext(self):
+        self.context = []
+        self.viewCollection = []
     def toPandas(self):
         import lux.luxDataFrame
         return lux.luxDataFrame.originalDF(self,copy=False)
@@ -250,9 +253,7 @@ class LuxDataFrame(pd.DataFrame):
                 if generalize['collection']:
                     self.recommendation.append(generalize)
             else: 
-                self.setContext([Spec("?",dataModel="measure"),Spec("?",dataModel="measure")])
-                self.recommendation.append(self.correlation())  #this works partially
-                self.setContext([Spec("?",dataModel="measure")])
+                self.recommendation.append(self.correlation()) 
                 self.recommendation.append(self.distribution())  
 
 
