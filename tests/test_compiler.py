@@ -44,6 +44,23 @@ def test_underspecifiedVisCollection_Zval():
 	df.setContext([lux.Spec(attribute = "Origin", filterOp="=",value="?"),lux.Spec(attribute = "MilesPerGal")])
 	assert len(df.viewCollection)==3
 
+def test_sortBar():
+	from lux.compiler.Compiler import Compiler
+	from lux.view.View import View
+	df = pd.read_csv("lux/data/car.csv")
+	view = View([lux.Spec(attribute="Acceleration",dataModel="measure",dataType="quantitative"),
+				lux.Spec(attribute="Origin",dataModel="dimension",dataType="nominal")])
+	Compiler.determineEncoding(df,view)
+	assert view.mark == "bar"
+	assert view.specLst[1].sort == ''
+
+	df = pd.read_csv("lux/data/car.csv")
+	view = View([lux.Spec(attribute="Acceleration",dataModel="measure",dataType="quantitative"),
+				lux.Spec(attribute="Name",dataModel="dimension",dataType="nominal")])
+	Compiler.determineEncoding(df,view)
+	assert view.mark == "bar"
+	assert view.specLst[1].sort == 'ascending'
+
 
 # 	dobj = lux.DataObj(dataset,[lux.Column("Horsepower"),lux.Column("Brand"),lux.Row("Origin",["Japan","USA"])])
 # 	assert type(dobj.compiled).__name__ == "DataObjCollection"
