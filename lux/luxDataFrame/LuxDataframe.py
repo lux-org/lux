@@ -218,9 +218,9 @@ class LuxDataFrame(pd.DataFrame):
     def correlation(self):
         from lux.action.Correlation import correlation
         return correlation(self)
-    def distribution(self):
+    def distribution(self,dataTypeConstraint="quantitative"):
         from lux.action.Distribution import distribution
-        return distribution(self)
+        return distribution(self,dataTypeConstraint)
     def enhance(self):
         from lux.action.Enhance import enhance
         return enhance(self)
@@ -254,7 +254,8 @@ class LuxDataFrame(pd.DataFrame):
                     self.recommendation.append(generalize)
             else: 
                 self.recommendation.append(self.correlation()) 
-                self.recommendation.append(self.distribution())  
+                self.recommendation.append(self.distribution("quantitative"))  
+                self.recommendation.append(self.distribution("nominal"))  
 
 
     #######################################################
