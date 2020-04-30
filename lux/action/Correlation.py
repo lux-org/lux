@@ -7,6 +7,7 @@ from lux.executor.PandasExecutor import PandasExecutor
 def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 	import numpy as np
 
+	ldf.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
 	recommendation = {"action":"Correlation",
 						   "description":"Show relationships between two quantitative variables."}
 	vc = ldf.viewCollection
@@ -33,6 +34,7 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 				view.score = -1
 	vc = vc.topK(10)
 	vc.sort(removeInvalid=True)
+	ldf.clearContext()
 	recommendation["collection"] = vc
 	return recommendation
 
