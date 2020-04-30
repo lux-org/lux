@@ -30,7 +30,7 @@ class LuxDataFrame(pd.DataFrame):
     
     def setViewCollection(self,viewCollection):
         self.viewCollection = viewCollection 
-    def _refreshContext(self,context):
+    def _refreshContext(self):
         from lux.compiler.Validator import Validator
         from lux.compiler.Compiler import Compiler
         from lux.compiler.Parser import Parser
@@ -47,7 +47,10 @@ class LuxDataFrame(pd.DataFrame):
         self.setViewCollection(viewCollection)
     def setContext(self,context):
         self.context = context
-        self._refreshContext(context)
+        self._refreshContext()
+    def clearContext(self):
+        self.context = []
+        self.viewCollection = []
     def toPandas(self):
         import lux.luxDataFrame
         return lux.luxDataFrame.originalDF(self,copy=False)
@@ -217,9 +220,9 @@ class LuxDataFrame(pd.DataFrame):
     def correlation(self):
         from lux.action.Correlation import correlation
         return correlation(self)
-    def distribution(self):
+    def distribution(self,dataTypeConstraint="quantitative"):
         from lux.action.Distribution import distribution
-        return distribution(self)
+        return distribution(self,dataTypeConstraint)
     def enhance(self):
         from lux.action.Enhance import enhance
         return enhance(self)
@@ -252,10 +255,9 @@ class LuxDataFrame(pd.DataFrame):
                 if generalize['collection']:
                     self.recommendation.append(generalize)
             else: 
-                self.setContext([Spec("?",dataModel="measure"),Spec("?",dataModel="measure")])
-                self.recommendation.append(self.correlation())  #this works partially
-                self.setContext([Spec("?",dataModel="measure")])
-                self.recommendation.append(self.distribution())  
+                self.recommendation.append(self.correlation()) 
+                self.recommendation.append(self.distribution("quantitative"))  
+                self.recommendation.append(self.distribution("nominal"))  
 
 
     #######################################################
