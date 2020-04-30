@@ -135,6 +135,8 @@ class LuxDataFrame(pd.DataFrame):
 
     def computeSQLDatasetMetadata(self):
         self.getSQLAttributes()
+        for attr in self.attrList:
+            self[attr] = None
         self.computeSQLStats()
         self.cols = []
         self.rows = []
