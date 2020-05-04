@@ -16,6 +16,7 @@ class LuxDataFrame(pd.DataFrame):
         self.computeDatasetMetadata()
         self.DEBUG_FRONTEND = False
 
+        self.executorType = "Pandas"
         self.SQLconnection = ""
         self.table_name = ""
 
@@ -27,7 +28,8 @@ class LuxDataFrame(pd.DataFrame):
     # def context(self):
     #     return self.context
     
-    
+    def setExecutorType(self, exe):
+        self.executorType = exe
     def setViewCollection(self,viewCollection):
         self.viewCollection = viewCollection 
     def _refreshContext(self):
@@ -198,17 +200,17 @@ class LuxDataFrame(pd.DataFrame):
 
         dataType = {"quantitative":[], "ordinal":[], "nominal":[], "temporal":[]}
         for attr in self.attrList:
-            if sqlDTypes[attr] in ["character", "character varying", "boolean"]:
+            if sqlDTypes[attr] in ["character", "character varying", "boolean", "uuid"]:
                 dataTypeLookup[attr] = "nominal"
                 dataType["nominal"].append(attr)
-            elif sqlDTypes[attr] in ["real", "smallint", "smallserial", "serial"]:
+            elif sqlDTypes[attr] in ["integer", "real", "smallint", "smallserial", "serial"]:
                 if self.cardinality[attr] < 10:
                     dataTypeLookup[attr] = "nominal"
                     dataType["nominal"].append(attr)
                 else:
                     dataTypeLookup[attr] = "quantitative"
                     dataType["quantitative"].append(attr)
-            elif "time" in sqlDTypes[attr]:
+            elif "time" in sqlDTypes[attr] or "date" in sqlDTypes[attr]:
                 dataTypeLookup[attr] = "temporal"
                 dataType["temporal"].append(attr)
         self.dataTypeLookup = dataTypeLookup
@@ -312,8 +314,12 @@ class LuxDataFrame(pd.DataFrame):
 
     def toJSON(self, inputCurrentView=""):
         from lux.executor.PandasExecutor import PandasExecutor
+        from lux.executor.SQLExecutor import SQLExecutor
         widgetSpec = {}
-        PandasExecutor.execute(self.viewCollection,self)
+        if self.executorType == "SQL":
+            SQLExecutor.execute(self.viewCollection,self)
+        elif self.executorType == "Pandas":
+            PandasExecutor.execute(self.viewCollection,self)
         widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.viewCollection,inputCurrentView)
         
         widgetSpec["recommendation"] = []
@@ -335,6 +341,10 @@ class LuxDataFrame(pd.DataFrame):
         currentViewSpec = {}
         numVC = len(vc) #number of views in the view collection
         if (numVC==1):
+            #printing for testing
+            #print(vc[0])
+            #print(vc[0].data.columns)
+            #print(vc[0].data[vc[0].data.columns[1]])
             currentViewSpec = vc[0].renderVSpec()
         elif (numVC>1):
             pass

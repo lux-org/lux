@@ -4,6 +4,8 @@ Gets a measure of skewness of the distributions of all measures
 from lux.interestingness.interestingness import interestingness
 import lux
 from lux.executor.PandasExecutor import PandasExecutor
+from lux.executor.SQLExecutor import SQLExecutor
+
 def distribution(ldf,dataTypeConstraint="quantitative"):
 	import scipy.stats
 	import numpy as np
@@ -17,7 +19,10 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 						   "description":"Show bar chart distributions of different attributes in the dataset."}
 
 	vc = ldf.viewCollection
-	PandasExecutor.execute(vc,ldf)
+	if ldf.executorType == "SQL":
+		SQLExecutor.execute(vc,ldf)
+	elif ldf.executorType == "Pandas":
+		PandasExecutor.execute(vc,ldf)
 	for view in vc:
 		view.score = interestingness(view,ldf)
 
