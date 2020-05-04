@@ -2,6 +2,7 @@ import lux
 from lux.interestingness.interestingness import interestingness
 from lux.compiler.Compiler import Compiler
 from lux.executor.PandasExecutor import PandasExecutor
+from lux.executor.SQLExecutor import SQLExecutor
 
 # change ignoreTranspose to false for now.
 def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
@@ -14,7 +15,10 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 	# if (ignoreIdentity): vc = filter(lambda x: x.specLst[0].attribute!=x.specLst[1].attribute,ldf.viewCollection)
 	vc = Compiler.compile(ldf, vc, enumerateCollection=False)
 
-	PandasExecutor.execute(vc,ldf)
+	if ldf.executorType == "SQL":
+		SQLExecutor.execute(vc,ldf)
+	elif ldf.executorType == "Pandas":
+		PandasExecutor.execute(vc,ldf)
 	# Then use the data populated in the view collection to compute score
 	for view in vc:
 		measures = view.getObjByDataModel("measure")
