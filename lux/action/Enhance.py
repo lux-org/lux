@@ -2,6 +2,7 @@ import lux
 from lux.interestingness.interestingness import interestingness
 from lux.compiler.Compiler import Compiler
 from lux.executor.PandasExecutor import PandasExecutor
+from lux.executor.SQLExecutor import SQLExecutor
 from lux.utils import utils
 '''
 Shows possible visualizations when an additional attribute is added to the current view
@@ -29,7 +30,11 @@ def enhance(ldf):
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
 	
-	PandasExecutor.execute(vc,ldf)
+	if ldf.executorType == "SQL":
+		SQLExecutor.execute(vc,ldf)
+	elif ldf.executorType == "Pandas":
+		PandasExecutor.execute(vc,ldf)
+		
 	# Then use the data populated in the view collection to compute score
 	for view in vc:
 		view.score = interestingness(view,ldf)

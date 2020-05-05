@@ -78,19 +78,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">lux.executor package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-lux.executor.ExecutionEngine">lux.executor.ExecutionEngine module</a></li>
-<li><a class="reference internal" href="#module-lux.executor.Executor">lux.executor.Executor module</a></li>
-<li><a class="reference internal" href="#module-lux.executor.PandasExecutor">lux.executor.PandasExecutor module</a></li>
-<li><a class="reference internal" href="#module-lux.executor.SQLExecutor">lux.executor.SQLExecutor module</a></li>
-<li><a class="reference internal" href="#module-lux.executor">Module contents</a></li>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
 </ul>
-</li>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guide/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/FAQ.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/example.html">Example</a></li>
 </ul>
-</div>
+
             
           
         </div>
@@ -158,155 +157,20 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-lux.executor.ExecutionEngine">
-<span id="lux-executor-executionengine-module"></span><h2>lux.executor.ExecutionEngine module<a class="headerlink" href="#module-lux.executor.ExecutionEngine" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="lux.executor.ExecutionEngine.ExecutionEngine">
-<em class="property">class </em><code class="sig-prename descclassname">lux.executor.ExecutionEngine.</code><code class="sig-name descname">ExecutionEngine</code><a class="reference internal" href="../../_modules/lux/executor/ExecutionEngine.html#ExecutionEngine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.ExecutionEngine.ExecutionEngine" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt id="lux.executor.ExecutionEngine.ExecutionEngine.execute">
-<em class="property">static </em><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">viewCollection</span><span class="p">:</span> <span class="n">lux.view.ViewCollection.ViewCollection</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/ExecutionEngine.html#ExecutionEngine.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.ExecutionEngine.ExecutionEngine.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.ExecutionEngine.ExecutionEngine.executeAggregate">
-<em class="property">static </em><code class="sig-name descname">executeAggregate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/ExecutionEngine.html#ExecutionEngine.executeAggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.ExecutionEngine.ExecutionEngine.executeAggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.ExecutionEngine.ExecutionEngine.executeBinning">
-<em class="property">static </em><code class="sig-name descname">executeBinning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/ExecutionEngine.html#ExecutionEngine.executeBinning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.ExecutionEngine.ExecutionEngine.executeBinning" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.ExecutionEngine.ExecutionEngine.executeFilter">
-<em class="property">static </em><code class="sig-name descname">executeFilter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/ExecutionEngine.html#ExecutionEngine.executeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.ExecutionEngine.ExecutionEngine.executeFilter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div class="section" id="lux-executor-executionengine-module">
+<h2>lux.executor.ExecutionEngine module<a class="headerlink" href="#lux-executor-executionengine-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-lux.executor.Executor">
-<span id="lux-executor-executor-module"></span><h2>lux.executor.Executor module<a class="headerlink" href="#module-lux.executor.Executor" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="lux.executor.Executor.Executor">
-<em class="property">class </em><code class="sig-prename descclassname">lux.executor.Executor.</code><code class="sig-name descname">Executor</code><a class="reference internal" href="../../_modules/lux/executor/Executor.html#Executor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.Executor.Executor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Abstract class for the execution engine that fetches data for a given view on a LuxDataFrame</p>
-<dl class="py method">
-<dt id="lux.executor.Executor.Executor.execute">
-<em class="property">static </em><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">viewCollection</span><span class="p">:</span> <span class="n">lux.view.ViewCollection.ViewCollection</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/Executor.html#Executor.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.Executor.Executor.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.Executor.Executor.executeAggregate">
-<em class="property">static </em><code class="sig-name descname">executeAggregate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/Executor.html#Executor.executeAggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.Executor.Executor.executeAggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.Executor.Executor.executeBinning">
-<em class="property">static </em><code class="sig-name descname">executeBinning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/Executor.html#Executor.executeBinning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.Executor.Executor.executeBinning" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.Executor.Executor.executeFilter">
-<em class="property">static </em><code class="sig-name descname">executeFilter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/Executor.html#Executor.executeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.Executor.Executor.executeFilter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div class="section" id="lux-executor-executor-module">
+<h2>lux.executor.Executor module<a class="headerlink" href="#lux-executor-executor-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-lux.executor.PandasExecutor">
-<span id="lux-executor-pandasexecutor-module"></span><h2>lux.executor.PandasExecutor module<a class="headerlink" href="#module-lux.executor.PandasExecutor" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="lux.executor.PandasExecutor.PandasExecutor">
-<em class="property">class </em><code class="sig-prename descclassname">lux.executor.PandasExecutor.</code><code class="sig-name descname">PandasExecutor</code><a class="reference internal" href="../../_modules/lux/executor/PandasExecutor.html#PandasExecutor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.PandasExecutor.PandasExecutor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lux.executor.Executor.Executor" title="lux.executor.Executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">lux.executor.Executor.Executor</span></code></a></p>
-<dl class="py method">
-<dt id="lux.executor.PandasExecutor.PandasExecutor.applyFilter">
-<em class="property">static </em><code class="sig-name descname">applyFilter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span><span class="p">:</span> <span class="n"><a class="reference internal" href="lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame" title="lux.luxDataFrame.LuxDataframe.LuxDataFrame">lux.luxDataFrame.LuxDataframe.LuxDataFrame</a></span></em>, <em class="sig-param"><span class="n">attribute</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">op</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">val</span><span class="p">:</span> <span class="n">object</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame" title="lux.luxDataFrame.LuxDataframe.LuxDataFrame">lux.luxDataFrame.LuxDataframe.LuxDataFrame</a><a class="reference internal" href="../../_modules/lux/executor/PandasExecutor.html#PandasExecutor.applyFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.PandasExecutor.PandasExecutor.applyFilter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function for applying filter to a dataframe</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – Dataframe to filter on</p></li>
-<li><p><strong>attribute</strong> (<em>str</em>) – Filter attribute</p></li>
-<li><p><strong>op</strong> (<em>str</em>) – Filter operation, ‘=’, ‘&lt;’, ‘&gt;’, ‘&lt;=’, ‘&gt;=’, ‘!=’</p></li>
-<li><p><strong>val</strong> (<em>object</em>) – Filter value</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dataframe resulting from the filter operation</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pandas.DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.PandasExecutor.PandasExecutor.execute">
-<em class="property">static </em><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">viewCollection</span><span class="p">:</span> <span class="n">lux.view.ViewCollection.ViewCollection</span></em>, <em class="sig-param"><span class="n">ldf</span><span class="p">:</span> <span class="n"><a class="reference internal" href="lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame" title="lux.luxDataFrame.LuxDataframe.LuxDataFrame">lux.luxDataFrame.LuxDataframe.LuxDataFrame</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/PandasExecutor.html#PandasExecutor.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.PandasExecutor.PandasExecutor.execute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a ViewCollection, fetch the data required to render the view
-1) Apply filters
-2) Retreive relevant attribute
-3) return a DataFrame with relevant results</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.PandasExecutor.PandasExecutor.executeAggregate">
-<em class="property">static </em><code class="sig-name descname">executeAggregate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span><span class="p">:</span> <span class="n">lux.view.View.View</span></em>, <em class="sig-param"><span class="n">ldf</span><span class="p">:</span> <span class="n"><a class="reference internal" href="lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame" title="lux.luxDataFrame.LuxDataframe.LuxDataFrame">lux.luxDataFrame.LuxDataframe.LuxDataFrame</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/PandasExecutor.html#PandasExecutor.executeAggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.PandasExecutor.PandasExecutor.executeAggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.PandasExecutor.PandasExecutor.executeBinning">
-<em class="property">static </em><code class="sig-name descname">executeBinning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/PandasExecutor.html#PandasExecutor.executeBinning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.PandasExecutor.PandasExecutor.executeBinning" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.PandasExecutor.PandasExecutor.executeFilter">
-<em class="property">static </em><code class="sig-name descname">executeFilter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/PandasExecutor.html#PandasExecutor.executeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.PandasExecutor.PandasExecutor.executeFilter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div class="section" id="lux-executor-pandasexecutor-module">
+<h2>lux.executor.PandasExecutor module<a class="headerlink" href="#lux-executor-pandasexecutor-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-lux.executor.SQLExecutor">
-<span id="lux-executor-sqlexecutor-module"></span><h2>lux.executor.SQLExecutor module<a class="headerlink" href="#module-lux.executor.SQLExecutor" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="lux.executor.SQLExecutor.SQLExecutor">
-<em class="property">class </em><code class="sig-prename descclassname">lux.executor.SQLExecutor.</code><code class="sig-name descname">SQLExecutor</code><a class="reference internal" href="../../_modules/lux/executor/SQLExecutor.html#SQLExecutor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.SQLExecutor.SQLExecutor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lux.executor.Executor.Executor" title="lux.executor.Executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">lux.executor.Executor.Executor</span></code></a></p>
-<dl class="py method">
-<dt id="lux.executor.SQLExecutor.SQLExecutor.execute">
-<em class="property">static </em><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">viewCollection</span><span class="p">:</span> <span class="n">lux.view.ViewCollection.ViewCollection</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/SQLExecutor.html#SQLExecutor.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.SQLExecutor.SQLExecutor.execute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a ViewCollection, fetch the data required to render the view
-1) Apply filters
-2) Retreive relevant attribute
-3) return a DataFrame with relevant results</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.SQLExecutor.SQLExecutor.executeAggregate">
-<em class="property">static </em><code class="sig-name descname">executeAggregate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/SQLExecutor.html#SQLExecutor.executeAggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.SQLExecutor.SQLExecutor.executeAggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.SQLExecutor.SQLExecutor.executeBinning">
-<em class="property">static </em><code class="sig-name descname">executeBinning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/SQLExecutor.html#SQLExecutor.executeBinning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.SQLExecutor.SQLExecutor.executeBinning" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="lux.executor.SQLExecutor.SQLExecutor.executeFilter">
-<em class="property">static </em><code class="sig-name descname">executeFilter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span></em>, <em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/executor/SQLExecutor.html#SQLExecutor.executeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.executor.SQLExecutor.SQLExecutor.executeFilter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div class="section" id="lux-executor-sqlexecutor-module">
+<h2>lux.executor.SQLExecutor module<a class="headerlink" href="#lux-executor-sqlexecutor-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-lux.executor">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-lux.executor" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
