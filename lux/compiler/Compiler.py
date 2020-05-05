@@ -3,6 +3,8 @@ from typing import List, Dict
 from lux.view.View import View
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.view.ViewCollection import ViewCollection
+import pandas as pd
+import numpy as np
 class Compiler:
 	def __init__(self):
 		self.name = "Compiler"
@@ -84,7 +86,11 @@ class Compiler:
 					if (spec.dataModel == ""):
 						spec.dataModel = ldf.dataModelLookup[spec.attribute]
 				if spec.value:
-					view.title = f"{spec.attribute} {spec.filterOp} {spec.value}"
+					if(isinstance(spec.value,np.datetime64)):
+						chartTitle = pd.to_datetime(spec.value, format='%Y').year
+					else:
+						chartTitle = spec.value
+					view.title = f"{spec.attribute} {spec.filterOp} {chartTitle}"
 		return views
 	@staticmethod
 	def determineEncoding(ldf: LuxDataFrame,view: View):
