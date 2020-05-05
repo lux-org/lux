@@ -1,4 +1,5 @@
 import pandas as pd
+import psycopg2
 from lux.context.Spec import Spec
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
@@ -15,6 +16,10 @@ class LuxDataFrame(pd.DataFrame):
         self.computeDatasetMetadata()
         self.DEBUG_FRONTEND = False
 
+        self.executorType = "Pandas"
+        self.SQLconnection = ""
+        self.table_name = ""
+
     @property
     def _constructor(self):
         return LuxDataFrame
@@ -23,23 +28,31 @@ class LuxDataFrame(pd.DataFrame):
     # def context(self):
     #     return self.context
     
-    
+    def setExecutorType(self, exe):
+        self.executorType = exe
     def setViewCollection(self,viewCollection):
         self.viewCollection = viewCollection 
-    def _refreshContext(self,context):
+    def _refreshContext(self):
         from lux.compiler.Validator import Validator
         from lux.compiler.Compiler import Compiler
         from lux.compiler.Parser import Parser
         from lux.executor.PandasExecutor import PandasExecutor
-        self.computeStats()
-        self.computeDatasetMetadata()
+        if self.SQLconnection == "":
+            self.computeStats()
+            self.computeDatasetMetadata()
+        else:
+            self.computeSQLStats()
+            self.computeSQLDatasetMetadata()
         Parser.parse(self)
         Validator.validateSpec(self)
         viewCollection = Compiler.compile(self,self.viewCollection)
         self.setViewCollection(viewCollection)
     def setContext(self,context):
         self.context = context
-        self._refreshContext(context)
+        self._refreshContext()
+    def clearContext(self):
+        self.context = []
+        self.viewCollection = []
     def toPandas(self):
         import lux.luxDataFrame
         return lux.luxDataFrame.originalDF(self,copy=False)
@@ -117,14 +130,101 @@ class LuxDataFrame(pd.DataFrame):
             self.cardinality[dimension] = len(self.uniqueValues[dimension])
 
     #######################################################
+    ########## SQL Metadata, type, model schema ###########
+    #######################################################
+
+    def setSQLConnection(self, connection, t_name):
+        self.SQLconnection = connection
+        self.table_name = t_name
+        self.computeSQLDatasetMetadata()
+
+    def computeSQLDatasetMetadata(self):
+        self.getSQLAttributes()
+        for attr in self.attrList:
+            self[attr] = None
+        self.computeSQLStats()
+        self.cols = []
+        self.rows = []
+        self.dataTypeLookup = {}
+        self.dataType = {}
+        #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this 
+        #####      in the initialization and do it just once
+        self.computeSQLDataType()
+        self.dataModelLookup = {}
+        self.dataModel = {}
+        self.computeDataModel()
+
+    def computeSQLStats(self):
+        # precompute statistics
+        self.uniqueValues = {}
+        self.cardinality = {}
+
+        self.getSQLUniqueValues()
+        self.getSQLCardinality()
+
+    def getSQLAttributes(self):
+        if "." in self.table_name:
+            table_name = self.table_name[self.table_name.index(".")+1:]
+        else:
+            table_name = self.table_name
+        attr_query = "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{}'".format(table_name)
+        attributes = pd.read_sql(attr_query, self.SQLconnection)
+        self.attrList = list(attributes["column_name"])
+
+    def getSQLCardinality(self):
+        cardinality = {}
+        for attr in self.attrList:
+            card_query = pd.read_sql("SELECT Count(Distinct({})) FROM {}".format(attr, self.table_name), self.SQLconnection)
+            cardinality[attr] = list(card_query["count"])[0]
+        self.cardinality = cardinality
+
+    def getSQLUniqueValues(self):
+        uniqueVals = {}
+        for attr in self.attrList:
+            unique_query = pd.read_sql("SELECT Distinct({}) FROM {}".format(attr, self.table_name), self.SQLconnection)
+            uniqueVals[attr] = list(unique_query[attr])
+        self.uniqueValues = uniqueVals
+
+    def computeSQLDataType(self):
+        dataTypeLookup = {}
+        sqlDTypes = {}
+        if "." in self.table_name:
+            table_name = self.table_name[self.table_name.index(".")+1:]
+        else:
+            table_name = self.table_name
+        #get the data types of the attributes in the SQL table
+        for attr in self.attrList:
+            datatype_query = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{}' AND COLUMN_NAME = '{}'".format(table_name, attr)
+            datatype = list(pd.read_sql(datatype_query, self.SQLconnection)['data_type'])[0]
+            sqlDTypes[attr] = datatype
+
+        dataType = {"quantitative":[], "ordinal":[], "nominal":[], "temporal":[]}
+        for attr in self.attrList:
+            if sqlDTypes[attr] in ["character", "character varying", "boolean", "uuid"]:
+                dataTypeLookup[attr] = "nominal"
+                dataType["nominal"].append(attr)
+            elif sqlDTypes[attr] in ["integer", "real", "smallint", "smallserial", "serial"]:
+                if self.cardinality[attr] < 10:
+                    dataTypeLookup[attr] = "nominal"
+                    dataType["nominal"].append(attr)
+                else:
+                    dataTypeLookup[attr] = "quantitative"
+                    dataType["quantitative"].append(attr)
+            elif "time" in sqlDTypes[attr] or "date" in sqlDTypes[attr]:
+                dataTypeLookup[attr] = "temporal"
+                dataType["temporal"].append(attr)
+        self.dataTypeLookup = dataTypeLookup
+        self.dataType = dataType
+
+    #######################################################
     ############## Mappers to Action classes ##############
     #######################################################
     def correlation(self):
         from lux.action.Correlation import correlation
         return correlation(self)
-    def distribution(self):
+    def distribution(self,dataTypeConstraint="quantitative"):
         from lux.action.Distribution import distribution
-        return distribution(self)
+        return distribution(self,dataTypeConstraint)
     def enhance(self):
         from lux.action.Enhance import enhance
         return enhance(self)
@@ -157,10 +257,9 @@ class LuxDataFrame(pd.DataFrame):
                 if generalize['collection']:
                     self.recommendation.append(generalize)
             else: 
-                self.setContext([Spec("?",dataModel="measure"),Spec("?",dataModel="measure")])
-                self.recommendation.append(self.correlation())  #this works partially
-                self.setContext([Spec("?",dataModel="measure")])
-                self.recommendation.append(self.distribution())  
+                self.recommendation.append(self.correlation()) 
+                self.recommendation.append(self.distribution("quantitative"))  
+                self.recommendation.append(self.distribution("nominal"))  
 
 
     #######################################################
@@ -215,8 +314,12 @@ class LuxDataFrame(pd.DataFrame):
 
     def toJSON(self, inputCurrentView=""):
         from lux.executor.PandasExecutor import PandasExecutor
+        from lux.executor.SQLExecutor import SQLExecutor
         widgetSpec = {}
-        PandasExecutor.execute(self.viewCollection,self)
+        if self.executorType == "SQL":
+            SQLExecutor.execute(self.viewCollection,self)
+        elif self.executorType == "Pandas":
+            PandasExecutor.execute(self.viewCollection,self)
         widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.viewCollection,inputCurrentView)
         
         widgetSpec["recommendation"] = []
@@ -238,6 +341,10 @@ class LuxDataFrame(pd.DataFrame):
         currentViewSpec = {}
         numVC = len(vc) #number of views in the view collection
         if (numVC==1):
+            #printing for testing
+            #print(vc[0])
+            #print(vc[0].data.columns)
+            #print(vc[0].data[vc[0].data.columns[1]])
             currentViewSpec = vc[0].renderVSpec()
         elif (numVC>1):
             pass

@@ -9,3 +9,5 @@ pytest-cov==2.8.1
 scikit-learn==0.22
 Sphinx==3.0.2
 sphinx-rtd-theme==0.4.3
+psycopg2==2.8.5
+psycopg2-binary==2.8.5
