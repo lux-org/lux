@@ -19,6 +19,7 @@ class SQLExecutor(Executor):
 
     @staticmethod
     def execute(viewCollection:ViewCollection, ldf):
+        import pandas as pd
         '''
         Given a ViewCollection, fetch the data required to render the view
         1) Apply filters
@@ -31,12 +32,15 @@ class SQLExecutor(Executor):
             attributes = set([])
             for spec in view.specLst:
                 if (spec.attribute):
-                    #if (spec.attribute=="Record"):
-                        #if ('index' not in ldf.columns):
-                            #view.data.reset_index(level=0, inplace=True)
-                        #attributes.add("index")
+                    if (spec.attribute=="Record"):
+                        attributes.add(spec.attribute)
                     #else:
                     attributes.add(spec.attribute)
+            if view.mark == "scatter":
+                attributes = ",".join(attributes)
+                query = "SELECT {} FROM {}".format(attributes, ldf.table_name)
+                data = pd.read_sql(query, ldf.SQLconnection)
+                view.data = utils.pandasToLux(data)
             if (view.mark =="bar" or view.mark =="line"):
                 SQLExecutor.executeAggregate(view, ldf)
             elif (view.mark =="histogram"):
@@ -77,7 +81,7 @@ class SQLExecutor(Executor):
     @staticmethod
     def executeBinning(view, ldf):
         import numpy as np
-        import pandas as pd # is this import going to be conflicting with LuxDf?
+        import pandas as pd
         binAttribute = list(filter(lambda x: x.binSize!=0,view.specLst))[0]
         numBins = binAttribute.binSize
         attrMin = min(ldf.uniqueValues[binAttribute.attribute])

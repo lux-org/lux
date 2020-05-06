@@ -3,6 +3,7 @@ from lux.interestingness.interestingness import interestingness
 from lux.view.View import View
 from lux.view.ViewCollection import ViewCollection
 from lux.executor.PandasExecutor import PandasExecutor
+from lux.executor.SQLExecutor import SQLExecutor
 from lux.compiler.Compiler import Compiler
 from lux.utils import utils
 '''
@@ -54,7 +55,10 @@ def filter(ldf):
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
 	vc = vc.topK(10)
-	PandasExecutor.execute(vc,ldf)
+	if ldf.executorType == "SQL":
+		SQLExecutor.execute(vc,ldf)
+	elif ldf.executorType == "Pandas":
+		PandasExecutor.execute(vc,ldf)
 	recommendation["collection"] = vc
 	# print(vc)
 	return recommendation
