@@ -4,6 +4,7 @@ import numpy as np
 from lux.view.View import View
 from lux.compiler.Compiler import Compiler
 from lux.executor.PandasExecutor import PandasExecutor
+from lux.executor.SQLExecutor import SQLExecutor
 from lux.utils import utils
 from lux.interestingness.interestingness import interestingness
 # from compiler.Compiler import Compiler
@@ -50,6 +51,9 @@ def generalize(ldf):
 		
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
-	PandasExecutor.execute(vc,ldf)
+	if ldf.executorType == "Pandas":
+		PandasExecutor.execute(vc,ldf)
+	if ldf.executorType == "SQL":
+		SQLExecutor.execute(vc,ldf)
 	recommendation["collection"] = vc
 	return recommendation

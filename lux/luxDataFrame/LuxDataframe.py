@@ -200,7 +200,7 @@ class LuxDataFrame(pd.DataFrame):
 
         dataType = {"quantitative":[], "ordinal":[], "nominal":[], "temporal":[]}
         for attr in self.attrList:
-            if sqlDTypes[attr] in ["character", "character varying", "boolean", "uuid"]:
+            if sqlDTypes[attr] in ["character", "character varying", "boolean", "uuid", "text"]:
                 dataTypeLookup[attr] = "nominal"
                 dataType["nominal"].append(attr)
             elif sqlDTypes[attr] in ["integer", "real", "smallint", "smallserial", "serial"]:
