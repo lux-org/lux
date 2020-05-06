@@ -267,7 +267,7 @@ class LuxDataFrame(pd.DataFrame):
     #######################################################
     def getWidget(self):
         return self.widget
-    def show(self):
+    def _repr_html_(self):
         from IPython.display import display
         self.showMore() # compute the recommendations
         self.renderWidget()
