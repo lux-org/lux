@@ -72,7 +72,10 @@ def interestingness(view,ldf):
 
 	# Bar Chart
 	elif (n_dim == 1 and n_msr == 1 and n_filter == 0):
-		v = ldf[attr_specs[0].attribute]
+		if view.data is not None:
+			v = view.data[attr_specs[0].attribute]
+		else:
+			v = ldf[attr_specs[0].attribute]
 		C = len(v.unique())
 		D = (0.5) ** C
 		v_flat = pd.Series([1 / C] * len(v))
@@ -81,7 +84,10 @@ def interestingness(view,ldf):
 		
 		return unevenness(D, v, v_flat)
 	elif (n_dim == 1 and n_msr == 1 and n_filter == 1):
-		v = ldf[attr_specs[0].attribute]
+		if view.data is not None:
+			v = view.data[attr_specs[0].attribute]
+		else:
+			v = ldf[attr_specs[0].attribute]
 		C = len(v.unique())
 
 		# if c < 40 # c == cardinality (number of unique values)

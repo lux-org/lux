@@ -16,6 +16,7 @@ class SQLExecutor(Executor):
 
     def __repr__(self):
         return f"<Executor>"
+
     @staticmethod
     def execute(viewCollection:ViewCollection, ldf):
         '''
@@ -64,12 +65,15 @@ class SQLExecutor(Executor):
                 countQuery = "SELECT {}, COUNT({}) FROM {} {} GROUP BY {}".format(groupbyAttr.attribute, groupbyAttr.attribute, ldf.table_name, whereClause, groupbyAttr.attribute)
                 view.data = pd.read_sql(countQuery, ldf.SQLconnection)
                 view.data = view.data.rename(columns={"count":"Record"})
+                view.data = utils.pandasToLux(view.data)
+                print(type(view.data), view.data)
 
             else:
                 whereClause, filterVars = SQLExecutor.executeFilter(view)
                 if aggFunc == "mean":
                     meanQuery = "SELECT {}, AVG({}) as {} FROM {} {} GROUP BY {}".format(groupbyAttr.attribute, measureAttr.attribute, measureAttr.attribute, ldf.table_name, whereClause, groupbyAttr.attribute)
                     view.data = pd.read_sql(meanQuery, ldf.SQLconnection)
+                    view.data = utils.pandasToLux(view.data)
     @staticmethod
     def executeBinning(view, ldf):
         import numpy as np
@@ -91,16 +95,16 @@ class SQLExecutor(Executor):
                 upperEdges.append(str(currEdge))
         upperEdges = ",".join(upperEdges)
         viewFilter, filterVars = SQLExecutor.executeFilter(view)
-        binCountQuery = "SELECT COUNT(width_bucket) FROM (SELECT width_bucket({}, '{}') FROM {}) as Buckets GROUP BY width_bucket".format(binAttribute.attribute, '{'+upperEdges+'}', ldf.table_name)
+        binCountQuery = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket({}, '{}') FROM {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(binAttribute.attribute, '{'+upperEdges+'}', ldf.table_name)
         binCountData = pd.read_sql(binCountQuery, ldf.SQLconnection)
 
         #counts,binEdges = np.histogram(ldf[binAttribute.attribute],bins=binAttribute.binSize)
         #binEdges of size N+1, so need to compute binCenter as the bin location
         upperEdges = [float(i) for i in upperEdges.split(",")] 
         if attrType == int:
-            binCenters = np.array([math.ceil((attrMin+binWidth)/2)])
+            binCenters = np.array([math.ceil((attrMin+attrMin+binWidth)/2)])
         else:
-            binCenters = np.array([(attrMin+binWidth)/2])
+            binCenters = np.array([(attrMin+attrMin+binWidth)/2])
         binCenters = np.append(binCenters, np.mean(np.vstack([upperEdges[0:-1],upperEdges[1:]]), axis=0))
         if attrType == int:
             binCenters = np.append(binCenters, math.ceil((upperEdges[len(upperEdges)-1]+attrMax)/2))
@@ -108,6 +112,7 @@ class SQLExecutor(Executor):
             binCenters = np.append(binCenters, (upperEdges[len(upperEdges)-1]+attrMax)/2)
         # TODO: Should view.data be a LuxDataFrame or a Pandas DataFrame?
         view.data = pd.DataFrame(np.array([binCenters,list(binCountData['count'])]).T,columns=[binAttribute.attribute, "Count of Records (binned)"])
+        view.data = utils.pandasToLux(view.data)
         
     @staticmethod
     #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's specLst
