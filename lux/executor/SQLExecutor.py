@@ -38,7 +38,11 @@ class SQLExecutor(Executor):
                     attributes.add(spec.attribute)
             if view.mark == "scatter":
                 attributes = ",".join(attributes)
-                query = "SELECT {} FROM {}".format(attributes, ldf.table_name)
+                rowCount = list(pd.read_sql("SELECT COUNT(*) from {}".format(ldf.table_name), ldf.SQLconnection)['count'])[0]
+                if rowCount > 100000:
+                    query = "SELECT {} FROM {} ORDER BY random() LIMIT 100000".format(attributes, ldf.table_name)
+                else:
+                    query = "SELECT {} FROM {}".format(attributes, ldf.table_name)
                 data = pd.read_sql(query, ldf.SQLconnection)
                 view.data = utils.pandasToLux(data)
             if (view.mark =="bar" or view.mark =="line"):
