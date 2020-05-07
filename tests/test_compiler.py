@@ -18,7 +18,7 @@ def test_underspecifiedVisCollection():
 	for vc in df.viewCollection: 
 		assert (vc.getObjFromChannel("x")[0].attribute == "Year")
 	df.setContext([lux.Spec(attribute = "?"),lux.Spec(attribute = "Year",channel="x")])
-	assert len(df.viewCollection) == len(df.columns)
+	assert len(df.viewCollection) == len(list(df.columns))
 	for vc in df.viewCollection: 
 		assert (vc.getObjFromChannel("x")[0].attribute == "Year")
 	df.setContext([lux.Spec(attribute = "?",dataType="quantitative"),lux.Spec(attribute = "Year")])

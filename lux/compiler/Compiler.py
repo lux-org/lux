@@ -42,6 +42,10 @@ class Compiler:
 		-------
 		Returns Nothing
 		"""
+
+		specs = Compiler.populateWildcardOptions(ldf)
+		attributes = specs['attributes']
+		filters = specs['filters']
 		collection = []
 		# TODO: generate combinations of column attributes recursively by continuing to accumulate attributes for len(colAtrr) times
 		def combine(colAttrs, accum):
@@ -50,8 +54,8 @@ class Compiler:
 			for i in range(n):
 				columnList = accum + [colAttrs[0][i]]
 				if last:
-					if len(ldf.rows) > 0: # if we have rows, generate combinations for each row.
-						for row in ldf.rows:
+					if len(filters) > 0: # if we have filters, generate combinations for each row.
+						for row in filters:
 							specLst = columnList + [row]
 							view = View(specLst,title=f"{row.attribute} {row.filterOp} {row.value}")
 							collection.append(view)
@@ -61,7 +65,7 @@ class Compiler:
 				else:
 					combine(colAttrs[1:], columnList)
 
-		combine(ldf.cols, [])
+		combine(attributes, [])
 		return ViewCollection(collection)
 	@staticmethod
 	def expandUnderspecified(ldf,viewCollection):
@@ -272,3 +276,53 @@ class Compiler:
 			resultDict[leftover_channel] = leftover_encoding
 		view.specLst = list(resultDict.values())
 		return view
+
+	@staticmethod
+	def populateWildcardOptions(ldf: LuxDataFrame) -> dict:
+		"""
+		Given wildcards and constraints in the LuxDataFrame's context,
+		return the list of available values that satisfies the dataType or dataModel constraints
+
+		Parameters
+		----------
+		ldf : LuxDataFrame
+			LuxDataFrame with row or attributes populated with available wildcard options
+		"""
+		import copy
+		from lux.utils.utils import convert2List
+
+		specs = {"attributes":[],"filters":[]}
+		for spec in ldf.context:
+			specOptions = []
+			if spec.value == "":  # attribute
+				if spec.attribute == "?":
+					options = set(list(ldf.columns))  # all attributes
+					if (spec.dataType != ""):
+						options = options.intersection(set(ldf.dataType[spec.dataType]))
+					if (spec.dataModel != ""):
+						options = options.intersection(set(ldf.dataModel[spec.dataModel]))
+					options = list(options)
+				else:
+					options = convert2List(spec.attribute)
+				for optStr in options:
+					specCopy = copy.copy(spec)
+					specCopy.attribute = optStr
+					specOptions.append(specCopy)
+				specs["attributes"].append(specOptions)
+			else:  # filters
+				attrLst = convert2List(spec.attribute)
+				for attr in attrLst:
+					if spec.value == "?":
+						options = ldf.uniqueValues[attr]
+						specInd = ldf.context.index(spec)
+						ldf.context[specInd] = Spec(attribute=spec.attribute, filterOp="=", value=list(options))
+					else:
+						options = convert2List(spec.value)
+					for optStr in options:
+						specCopy = copy.copy(spec)
+						specCopy.attribute = attr
+						specCopy.value = optStr
+						specOptions.append(specCopy)
+				specs["filters"] = specOptions
+
+		return specs

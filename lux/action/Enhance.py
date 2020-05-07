@@ -21,7 +21,7 @@ def enhance(ldf):
 		return recommendation
 
 	# First loop through all variables to create new view collection
-	for qVar in ldf.columns:
+	for qVar in list(ldf.columns):
 		if qVar not in existingVars and ldf.dataTypeLookup[qVar] != "temporal":
 			cxtNew = context.copy()
 			cxtNew.append(lux.Spec(attribute = qVar))

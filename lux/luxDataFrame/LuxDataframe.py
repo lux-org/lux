@@ -3,9 +3,9 @@ import psycopg2
 from lux.context.Spec import Spec
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
-    _metadata = ['context','attrList','dataTypeLookup','dataType', 
+    _metadata = ['context','dataTypeLookup','dataType',
                  'dataModelLookup','dataModel','uniqueValues','cardinality',
-                 'viewCollection','cols','rows','widget', 'recommendation']
+                 'viewCollection','widget', 'recommendation']
 
     def __init__(self,*args, **kw):
         self.context = []
@@ -68,9 +68,6 @@ class LuxDataFrame(pd.DataFrame):
     ############ Metadata: data type, model #############
     #######################################################
     def computeDatasetMetadata(self):
-        self.attrList = list(self.columns)
-        self.cols = []
-        self.rows = []
         self.dataTypeLookup = {}
         self.dataType = {}
         self.computeDataType()
@@ -79,7 +76,7 @@ class LuxDataFrame(pd.DataFrame):
         self.computeDataModel()
 
     def computeDataType(self):
-        for attr in self.attrList:
+        for attr in list(self.columns):
             #TODO: Think about dropping NaN values
             if self.dtypes[attr] == "float64" or self.dtypes[attr] == "int64":
                 if self.cardinality[attr] < 10: #TODO:nominal with high value breaks system
@@ -140,11 +137,9 @@ class LuxDataFrame(pd.DataFrame):
 
     def computeSQLDatasetMetadata(self):
         self.getSQLAttributes()
-        for attr in self.attrList:
+        for attr in list(self.columns):
             self[attr] = None
         self.computeSQLStats()
-        self.cols = []
-        self.rows = []
         self.dataTypeLookup = {}
         self.dataType = {}
         #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this 
@@ -169,18 +164,18 @@ class LuxDataFrame(pd.DataFrame):
             table_name = self.table_name
         attr_query = "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{}'".format(table_name)
         attributes = pd.read_sql(attr_query, self.SQLconnection)
-        self.attrList = list(attributes["column_name"])
+        self.columnList = list(attributes["column_name"]) # Thyne may need to change this because we are not using columnList anymore
 
     def getSQLCardinality(self):
         cardinality = {}
-        for attr in self.attrList:
+        for attr in list(self.columns):
             card_query = pd.read_sql("SELECT Count(Distinct({})) FROM {}".format(attr, self.table_name), self.SQLconnection)
             cardinality[attr] = list(card_query["count"])[0]
         self.cardinality = cardinality
 
     def getSQLUniqueValues(self):
         uniqueVals = {}
-        for attr in self.attrList:
+        for attr in list(self.columns):
             unique_query = pd.read_sql("SELECT Distinct({}) FROM {}".format(attr, self.table_name), self.SQLconnection)
             uniqueVals[attr] = list(unique_query[attr])
         self.uniqueValues = uniqueVals
@@ -193,13 +188,13 @@ class LuxDataFrame(pd.DataFrame):
         else:
             table_name = self.table_name
         #get the data types of the attributes in the SQL table
-        for attr in self.attrList:
+        for attr in list(self.columns):
             datatype_query = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{}' AND COLUMN_NAME = '{}'".format(table_name, attr)
             datatype = list(pd.read_sql(datatype_query, self.SQLconnection)['data_type'])[0]
             sqlDTypes[attr] = datatype
 
         dataType = {"quantitative":[], "ordinal":[], "nominal":[], "temporal":[]}
-        for attr in self.attrList:
+        for attr in list(self.columns):
             if sqlDTypes[attr] in ["character", "character varying", "boolean", "uuid", "text"]:
                 dataTypeLookup[attr] = "nominal"
                 dataType["nominal"].append(attr)
