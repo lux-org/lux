@@ -163,8 +163,9 @@ class LuxDataFrame(pd.DataFrame):
         else:
             table_name = self.table_name
         attr_query = "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{}'".format(table_name)
-        attributes = pd.read_sql(attr_query, self.SQLconnection)
-        self.columnList = list(attributes["column_name"]) # Thyne may need to change this because we are not using columnList anymore
+        attributes = list(pd.read_sql(attr_query, self.SQLconnection)['column_name'])
+        for attr in attributes:
+            self[attr] = None
 
     def getSQLCardinality(self):
         cardinality = {}
