@@ -22,7 +22,7 @@ class AltairChart:
 		return f"AltairChart <{str(self.view)}>"
 	def addTooltip(self):
 		if (self.tooltip): 
-			self.chart = self.chart.encode(tooltip=list(self.view.data.df.columns))
+			self.chart = self.chart.encode(tooltip=list(self.view.data.columns))
 	def encodeColor(self):
 		colorAttr = self.view.getObjFromChannel("color")
 		if (len(colorAttr)==1):

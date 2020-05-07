@@ -16,11 +16,11 @@ class Validator:
 		def validateAttr(spec):
 			if not((spec.attribute and spec.attribute == "?") or (spec.value and spec.value=="?")):
 				if isinstance(spec.attribute,list):
-					checkAttrExistsGroup = all(attr in ldf.attrList for attr in spec.attribute)
+					checkAttrExistsGroup = all(attr in list(ldf.columns) for attr in spec.attribute)
 					if spec.attribute and not checkAttrExistsGroup:
 						printWarning = True
 				else:
-						checkAttrExists = spec.attribute in ldf.attrList
+						checkAttrExists = spec.attribute in list(ldf.columns)
 						if spec.attribute and not checkAttrExists:
 							printWarning = True
 
