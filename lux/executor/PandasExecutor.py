@@ -26,7 +26,10 @@ class PandasExecutor(Executor):
                 if (spec.attribute):
                     if (spec.attribute!="Record"):
                         attributes.add(spec.attribute)
-            view.data = view.data[list(attributes)]
+            if len(ldf) > 10000:
+                view.data = view.data[list(attributes)].sample(n = 10000, random_state = 1)
+            else:
+                view.data = view.data[list(attributes)]
             if (view.mark =="bar" or view.mark =="line"):
                 PandasExecutor.executeAggregate(view, ldf)
             elif (view.mark =="histogram"):
