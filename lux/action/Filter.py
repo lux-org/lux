@@ -23,7 +23,7 @@ def filter(ldf):
 		#get unique values for all categorical values specified and creates corresponding filters
 		for row in filters:
 			if row.attribute not in completedFilters:
-				uniqueValues = ldf[row.attribute].unique()
+				uniqueValues = ldf.uniqueValues[row.attribute]
 				filterValues.append(row.value)
 				#creates new data objects with new filters
 				for i in range(0, len(uniqueValues)):
@@ -44,7 +44,7 @@ def filter(ldf):
 			if ldf.cardinality[col]<40 and col not in columnSpecAttr:
 				categoricalVars.append(col)
 		for cat in categoricalVars:
-			uniqueValues = ldf[cat].unique()
+			uniqueValues = ldf.uniqueValues[cat]
 			for i in range(0, len(uniqueValues)):
 				newSpec = columnSpec.copy()
 				newFilter = lux.Spec(attribute=cat, filterOp="=",value=uniqueValues[i])

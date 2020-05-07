@@ -27,7 +27,6 @@ class SQLExecutor(Executor):
         3) return a DataFrame with relevant results
         '''
         for view in viewCollection:
-            Executor.executeFilter(view, ldf)
             # Select relevant data based on attribute information
             attributes = set([])
             for spec in view.specLst:
@@ -36,13 +35,15 @@ class SQLExecutor(Executor):
                         attributes.add(spec.attribute)
                     #else:
                     attributes.add(spec.attribute)
-            if view.mark == "scatter":
-                attributes = ",".join(attributes)
-                rowCount = list(pd.read_sql("SELECT COUNT(*) from {}".format(ldf.table_name), ldf.SQLconnection)['count'])[0]
-                if rowCount > 100000:
-                    query = "SELECT {} FROM {} ORDER BY random() LIMIT 100000".format(attributes, ldf.table_name)
+            if view.mark not in ["bar", "line", "histogram"]:
+                whereClause, filterVars = SQLExecutor.executeFilter(view)
+                requiredVariables = attributes | set(filterVars)
+                requiredVariables = ",".join(requiredVariables)
+                rowCount = list(pd.read_sql("SELECT COUNT(*) FROM {} {}".format(ldf.table_name, whereClause), ldf.SQLconnection)['count'])[0]
+                if rowCount > 10000:
+                    query = "SELECT {} FROM {} {} ORDER BY random() LIMIT 10000".format(requiredVariables, whereClause, ldf.table_name)
                 else:
-                    query = "SELECT {} FROM {}".format(attributes, ldf.table_name)
+                    query = "SELECT {} FROM {} {}".format(requiredVariables, whereClause, ldf.table_name)
                 data = pd.read_sql(query, ldf.SQLconnection)
                 view.data = utils.pandasToLux(data)
             if (view.mark =="bar" or view.mark =="line"):
@@ -74,7 +75,6 @@ class SQLExecutor(Executor):
                 view.data = pd.read_sql(countQuery, ldf.SQLconnection)
                 view.data = view.data.rename(columns={"count":"Record"})
                 view.data = utils.pandasToLux(view.data)
-                print(type(view.data), view.data)
 
             else:
                 whereClause, filterVars = SQLExecutor.executeFilter(view)
@@ -118,7 +118,13 @@ class SQLExecutor(Executor):
             binCenters = np.append(binCenters, math.ceil((upperEdges[len(upperEdges)-1]+attrMax)/2))
         else:
             binCenters = np.append(binCenters, (upperEdges[len(upperEdges)-1]+attrMax)/2)
-        # TODO: Should view.data be a LuxDataFrame or a Pandas DataFrame?
+
+        if len(binCenters) > len(binCountData):
+            bucketLables = binCountData['width_bucket'].unique()
+            for i in range(0,len(binCenters)):
+                if i not in bucketLables:
+                    binCountData = binCountData.append(pd.DataFrame([[i,0]], columns = binCountData.columns))
+
         view.data = pd.DataFrame(np.array([binCenters,list(binCountData['count'])]).T,columns=[binAttribute.attribute, "Count of Records (binned)"])
         view.data = utils.pandasToLux(view.data)
         
@@ -134,7 +140,7 @@ class SQLExecutor(Executor):
                     whereClause.append("WHERE")
                 else:
                     whereClause.append("AND")
-                whereClause.extend([filters[f].attribute, filters[f].filterOp, "'" + filters[f].value + "'"])
+                whereClause.extend([str(filters[f].attribute), str(filters[f].filterOp), "'" + str(filters[f].value) + "'"])
                 if filters[f].attribute not in filterVars:
                     filterVars.append(filters[f].attribute)
         if whereClause == []:

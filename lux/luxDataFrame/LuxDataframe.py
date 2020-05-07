@@ -1,6 +1,9 @@
 import pandas as pd
 import psycopg2
 from lux.context.Spec import Spec
+
+#import for benchmarking
+import time
 class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','dataTypeLookup','dataType',
@@ -12,8 +15,11 @@ class LuxDataFrame(pd.DataFrame):
         self.recommendation=[]
         self.viewCollection = []
         super(LuxDataFrame, self).__init__(*args, **kw)
+
+        tic = time.perf_counter()
         self.computeStats()
         self.computeDatasetMetadata()
+
         self.DEBUG_FRONTEND = False
 
         self.executorType = "Pandas"
@@ -37,16 +43,18 @@ class LuxDataFrame(pd.DataFrame):
         from lux.compiler.Compiler import Compiler
         from lux.compiler.Parser import Parser
         from lux.executor.PandasExecutor import PandasExecutor
+
         if self.SQLconnection == "":
             self.computeStats()
             self.computeDatasetMetadata()
-        else:
-            self.computeSQLStats()
-            self.computeSQLDatasetMetadata()
+        #else:
+            #self.computeSQLStats()
+            #self.computeSQLDatasetMetadata()
         Parser.parse(self)
         Validator.validateSpec(self)
         viewCollection = Compiler.compile(self,self.viewCollection)
         self.setViewCollection(viewCollection)
+
     def setContext(self,context):
         self.context = context
         self._refreshContext()
@@ -131,9 +139,12 @@ class LuxDataFrame(pd.DataFrame):
     #######################################################
 
     def setSQLConnection(self, connection, t_name):
+        tic = time.perf_counter()
         self.SQLconnection = connection
         self.table_name = t_name
         self.computeSQLDatasetMetadata()
+        toc = time.perf_counter()
+        print(f"Extracted Metadata from SQL Database in {toc - tic:0.4f} seconds")
 
     def computeSQLDatasetMetadata(self):
         self.getSQLAttributes()
@@ -265,8 +276,16 @@ class LuxDataFrame(pd.DataFrame):
         return self.widget
     def _repr_html_(self):
         from IPython.display import display
+        #for benchmarking
+        tic = time.perf_counter()
         self.showMore() # compute the recommendations
+        toc = time.perf_counter()
+        print(f"Computed recommendations in {toc - tic:0.4f} seconds")
+
+        tic = time.perf_counter()
         self.renderWidget()
+        toc = time.perf_counter()
+        print(f"Rendered the widget in {toc - tic:0.4f} seconds")
         display(self.widget)
     def displayPandas(self):
         return self.toPandas()
