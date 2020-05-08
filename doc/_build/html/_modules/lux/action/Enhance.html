@@ -155,6 +155,7 @@
 <span class="kn">from</span> <span class="nn">lux.interestingness.interestingness</span> <span class="kn">import</span> <span class="n">interestingness</span>
 <span class="kn">from</span> <span class="nn">lux.compiler.Compiler</span> <span class="kn">import</span> <span class="n">Compiler</span>
 <span class="kn">from</span> <span class="nn">lux.executor.PandasExecutor</span> <span class="kn">import</span> <span class="n">PandasExecutor</span>
+<span class="kn">from</span> <span class="nn">lux.executor.SQLExecutor</span> <span class="kn">import</span> <span class="n">SQLExecutor</span>
 <span class="kn">from</span> <span class="nn">lux.utils</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">Shows possible visualizations when an additional attribute is added to the current view</span>
@@ -173,7 +174,7 @@
 		<span class="k">return</span> <span class="n">recommendation</span>
 
 	<span class="c1"># First loop through all variables to create new view collection</span>
-	<span class="k">for</span> <span class="n">qVar</span> <span class="ow">in</span> <span class="n">ldf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+	<span class="k">for</span> <span class="n">qVar</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ldf</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
 		<span class="k">if</span> <span class="n">qVar</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existingVars</span> <span class="ow">and</span> <span class="n">ldf</span><span class="o">.</span><span class="n">dataTypeLookup</span><span class="p">[</span><span class="n">qVar</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;temporal&quot;</span><span class="p">:</span>
 			<span class="n">cxtNew</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 			<span class="n">cxtNew</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lux</span><span class="o">.</span><span class="n">Spec</span><span class="p">(</span><span class="n">attribute</span> <span class="o">=</span> <span class="n">qVar</span><span class="p">))</span>
@@ -182,7 +183,11 @@
 	<span class="n">vc</span> <span class="o">=</span> <span class="n">lux</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">ViewCollection</span><span class="o">.</span><span class="n">ViewCollection</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 	<span class="n">vc</span> <span class="o">=</span> <span class="n">Compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">ldf</span><span class="p">,</span><span class="n">vc</span><span class="p">,</span><span class="n">enumerateCollection</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 	
-	<span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">ldf</span><span class="o">.</span><span class="n">executorType</span> <span class="o">==</span> <span class="s2">&quot;SQL&quot;</span><span class="p">:</span>
+		<span class="n">SQLExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="n">ldf</span><span class="o">.</span><span class="n">executorType</span> <span class="o">==</span> <span class="s2">&quot;Pandas&quot;</span><span class="p">:</span>
+		<span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+		
 	<span class="c1"># Then use the data populated in the view collection to compute score</span>
 	<span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="n">vc</span><span class="p">:</span>
 		<span class="n">view</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">interestingness</span><span class="p">(</span><span class="n">view</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>

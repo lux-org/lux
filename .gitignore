@@ -1,6 +1,6 @@
 *.pyc
 .ipynb_checkpoints/
-
+.vscode/
 # Jupyter Widget
 node_modules/
 dist/

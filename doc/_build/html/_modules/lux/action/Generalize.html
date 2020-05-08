@@ -157,6 +157,7 @@
 <span class="kn">from</span> <span class="nn">lux.view.View</span> <span class="kn">import</span> <span class="n">View</span>
 <span class="kn">from</span> <span class="nn">lux.compiler.Compiler</span> <span class="kn">import</span> <span class="n">Compiler</span>
 <span class="kn">from</span> <span class="nn">lux.executor.PandasExecutor</span> <span class="kn">import</span> <span class="n">PandasExecutor</span>
+<span class="kn">from</span> <span class="nn">lux.executor.SQLExecutor</span> <span class="kn">import</span> <span class="n">SQLExecutor</span>
 <span class="kn">from</span> <span class="nn">lux.utils</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span> <span class="nn">lux.interestingness.interestingness</span> <span class="kn">import</span> <span class="n">interestingness</span>
 <span class="c1"># from compiler.Compiler import Compiler</span>
@@ -203,7 +204,10 @@
 		
 	<span class="n">vc</span> <span class="o">=</span> <span class="n">lux</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">ViewCollection</span><span class="o">.</span><span class="n">ViewCollection</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 	<span class="n">vc</span> <span class="o">=</span> <span class="n">Compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">ldf</span><span class="p">,</span><span class="n">vc</span><span class="p">,</span><span class="n">enumerateCollection</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-	<span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">ldf</span><span class="o">.</span><span class="n">executorType</span> <span class="o">==</span> <span class="s2">&quot;Pandas&quot;</span><span class="p">:</span>
+		<span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">ldf</span><span class="o">.</span><span class="n">executorType</span> <span class="o">==</span> <span class="s2">&quot;SQL&quot;</span><span class="p">:</span>
+		<span class="n">SQLExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
 	<span class="n">recommendation</span><span class="p">[</span><span class="s2">&quot;collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vc</span>
 	<span class="k">return</span> <span class="n">recommendation</span></div>
 </pre></div>

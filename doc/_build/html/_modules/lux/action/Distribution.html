@@ -157,29 +157,30 @@
 <span class="kn">from</span> <span class="nn">lux.interestingness.interestingness</span> <span class="kn">import</span> <span class="n">interestingness</span>
 <span class="kn">import</span> <span class="nn">lux</span>
 <span class="kn">from</span> <span class="nn">lux.executor.PandasExecutor</span> <span class="kn">import</span> <span class="n">PandasExecutor</span>
-<div class="viewcode-block" id="distribution"><a class="viewcode-back" href="../../../source/reference/lux.action.html#lux.action.Distribution.distribution">[docs]</a><span class="k">def</span> <span class="nf">distribution</span><span class="p">(</span><span class="n">ldf</span><span class="p">):</span>
-	<span class="c1"># Enumerate --&gt; compute the scores for each item in the collection</span>
-	<span class="c1"># --&gt;  return DataObjectCollection with the scores</span>
+<span class="kn">from</span> <span class="nn">lux.executor.SQLExecutor</span> <span class="kn">import</span> <span class="n">SQLExecutor</span>
+
+<div class="viewcode-block" id="distribution"><a class="viewcode-back" href="../../../source/reference/lux.action.html#lux.action.Distribution.distribution">[docs]</a><span class="k">def</span> <span class="nf">distribution</span><span class="p">(</span><span class="n">ldf</span><span class="p">,</span><span class="n">dataTypeConstraint</span><span class="o">=</span><span class="s2">&quot;quantitative&quot;</span><span class="p">):</span>
 	<span class="kn">import</span> <span class="nn">scipy.stats</span>
 	<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-	<span class="n">recommendation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;action&quot;</span><span class="p">:</span><span class="s2">&quot;Distribution&quot;</span><span class="p">,</span>
-						   <span class="s2">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Show univariate count distributions of different attributes in the dataset.&quot;</span><span class="p">}</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">dataTypeConstraint</span><span class="o">==</span><span class="s2">&quot;quantitative&quot;</span><span class="p">):</span>
+		<span class="n">ldf</span><span class="o">.</span><span class="n">setContext</span><span class="p">([</span><span class="n">lux</span><span class="o">.</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;?&quot;</span><span class="p">,</span><span class="n">dataType</span><span class="o">=</span><span class="s2">&quot;quantitative&quot;</span><span class="p">)])</span>
+		<span class="n">recommendation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;action&quot;</span><span class="p">:</span><span class="s2">&quot;Distribution&quot;</span><span class="p">,</span>
+							<span class="s2">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Show univariate count distributions of different attributes in the dataset.&quot;</span><span class="p">}</span>
+	<span class="k">elif</span> <span class="p">(</span><span class="n">dataTypeConstraint</span><span class="o">==</span><span class="s2">&quot;nominal&quot;</span><span class="p">):</span>
+		<span class="n">ldf</span><span class="o">.</span><span class="n">setContext</span><span class="p">([</span><span class="n">lux</span><span class="o">.</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;?&quot;</span><span class="p">,</span><span class="n">dataType</span><span class="o">=</span><span class="s2">&quot;nominal&quot;</span><span class="p">)])</span>
+		<span class="n">recommendation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;action&quot;</span><span class="p">:</span><span class="s2">&quot;Category&quot;</span><span class="p">,</span>
+						   <span class="s2">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Show bar chart distributions of different attributes in the dataset.&quot;</span><span class="p">}</span>
+
 	<span class="n">vc</span> <span class="o">=</span> <span class="n">ldf</span><span class="o">.</span><span class="n">viewCollection</span>
-	<span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">ldf</span><span class="o">.</span><span class="n">executorType</span> <span class="o">==</span> <span class="s2">&quot;SQL&quot;</span><span class="p">:</span>
+		<span class="n">SQLExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="n">ldf</span><span class="o">.</span><span class="n">executorType</span> <span class="o">==</span> <span class="s2">&quot;Pandas&quot;</span><span class="p">:</span>
+		<span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
 	<span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="n">vc</span><span class="p">:</span>
-		<span class="c1"># measure = obj.getObjByDataModel(&quot;measure&quot;)[0]</span>
-		<span class="c1"># msr = measure.columnName</span>
-		<span class="n">fieldName</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">attribute</span><span class="o">!=</span><span class="s2">&quot;count()&quot;</span><span class="p">,</span> <span class="n">view</span><span class="o">.</span><span class="n">specLst</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attribute</span>
-		<span class="n">fieldVals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ldf</span><span class="p">[</span><span class="n">fieldName</span><span class="p">])</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">ldf</span><span class="o">.</span><span class="n">dataModelLookup</span><span class="p">[</span><span class="n">fieldName</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;measure&quot;</span><span class="p">):</span>
-			<span class="c1"># view.score = np.abs(scipy.stats.skew(fieldVals))</span>
-			<span class="c1"># view.score = 0.5</span>
-			<span class="n">view</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">interestingness</span><span class="p">(</span><span class="n">view</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
-		<span class="k">else</span><span class="p">:</span> <span class="c1"># TODO: this should be based on interestingness (i.e, deviation case)</span>
-			<span class="c1"># obj.score = interestingness(obj)</span>
-			<span class="n">view</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">interestingness</span><span class="p">(</span><span class="n">view</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+		<span class="n">view</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">interestingness</span><span class="p">(</span><span class="n">view</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
 
 	<span class="n">vc</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+	<span class="n">ldf</span><span class="o">.</span><span class="n">clearContext</span><span class="p">()</span>
 	<span class="n">recommendation</span><span class="p">[</span><span class="s2">&quot;collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vc</span>
 	<span class="c1"># dobj.recommendations.append(recommendation)</span>
 	<span class="k">return</span> <span class="n">recommendation</span></div>

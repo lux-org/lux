@@ -82,8 +82,17 @@
             
               <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#lux-overview">Lux Overview</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guide/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/FAQ.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/example.html">Example</a></li>
 </ul>
 
             
@@ -150,6 +159,20 @@
             
   <div class="section" id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial provides an overview of how you can use Lux in your data exploration workflow.
+You can follow along the tutorial using this Jupyter notebook.</p>
+<div class="section" id="lux-overview">
+<h2>Lux Overview<a class="headerlink" href="#lux-overview" title="Permalink to this headline">¶</a></h2>
+<p>Lux is designed to be tightly integrated with <a class="reference external" href="https://pandas.pydata.org/">Pandas</a>, so that Lux can be used as-is, without modifying your existing Pandas code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">lux</span>
+</pre></div>
+</div>
+<p>We can load the dataset via any of the standard Pandas commands. For example,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;lux/data/college.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 

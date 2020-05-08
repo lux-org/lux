@@ -154,21 +154,32 @@
             
   <h1>Source code for lux.luxDataFrame.LuxDataframe</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">psycopg2</span>
 <span class="kn">from</span> <span class="nn">lux.context.Spec</span> <span class="kn">import</span> <span class="n">Spec</span>
+
+<span class="c1">#import for benchmarking</span>
+<span class="kn">import</span> <span class="nn">time</span>
 <div class="viewcode-block" id="LuxDataFrame"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame">[docs]</a><span class="k">class</span> <span class="nc">LuxDataFrame</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
     <span class="c1"># MUST register here for new properties!!</span>
-    <span class="n">_metadata</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;context&#39;</span><span class="p">,</span><span class="s1">&#39;attrList&#39;</span><span class="p">,</span><span class="s1">&#39;dataTypeLookup&#39;</span><span class="p">,</span><span class="s1">&#39;dataType&#39;</span><span class="p">,</span> 
+    <span class="n">_metadata</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;context&#39;</span><span class="p">,</span><span class="s1">&#39;dataTypeLookup&#39;</span><span class="p">,</span><span class="s1">&#39;dataType&#39;</span><span class="p">,</span>
                  <span class="s1">&#39;dataModelLookup&#39;</span><span class="p">,</span><span class="s1">&#39;dataModel&#39;</span><span class="p">,</span><span class="s1">&#39;uniqueValues&#39;</span><span class="p">,</span><span class="s1">&#39;cardinality&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;viewCollection&#39;</span><span class="p">,</span><span class="s1">&#39;cols&#39;</span><span class="p">,</span><span class="s1">&#39;rows&#39;</span><span class="p">,</span><span class="s1">&#39;widget&#39;</span><span class="p">,</span> <span class="s1">&#39;recommendation&#39;</span><span class="p">]</span>
+                 <span class="s1">&#39;viewCollection&#39;</span><span class="p">,</span><span class="s1">&#39;widget&#39;</span><span class="p">,</span> <span class="s1">&#39;recommendation&#39;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">recommendation</span><span class="o">=</span><span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">viewCollection</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">LuxDataFrame</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+        <span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">computeStats</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">computeDatasetMetadata</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">DEBUG_FRONTEND</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">executorType</span> <span class="o">=</span> <span class="s2">&quot;Pandas&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SQLconnection</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -178,23 +189,33 @@
     <span class="c1"># def context(self):</span>
     <span class="c1">#     return self.context</span>
     
-    
+<div class="viewcode-block" id="LuxDataFrame.setExecutorType"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.setExecutorType">[docs]</a>    <span class="k">def</span> <span class="nf">setExecutorType</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exe</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">executorType</span> <span class="o">=</span> <span class="n">exe</span></div>
 <div class="viewcode-block" id="LuxDataFrame.setViewCollection"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.setViewCollection">[docs]</a>    <span class="k">def</span> <span class="nf">setViewCollection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">viewCollection</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">viewCollection</span> <span class="o">=</span> <span class="n">viewCollection</span> </div>
-    <span class="k">def</span> <span class="nf">_refreshContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">context</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_refreshContext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">lux.compiler.Validator</span> <span class="kn">import</span> <span class="n">Validator</span>
         <span class="kn">from</span> <span class="nn">lux.compiler.Compiler</span> <span class="kn">import</span> <span class="n">Compiler</span>
         <span class="kn">from</span> <span class="nn">lux.compiler.Parser</span> <span class="kn">import</span> <span class="n">Parser</span>
         <span class="kn">from</span> <span class="nn">lux.executor.PandasExecutor</span> <span class="kn">import</span> <span class="n">PandasExecutor</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">computeStats</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">computeDatasetMetadata</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">SQLconnection</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">computeStats</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">computeDatasetMetadata</span><span class="p">()</span>
+        <span class="c1">#else:</span>
+            <span class="c1">#self.computeSQLStats()</span>
+            <span class="c1">#self.computeSQLDatasetMetadata()</span>
         <span class="n">Parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">Validator</span><span class="o">.</span><span class="n">validateSpec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">viewCollection</span> <span class="o">=</span> <span class="n">Compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">viewCollection</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setViewCollection</span><span class="p">(</span><span class="n">viewCollection</span><span class="p">)</span>
+
 <div class="viewcode-block" id="LuxDataFrame.setContext"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.setContext">[docs]</a>    <span class="k">def</span> <span class="nf">setContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">context</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_refreshContext</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_refreshContext</span><span class="p">()</span></div>
+<div class="viewcode-block" id="LuxDataFrame.clearContext"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.clearContext">[docs]</a>    <span class="k">def</span> <span class="nf">clearContext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewCollection</span> <span class="o">=</span> <span class="p">[]</span></div>
 <div class="viewcode-block" id="LuxDataFrame.toPandas"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.toPandas">[docs]</a>    <span class="k">def</span> <span class="nf">toPandas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">lux.luxDataFrame</span>
         <span class="k">return</span> <span class="n">lux</span><span class="o">.</span><span class="n">luxDataFrame</span><span class="o">.</span><span class="n">originalDF</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
@@ -210,9 +231,6 @@
     <span class="c1">############ Metadata: data type, model #############</span>
     <span class="c1">#######################################################</span>
 <div class="viewcode-block" id="LuxDataFrame.computeDatasetMetadata"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.computeDatasetMetadata">[docs]</a>    <span class="k">def</span> <span class="nf">computeDatasetMetadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">attrList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cols</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataTypeLookup</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataType</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">computeDataType</span><span class="p">()</span>
@@ -221,7 +239,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">computeDataModel</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="LuxDataFrame.computeDataType"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.computeDataType">[docs]</a>    <span class="k">def</span> <span class="nf">computeDataType</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrList</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
             <span class="c1">#TODO: Think about dropping NaN values</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;float64&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;int64&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cardinality</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span> <span class="c1">#TODO:nominal with high value breaks system</span>
@@ -272,14 +290,103 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">cardinality</span><span class="p">[</span><span class="n">dimension</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uniqueValues</span><span class="p">[</span><span class="n">dimension</span><span class="p">])</span></div>
 
     <span class="c1">#######################################################</span>
+    <span class="c1">########## SQL Metadata, type, model schema ###########</span>
+    <span class="c1">#######################################################</span>
+
+<div class="viewcode-block" id="LuxDataFrame.setSQLConnection"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.setSQLConnection">[docs]</a>    <span class="k">def</span> <span class="nf">setSQLConnection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">t_name</span><span class="p">):</span>
+        <span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SQLconnection</span> <span class="o">=</span> <span class="n">connection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span> <span class="o">=</span> <span class="n">t_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">computeSQLDatasetMetadata</span><span class="p">()</span>
+        <span class="n">toc</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracted Metadata from SQL Database in </span><span class="si">{</span><span class="n">toc</span> <span class="o">-</span> <span class="n">tic</span><span class="si">:</span><span class="s2">0.4f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LuxDataFrame.computeSQLDatasetMetadata"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.computeSQLDatasetMetadata">[docs]</a>    <span class="k">def</span> <span class="nf">computeSQLDatasetMetadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getSQLAttributes</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">computeSQLStats</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataTypeLookup</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataType</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1">#####NOTE: since we aren&#39;t expecting users to do much data processing with the SQL database, should we just keep this </span>
+        <span class="c1">#####      in the initialization and do it just once</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">computeSQLDataType</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataModelLookup</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataModel</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">computeDataModel</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="LuxDataFrame.computeSQLStats"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.computeSQLStats">[docs]</a>    <span class="k">def</span> <span class="nf">computeSQLStats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># precompute statistics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uniqueValues</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cardinality</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">getSQLUniqueValues</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getSQLCardinality</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="LuxDataFrame.getSQLAttributes"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.getSQLAttributes">[docs]</a>    <span class="k">def</span> <span class="nf">getSQLAttributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">:</span>
+            <span class="n">table_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">table_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span>
+        <span class="n">attr_query</span> <span class="o">=</span> <span class="s2">&quot;SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+        <span class="n">attributes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">attr_query</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SQLconnection</span><span class="p">)[</span><span class="s1">&#39;column_name&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="LuxDataFrame.getSQLCardinality"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.getSQLCardinality">[docs]</a>    <span class="k">def</span> <span class="nf">getSQLCardinality</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cardinality</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+            <span class="n">card_query</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&quot;SELECT Count(Distinct(</span><span class="si">{}</span><span class="s2">)) FROM </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">SQLconnection</span><span class="p">)</span>
+            <span class="n">cardinality</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">card_query</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cardinality</span> <span class="o">=</span> <span class="n">cardinality</span></div>
+
+<div class="viewcode-block" id="LuxDataFrame.getSQLUniqueValues"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.getSQLUniqueValues">[docs]</a>    <span class="k">def</span> <span class="nf">getSQLUniqueValues</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">uniqueVals</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+            <span class="n">unique_query</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&quot;SELECT Distinct(</span><span class="si">{}</span><span class="s2">) FROM </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">SQLconnection</span><span class="p">)</span>
+            <span class="n">uniqueVals</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">unique_query</span><span class="p">[</span><span class="n">attr</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uniqueValues</span> <span class="o">=</span> <span class="n">uniqueVals</span></div>
+
+<div class="viewcode-block" id="LuxDataFrame.computeSQLDataType"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.computeSQLDataType">[docs]</a>    <span class="k">def</span> <span class="nf">computeSQLDataType</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dataTypeLookup</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">sqlDTypes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">:</span>
+            <span class="n">table_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">table_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span>
+        <span class="c1">#get the data types of the attributes in the SQL table</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+            <span class="n">datatype_query</span> <span class="o">=</span> <span class="s2">&quot;SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = &#39;</span><span class="si">{}</span><span class="s2">&#39; AND COLUMN_NAME = &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+            <span class="n">datatype</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">datatype_query</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SQLconnection</span><span class="p">)[</span><span class="s1">&#39;data_type&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sqlDTypes</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">datatype</span>
+
+        <span class="n">dataType</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;quantitative&quot;</span><span class="p">:[],</span> <span class="s2">&quot;ordinal&quot;</span><span class="p">:[],</span> <span class="s2">&quot;nominal&quot;</span><span class="p">:[],</span> <span class="s2">&quot;temporal&quot;</span><span class="p">:[]}</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">sqlDTypes</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;character&quot;</span><span class="p">,</span> <span class="s2">&quot;character varying&quot;</span><span class="p">,</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span> <span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">]:</span>
+                <span class="n">dataTypeLookup</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;nominal&quot;</span>
+                <span class="n">dataType</span><span class="p">[</span><span class="s2">&quot;nominal&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">sqlDTypes</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;integer&quot;</span><span class="p">,</span> <span class="s2">&quot;real&quot;</span><span class="p">,</span> <span class="s2">&quot;smallint&quot;</span><span class="p">,</span> <span class="s2">&quot;smallserial&quot;</span><span class="p">,</span> <span class="s2">&quot;serial&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cardinality</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+                    <span class="n">dataTypeLookup</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;nominal&quot;</span>
+                    <span class="n">dataType</span><span class="p">[</span><span class="s2">&quot;nominal&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dataTypeLookup</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;quantitative&quot;</span>
+                    <span class="n">dataType</span><span class="p">[</span><span class="s2">&quot;quantitative&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">sqlDTypes</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;date&quot;</span> <span class="ow">in</span> <span class="n">sqlDTypes</span><span class="p">[</span><span class="n">attr</span><span class="p">]:</span>
+                <span class="n">dataTypeLookup</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;temporal&quot;</span>
+                <span class="n">dataType</span><span class="p">[</span><span class="s2">&quot;temporal&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataTypeLookup</span> <span class="o">=</span> <span class="n">dataTypeLookup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataType</span> <span class="o">=</span> <span class="n">dataType</span></div>
+
+    <span class="c1">#######################################################</span>
     <span class="c1">############## Mappers to Action classes ##############</span>
     <span class="c1">#######################################################</span>
 <div class="viewcode-block" id="LuxDataFrame.correlation"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.correlation">[docs]</a>    <span class="k">def</span> <span class="nf">correlation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">lux.action.Correlation</span> <span class="kn">import</span> <span class="n">correlation</span>
         <span class="k">return</span> <span class="n">correlation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
-<div class="viewcode-block" id="LuxDataFrame.distribution"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.distribution">[docs]</a>    <span class="k">def</span> <span class="nf">distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="LuxDataFrame.distribution"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.distribution">[docs]</a>    <span class="k">def</span> <span class="nf">distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataTypeConstraint</span><span class="o">=</span><span class="s2">&quot;quantitative&quot;</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">lux.action.Distribution</span> <span class="kn">import</span> <span class="n">distribution</span>
-        <span class="k">return</span> <span class="n">distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataTypeConstraint</span><span class="p">)</span></div>
 <div class="viewcode-block" id="LuxDataFrame.enhance"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.enhance">[docs]</a>    <span class="k">def</span> <span class="nf">enhance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">lux.action.Enhance</span> <span class="kn">import</span> <span class="n">enhance</span>
         <span class="k">return</span> <span class="n">enhance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
@@ -312,10 +419,9 @@
                 <span class="k">if</span> <span class="n">generalize</span><span class="p">[</span><span class="s1">&#39;collection&#39;</span><span class="p">]:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">recommendation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generalize</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span> 
-                <span class="bp">self</span><span class="o">.</span><span class="n">setContext</span><span class="p">([</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;?&quot;</span><span class="p">,</span><span class="n">dataModel</span><span class="o">=</span><span class="s2">&quot;measure&quot;</span><span class="p">),</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;?&quot;</span><span class="p">,</span><span class="n">dataModel</span><span class="o">=</span><span class="s2">&quot;measure&quot;</span><span class="p">)])</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">recommendation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">correlation</span><span class="p">())</span>  <span class="c1">#this works partially</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">setContext</span><span class="p">([</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;?&quot;</span><span class="p">,</span><span class="n">dataModel</span><span class="o">=</span><span class="s2">&quot;measure&quot;</span><span class="p">)])</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">recommendation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="p">())</span>  </div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">recommendation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">correlation</span><span class="p">())</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">recommendation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="p">(</span><span class="s2">&quot;quantitative&quot;</span><span class="p">))</span>  
+                <span class="bp">self</span><span class="o">.</span><span class="n">recommendation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="p">(</span><span class="s2">&quot;nominal&quot;</span><span class="p">))</span>  </div>
 
 
     <span class="c1">#######################################################</span>
@@ -325,7 +431,16 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span></div>
     <span class="k">def</span> <span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
+        <span class="c1">#for benchmarking</span>
+        <span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showMore</span><span class="p">()</span> <span class="c1"># compute the recommendations</span>
+        <span class="n">toc</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computed recommendations in </span><span class="si">{</span><span class="n">toc</span> <span class="o">-</span> <span class="n">tic</span><span class="si">:</span><span class="s2">0.4f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+
+        <span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">renderWidget</span><span class="p">()</span>
+        <span class="n">toc</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rendered the widget in </span><span class="si">{</span><span class="n">toc</span> <span class="o">-</span> <span class="n">tic</span><span class="si">:</span><span class="s2">0.4f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
         <span class="n">display</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">)</span>
 <div class="viewcode-block" id="LuxDataFrame.displayPandas"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.displayPandas">[docs]</a>    <span class="k">def</span> <span class="nf">displayPandas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span></div>
@@ -342,7 +457,6 @@
 <span class="sd">            User-specified current view to override defaul Current View, by default </span>
 <span class="sd">        &quot;&quot;&quot;</span>       
         <span class="kn">import</span> <span class="nn">luxWidget</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">showMore</span><span class="p">()</span> <span class="c1"># compute the recommendations</span>
         <span class="kn">import</span> <span class="nn">pkgutil</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">pkgutil</span><span class="o">.</span><span class="n">find_loader</span><span class="p">(</span><span class="s2">&quot;luxWidget&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;luxWidget is not install. Run `npm i lux-widget&#39; to install the Jupyter widget.</span><span class="se">\n</span><span class="s2">See more at: https://github.com/lux-org/lux-widget&quot;</span><span class="p">)</span>
@@ -353,13 +467,29 @@
         <span class="c1"># print(widgetJSON[&quot;recommendation&quot;])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">widget</span> <span class="o">=</span> <span class="n">luxWidget</span><span class="o">.</span><span class="n">LuxWidget</span><span class="p">(</span>
             <span class="n">currentView</span><span class="o">=</span><span class="n">widgetJSON</span><span class="p">[</span><span class="s2">&quot;currentView&quot;</span><span class="p">],</span>
-            <span class="n">recommendations</span><span class="o">=</span><span class="n">widgetJSON</span><span class="p">[</span><span class="s2">&quot;recommendation&quot;</span><span class="p">]</span>
+            <span class="n">recommendations</span><span class="o">=</span><span class="n">widgetJSON</span><span class="p">[</span><span class="s2">&quot;recommendation&quot;</span><span class="p">],</span>
+            <span class="n">context</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">contextToJSON</span><span class="p">()</span>
         <span class="p">)</span></div>
+
+<div class="viewcode-block" id="LuxDataFrame.contextToJSON"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.contextToJSON">[docs]</a>    <span class="k">def</span> <span class="nf">contextToJSON</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">lux.utils</span> <span class="kn">import</span> <span class="n">utils</span>
+
+        <span class="n">filterSpecs</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">getFilterSpecs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">attrsSpecs</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">getAttrsSpecs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+        
+        <span class="n">specs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">specs</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">attribute</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">attrsSpecs</span><span class="p">]</span>
+        <span class="n">specs</span><span class="p">[</span><span class="s1">&#39;filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">attribute</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">filterSpecs</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">specs</span></div>
 
 <div class="viewcode-block" id="LuxDataFrame.toJSON"><a class="viewcode-back" href="../../../source/reference/lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame.toJSON">[docs]</a>    <span class="k">def</span> <span class="nf">toJSON</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputCurrentView</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">lux.executor.PandasExecutor</span> <span class="kn">import</span> <span class="n">PandasExecutor</span>
+        <span class="kn">from</span> <span class="nn">lux.executor.SQLExecutor</span> <span class="kn">import</span> <span class="n">SQLExecutor</span>
         <span class="n">widgetSpec</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viewCollection</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">executorType</span> <span class="o">==</span> <span class="s2">&quot;SQL&quot;</span><span class="p">:</span>
+            <span class="n">SQLExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viewCollection</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">executorType</span> <span class="o">==</span> <span class="s2">&quot;Pandas&quot;</span><span class="p">:</span>
+            <span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viewCollection</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">widgetSpec</span><span class="p">[</span><span class="s2">&quot;currentView&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">LuxDataFrame</span><span class="o">.</span><span class="n">currentViewToJSON</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viewCollection</span><span class="p">,</span><span class="n">inputCurrentView</span><span class="p">)</span>
         
         <span class="n">widgetSpec</span><span class="p">[</span><span class="s2">&quot;recommendation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -381,6 +511,10 @@
         <span class="n">currentViewSpec</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">numVC</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vc</span><span class="p">)</span> <span class="c1">#number of views in the view collection</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">numVC</span><span class="o">==</span><span class="mi">1</span><span class="p">):</span>
+            <span class="c1">#printing for testing</span>
+            <span class="c1">#print(vc[0])</span>
+            <span class="c1">#print(vc[0].data.columns)</span>
+            <span class="c1">#print(vc[0].data[vc[0].data.columns[1]])</span>
             <span class="n">currentViewSpec</span> <span class="o">=</span> <span class="n">vc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">renderVSpec</span><span class="p">()</span>
         <span class="k">elif</span> <span class="p">(</span><span class="n">numVC</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">):</span>
             <span class="k">pass</span>

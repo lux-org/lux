@@ -78,17 +78,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">lux.context package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-lux.context.Context">lux.context.Context module</a></li>
-<li><a class="reference internal" href="#module-lux.context.Spec">lux.context.Spec module</a></li>
-<li><a class="reference internal" href="#module-lux.context">Module contents</a></li>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
 </ul>
-</li>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guide/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/FAQ.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/example.html">Example</a></li>
 </ul>
-</div>
+
             
           
         </div>
@@ -170,7 +171,7 @@
 <span id="lux-context-spec-module"></span><h2>lux.context.Spec module<a class="headerlink" href="#module-lux.context.Spec" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="lux.context.Spec.Spec">
-<em class="property">class </em><code class="sig-prename descclassname">lux.context.Spec.</code><code class="sig-name descname">Spec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">description</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">attribute</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>list<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>list<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">filterOp</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'='</span></em>, <em class="sig-param"><span class="n">channel</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">dataType</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">dataModel</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">aggregation</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">binSize</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">weight</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="n">type</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/context/Spec.html#Spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.context.Spec.Spec" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">lux.context.Spec.</code><code class="sig-name descname">Spec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">description</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">attribute</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>list<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>list<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">filterOp</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'='</span></em>, <em class="sig-param"><span class="n">channel</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">dataType</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">dataModel</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">aggregation</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">binSize</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">weight</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="n">type</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">sort</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/context/Spec.html#Spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.context.Spec.Spec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Spec is the object representation of a single unit of the specification.</p>
 </dd></dl>

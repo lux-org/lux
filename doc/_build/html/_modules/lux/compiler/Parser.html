@@ -190,7 +190,7 @@
 			<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
 				<span class="n">validValues</span> <span class="o">=</span> <span class="p">[]</span>
 				<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-					<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ldf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+					<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ldf</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
 						<span class="n">validValues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 				<span class="n">tempSpec</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">attribute</span> <span class="o">=</span> <span class="n">validValues</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;attribute&quot;</span><span class="p">)</span>
 				<span class="n">newContext</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tempSpec</span><span class="p">)</span>
@@ -202,11 +202,11 @@
 					<span class="k">if</span> <span class="s2">&quot;|&quot;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
 						<span class="n">values</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">eqInd</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span>
 						<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
-							<span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ldf</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+							<span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ldf</span><span class="o">.</span><span class="n">uniqueValues</span><span class="p">[</span><span class="n">var</span><span class="p">]:</span>
 								<span class="n">validValues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 					<span class="k">else</span><span class="p">:</span>
 						<span class="n">validValues</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">eqInd</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
-					<span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ldf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+					<span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ldf</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
 						<span class="n">tempSpec</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">attribute</span> <span class="o">=</span> <span class="n">var</span><span class="p">,</span> <span class="n">filterOp</span> <span class="o">=</span> <span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">validValues</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
 						<span class="n">newContext</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tempSpec</span><span class="p">)</span>
 				<span class="c1">#case where user specifies a variable</span>
@@ -214,7 +214,7 @@
 					<span class="k">if</span> <span class="s2">&quot;|&quot;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
 						<span class="n">values</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span>
 						<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
-							<span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ldf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+							<span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ldf</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
 								<span class="n">validValues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 					<span class="k">else</span><span class="p">:</span>
 						<span class="n">validValues</span> <span class="o">=</span> <span class="n">s</span>
@@ -227,7 +227,7 @@
 
 		<span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">parsedContext</span><span class="p">:</span>
 			<span class="k">if</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">description</span><span class="p">):</span>
-				<span class="k">if</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">description</span> <span class="ow">in</span> <span class="n">ldf</span><span class="o">.</span><span class="n">columns</span> <span class="ow">or</span> <span class="n">spec</span><span class="o">.</span><span class="n">description</span> <span class="o">==</span> <span class="s2">&quot;?&quot;</span><span class="p">):</span><span class="c1"># if spec.description in the list of attributes</span>
+				<span class="k">if</span> <span class="p">((</span><span class="n">spec</span><span class="o">.</span><span class="n">description</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ldf</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span> <span class="ow">or</span> <span class="n">spec</span><span class="o">.</span><span class="n">description</span> <span class="o">==</span> <span class="s2">&quot;?&quot;</span><span class="p">):</span><span class="c1"># if spec.description in the list of attributes</span>
 					<span class="n">spec</span><span class="o">.</span><span class="n">attribute</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">description</span>
 				<span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span><span class="s2">&quot;&lt;&quot;</span><span class="p">,</span><span class="s2">&quot;=&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">description</span><span class="p">):</span> <span class="c1"># spec.description contain &quot;&gt;&quot;,&quot;&lt;&quot;. or &quot;=&quot;</span>
 					<span class="c1"># then parse it and assign to spec.attribute, spec.filterOp, spec.values</span>
@@ -238,54 +238,7 @@
 				<span class="k">else</span><span class="p">:</span> <span class="c1"># then it is probably a value </span>
 					<span class="n">spec</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">description</span>
 
-		<span class="n">ldf</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">parsedContext</span>
-		<span class="n">Parser</span><span class="o">.</span><span class="n">populateWildcardOptions</span><span class="p">(</span><span class="n">ldf</span><span class="p">)</span></div>
-		
-<div class="viewcode-block" id="Parser.populateWildcardOptions"><a class="viewcode-back" href="../../../source/reference/lux.compiler.html#lux.compiler.Parser.Parser.populateWildcardOptions">[docs]</a>	<span class="nd">@staticmethod</span>
-	<span class="k">def</span> <span class="nf">populateWildcardOptions</span><span class="p">(</span><span class="n">ldf</span><span class="p">:</span> <span class="n">LuxDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Given wildcards and constraints in the LuxDataFrame&#39;s context, </span>
-<span class="sd">		return the list of available values that satisfies the dataType or dataModel constraints</span>
-<span class="sd">		</span>
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		ldf : LuxDataFrame</span>
-<span class="sd">			LuxDataFrame with row or cols populated with available wildcard options</span>
-<span class="sd">		&quot;&quot;&quot;</span>		
-		<span class="kn">import</span> <span class="nn">copy</span>
-		<span class="kn">from</span> <span class="nn">lux.utils.utils</span> <span class="kn">import</span> <span class="n">convert2List</span>
-		<span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">ldf</span><span class="o">.</span><span class="n">context</span><span class="p">:</span>
-			<span class="n">specOptions</span> <span class="o">=</span> <span class="p">[]</span>
-			<span class="k">if</span>  <span class="n">spec</span><span class="o">.</span><span class="n">value</span><span class="o">==</span><span class="s2">&quot;&quot;</span> <span class="p">:</span> <span class="c1"># attribute</span>
-				<span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">attribute</span> <span class="o">==</span> <span class="s2">&quot;?&quot;</span><span class="p">:</span>
-					<span class="n">options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ldf</span><span class="o">.</span><span class="n">attrList</span><span class="p">)</span>  <span class="c1"># all attributes</span>
-					<span class="k">if</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">dataType</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
-						<span class="n">options</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ldf</span><span class="o">.</span><span class="n">dataType</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">dataType</span><span class="p">]))</span>
-					<span class="k">if</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">dataModel</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
-						<span class="n">options</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ldf</span><span class="o">.</span><span class="n">dataModel</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">dataModel</span><span class="p">]))</span>
-					<span class="n">options</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
-				<span class="k">else</span><span class="p">:</span>
-					<span class="n">options</span> <span class="o">=</span> <span class="n">convert2List</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">attribute</span><span class="p">)</span>
-				<span class="k">for</span> <span class="n">optStr</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
-					<span class="n">specCopy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-					<span class="n">specCopy</span><span class="o">.</span><span class="n">attribute</span> <span class="o">=</span> <span class="n">optStr</span>
-					<span class="n">specOptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">specCopy</span><span class="p">)</span>
-				<span class="n">ldf</span><span class="o">.</span><span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">specOptions</span><span class="p">)</span>
-			<span class="k">else</span><span class="p">:</span> <span class="c1"># filters</span>
-				<span class="n">attrLst</span> <span class="o">=</span> <span class="n">convert2List</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">attribute</span><span class="p">)</span>
-				<span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrLst</span><span class="p">:</span>
-					<span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;?&quot;</span><span class="p">:</span>
-						<span class="n">options</span> <span class="o">=</span> <span class="n">ldf</span><span class="o">.</span><span class="n">uniqueValues</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
-						<span class="n">specInd</span> <span class="o">=</span> <span class="n">ldf</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-						<span class="n">ldf</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="n">specInd</span><span class="p">]</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">attribute</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">attribute</span><span class="p">,</span> <span class="n">filterOp</span> <span class="o">=</span> <span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">options</span><span class="p">))</span>
-					<span class="k">else</span><span class="p">:</span>
-						<span class="n">options</span> <span class="o">=</span> <span class="n">convert2List</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-					<span class="k">for</span> <span class="n">optStr</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
-						<span class="n">specCopy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-						<span class="n">specCopy</span><span class="o">.</span><span class="n">attribute</span> <span class="o">=</span> <span class="n">attr</span>
-						<span class="n">specCopy</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">optStr</span>
-						<span class="n">specOptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">specCopy</span><span class="p">)</span>
-				<span class="n">ldf</span><span class="o">.</span><span class="n">rows</span> <span class="o">=</span> <span class="n">specOptions</span></div></div>
+		<span class="n">ldf</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">parsedContext</span></div></div>
 </pre></div>
 
            </div>
