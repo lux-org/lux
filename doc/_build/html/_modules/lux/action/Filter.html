@@ -156,6 +156,7 @@
 <span class="kn">from</span> <span class="nn">lux.view.View</span> <span class="kn">import</span> <span class="n">View</span>
 <span class="kn">from</span> <span class="nn">lux.view.ViewCollection</span> <span class="kn">import</span> <span class="n">ViewCollection</span>
 <span class="kn">from</span> <span class="nn">lux.executor.PandasExecutor</span> <span class="kn">import</span> <span class="n">PandasExecutor</span>
+<span class="kn">from</span> <span class="nn">lux.executor.SQLExecutor</span> <span class="kn">import</span> <span class="n">SQLExecutor</span>
 <span class="kn">from</span> <span class="nn">lux.compiler.Compiler</span> <span class="kn">import</span> <span class="n">Compiler</span>
 <span class="kn">from</span> <span class="nn">lux.utils</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="sd">&#39;&#39;&#39;</span>
@@ -175,7 +176,7 @@
 		<span class="c1">#get unique values for all categorical values specified and creates corresponding filters</span>
 		<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">:</span>
 			<span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">attribute</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">completedFilters</span><span class="p">:</span>
-				<span class="n">uniqueValues</span> <span class="o">=</span> <span class="n">ldf</span><span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">attribute</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+				<span class="n">uniqueValues</span> <span class="o">=</span> <span class="n">ldf</span><span class="o">.</span><span class="n">uniqueValues</span><span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">attribute</span><span class="p">]</span>
 				<span class="n">filterValues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 				<span class="c1">#creates new data objects with new filters</span>
 				<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniqueValues</span><span class="p">)):</span>
@@ -196,7 +197,7 @@
 			<span class="k">if</span> <span class="n">ldf</span><span class="o">.</span><span class="n">cardinality</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">&lt;</span><span class="mi">40</span> <span class="ow">and</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columnSpecAttr</span><span class="p">:</span>
 				<span class="n">categoricalVars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
 		<span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">categoricalVars</span><span class="p">:</span>
-			<span class="n">uniqueValues</span> <span class="o">=</span> <span class="n">ldf</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+			<span class="n">uniqueValues</span> <span class="o">=</span> <span class="n">ldf</span><span class="o">.</span><span class="n">uniqueValues</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span>
 			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniqueValues</span><span class="p">)):</span>
 				<span class="n">newSpec</span> <span class="o">=</span> <span class="n">columnSpec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 				<span class="n">newFilter</span> <span class="o">=</span> <span class="n">lux</span><span class="o">.</span><span class="n">Spec</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="n">cat</span><span class="p">,</span> <span class="n">filterOp</span><span class="o">=</span><span class="s2">&quot;=&quot;</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="n">uniqueValues</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
@@ -207,7 +208,10 @@
 	<span class="n">vc</span> <span class="o">=</span> <span class="n">lux</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">ViewCollection</span><span class="o">.</span><span class="n">ViewCollection</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 	<span class="n">vc</span> <span class="o">=</span> <span class="n">Compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">ldf</span><span class="p">,</span><span class="n">vc</span><span class="p">,</span><span class="n">enumerateCollection</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 	<span class="n">vc</span> <span class="o">=</span> <span class="n">vc</span><span class="o">.</span><span class="n">topK</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-	<span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">ldf</span><span class="o">.</span><span class="n">executorType</span> <span class="o">==</span> <span class="s2">&quot;SQL&quot;</span><span class="p">:</span>
+		<span class="n">SQLExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="n">ldf</span><span class="o">.</span><span class="n">executorType</span> <span class="o">==</span> <span class="s2">&quot;Pandas&quot;</span><span class="p">:</span>
+		<span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
 	<span class="n">recommendation</span><span class="p">[</span><span class="s2">&quot;collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vc</span>
 	<span class="c1"># print(vc)</span>
 	<span class="k">return</span> <span class="n">recommendation</span></div>

@@ -157,17 +157,164 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="lux-compiler-compiler-module">
-<h2>lux.compiler.Compiler module<a class="headerlink" href="#lux-compiler-compiler-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-lux.compiler.Compiler">
+<span id="lux-compiler-compiler-module"></span><h2>lux.compiler.Compiler module<a class="headerlink" href="#module-lux.compiler.Compiler" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="lux.compiler.Compiler.Compiler">
+<em class="property">class </em><code class="sig-prename descclassname">lux.compiler.Compiler.</code><code class="sig-name descname">Compiler</code><a class="reference internal" href="../../_modules/lux/compiler/Compiler.html#Compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.compiler.Compiler.Compiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="lux.compiler.Compiler.Compiler.compile">
+<em class="property">static </em><code class="sig-name descname">compile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ldf</span><span class="p">:</span> <span class="n"><a class="reference internal" href="lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame" title="lux.luxDataFrame.LuxDataframe.LuxDataFrame">lux.luxDataFrame.LuxDataframe.LuxDataFrame</a></span></em>, <em class="sig-param"><span class="n">viewCollection</span><span class="p">:</span> <span class="n">lux.view.ViewCollection.ViewCollection</span></em>, <em class="sig-param"><span class="n">enumerateCollection</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; lux.view.ViewCollection.ViewCollection<a class="reference internal" href="../../_modules/lux/compiler/Compiler.html#Compiler.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.compiler.Compiler.Compiler.compile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="lux.compiler.Compiler.Compiler.determineEncoding">
+<em class="property">static </em><code class="sig-name descname">determineEncoding</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ldf</span><span class="p">:</span> <span class="n"><a class="reference internal" href="lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame" title="lux.luxDataFrame.LuxDataframe.LuxDataFrame">lux.luxDataFrame.LuxDataframe.LuxDataFrame</a></span></em>, <em class="sig-param"><span class="n">view</span><span class="p">:</span> <span class="n">lux.view.View.View</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/compiler/Compiler.html#Compiler.determineEncoding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.compiler.Compiler.Compiler.determineEncoding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Populates View with the appropriate mark type and channel information based on ShowMe logic
+Currently support up to 3 dimensions or measures</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ldf</strong> (<em>lux.luxDataFrame.LuxDataFrame</em>) – LuxDataFrame with underspecified context</p></li>
+<li><p><strong>view</strong> (<em>lux.view.View</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>Returns Nothing</em></p></li>
+<li><p><em>”””</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Implementing automatic encoding from Tableau’s VizQL
+Mackinlay, J. D., Hanrahan, P., &amp; Stolte, C. (2007).
+Show Me: Automatic presentation for visual analysis.
+IEEE Transactions on Visualization and Computer Graphics, 13(6), 1137–1144.
+<a class="reference external" href="https://doi.org/10.1109/TVCG.2007.70594">https://doi.org/10.1109/TVCG.2007.70594</a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lux.compiler.Compiler.Compiler.enforceSpecifiedChannel">
+<em class="property">static </em><code class="sig-name descname">enforceSpecifiedChannel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span><span class="p">:</span> <span class="n">lux.view.View.View</span></em>, <em class="sig-param"><span class="n">autoChannel</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/compiler/Compiler.html#Compiler.enforceSpecifiedChannel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.compiler.Compiler.Compiler.enforceSpecifiedChannel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enforces that the channels specified in the View by users overrides the showMe autoChannels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>view</strong> (<em>lux.view.View</em>) – Input View without channel specification</p></li>
+<li><p><strong>autoChannel</strong> (<em>Dict</em><em>[</em><em>str</em><em>,</em><em>str</em><em>]</em>) – Key-value pair in the form [channel: attributeName] specifying the showMe recommended channel location</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dobj</strong> – Input DataObject with channel specification combining both original and autoChannel specification</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>lux.dataObj.dataObj.DataObj</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Ensures no more than one attribute is placed in the same channel</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lux.compiler.Compiler.Compiler.enumerateCollection">
+<em class="property">static </em><code class="sig-name descname">enumerateCollection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ldf</span><span class="p">:</span> <span class="n"><a class="reference internal" href="lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame" title="lux.luxDataFrame.LuxDataframe.LuxDataFrame">lux.luxDataFrame.LuxDataframe.LuxDataFrame</a></span></em>, <em class="sig-param"><span class="n">viewCollection</span><span class="p">:</span> <span class="n">lux.view.ViewCollection.ViewCollection</span></em><span class="sig-paren">)</span> &#x2192; lux.view.ViewCollection.ViewCollection<a class="reference internal" href="../../_modules/lux/compiler/Compiler.html#Compiler.enumerateCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.compiler.Compiler.Compiler.enumerateCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given specifications that have been expanded thorught populateOptions,
+recursively iterate over the resulting list combinations to generate a View collection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ldf</strong> (<em>lux.luxDataFrame.LuxDataFrame</em>) – LuxDataFrame with underspecified context</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Returns Nothing</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lux.compiler.Compiler.Compiler.expandUnderspecified">
+<em class="property">static </em><code class="sig-name descname">expandUnderspecified</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ldf</span></em>, <em class="sig-param"><span class="n">viewCollection</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/compiler/Compiler.html#Compiler.expandUnderspecified"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.compiler.Compiler.Compiler.expandUnderspecified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a underspecified Spec, populate the dataType and dataModel information accordingly</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ldf</strong> (<em>lux.luxDataFrame.LuxDataFrame</em>) – LuxDataFrame with underspecified context</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lux.compiler.Compiler.Compiler.populateWildcardOptions">
+<em class="property">static </em><code class="sig-name descname">populateWildcardOptions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ldf</span><span class="p">:</span> <span class="n"><a class="reference internal" href="lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame" title="lux.luxDataFrame.LuxDataframe.LuxDataFrame">lux.luxDataFrame.LuxDataframe.LuxDataFrame</a></span></em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="../../_modules/lux/compiler/Compiler.html#Compiler.populateWildcardOptions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.compiler.Compiler.Compiler.populateWildcardOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given wildcards and constraints in the LuxDataFrame’s context,
+return the list of available values that satisfies the dataType or dataModel constraints</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ldf</strong> (<a class="reference internal" href="lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame" title="lux.luxDataFrame.LuxDataframe.LuxDataFrame"><em>LuxDataFrame</em></a>) – LuxDataFrame with row or attributes populated with available wildcard options</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="lux-compiler-parser-module">
-<h2>lux.compiler.Parser module<a class="headerlink" href="#lux-compiler-parser-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-lux.compiler.Parser">
+<span id="lux-compiler-parser-module"></span><h2>lux.compiler.Parser module<a class="headerlink" href="#module-lux.compiler.Parser" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="lux.compiler.Parser.Parser">
+<em class="property">class </em><code class="sig-prename descclassname">lux.compiler.Parser.</code><code class="sig-name descname">Parser</code><a class="reference internal" href="../../_modules/lux/compiler/Parser.html#Parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.compiler.Parser.Parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<blockquote>
+<div><p>The parser takes in the user’s input context specification,
+then generates the Lux internal specification through lux.Spec</p>
+<p>Methods</p>
+</div></blockquote>
+<blockquote>
+<div><p>parse
+populateWildcardOptions</p>
+</div></blockquote>
+<dl class="py method">
+<dt id="lux.compiler.Parser.Parser.parse">
+<em class="property">static </em><code class="sig-name descname">parse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ldf</span><span class="p">:</span> <span class="n"><a class="reference internal" href="lux.luxDataFrame.html#lux.luxDataFrame.LuxDataframe.LuxDataFrame" title="lux.luxDataFrame.LuxDataframe.LuxDataFrame">lux.luxDataFrame.LuxDataframe.LuxDataFrame</a></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/lux/compiler/Parser.html#Parser.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.compiler.Parser.Parser.parse" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Given the string description from the input Spec,
+assign the appropriate spec.attribute, spec.filterOp, and spec.value</p>
+<dl class="simple">
+<dt>ldf<span class="classifier">LuxDataFrame</span></dt><dd><p>LuxDataFrame with fully specified context consisting of lux.Spec objects</p>
+</dd>
+</dl>
+<p>Examples</p>
+</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ldf</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Horsepower&quot;</span><span class="p">,</span> <span class="s2">&quot;Origin=USA&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ldf</span><span class="o">.</span><span class="n">context</span>
+</pre></div>
 </div>
-<div class="section" id="lux-compiler-validator-module">
-<h2>lux.compiler.Validator module<a class="headerlink" href="#lux-compiler-validator-module" title="Permalink to this headline">¶</a></h2>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-lux.compiler.Validator">
+<span id="lux-compiler-validator-module"></span><h2>lux.compiler.Validator module<a class="headerlink" href="#module-lux.compiler.Validator" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="lux.compiler.Validator.Validator">
+<em class="property">class </em><code class="sig-prename descclassname">lux.compiler.Validator.</code><code class="sig-name descname">Validator</code><a class="reference internal" href="../../_modules/lux/compiler/Validator.html#Validator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.compiler.Validator.Validator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="lux.compiler.Validator.Validator.validateSpec">
+<em class="property">static </em><code class="sig-name descname">validateSpec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ldf</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lux/compiler/Validator.html#Validator.validateSpec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lux.compiler.Validator.Validator.validateSpec" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lux.compiler">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-lux.compiler" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 

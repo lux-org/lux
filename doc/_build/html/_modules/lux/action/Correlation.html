@@ -155,18 +155,23 @@
 <span class="kn">from</span> <span class="nn">lux.interestingness.interestingness</span> <span class="kn">import</span> <span class="n">interestingness</span>
 <span class="kn">from</span> <span class="nn">lux.compiler.Compiler</span> <span class="kn">import</span> <span class="n">Compiler</span>
 <span class="kn">from</span> <span class="nn">lux.executor.PandasExecutor</span> <span class="kn">import</span> <span class="n">PandasExecutor</span>
+<span class="kn">from</span> <span class="nn">lux.executor.SQLExecutor</span> <span class="kn">import</span> <span class="n">SQLExecutor</span>
 
 <span class="c1"># change ignoreTranspose to false for now.</span>
 <div class="viewcode-block" id="correlation"><a class="viewcode-back" href="../../../source/reference/lux.action.html#lux.action.Correlation.correlation">[docs]</a><span class="k">def</span> <span class="nf">correlation</span><span class="p">(</span><span class="n">ldf</span><span class="p">,</span><span class="n">ignoreIdentity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ignoreTranspose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 	<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
+	<span class="n">ldf</span><span class="o">.</span><span class="n">setContext</span><span class="p">([</span><span class="n">lux</span><span class="o">.</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;?&quot;</span><span class="p">,</span><span class="n">dataModel</span><span class="o">=</span><span class="s2">&quot;measure&quot;</span><span class="p">),</span><span class="n">lux</span><span class="o">.</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;?&quot;</span><span class="p">,</span><span class="n">dataModel</span><span class="o">=</span><span class="s2">&quot;measure&quot;</span><span class="p">)])</span>
 	<span class="n">recommendation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;action&quot;</span><span class="p">:</span><span class="s2">&quot;Correlation&quot;</span><span class="p">,</span>
 						   <span class="s2">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Show relationships between two quantitative variables.&quot;</span><span class="p">}</span>
 	<span class="n">vc</span> <span class="o">=</span> <span class="n">ldf</span><span class="o">.</span><span class="n">viewCollection</span>
 	<span class="c1"># if (ignoreIdentity): vc = filter(lambda x: x.specLst[0].attribute!=x.specLst[1].attribute,ldf.viewCollection)</span>
 	<span class="n">vc</span> <span class="o">=</span> <span class="n">Compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">ldf</span><span class="p">,</span> <span class="n">vc</span><span class="p">,</span> <span class="n">enumerateCollection</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-	<span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">ldf</span><span class="o">.</span><span class="n">executorType</span> <span class="o">==</span> <span class="s2">&quot;SQL&quot;</span><span class="p">:</span>
+		<span class="n">SQLExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="n">ldf</span><span class="o">.</span><span class="n">executorType</span> <span class="o">==</span> <span class="s2">&quot;Pandas&quot;</span><span class="p">:</span>
+		<span class="n">PandasExecutor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span><span class="n">ldf</span><span class="p">)</span>
 	<span class="c1"># Then use the data populated in the view collection to compute score</span>
 	<span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="n">vc</span><span class="p">:</span>
 		<span class="n">measures</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">getObjByDataModel</span><span class="p">(</span><span class="s2">&quot;measure&quot;</span><span class="p">)</span>
@@ -186,6 +191,7 @@
 				<span class="n">view</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 	<span class="n">vc</span> <span class="o">=</span> <span class="n">vc</span><span class="o">.</span><span class="n">topK</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 	<span class="n">vc</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">removeInvalid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+	<span class="n">ldf</span><span class="o">.</span><span class="n">clearContext</span><span class="p">()</span>
 	<span class="n">recommendation</span><span class="p">[</span><span class="s2">&quot;collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vc</span>
 	<span class="k">return</span> <span class="n">recommendation</span></div>
 
