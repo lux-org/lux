@@ -16,6 +16,7 @@ def enhance(ldf):
 
 	recommendation = {"action":"Enhance",
 					"description":"Shows possible visualizations when an additional attribute is added to the current view."}
+	filters = utils.getFilterSpecs(ldf.context)
 	output = []
 	# Collect variables that already exist in the context
 	context = utils.getAttrsSpecs(ldf.context)
@@ -31,6 +32,7 @@ def enhance(ldf):
 		if qVar not in existingVars and ldf.dataTypeLookup[qVar] != "temporal":
 			cxtNew = context.copy()
 			cxtNew.append(lux.Spec(attribute = qVar))
+			cxtNew.extend(filters)
 			view = lux.view.View.View(cxtNew)
 			output.append(view)
 	vc = lux.view.ViewCollection.ViewCollection(output)
