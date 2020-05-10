@@ -129,7 +129,7 @@ class Compiler:
 			if (spec.value==""):
 				if (spec.dataModel == "dimension"):
 					Ndim += 1
-				elif (spec.dataModel == "measure"):
+				elif (spec.dataModel == "measure" and spec.attribute!="Record"):
 					Nmsr += 1
 			else:  # preserve to add back to specLst later
 				filters.append(spec)

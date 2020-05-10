@@ -282,6 +282,9 @@ class LuxDataFrame(pd.DataFrame):
         return self.widget
     def _repr_html_(self):
         from IPython.display import display
+        # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refreshContext)
+        self.computeStats()
+        self.computeDatasetMetadata()
         #for benchmarking
         #tic = time.perf_counter()
         self.showMore() # compute the recommendations
