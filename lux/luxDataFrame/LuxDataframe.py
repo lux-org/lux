@@ -247,11 +247,11 @@ class LuxDataFrame(pd.DataFrame):
     def generalize(self):
         from lux.action.Generalize import generalize
         return generalize(self)
-    def similarPattern(self,query,topK=-1):
-        from lux.action.Similarity import similarPattern
-        self.recommendation.append(similarPattern(self,query,topK))
-        self.renderWidget()
-        display(self.widget)
+    # def similarPattern(self,query,topK=-1):
+    #     from lux.action.Similarity import similarPattern
+    #     self.recommendation.append(similarPattern(self,query,topK))
+    #     self.renderWidget()
+    #     display(self.widget)
 
     def showMore(self):
         self.recommendation = []
@@ -291,12 +291,12 @@ class LuxDataFrame(pd.DataFrame):
         #toc = time.perf_counter()
         #print(f"Computed recommendations in {toc - tic:0.4f} seconds")
 
-        self.renderWidget()
+        self.widget = LuxDataFrame.renderWidget(self)
         display(self.widget)
     def displayPandas(self):
         return self.toPandas()
-
-    def renderWidget(self, renderer:str ="altair", inputCurrentView=""):
+    @staticmethod
+    def renderWidget(ldf="", renderer:str ="altair", inputCurrentView="",renderViewOnly = False):
         """
         Generate a LuxWidget based on the LuxDataFrame
         
@@ -311,22 +311,28 @@ class LuxDataFrame(pd.DataFrame):
         import pkgutil
         if (pkgutil.find_loader("luxWidget") is None):
             raise Exception("luxWidget is not install. Run `npm i lux-widget' to install the Jupyter widget.\nSee more at: https://github.com/lux-org/lux-widget")
-        widgetJSON = self.toJSON(inputCurrentView=inputCurrentView)
-        # For debugging purposes
-        # import json
-        # widgetJSON = json.load(open("mockWidgetJSON.json",'r'))
-        # print(widgetJSON["recommendation"])
-        self.widget = luxWidget.LuxWidget(
-            currentView=widgetJSON["currentView"],
-            recommendations=widgetJSON["recommendation"],
-            context=self.contextToJSON()
-        )
-
-    def contextToJSON(self):
+        
+        widgetJSON = {}
+        if (renderViewOnly):
+            widgetJSON["currentView"] = LuxDataFrame.currentViewToJSON([inputCurrentView])
+            return luxWidget.LuxWidget(
+                currentView=widgetJSON["currentView"],
+                recommendations=[],
+                context={}
+            )
+        else: 
+            widgetJSON = ldf.toJSON(inputCurrentView=inputCurrentView)
+            return luxWidget.LuxWidget(
+                currentView=widgetJSON["currentView"],
+                recommendations=widgetJSON["recommendation"],
+                context=LuxDataFrame.contextToJSON(ldf.context)
+            )
+    @staticmethod
+    def contextToJSON(context):
         from lux.utils import utils
 
-        filterSpecs = utils.getFilterSpecs(self.context)
-        attrsSpecs = utils.getAttrsSpecs(self.context)
+        filterSpecs = utils.getFilterSpecs(context)
+        attrsSpecs = utils.getAttrsSpecs(context)
         
         specs = {}
         specs['attributes'] = [spec.attribute for spec in attrsSpecs]
