@@ -6,10 +6,16 @@ from lux.executor.PandasExecutor import PandasExecutor
 from lux.executor.SQLExecutor import SQLExecutor
 from lux.compiler.Compiler import Compiler
 from lux.utils import utils
+
+#for benchmarking
+import time
 '''
 Shows possible visualizations when filtered by categorical variables in the data object's dataset
 '''
 def filter(ldf):
+	#for benchmarking
+	#tic = time.perf_counter()
+
 	recommendation = {"action":"Filter",
 						   "description":"Shows possible visualizations when filtered by categorical variables in the data object's dataset."}
 	filters = utils.getFilterSpecs(ldf.context)
@@ -60,5 +66,8 @@ def filter(ldf):
 	elif ldf.executorType == "Pandas":
 		PandasExecutor.execute(vc,ldf)
 	recommendation["collection"] = vc
-	# print(vc)
+	
+	#for benchmarking
+	#toc = time.perf_counter()
+	#print(f"Performed filter action in {toc - tic:0.4f} seconds")
 	return recommendation

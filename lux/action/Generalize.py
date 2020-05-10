@@ -7,11 +7,17 @@ from lux.executor.PandasExecutor import PandasExecutor
 from lux.executor.SQLExecutor import SQLExecutor
 from lux.utils import utils
 from lux.interestingness.interestingness import interestingness
+
+#for benchmarking
+import time
 # from compiler.Compiler import Compiler
 '''
 Shows possible visualizations when one attribute or filter from the current context is removed
 '''
 def generalize(ldf):
+	#for benchmarking
+	#tic = time.perf_counter()
+
 	# takes in a dataObject and generates a list of new dataObjects, each with a single measure from the original object removed
 	# -->  return list of dataObjects with corresponding interestingness scores
 
@@ -56,4 +62,8 @@ def generalize(ldf):
 	if ldf.executorType == "SQL":
 		SQLExecutor.execute(vc,ldf)
 	recommendation["collection"] = vc
+
+	#for benchmarking
+	#toc = time.perf_counter()
+	#print(f"Performed generalize action in {toc - tic:0.4f} seconds")
 	return recommendation

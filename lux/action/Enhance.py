@@ -4,10 +4,16 @@ from lux.compiler.Compiler import Compiler
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.executor.SQLExecutor import SQLExecutor
 from lux.utils import utils
+
+#for benchmarking
+import time
 '''
 Shows possible visualizations when an additional attribute is added to the current view
 '''
 def enhance(ldf):
+	#for benchmarking
+	#tic = time.perf_counter()
+
 	recommendation = {"action":"Enhance",
 					"description":"Shows possible visualizations when an additional attribute is added to the current view."}
 	output = []
@@ -44,4 +50,7 @@ def enhance(ldf):
 	vc = vc.topK(10)
 	vc.sort(removeInvalid=True)
 	recommendation["collection"] = vc
+	#for benchmarking
+	#toc = time.perf_counter()
+	#print(f"Performed enhance action in {toc - tic:0.4f} seconds")
 	return recommendation

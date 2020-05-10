@@ -3,10 +3,13 @@ from lux.interestingness.interestingness import interestingness
 from lux.compiler.Compiler import Compiler
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.executor.SQLExecutor import SQLExecutor
-
+#for benchmarking
+import time
 # change ignoreTranspose to false for now.
 def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 	import numpy as np
+	#for benchmarking
+	#tic = time.perf_counter()
 
 	ldf.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
 	recommendation = {"action":"Correlation",
@@ -40,6 +43,10 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 	vc.sort(removeInvalid=True)
 	ldf.clearContext()
 	recommendation["collection"] = vc
+
+	#for benchmarking
+	#toc = time.perf_counter()
+	#print(f"Performed correlation action in {toc - tic:0.4f} seconds")
 	return recommendation
 
 def checkTransposeNotComputed(ldf,a,b):

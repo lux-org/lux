@@ -86,8 +86,10 @@ class LuxDataFrame(pd.DataFrame):
     def computeDataType(self):
         for attr in list(self.columns):
             #TODO: Think about dropping NaN values
-            if self.dtypes[attr] == "float64" or self.dtypes[attr] == "int64":
-                if self.cardinality[attr] < 10: #TODO:nominal with high value breaks system
+            if str(attr).lower() in ["month", "year"]:
+                self.dataTypeLookup[attr] = "temporal"
+            elif self.dtypes[attr] == "float64" or self.dtypes[attr] == "int64":
+                if self.cardinality[attr] < 13: #TODO:nominal with high value breaks system
                     self.dataTypeLookup[attr] = "nominal"
                 else:
                     self.dataTypeLookup[attr] = "quantitative"
@@ -139,12 +141,13 @@ class LuxDataFrame(pd.DataFrame):
     #######################################################
 
     def setSQLConnection(self, connection, t_name):
-        tic = time.perf_counter()
+        #for benchmarking
+        #tic = time.perf_counter()
         self.SQLconnection = connection
         self.table_name = t_name
         self.computeSQLDatasetMetadata()
-        toc = time.perf_counter()
-        print(f"Extracted Metadata from SQL Database in {toc - tic:0.4f} seconds")
+        #toc = time.perf_counter()
+        #print(f"Extracted Metadata from SQL Database in {toc - tic:0.4f} seconds")
 
     def computeSQLDatasetMetadata(self):
         self.getSQLAttributes()
@@ -207,11 +210,14 @@ class LuxDataFrame(pd.DataFrame):
 
         dataType = {"quantitative":[], "ordinal":[], "nominal":[], "temporal":[]}
         for attr in list(self.columns):
-            if sqlDTypes[attr] in ["character", "character varying", "boolean", "uuid", "text"]:
+            if str(attr).lower() in ["month", "year"]:
+                dataTypeLookup[attr] = "temporal"
+                dataType["temporal"].append(attr)
+            elif sqlDTypes[attr] in ["character", "character varying", "boolean", "uuid", "text"]:
                 dataTypeLookup[attr] = "nominal"
                 dataType["nominal"].append(attr)
             elif sqlDTypes[attr] in ["integer", "real", "smallint", "smallserial", "serial"]:
-                if self.cardinality[attr] < 10:
+                if self.cardinality[attr] < 13:
                     dataTypeLookup[attr] = "nominal"
                     dataType["nominal"].append(attr)
                 else:
@@ -277,15 +283,12 @@ class LuxDataFrame(pd.DataFrame):
     def _repr_html_(self):
         from IPython.display import display
         #for benchmarking
-        tic = time.perf_counter()
+        #tic = time.perf_counter()
         self.showMore() # compute the recommendations
-        toc = time.perf_counter()
-        print(f"Computed recommendations in {toc - tic:0.4f} seconds")
+        #toc = time.perf_counter()
+        #print(f"Computed recommendations in {toc - tic:0.4f} seconds")
 
-        tic = time.perf_counter()
         self.renderWidget()
-        toc = time.perf_counter()
-        print(f"Rendered the widget in {toc - tic:0.4f} seconds")
         display(self.widget)
     def displayPandas(self):
         return self.toPandas()
@@ -360,7 +363,12 @@ class LuxDataFrame(pd.DataFrame):
             #print(vc[0])
             #print(vc[0].data.columns)
             #print(vc[0].data[vc[0].data.columns[1]])
+
+            #for benchmarking
+            #tic = time.perf_counter()
             currentViewSpec = vc[0].renderVSpec()
+            #toc = time.perf_counter()
+            #print(f"Rendered {vc[0].mark} view in {toc - tic:0.4f} seconds")
         elif (numVC>1):
             pass
         # This behavior is jarring to user, so comment out for now
@@ -384,7 +392,11 @@ class LuxDataFrame(pd.DataFrame):
             if (rec != {}):
                 rec["vspec"] = []
                 for vis in rec["collection"]:
+                    #for benchmarking
+                    #tic = time.perf_counter()
                     chart = vis.renderVSpec()
+                    #toc = time.perf_counter()
+                    #print(f"Rendered {vis.mark} view in {toc - tic:0.4f} seconds")
                     rec["vspec"].append(chart)
                 recLst.append(rec)
                 # delete DataObjectCollection since not JSON serializable
