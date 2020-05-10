@@ -13,6 +13,10 @@ class View:
 
 	def __repr__(self):
 		return f"<View: Mark: {self.mark}, Specs: {str(self.specLst)}, Score:{self.score}>"
+	def _repr_html_(self):
+		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+		widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderViewOnly=True)
+		display(widget)
 
 	def getObjFromChannel(self, channel):
 		specObj = list(filter(lambda x: x.channel == channel if hasattr(x, "channel") else False, self.specLst))
