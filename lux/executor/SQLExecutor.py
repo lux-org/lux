@@ -41,9 +41,9 @@ class SQLExecutor(Executor):
                 requiredVariables = ",".join(requiredVariables)
                 rowCount = list(pd.read_sql("SELECT COUNT(*) FROM {} {}".format(ldf.table_name, whereClause), ldf.SQLconnection)['count'])[0]
                 if rowCount > 10000:
-                    query = "SELECT {} FROM {} {} ORDER BY random() LIMIT 10000".format(requiredVariables, whereClause, ldf.table_name)
+                    query = "SELECT {} FROM {} {} ORDER BY random() LIMIT 10000".format(requiredVariables, ldf.table_name, whereClause)
                 else:
-                    query = "SELECT {} FROM {} {}".format(requiredVariables, whereClause, ldf.table_name)
+                    query = "SELECT {} FROM {} {}".format(requiredVariables, ldf.table_name, whereClause)
                 data = pd.read_sql(query, ldf.SQLconnection)
                 view.data = utils.pandasToLux(data)
             if (view.mark =="bar" or view.mark =="line"):

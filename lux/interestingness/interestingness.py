@@ -109,7 +109,6 @@ def interestingness(view,ldf):
 			v_bin = np.histogram(v, bins=filter_spec.binSize)[0]
 			v_filter_bin = np.histogram(v_filter, bins=filter_spec.binSize)[0]
 		sig = len(v_filter)
-		print(len(v), len(v_filter), len(v_bin), len(v_filter_bin))
 		return sig*deviation(v, v_filter, v_bin, v_filter_bin)
 
 	# Scatter Plot
