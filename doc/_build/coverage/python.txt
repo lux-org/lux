@@ -1,2 +1,0 @@
-Undocumented Python objects
-===========================
