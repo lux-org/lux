@@ -2,6 +2,14 @@ from lux.vizLib.altair.AltairChart import AltairChart
 import altair as alt
 alt.data_transformers.disable_max_rows()
 class LineChart(AltairChart):
+	"""
+	LineChart is a subclass of AltairChart that render as a line charts.
+	All rendering properties for line charts are set here.
+
+	See Also
+	--------
+	altair-viz.github.io
+	"""
 	def __init__(self,dobj):
 		super().__init__(dobj)
 	def __repr__(self):

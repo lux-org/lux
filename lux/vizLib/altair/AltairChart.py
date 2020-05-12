@@ -4,6 +4,11 @@ class AltairChart:
 	"""
 	AltairChart is a representation of a chart. 
 	Common utilities for charts that is independent of chart types should go here.
+
+	See Also
+	--------
+	altair-viz.github.io
+
 	"""			
 	def __init__(self, view):
 		self.view = view
