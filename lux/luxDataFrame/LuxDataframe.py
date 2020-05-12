@@ -232,40 +232,22 @@ class LuxDataFrame(pd.DataFrame):
         self.dataTypeLookup = dataTypeLookup
         self.dataType = dataType
 
-    #######################################################
-    ############## Mappers to Action classes ##############
-    #######################################################
-    def correlation(self):
-        from lux.action.Correlation import correlation
-        return correlation(self)
-    def distribution(self,dataTypeConstraint="quantitative"):
-        from lux.action.Distribution import distribution
-        return distribution(self,dataTypeConstraint)
-    def enhance(self):
-        from lux.action.Enhance import enhance
-        return enhance(self)
-    def filter(self):
-        from lux.action.Filter import filter
-        return filter(self)
-    def generalize(self):
-        from lux.action.Generalize import generalize
-        return generalize(self)
-    # def similarPattern(self,query,topK=-1):
-    #     from lux.action.Similarity import similarPattern
-    #     self.recommendation.append(similarPattern(self,query,topK))
-    #     self.renderWidget()
-    #     display(self.widget)
-
     def showMore(self):
+        from lux.action.Correlation import correlation
+        from lux.action.Distribution import distribution
+        from lux.action.Enhance import enhance
+        from lux.action.Filter import filter
+        from lux.action.Generalize import generalize
+
         self.recommendation = []
         currentViewExist = self.viewCollection!=[]
         if (self.DEBUG_FRONTEND):
             self.recommendation.append(self.generalize())
         else:
             if (currentViewExist):
-                enhance = self.enhance()
-                filter = self.filter()
-                generalize = self.generalize()
+                enhance = enhance(self)
+                filter = filter(self)
+                generalize = generalize(self)
                 if enhance['collection']:
                     self.recommendation.append(enhance)
                 if filter['collection']:
@@ -273,9 +255,9 @@ class LuxDataFrame(pd.DataFrame):
                 if generalize['collection']:
                     self.recommendation.append(generalize)
             else: 
-                self.recommendation.append(self.correlation()) 
-                self.recommendation.append(self.distribution("quantitative"))  
-                self.recommendation.append(self.distribution("nominal"))  
+                self.recommendation.append(correlation(self))
+                self.recommendation.append(distribution(self,"quantitative"))
+                self.recommendation.append(distribution(self,"nominal"))
 
 
     #######################################################
