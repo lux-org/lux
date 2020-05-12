@@ -6,6 +6,9 @@ from lux.view.ViewCollection import ViewCollection
 import pandas as pd
 import numpy as np
 class Compiler:
+	'''
+	Given a context with underspecified inputs, compile the context into fully specified views for visualization.
+	'''
 	def __init__(self):
 		self.name = "Compiler"
 
@@ -14,10 +17,30 @@ class Compiler:
 		
 	@staticmethod
 	def compile(ldf:LuxDataFrame, viewCollection: ViewCollection, enumerateCollection=True) -> ViewCollection:
+		"""
+		Compiles input specifications in the context of the ldf into a collection of lux.View objects for visualization.
+		1) Enumerate a collection of views interested by the user to generate a view collection
+		2) Expand underspecified specifications(lux.Spec) for each of the generated views.
+		3) Determine encoding properties for each view
+
+		Parameters
+		----------
+		ldf : lux.luxDataFrame.LuxDataFrame
+			LuxDataFrame with underspecified context.
+		viewCollection : list[lux.view.View]
+			empty list that will be populated with specified lux.View objects.
+		enumerateCollection : boolean
+			A boolean value that signals when to generate a collection of visualizations. 
+
+		Returns
+		-------
+		viewCollection: list[lux.View]
+			view collection with compiled lux.View objects.
+		"""
 		# 1. If the DataObj represent a collection, then compile it into a collection. Otherwise, return False
 		# Input: DataObj --> Output: DataObjCollection/False
 		if (enumerateCollection):
-			viewCollection = Compiler.enumerateCollection(ldf,viewCollection)
+			viewCollection = Compiler.enumerateCollection(ldf)
 		# else:
 		# 	dataObjCollection = False
 		# 2. For every DataObject in the DataObject Collection, expand underspecified
@@ -28,7 +51,7 @@ class Compiler:
 			Compiler.determineEncoding(ldf,view)  # autofill viz related information
 		return viewCollection
 	@staticmethod
-	def enumerateCollection(ldf:LuxDataFrame, viewCollection: ViewCollection) -> ViewCollection:
+	def enumerateCollection(ldf:LuxDataFrame) -> ViewCollection:
 		"""
 		Given specifications that have been expanded thorught populateOptions,
 		recursively iterate over the resulting list combinations to generate a View collection.
@@ -36,11 +59,12 @@ class Compiler:
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
-			LuxDataFrame with underspecified context
+			LuxDataFrame with underspecified context.
 
-		Returns
-		-------
-		Returns Nothing
+        Returns
+        -------
+        ViewCollection: list[lux.View]
+        	view collection with compiled lux.View objects.
 		"""
 
 		specs = Compiler.populateWildcardOptions(ldf)
@@ -76,6 +100,11 @@ class Compiler:
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context
+
+		Returns
+        -------
+        views: list[lux.View]
+        	view collection with compiled lux.View objects.
 		"""		
 		# TODO: copy might not be neccesary
 		import copy
@@ -110,8 +139,7 @@ class Compiler:
 
 		Returns
 		-------
-		Returns Nothing
-		"""
+		None
 
 		Notes
 		-----
@@ -229,24 +257,24 @@ class Compiler:
 	@staticmethod
 	def enforceSpecifiedChannel(view: View, autoChannel: Dict[str,str]):
 		"""
-		Enforces that the channels specified in the View by users overrides the showMe autoChannels
+		Enforces that the channels specified in the View by users overrides the showMe autoChannels.
 		
 		Parameters
 		----------
 		view : lux.view.View
-			Input View without channel specification
+			Input View without channel specification.
 		autoChannel : Dict[str,str]
-			Key-value pair in the form [channel: attributeName] specifying the showMe recommended channel location
+			Key-value pair in the form [channel: attributeName] specifying the showMe recommended channel location.
 		
 		Returns
 		-------
-		dobj : lux.dataObj.dataObj.DataObj
-			Input DataObject with channel specification combining both original and autoChannel specification
+		view : lux.view.View
+			View with channel specification combining both original and autoChannel specification.
 		
 		Raises
 		------
 		ValueError
-			Ensures no more than one attribute is placed in the same channel
+			Ensures no more than one attribute is placed in the same channel.
 		"""		
 		resultDict = {}  # result of enforcing specified channel will be stored in resultDict
 		specifiedDict = {}  # specifiedDict={"x":[],"y":[list of Dobj with y specified as channel]}
@@ -281,12 +309,17 @@ class Compiler:
 	def populateWildcardOptions(ldf: LuxDataFrame) -> dict:
 		"""
 		Given wildcards and constraints in the LuxDataFrame's context,
-		return the list of available values that satisfies the dataType or dataModel constraints
+		return the list of available values that satisfies the dataType or dataModel constraints.
 
 		Parameters
 		----------
 		ldf : LuxDataFrame
-			LuxDataFrame with row or attributes populated with available wildcard options
+			LuxDataFrame with row or attributes populated with available wildcard options.
+
+        Returns
+        -------
+        specs: Dict[str,list]
+        	a dictionary that holds the attributes and filters generated from wildcards and constraints.
 		"""
 		import copy
 		from lux.utils.utils import convert2List

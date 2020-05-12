@@ -9,13 +9,23 @@ from lux.utils import utils
 
 #for benchmarking
 import time
-'''
-Shows possible visualizations when filtered by categorical variables in the data object's dataset
-'''
+
 def filter(ldf):
 	#for benchmarking
 	#tic = time.perf_counter()
+	'''
+	Iterates over all possible values of a categorical variable and generates visualizations where each categorical value filters the data.
 
+	Parameters
+	----------
+	ldf : lux.luxDataFrame.LuxDataFrame
+		LuxDataFrame with underspecified context.
+
+	Returns
+	-------
+	recommendations : Dict[str,obj]
+		object with a collection of visualizations that result from the Filter action.
+	'''
 	recommendation = {"action":"Filter",
 						   "description":"Shows possible visualizations when filtered by categorical variables in the data object's dataset."}
 	filters = utils.getFilterSpecs(ldf.context)

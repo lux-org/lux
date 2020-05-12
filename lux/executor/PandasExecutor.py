@@ -5,6 +5,9 @@ from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
 class PandasExecutor(Executor):
+    '''
+    Given a View objects with complete specifications, fetch and process data using Pandas dataframe operations.
+    '''
     def __init__(self):
         self.name = "PandasExecutor"
 
@@ -13,10 +16,21 @@ class PandasExecutor(Executor):
     @staticmethod
     def execute(viewCollection:ViewCollection, ldf:LuxDataFrame):
         '''
-        Given a ViewCollection, fetch the data required to render the view
+        Given a ViewCollection, fetch the data required to render the view.
         1) Apply filters
-        2) Retreive relevant attribute
+        2) Retrieve relevant attribute
         3) return a DataFrame with relevant results
+
+        Parameters
+		----------
+		viewCollection: list[lux.View]
+		    view collection that contains lux.View objects for visualization.
+		ldf : lux.luxDataFrame.LuxDataFrame
+			LuxDataFrame with specified context.
+
+        Returns
+		-------
+		None
         '''
         for view in viewCollection:
             PandasExecutor.executeFilter(view, ldf)
@@ -37,6 +51,20 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def executeAggregate(view: View, ldf: LuxDataFrame):
+        '''
+        Aggregate data points on an axis for bar or line charts
+
+        Parameters
+        ----------
+        view: lux.View
+            lux.View object that represents a visualization
+        ldf : lux.luxDataFrame.LuxDataFrame
+            LuxDataFrame with specified context.
+
+        Returns
+        -------
+        None
+        '''
         xAttr = view.getAttrByChannel("x")[0]
         yAttr = view.getAttrByChannel("y")[0]
         groupbyAttr =""
@@ -61,6 +89,20 @@ class PandasExecutor(Executor):
                 view.data = groupbyResult.agg(aggFunc).reset_index()
     @staticmethod
     def executeBinning(view, ldf):
+        '''
+        Binning of data points for generating histograms
+
+        Parameters
+        ----------
+        view: lux.View
+            lux.View object that represents a visualization
+        ldf : lux.luxDataFrame.LuxDataFrame
+            LuxDataFrame with specified context.
+
+        Returns
+        -------
+        None
+        '''
         import numpy as np
         import pandas as pd # is this import going to be conflicting with LuxDf?
         binAttribute = list(filter(lambda x: x.binSize!=0,view.specLst))[0]
@@ -99,7 +141,7 @@ class PandasExecutor(Executor):
         
         Returns
         -------
-        pandas.DataFrame
+        df: pandas.DataFrame
             Dataframe resulting from the filter operation
         """        
         if (op == '='):

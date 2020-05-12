@@ -3,30 +3,28 @@ from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 class Parser:
 	"""
 	The parser takes in the user's input context specification,
-	then generates the Lux internal specification through lux.Spec
-
-	Methods
-    -------
-	parse
-	populateWildcardOptions
-
+	then generates the Lux internal specification through lux.Spec.
 	"""	
 	@staticmethod
 	def parse(ldf: LuxDataFrame) -> None:
 		"""
 		Given the string description from the input Spec,
-		assign the appropriate spec.attribute, spec.filterOp, and spec.value
+		assign the appropriate spec.attribute, spec.filterOp, and spec.value.
 		
 		Parameters
 		----------
-		ldf : LuxDataFrame
-			LuxDataFrame with fully specified context consisting of lux.Spec objects
-		
+		ldf : lux.luxDataFrame.LuxDataFrame
+			LuxDataFrame with fully specified context consisting of lux.Spec objects.
+
+		Returns
+		-------
+		None
+
 		Examples
-        --------
+		--------
 		>>> ldf.context = ["Horsepower", "Origin=USA"]
 		>>> ldf.context
-		"""		
+		"""
 		import re
 		parsedContext = ldf.getContext()
 		newContext = []

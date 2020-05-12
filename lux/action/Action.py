@@ -1,6 +1,6 @@
 class Action:
 	'''
-	Abstract class definition of Action
+	Abstract class for an action, where an action is an analytical module for computing visual recommendations.
 	'''
 	def __init__(self):
 		self.name = ""

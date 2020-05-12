@@ -7,13 +7,22 @@ from lux.utils import utils
 
 #for benchmarking
 import time
-'''
-Shows possible visualizations when an additional attribute is added to the current view
-'''
 def enhance(ldf):
 	#for benchmarking
 	#tic = time.perf_counter()
+	'''
+	Given a set of views, generates possible visualizations when an additional attribute is added to the current view.
 
+	Parameters
+	----------
+	ldf : lux.luxDataFrame.LuxDataFrame
+		LuxDataFrame with underspecified context.
+
+	Returns
+	-------
+	recommendations : Dict[str,obj]
+		object with a collection of visualizations that result from the Enhance action.
+	'''
 	recommendation = {"action":"Enhance",
 					"description":"Shows possible visualizations when an additional attribute is added to the current view."}
 	filters = utils.getFilterSpecs(ldf.context)
