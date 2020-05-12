@@ -7,8 +7,8 @@ class ScatterChart(AltairChart):
 	def __repr__(self):
 		return f"ScatterChart <{str(self.view)}>"
 	def initializeChart(self):
-		xAttr = self.view.getObjFromChannel("x")[0]
-		yAttr = self.view.getObjFromChannel("y")[0]
+		xAttr = self.view.getAttrByChannel("x")[0]
+		yAttr = self.view.getAttrByChannel("y")[0]
 		chart = alt.Chart(self.data).mark_circle().encode(
 		    x=alt.X(xAttr.attribute,scale=alt.Scale(zero=False),type=xAttr.dataType),
 		    y=alt.Y(yAttr.attribute,scale=alt.Scale(zero=False),type=yAttr.dataType)

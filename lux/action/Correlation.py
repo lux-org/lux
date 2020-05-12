@@ -24,7 +24,7 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 		PandasExecutor.execute(vc,ldf)
 	# Then use the data populated in the view collection to compute score
 	for view in vc:
-		measures = view.getObjByDataModel("measure")
+		measures = view.getAttrByDataModel("measure")
 		if len(measures)<2 : raise ValueError(f"Can not compute correlation between {[x.attribute for x in ldf.columns]} since less than 2 measure values present.")
 		msr1 = measures[0].attribute
 		msr2 = measures[1].attribute
@@ -39,7 +39,7 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 				view.score = interestingness(view,ldf)
 			else:
 				view.score = -1
-	vc = vc.topK(10)
+	vc = vc.topK(15)
 	vc.sort(removeInvalid=True)
 	ldf.clearContext()
 	recommendation["collection"] = vc

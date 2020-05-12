@@ -8,8 +8,8 @@ class LineChart(AltairChart):
 		return f"Line Chart <{str(self.view)}>"
 	def initializeChart(self):
 		self.tooltip = False # tooltip looks weird for line chart
-		xAttr = self.view.getObjFromChannel("x")[0]
-		yAttr = self.view.getObjFromChannel("y")[0]
+		xAttr = self.view.getAttrByChannel("x")[0]
+		yAttr = self.view.getAttrByChannel("y")[0]
 		
 		if (yAttr.dataModel == "measure"):
 			xAttrSpec = alt.X(xAttr.attribute, type = xAttr.dataType)

@@ -20,7 +20,7 @@ def interestingness(view,ldf):
 				n_msr += 1
 	n_filter = len(filterSpecs)
 	attr_specs = [spec for spec in viewAttrsSpecs if spec.attribute != "Record"]
-
+	# print (n_filter, n_dim,n_msr)
 	# Bar Chart (Count)
 	if (n_dim == 1 and n_msr == 0 and n_filter == 0):
 		v = ldf[attr_specs[0].attribute].value_counts()
@@ -85,11 +85,12 @@ def interestingness(view,ldf):
 		return unevenness(D, v, v_flat)
 	elif (n_dim == 1 and n_msr == 1 and n_filter == 1):
 		#view.data will already be populated if using SQL Executor
+		dimension = view.getAttrByDataModel("dimension")[0].attribute
 		if ldf.executorType == "SQL":
 			return(0)
-			v = view.data[attr_specs[0].attribute]
+			v = view.data[dimension]
 		else:
-			v = ldf[attr_specs[0].attribute]
+			v = ldf[dimension]
 		C = len(v.unique())
 
 		# if c < 40 # c == cardinality (number of unique values)
@@ -122,16 +123,19 @@ def interestingness(view,ldf):
 		return monotonicity(v_x, v_y)
 	# Scatterplot colored by Dimension
 	elif (n_dim == 1 and n_msr == 2):
-		colorAttr = view.getObjFromChannel("color")[0].attribute
+		colorAttr = view.getAttrByChannel("color")[0].attribute
 		
 		C = ldf.cardinality[colorAttr]
 		if (C<40):
 			return 1/C
 		else:
 			return -1
-	# Scatterplot colored by Measure
-	elif (n_msr == 1 and n_msr == 2):
+	# Scatterplot colored by dimension
+	elif (n_dim== 1 and n_msr == 2):
 		return 0.2
+	# Scatterplot colored by measure
+	elif (n_msr == 3):
+		return 0.1
 	# Default
 	else:
 		return -1
@@ -207,7 +211,7 @@ def deviation(v, v_filter, v_bin, v_filter_bin):
 	# Norm for vector magnitude
 	from numpy.linalg import norm
 
-	return (norm(v_filter) / norm(v)) * euclidean(v_bin, v_filter_bin)
+	return (norm(v_filter) / norm(v)) * euclidean(v, v_filter)
 
 ##############################
 

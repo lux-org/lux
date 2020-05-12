@@ -8,8 +8,8 @@ class BarChart(AltairChart):
 		return f"Bar Chart <{str(self.view)}>"
 	def initializeChart(self):
 		self.tooltip = False
-		xAttr = self.view.getObjFromChannel("x")[0]
-		yAttr = self.view.getObjFromChannel("y")[0]
+		xAttr = self.view.getAttrByChannel("x")[0]
+		yAttr = self.view.getAttrByChannel("y")[0]
 		if (xAttr.dataModel == "measure"):
 			yAttrField = alt.Y(yAttr.attribute, type = yAttr.dataType)
 			xAttrField = alt.X(xAttr.attribute,type=xAttr.dataType,title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}")
