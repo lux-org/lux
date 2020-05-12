@@ -1,3 +1,0 @@
-Undocumented C API elements
-===========================
-
