@@ -18,15 +18,15 @@ class View:
 		widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderViewOnly=True)
 		display(widget)
 
-	def getObjFromChannel(self, channel):
-		specObj = list(filter(lambda x: x.channel == channel if hasattr(x, "channel") else False, self.specLst))
+	def getAttrByChannel(self, channel):
+		specObj = list(filter(lambda x: x.channel == channel and x.value=='' if hasattr(x, "channel") else False, self.specLst))
 		return specObj
 
-	def getObjByDataModel(self, dmodel):
-		return list(filter(lambda x: x.dataModel == dmodel if hasattr(x, "dataModel") else False, self.specLst))
+	def getAttrByDataModel(self, dmodel):
+		return list(filter(lambda x: x.dataModel == dmodel and x.value=='' if hasattr(x, "dataModel") else False, self.specLst))
 
-	def getObjByDataType(self, dtype):
-		return list(filter(lambda x: x.dataType == dtype if hasattr(x, "dataType") else False, self.specLst))
+	def getAttrByDataType(self, dtype):
+		return list(filter(lambda x: x.dataType == dtype and x.value=='' if hasattr(x, "dataType") else False, self.specLst))
 
 	def removeColumnFromSpec(self, attribute):
 		self.spec = list(filter(lambda x: x.attribute != attribute, self.specLst))

@@ -16,20 +16,20 @@ def test_underspecifiedVisCollection():
 	assert len(df.viewCollection)==3
 	assert df.viewCollection[0].mark == "line" 
 	for vc in df.viewCollection: 
-		assert (vc.getObjFromChannel("x")[0].attribute == "Year")
+		assert (vc.getAttrByChannel("x")[0].attribute == "Year")
 	df.setContext([lux.Spec(attribute = "?"),lux.Spec(attribute = "Year",channel="x")])
 	assert len(df.viewCollection) == len(list(df.columns))
 	for vc in df.viewCollection: 
-		assert (vc.getObjFromChannel("x")[0].attribute == "Year")
+		assert (vc.getAttrByChannel("x")[0].attribute == "Year")
 	df.setContext([lux.Spec(attribute = "?",dataType="quantitative"),lux.Spec(attribute = "Year")])
-	assert len(df.viewCollection) == len([view.getObjByDataType("quantitative") for view in df.viewCollection]) # should be 5
+	assert len(df.viewCollection) == len([view.getAttrByDataType("quantitative") for view in df.viewCollection]) # should be 5
 
 	df.setContext([lux.Spec(attribute = "?", dataModel="measure"),lux.Spec(attribute="MilesPerGal",channel="y")])
 	for vc in df.viewCollection: 
-		print (vc.getObjFromChannel("y")[0].attribute == "MilesPerGal")
+		print (vc.getAttrByChannel("y")[0].attribute == "MilesPerGal")
 	
 	df.setContext([lux.Spec(attribute = "?", dataModel="measure"),lux.Spec(attribute = "?", dataModel="measure")])
-	assert len(df.viewCollection) == len([view.getObjByDataModel("measure") for view in df.viewCollection]) #should be 25 
+	assert len(df.viewCollection) == len([view.getAttrByDataModel("measure") for view in df.viewCollection]) #should be 25 
 def test_parse():
 	df = pd.read_csv("lux/data/car.csv")
 	df.setContext([lux.Spec("Origin=?"),lux.Spec(attribute = "MilesPerGal")])

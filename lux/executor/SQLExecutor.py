@@ -54,8 +54,8 @@ class SQLExecutor(Executor):
     @staticmethod
     def executeAggregate(view, ldf):
         import pandas as pd
-        xAttr = view.getObjFromChannel("x")[0]
-        yAttr = view.getObjFromChannel("y")[0]
+        xAttr = view.getAttrByChannel("x")[0]
+        yAttr = view.getAttrByChannel("y")[0]
         groupbyAttr =""
         measureAttr =""
         if (yAttr.aggregation!=""):

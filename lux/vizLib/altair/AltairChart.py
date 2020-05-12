@@ -24,7 +24,7 @@ class AltairChart:
 		if (self.tooltip): 
 			self.chart = self.chart.encode(tooltip=list(self.view.data.columns))
 	def encodeColor(self):
-		colorAttr = self.view.getObjFromChannel("color")
+		colorAttr = self.view.getAttrByChannel("color")
 		if (len(colorAttr)==1):
 			self.chart = self.chart.encode(color=alt.Color(colorAttr[0].attribute,type=colorAttr[0].dataType))
 		elif (len(colorAttr)>1):

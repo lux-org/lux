@@ -6,19 +6,19 @@ from lux.executor.PandasExecutor import PandasExecutor
 from lux.view.ViewCollection import ViewCollection
 def aggregate(view):
 # find y axis then aggregate on it
-    if view.getObjFromChannel("x") and view.getObjFromChannel("y"):
+    if view.getAttrByChannel("x") and view.getAttrByChannel("y"):
 
-        xAxis = view.getObjFromChannel("x")[0].attribute
-        yAxis = view.getObjFromChannel("y")[0].attribute
+        xAxis = view.getAttrByChannel("x")[0].attribute
+        yAxis = view.getAttrByChannel("y")[0].attribute
 
         view.data = view.data[[xAxis,yAxis]].groupby(xAxis,as_index=False).agg({yAxis:'mean'}).copy()
 
 def interpolate(view,length):
 
-    if view.getObjFromChannel("x") and view.getObjFromChannel("y"):
+    if view.getAttrByChannel("x") and view.getAttrByChannel("y"):
 
-        xAxis = view.getObjFromChannel("x")[0].attribute
-        yAxis = view.getObjFromChannel("y")[0].attribute
+        xAxis = view.getAttrByChannel("x")[0].attribute
+        yAxis = view.getAttrByChannel("y")[0].attribute
 
         if xAxis and yAxis:
             yVals = view.data[yAxis]
@@ -51,8 +51,8 @@ def interpolate(view,length):
 
 def normalize(view):
 
-    if view.getObjFromChannel("y"):
-        yAxis = view.getObjFromChannel("y")[0].attribute
+    if view.getAttrByChannel("y"):
+        yAxis = view.getAttrByChannel("y")[0].attribute
         max = view.data[yAxis].max()
         min = view.data[yAxis].min()
         if(max == min or (max-min<1)):
@@ -61,10 +61,10 @@ def normalize(view):
 
 def euclideanDist(queryView,view):
 
-    if queryView.getObjFromChannel("y") and view.getObjFromChannel("y"):
+    if queryView.getAttrByChannel("y") and view.getAttrByChannel("y"):
 
-        viewYAxis = view.getObjFromChannel("y")[0].attribute
-        queryYAxis = queryView.getObjFromChannel("y")[0].attribute
+        viewYAxis = view.getAttrByChannel("y")[0].attribute
+        queryYAxis = queryView.getAttrByChannel("y")[0].attribute
 
         viewVector = view.data[viewYAxis].values
         queryVector = queryView.data[queryYAxis].values

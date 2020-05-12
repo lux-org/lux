@@ -37,8 +37,8 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def executeAggregate(view: View, ldf: LuxDataFrame):
-        xAttr = view.getObjFromChannel("x")[0]
-        yAttr = view.getObjFromChannel("y")[0]
+        xAttr = view.getAttrByChannel("x")[0]
+        yAttr = view.getAttrByChannel("y")[0]
         groupbyAttr =""
         measureAttr =""
         if (yAttr.aggregation!=""):

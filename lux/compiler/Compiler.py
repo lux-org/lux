@@ -151,13 +151,13 @@ class Compiler:
 		# ShowMe logic + additional heuristics
 		#countCol = Spec( attribute="count()", dataModel="measure")
 		countCol = Spec( attribute="Record", aggregation="count", dataModel="measure", dataType="quantitative")
-		# xAttr = view.getObjFromChannel("x") # not used as of now
-		# yAttr = view.getObjFromChannel("y")
-		# zAttr = view.getObjFromChannel("z")
+		# xAttr = view.getAttrByChannel("x") # not used as of now
+		# yAttr = view.getAttrByChannel("y")
+		# zAttr = view.getAttrByChannel("z")
 		autoChannel={}
 		if (Ndim == 0 and Nmsr == 1):
 			# Histogram with Count on the y axis
-			measure = view.getObjByDataModel("measure")[0]
+			measure = view.getAttrByDataModel("measure")[0]
 			view.specLst.append(countCol)
 			# If no bin specified, then default as 10
 			if (measure.binSize == 0):
@@ -170,13 +170,13 @@ class Compiler:
 			# if x is unspecified
 			if (Nmsr == 0):
 				view.specLst.append(countCol)
-			dimension = view.getObjByDataModel("dimension")[0]
-			measure = view.getObjByDataModel("measure")[0]
+			dimension = view.getAttrByDataModel("dimension")[0]
+			measure = view.getAttrByDataModel("measure")[0]
 			# measure.channel = "x"
 			view.mark, autoChannel = lineOrBar(ldf,dimension, measure) # Jaywoo measures to be aggregated? if user specified it, override compiler logic. avg for all other cases
 		elif (Ndim == 2 and (Nmsr == 0 or Nmsr == 1)):
 			# Line or Bar chart broken down by the dimension
-			dimensions = view.getObjByDataModel("dimension")
+			dimensions = view.getAttrByDataModel("dimension")
 			d1 = dimensions[0]
 			d2 = dimensions[1]
 			if (ldf.cardinality[d1.attribute] < ldf.cardinality[d2.attribute]):
@@ -195,7 +195,7 @@ class Compiler:
 			# Colored Bar/Line chart with Count as default measure
 			if (Nmsr == 0):
 				view.specLst.append(countCol)
-			measure = view.getObjByDataModel("measure")[0]
+			measure = view.getAttrByDataModel("measure")[0]
 			view.mark, autoChannel = lineOrBar(ldf,dimension, measure)
 			autoChannel["color"] = colorAttr
 		elif (Ndim == 0 and Nmsr == 2):
@@ -205,11 +205,11 @@ class Compiler:
 						   "y": view.specLst[1]}
 		elif (Ndim == 1 and Nmsr == 2):
 			# Scatterplot broken down by the dimension
-			measure = view.getObjByDataModel("measure")
+			measure = view.getAttrByDataModel("measure")
 			m1 = measure[0]
 			m2 = measure[1]
 
-			colorAttr = view.getObjByDataModel("dimension")[0]
+			colorAttr = view.getAttrByDataModel("dimension")[0]
 			view.removeColumnFromSpec(colorAttr)
 
 			view.mark = "scatter"
@@ -252,7 +252,7 @@ class Compiler:
 		specifiedDict = {}  # specifiedDict={"x":[],"y":[list of Dobj with y specified as channel]}
 		# create a dictionary of specified channels in the given dobj
 		for val in autoChannel.keys():
-			specifiedDict[val] = view.getObjFromChannel(val)
+			specifiedDict[val] = view.getAttrByChannel(val)
 			resultDict[val] = ""
 		# for every element, replace with what's in specifiedDict if specified
 		for sVal, sAttr in specifiedDict.items():
