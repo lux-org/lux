@@ -2,6 +2,14 @@ from lux.vizLib.altair.AltairChart import AltairChart
 import altair as alt
 alt.data_transformers.disable_max_rows()
 class BarChart(AltairChart):
+	"""
+	BarChart is a subclass of AltairChart that render as a bar charts.
+	All rendering properties for bar charts are set here.
+
+	See Also
+	--------
+	altair-viz.github.io
+	"""
 	def __init__(self,dobj):
 		super().__init__(dobj)
 	def __repr__(self):
@@ -11,12 +19,12 @@ class BarChart(AltairChart):
 		xAttr = self.view.getAttrByChannel("x")[0]
 		yAttr = self.view.getAttrByChannel("y")[0]
 		if (xAttr.dataModel == "measure"):
-			yAttrField = alt.Y(yAttr.attribute, type = yAttr.dataType)
+			yAttrField = alt.Y(yAttr.attribute, type = yAttr.dataType, axis=alt.Axis(labelOverlap=True))
 			xAttrField = alt.X(xAttr.attribute,type=xAttr.dataType,title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}")
 			if (yAttr.sort=="ascending"):
 				yAttrField.sort="-x"
 		else:
-			xAttrField = alt.X(xAttr.attribute, type = xAttr.dataType)
+			xAttrField = alt.X(xAttr.attribute, type = xAttr.dataType,axis=alt.Axis(labelOverlap=True))
 			if (xAttr.sort=="ascending"):
 				xAttrField.sort="-y"
 			yAttrField = alt.Y(yAttr.attribute,type=yAttr.dataType,title=f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}")
