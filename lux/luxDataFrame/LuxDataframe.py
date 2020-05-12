@@ -5,6 +5,9 @@ from lux.context.Spec import Spec
 #import for benchmarking
 import time
 class LuxDataFrame(pd.DataFrame):
+    '''
+    A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
+    '''
     # MUST register here for new properties!!
     _metadata = ['context','dataTypeLookup','dataType',
                  'dataModelLookup','dataModel','uniqueValues','cardinality',

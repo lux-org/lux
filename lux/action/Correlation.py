@@ -7,6 +7,23 @@ from lux.executor.SQLExecutor import SQLExecutor
 import time
 # change ignoreTranspose to false for now.
 def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
+	'''
+	Generates bivariate visualizations that represent all pairwise relationships in the data.
+
+	Parameters
+	----------
+	ldf : lux.luxDataFrame.LuxDataFrame
+		LuxDataFrame with underspecified context.
+
+	ignoreIdentity:
+
+	ignoreTranspose:
+
+	Returns
+	-------
+	recommendations : Dict[str,obj]
+		object with a collection of visualizations that result from the Correlation action.
+	'''
 	import numpy as np
 	#for benchmarking
 	#tic = time.perf_counter()

@@ -1,6 +1,9 @@
 # from ..luxDataFrame.LuxDataframe import LuxDataFrame
 
 class Validator:
+	'''
+	Contains methods for validating lux.Spec objects in the context.
+	'''
 	def __init__(self):
 		self.name = "Validator"
 
@@ -10,6 +13,23 @@ class Validator:
 	@staticmethod
 	# def validateSpec(ldf: LuxDataFrame):
 	def validateSpec(ldf):
+		"""
+		Validates input specifications from the user to find inconsistencies and errors.
+
+		Parameters
+		----------
+		ldf : lux.luxDataFrame.LuxDataFrame
+			LuxDataFrame with underspecified context.
+
+		Returns
+		-------
+		None
+
+		Raises
+		------
+		ValueError
+			Ensures no input specs are consistent with DataFrame.
+		"""
 		def existsInDF(value,uniqueValues):
 			return any(value in uniqueValues[vals] for vals in uniqueValues)
 

@@ -11,13 +11,22 @@ from lux.interestingness.interestingness import interestingness
 #for benchmarking
 import time
 # from compiler.Compiler import Compiler
-'''
-Shows possible visualizations when one attribute or filter from the current context is removed
-'''
 def generalize(ldf):
 	#for benchmarking
 	#tic = time.perf_counter()
+	'''
+	Generates all possible visualizations when one attribute or filter from the current view is removed.
 
+	Parameters
+	----------
+	ldf : lux.luxDataFrame.LuxDataFrame
+		LuxDataFrame with underspecified context.
+
+	Returns
+	-------
+	recommendations : Dict[str,obj]
+		object with a collection of visualizations that result from the Generalize action.
+	'''
 	# takes in a dataObject and generates a list of new dataObjects, each with a single measure from the original object removed
 	# -->  return list of dataObjects with corresponding interestingness scores
 

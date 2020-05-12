@@ -1,6 +1,3 @@
-'''
-Gets a measure of skewness of the distributions of all measures
-'''
 from lux.interestingness.interestingness import interestingness
 import lux
 from lux.executor.PandasExecutor import PandasExecutor
@@ -9,6 +6,22 @@ from lux.executor.SQLExecutor import SQLExecutor
 import time
 
 def distribution(ldf,dataTypeConstraint="quantitative"):
+	'''
+	Generates bar chart distributions of different attributes in the dataset.
+
+	Parameters
+	----------
+	ldf : lux.luxDataFrame.LuxDataFrame
+		LuxDataFrame with underspecified context.
+
+	dataTypeConstraint: str
+		The variable that controls the type of distribution chart that will be rendered.
+
+	Returns
+	-------
+	recommendations : Dict[str,obj]
+		object with a collection of visualizations that result from the Distribution action.
+	'''
 	import scipy.stats
 	import numpy as np
 
