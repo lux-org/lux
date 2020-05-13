@@ -86,12 +86,14 @@ def interestingness(view,ldf):
 	elif (n_dim == 1 and n_msr == 1 and n_filter == 1):
 		#view.data will already be populated if using SQL Executor
 		dimension = view.getAttrByDataModel("dimension")[0].attribute
+		measure = view.getAttrByDataModel("measure")[0].attribute
 		if ldf.executorType == "SQL":
 			return(0)
-			v = view.data[dimension]
+			v = view.data[measure]
 		else:
-			v = ldf[dimension]
-		C = len(v.unique())
+			v = ldf[measure]
+		dim = view.data[dimension]
+		C = len(dim.unique())
 
 		# if c < 40 # c == cardinality (number of unique values)
 		if (C >= 40):

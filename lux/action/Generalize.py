@@ -48,20 +48,17 @@ def generalize(ldf):
 					tempView = View(ldf.context)
 					tempView.removeColumnFromSpecNew(column)
 					excludedColumns.append(column)
-					tempView.score = interestingness(tempView,ldf)
 					output.append(tempView)
 		elif type(columns) == str:
 			if columns not in excludedColumns:
 				tempView = View(ldf.context)
 				tempView.removeColumnFromSpecNew(columns)
 				excludedColumns.append(columns)
-				tempView.score = interestingness(tempView,ldf)
 		output.append(tempView)
 	for i, spec in enumerate(rowSpecs):
 		newSpec = ldf.context.copy()
 		newSpec.pop(i)
 		tempView = View(newSpec)
-		tempView.score = interestingness(tempView,ldf)
 		output.append(tempView)
 		
 	vc = lux.view.ViewCollection.ViewCollection(output)
@@ -71,7 +68,10 @@ def generalize(ldf):
 	if ldf.executorType == "SQL":
 		SQLExecutor.execute(vc,ldf)
 	recommendation["collection"] = vc
-
+	for view in vc:
+		view.score = interestingness(view,ldf)
+	vc = vc.topK(10)
+	vc.sort(removeInvalid=True)
 	#for benchmarking
 	#toc = time.perf_counter()
 	#print(f"Performed generalize action in {toc - tic:0.4f} seconds")

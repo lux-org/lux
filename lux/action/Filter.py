@@ -49,9 +49,8 @@ def filter(ldf):
 						newFilter = lux.Spec(attribute = row.attribute, value = uniqueValues[i])
 						newSpec.append(newFilter)
 						tempView = View(newSpec)
-						tempView.score = interestingness(tempView,ldf)
-						output.append(tempView)
 				completedFilters.append(row.attribute)
+				output.append(tempView)
 	#if Row is not specified, create filters using unique values from all categorical variables in the dataset
 	else:
 		categoricalVars = []
@@ -66,15 +65,18 @@ def filter(ldf):
 				newFilter = lux.Spec(attribute=cat, filterOp="=",value=uniqueValues[i])
 				newSpec.append(newFilter)
 				tempView = View(newSpec)
-				tempView.score = interestingness(tempView,ldf)
 				output.append(tempView)
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
-	vc = vc.topK(10)
+	
 	if ldf.executorType == "SQL":
 		SQLExecutor.execute(vc,ldf)
 	elif ldf.executorType == "Pandas":
 		PandasExecutor.execute(vc,ldf)
+	for view in vc:
+		view.score = interestingness(view,ldf)
+	vc = vc.topK(10)
+	vc.sort(removeInvalid=True)
 	recommendation["collection"] = vc
 	
 	#for benchmarking

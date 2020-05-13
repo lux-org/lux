@@ -41,17 +41,24 @@ def test_filter():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
     df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Year"), lux.Spec(attribute = "Origin", filterOp="=",value = "USA")])
-    PandasExecutor.executeFilter(df.viewCollection[0],df)
-    assert len(df.viewCollection[0].data) == len(df[df["Origin"]=="USA"])
+    view = df.viewCollection[0]
+    view.data = df
+    PandasExecutor.executeFilter(view)
+    assert len(view.data) == len(df[df["Origin"]=="USA"])
 def test_inequalityfilter():
     df = pd.read_csv("lux/data/car.csv")
     df.setContext([lux.Spec(attribute = "Horsepower", filterOp=">",value=50),lux.Spec(attribute = "MilesPerGal")])
-    PandasExecutor.executeFilter(df.viewCollection[0],df)
-    assert len(df) > len(df.viewCollection[0].data)
-    assert len(df.viewCollection[0].data) == 386 
+    view = df.viewCollection[0]
+    view.data = df
+    PandasExecutor.executeFilter(view)
+    assert len(df) > len(view.data)
+    assert len(view.data) == 386 
+    
     df.setContext([lux.Spec(attribute = "Horsepower", filterOp="<=",value=100),lux.Spec(attribute = "MilesPerGal")])
-    PandasExecutor.executeFilter(df.viewCollection[0],df)
-    assert len(df.viewCollection[0].data) == len(df[df["Horsepower"]<=100]) == 242
+    view = df.viewCollection[0]
+    view.data = df
+    PandasExecutor.executeFilter(view)
+    assert len(view.data) == len(df[df["Horsepower"]<=100]) == 242
 
     # Test end-to-end
     PandasExecutor.execute(df.viewCollection,df)
