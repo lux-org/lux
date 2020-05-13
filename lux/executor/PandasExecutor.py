@@ -19,7 +19,8 @@ class PandasExecutor(Executor):
         Given a ViewCollection, fetch the data required to render the view.
         1) Apply filters
         2) Retrieve relevant attribute
-        3) return a DataFrame with relevant results
+        3) Perform vis-related processing (aggregation, binning)
+        4) return a DataFrame with relevant results
 
         Parameters
 		----------
@@ -33,7 +34,8 @@ class PandasExecutor(Executor):
 		None
         '''
         for view in viewCollection:
-            PandasExecutor.executeFilter(view, ldf)
+            view.data = ldf # The view data starts off being the same as the content of the original dataframe
+            PandasExecutor.executeFilter(view)
             # Select relevant data based on attribute information
             attributes = set([])
             for spec in view.specLst:
@@ -45,12 +47,12 @@ class PandasExecutor(Executor):
             else:
                 view.data = view.data[list(attributes)]
             if (view.mark =="bar" or view.mark =="line"):
-                PandasExecutor.executeAggregate(view, ldf)
+                PandasExecutor.executeAggregate(view)
             elif (view.mark =="histogram"):
-                PandasExecutor.executeBinning(view, ldf)
+                PandasExecutor.executeBinning(view)
 
     @staticmethod
-    def executeAggregate(view: View, ldf: LuxDataFrame):
+    def executeAggregate(view: View):
         '''
         Aggregate data points on an axis for bar or line charts
 
@@ -88,7 +90,7 @@ class PandasExecutor(Executor):
                 groupbyResult = view.data.groupby(groupbyAttr.attribute)
                 view.data = groupbyResult.agg(aggFunc).reset_index()
     @staticmethod
-    def executeBinning(view, ldf):
+    def executeBinning(view: View):
         '''
         Binning of data points for generating histograms
 
@@ -107,22 +109,21 @@ class PandasExecutor(Executor):
         import pandas as pd # is this import going to be conflicting with LuxDf?
         binAttribute = list(filter(lambda x: x.binSize!=0,view.specLst))[0]
         #TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
-        counts,binEdges = np.histogram(ldf[binAttribute.attribute],bins=binAttribute.binSize)
+        counts,binEdges = np.histogram(view.data[binAttribute.attribute],bins=binAttribute.binSize)
         #binEdges of size N+1, so need to compute binCenter as the bin location
         binCenter = np.mean(np.vstack([binEdges[0:-1],binEdges[1:]]), axis=0)
         # TODO: Should view.data be a LuxDataFrame or a Pandas DataFrame?
         view.data = pd.DataFrame(np.array([binCenter,counts]).T,columns=[binAttribute.attribute, "Count of Records (binned)"])        
         
     @staticmethod
-    def executeFilter(view, ldf):
+    def executeFilter(view: View):
+        assert view.data is not None, "executeFilter assumes input view.data is populated (if not, populate with LuxDataFrame values)"
         filters = utils.getFilterSpecs(view.specLst)
+        
         if (filters):
             # TODO: Need to handle OR logic
             for filter in filters:
-                view.data = PandasExecutor.applyFilter(ldf,filter.attribute,filter.filterOp,filter.value)
-        else:
-            view.data = ldf
-    
+                view.data = PandasExecutor.applyFilter(view.data,filter.attribute,filter.filterOp,filter.value)    
     @staticmethod
     def applyFilter(df: pandas.DataFrame, attribute:str, op: str, val: object) -> pandas.DataFrame:
         """

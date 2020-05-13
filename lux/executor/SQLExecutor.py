@@ -18,7 +18,7 @@ class SQLExecutor(Executor):
         return f"<Executor>"
 
     @staticmethod
-    def execute(viewCollection:ViewCollection, ldf):
+    def execute(viewCollection:ViewCollection, ldf: LuxDataFrame):
         import pandas as pd
         '''
         Given a ViewCollection, fetch the data required to render the view
@@ -52,7 +52,7 @@ class SQLExecutor(Executor):
                 SQLExecutor.executeBinning(view, ldf)
 
     @staticmethod
-    def executeAggregate(view, ldf):
+    def executeAggregate(view:View, ldf:LuxDataFrame):
         import pandas as pd
         xAttr = view.getAttrByChannel("x")[0]
         yAttr = view.getAttrByChannel("y")[0]
@@ -83,7 +83,7 @@ class SQLExecutor(Executor):
                     view.data = pd.read_sql(meanQuery, ldf.SQLconnection)
                     view.data = utils.pandasToLux(view.data)
     @staticmethod
-    def executeBinning(view, ldf):
+    def executeBinning(view:View, ldf:LuxDataFrame):
         import numpy as np
         import pandas as pd
         binAttribute = list(filter(lambda x: x.binSize!=0,view.specLst))[0]
@@ -130,7 +130,7 @@ class SQLExecutor(Executor):
         
     @staticmethod
     #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's specLst
-    def executeFilter(view):
+    def executeFilter(view:View):
         whereClause = []
         filters = utils.getFilterSpecs(view.specLst)
         filterVars = []
