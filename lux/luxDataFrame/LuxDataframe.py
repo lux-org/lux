@@ -23,8 +23,6 @@ class LuxDataFrame(pd.DataFrame):
         self.computeStats()
         self.computeDatasetMetadata()
 
-        self.DEBUG_FRONTEND = False
-
         self.executorType = "Pandas"
         self.SQLconnection = ""
         self.table_name = ""
@@ -91,7 +89,9 @@ class LuxDataFrame(pd.DataFrame):
             #TODO: Think about dropping NaN values
             if str(attr).lower() in ["month", "year"]:
                 self.dataTypeLookup[attr] = "temporal"
-            elif self.dtypes[attr] == "float64" or self.dtypes[attr] == "int64":
+            elif self.dtypes[attr] == "float64":
+                self.dataTypeLookup[attr] = "quantitative"
+            elif self.dtypes[attr] == "int64":
                 if self.cardinality[attr] < 13: #TODO:nominal with high value breaks system
                     self.dataTypeLookup[attr] = "nominal"
                 else:
@@ -241,23 +241,21 @@ class LuxDataFrame(pd.DataFrame):
 
         self.recommendation = []
         currentViewExist = self.viewCollection!=[]
-        if (self.DEBUG_FRONTEND):
-            self.recommendation.append(self.generalize())
-        else:
-            if (currentViewExist):
-                enhance = enhance(self)
-                filter = filter(self)
-                generalize = generalize(self)
-                if enhance['collection']:
-                    self.recommendation.append(enhance)
-                if filter['collection']:
-                    self.recommendation.append(filter)
-                if generalize['collection']:
-                    self.recommendation.append(generalize)
-            else: 
-                self.recommendation.append(correlation(self))
-                self.recommendation.append(distribution(self,"quantitative"))
-                self.recommendation.append(distribution(self,"nominal"))
+        
+        if (currentViewExist):
+            enhance = enhance(self)
+            filter = filter(self)
+            generalize = generalize(self)
+            if enhance['collection']:
+                self.recommendation.append(enhance)
+            if filter['collection']:
+                self.recommendation.append(filter)
+            if generalize['collection']:
+                self.recommendation.append(generalize)
+        else: 
+            self.recommendation.append(correlation(self))
+            self.recommendation.append(distribution(self,"quantitative"))
+            self.recommendation.append(distribution(self,"nominal"))
 
 
     #######################################################
