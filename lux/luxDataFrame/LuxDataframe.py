@@ -27,6 +27,8 @@ class LuxDataFrame(pd.DataFrame):
         self.SQLconnection = ""
         self.table_name = ""
 
+        self.togglePandasView = True
+
     @property
     def _constructor(self):
         return LuxDataFrame
@@ -265,6 +267,8 @@ class LuxDataFrame(pd.DataFrame):
         return self.widget
     def _repr_html_(self):
         from IPython.display import display
+        from IPython.display import clear_output
+        import ipywidgets as widgets
         # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refreshContext)
         self.computeStats()
         self.computeDatasetMetadata()
@@ -275,7 +279,25 @@ class LuxDataFrame(pd.DataFrame):
         #print(f"Computed recommendations in {toc - tic:0.4f} seconds")
 
         self.widget = LuxDataFrame.renderWidget(self)
-        display(self.widget)
+
+        button = widgets.Button(description="Toggle Pandas/Lux")
+        output = widgets.Output()
+
+        display(button, output)
+
+        def on_button_clicked(b):
+            with output:
+                if (b):
+                    self.togglePandasView = not self.togglePandasView
+                clear_output()
+                if (self.togglePandasView):
+                    display(self.displayPandas())
+                else:
+                    display(self.widget)
+
+        button.on_click(on_button_clicked)
+        on_button_clicked(None)
+
     def displayPandas(self):
         return self.toPandas()
     @staticmethod
