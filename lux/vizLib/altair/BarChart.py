@@ -37,4 +37,8 @@ class BarChart(AltairChart):
 		# Can not do interactive whenever you have default count measure otherwise output strange error (Javascript Error: Cannot read property 'length' of undefined)
 		#chart = chart.interactive() # If you want to enable Zooming and Panning
 		return chart 
-	
+	def getChartCode(self):
+		return '''
+		import altair as alt
+		# Altair code placeholder
+		'''

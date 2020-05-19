@@ -10,6 +10,7 @@ class View:
 		self.mark = ""
 		self.data = None
 		self.score = 0.0
+		self.vis = None
 
 	def __repr__(self):
 		return f"<View: Mark: {self.mark}, Specs: {str(self.specLst)}, Score:{self.score}>"
@@ -55,7 +56,8 @@ class View:
 		from lux.vizLib.altair.AltairRenderer import AltairRenderer
 		if (renderer == "altair"):
 			renderer = AltairRenderer()
-		return renderer.createVis(self)
+		self.vis= renderer.createVis(self)
+		return self.vis
 	'''
 	Possibly add more helper functions for retrieving information fro specified SpecLst 
 	'''

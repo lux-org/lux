@@ -20,6 +20,7 @@ class AltairChart:
 		# print(type(self.data),"test")
 		self.tooltip = True
 		self.chart = self.initializeChart()
+		self.code = self.getChartCode()
 		# self.addTooltip()
 		self.encodeColor()
 		self.addTitle()
@@ -42,3 +43,8 @@ class AltairChart:
 			)
 	def initializeChart(self):
 		return NotImplemented
+	def getChartCode(self):
+		return '''
+		import altair as alt
+		# Altair code placeholder
+		'''
