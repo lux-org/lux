@@ -22,6 +22,22 @@ class ScatterChart(AltairChart):
 		    y=alt.Y(yAttr.attribute,scale=alt.Scale(zero=False),type=yAttr.dataType)
 		)
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
-		chart = chart.interactive() # If you want to enable Zooming and Panning
-
+		chart = chart.interactive() # Enable Zooming and Panning
 		return chart 
+	def getChartCode(self):
+		chartCode = ""
+		chartCode += "import altair as alt\n"
+		dfname = "df" #Placeholder (need to read dynamically via locals())
+
+		xAttr = self.view.getAttrByChannel("x")[0]
+		yAttr = self.view.getAttrByChannel("y")[0]
+		chartCode += f'''
+		chart = alt.Chart({dfname}).mark_circle().encode(
+			x=alt.X('{xAttr.attribute}',scale=alt.Scale(zero=False),type='{xAttr.dataType}'),
+		    y=alt.Y('{yAttr.attribute}',scale=alt.Scale(zero=False),type='{yAttr.dataType}')
+		)
+		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
+		chart = chart.interactive() # Enable Zooming and Panning
+		'''
+		chartCode = chartCode.replace('\n\t\t','\n')
+		return chartCode
