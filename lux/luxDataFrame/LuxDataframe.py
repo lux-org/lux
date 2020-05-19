@@ -1,5 +1,4 @@
 import pandas as pd
-import psycopg2
 from lux.context.Spec import Spec
 
 #import for benchmarking
@@ -38,6 +37,12 @@ class LuxDataFrame(pd.DataFrame):
     #     return self.context
     
     def setExecutorType(self, exe):
+        if (exe =="SQL"):
+            import pkgutil
+            if (pkgutil.find_loader("psycopg2") is None):
+                raise Exception("psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection.")
+            else:
+                import psycopg2
         self.executorType = exe
     def setViewCollection(self,viewCollection):
         self.viewCollection = viewCollection 
@@ -315,7 +320,7 @@ class LuxDataFrame(pd.DataFrame):
         import luxWidget
         import pkgutil
         if (pkgutil.find_loader("luxWidget") is None):
-            raise Exception("luxWidget is not install. Run `npm i lux-widget' to install the Jupyter widget.\nSee more at: https://github.com/lux-org/lux-widget")
+            raise Exception("luxWidget is not installed. Run `npm i lux-widget' to install the Jupyter widget.\nSee more at: https://github.com/lux-org/lux-widget")
         
         widgetJSON = {}
         if (renderViewOnly):
