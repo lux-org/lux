@@ -12,7 +12,7 @@ import time
 
 def filter(ldf):
 	#for benchmarking
-	#tic = time.perf_counter()
+	tic = time.perf_counter()
 	'''
 	Iterates over all possible values of a categorical variable and generates visualizations where each categorical value filters the data.
 
@@ -69,10 +69,7 @@ def filter(ldf):
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
 	
-	if ldf.executorType == "SQL":
-		SQLExecutor.execute(vc,ldf)
-	elif ldf.executorType == "Pandas":
-		PandasExecutor.execute(vc,ldf)
+	ldf.executor.execute(vc,ldf)
 	for view in vc:
 		view.score = interestingness(view,ldf)
 	vc = vc.topK(10)
@@ -80,6 +77,6 @@ def filter(ldf):
 	recommendation["collection"] = vc
 	
 	#for benchmarking
-	#toc = time.perf_counter()
-	#print(f"Performed filter action in {toc - tic:0.4f} seconds")
+	toc = time.perf_counter()
+	print(f"Performed filter action in {toc - tic:0.4f} seconds")
 	return recommendation
