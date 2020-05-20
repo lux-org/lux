@@ -13,7 +13,7 @@ import time
 # from compiler.Compiler import Compiler
 def generalize(ldf):
 	#for benchmarking
-	#tic = time.perf_counter()
+	tic = time.perf_counter()
 	'''
 	Generates all possible visualizations when one attribute or filter from the current view is removed.
 
@@ -63,16 +63,13 @@ def generalize(ldf):
 		
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
-	if ldf.executorType == "Pandas":
-		PandasExecutor.execute(vc,ldf)
-	if ldf.executorType == "SQL":
-		SQLExecutor.execute(vc,ldf)
+	ldf.executor.execute(vc,ldf)
 	recommendation["collection"] = vc
 	for view in vc:
 		view.score = interestingness(view,ldf)
 	vc = vc.topK(10)
 	vc.sort(removeInvalid=True)
 	#for benchmarking
-	#toc = time.perf_counter()
-	#print(f"Performed generalize action in {toc - tic:0.4f} seconds")
+	toc = time.perf_counter()
+	print(f"Performed generalize action in {toc - tic:0.4f} seconds")
 	return recommendation

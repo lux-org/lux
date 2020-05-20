@@ -13,6 +13,7 @@ class LuxDataFrame(pd.DataFrame):
                  'viewCollection','widget', 'recommendation']
 
     def __init__(self,*args, **kw):
+        from lux.executor.PandasExecutor import PandasExecutor
         self.context = []
         self.recommendation=[]
         self.viewCollection = []
@@ -23,6 +24,7 @@ class LuxDataFrame(pd.DataFrame):
         self.computeDatasetMetadata()
 
         self.executorType = "Pandas"
+        self.executor = PandasExecutor
         self.SQLconnection = ""
         self.table_name = ""
 
@@ -37,12 +39,17 @@ class LuxDataFrame(pd.DataFrame):
     #     return self.context
     
     def setExecutorType(self, exe):
+        from lux.executor.PandasExecutor import PandasExecutor
+        from lux.executor.SQLExecutor import SQLExecutor
         if (exe =="SQL"):
             import pkgutil
             if (pkgutil.find_loader("psycopg2") is None):
                 raise Exception("psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection.")
             else:
                 import psycopg2
+            self.executor = SQLExecutor
+        else:
+            self.executor = PandasExecutor
         self.executorType = exe
     def setViewCollection(self,viewCollection):
         self.viewCollection = viewCollection 
@@ -50,14 +57,10 @@ class LuxDataFrame(pd.DataFrame):
         from lux.compiler.Validator import Validator
         from lux.compiler.Compiler import Compiler
         from lux.compiler.Parser import Parser
-        from lux.executor.PandasExecutor import PandasExecutor
 
         if self.SQLconnection == "":
             self.computeStats()
             self.computeDatasetMetadata()
-        #else:
-            #self.computeSQLStats()
-            #self.computeSQLDatasetMetadata()
         Parser.parse(self)
         Validator.validateSpec(self)
         viewCollection = Compiler.compile(self,self.viewCollection)
@@ -275,8 +278,9 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import clear_output
         import ipywidgets as widgets
         # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refreshContext)
-        self.computeStats()
-        self.computeDatasetMetadata()
+        if self.executorType == "Pandas":
+            self.computeStats()
+            self.computeDatasetMetadata()
         #for benchmarking
         #tic = time.perf_counter()
         self.showMore() # compute the recommendations
@@ -350,13 +354,8 @@ class LuxDataFrame(pd.DataFrame):
         return specs
 
     def toJSON(self, inputCurrentView=""):
-        from lux.executor.PandasExecutor import PandasExecutor
-        from lux.executor.SQLExecutor import SQLExecutor
         widgetSpec = {}
-        if self.executorType == "SQL":
-            SQLExecutor.execute(self.viewCollection,self)
-        elif self.executorType == "Pandas":
-            PandasExecutor.execute(self.viewCollection,self)
+        self.executor.execute(self.viewCollection,self)
         widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.viewCollection,inputCurrentView)
         
         widgetSpec["recommendation"] = []
@@ -378,16 +377,7 @@ class LuxDataFrame(pd.DataFrame):
         currentViewSpec = {}
         numVC = len(vc) #number of views in the view collection
         if (numVC==1):
-            #printing for testing
-            #print(vc[0])
-            #print(vc[0].data.columns)
-            #print(vc[0].data[vc[0].data.columns[1]])
-
-            #for benchmarking
-            #tic = time.perf_counter()
             currentViewSpec = vc[0].renderVSpec()
-            #toc = time.perf_counter()
-            #print(f"Rendered {vc[0].mark} view in {toc - tic:0.4f} seconds")
         elif (numVC>1):
             pass
         # This behavior is jarring to user, so comment out for now
@@ -411,11 +401,7 @@ class LuxDataFrame(pd.DataFrame):
             if (rec != {}):
                 rec["vspec"] = []
                 for vis in rec["collection"]:
-                    #for benchmarking
-                    #tic = time.perf_counter()
                     chart = vis.renderVSpec()
-                    #toc = time.perf_counter()
-                    #print(f"Rendered {vis.mark} view in {toc - tic:0.4f} seconds")
                     rec["vspec"].append(chart)
                 recLst.append(rec)
                 # delete DataObjectCollection since not JSON serializable

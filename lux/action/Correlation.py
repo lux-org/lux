@@ -26,7 +26,7 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 	'''
 	import numpy as np
 	#for benchmarking
-	#tic = time.perf_counter()
+	tic = time.perf_counter()
 
 	ldf.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
 	recommendation = {"action":"Correlation",
@@ -35,10 +35,7 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 	# if (ignoreIdentity): vc = filter(lambda x: x.specLst[0].attribute!=x.specLst[1].attribute,ldf.viewCollection)
 	vc = Compiler.compile(ldf, vc, enumerateCollection=False)
 
-	if ldf.executorType == "SQL":
-		SQLExecutor.execute(vc,ldf)
-	elif ldf.executorType == "Pandas":
-		PandasExecutor.execute(vc,ldf)
+	ldf.executor.execute(vc,ldf)
 	# Then use the data populated in the view collection to compute score
 	for view in vc:
 		measures = view.getAttrByDataModel("measure")
@@ -62,8 +59,8 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 	recommendation["collection"] = vc
 
 	#for benchmarking
-	#toc = time.perf_counter()
-	#print(f"Performed correlation action in {toc - tic:0.4f} seconds")
+	toc = time.perf_counter()
+	print(f"Performed correlation action in {toc - tic:0.4f} seconds")
 	return recommendation
 
 def checkTransposeNotComputed(ldf,a,b):

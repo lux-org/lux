@@ -26,7 +26,7 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 	import numpy as np
 
 	#for benchmarking
-	#tic = time.perf_counter()
+	tic = time.perf_counter()
 
 	if (dataTypeConstraint=="quantitative"):
 		ldf.setContext([lux.Spec("?",dataType="quantitative")])
@@ -38,10 +38,7 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 						   "description":"Show bar chart distributions of different attributes in the dataset."}
 
 	vc = ldf.viewCollection
-	if ldf.executorType == "SQL":
-		SQLExecutor.execute(vc,ldf)
-	elif ldf.executorType == "Pandas":
-		PandasExecutor.execute(vc,ldf)
+	ldf.executor.execute(vc,ldf)
 	for view in vc:
 		view.score = interestingness(view,ldf)
 
@@ -51,6 +48,6 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 	# dobj.recommendations.append(recommendation)
 
 	#for benchmarking
-	#toc = time.perf_counter()
-	#print(f"Performed distribution action in {toc - tic:0.4f} seconds")
+	toc = time.perf_counter()
+	print(f"Performed distribution action in {toc - tic:0.4f} seconds")
 	return recommendation
