@@ -37,7 +37,7 @@ class Parser:
 				for v in s:
 					if type(v) is str and v in list(ldf.columns):
 						validValues.append(v)
-				tempSpec = Spec(attribute = validValues, type = "attribute")
+				tempSpec = Spec(attribute = validValues)
 				newContext.append(tempSpec)
 			elif type(s) is str:
 				#case where user specifies a filter
@@ -52,7 +52,7 @@ class Parser:
 					else:
 						validValues = s[eqInd+1:]
 					if var in list(ldf.columns):
-						tempSpec = Spec(attribute = var, filterOp = "=", value = validValues, type = "value")
+						tempSpec = Spec(attribute = var, filterOp = "=", value = validValues)
 						newContext.append(tempSpec)
 				#case where user specifies a variable
 				else:
@@ -63,7 +63,7 @@ class Parser:
 								validValues.append(v)
 					else:
 						validValues = s
-					tempSpec = Spec(attribute = validValues, type = "attribute")
+					tempSpec = Spec(attribute = validValues)
 					newContext.append(tempSpec)
 			elif type(s) is Spec:
 				newContext.append(s)
