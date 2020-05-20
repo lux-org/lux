@@ -192,6 +192,7 @@ class Compiler:
 				measure.binSize = 10
 			# measure.channel = "x"
 			autoChannel = {"x": measure, "y": countCol}
+			view.xMinMax = ldf.xMinMax
 			view.mark = "histogram"
 		elif (Ndim == 1 and (Nmsr == 0 or Nmsr == 1)):
 			# Line or Bar Chart

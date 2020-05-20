@@ -17,9 +17,12 @@ class Histogram(AltairChart):
 	def initializeChart(self):
 		self.tooltip = False
 		xAttr = self.view.getAttrByChannel("x")[0]
+		# print(xAttr.attribute)
+		xMin = self.view.xMinMax[xAttr.attribute][0]
+		xMax = self.view.xMinMax[xAttr.attribute][1]
 
 		chart = alt.Chart(self.data).mark_bar(size=12).encode(
-			alt.X(xAttr.attribute, type=xAttr.dataType, axis=alt.Axis(labelOverlap=True)),#, bin=alt.Bin(maxbins=50)),
+			alt.X(xAttr.attribute, type=xAttr.dataType, axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=(xMin, xMax))),#, bin=alt.Bin(maxbins=50)),
 			alt.Y("Count of Records (binned)", type="quantitative")
 		)
 		return chart 
