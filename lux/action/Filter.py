@@ -2,8 +2,6 @@ import lux
 from lux.interestingness.interestingness import interestingness
 from lux.view.View import View
 from lux.view.ViewCollection import ViewCollection
-from lux.executor.PandasExecutor import PandasExecutor
-from lux.executor.SQLExecutor import SQLExecutor
 from lux.compiler.Compiler import Compiler
 from lux.utils import utils
 

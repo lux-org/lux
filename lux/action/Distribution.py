@@ -1,7 +1,5 @@
 from lux.interestingness.interestingness import interestingness
 import lux
-from lux.executor.PandasExecutor import PandasExecutor
-from lux.executor.SQLExecutor import SQLExecutor
 #for benchmarking
 import time
 

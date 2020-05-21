@@ -3,8 +3,6 @@ import scipy.stats
 import numpy as np
 from lux.view.View import View
 from lux.compiler.Compiler import Compiler
-from lux.executor.PandasExecutor import PandasExecutor
-from lux.executor.SQLExecutor import SQLExecutor
 from lux.utils import utils
 from lux.interestingness.interestingness import interestingness
 

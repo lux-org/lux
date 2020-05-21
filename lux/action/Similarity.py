@@ -2,7 +2,6 @@ import lux
 import pandas as pd
 import math
 import numpy as np
-from lux.executor.PandasExecutor import PandasExecutor
 from lux.view.ViewCollection import ViewCollection
 
 def similarPattern(ldf,queryContext,topK=-1):
@@ -28,11 +27,11 @@ def similarPattern(ldf,queryContext,topK=-1):
     rowSpecs = list(filter(lambda x: x.value != "", queryContext))
     if(len(rowSpecs) == 1):
         searchSpaceVC = ViewCollection(ldf.viewCollection.collection.copy())
-        PandasExecutor.execute(searchSpaceVC,ldf)
+        ldf.executor.execute(searchSpaceVC,ldf)
 
         ldf.setContext(queryContext)
         queryVC = ldf.viewCollection
-        PandasExecutor.execute(queryVC, ldf)
+        ldf.executor.execute(queryVC, ldf)
         queryView = queryVC[0]
         preprocess(queryView)
         #for loop to create assign euclidean distance
