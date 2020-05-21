@@ -1,8 +1,6 @@
 import lux
 from lux.interestingness.interestingness import interestingness
 from lux.compiler.Compiler import Compiler
-from lux.executor.PandasExecutor import PandasExecutor
-from lux.executor.SQLExecutor import SQLExecutor
 from lux.utils import utils
 
 #for benchmarking
