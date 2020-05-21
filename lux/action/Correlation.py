@@ -27,7 +27,11 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 	#for benchmarking
 	tic = time.perf_counter()
 
-	ldf.setContext([lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")])
+	context = [lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")]
+	context.extend(ldf.filterSpecs)
+
+	ldf.setContext(context)
+
 	recommendation = {"action":"Correlation",
 						   "description":"Show relationships between two quantitative variables."}
 	vc = ldf.viewCollection
