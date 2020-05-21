@@ -8,7 +8,7 @@ class LuxDataFrame(pd.DataFrame):
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
     '''
     # MUST register here for new properties!!
-    _metadata = ['context','dataTypeLookup','dataType',
+    _metadata = ['context','dataTypeLookup','dataType','filterSpecs'
                  'dataModelLookup','dataModel','uniqueValues','cardinality',
                  'viewCollection','widget', 'recommendation']
 
@@ -27,7 +27,7 @@ class LuxDataFrame(pd.DataFrame):
         self.executor = PandasExecutor
         self.SQLconnection = ""
         self.table_name = ""
-
+        self.filterSpecs = []
         self.togglePandasView = True
 
     @property
@@ -72,6 +72,8 @@ class LuxDataFrame(pd.DataFrame):
     def clearContext(self):
         self.context = []
         self.viewCollection = []
+    def clearFilter(self):
+        self.filterSpecs = []  # reset filters
     def toPandas(self):
         import lux.luxDataFrame
         return lux.luxDataFrame.originalDF(self,copy=False)
@@ -243,6 +245,7 @@ class LuxDataFrame(pd.DataFrame):
         self.dataType = dataType
 
     def showMore(self):
+        from lux.action.ViewCollection import viewCollection
         from lux.action.Correlation import correlation
         from lux.action.Distribution import distribution
         from lux.action.Enhance import enhance
@@ -250,9 +253,15 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.Generalize import generalize
 
         self.recommendation = []
-        currentViewExist = self.viewCollection!=[]
-        
-        if (currentViewExist):
+        noView = len(self.viewCollection) == 0
+        oneCurrentView = len(self.viewCollection) == 1
+        multipleCurrentViews = len(self.viewCollection) > 1
+
+        if (noView):
+            self.recommendation.append(correlation(self))
+            self.recommendation.append(distribution(self,"quantitative"))
+            self.recommendation.append(distribution(self,"nominal"))
+        elif (oneCurrentView):
             enhance = enhance(self)
             filter = filter(self)
             generalize = generalize(self)
@@ -262,10 +271,12 @@ class LuxDataFrame(pd.DataFrame):
                 self.recommendation.append(filter)
             if generalize['collection']:
                 self.recommendation.append(generalize)
-        else: 
-            self.recommendation.append(correlation(self))
-            self.recommendation.append(distribution(self,"quantitative"))
-            self.recommendation.append(distribution(self,"nominal"))
+        elif (multipleCurrentViews):
+            viewCollection = viewCollection(self)
+            self.recommendation.append(viewCollection)
+
+        self.clearFilter()
+
 
 
     #######################################################
