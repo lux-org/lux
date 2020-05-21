@@ -229,6 +229,7 @@ class Compiler:
 			autoChannel["color"] = colorAttr
 		elif (Ndim == 0 and Nmsr == 2):
 			# Scatterplot
+			view.xMinMax = ldf.xMinMax
 			view.mark = "scatter"
 			autoChannel = {"x": view.specLst[0],
 						   "y": view.specLst[1]}
@@ -240,13 +241,14 @@ class Compiler:
 
 			colorAttr = view.getAttrByDataModel("dimension")[0]
 			view.removeColumnFromSpec(colorAttr)
-
+			view.xMinMax = ldf.xMinMax
 			view.mark = "scatter"
 			autoChannel = {"x": m1,
 						   "y": m2,
 						   "color": colorAttr}
 		elif (Ndim == 0 and Nmsr == 3):
 			# Scatterplot with color
+			view.xMinMax = ldf.xMinMax
 			view.mark = "scatter"
 			autoChannel = {"x": view.specLst[0],
 						   "y": view.specLst[1],
