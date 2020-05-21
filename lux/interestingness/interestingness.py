@@ -1,10 +1,31 @@
+import lux.luxDataFrame.LuxDataframe
+import lux.view.View
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.utils import utils
-def interestingness(view,ldf):
-	import pandas as pd
-	import numpy as np
-	from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
+import pandas as pd
+import numpy as np
+from pandas.api.types import is_datetime64_any_dtype as is_datetime
+from scipy.spatial.distance import euclidean
+def interestingness(view:lux.view.View ,ldf:lux.luxDataFrame.LuxDataFrame) -> int:
+	"""
+	Compute the interestingness score of the view.
+	The interestingness metric is dependent on the view type.
+
+	Parameters
+	----------
+	view : lux.view.View
+	ldf : lux.luxDataFrame.LuxDataFrame
+
+	Returns
+	-------
+	int
+		Interestingness Score
+	"""	
+	
+
+	if view.data is None:
+		raise Exception("View.data needs to be populated before interestingness can be computed. Run Executor.execute(view,ldf).")
 
 	n_dim = 0
 	n_msr = 0
@@ -20,109 +41,33 @@ def interestingness(view,ldf):
 				n_msr += 1
 	n_filter = len(filterSpecs)
 	attr_specs = [spec for spec in viewAttrsSpecs if spec.attribute != "Record"]
-	# print (n_filter, n_dim,n_msr)
-	# Bar Chart (Count)
-	if (n_dim == 1 and n_msr == 0 and n_filter == 0):
-		v = ldf[attr_specs[0].attribute].value_counts()
-		C = len(v)
-		D = (0.5) ** C
-
-		if (is_datetime(v)):
-			v = v.astype('int')
-
-		return skewness(D, v)
-	elif (n_dim == 1 and n_msr == 0 and n_filter == 1):
-		v = ldf[attr_specs[0].attribute].value_counts()
-		filter_spec = filterSpecs[0]
-		v_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
-		v_filter = v.filter(items=v_filter.keys())
-
-		if (len(v_filter) < len(v)):
-			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
-		sig = len(v_filter)
-		return sig * filtered_dist_shape_diff(v, v_filter)
-	
-	# Histogram (Count)
-	elif (n_dim == 0 and n_msr == 1 and n_filter == 0):
-		v = ldf[attr_specs[0].attribute]
-		
-		return agg_value_magnitude(v)
-	elif (n_dim == 0 and n_msr == 1 and n_filter == 1):
-		v = ldf[attr_specs[0].attribute]
-		C = len(v.unique())
-
-		# if c < 40 # c == cardinality (number of unique values)
-		if (C >= 40):
-			return 0
-
-		filter_spec = filterSpecs[0]
-		v_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
-
-		if (len(v_filter) < len(v)):
-			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
-
-		v_bin = v
-		v_filter_bin = v_filter
-
-		if (filter_spec.binSize > 0):
-			v_bin = np.histogram(v, bins=filter_spec.binSize)[0]
-			v_filter_bin = np.histogram(v_filter, bins=filter_spec.binSize)[0]
-		sig = len(v_filter)
-		return sig*filtered_hist_shape_diff(v, v_filter, v_bin, v_filter_bin)
+	dimensionLst = view.getAttrByDataModel("dimension")
+	measureLst = view.getAttrByDataModel("measure")
 
 	# Bar Chart
-	elif (n_dim == 1 and n_msr == 1 and n_filter == 0):
-		if view.data is not None:
-			v = view.data[attr_specs[0].attribute]
-		else:
-			v = ldf[attr_specs[0].attribute]
-		C = len(v.unique())
-		D = (0.5) ** C
-		v_flat = pd.Series([1 / C] * len(v))
-		if (is_datetime(v)):
-			v = v.astype('int')
-		
-		return unevenness(D, v, v_flat)
-	elif (n_dim == 1 and n_msr == 1 and n_filter == 1):
-		#view.data will already be populated if using SQL Executor
-		dimension = view.getAttrByDataModel("dimension")[0].attribute
-		measure = view.getAttrByDataModel("measure")[0].attribute
-		if ldf.executorType == "SQL":
-			return(0)
-			v = view.data[measure]
-		else:
-			v = ldf[measure]
-		dim = view.data[dimension]
-		C = len(dim.unique())
-
-		# if c < 40 # c == cardinality (number of unique values)
-		if (C >= 40):
-			return 0
-
-		filter_spec = filterSpecs[0]
-		v_filter = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)[attr_specs[0].attribute]
-
-		if (len(v_filter) < len(v)):
-			v_filter = v_filter.append(pd.Series([0] * (len(v) - len(v_filter))))
-			
-		v_bin = v
-		v_filter_bin = v_filter
-
-		if (filter_spec.binSize > 0):
-			v_bin = np.histogram(v, bins=filter_spec.binSize)[0]
-			v_filter_bin = np.histogram(v_filter, bins=filter_spec.binSize)[0]
-		sig = len(v_filter)
-		return sig*deviation(v, v_filter, v_bin, v_filter_bin)
-
+	if (n_dim == 1 and (n_msr == 0 or n_msr==1)):
+		if (n_filter == 0):
+			return unevenness(view, ldf, measureLst, dimensionLst)
+		elif(n_filter==1):
+			return deviationFromOverall(view,ldf,filterSpecs,measureLst[0].attribute)
+	# Histogram
+	elif (n_dim == 0 and n_msr == 1):
+		if (n_filter == 0):
+			v = view.data["Count of Records (binned)"]
+			return skewness(v)
+		elif (n_filter == 1):
+			return deviationFromOverall(view,ldf,filterSpecs,"Count of Records (binned)")
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
 		if (n_filter==1):
-			filter_spec = filterSpecs[0]
-			ldf = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
-			return ldf.size
+			v_filter_size = getFilteredSize(filterSpecs,ldf)
+			v_size = len(ldf)
+			sig = v_filter_size/v_size
+		else:
+			sig = 1
 		v_x = ldf[attr_specs[0].attribute]
 		v_y = ldf[attr_specs[1].attribute]
-		return monotonicity(v_x, v_y)
+		return sig * monotonicity(v_x, v_y)
 	# Scatterplot colored by Dimension
 	elif (n_dim == 1 and n_msr == 2):
 		colorAttr = view.getAttrByChannel("color")[0].attribute
@@ -141,103 +86,106 @@ def interestingness(view,ldf):
 	# Default
 	else:
 		return -1
-
-
-##### Bar Chart (Count) #####
-
-# N_dim = 1, N_msr = 0, N_filter = 0
-def skewness(D, v):
+def getFilteredSize(filterSpecs,ldf):
+	filter_spec = filterSpecs[0]
+	result = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
+	return len(result)
+def skewness(v):
 	from scipy.stats import skew
+	return skew(v)
 
-	return D * skew(v)
+def deviationFromOverall(view:lux.view.View,ldf:lux.luxDataFrame.LuxDataFrame,filterSpecs:list,msrAttribute:str) -> int:
+	"""
+	Difference in bar chart/histogram shape from overall chart
+	Note: this function assumes that the filtered view.data is operating on the same range as the unfiltered view.data. 
 
-# N_dim = 1, N_msr = 0, N_filter = 1
-def filtered_dist_shape_diff(v, v_filter):
-	# TODO: Jared
+	Parameters
+	----------
+	view : lux.view.View
+	ldf : lux.luxDataFrame.LuxDataFrame
+	filterSpecs : list
+		List of filters from the View
+	msrAttribute : str
+		The attribute name of the measure value of the chart
 
-	# Euclidean distance as L2 function
-	from scipy.spatial.distance import euclidean
+	Returns
+	-------
+	int
+		Score describing how different the view is from the overall view
+	"""	
+	v_filter_size = getFilteredSize(filterSpecs,ldf)
+	v_size = len(ldf)
+	v_filter = view.data[msrAttribute]
+	v_filter = v_filter/v_filter.sum() # normalize by total to get ratio
 
-	# Norm for vector magnitude
-	from numpy.linalg import norm
-
-	return 0.1 * (norm(v_filter) / norm(v)) * euclidean(v, v_filter)
-
-##############################
-
-
-
-
-
-
-
-##### Histogram (Count) #####
-
-# N_dim = 0, N_msr = 1, N_filter = 0
-def agg_value_magnitude(v):
-	return sum(v)
-
-# N_dim = 0, N_msr = 1, N_filter = 1
-def filtered_hist_shape_diff(v, v_filter):
-	# Euclidean distance as L2 function
-	from scipy.spatial.distance import euclidean
-
-	# Norm for vector magnitude
-	from numpy.linalg import norm
-
-	return (norm(v_filter) / norm(v)) * euclidean(v_bin, v_filter_bin)
-
-##############################
-
-
-
-
-
-
-
-
-##### Bar Chart #####
-
-# N_dim = 1, N_msr = 1, N_filter = 0
-def unevenness(D, v, v_flat):
-	# Euclidean distance as L2 function
-	from scipy.spatial.distance import euclidean
+	# Generate an "Overall" View (TODO: This is computed multiple times for every view, alternative is to directly access df.viewCollection but we do not have guaruntee that will always be unfiltered view (in the non-Filter action scenario))
+	import copy
+	unfilteredView = copy.copy(view)
+	unfilteredView.specLst = utils.getAttrsSpecs(view.specLst) # Remove filters, keep only attribute specs
+	ldf.executor.execute([unfilteredView],ldf)
 	
-	return D * euclidean(v, v_flat)
-
-# N_dim = 1, N_msr = 1, N_filter = 1
-def deviation(v, v_filter, v_bin, v_filter_bin):
+	v = unfilteredView.data[msrAttribute]
+	v = v/v.sum()  
+	sig = v_filter_size/v_size #significance factor
+	print ("v:",v)
+	print ("v_filter:",v_filter)
 	# Euclidean distance as L2 function
 	from scipy.spatial.distance import euclidean
+	return sig* euclidean(v, v_filter)
 
-	# Norm for vector magnitude
-	from numpy.linalg import norm
+def unevenness(view:lux.view.View,ldf:lux.luxDataFrame.LuxDataFrame,measureLst:list,dimensionLst:list) -> int:
+	"""
+	Measure the unevenness of a bar chart view.
+	If a bar chart is highly uneven across the possible values, then it may be interesting. (e.g., USA produces lots of cars compared to Japan and Europe)
+	Likewise, if a bar chart shows that the measure is the same for any possible values the dimension attribute could take on, then it may not very informative. 
+	(e.g., The cars produced across all Origins (Europe, Japan, and USA) has approximately the same average Acceleration.)
 
-	return (norm(v_filter) / norm(v)) * euclidean(v, v_filter)
+	Parameters
+	----------
+	view : lux.view.View
+	ldf : lux.luxDataFrame.LuxDataFrame
+	measureLst : list
+		List of measures
+	dimensionLst : list
+		List of dimensions
+	Returns
+	-------
+	int
+		Score describing how uneven the bar chart is.
+	"""	
+	v = view.data[measureLst[0].attribute]
+	v = v/v.sum() # normalize by total to get ratio
+	C = ldf.cardinality[dimensionLst[0].attribute]
+	D = (0.5) ** C # cardinality-based discounting factor
+	v_flat = pd.Series([1 / C] * len(v))
+	if (is_datetime(v)):
+		v = v.astype('int')
+	return D * euclidean(v, v_flat) 
 
-##############################
-
-
-
-
-
-
-
-
-##### Scatter Plot #####
-
-# N_dim = 0, N_msr = 2, N_filter = 0
 def mutual_information(v_x, v_y):
 	#Interestingness metric for two measure attributes
   	#Calculate maximal information coefficient (see Murphy pg 61) or Pearson's correlation
 	from sklearn.metrics import mutual_info_score
-
 	return mutual_info_score(v_x, v_y)
 
-# N_dim = 0, N_msr = 2, N_filter = 1
-def monotonicity(v_x, v_y):
+def monotonicity(v_x:list, v_y:list) ->int:
+	"""
+	Monotonicity measures there is a monotonic trend in the scatterplot, whether linear or not.
+	This score is computed as the square of the Spearman correlation coefficient, which is the Pearson correlation on the ranks of x and y.
+	See "Graph-Theoretic Scagnostics", Wilkinson et al 2005: https://research.tableau.com/sites/default/files/Wilkinson_Infovis-05.pdf
+	Parameters
+	----------
+	v_x : list
+		List of x data values
+	v_y : list
+		List of y data values
+
+	Returns
+	-------
+	int
+		Score describing the strength of monotonic relationship in view
+	"""	
 	from scipy.stats import spearmanr
 	return (spearmanr(v_x, v_y)[0]) ** 2
 	# import scipy.stats
 	# return abs(scipy.stats.pearsonr(v_x,v_y)[0])
-##############################
