@@ -4,7 +4,7 @@ from lux.view.View import View
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
-
+import psycopg2
 import math
 
 class SQLExecutor(Executor):
@@ -19,7 +19,6 @@ class SQLExecutor(Executor):
 
     @staticmethod
     def execute(viewCollection:ViewCollection, ldf: LuxDataFrame):
-        import psycopg2
         import pandas as pd
         '''
         Given a ViewCollection, fetch the data required to render the view
