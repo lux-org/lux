@@ -1,5 +1,5 @@
-import lux.luxDataFrame.LuxDataframe
-import lux.view.View
+from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+from lux.view.View import View
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.utils import utils
 
@@ -7,15 +7,15 @@ import pandas as pd
 import numpy as np
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from scipy.spatial.distance import euclidean
-def interestingness(view:lux.view.View ,ldf:lux.luxDataFrame.LuxDataFrame) -> int:
+def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 	"""
 	Compute the interestingness score of the view.
 	The interestingness metric is dependent on the view type.
 
 	Parameters
 	----------
-	view : lux.view.View
-	ldf : lux.luxDataFrame.LuxDataFrame
+	view : View
+	ldf : LuxDataFrame
 
 	Returns
 	-------
@@ -94,15 +94,15 @@ def skewness(v):
 	from scipy.stats import skew
 	return skew(v)
 
-def deviationFromOverall(view:lux.view.View,ldf:lux.luxDataFrame.LuxDataFrame,filterSpecs:list,msrAttribute:str) -> int:
+def deviationFromOverall(view:View,ldf:LuxDataFrame,filterSpecs:list,msrAttribute:str) -> int:
 	"""
 	Difference in bar chart/histogram shape from overall chart
 	Note: this function assumes that the filtered view.data is operating on the same range as the unfiltered view.data. 
 
 	Parameters
 	----------
-	view : lux.view.View
-	ldf : lux.luxDataFrame.LuxDataFrame
+	view : View
+	ldf : LuxDataFrame
 	filterSpecs : list
 		List of filters from the View
 	msrAttribute : str
@@ -127,13 +127,11 @@ def deviationFromOverall(view:lux.view.View,ldf:lux.luxDataFrame.LuxDataFrame,fi
 	v = unfilteredView.data[msrAttribute]
 	v = v/v.sum()  
 	sig = v_filter_size/v_size #significance factor
-	print ("v:",v)
-	print ("v_filter:",v_filter)
 	# Euclidean distance as L2 function
 	from scipy.spatial.distance import euclidean
 	return sig* euclidean(v, v_filter)
 
-def unevenness(view:lux.view.View,ldf:lux.luxDataFrame.LuxDataFrame,measureLst:list,dimensionLst:list) -> int:
+def unevenness(view:View,ldf:LuxDataFrame,measureLst:list,dimensionLst:list) -> int:
 	"""
 	Measure the unevenness of a bar chart view.
 	If a bar chart is highly uneven across the possible values, then it may be interesting. (e.g., USA produces lots of cars compared to Japan and Europe)
@@ -142,8 +140,8 @@ def unevenness(view:lux.view.View,ldf:lux.luxDataFrame.LuxDataFrame,measureLst:l
 
 	Parameters
 	----------
-	view : lux.view.View
-	ldf : lux.luxDataFrame.LuxDataFrame
+	view : View
+	ldf : LuxDataFrame
 	measureLst : list
 		List of measures
 	dimensionLst : list

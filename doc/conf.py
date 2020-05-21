@@ -41,7 +41,8 @@ extensions = [
 	'sphinx.ext.githubpages',
 	'sphinx.ext.intersphinx',
 	'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+	'sphinx.ext.mathjax'
 ]
 
 autodoc_default_flags = ['members', "inherited-members"]
