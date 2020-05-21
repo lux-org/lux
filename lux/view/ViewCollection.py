@@ -14,7 +14,8 @@ class ViewCollection():
 	def __len__(self):
 		return len(self.collection)
 	def __repr__(self):
-		return f"<ViewCollection: {str(self.collection)}>"
+		import pprint
+		return f"<ViewCollection: \n  {pprint.pformat(self.collection)} \n>"
 
 	def map(self,function):
 		# generalized way of applying a function to each element

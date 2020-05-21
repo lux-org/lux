@@ -56,13 +56,24 @@ class Spec:
 		self.sort = sort
 			
 	def __repr__(self):
-		repr =  f"Spec < description:{str(self.description)},"+ \
-			   f"channel:{str(self.channel)},"+ \
-			   f"attribute:{str(self.attribute)},"+ \
-			   f"aggregation:{str(self.aggregation)},"+ \
-			   f"value:{str(self.value)}>" + \
-			   f"dataModel:{str(self.dataModel)}," + \
-				f"dataType:{str(self.dataType)},"+\
-				f"binSize:{str(self.binSize)}"
-		return repr
+		
+		repr_string = f"Spec < \n"
+		if self.description != "":
+			repr_string += f"    description:{str(self.description)}\n"
+		if self.channel != "":
+			repr_string += f"    channel:{str(self.channel)}\n"
+		if len(self.attribute) != 0:
+			repr_string += f"    attribute:{str(self.attribute)}\n"
+		if self.aggregation != "":
+			repr_string += f"    aggregation:{str(self.aggregation)}\n"
+		if len(self.value) != 0:
+			repr_string += f"    value:{str(self.value)}\n"
+		repr_string += f"   >\n"
+		if self.dataModel != "":
+			repr_string += f"   dataModel:{str(self.dataModel)}\n"
+		if len(self.dataType) != 0:
+			repr_string += f"   dataType:{str(self.dataType)}\n"
+		if self.binSize != None:
+			repr_string += f"   binSize:{str(self.binSize)}\n"
+		return repr_string + "\n"
 
