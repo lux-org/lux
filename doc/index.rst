@@ -24,7 +24,7 @@ Welcome to Lux's documentation!
    :caption: User Guide
    
    source/guide/spec
-   source/guide/API
+   source/guide/interestingness
    source/guide/FAQ
    source/guide/example
 
