@@ -1,6 +1,6 @@
 import typing
 class Spec:
-	def __init__(self, description:str ="",attribute: typing.Union[str,list] ="",value: typing.Union[str,list]="",
+	def __init__(self, description:typing.Union[str,list] ="",attribute: typing.Union[str,list] ="",value: typing.Union[str,list]="",
 				 filterOp:str ="=", channel:str ="", dataType:str="",dataModel:str="",
 				 aggregation:str = "", binSize:int=0, weight:float=1,sort:str=""):
 		"""
@@ -8,7 +8,7 @@ class Spec:
 
 		Parameters
 		----------
-		description : str, optional
+		description : typing.Union[str,list], optional
 			Convenient shorthand description of specification, parser parses description into other properties (attribute, value, filterOp), by default ""
 		attribute : typing.Union[str,list], optional
 			Specified attribute(s) of interest, by default ""

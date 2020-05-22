@@ -80,6 +80,8 @@ class Parser:
 					splitDescription = spec.description.split(spec.filterOp)
 					spec.attribute = splitDescription[0]
 					spec.value = splitDescription[1]
+				elif (type(spec.description)==list):
+					spec.attribute = spec.description
 				else: # then it is probably a value 
 					spec.values = spec.description
 
