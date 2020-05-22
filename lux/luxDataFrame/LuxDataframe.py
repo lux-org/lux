@@ -245,7 +245,7 @@ class LuxDataFrame(pd.DataFrame):
         self.dataType = dataType
 
     def showMore(self):
-        from lux.action.ViewCollection import viewCollection
+        from lux.action.UserDefined import userDefined
         from lux.action.Correlation import correlation
         from lux.action.Distribution import distribution
         from lux.action.Enhance import enhance
@@ -272,8 +272,7 @@ class LuxDataFrame(pd.DataFrame):
             if generalize['collection']:
                 self.recommendation.append(generalize)
         elif (multipleCurrentViews):
-            viewCollection = viewCollection(self)
-            self.recommendation.append(viewCollection)
+            self.recommendation.append(userDefined(self))
 
         self.clearFilter()
 

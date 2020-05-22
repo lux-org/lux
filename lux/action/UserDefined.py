@@ -5,17 +5,14 @@ from lux.executor.SQLExecutor import SQLExecutor
 #for benchmarking
 import time
 
-def viewCollection(ldf):
+def userDefined(ldf):
     '''
-    Generates bar chart distributions of different attributes in the dataset.
+    Generates user-defined views based on the context.
 
     Parameters
     ----------
     ldf : lux.luxDataFrame.LuxDataFrame
         LuxDataFrame with underspecified context.
-
-    dataTypeConstraint: str
-        The variable that controls the type of distribution chart that will be rendered.
 
     Returns
     -------
@@ -28,6 +25,8 @@ def viewCollection(ldf):
 
     vc = ldf.viewCollection
     PandasExecutor.execute(vc, ldf)
-
-    ldf.clearContext()
+    for view in vc: 
+        view.score = interestingness(view,ldf)
+    # ldf.clearContext()
+    vc.sort(removeInvalid=True)
     return recommendation
