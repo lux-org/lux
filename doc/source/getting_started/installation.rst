@@ -7,15 +7,15 @@ Lux API can be used in conjunction with the Lux widget, which is a frontend Jupy
 
 You can install the Python Lux API through `PyPI <https://pypi.org/project/lux-api/>`_
 
-.. code-block:: bash
+.. code-block:: console
 
-pip install lux-api
+    pip install lux-api
 
 You can install the Lux Jupyter widget through `npm <https://www.npmjs.com/package/lux-widget>`_
 
-.. code-block:: bash
+.. code-block:: console
 
-npm i lux-widget
+    npm i lux-widget
 
 Additional Requirements
 -----------------------
@@ -25,9 +25,9 @@ A tutorial on installing PostgresSQL on Mac OSX can be found `here <https://char
 
 In addition to setting up Postgres, you also need to install Psycopg2 for the Python code in Lux to query Postgres database.
 
-.. code-block:: bash
+.. code-block:: console
 
-pip install psycopg2
+    pip install psycopg2
 
 Development Setup
 -----------------
