@@ -1,22 +1,21 @@
 import lux
 from lux.interestingness.interestingness import interestingness
 from lux.compiler.Compiler import Compiler
-
+from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 #for benchmarking
 import time
 # change ignoreTranspose to false for now.
-def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
+def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 	'''
 	Generates bivariate visualizations that represent all pairwise relationships in the data.
 
 	Parameters
 	----------
-	ldf : lux.luxDataFrame.LuxDataFrame
+	ldf : LuxDataFrame
 		LuxDataFrame with underspecified context.
 
-	ignoreIdentity:
-
-	ignoreTranspose:
+	ignoreTranspose: bool
+		Boolean flag to ignore pairs of attributes whose transpose are already computed (i.e., {X,Y} will be ignored if {Y,X} is already computed)
 
 	Returns
 	-------
@@ -45,17 +44,15 @@ def correlation(ldf,ignoreIdentity=True,ignoreTranspose=False):
 		if len(measures)<2 : raise ValueError(f"Can not compute correlation between {[x.attribute for x in ldf.columns]} since less than 2 measure values present.")
 		msr1 = measures[0].attribute
 		msr2 = measures[1].attribute
-		if(ignoreIdentity and msr1 == msr2): #remove if measures are the same
-			view.score = -1
+		
+		if (ignoreTranspose):
+			checkTranspose = checkTransposeNotComputed(ldf,msr1,msr2)
 		else:
-			if (ignoreTranspose):
-				checkTranspose = checkTransposeNotComputed(ldf,msr1,msr2)
-			else:
-				checkTranspose = True
-			if (checkTranspose):
-				view.score = interestingness(view,ldf)
-			else:
-				view.score = -1
+			checkTranspose = True
+		if (checkTranspose):
+			view.score = interestingness(view,ldf)
+		else:
+			view.score = -1
 	vc = vc.topK(15)
 	vc.sort(removeInvalid=True)
 	ldf.clearContext()

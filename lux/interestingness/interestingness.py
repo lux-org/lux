@@ -65,9 +65,7 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 			sig = v_filter_size/v_size
 		else:
 			sig = 1
-		v_x = ldf[attr_specs[0].attribute]
-		v_y = ldf[attr_specs[1].attribute]
-		return sig * monotonicity(v_x, v_y)
+		return sig * monotonicity(view,attr_specs)
 	# Scatterplot colored by Dimension
 	elif (n_dim == 1 and n_msr == 2):
 		colorAttr = view.getAttrByChannel("color")[0].attribute
@@ -126,6 +124,7 @@ def deviationFromOverall(view:View,ldf:LuxDataFrame,filterSpecs:list,msrAttribut
 	
 	v = unfilteredView.data[msrAttribute]
 	v = v/v.sum()  
+	assert len(v) == len(v_filter), "Data for filtered and unfiltered view have unequal length." 
 	sig = v_filter_size/v_size #significance factor
 	# Euclidean distance as L2 function
 	from scipy.spatial.distance import euclidean
@@ -166,17 +165,19 @@ def mutual_information(v_x:list , v_y:list) -> int:
 	from sklearn.metrics import mutual_info_score
 	return mutual_info_score(v_x, v_y)
 
-def monotonicity(v_x:list, v_y:list) ->int:
+def monotonicity(view:View,attr_specs:list,ignoreIdentity:bool=True) ->int:
 	"""
 	Monotonicity measures there is a monotonic trend in the scatterplot, whether linear or not.
 	This score is computed as the square of the Spearman correlation coefficient, which is the Pearson correlation on the ranks of x and y.
 	See "Graph-Theoretic Scagnostics", Wilkinson et al 2005: https://research.tableau.com/sites/default/files/Wilkinson_Infovis-05.pdf
 	Parameters
 	----------
-	v_x : list
-		List of x data values
-	v_y : list
-		List of y data values
+	view : View
+	attr_spec: list
+		List of attribute Spec objects
+
+	ignoreIdentity: bool
+		Boolean flag to ignore items with the same x and y attribute (score as -1)
 
 	Returns
 	-------
@@ -184,6 +185,14 @@ def monotonicity(v_x:list, v_y:list) ->int:
 		Score describing the strength of monotonic relationship in view
 	"""	
 	from scipy.stats import spearmanr
+	msr1 = attr_specs[0].attribute
+	msr2 = attr_specs[1].attribute
+
+	if(ignoreIdentity and msr1 == msr2): #remove if measures are the same
+		print ('her')
+		return -1
+	v_x = view.data[msr1]
+	v_y = view.data[msr2]
 	return (spearmanr(v_x, v_y)[0]) ** 2
 	# import scipy.stats
 	# return abs(scipy.stats.pearsonr(v_x,v_y)[0])

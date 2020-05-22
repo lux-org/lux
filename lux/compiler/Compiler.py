@@ -212,8 +212,7 @@ class Compiler:
             dimension = view.getAttrByDataModel("dimension")[0]
             measure = view.getAttrByDataModel("measure")[0]
             # measure.channel = "x"
-            view.mark, autoChannel = lineOrBar(ldf, dimension,
-                                               measure)  # Jaywoo measures to be aggregated? if user specified it, override compiler logic. avg for all other cases
+            view.mark, autoChannel = lineOrBar(ldf, dimension, measure)  
         elif (Ndim == 2 and (Nmsr == 0 or Nmsr == 1)):
             # Line or Bar chart broken down by the dimension
             dimensions = view.getAttrByDataModel("dimension")
