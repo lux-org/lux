@@ -160,7 +160,7 @@ def unevenness(view:View,ldf:LuxDataFrame,measureLst:list,dimensionLst:list) -> 
 		v = v.astype('int')
 	return D * euclidean(v, v_flat) 
 
-def mutual_information(v_x, v_y):
+def mutual_information(v_x:list , v_y:list) -> int:
 	#Interestingness metric for two measure attributes
   	#Calculate maximal information coefficient (see Murphy pg 61) or Pearson's correlation
 	from sklearn.metrics import mutual_info_score
