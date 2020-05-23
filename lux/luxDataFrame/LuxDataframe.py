@@ -29,6 +29,7 @@ class LuxDataFrame(pd.DataFrame):
         self.table_name = ""
         self.filterSpecs = []
         self.togglePandasView = True
+        self.toggleBenchmarking = False
 
     @property
     def _constructor(self):
@@ -157,12 +158,14 @@ class LuxDataFrame(pd.DataFrame):
 
     def setSQLConnection(self, connection, t_name):
         #for benchmarking
-        #tic = time.perf_counter()
+        if self.toggleBenchmarking == True:
+            tic = time.perf_counter()
         self.SQLconnection = connection
         self.table_name = t_name
         self.computeSQLDatasetMetadata()
-        #toc = time.perf_counter()
-        #print(f"Extracted Metadata from SQL Database in {toc - tic:0.4f} seconds")
+        if self.toggleBenchmarking == True:
+            toc = time.perf_counter()
+            print(f"Extracted Metadata from SQL Database in {toc - tic:0.4f} seconds")
 
     def computeSQLDatasetMetadata(self):
         self.getSQLAttributes()
@@ -292,10 +295,12 @@ class LuxDataFrame(pd.DataFrame):
             self.computeStats()
             self.computeDatasetMetadata()
         #for benchmarking
-        #tic = time.perf_counter()
+        if self.toggleBenchmarking == True:
+            tic = time.perf_counter()
         self.showMore() # compute the recommendations
-        #toc = time.perf_counter()
-        #print(f"Computed recommendations in {toc - tic:0.4f} seconds")
+        if self.toggleBenchmarking == True:
+            toc = time.perf_counter()
+            print(f"Computed recommendations in {toc - tic:0.4f} seconds")
 
         self.widget = LuxDataFrame.renderWidget(self)
 

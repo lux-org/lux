@@ -11,7 +11,8 @@ import time
 # from compiler.Compiler import Compiler
 def generalize(ldf):
 	#for benchmarking
-	tic = time.perf_counter()
+	if ldf.toggleBenchmarking == True:
+		tic = time.perf_counter()
 	'''
 	Generates all possible visualizations when one attribute or filter from the current view is removed.
 
@@ -68,6 +69,7 @@ def generalize(ldf):
 	vc = vc.topK(10)
 	vc.sort(removeInvalid=True)
 	#for benchmarking
-	toc = time.perf_counter()
-	print(f"Performed generalize action in {toc - tic:0.4f} seconds")
+	if ldf.toggleBenchmarking == True:
+		toc = time.perf_counter()
+		print(f"Performed generalize action in {toc - tic:0.4f} seconds")
 	return recommendation

@@ -60,9 +60,9 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
 		if (n_filter==1):
-			v_filter_size = getFilteredSize(filterSpecs,ldf)
-			v_size = len(ldf)
-			sig = v_filter_size/v_size
+			v_filter_size = getFilteredSize(filterSpecs,view.data)
+			v_size = len(view.data)
+			sig = v_filter_size/view.data
 		else:
 			sig = 1
 		return sig * monotonicity(view,attr_specs)
@@ -112,7 +112,7 @@ def deviationFromOverall(view:View,ldf:LuxDataFrame,filterSpecs:list,msrAttribut
 		Score describing how different the view is from the overall view
 	"""	
 	v_filter_size = getFilteredSize(filterSpecs,ldf)
-	v_size = len(ldf)
+	v_size = len(view.data)
 	v_filter = view.data[msrAttribute]
 	v_filter = v_filter/v_filter.sum() # normalize by total to get ratio
 
