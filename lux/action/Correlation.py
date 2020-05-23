@@ -24,7 +24,8 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 	'''
 	import numpy as np
 	#for benchmarking
-	tic = time.perf_counter()
+	if ldf.toggleBenchmarking == True:
+		tic = time.perf_counter()
 
 	context = [lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")]
 	context.extend(ldf.filterSpecs)
@@ -59,8 +60,9 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 	recommendation["collection"] = vc
 
 	#for benchmarking
-	toc = time.perf_counter()
-	print(f"Performed correlation action in {toc - tic:0.4f} seconds")
+	if ldf.toggleBenchmarking == True:
+		toc = time.perf_counter()
+		print(f"Performed correlation action in {toc - tic:0.4f} seconds")
 	return recommendation
 
 def checkTransposeNotComputed(ldf,a,b):

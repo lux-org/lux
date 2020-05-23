@@ -24,7 +24,8 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 	import numpy as np
 
 	#for benchmarking
-	tic = time.perf_counter()
+	if ldf.toggleBenchmarking == True:
+		tic = time.perf_counter()
 
 	if (dataTypeConstraint=="quantitative"):
 		context = [lux.Spec("?",dataType="quantitative")]
@@ -50,6 +51,7 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 	# dobj.recommendations.append(recommendation)
 
 	#for benchmarking
-	toc = time.perf_counter()
-	print(f"Performed distribution action in {toc - tic:0.4f} seconds")
+	if ldf.toggleBenchmarking == True:
+		toc = time.perf_counter()
+		print(f"Performed distribution action in {toc - tic:0.4f} seconds")
 	return recommendation
