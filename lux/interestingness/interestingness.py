@@ -189,7 +189,6 @@ def monotonicity(view:View,attr_specs:list,ignoreIdentity:bool=True) ->int:
 	msr2 = attr_specs[1].attribute
 
 	if(ignoreIdentity and msr1 == msr2): #remove if measures are the same
-		print ('her')
 		return -1
 	v_x = view.data[msr1]
 	v_y = view.data[msr2]

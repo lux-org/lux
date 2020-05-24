@@ -1,6 +1,6 @@
 import pandas as pd
 from lux.context.Spec import Spec
-
+from lux.view.ViewCollection import ViewCollection
 #import for benchmarking
 import time
 class LuxDataFrame(pd.DataFrame):
@@ -10,12 +10,13 @@ class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','dataTypeLookup','dataType','filterSpecs'
                  'dataModelLookup','dataModel','uniqueValues','cardinality',
-                 'viewCollection','widget', 'recommendation']
+                 'viewCollection','widget', '_recInfo', 'recommendation']
 
     def __init__(self,*args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
         self.context = []
-        self.recommendation=[]
+        self._recInfo=[]
+        self.recommendation = {}
         self.viewCollection = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
@@ -255,27 +256,34 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.Filter import filter
         from lux.action.Generalize import generalize
 
-        self.recommendation = []
+        self._recInfo = []
         noView = len(self.viewCollection) == 0
         oneCurrentView = len(self.viewCollection) == 1
         multipleCurrentViews = len(self.viewCollection) > 1
 
         if (noView):
-            self.recommendation.append(correlation(self))
-            self.recommendation.append(distribution(self,"quantitative"))
-            self.recommendation.append(distribution(self,"nominal"))
+            self._recInfo.append(correlation(self))
+            self._recInfo.append(distribution(self,"quantitative"))
+            self._recInfo.append(distribution(self,"nominal"))
         elif (oneCurrentView):
             enhance = enhance(self)
             filter = filter(self)
             generalize = generalize(self)
             if enhance['collection']:
-                self.recommendation.append(enhance)
+                self._recInfo.append(enhance)
             if filter['collection']:
-                self.recommendation.append(filter)
+                self._recInfo.append(filter)
             if generalize['collection']:
-                self.recommendation.append(generalize)
+                self._recInfo.append(generalize)
         elif (multipleCurrentViews):
-            self.recommendation.append(userDefined(self))
+            self._recInfo.append(userDefined(self))
+            
+        # Store _recInfo into a more user-friendly dictionary form
+        self.recommendation = {}
+        for recInfo in self._recInfo: 
+            actionType = recInfo["action"]
+            vc = recInfo["collection"]
+            self.recommendation[actionType]  = vc
 
         self.clearFilter()
 
@@ -286,6 +294,31 @@ class LuxDataFrame(pd.DataFrame):
     #######################################################
     def getWidget(self):
         return self.widget
+
+    def getExported(self):
+        """
+        Convert the _exportedVisIdxs dictionary into a programmable ViewCollection
+        Example _exportedVisIdxs : 
+            {'Correlation': [0, 2], 'Category': [1]}
+        indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Category` tab is selected.
+
+        Returns
+        -------
+        When there are no exported vis, return empty list -> []
+        When all the exported vis is from the same tab, return a ViewCollection of selected views. -> ViewCollection(v1, v2...)
+        When the exported vis is from the different tabs, return a dictionary with the action name as key and selected views in the ViewCollection. -> {"Enhance": ViewCollection(v1, v2...), "Filter": ViewCollection(v5, v7...), ..}
+        """        
+        exportedVisLst =self.widget._exportedVisIdxs
+        exportedViews = [] 
+        if len(exportedVisLst) == 1 : 
+            exportAction = list(exportedVisLst.keys())[0]
+            exportedViews = ViewCollection(list(map(self.recommendation[exportAction].__getitem__, exportedVisLst[exportAction])))
+        elif len(exportedVisLst) > 1 : 
+            exportedViews  = {}
+            for exportAction in exportedVisLst: 
+                exportedViews[exportAction] = ViewCollection(list(map(self.recommendation[exportAction].__getitem__, exportedVisLst[exportAction])))
+        return exportedViews
+
     def _repr_html_(self):
         from IPython.display import display
         from IPython.display import clear_output
@@ -383,7 +416,7 @@ class LuxDataFrame(pd.DataFrame):
         #     ]
         
         # Recommended Collection
-        recCollection = LuxDataFrame.recToJSON(self.recommendation)
+        recCollection = LuxDataFrame.recToJSON(self._recInfo)
         widgetSpec["recommendation"].extend(recCollection)
         return widgetSpec
     
