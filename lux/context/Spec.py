@@ -56,24 +56,25 @@ class Spec:
 		self.sort = sort
 			
 	def __repr__(self):
-		
-		repr_string = f"Spec < \n"
+		attributes = []
+		import pprint
 		if self.description != "":
-			repr_string += f"    description:{str(self.description)}\n"
+			attributes.append("         description: " + self.description)
 		if self.channel != "":
-			repr_string += f"    channel:{str(self.channel)}\n"
+			attributes.append("         channel: " + self.channel)
 		if len(self.attribute) != 0:
-			repr_string += f"    attribute:{str(self.attribute)}\n"
+			attributes.append("         attribute: " + str(self.attribute))
 		if self.aggregation != "":
-			repr_string += f"    aggregation:{str(self.aggregation)}\n"
+			attributes.append("         aggregation: " + self.aggregation)
 		if len(self.value) != 0:
-			repr_string += f"    value:{str(self.value)}\n"
-		repr_string += f"   >\n"
+			attributes.append("         value: " + str(self.value))
 		if self.dataModel != "":
-			repr_string += f"   dataModel:{str(self.dataModel)}\n"
+			attributes.append("         dataModel: " + self.dataModel)
 		if len(self.dataType) != 0:
-			repr_string += f"   dataType:{str(self.dataType)}\n"
+			attributes.append("         dataType: " + str(self.dataType))
 		if self.binSize != None:
-			repr_string += f"   binSize:{str(self.binSize)}\n"
-		return repr_string + "\n"
+			attributes.append("         binSize: " + str(self.binSize))
+		attributes[0] = "<Spec " + attributes[0][5:]
+		attributes[len(attributes) - 1] += " >" 
+		return pprint.pformat(attributes, width=40, indent=5).replace('[', '').replace(']', '')
 
