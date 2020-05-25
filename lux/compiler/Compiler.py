@@ -201,6 +201,7 @@ class Compiler:
 				view.specLst.append(countCol)
 			dimension = view.getAttrByDataModel("dimension")[0]
 			measure = view.getAttrByDataModel("measure")[0]
+			view.xMinMax = ldf.xMinMax
 			# measure.channel = "x"
 			view.mark, autoChannel = lineOrBar(ldf,dimension, measure) # Jaywoo measures to be aggregated? if user specified it, override compiler logic. avg for all other cases
 		elif (Ndim == 2 and (Nmsr == 0 or Nmsr == 1)):
@@ -225,11 +226,13 @@ class Compiler:
 			if (Nmsr == 0):
 				view.specLst.append(countCol)
 			measure = view.getAttrByDataModel("measure")[0]
+			view.xMinMax = ldf.xMinMax
 			view.mark, autoChannel = lineOrBar(ldf,dimension, measure)
 			autoChannel["color"] = colorAttr
 		elif (Ndim == 0 and Nmsr == 2):
 			# Scatterplot
 			view.xMinMax = ldf.xMinMax
+			# print(view.specLst[1])
 			view.mark = "scatter"
 			autoChannel = {"x": view.specLst[0],
 						   "y": view.specLst[1]}
