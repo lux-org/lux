@@ -18,6 +18,12 @@ class BarChart(AltairChart):
 		self.tooltip = False
 		xAttr = self.view.getAttrByChannel("x")[0]
 		yAttr = self.view.getAttrByChannel("y")[0]
+
+		# print(self.view.xMinMax)
+
+		# xMin = self.view.xMinMax[yAttr.attribute][0]
+		# xMax = self.view.xMinMax[yAttr.attribute][1]
+
 		if (xAttr.dataModel == "measure"):
 			yAttrField = alt.Y(yAttr.attribute, type = yAttr.dataType, axis=alt.Axis(labelOverlap=True))
 			xAttrField = alt.X(xAttr.attribute,type=xAttr.dataType,title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}")
