@@ -150,7 +150,7 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = {}
 
         for dimension in self.columns:
-            self.uniqueValues[dimension] = self[dimension].unique()
+            self.uniqueValues[dimension] = list(self[dimension].unique())
             self.cardinality[dimension] = len(self.uniqueValues[dimension])
 
     #######################################################
