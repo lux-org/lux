@@ -70,7 +70,7 @@ class Compiler:
         ViewCollection: list[lux.View]
             view collection with compiled lux.View objects.
         """
-
+        import copy
         specs = Compiler.populateWildcardOptions(ldf)
         attributes = specs['attributes']
         filters = specs['filters']
@@ -85,11 +85,11 @@ class Compiler:
             last = (len(colAttrs) == 1)
             n = len(colAttrs[0])
             for i in range(n):
-                columnList = accum + [colAttrs[0][i]]
+                columnList = copy.deepcopy(accum + [colAttrs[0][i]])
                 if last:
                     if len(filters) > 0:  # if we have filters, generate combinations for each row.
                         for row in filters:
-                            specLst = columnList + [row]
+                            specLst = copy.deepcopy(columnList + [row])
                             view = View(specLst, title=f"{row.attribute} {row.filterOp} {row.value}")
                             collection.append(view)
                     else:
