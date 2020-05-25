@@ -13,16 +13,14 @@ class View:
 		self.vis = None
 
 	def __repr__(self):
-		import pprint
-		repr_string = f"<View: \n"
-		if self.mark != "":
-			repr_string += f"  Mark: {self.mark}, \n"
-		if len(self.specLst) != 0:
-			repr_string += f"  Specs: {pprint.pformat(self.specLst)}, \n"
-		if self.score != None:
-			repr_string += f"  Score:{self.score} \n"
-		repr_string += ">"
-		return repr_string
+		x_channel = ""
+		y_channel = ""
+		for spec in self.specLst:
+			if spec.channel == "x":
+				x_channel = spec.attribute
+			elif spec.channel == "y":
+				y_channel = spec.attribute
+		return f"<View  (x: {x_channel}, y: {y_channel}) mark: {self.mark}, score: {self.score} >"
 	def _repr_html_(self):
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 		widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderViewOnly=True)
