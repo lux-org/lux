@@ -8,7 +8,7 @@ class LuxDataFrame(pd.DataFrame):
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
     '''
     # MUST register here for new properties!!
-    _metadata = ['context','dataTypeLookup','dataType','filterSpecs'
+    _metadata = ['context','dataTypeLookup','dataType','filterSpecs',
                  'dataModelLookup','dataModel','uniqueValues','cardinality',
                  'viewCollection','widget', '_recInfo', 'recommendation']
 
