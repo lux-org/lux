@@ -16,6 +16,7 @@ class View:
 	def __repr__(self):
 		return f"<View: Mark: {self.mark}, Specs: {str(self.specLst)}, Score:{self.score}>"
 	def _repr_html_(self):
+		from IPython.display import display
 		checkImportLuxWidget()
 		import luxWidget
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame

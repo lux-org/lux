@@ -51,6 +51,7 @@ class ViewCollection():
 			dobj.score = dobj.score/maxScore
 			if (invertOrder): dobj.score = 1 - dobj.score
 	def _repr_html_(self):
+		from IPython.display import display
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 		# widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderTarget="viewCollectionOnly")
 		recommendation = {"action": "View Collection",
