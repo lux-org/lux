@@ -151,7 +151,9 @@ class LuxDataFrame(pd.DataFrame):
             if self.dtypes[dimension] == "float64" or self.dtypes[dimension] == "int64":
                 self.xMinMax[dimension] = (min(self.uniqueValues[dimension]), max(self.uniqueValues[dimension]))
                 self.yMinMax[dimension] = (self[dimension].min(), self[dimension].max())
-                # print(self[dimension].max())
+            else:
+                # xMinMax for bar chart
+                print(self.toPandas())
 
     #######################################################
     ########## SQL Metadata, type, model schema ###########
