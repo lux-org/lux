@@ -10,7 +10,7 @@ class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','dataTypeLookup','dataType',
                  'dataModelLookup','dataModel','uniqueValues','cardinality', 
-                 'xMinMax',
+                 'xMinMax', 'yMinMax',
                  'viewCollection','widget', 'recommendation']
 
     def __init__(self,*args, **kw):
@@ -142,6 +142,7 @@ class LuxDataFrame(pd.DataFrame):
         # precompute statistics
         self.uniqueValues = {}
         self.xMinMax = {}
+        self.yMinMax = {}
         self.cardinality = {}
 
         for dimension in self.columns:
@@ -149,7 +150,8 @@ class LuxDataFrame(pd.DataFrame):
             self.cardinality[dimension] = len(self.uniqueValues[dimension])
             if self.dtypes[dimension] == "float64" or self.dtypes[dimension] == "int64":
                 self.xMinMax[dimension] = (min(self.uniqueValues[dimension]), max(self.uniqueValues[dimension]))
-                # print(self.xMinMax[dimension])
+                self.yMinMax[dimension] = (self[dimension].min(), self[dimension].max())
+                # print(self[dimension].max())
 
     #######################################################
     ########## SQL Metadata, type, model schema ###########
