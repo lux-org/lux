@@ -20,9 +20,12 @@ class ScatterChart(AltairChart):
 		xMin = self.view.xMinMax[xAttr.attribute][0]
 		xMax = self.view.xMinMax[xAttr.attribute][1]
 
+		yMin = self.view.yMinMax[yAttr.attribute][0]
+		yMax = self.view.yMinMax[yAttr.attribute][1]
+
 		chart = alt.Chart(self.data).mark_circle().encode(
 		    x=alt.X(xAttr.attribute,scale=alt.Scale(domain=(xMin, xMax)),type=xAttr.dataType),
-		    y=alt.Y(yAttr.attribute,scale=alt.Scale(zero=False),type=yAttr.dataType)
+		    y=alt.Y(yAttr.attribute,scale=alt.Scale(domain=(yMin, yMax)),type=yAttr.dataType)
 		)
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		chart = chart.interactive() # Enable Zooming and Panning
