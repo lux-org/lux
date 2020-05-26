@@ -75,5 +75,4 @@ class Spec:
 			attributes.append("         binSize: " + str(self.binSize))
 		attributes[0] = "<Spec" + attributes[0][5:]
 		attributes[len(attributes) - 1] += " >"
-		attributes.append("\n")
-		return '\n'.join(attributes)
+		return ',\n'.join(attributes)
