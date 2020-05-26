@@ -57,7 +57,6 @@ class Spec:
 			
 	def __repr__(self):
 		attributes = []
-		import pprint
 		if self.description != "":
 			attributes.append("         description: " + self.description)
 		if self.channel != "":
@@ -74,7 +73,7 @@ class Spec:
 			attributes.append("         dataType: " + str(self.dataType))
 		if self.binSize != None:
 			attributes.append("         binSize: " + str(self.binSize))
-		attributes[0] = "<Spec " + attributes[0][5:]
-		attributes[len(attributes) - 1] += " >" 
-		return pprint.pformat(attributes, width=40, indent=5).replace('[', '').replace(']', '')
-
+		attributes[0] = "<Spec" + attributes[0][5:]
+		attributes[len(attributes) - 1] += " >"
+		attributes.append("\n")
+		return '\n'.join(attributes)
