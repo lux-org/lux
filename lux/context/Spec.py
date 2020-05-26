@@ -56,13 +56,23 @@ class Spec:
 		self.sort = sort
 			
 	def __repr__(self):
-		repr =  f"Spec < description:{str(self.description)},"+ \
-			   f"channel:{str(self.channel)},"+ \
-			   f"attribute:{str(self.attribute)},"+ \
-			   f"aggregation:{str(self.aggregation)},"+ \
-			   f"value:{str(self.value)}>" + \
-			   f"dataModel:{str(self.dataModel)}," + \
-				f"dataType:{str(self.dataType)},"+\
-				f"binSize:{str(self.binSize)}"
-		return repr
-
+		attributes = []
+		if self.description != "":
+			attributes.append("         description: " + self.description)
+		if self.channel != "":
+			attributes.append("         channel: " + self.channel)
+		if len(self.attribute) != 0:
+			attributes.append("         attribute: " + str(self.attribute))
+		if self.aggregation != "":
+			attributes.append("         aggregation: " + self.aggregation)
+		if len(self.value) != 0:
+			attributes.append("         value: " + str(self.value))
+		if self.dataModel != "":
+			attributes.append("         dataModel: " + self.dataModel)
+		if len(self.dataType) != 0:
+			attributes.append("         dataType: " + str(self.dataType))
+		if self.binSize != None:
+			attributes.append("         binSize: " + str(self.binSize))
+		attributes[0] = "<Spec" + attributes[0][5:]
+		attributes[len(attributes) - 1] += " >"
+		return ',\n'.join(attributes)

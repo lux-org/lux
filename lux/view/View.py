@@ -14,7 +14,14 @@ class View:
 		self.vis = None
 
 	def __repr__(self):
-		return f"<View: Mark: {self.mark}, Specs: {str(self.specLst)}, Score:{self.score}>"
+		x_channel = ""
+		y_channel = ""
+		for spec in self.specLst:
+			if spec.channel == "x":
+				x_channel = spec.attribute
+			elif spec.channel == "y":
+				y_channel = spec.attribute
+		return f"<View  (x: {x_channel}, y: {y_channel}) mark: {self.mark}, score: {self.score} >"
 	def _repr_html_(self):
 		from IPython.display import display
 		checkImportLuxWidget()

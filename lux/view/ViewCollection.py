@@ -14,8 +14,31 @@ class ViewCollection():
 	def __len__(self):
 		return len(self.collection)
 	def __repr__(self):
-		return f"<ViewCollection: {str(self.collection)}>"
-
+		x_channel = ""
+		y_channel = ""
+		largest_mark = 0
+		for view in self.collection: #finds longest x attribute among all views
+			for spec in view.specLst:
+				if spec.channel == "x" and len(x_channel) < len(spec.attribute):
+					x_channel = spec.attribute
+				if spec.channel == "y" and len(y_channel) < len(spec.attribute):
+					y_channel = spec.attribute
+			if len(view.mark) > largest_mark:
+				largest_mark = len(view.mark)
+		views_repr = []
+		largest_x_length = len(x_channel)
+		largest_y_length = len(y_channel)
+		for view in self.collection: #pads the shorter views with spaces before the y attribute
+			x_channel = ""
+			y_channel = ""
+			for spec in view.specLst:
+				if spec.channel == "x":
+					x_channel = spec.attribute.ljust(largest_x_length)
+				elif spec.channel == "y":
+					y_channel = spec.attribute.ljust(largest_y_length)
+			aligned_mark = view.mark.ljust(largest_mark)
+			views_repr.append(f" <View  (x: {x_channel}, y: {y_channel}) mark: {aligned_mark}, score: {view.score:.2f} >") 
+		return '['+',\n'.join(views_repr)[1:]+']'
 	def map(self,function):
 		# generalized way of applying a function to each element
 		return map(function, self.collection)
