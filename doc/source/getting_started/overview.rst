@@ -79,9 +79,27 @@ For more advance use of context, refer to this page on how to specify the contex
 Recommendations in Lux
 ----------------------
 
-Recommendations highlight interesting patterns and trends in the dataset.
+Recommendations highlight interesting patterns and trends in your dataset. 
+Lux offers different types of recommendations, known as called `analytical actions`.
+We show a set of default recommendations depending on what you have specified in the context.
 
-Correlation 
-- describe Correlation, Distribution, Category
-- example of how setContext changes the recommendations
-- refer to rec details page
+By default, if no context is specified, we display three different types of actions by default: 
+
+- Correlation (:mod:`lux.action.Correlation`) displays relationships between two quantitative variables, ranked by the most to least correlated scatterplots.
+- Distribution (:mod:`lux.action.Distribution`) displays histogram distributions of different quantitative attributes in the dataset, ranked by the most to least skewed distributions.
+- Category displays bar chart distributions of different categorical attributes in the dataset, ranked by the most to least uneven bar charts.
+
+In the earlier example, when `MedianEarning` is added to the context, the current context is represented as C = {MedianEarnings}.
+
+.. code-block:: python
+
+    df.setContext(["MedianEarnings"])
+
+Given the updated context, additional actions are generated. 
+
+- Enhance (:mod:`lux.action.Enhance`) adds an additional attribute to current context. Enhance displays visualizations involving C' = {MedianEarnings, *added attribute*}, this includes {MedianEarnings, Expenditure}, {MedianEarnings, AverageCost}, {MedianEarnings, AverageFacultySalary}.
+- Filter (:mod:`lux.action.Filter`) adds an additional filter to the current context. Filter displays visualizations involving C' = {MedianEarnings, *added filter*}, this includes {MedianEarnings, FundingModel=Public}, {MedianEarnings, Region=Southeast}, {MedianEarnings, Region=Great Lakes}.
+
+For additional information about the different types of action or how to define your own action types, refer to this page.
+
+.. Add link to recommendation type details page

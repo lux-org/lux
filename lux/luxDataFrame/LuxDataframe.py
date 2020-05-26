@@ -3,6 +3,7 @@ from lux.context.Spec import Spec
 from lux.view.ViewCollection import ViewCollection
 #import for benchmarking
 import time
+import typing
 class LuxDataFrame(pd.DataFrame):
     '''
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
@@ -68,7 +69,20 @@ class LuxDataFrame(pd.DataFrame):
         viewCollection = Compiler.compile(self,self.viewCollection)
         self.setViewCollection(viewCollection)
 
-    def setContext(self,context):
+    def setContext(self,context:typing.List[typing.Union[str,Spec]]):
+        """
+        Main function to set the context of the dataframe.
+        The context input goes through the parser, so that the string inputs are parsed into a lux.Spec object.
+
+        Parameters
+        ----------
+        context : typing.List[str,Spec]
+            Context list, can be a mix of string shorthand or a lux.Spec object
+
+        Notes
+        -----
+            :doc:`../guide/spec`
+        """        
         self.context = context
         self._refreshContext()
     def clearContext(self):
