@@ -1,4 +1,5 @@
 from lux.context.Spec import Spec
+from lux.utils.utils import checkImportLuxWidget
 class View:
 	'''
 	View Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
@@ -15,8 +16,15 @@ class View:
 	def __repr__(self):
 		return f"<View: Mark: {self.mark}, Specs: {str(self.specLst)}, Score:{self.score}>"
 	def _repr_html_(self):
+		checkImportLuxWidget()
+		import luxWidget
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-		widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderViewOnly=True)
+		# widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderTarget="viewOnly")
+		widget =  luxWidget.LuxWidget(
+                currentView= LuxDataFrame.currentViewToJSON([self]),
+                recommendations=[],
+                context={}
+            )
 		display(widget)
 
 	def getAttrByChannel(self, channel):
