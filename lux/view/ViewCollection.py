@@ -1,5 +1,5 @@
 from lux.vizLib.altair.AltairRenderer import AltairRenderer
-
+from lux.utils.utils import checkImportLuxWidget
 class ViewCollection():
 	'''
 	ViewCollection is a list of View objects. 
@@ -50,6 +50,19 @@ class ViewCollection():
 		for dobj in self.collection:
 			dobj.score = dobj.score/maxScore
 			if (invertOrder): dobj.score = 1 - dobj.score
+	def _repr_html_(self):
+		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+		# widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderTarget="viewCollectionOnly")
+		recommendation = {"action": "View Collection",
+					  "description": "Shows a view collection defined by the context"}
+		recommendation["collection"] = self
 
-	
-	
+		checkImportLuxWidget()
+		import luxWidget
+		recJSON = LuxDataFrame.recToJSON([recommendation])
+		widget =  luxWidget.LuxWidget(
+				currentView={},
+				recommendations=recJSON,
+				context={}
+			)
+		display(widget)	

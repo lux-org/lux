@@ -1,6 +1,7 @@
 import pandas as pd
 from lux.context.Spec import Spec
 from lux.view.ViewCollection import ViewCollection
+from lux.utils.utils import checkImportLuxWidget
 #import for benchmarking
 import time
 import typing
@@ -372,7 +373,7 @@ class LuxDataFrame(pd.DataFrame):
     def displayPandas(self):
         return self.toPandas()
     @staticmethod
-    def renderWidget(ldf="", renderer:str ="altair", inputCurrentView="",renderViewOnly = False):
+    def renderWidget(ldf="", renderer:str ="altair", inputCurrentView=""):
         """
         Generate a LuxWidget based on the LuxDataFrame
         
@@ -381,28 +382,16 @@ class LuxDataFrame(pd.DataFrame):
         renderer : str, optional
             Choice of visualization rendering library, by default "altair"
         inputCurrentView : lux.LuxDataFrame, optional
-            User-specified current view to override defaul Current View, by default 
+            User-specified current view to override default Current View, by default 
         """       
+        checkImportLuxWidget()
         import luxWidget
-        import pkgutil
-        if (pkgutil.find_loader("luxWidget") is None):
-            raise Exception("luxWidget is not installed. Run `npm i lux-widget' to install the Jupyter widget.\nSee more at: https://github.com/lux-org/lux-widget")
-        
-        widgetJSON = {}
-        if (renderViewOnly):
-            widgetJSON["currentView"] = LuxDataFrame.currentViewToJSON([inputCurrentView])
-            return luxWidget.LuxWidget(
-                currentView=widgetJSON["currentView"],
-                recommendations=[],
-                context={}
-            )
-        else: 
-            widgetJSON = ldf.toJSON(inputCurrentView=inputCurrentView)
-            return luxWidget.LuxWidget(
-                currentView=widgetJSON["currentView"],
-                recommendations=widgetJSON["recommendation"],
-                context=LuxDataFrame.contextToJSON(ldf.context)
-            )
+        widgetJSON = ldf.toJSON(inputCurrentView=inputCurrentView)
+        return luxWidget.LuxWidget(
+            currentView=widgetJSON["currentView"],
+            recommendations=widgetJSON["recommendation"],
+            context=LuxDataFrame.contextToJSON(ldf.context)
+        )
     @staticmethod
     def contextToJSON(context):
         from lux.utils import utils
