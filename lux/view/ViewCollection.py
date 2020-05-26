@@ -37,8 +37,8 @@ class ViewCollection():
 				elif spec.channel == "y":
 					y_channel = spec.attribute.ljust(largest_y_length)
 			aligned_mark = view.mark.ljust(largest_mark)
-			views_repr.append(f"<View  (x: {x_channel}, y: {y_channel}) mark: {aligned_mark}, score: {view.score} >") 
-		return '\n'.join(views_repr)
+			views_repr.append(f" <View  (x: {x_channel}, y: {y_channel}) mark: {aligned_mark}, score: {view.score:.2f} >") 
+		return '['+',\n'.join(views_repr)[1:]+']'
 	def map(self,function):
 		# generalized way of applying a function to each element
 		return map(function, self.collection)
