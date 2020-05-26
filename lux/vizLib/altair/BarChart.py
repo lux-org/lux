@@ -10,6 +10,7 @@ class BarChart(AltairChart):
 	--------
 	altair-viz.github.io
 	"""
+
 	def __init__(self,dobj):
 		super().__init__(dobj)
 	def __repr__(self):
@@ -19,14 +20,9 @@ class BarChart(AltairChart):
 		xAttr = self.view.getAttrByChannel("x")[0]
 		yAttr = self.view.getAttrByChannel("y")[0]
 
-		print(self.data[xAttr.attribute].max())
-
-		# does not work
-		xMax = self.data[xAttr.attribute].max()
-
 		if (xAttr.dataModel == "measure"):
 			yAttrField = alt.Y(yAttr.attribute, type = yAttr.dataType, axis=alt.Axis(labelOverlap=True))
-			xAttrField = alt.X(xAttr.attribute,scale=alt.Scale(domain=(0, xMax)), type=xAttr.dataType,title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}")
+			xAttrField = alt.X(xAttr.attribute, type=xAttr.dataType,title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}")
 			if (yAttr.sort=="ascending"):
 				yAttrField.sort="-x"
 		else:
