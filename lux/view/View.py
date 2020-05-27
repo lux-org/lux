@@ -12,6 +12,8 @@ class View:
 		self.data = None
 		self.score = 0.0
 		self.vis = None
+		self.xMinMax = {}
+		self.yMinMax = {}
 
 	def __repr__(self):
 		return f"<View: Mark: {self.mark}, Specs: {str(self.specLst)}, Score:{self.score}>"
