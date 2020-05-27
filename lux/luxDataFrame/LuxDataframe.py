@@ -194,12 +194,12 @@ class LuxDataFrame(pd.DataFrame):
         self.getSQLAttributes()
         for attr in list(self.columns):
             self[attr] = None
-        self.computeSQLStats()
         self.dataTypeLookup = {}
         self.dataType = {}
         #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this 
         #####      in the initialization and do it just once
         self.computeSQLDataType()
+        self.computeSQLStats()
         self.dataModelLookup = {}
         self.dataModel = {}
         self.computeDataModel()
@@ -207,10 +207,15 @@ class LuxDataFrame(pd.DataFrame):
     def computeSQLStats(self):
         # precompute statistics
         self.uniqueValues = {}
-        self.cardinality = {}
+        self.xMinMax = {}
+        self.yMinMax = {}
 
         self.getSQLUniqueValues()
-        self.getSQLCardinality()
+        #self.getSQLCardinality()
+        for dimension in self.columns:
+            if self.dataTypeLookup[dimension] == 'quantitative':
+                self.xMinMax[dimension] = (min(self.uniqueValues[dimension]), max(self.uniqueValues[dimension]))
+                self.yMinMax[dimension] = (self[dimension].min(), self[dimension].max())
 
     def getSQLAttributes(self):
         if "." in self.table_name:
@@ -239,6 +244,7 @@ class LuxDataFrame(pd.DataFrame):
     def computeSQLDataType(self):
         dataTypeLookup = {}
         sqlDTypes = {}
+        self.getSQLCardinality()
         if "." in self.table_name:
             table_name = self.table_name[self.table_name.index(".")+1:]
         else:
