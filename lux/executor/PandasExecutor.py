@@ -42,7 +42,7 @@ class PandasExecutor(Executor):
                 if (spec.attribute):
                     if (spec.attribute!="Record"):
                         attributes.add(spec.attribute)
-            if len(ldf) > 10000:
+            if len(view.data) > 10000:
                 view.data = view.data[list(attributes)].sample(n = 10000, random_state = 1)
             else:
                 view.data = view.data[list(attributes)]
