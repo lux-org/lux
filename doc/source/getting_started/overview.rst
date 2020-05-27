@@ -97,9 +97,18 @@ In the earlier example, when `MedianEarning` is added to the context, the curren
 
 Given the updated context, additional actions are generated. 
 
-- Enhance (:mod:`lux.action.Enhance`) adds an additional attribute to current context. Enhance displays visualizations involving C' = {MedianEarnings, *added attribute*}, this includes {MedianEarnings, Expenditure}, {MedianEarnings, AverageCost}, {MedianEarnings, AverageFacultySalary}.
-- Filter (:mod:`lux.action.Filter`) adds an additional filter to the current context. Filter displays visualizations involving C' = {MedianEarnings, *added filter*}, this includes {MedianEarnings, FundingModel=Public}, {MedianEarnings, Region=Southeast}, {MedianEarnings, Region=Great Lakes}.
+- Enhance adds an additional attribute to current context (:mod:`lux.action.Enhance`). For example, enhance displays visualizations involving C' = {MedianEarnings, *added attribute*}, including:
 
-For additional information about the different types of action or how to define your own action types, refer to this page.
+    - {MedianEarnings, **Expenditure**}
+    - {MedianEarnings, **AverageCost**}
+    - {MedianEarnings, **AverageFacultySalary**}.
+
+- Filter adds an additional filter to the current context (:mod:`lux.action.Filter`). For example, Filter displays visualizations involving C' = {MedianEarnings, *added filter*}, including: 
+
+    - {MedianEarnings, **FundingModel=Public**}
+    - {MedianEarnings, **Region=Southeast**}
+    - {MedianEarnings, **Region=Great Lakes**}.
+
+Refer to this page for additional information about the different types of action or how to define your own action types.
 
 .. Add link to recommendation type details page
