@@ -45,12 +45,14 @@ In Lux, you can also specify particular values corresponding to subsets of the d
 
     df.setContext(["MedianDebt","Region=New England"])
 
-Multiple values 
+You can also specify multiple values of interest using the same `|` notation that we saw earlier. For example, you might be comparing colleges in New England, Southeast, and Far West.
+
 .. code-block:: python
-       'Region=New England|Southeast|Far West'
-       'New England', 'Southeast', 'Far West'
+    df.setContext(["MedianDebt","Region=New England|Southeast|Far West"])
 
 Note: Difference between Pandas 
+You might be wondering what the difference is between specifying values of interest through the context versus applying a filter directly on the dataframe through Pandas. By specifying the context directly via Pandas, Lux is agnostic to ---, so recommendations are aware of ---- .
+Slightly different interpretation.
 
 .. code-block:: python
     
