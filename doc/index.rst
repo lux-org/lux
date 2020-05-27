@@ -25,8 +25,9 @@ Welcome to Lux's documentation!
    
    source/guide/spec
    source/guide/interestingness
-   source/guide/FAQ
+   source/guide/executor
    source/guide/example
+   source/guide/FAQ
 
 Indices and tables
 ==================

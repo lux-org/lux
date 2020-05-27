@@ -12,6 +12,8 @@ class View:
 		self.data = None
 		self.score = 0.0
 		self.vis = None
+		self.xMinMax = {}
+		self.yMinMax = {}
 
 	def __repr__(self):
 		x_channel = ""
