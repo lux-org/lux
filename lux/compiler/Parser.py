@@ -71,7 +71,6 @@ class Parser:
 		ldf.context = newContext
 
 		for spec in parsedContext:
-			print(spec)
 			if (spec.description):
 				if ((spec.description in list(ldf.columns)) or spec.description == "?"):# if spec.description in the list of attributes
 					spec.attribute = spec.description
