@@ -2,7 +2,7 @@ import typing
 class Spec:
 	def __init__(self, description:typing.Union[str,list] ="",attribute: typing.Union[str,list] ="",value: typing.Union[str,list]="",
 				 filterOp:str ="=", channel:str ="", dataType:str="",dataModel:str="",
-				 aggregation:str = "", binSize:int=0, weight:float=1,sort:str=""):
+				 aggregation:str = "", binSize:int=0, weight:float=1,sort:str="", exclude: typing.Union[str,list] =""):
 		"""
 		Spec is the object representation of a single unit of the specification.
 
@@ -54,6 +54,7 @@ class Spec:
 		self.binSize = binSize
 		self.weight = weight
 		self.sort = sort
+		self.exclude = exclude
 			
 	def __repr__(self):
 		attributes = []
@@ -73,6 +74,8 @@ class Spec:
 			attributes.append("         dataType: " + str(self.dataType))
 		if self.binSize != None:
 			attributes.append("         binSize: " + str(self.binSize))
+		if len(self.exclude) != 0:
+			attributes.append("         exclude: " + str(self.exclude))
 		attributes[0] = "<Spec" + attributes[0][5:]
 		attributes[len(attributes) - 1] += " >"
 		return ',\n'.join(attributes)
