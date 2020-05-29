@@ -80,27 +80,23 @@ class PandasExecutor(Executor):
             groupbyAttr = yAttr
             measureAttr = xAttr
             aggFunc = xAttr.aggregation
-        arr_s = [x for x in view.data.uniqueValues[groupbyAttr.attribute]]
-
+        allAttrVals = view.data.uniqueValues[groupbyAttr.attribute]
         if (measureAttr!=""):
             if (measureAttr.attribute=="Record"):
                 view.data = view.data.reset_index()
                 view.data = view.data.groupby(groupbyAttr.attribute).count().reset_index()
                 view.data = view.data.rename(columns={"index":"Record"})
+                view.data = view.data[[groupbyAttr.attribute,"Record"]]
             else:
                 groupbyResult = view.data.groupby(groupbyAttr.attribute)
                 view.data = groupbyResult.agg(aggFunc).reset_index()
-            result = [x for x in view.data[groupbyAttr.attribute]]
-            if (len(result) != len(arr_s)):
-                s = False
-                for index in range(len(arr_s)):
-                    if (arr_s[index] not in result):
-                        s = True
-                        size = len(view.data.columns) - 1
-                        view.data.loc[arr_s[index]] = [arr_s[index]] + [0] * size
-                if (s == True):
-                    view.data = view.data.reset_index()
-                    view.data = view.data.drop(columns="index")
+            resultVals = list(view.data[groupbyAttr.attribute])
+            if (len(resultVals) != len(allAttrVals)):
+                # For filtered aggregation that have missing groupby-attribute values, set these aggregated value as 0, since no datapoints
+                for vals in allAttrVals:
+                    if (vals not in resultVals):
+                        view.data.loc[len(view.data)] = [vals,0]
+            assert len(list(view.data[groupbyAttr.attribute])) == len(allAttrVals), f"Aggregated data missing values compared to original range of values of `{groupbyAttr.attribute}`." 
             view.data = view.data.sort_values(by=groupbyAttr.attribute, ascending=True)
             view.data = view.data.reset_index()
             view.data = view.data.drop(columns="index")

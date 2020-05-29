@@ -77,3 +77,15 @@ def test_record():
     df.setContext([lux.Spec(attribute = "Cylinders")])
     PandasExecutor.execute(df.viewCollection,df)
     assert len(df.viewCollection[0].data) == len(df["Cylinders"].unique())
+    
+def test_filter_aggregation_fillzero_aligned():
+    df = pd.read_csv("lux/data/car.csv")
+    df.setContext([lux.Spec(attribute="Cylinders"),lux.Spec(attribute="MilesPerGal"),lux.Spec("Origin=Japan")])
+    PandasExecutor.execute(df.viewCollection,df)
+    result = df.viewCollection[0].data
+    externalValidation = df[df["Origin"]=="Japan"].groupby("Cylinders").mean()["MilesPerGal"]
+    assert result[result["Cylinders"]==5]["MilesPerGal"].values[0]==0
+    assert result[result["Cylinders"]==8]["MilesPerGal"].values[0]==0
+    assert result[result["Cylinders"]==3]["MilesPerGal"].values[0]==externalValidation[3]
+    assert result[result["Cylinders"]==4]["MilesPerGal"].values[0]==externalValidation[4]
+    assert result[result["Cylinders"]==6]["MilesPerGal"].values[0]==externalValidation[6]
