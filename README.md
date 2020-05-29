@@ -3,7 +3,7 @@
 
 <p align="center">
     <a href="https://travis-ci.org/lux-org/lux">
-        <img alt="Build Status" src="https://travis-ci.org/lux-org/lux.svg?branch=master" align="center">
+        <img alt="Build Status" src="https://travis-ci.com/lux-org/lux.svg?branch=master" align="center">
     </a>
     <a href="https://badge.fury.io/py/lux-api">
         <img src="https://badge.fury.io/py/lux-api.svg" alt="PyPI version" height="18" align="center">

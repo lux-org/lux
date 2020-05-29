@@ -128,8 +128,9 @@ class Compiler:
 						spec.dataType = ldf.dataTypeLookup[spec.attribute]
 					if (spec.dataModel == ""):
 						spec.dataModel = ldf.dataModelLookup[spec.attribute]
-				if spec.value:
+				if (spec.value!=""):
 					if(isinstance(spec.value,np.datetime64)):
+						# TODO: Make this more general and not specific to Year attributes
 						chartTitle = pd.to_datetime(spec.value, format='%Y').year
 					else:
 						chartTitle = spec.value

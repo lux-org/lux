@@ -62,7 +62,7 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 		if (n_filter==1):
 			v_filter_size = getFilteredSize(filterSpecs,view.data)
 			v_size = len(view.data)
-			sig = v_filter_size/view.data
+			sig = v_filter_size/v_size
 		else:
 			sig = 1
 		return sig * monotonicity(view,attr_specs)
@@ -124,9 +124,6 @@ def deviationFromOverall(view:View,ldf:LuxDataFrame,filterSpecs:list,msrAttribut
 	
 	v = unfilteredView.data[msrAttribute]
 	v = v/v.sum()  
-
-	if len(v) > len(v_filter):
-		v_filter = v_filter.sample(len(v), replace = True)
 	assert len(v) == len(v_filter), "Data for filtered and unfiltered view have unequal length." 
 	sig = v_filter_size/v_size #significance factor
 	# Euclidean distance as L2 function
