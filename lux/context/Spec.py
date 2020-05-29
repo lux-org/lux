@@ -65,7 +65,7 @@ class Spec:
 			attributes.append("         attribute: " + str(self.attribute))
 		if self.aggregation != "":
 			attributes.append("         aggregation: " + self.aggregation)
-		if len(self.value) != 0:
+		if self.value!="" or  len(self.value) != 0 :
 			attributes.append("         value: " + str(self.value))
 		if self.dataModel != "":
 			attributes.append("         dataModel: " + self.dataModel)

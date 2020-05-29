@@ -62,7 +62,7 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 		if (n_filter==1):
 			v_filter_size = getFilteredSize(filterSpecs,view.data)
 			v_size = len(view.data)
-			sig = v_filter_size/view.data
+			sig = v_filter_size/v_size
 		else:
 			sig = 1
 		return sig * monotonicity(view,attr_specs)
