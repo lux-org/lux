@@ -2,7 +2,7 @@
 <h2 align="center">A Python API for Intelligent Visual Discovery</h2>
 
 <p align="center">
-    <a href="https://travis-ci.org/lux-org/lux">
+    <a href="https://travis-ci.com/lux-org/lux">
         <img alt="Build Status" src="https://travis-ci.com/lux-org/lux.svg?branch=master" align="center">
     </a>
     <a href="https://badge.fury.io/py/lux-api">
