@@ -1,55 +1,63 @@
 import lux
-from lux.dataObj.dataObj import DataObj
-from lux.dataObj.dataObj import Row
-from lux.dataObj.dataObj import Column
-
-from lux.dataObj.DataObjCollection import DataObjCollection
 from lux.interestingness.interestingness import interestingness
-import pandas as pd
-'''
-Shows possible visualizations when an additional attribute is added to the current view
-'''
-def enhance(dobj):
-	result = lux.Result()
+from lux.compiler.Compiler import Compiler
+from lux.utils import utils
+
+#for benchmarking
+import time
+def enhance(ldf):
+	#for benchmarking
+	if ldf.toggleBenchmarking == True:
+		tic = time.perf_counter()
+	'''
+	Given a set of views, generates possible visualizations when an additional attribute is added to the current view.
+
+	Parameters
+	----------
+	ldf : lux.luxDataFrame.LuxDataFrame
+		LuxDataFrame with underspecified context.
+
+	Returns
+	-------
+	recommendations : Dict[str,obj]
+		object with a collection of visualizations that result from the Enhance action.
+	'''
 	recommendation = {"action":"Enhance",
 					"description":"Shows possible visualizations when an additional attribute is added to the current view."}
-	quantitativeVars = dobj.dataset.dataType['quantitative']
-	categoricalVars = dobj.dataset.dataType['categorical']
+	filters = utils.getFilterSpecs(ldf.context)
 	output = []
+	# Collect variables that already exist in the context
+	context = utils.getAttrsSpecs(ldf.context)
+	# context = [spec for spec in context if isinstance(spec.attribute,str)]
+	existingVars = [spec.attribute for spec in context]
+	# if we too many column attributes, return no views.
+	if(len(context)>2):
+		recommendation["collection"] = []
+		return recommendation
 
-	dobjVars = []
-	for i in range(0, len(dobj.spec)):
-		if dobj.spec[i].className == "Column":
-			dobjVars.append(dobj.spec[i].columnName)
-		elif dobj.spec[i].className == "Row":
-			dobjVars.append(dobj.spec[i].fAttribute)
-
-	#go through and add additional quantitative variable
-	for qVar in quantitativeVars:
-		if qVar not in dobjVars:
-			newSpec = dobj.spec.copy()
-			newSpec.append(Column(qVar))
-			tempDataObj = DataObj(dobj.dataset, newSpec)
-			tempDataObj.score = interestingness(tempDataObj)
-
-			tempDataObj.compile()
-			output.append(tempDataObj.compiled)
-
-	#go through and add additional categorical variable
-	for cVar in categoricalVars:
-		if cVar not in dobjVars:
-			newSpec = dobj.spec.copy()
-			newSpec.append(Column(cVar))
-			tempDataObj = DataObj(dobj.dataset, newSpec)
-			if (dobj.dataset.cardinality[cVar]<10):
-				tempDataObj.score = interestingness(tempDataObj)
-			else:
-				tempDataObj.score = -1 
-
-			tempDataObj.compile()
-			output.append(tempDataObj.compiled)
-	output = DataObjCollection(output)
-	output.sort(removeInvalid=True)
-	recommendation["collection"] = output
-	result.addResult(recommendation,dobj)
-	return result
+	# First loop through all variables to create new view collection
+	for qVar in list(ldf.columns):
+		if qVar not in existingVars and ldf.dataTypeLookup[qVar] != "temporal":
+			cxtNew = context.copy()
+			cxtNew.append(lux.Spec(attribute = qVar))
+			cxtNew.extend(filters)
+			view = lux.view.View.View(cxtNew)
+			output.append(view)
+	vc = lux.view.ViewCollection.ViewCollection(output)
+	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
+	
+	ldf.executor.execute(vc,ldf)
+		
+	# Then use the data populated in the view collection to compute score
+	for view in vc:
+		view.score = interestingness(view,ldf)
+		# TODO: if (ldf.dataset.cardinality[cVar]>10): score is -1. add in interestingness
+	
+	vc = vc.topK(10)
+	vc.sort(removeInvalid=True)
+	recommendation["collection"] = vc
+	#for benchmarking
+	if ldf.toggleBenchmarking == True:
+		toc = time.perf_counter()
+		print(f"Performed enhance action in {toc - tic:0.4f} seconds")
+	return recommendation

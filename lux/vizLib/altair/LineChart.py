@@ -2,23 +2,32 @@ from lux.vizLib.altair.AltairChart import AltairChart
 import altair as alt
 alt.data_transformers.disable_max_rows()
 class LineChart(AltairChart):
+	"""
+	LineChart is a subclass of AltairChart that render as a line charts.
+	All rendering properties for line charts are set here.
+
+	See Also
+	--------
+	altair-viz.github.io
+	"""
 	def __init__(self,dobj):
 		super().__init__(dobj)
 	def __repr__(self):
-		return f"Line Chart <{str(self.dobj)}>"
+		return f"Line Chart <{str(self.view)}>"
 	def initializeChart(self):
 		self.tooltip = False # tooltip looks weird for line chart
-		xAttr = self.dobj.getObjFromChannel("x")[0]
-		yAttr = self.dobj.getObjFromChannel("y")[0]
-		if (yAttr.dataModel == "measure"):		
-			xAttrSpec = alt.X(xAttr.columnName, type = "ordinal")
-			yAttrSpec = alt.Y(yAttr.columnName,type="quantitative", aggregate="mean")
+		xAttr = self.view.getAttrByChannel("x")[0]
+		yAttr = self.view.getAttrByChannel("y")[0]
+		
+		if (yAttr.dataModel == "measure"):
+			xAttrSpec = alt.X(xAttr.attribute, type = xAttr.dataType)
+			yAttrSpec = alt.Y(yAttr.attribute,type= yAttr.dataType, title=f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}")
 		else:
-			xAttrSpec = alt.X(xAttr.columnName,type="quantitative", aggregate="mean")
-			yAttrSpec = alt.Y(yAttr.columnName, type = "ordinal")
-		if (yAttr.columnName=="count()"):
-			yAttrSpec = alt.Y("Record",type="quantitative", aggregate="count")
-		chart = alt.Chart(self.dataURL).mark_line().encode(
+			xAttrSpec = alt.X(xAttr.attribute,type= xAttr.dataType, title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}")
+			yAttrSpec = alt.Y(yAttr.attribute, type = yAttr.dataType)
+		# if (yAttr.attribute=="count()"):
+		# 	yAttrSpec = alt.Y("Record",type="quantitative", aggregate="count")
+		chart = alt.Chart(self.data).mark_line().encode(
 			    x = xAttrSpec,
 			    # TODO: need to change aggregate to non-default function, read aggFunc info in somewhere
 			    y = yAttrSpec

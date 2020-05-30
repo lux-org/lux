@@ -1,6 +1,8 @@
 *.pyc
 .ipynb_checkpoints/
-
+.vscode/
+doc/_build
+./venv
 # Jupyter Widget
 node_modules/
 dist/

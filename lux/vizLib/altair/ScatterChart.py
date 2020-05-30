@@ -1,21 +1,49 @@
 from lux.vizLib.altair.AltairChart import AltairChart
-import altair as alt
+import altair as alt 
 alt.data_transformers.disable_max_rows()
 class ScatterChart(AltairChart):
-	def __init__(self,dobj):
-		super().__init__(dobj)
+	"""
+	ScatterChart is a subclass of AltairChart that render as a scatter charts.
+	All rendering properties for scatter charts are set here.
+
+	See Also
+	--------
+	altair-viz.github.io
+	"""
+	def __init__(self,view):
+		super().__init__(view)
 	def __repr__(self):
-		return f"ScatterChart <{str(self.dobj)}>"
+		return f"ScatterChart <{str(self.view)}>"
 	def initializeChart(self):
-		# UP TO HERE: Broken because self.expandUnderspecified() in dataObj does not run when there are multiple object, we should not rely on spec
-		# measures = list(filter(lambda x: x.dataModel=="measure" if hasattr(x,"dataModel") else False,self.dobj.spec))
-		xAttr = self.dobj.getObjFromChannel("x")[0].columnName
-		yAttr = self.dobj.getObjFromChannel("y")[0].columnName
-		chart = alt.Chart(self.dataURL).mark_circle().encode(
-		    x=alt.X(xAttr,scale=alt.Scale(zero=False)),
-		    y=alt.Y(yAttr,scale=alt.Scale(zero=False))
+		xAttr = self.view.getAttrByChannel("x")[0]
+		yAttr = self.view.getAttrByChannel("y")[0]
+		xMin = self.view.xMinMax[xAttr.attribute][0]
+		xMax = self.view.xMinMax[xAttr.attribute][1]
+
+		yMin = self.view.yMinMax[yAttr.attribute][0]
+		yMax = self.view.yMinMax[yAttr.attribute][1]
+
+		chart = alt.Chart(self.data).mark_circle().encode(
+		    x=alt.X(xAttr.attribute,scale=alt.Scale(domain=(xMin, xMax)),type=xAttr.dataType),
+		    y=alt.Y(yAttr.attribute,scale=alt.Scale(domain=(yMin, yMax)),type=yAttr.dataType)
 		)
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
-		chart = chart.interactive() # If you want to enable Zooming and Panning
-
+		chart = chart.interactive() # Enable Zooming and Panning
 		return chart 
+	def getChartCode(self):
+		chartCode = ""
+		chartCode += "import altair as alt\n"
+		dfname = "df" #Placeholder (need to read dynamically via locals())
+
+		xAttr = self.view.getAttrByChannel("x")[0]
+		yAttr = self.view.getAttrByChannel("y")[0]
+		chartCode += f'''
+		chart = alt.Chart({dfname}).mark_circle().encode(
+			x=alt.X('{xAttr.attribute}',scale=alt.Scale(zero=False),type='{xAttr.dataType}'),
+		    y=alt.Y('{yAttr.attribute}',scale=alt.Scale(zero=False),type='{yAttr.dataType}')
+		)
+		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
+		chart = chart.interactive() # Enable Zooming and Panning
+		'''
+		chartCode = chartCode.replace('\n\t\t','\n')
+		return chartCode

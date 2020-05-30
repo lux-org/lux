@@ -1,30 +1,57 @@
-'''
-Gets a measure of skewness of the distributions of all measures
-'''
 from lux.interestingness.interestingness import interestingness
 import lux
-def distribution(dobj):
-	result = lux.Result()
-	# Enumerate --> compute the scores for each item in the collection 
-	# -->  return DataObjectCollection with the scores 
+#for benchmarking
+import time
+
+def distribution(ldf,dataTypeConstraint="quantitative"):
+	'''
+	Generates bar chart distributions of different attributes in the dataset.
+
+	Parameters
+	----------
+	ldf : lux.luxDataFrame.LuxDataFrame
+		LuxDataFrame with underspecified context.
+
+	dataTypeConstraint: str
+		The variable that controls the type of distribution chart that will be rendered.
+
+	Returns
+	-------
+	recommendations : Dict[str,obj]
+		object with a collection of visualizations that result from the Distribution action.
+	'''
 	import scipy.stats
 	import numpy as np
-	recommendation = {"action":"Distribution",
-						   "description":"Show univariate count distributions of different attributes in the dataset."}
-	vizCollection = dobj.compiled.collection
-	for obj in vizCollection:
-		# measure = obj.getObjByDataModel("measure")[0]
-		# msr = measure.columnName
-		fieldName = list(filter(lambda x: x.columnName!="count()", obj.spec))[0].columnName
-		fieldVals = list(obj.dataset.df[fieldName])
-		if (dobj.dataset.dataModelLookup[fieldName]=="measure"):
-			obj.score = np.abs(scipy.stats.skew(fieldVals))
-		else: # TODO: this should be based on interestingness (i.e, deviation case)
-			# obj.score = interestingness(obj)
-			obj.score = 0.5
 
-	dobj.compiled.sort()
-	recommendation["collection"] = dobj.compiled
+	#for benchmarking
+	if ldf.toggleBenchmarking == True:
+		tic = time.perf_counter()
+
+	if (dataTypeConstraint=="quantitative"):
+		context = [lux.Spec("?",dataType="quantitative")]
+		context.extend(ldf.filterSpecs)
+		ldf.setContext(context)
+		recommendation = {"action":"Distribution",
+							"description":"Show univariate count distributions of different attributes in the dataset."}
+	elif (dataTypeConstraint=="nominal"):
+		context = [lux.Spec("?",dataType="nominal")]
+		context.extend(ldf.filterSpecs)
+		ldf.setContext(context)
+		recommendation = {"action":"Category",
+						   "description":"Show bar chart distributions of different attributes in the dataset."}
+
+	vc = ldf.viewCollection
+	ldf.executor.execute(vc,ldf)
+	for view in vc:
+		view.score = interestingness(view,ldf)
+
+	vc.sort()
+	ldf.clearContext()
+	recommendation["collection"] = vc
 	# dobj.recommendations.append(recommendation)
-	result.addResult(recommendation,dobj)
-	return result
+
+	#for benchmarking
+	if ldf.toggleBenchmarking == True:
+		toc = time.perf_counter()
+		print(f"Performed distribution action in {toc - tic:0.4f} seconds")
+	return recommendation
