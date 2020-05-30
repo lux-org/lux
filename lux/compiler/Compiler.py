@@ -1,181 +1,156 @@
-from lux.dataObj.Row import Row
-from lux.dataObj.Column import Column
-from lux.dataset.Dataset import Dataset
-from lux.utils.utils import convert2List, applyDataTransformations
+from lux.context import Spec
 from typing import List, Dict
+from lux.view.View import View
+from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+from lux.view.ViewCollection import ViewCollection
+import pandas as pd
+import numpy as np
+
+
 class Compiler:
+	'''
+	Given a context with underspecified inputs, compile the context into fully specified views for visualization.
+	'''
+
 	def __init__(self):
 		self.name = "Compiler"
 
 	def __repr__(self):
 		return f"<Compiler>"
 
-	def expandUnderspecified(self, dobj):
-		"""
-		Given a underspecified DataObject, populate the dataType and dataModel information accordingly
-		
-		Parameters
-		----------
-		dobj : lux.dataObj.dataObj.DataObj
-			Underspecified DataObj input
-		
-		Returns
-		-------
-		expandedDobj : lux.dataObj.dataObj.DataObj
-			DataObj with dataType and dataModel information
-		"""		
-		# Automatic type conversion (only for single attributes not lists of attributes)
-		import copy
-		expandedDobj = copy.deepcopy(dobj)  # Preserve the original dobj
-
-		for rcObj in expandedDobj.spec:
-			if (rcObj.className == "Column" and rcObj.columnName != "?"):
-				if (type(rcObj.columnName)==list and len(rcObj.columnName)==1):
-					# Make `Column <['Horsepower']>` --> `Column <'Horsepower'>`
-					rcObj.columnName = rcObj.columnName[0]
-				if (rcObj.dataType == ""):
-					rcObj.dataType = dobj.dataset.dataTypeLookup[rcObj.columnName]
-				if (rcObj.dataModel == ""):
-					rcObj.dataModel = dobj.dataset.dataModelLookup[rcObj.columnName]
-			if (rcObj.className == "Row"):
-				expandedDobj.dataset = applyDataTransformations(expandedDobj.dataset, fAttribute=rcObj.fAttribute, fVal = rcObj.fVal) 
-				expandedDobj.title = f"{rcObj.fAttribute}={rcObj.fVal}"
-		return expandedDobj
-	def enumerateCollection(self, dobj):
-		"""
-		Given a partial specification, enumerate items in the collection via populateOption, 
-		then call the recursive generateCollection to iterate over the resulting list combinations.
-		
-		Parameters
-		----------
-		dobj : lux.dataObj.dataObj.DataObj
-			Input DataObject
-		
-		Returns
-		-------
-		collection: lux.dataObj.dataObj.DataObjectCollection
-			Resulting DataObjectCollection
-		"""		
-		# Get all the column and row object, assign the attribute names to variables
-		colSpecs = sorted(list(filter(lambda x: x.className == "Column", dobj.spec)), key=lambda x: x.channel) # sort by channel x,y,z
-		rowSpecs = list(filter(lambda x: x.className == "Row", dobj.spec))
-		colAttrs = []
-		rowList = []
-		fAttr = ''
-		for colSpec in colSpecs:
-			colAttrs.append(Compiler.populateOptions(dobj, colSpec))
-		if len(rowSpecs) > 0:
-			rowList = Compiler.populateOptions(dobj, rowSpecs[0])  # populate rowvals with all unique possibilities
-		if all(len(attrs) <= 1 for attrs in colAttrs) and len(rowList) <= 1:  # changed condition to check if every column attribute has at least one attribute
-			# If DataObj does not represent a collection, return False.
-			return False
-		else:
-			collection = self.generateCollection(colAttrs, rowList, dobj)
-			return collection
 	@staticmethod
-	def populateOptions(dobj, rowCol):
+	def compile(ldf: LuxDataFrame, viewCollection: ViewCollection, enumerateCollection=True) -> ViewCollection:
 		"""
-		Given a row or column object, return the list of available values that satisfies the dataType or dataModel constraints
-		
+		Compiles input specifications in the context of the ldf into a collection of lux.View objects for visualization.
+		1) Enumerate a collection of views interested by the user to generate a view collection
+		2) Expand underspecified specifications(lux.Spec) for each of the generated views.
+		3) Determine encoding properties for each view
+
 		Parameters
 		----------
-		dobj : lux.dataObj.dataObj.DataObj
-			[description]
-		rowCol : Row or Column Object
-			Input row or column object with wildcard or list
-		
+		ldf : lux.luxDataFrame.LuxDataFrame
+			LuxDataFrame with underspecified context.
+		viewCollection : list[lux.view.View]
+			empty list that will be populated with specified lux.View objects.
+		enumerateCollection : boolean
+			A boolean value that signals when to generate a collection of visualizations.
+
 		Returns
 		-------
-		rcOptions: List
-			List of expanded Column or Row objects 
-		"""		
+		viewCollection: list[lux.View]
+			view collection with compiled lux.View objects.
+		"""
+		# 1. If the DataObj represent a collection, then compile it into a collection. Otherwise, return False
+		# Input: DataObj --> Output: DataObjCollection/False
+		if (enumerateCollection):
+			viewCollection = Compiler.enumerateCollection(ldf)
+		# else:
+		# 	dataObjCollection = False
+		# 2. For every DataObject in the DataObject Collection, expand underspecified
+		# Output : DataObj/DataObjectCollection
+		# compiledCollection = []
+		viewCollection = Compiler.expandUnderspecified(ldf, viewCollection)  # autofill data type/model information
+		for view in viewCollection:
+			Compiler.determineEncoding(ldf, view)  # autofill viz related information
+		return viewCollection
+
+	@staticmethod
+	def enumerateCollection(ldf: LuxDataFrame) -> ViewCollection:
+		"""
+		Given specifications that have been expanded thorught populateOptions,
+		recursively iterate over the resulting list combinations to generate a View collection.
+
+		Parameters
+		----------
+		ldf : lux.luxDataFrame.LuxDataFrame
+			LuxDataFrame with underspecified context.
+
+		Returns
+		-------
+		ViewCollection: list[lux.View]
+			view collection with compiled lux.View objects.
+		"""
 		import copy
-		if rowCol.className == "Column":
-			if rowCol.columnName == "?":
-				options = set(dobj.dataset.attrList)  # all attributes
-				if (rowCol.dataType != ""):
-					options = options.intersection(set(dobj.dataset.dataType[rowCol.dataType]))
-				if (rowCol.dataModel != ""):
-					options = options.intersection(set(dobj.dataset.dataModel[rowCol.dataModel]))
-				options = list(options)
-			else:
-				options = convert2List(rowCol.columnName)
-			rcOptions = []
-			for optStr in options:
-				rcCopy = copy.copy(rowCol)
-				rcCopy.columnName = optStr
-				rcOptions.append(rcCopy)
-		elif rowCol.className == "Row":
-			rcOptions = []
-			fAttrLst = convert2List(rowCol.fAttribute)
-			for fAttr in fAttrLst:
-				if rowCol.fVal == "?":
-					options = dobj.dataset.df[fAttr].unique()
-				else:
-					options = convert2List(rowCol.fVal)	
-				for optStr in options:
-					rcCopy = copy.copy(rowCol)
-					rcCopy.fAttribute = fAttr
-					rcCopy.fVal = optStr
-					rcOptions.append(rcCopy)
-		return rcOptions
+		specs = Compiler.populateWildcardOptions(ldf)
+		attributes = specs['attributes']
+		filters = specs['filters']
+		if len(attributes) == 0 and len(filters) > 0:
+			ldf.filterSpecs = filters
+			return []
 
-	def generateCollection(self, colAttrs: List[Row], rowList: List[Column], dobj):  # [[colA,colB],[colC,colD]] -> [[colA,colC],[colA,colD],[colB,colC],[colB,colD]]								
-		"""
-		Generates combinations for visualization collection given a list of row and column values
-
-		Parameters
-		----------
-		colAttrs : List
-			List of 
-		dobj : lux.dataObj.dataObj.DataObj
-			Partial DataObj input
-
-		Returns
-		-------
-		lux.dataObj.DataObjCollection
-			Resulting DataObjectCollection
-		"""		
-		from lux.dataObj.dataObj import DataObj
-		from lux.dataObj.DataObjCollection import DataObjCollection
 		collection = []
-		# generate combinations of column attributes recursively by continuing to accumulate attributes for len(colAtrr) times
+
+		# TODO: generate combinations of column attributes recursively by continuing to accumulate attributes for len(colAtrr) times
 		def combine(colAttrs, accum):
 			last = (len(colAttrs) == 1)
 			n = len(colAttrs[0])
 			for i in range(n):
-				columnList = accum + [colAttrs[0][i]]
+				columnList = copy.deepcopy(accum + [colAttrs[0][i]])
 				if last:
-					if len(rowList) > 0: # if we have rows, generate combinations for each row.
-						for row in rowList:
-							transformedDataset = applyDataTransformations(dobj.dataset, row.fAttribute, row.fVal)  # rename?
-							specLst = columnList + [row]
-							dataObj = DataObj(transformedDataset, specLst, title=f"{row.fAttribute}={row.fVal}")
-							collection.append(dataObj)
+					if len(filters) > 0:  # if we have filters, generate combinations for each row.
+						for row in filters:
+							specLst = copy.deepcopy(columnList + [row])
+							view = View(specLst, title=f"{row.attribute} {row.filterOp} {row.value}")
+							collection.append(view)
 					else:
-						dataObj = DataObj(dobj.dataset, columnList)
-						collection.append(dataObj)
+						view = View(columnList)
+						collection.append(view)
 				else:
 					combine(colAttrs[1:], columnList)
 
-		combine(colAttrs, [])
-		return DataObjCollection(collection)
+		combine(attributes, [])
+		return ViewCollection(collection)
 
-	@classmethod
-	def determineEncoding(cls, dobj):
+	@staticmethod
+	def expandUnderspecified(ldf, viewCollection):
+		"""
+		Given a underspecified Spec, populate the dataType and dataModel information accordingly
+
+		Parameters
+		----------
+		ldf : lux.luxDataFrame.LuxDataFrame
+			LuxDataFrame with underspecified context
+
+		Returns
+		-------
+		views: list[lux.View]
+			view collection with compiled lux.View objects.
+		"""		
+		# TODO: copy might not be neccesary
+		import copy
+		views = copy.deepcopy(viewCollection)  # Preserve the original dobj
+		for view in views:
+			for spec in view.specLst:
+				if spec.description == "?":
+					spec.description = ""
+				if spec.attribute:
+					if (spec.dataType == ""):
+						spec.dataType = ldf.dataTypeLookup[spec.attribute]
+					if (spec.dataModel == ""):
+						spec.dataModel = ldf.dataModelLookup[spec.attribute]
+				if (spec.value!=""):
+					if(isinstance(spec.value,np.datetime64)):
+						# TODO: Make this more general and not specific to Year attributes
+						chartTitle = pd.to_datetime(spec.value, format='%Y').year
+					else:
+						chartTitle = spec.value
+					view.title = f"{spec.attribute} {spec.filterOp} {chartTitle}"
+		return views
+	@staticmethod
+	def determineEncoding(ldf: LuxDataFrame,view: View):
 		'''
-		Populates DataObject with the appropriate mark type and channel information based on ShowMe logic
+		Populates View with the appropriate mark type and channel information based on ShowMe logic
 		Currently support up to 3 dimensions or measures
 		
 		Parameters
 		----------
-		dobj : lux.dataObj.dataObj.DataObj
-			DataObj input
+		ldf : lux.luxDataFrame.LuxDataFrame
+			LuxDataFrame with underspecified context
+		view : lux.view.View
 
 		Returns
 		-------
-		dobj : lux.dataObj.dataObj.DataObj
-			output DataObj with `mark` and `channel` specified
+		None
 
 		Notes
 		-----
@@ -185,140 +160,150 @@ class Compiler:
 		IEEE Transactions on Visualization and Computer Graphics, 13(6), 1137–1144.
 		https://doi.org/10.1109/TVCG.2007.70594
 		'''
-		# TODO: possibly implement chart alternatives as a list of possible encodings
-
 		# Count number of measures and dimensions
 		Ndim = 0
 		Nmsr = 0
-		rowLst = []
-		for spec in dobj.spec:
-			if (spec.className == "Column"):
+		filters = []
+		for spec in view.specLst:
+			if (spec.value==""):
 				if (spec.dataModel == "dimension"):
 					Ndim += 1
-				elif (spec.dataModel == "measure"):
+				elif (spec.dataModel == "measure" and spec.attribute!="Record"):
 					Nmsr += 1
-			if (spec.className == "Row"):  # preserve to add back to dobj later
-				rowLst.append(spec)
+			else:  # preserve to add back to specLst later
+				filters.append(spec)
 		# Helper function (TODO: Move this into utils)
-		def lineOrBar(dimension, measure):
+		def lineOrBar(ldf,dimension, measure):
 			dimType = dimension.dataType
-			if (dimType == "date" or dimType == "oridinal"):
-				# chart = LineChart(dobj)
+			# If no aggregation function is specified, then default as average
+			if (measure.aggregation==""):
+				measure.aggregation = "mean"
+			if (dimType == "temporal" or dimType == "oridinal"):
 				return "line", {"x": dimension, "y": measure}
 			else:  # unordered categorical
-				# chart = BarChart(dobj)
+				# if cardinality large than 5 then sort bars
+				if ldf.cardinality[dimension.attribute]>5:
+					dimension.sort = "ascending"
 				return "bar", {"x": measure, "y": dimension}
-		# TODO: if cardinality large than 6 then sort bars
+		
 
 		# ShowMe logic + additional heuristics
-		countCol = Column("count()", dataModel="measure")
-		xAttr = dobj.getObjFromChannel("x")
-		yAttr = dobj.getObjFromChannel("y")
-		zAttr = dobj.getObjFromChannel("z")
+		#countCol = Spec( attribute="count()", dataModel="measure")
+		countCol = Spec( attribute="Record", aggregation="count", dataModel="measure", dataType="quantitative")
+		# xAttr = view.getAttrByChannel("x") # not used as of now
+		# yAttr = view.getAttrByChannel("y")
+		# zAttr = view.getAttrByChannel("z")
 		autoChannel={}
 		if (Ndim == 0 and Nmsr == 1):
 			# Histogram with Count on the y axis
-			measure = dobj.getObjByDataModel("measure")[0]
-			dobj.spec.append(countCol)
+			measure = view.getAttrByDataModel("measure")[0]
+			view.specLst.append(countCol)
+			# If no bin specified, then default as 10
+			if (measure.binSize == 0):
+				measure.binSize = 10
 			# measure.channel = "x"
 			autoChannel = {"x": measure, "y": countCol}
-			dobj.mark = "histogram"
+			view.xMinMax = ldf.xMinMax
+			view.mark = "histogram"
 		elif (Ndim == 1 and (Nmsr == 0 or Nmsr == 1)):
 			# Line or Bar Chart
 			# if x is unspecified
 			if (Nmsr == 0):
-				dobj.spec.append(countCol)
-			dimension = dobj.getObjByDataModel("dimension")[0]
-			measure = dobj.getObjByDataModel("measure")[0]
-			# measure.channel = "x"
-			dobj.mark, autoChannel = lineOrBar(dimension, measure)
+				view.specLst.append(countCol)
+			dimension = view.getAttrByDataModel("dimension")[0]
+			measure = view.getAttrByDataModel("measure")[0]
+			view.mark, autoChannel = lineOrBar(ldf,dimension, measure) 
 		elif (Ndim == 2 and (Nmsr == 0 or Nmsr == 1)):
 			# Line or Bar chart broken down by the dimension
-			dimensions = dobj.getObjByDataModel("dimension")
+			dimensions = view.getAttrByDataModel("dimension")
 			d1 = dimensions[0]
 			d2 = dimensions[1]
-			if (dobj.dataset.cardinality[d1.columnName] < dobj.dataset.cardinality[d2.columnName]):
+			if (ldf.cardinality[d1.attribute] < ldf.cardinality[d2.attribute]):
 				# d1.channel = "color"
-				dobj.removeColumnFromSpec(d1.columnName)
+				view.removeColumnFromSpec(d1.attribute)
 				dimension = d2
 				colorAttr = d1
 			else:
-				if (d1.columnName == d2.columnName):
-					dobj.spec.pop(
+				if (d1.attribute == d2.attribute):
+					view.specLst.pop(
 						0)  # if same attribute then removeColumnFromSpec will remove both dims, we only want to remove one
 				else:
-					dobj.removeColumnFromSpec(d2.columnName)
+					view.removeColumnFromSpec(d2.attribute)
 				dimension = d1
 				colorAttr = d2
 			# Colored Bar/Line chart with Count as default measure
 			if (Nmsr == 0):
-				dobj.spec.append(countCol)
-			measure = dobj.getObjByDataModel("measure")[0]
-			dobj.mark, autoChannel = lineOrBar(dimension, measure)
+				view.specLst.append(countCol)
+			measure = view.getAttrByDataModel("measure")[0]
+			view.mark, autoChannel = lineOrBar(ldf,dimension, measure)
 			autoChannel["color"] = colorAttr
 		elif (Ndim == 0 and Nmsr == 2):
 			# Scatterplot
-			dobj.mark = "scatter"
-			autoChannel = {"x": dobj.spec[0],
-						   "y": dobj.spec[1]}
+			view.xMinMax = ldf.xMinMax
+			view.yMinMax = ldf.yMinMax
+			view.mark = "scatter"
+			autoChannel = {"x": view.specLst[0],
+						   "y": view.specLst[1]}
 		elif (Ndim == 1 and Nmsr == 2):
 			# Scatterplot broken down by the dimension
-			measure = dobj.getObjByDataModel("measure")
+			measure = view.getAttrByDataModel("measure")
 			m1 = measure[0]
 			m2 = measure[1]
 
-			colorAttr = dobj.getObjByDataModel("dimension")[0]
-			dobj.removeColumnFromSpec(colorAttr)
-
-			dobj.mark = "scatter"
+			colorAttr = view.getAttrByDataModel("dimension")[0]
+			view.removeColumnFromSpec(colorAttr)
+			view.xMinMax = ldf.xMinMax
+			view.yMinMax = ldf.yMinMax
+			view.mark = "scatter"
 			autoChannel = {"x": m1,
 						   "y": m2,
 						   "color": colorAttr}
 		elif (Ndim == 0 and Nmsr == 3):
 			# Scatterplot with color
-			dobj.mark = "scatter"
-			autoChannel = {"x": dobj.spec[0],
-						   "y": dobj.spec[1],
-						   "color": dobj.spec[2]}
+			view.xMinMax = ldf.xMinMax
+			view.yMinMax = ldf.yMinMax
+			view.mark = "scatter"
+			autoChannel = {"x": view.specLst[0],
+						   "y": view.specLst[1],
+						   "color": view.specLst[2]}
 		if (autoChannel!={}):
-			dobj = cls.enforceSpecifiedChannel(dobj, autoChannel) 
-			dobj.spec.extend(rowLst)  # add back the preserved row objects
-		return dobj
+			view = Compiler.enforceSpecifiedChannel(view, autoChannel)
+			view.specLst.extend(filters)  # add back the preserved filters
 
 	@staticmethod
-	def enforceSpecifiedChannel(dobj, autoChannel: Dict[str,str]):
+	def enforceSpecifiedChannel(view: View, autoChannel: Dict[str,str]):
 		"""
-		Enforces that the channels specified in the DataObj by users overrides the showMe autoChannels
+		Enforces that the channels specified in the View by users overrides the showMe autoChannels.
 		
 		Parameters
 		----------
-		dobj : lux.dataObj.dataObj.DataObj
-			Input DataObject without channel specification
+		view : lux.view.View
+			Input View without channel specification.
 		autoChannel : Dict[str,str]
-			Key-value pair in the form [channel: attributeName] specifying the showMe recommended channel location
+			Key-value pair in the form [channel: attributeName] specifying the showMe recommended channel location.
 		
 		Returns
 		-------
-		dobj : lux.dataObj.dataObj.DataObj
-			Input DataObject with channel specification combining both original and autoChannel specification
+		view : lux.view.View
+			View with channel specification combining both original and autoChannel specification.
 		
 		Raises
 		------
 		ValueError
-			Ensures no more than one attribute is placed in the same channel
+			Ensures no more than one attribute is placed in the same channel.
 		"""		
 		resultDict = {}  # result of enforcing specified channel will be stored in resultDict
 		specifiedDict = {}  # specifiedDict={"x":[],"y":[list of Dobj with y specified as channel]}
 		# create a dictionary of specified channels in the given dobj
 		for val in autoChannel.keys():
-			specifiedDict[val] = dobj.getObjFromChannel(val)
+			specifiedDict[val] = view.getAttrByChannel(val)
 			resultDict[val] = ""
 		# for every element, replace with what's in specifiedDict if specified
 		for sVal, sAttr in specifiedDict.items():
 			if (len(sAttr) == 1):  # if specified in dobj
 				# remove the specified channel from autoChannel (matching by value, since channel key may not be same)
 				for i in list(autoChannel.keys()):
-					if ((autoChannel[i].columnName == sAttr[0].columnName) 
+					if ((autoChannel[i].attribute == sAttr[0].attribute)
 						and (autoChannel[i].channel==sVal)): # need to ensure that the channel is the same (edge case when duplicate Cols with same attribute name)
 						autoChannel.pop(i)
 						break
@@ -333,5 +318,61 @@ class Compiler:
 		for leftover_channel, leftover_encoding in zip(leftover_channels, autoChannel.values()):
 			leftover_encoding.channel = leftover_channel
 			resultDict[leftover_channel] = leftover_encoding
-		dobj.spec = list(resultDict.values())
-		return dobj
+		view.specLst = list(resultDict.values())
+		return view
+
+	@staticmethod
+	def populateWildcardOptions(ldf: LuxDataFrame) -> dict:
+		"""
+		Given wildcards and constraints in the LuxDataFrame's context,
+		return the list of available values that satisfies the dataType or dataModel constraints.
+
+		Parameters
+		----------
+		ldf : LuxDataFrame
+			LuxDataFrame with row or attributes populated with available wildcard options.
+
+		Returns
+		-------
+		specs: Dict[str,list]
+			a dictionary that holds the attributes and filters generated from wildcards and constraints.
+		"""
+		import copy
+		from lux.utils.utils import convert2List
+
+		specs = {"attributes": [], "filters": []}
+		for spec in ldf.context:
+			specOptions = []
+			if spec.value == "":  # attribute
+				if spec.attribute == "?":
+					options = set(list(ldf.columns))  # all attributes
+					if (spec.dataType != ""):
+						options = options.intersection(set(ldf.dataType[spec.dataType]))
+					if (spec.dataModel != ""):
+						options = options.intersection(set(ldf.dataModel[spec.dataModel]))
+					options = list(options)
+				else:
+					options = convert2List(spec.attribute)
+				for optStr in options:
+					specCopy = copy.copy(spec)
+					specCopy.attribute = optStr
+					specOptions.append(specCopy)
+				specs["attributes"].append(specOptions)
+			else:  # filters
+				attrLst = convert2List(spec.attribute)
+				for attr in attrLst:
+					options = []
+					if spec.value == "?":
+						options = ldf.uniqueValues[attr]
+						specInd = ldf.context.index(spec)
+						ldf.context[specInd] = Spec(attribute=spec.attribute, filterOp="=", value=list(options))
+					else:
+						options.extend(convert2List(spec.value))
+					for optStr in options:
+						specCopy = copy.copy(spec)
+						specCopy.attribute = attr
+						specCopy.value = optStr
+						specOptions.append(specCopy)
+				specs["filters"].extend(specOptions)
+
+		return specs
