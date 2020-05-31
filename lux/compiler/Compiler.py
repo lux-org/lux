@@ -370,7 +370,7 @@ class Compiler:
 					else:
 						options.extend(convert2List(spec.value))
 					for optStr in options:
-						if optStr not in spec.exclude:
+						if str(optStr) not in spec.exclude:
 							specCopy = copy.copy(spec)
 							specCopy.attribute = attr
 							specCopy.value = optStr
