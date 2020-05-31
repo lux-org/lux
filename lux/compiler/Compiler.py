@@ -354,9 +354,10 @@ class Compiler:
 				else:
 					options = convert2List(spec.attribute)
 				for optStr in options:
-					specCopy = copy.copy(spec)
-					specCopy.attribute = optStr
-					specOptions.append(specCopy)
+					if str(optStr) not in spec.exclude:
+						specCopy = copy.copy(spec)
+						specCopy.attribute = optStr
+						specOptions.append(specCopy)
 				specs["attributes"].append(specOptions)
 			else:  # filters
 				attrLst = convert2List(spec.attribute)
@@ -369,10 +370,11 @@ class Compiler:
 					else:
 						options.extend(convert2List(spec.value))
 					for optStr in options:
-						specCopy = copy.copy(spec)
-						specCopy.attribute = attr
-						specCopy.value = optStr
-						specOptions.append(specCopy)
+						if str(optStr) not in spec.exclude:
+							specCopy = copy.copy(spec)
+							specCopy.attribute = attr
+							specCopy.value = optStr
+							specOptions.append(specCopy)
 				specs["filters"].extend(specOptions)
 
 		return specs
