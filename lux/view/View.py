@@ -14,20 +14,21 @@ class View:
 		self.vis = None
 		self.xMinMax = {}
 		self.yMinMax = {}
-		self.filter_attribute = ""
-		self.filter_value = ""
-		self.filter_op = "="
 
 	def __repr__(self):
 		x_channel = ""
 		y_channel = ""
+		filter_spec = None
 		for spec in self.specLst:
+			if spec.value != "":
+				filter_spec = spec
 			if spec.channel == "x":
 				x_channel = spec.attribute
 			elif spec.channel == "y":
 				y_channel = spec.attribute
-		if self.filter_value != "" and self.filter_attribute != "":
-			return f"<View  (x: {x_channel}, y: {y_channel} -- [{self.filter_attribute}{self.filter_op}{self.filter_value}]) mark: {self.mark}, score: {self.score} >"
+
+		if filter_spec:
+			return f"<View  (x: {x_channel}, y: {y_channel} -- [{filter_spec.attribute}{filter_spec.filterOp}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
 			return f"<View  (x: {x_channel}, y: {y_channel}) mark: {self.mark}, score: {self.score} >"
 	def _repr_html_(self):

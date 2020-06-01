@@ -48,8 +48,6 @@ def filter(ldf):
 						newFilter = lux.Spec(attribute = row.attribute, value = uniqueValues[i])
 						newSpec.append(newFilter)
 						tempView = View(newSpec)
-						tempView.filter_attribute = row.attribute
-						tempView.filter_value = uniqueValues[i]
 				completedFilters.append(row.attribute)
 				output.append(tempView)
 	#if Row is not specified, create filters using unique values from all categorical variables in the dataset
@@ -66,8 +64,6 @@ def filter(ldf):
 				newFilter = lux.Spec(attribute=cat, filterOp="=",value=uniqueValues[i])
 				newSpec.append(newFilter)
 				tempView = View(newSpec)
-				tempView.filter_attribute = cat
-				tempView.filter_value = uniqueValues[i]
 				output.append(tempView)
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
