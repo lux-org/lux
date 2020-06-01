@@ -89,3 +89,15 @@ def test_filter_aggregation_fillzero_aligned():
     assert result[result["Cylinders"]==3]["MilesPerGal"].values[0]==externalValidation[3]
     assert result[result["Cylinders"]==4]["MilesPerGal"].values[0]==externalValidation[4]
     assert result[result["Cylinders"]==6]["MilesPerGal"].values[0]==externalValidation[6]
+
+def test_exclude_attribute():
+    df = pd.read_csv("lux/data/car.csv")
+    df.setContext([lux.Spec("?", exclude=["Name", "Year"]),lux.Spec("Horsepower")])
+    view = df.viewCollection[0]
+    view.data = df
+    PandasExecutor.executeFilter(view)
+    for vc in df.viewCollection: 
+        assert (vc.getAttrByChannel("x")[0].attribute != "Year")
+        assert (vc.getAttrByChannel("x")[0].attribute != "Name")
+        assert (vc.getAttrByChannel("y")[0].attribute != "Year")
+        assert (vc.getAttrByChannel("y")[0].attribute != "Year") 
