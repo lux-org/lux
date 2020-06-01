@@ -14,6 +14,9 @@ class View:
 		self.vis = None
 		self.xMinMax = {}
 		self.yMinMax = {}
+		self.filter_attribute = ""
+		self.filter_value = ""
+		self.filter_op = "="
 
 	def __repr__(self):
 		x_channel = ""
@@ -23,7 +26,10 @@ class View:
 				x_channel = spec.attribute
 			elif spec.channel == "y":
 				y_channel = spec.attribute
-		return f"<View  (x: {x_channel}, y: {y_channel}) mark: {self.mark}, score: {self.score} >"
+		if self.filter_value != "" and self.filter_attribute != "":
+			return f"<View  (x: {x_channel}, y: {y_channel} -- [{self.filter_attribute}{self.filter_op}{self.filter_value}]) mark: {self.mark}, score: {self.score} >"
+		else:
+			return f"<View  (x: {x_channel}, y: {y_channel}) mark: {self.mark}, score: {self.score} >"
 	def _repr_html_(self):
 		from IPython.display import display
 		checkImportLuxWidget()
