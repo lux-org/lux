@@ -172,7 +172,7 @@ class LuxDataFrame(pd.DataFrame):
             self.cardinality[dimension] = len(self.uniqueValues[dimension])
             if self.dtypes[dimension] == "float64" or self.dtypes[dimension] == "int64":
                 self.xMinMax[dimension] = (min(self.uniqueValues[dimension]), max(self.uniqueValues[dimension]))
-                self.yMinMax[dimension] = (self[dimension].min(), self[dimension].max())
+                self.yMinMax[dimension] = (min(self.uniqueValues[dimension]), max(self.uniqueValues[dimension]))
                     # print(self.xMinMax[dimension])
 
     #######################################################
@@ -189,6 +189,7 @@ class LuxDataFrame(pd.DataFrame):
         if self.toggleBenchmarking == True:
             toc = time.perf_counter()
             print(f"Extracted Metadata from SQL Database in {toc - tic:0.4f} seconds")
+        self.setExecutorType("SQL")
 
     def computeSQLDatasetMetadata(self):
         self.getSQLAttributes()
@@ -215,7 +216,7 @@ class LuxDataFrame(pd.DataFrame):
         for dimension in self.columns:
             if self.dataTypeLookup[dimension] == 'quantitative':
                 self.xMinMax[dimension] = (min(self.uniqueValues[dimension]), max(self.uniqueValues[dimension]))
-                self.yMinMax[dimension] = (self[dimension].min(), self[dimension].max())
+                self.yMinMax[dimension] = (min(self.uniqueValues[dimension]), max(self.uniqueValues[dimension]))
 
     def getSQLAttributes(self):
         if "." in self.table_name:
