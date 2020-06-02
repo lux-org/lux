@@ -167,13 +167,12 @@ class LuxDataFrame(pd.DataFrame):
         self.yMinMax = {}
         self.cardinality = {}
 
-        for dimension in self.columns:
-            self.uniqueValues[dimension] = list(self[dimension].unique())
-            self.cardinality[dimension] = len(self.uniqueValues[dimension])
-            if self.dtypes[dimension] == "float64" or self.dtypes[dimension] == "int64":
-                self.xMinMax[dimension] = (min(self.uniqueValues[dimension]), max(self.uniqueValues[dimension]))
-                self.yMinMax[dimension] = (min(self.uniqueValues[dimension]), max(self.uniqueValues[dimension]))
-                    # print(self.xMinMax[dimension])
+        for attribute in self.columns:
+            self.uniqueValues[attribute] = list(self[attribute].unique())
+            self.cardinality[attribute] = len(self.uniqueValues[attribute])
+            if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
+                self.xMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[attribute]))
+                self.yMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[attribute]))
 
     #######################################################
     ########## SQL Metadata, type, model schema ###########
@@ -213,10 +212,10 @@ class LuxDataFrame(pd.DataFrame):
 
         self.getSQLUniqueValues()
         #self.getSQLCardinality()
-        for dimension in self.columns:
-            if self.dataTypeLookup[dimension] == 'quantitative':
-                self.xMinMax[dimension] = (min(self.uniqueValues[dimension]), max(self.uniqueValues[dimension]))
-                self.yMinMax[dimension] = (min(self.uniqueValues[dimension]), max(self.uniqueValues[dimension]))
+        for attribute in self.columns:
+            if self.dataTypeLookup[attribute] == 'quantitative':
+                self.xMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[attribute]))
+                self.yMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[dimension]))
 
     def getSQLAttributes(self):
         if "." in self.table_name:
