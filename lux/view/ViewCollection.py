@@ -17,27 +17,47 @@ class ViewCollection():
 		x_channel = ""
 		y_channel = ""
 		largest_mark = 0
+		largest_filter = 0
 		for view in self.collection: #finds longest x attribute among all views
+			filter_spec = None
 			for spec in view.specLst:
+				if spec.value != "":
+					filter_spec = spec
 				if spec.channel == "x" and len(x_channel) < len(spec.attribute):
 					x_channel = spec.attribute
 				if spec.channel == "y" and len(y_channel) < len(spec.attribute):
 					y_channel = spec.attribute
 			if len(view.mark) > largest_mark:
 				largest_mark = len(view.mark)
+			if filter_spec and len(str(filter_spec.value)) + len(filter_spec.attribute) > largest_filter:
+				largest_filter = len(str(filter_spec.value)) + len(filter_spec.attribute) 
 		views_repr = []
 		largest_x_length = len(x_channel)
 		largest_y_length = len(y_channel)
 		for view in self.collection: #pads the shorter views with spaces before the y attribute
+			filter_spec = None
 			x_channel = ""
 			y_channel = ""
 			for spec in view.specLst:
+				if spec.value != "":
+					filter_spec = spec
 				if spec.channel == "x":
 					x_channel = spec.attribute.ljust(largest_x_length)
 				elif spec.channel == "y":
-					y_channel = spec.attribute.ljust(largest_y_length)
+					y_channel = spec.attribute
+			if filter_spec:
+				y_channel = y_channel.ljust(largest_y_length)
+			elif largest_filter != 0:
+				y_channel = y_channel.ljust(largest_y_length + largest_filter + 9)
+			else:
+				y_channel = y_channel.ljust(largest_y_length + largest_filter)
 			aligned_mark = view.mark.ljust(largest_mark)
-			views_repr.append(f" <View  (x: {x_channel}, y: {y_channel}) mark: {aligned_mark}, score: {view.score:.2f} >") 
+			if filter_spec:
+				aligned_filter = " -- [" + filter_spec.attribute + filter_spec.filterOp + str(filter_spec.value) + "]"
+				aligned_filter = aligned_filter.ljust(largest_filter + 8)
+				views_repr.append(f" <View  (x: {x_channel}, y: {y_channel} {aligned_filter}) mark: {aligned_mark}, score: {view.score:.2f} >") 
+			else:
+				views_repr.append(f" <View  (x: {x_channel}, y: {y_channel}) mark: {aligned_mark}, score: {view.score:.2f} >") 
 		return '['+',\n'.join(views_repr)[1:]+']'
 	def map(self,function):
 		# generalized way of applying a function to each element
