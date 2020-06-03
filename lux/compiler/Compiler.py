@@ -115,7 +115,7 @@ class Compiler:
 			LuxDataFrame with underspecified context
 
 		viewCollection : list[lux.view.View]
-			empty list that will be populated with specified lux.View objects.
+			List of lux.View objects that will have their underspecified Spec details filled out.
 		Returns
 		-------
 		views: list[lux.View]
@@ -146,6 +146,7 @@ class Compiler:
 	def removeAllInvalid(viewCollection):
 		"""
 		Given an expanded view collection, remove all views that are invalid.
+		Currently, the invalid views are ones that contain temporal by temporal attributes or overlapping attributes.
 		Parameters
 		----------
 		viewCollection : list[lux.view.View]
