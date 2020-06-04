@@ -1,35 +1,69 @@
 from .context import lux
 import pytest
 import pandas as pd
-def test_underspecifiedSingleVis():
+
+def test_underspecifiedNoVis(test_showMore):
+	noViewActions = ["Correlation", "Distribution", "Category"]
+	df = pd.read_csv("lux/data/car.csv")
+	test_showMore(df,noViewActions)
+	assert len(df.viewCollection)==0
+
+	# test only one filter context case.
+	df.setContext([lux.Spec(attribute = "Origin", filterOp="=",value="USA")])
+	test_showMore(df,noViewActions)
+	assert len(df.viewCollection)==0
+
+def test_underspecifiedSingleVis(test_showMore):
+	oneViewActions = ["Enhance", "Filter", "Generalize"]
 	df = pd.read_csv("lux/data/car.csv")
 	df.setContext([lux.Spec(attribute = "MilesPerGal"),lux.Spec(attribute = "Weight")])
 	assert len(df.viewCollection)==1
 	assert df.viewCollection[0].mark == "scatter"
 	for attr in df.viewCollection[0].specLst: assert attr.dataModel=="measure"
 	for attr in df.viewCollection[0].specLst: assert attr.dataType=="quantitative"
+	test_showMore(df,oneViewActions)
 
-def test_underspecifiedVisCollection():
+def test_underspecifiedVisCollection(test_showMore):
+	multipleViewActions = ["View Collection"]
+
 	df = pd.read_csv("lux/data/car.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
+
 	df.setContext([lux.Spec(attribute = ["Horsepower","Weight","Acceleration"]),lux.Spec(attribute = "Year",channel="x")])
 	assert len(df.viewCollection)==3
-	assert df.viewCollection[0].mark == "line" 
-	for vc in df.viewCollection: 
+	assert df.viewCollection[0].mark == "line"
+	for vc in df.viewCollection:
 		assert (vc.getAttrByChannel("x")[0].attribute == "Year")
+	test_showMore(df,multipleViewActions)
+
 	df.setContext([lux.Spec(attribute = "?"),lux.Spec(attribute = "Year",channel="x")])
-	assert len(df.viewCollection) == len(list(df.columns))
-	for vc in df.viewCollection: 
+	assert len(df.viewCollection) == len(list(df.columns))-1 # we remove year by year so its 8 vis instead of 9
+	for vc in df.viewCollection:
 		assert (vc.getAttrByChannel("x")[0].attribute == "Year")
+	test_showMore(df,multipleViewActions)
+
 	df.setContext([lux.Spec(attribute = "?",dataType="quantitative"),lux.Spec(attribute = "Year")])
 	assert len(df.viewCollection) == len([view.getAttrByDataType("quantitative") for view in df.viewCollection]) # should be 5
+	test_showMore(df,multipleViewActions)
 
 	df.setContext([lux.Spec(attribute = "?", dataModel="measure"),lux.Spec(attribute="MilesPerGal",channel="y")])
-	for vc in df.viewCollection: 
+	for vc in df.viewCollection:
 		print (vc.getAttrByChannel("y")[0].attribute == "MilesPerGal")
-	
+	test_showMore(df,multipleViewActions)
+
 	df.setContext([lux.Spec(attribute = "?", dataModel="measure"),lux.Spec(attribute = "?", dataModel="measure")])
-	assert len(df.viewCollection) == len([view.getAttrByDataModel("measure") for view in df.viewCollection]) #should be 25 
+	assert len(df.viewCollection) == len([view.getAttrByDataModel("measure") for view in df.viewCollection]) #should be 25
+	test_showMore(df,multipleViewActions)
+
+@pytest.fixture
+def test_showMore():
+	def test_showMore_function(df, actions):
+		df.showMore()
+		assert (len(df._recInfo) > 0)
+		for rec in df._recInfo:
+			assert (rec["action"] in actions)
+	return test_showMore_function
+
 def test_parse():
 	df = pd.read_csv("lux/data/car.csv")
 	df.setContext([lux.Spec("Origin=?"),lux.Spec(attribute = "MilesPerGal")])
@@ -43,6 +77,11 @@ def test_underspecifiedVisCollection_Zval():
 	df = pd.read_csv("lux/data/car.csv")
 	df.setContext([lux.Spec(attribute = "Origin", filterOp="=",value="?"),lux.Spec(attribute = "MilesPerGal")])
 	assert len(df.viewCollection)==3
+
+	#does not work
+	# df = pd.read_csv("lux/data/cars.csv")
+	# df.setContext([lux.Spec(attribute = ["Origin","Cylinders"], filterOp="=",value="?"),lux.Spec(attribute = ["Horsepower"]),lux.Spec(attribute = "Weight")])
+	# assert len(df.viewCollection) == 8
 
 def test_sortBar():
 	from lux.compiler.Compiler import Compiler
@@ -61,119 +100,137 @@ def test_sortBar():
 	assert view.mark == "bar"
 	assert view.specLst[1].sort == 'ascending'
 
+def test_specifiedVisCollection():
+	df = pd.read_csv("lux/data/cars.csv")
+	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 
-# 	dobj = lux.DataObj(dataset,[lux.Column("Horsepower"),lux.Column("Brand"),lux.Row("Origin",["Japan","USA"])])
-# 	assert type(dobj.compiled).__name__ == "DataObjCollection"
-# 	assert len(dobj.compiled.collection) == 2
+	df.setContext(
+		[lux.Spec(attribute="Horsepower"),lux.Spec(attribute="Brand"), lux.Spec(attribute = "Origin",value=["Japan","USA"])])
+	assert len(df.viewCollection) == 2
 
-# 	dobj = lux.DataObj(dataset,[lux.Column(["Horsepower","Weight"]),lux.Column("Brand"),lux.Row("Origin",["Japan","USA"])])
-# 	assert len(dobj.compiled.collection) == 4
-
-# 	# test ? command
-# 	dobj = lux.DataObj(dataset,[lux.Column(["Horsepower","Weight"]),lux.Column("Brand"),lux.Row("Origin","?")])
-# 	assert len(dobj.compiled.collection) == 6
+	df.setContext(
+		[lux.Spec(attribute=["Horsepower","Weight"]),lux.Spec(attribute="Brand"), lux.Spec(attribute = "Origin",value=["Japan","USA"])])
+	assert len(df.viewCollection) == 4
 
 # 	# test if z axis has been filtered correctly
-# 	dobj = lux.DataObj(dataset,[lux.Column(["Horsepower","Weight"]),lux.Column("Brand"),lux.Row("Origin",["Japan","USA"])])
-# 	chartTitles = list(dobj.compiled.get("title"))
-# 	assert "Origin=USA" and "Origin=Japan" in chartTitles
-# 	assert "Origin=Europe" not in chartTitles
+	chartTitles = [view.title for view in df.viewCollection.collection]
+	assert "Origin = USA" and "Origin = Japan" in chartTitles
+	assert "Origin = Europe" not in chartTitles
 
-# 	# test number of data points makes sense
-# 	dobj = lux.DataObj(dataset,[lux.Column(["Horsepower"]),lux.Column("Brand"),lux.Row("Origin","?")])
-# 	def getNumDataPoints(dObj):
-# 		numRows = getattr(dObj, "dataset").df.shape[0]
-# 		# Might want to write catch error if key not in field
-# 		return numRows
-# 	totalNumRows= sum(list(dobj.compiled.map(getNumDataPoints)))
-# 	assert totalNumRows == 392
 
-# def test_underspecifiedVisCollection_Zattr():
-# 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
-# 	dobj = lux.DataObj(dataset,[lux.Column(["Horsepower"]),lux.Column("Weight"),lux.Row(["Origin","Cylinders"],"?")])
-# 	assert len(dobj.compiled.collection) == 8 
+def test_specifiedChannelEnforcedVisCollection():
+	df = pd.read_csv("lux/data/cars.csv")
+	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
+	df.setContext(
+		[lux.Spec(attribute="?"),lux.Spec(attribute="MilesPerGal",channel="x")])
+	for view in df.viewCollection:
+		checkAttributeOnChannel(view, "MilesPerGal", "x")
 
-# def test_specifiedChannelEnforcedVisCollection():
-# 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
-# 	dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure"),lux.Column("MilesPerGal",channel="x")])
-# 	for di in dobj.compiled.collection:
-# 		assert di.getByColumnName("MilesPerGal")[0].channel == "x"
-# def test_autoencodingScatter():
-# 	# No channel specified
-# 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
-# 	dobj = lux.DataObj(dataset,[lux.Column("MilesPerGal"),lux.Column("Weight")])
-# 	assert dobj.compiled.getByColumnName("MilesPerGal")[0].channel == "x"
-# 	assert dobj.compiled.getByColumnName("Weight")[0].channel == "y"
-# 	# Partial channel specified
-# 	dobj = lux.DataObj(dataset,[lux.Column("MilesPerGal", channel="y"),lux.Column("Weight")])
-# 	assert dobj.compiled.getByColumnName("MilesPerGal")[0].channel == "y"
-# 	assert dobj.compiled.getByColumnName("Weight")[0].channel == "x"
+def test_autoencodingScatter():
+	# No channel specified
+	df = pd.read_csv("lux/data/cars.csv")
+	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
+	df.setContext([lux.Spec(attribute="MilesPerGal"),lux.Spec(attribute="Weight")])
+	view = df.viewCollection[0]
+	checkAttributeOnChannel(view, "MilesPerGal", "x")
+	checkAttributeOnChannel(view, "Weight", "y")
 
-# 	# Full channel specified
-# 	dobj = lux.DataObj(dataset,[lux.Column("MilesPerGal", channel="y"),lux.Column("Weight", channel="x")])
-# 	assert dobj.compiled.getByColumnName("MilesPerGal")[0].channel == "y"
-# 	assert dobj.compiled.getByColumnName("Weight")[0].channel == "x"
-# 	# Duplicate channel specified
-# 	with pytest.raises(ValueError):
-# 		# Should throw error because there should not be columns with the same channel specified
-# 		dobj = lux.DataObj(dataset,[lux.Column("MilesPerGal", channel="x"),lux.Column("Weight", channel="x")])
+	# Partial channel specified
+	df.setContext([lux.Spec(attribute="MilesPerGal", channel="y"),lux.Spec(attribute="Weight")])
+	view = df.viewCollection[0]
+	checkAttributeOnChannel(view, "MilesPerGal", "y")
+	checkAttributeOnChannel(view, "Weight", "x")
+
+	# Full channel specified
+	df.setContext([lux.Spec(attribute="MilesPerGal", channel="y"),lux.Spec(attribute="Weight",channel="x")])
+	view = df.viewCollection[0]
+	checkAttributeOnChannel(view, "MilesPerGal", "y")
+	checkAttributeOnChannel(view, "Weight", "x")
+	# Duplicate channel specified
+	with pytest.raises(ValueError):
+		# Should throw error because there should not be columns with the same channel specified
+		df.setContext([lux.Spec(attribute="MilesPerGal", channel="x"), lux.Spec(attribute="Weight", channel="x")])
 
 	
-# def test_autoencodingHistogram():
-# 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
-	
-# 	# Partial channel specified
-# 	dobj = lux.DataObj(dataset,[lux.Column("MilesPerGal",channel="y")])
-# 	assert dobj.compiled.getByColumnName("MilesPerGal")[0].channel == "y"
+def test_autoencodingHistogram():
+	# No channel specified
+	df = pd.read_csv("lux/data/cars.csv")
+	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
+	df.setContext([lux.Spec(attribute="MilesPerGal",channel="y")])
+	view = df.viewCollection[0]
+	checkAttributeOnChannel(view, "MilesPerGal", "y")
 
-# 	dobj = lux.DataObj(dataset,[lux.Column("MilesPerGal", channel="x")])
-# 	assert dobj.compiled.getByColumnName("MilesPerGal")[0].channel == "x"
-# 	assert dobj.compiled.getByColumnName("count()")[0].channel == "y"
+	# Record instead of count
+	# df.setContext([lux.Spec(attribute="MilesPerGal",channel="x")])
+	# assert df.viewCollection[0].getAttrByChannel("x")[0].attribute == "MilesPerGal"
+	# assert df.viewCollection[0].getAttrByChannel("y")[0].attribute == "count()"
 
-# def test_autoencodingLineChart():
-# 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
-# 	dobj = lux.DataObj(dataset,[lux.Column("Year"),lux.Column("Acceleration")])
-# 	checkAttributeOnChannel(dobj,"Year","x")
-# 	checkAttributeOnChannel(dobj,"Acceleration","y")
-# 	# Partial channel specified
-# 	dobj = lux.DataObj(dataset,[lux.Column("Year", channel="y"),lux.Column("Acceleration")])
-# 	checkAttributeOnChannel(dobj,"Year","y")
-# 	checkAttributeOnChannel(dobj,"Acceleration","x")
+def test_autoencodingLineChart():
+	df = pd.read_csv("lux/data/cars.csv")
+	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
+	df.setContext([lux.Spec(attribute="Year"),lux.Spec(attribute="Acceleration")])
+	view = df.viewCollection[0]
+	checkAttributeOnChannel(view, "Year", "x")
+	checkAttributeOnChannel(view, "Acceleration", "y")
 
-# 	# Full channel specified
-# 	dobj = lux.DataObj(dataset,[lux.Column("Year", channel="y"),lux.Column("Acceleration", channel="x")])
-# 	checkAttributeOnChannel(dobj,"Year","y")
-# 	checkAttributeOnChannel(dobj,"Acceleration","x")
-# 	# Duplicate channel specified
-# 	with pytest.raises(ValueError):
-# 		# Should throw error because there should not be columns with the same channel specified
-# 		dobj = lux.DataObj(dataset,[lux.Column("Year", channel="x"),lux.Column("Acceleration", channel="x")])
+	# Partial channel specified
+	df.setContext([lux.Spec(attribute="Year", channel="y"),lux.Spec(attribute="Acceleration")])
+	view = df.viewCollection[0]
+	checkAttributeOnChannel(view, "Year", "y")
+	checkAttributeOnChannel(view, "Acceleration", "x")
 
-# def test_autoencodingColorLineChart():
-# 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
-# 	dobj = lux.DataObj(dataset,[lux.Column("Year"),lux.Column("Acceleration"),lux.Column("Origin")])
-# 	checkAttributeOnChannel(dobj,"Year","x")
-# 	checkAttributeOnChannel(dobj,"Acceleration","y")
-# 	checkAttributeOnChannel(dobj,"Origin","color")
-# def test_autoencodingColorScatterChart():
-# 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
-# 	dobj = lux.DataObj(dataset,[lux.Column("Horsepower"),lux.Column("Acceleration"),lux.Column("Origin")])
-# 	checkAttributeOnChannel(dobj,"Origin","color")
-# 	dobj = lux.DataObj(dataset,[lux.Column("Horsepower"),lux.Column("Acceleration",channel="color"),lux.Column("Origin")])
-# 	checkAttributeOnChannel(dobj,"Acceleration","color")
-# def test_populateOptions():
-# 	from lux.compiler.Compiler import Compiler
-# 	dataset = lux.Dataset("lux/data/cars.csv",schema=[{"Year":{"dataType":"date"}}])
-# 	dobj = lux.DataObj(dataset,[lux.Column("?"),lux.Column("MilesPerGal")])
-# 	colLst = list(map(lambda x: x.columnName, Compiler.populateOptions(dobj, dobj.spec[0])))
-# 	assert listEqual(colLst, list(dobj.dataset.df.columns))
-# 	dobj = lux.DataObj(dataset,[lux.Column("?",dataModel="measure"),lux.Column("MilesPerGal")])
-# 	colLst = list(map(lambda x: x.columnName, Compiler.populateOptions(dobj, dobj.spec[0])))
-# 	assert listEqual(colLst,['Acceleration','Weight','Horsepower','MilesPerGal','Displacement'])
+	# Full channel specified
+	df.setContext([lux.Spec(attribute="Year", channel="y"),lux.Spec(attribute="Acceleration", channel="x")])
+	view = df.viewCollection[0]
+	checkAttributeOnChannel(view, "Year", "y")
+	checkAttributeOnChannel(view, "Acceleration", "x")
 
-# def listEqual(l1,l2):
-#     l1.sort()
-#     l2.sort()
-#     return l1==l2
-# def checkAttributeOnChannel(dobj,attrName,channelName):
-# 	assert dobj.compiled.getByColumnName(attrName)[0].channel == channelName
+	with pytest.raises(ValueError):
+		# Should throw error because there should not be columns with the same channel specified
+		df.setContext([lux.Spec(attribute="Year", channel="x"), lux.Spec(attribute="Acceleration", channel="x")])
+
+def test_autoencodingColorLineChart():
+	df = pd.read_csv("lux/data/cars.csv")
+	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
+	df.setContext([lux.Spec(attribute="Year"),lux.Spec(attribute="Acceleration"),lux.Spec(attribute="Origin")])
+
+	view = df.viewCollection[0]
+	checkAttributeOnChannel(view,"Year","x")
+	checkAttributeOnChannel(view,"Acceleration","y")
+	checkAttributeOnChannel(view,"Origin","color")
+
+def test_autoencodingColorScatterChart():
+	df = pd.read_csv("lux/data/cars.csv")
+	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
+	df.setContext([lux.Spec(attribute="Horsepower"),lux.Spec(attribute="Acceleration"),lux.Spec(attribute="Origin")])
+	view = df.viewCollection[0]
+	checkAttributeOnChannel(view,"Origin","color")
+
+	df.setContext([lux.Spec(attribute="Horsepower"),lux.Spec(attribute="Acceleration",channel="color"),lux.Spec(attribute="Origin")])
+	view = df.viewCollection[0]
+	checkAttributeOnChannel(view,"Acceleration","color")
+
+def test_populateOptions():
+	from lux.compiler.Compiler import Compiler
+	df = pd.read_csv("lux/data/cars.csv")
+	df.setContext([lux.Spec(attribute="?"), lux.Spec(attribute="MilesPerGal")])
+	colSet = set()
+	for specOptions in Compiler.populateWildcardOptions(df)["attributes"]:
+		for spec in specOptions:
+			colSet.add(spec.attribute)
+	assert listEqual(list(colSet), list(df.columns))
+
+	df.setContext([lux.Spec(attribute="?",dataModel="measure"), lux.Spec(attribute="MilesPerGal")])
+	colSet = set()
+	for specOptions in Compiler.populateWildcardOptions(df)["attributes"]:
+		for spec in specOptions:
+			colSet.add(spec.attribute)
+	assert listEqual(list(colSet), ['Acceleration', 'Weight', 'Horsepower', 'MilesPerGal', 'Displacement'])
+
+def listEqual(l1,l2):
+    l1.sort()
+    l2.sort()
+    return l1==l2
+
+def checkAttributeOnChannel(view,attrName,channelName):
+	assert view.getAttrByChannel(channelName)[0].attribute == attrName
