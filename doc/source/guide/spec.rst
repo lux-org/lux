@@ -50,17 +50,50 @@ You can also specify multiple values of interest using the same `|` notation tha
 .. code-block:: python
     df.setContext(["MedianDebt","Region=New England|Southeast|Far West"])
 
-Note: Difference between Pandas 
-You might be wondering what the difference is between specifying values of interest through the context versus applying a filter directly on the dataframe through Pandas. By specifying the context directly via Pandas, Lux is agnostic to ---, so recommendations are aware of ---- .
-Slightly different interpretation.
+.. note::
+    You might be wondering what the difference is between specifying values of interest through the context in Lux versus applying a filter directly on the dataframe through Pandas. By specifying the context directly via Pandas, Lux is not be aware of what are the values of interest to users, so these values of interest will not be reflected in the recommendations.
 
-.. code-block:: python
+    .. code-block:: python
+        
+        df[df["Region"]=="New England"]
     
-    df[df["Region"]=="New England"]
+    Specifying the values through the context tells Lux that you care about colleges in the New England region. In this case, we see that Lux suggests visualizations in other `Region`s as recommendations.
+    
+    .. code-block:: python
+        
+        df.setContext("Region=New England")
+
+    So while both approaches applies the filter on the specified view, the slightly different interpretation results in different recommendations. In general, we encourage using Pandas for filtering if the user is certain about applying the filter (e.g., a cleaning operation deleting a specific data subset), and specify the context in Lux if the user may want to experiment and change aspects related to the filter in their analysis. 
 
 Advanced usage of :mod:`lux.context.Spec`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The basic string-based descriptions provides a convenient way of specifying the context. 
-However, not all specification can be expressed through the descriptions, more complex specification can be expressed through the :mod:`lux.context.Spec` object. The two modes of specification is essentially equivalent, with the :mod:`lux.compiler.Parser` parsing the string description into :mod:`lux.context.Spec` object.
+The basic string-based descriptions provides a convenient way of specifying the context. However, not all specification can be expressed through the descriptions, more complex specification can be expressed through the :mod:`lux.context.Spec` object. The two modes of specification is essentially equivalent, with the :mod:`lux.compiler.Parser` parsing the specified string into the `description` field in the :mod:`lux.context.Spec` object.
 
+Specifying attributes or values of interest
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To see an example of how lux.Spec is used, we rewrite our earlier example of expressing interest in `AverageCost` as: 
+
+.. code-block:: python
+    
+    df.setContext([lux.Spec(attribute='AverageCost')])
+
+Similarly, we can use :mod:`lux.context.Spec` to specify values of interest:
+
+.. code-block:: python 
+
+    df.setContext(['MedianDebt',
+                    lux.Spec(attribute='Region',filterOp='=', value=['New England','Southeast','Far West']
+                  ])
+
+Both the `attribute` and `value` fields can take in either a single string or a list of attributes to specify items of interest. This example also demonstrates how we can intermix the `lux.Spec` specification alongside the basic string-based specification for convenience.
+
+Adding constraints 
+~~~~~~~~~~~~~~~~~~~
+
+So far, we have seen examples of how to express existing use cases based on `lux.Spec`. Additional fields on the Spec object that acts as constraints to the specification. For example, we can indicate to Lux that we are interested in pinning `AverageCost` to the y axis.
+    
+.. code-block:: python
+    
+    df.setContext([lux.Spec(attribute='AverageCost', channel='y')])
