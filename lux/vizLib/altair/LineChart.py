@@ -18,20 +18,37 @@ class LineChart(AltairChart):
 		self.tooltip = False # tooltip looks weird for line chart
 		xAttr = self.view.getAttrByChannel("x")[0]
 		yAttr = self.view.getAttrByChannel("y")[0]
+
+
+		self.code += "import altair as alt\n"
+		self.code += "import pandas._libs.tslibs.timestamps\n"
+		self.code += "from pandas._libs.tslibs.timestamps import Timestamp\n"
+		self.code += f"viewData = pd.DataFrame({str(self.data.to_dict())})\n"
 		
 		if (yAttr.dataModel == "measure"):
+			aggTitle = f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}"
 			xAttrSpec = alt.X(xAttr.attribute, type = xAttr.dataType)
-			yAttrSpec = alt.Y(yAttr.attribute,type= yAttr.dataType, title=f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}")
+			yAttrSpec = alt.Y(yAttr.attribute, type= yAttr.dataType, title=aggTitle)
+			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type = '{xAttr.dataType}')"
+			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.dataType}', title='{aggTitle}')"
 		else:
-			xAttrSpec = alt.X(xAttr.attribute,type= xAttr.dataType, title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}")
+			aggTitle = f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}"
+			xAttrSpec = alt.X(xAttr.attribute,type= xAttr.dataType, title=aggTitle)
 			yAttrSpec = alt.Y(yAttr.attribute, type = yAttr.dataType)
-		# if (yAttr.attribute=="count()"):
-		# 	yAttrSpec = alt.Y("Record",type="quantitative", aggregate="count")
+			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type = '{xAttr.dataType}', title='{aggTitle}')"
+			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.dataType}')"
+
 		chart = alt.Chart(self.data).mark_line().encode(
 			    x = xAttrSpec,
-			    # TODO: need to change aggregate to non-default function, read aggFunc info in somewhere
 			    y = yAttrSpec
 			)
-		chart = chart.interactive() # If you want to enable Zooming and Panning
+		chart = chart.interactive() # Enable Zooming and Panning
+		self.code += f'''
+		chart = alt.Chart(viewData).mark_line().encode(
+		    y = {yAttrFieldCode},
+		    x = {xAttrFieldCode},
+		)
+		chart = chart.interactive() # Enable Zooming and Panning
+		'''
 		return chart 
 	

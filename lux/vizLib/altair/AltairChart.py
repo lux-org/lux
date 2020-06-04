@@ -17,13 +17,16 @@ class AltairChart:
 		# self.data = data.cars.url
 		# self.data = "chartData"
 		self.data = view.data
-		# print(type(self.data),"test")
 		self.tooltip = True
+		# ----- START self.code modification -----
+		self.code = "" 
 		self.chart = self.initializeChart()
-		self.code = self.getChartCode()
 		# self.addTooltip()
 		self.encodeColor()
 		self.addTitle()
+		self.code +="\nchart"
+		self.code = self.code.replace('\n\t\t','\n')
+		# ----- END self.code modification -----
 	def __repr__(self):
 		return f"AltairChart <{str(self.view)}>"
 	def addTooltip(self):
@@ -33,18 +36,17 @@ class AltairChart:
 		colorAttr = self.view.getAttrByChannel("color")
 		if (len(colorAttr)==1):
 			self.chart = self.chart.encode(color=alt.Color(colorAttr[0].attribute,type=colorAttr[0].dataType))
+			self.code+=f"chart = chart.encode(color=alt.Color('{colorAttr[0].attribute}',type='{colorAttr[0].dataType}'))"
 		elif (len(colorAttr)>1):
 			raise ValueError("There should not be more than one attribute specified in the same channel.")
+		
 	def addTitle(self):
 		chartTitle = self.view.title
 		if chartTitle:
 			self.chart = self.chart.encode().properties(
 				title = chartTitle
 			)
+			if (self.code!=""):
+				self.code+=f"chart = chart.encode().properties(title = '{chartTitle}')"
 	def initializeChart(self):
 		return NotImplemented
-	def getChartCode(self):
-		return '''
-		import altair as alt
-		# Altair code placeholder
-		'''
