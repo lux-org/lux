@@ -20,27 +20,44 @@ class BarChart(AltairChart):
 		xAttr = self.view.getAttrByChannel("x")[0]
 		yAttr = self.view.getAttrByChannel("y")[0]
 
+		self.code += "import altair as alt\n"
+		# self.code += f"viewData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
+		self.code += f"viewData = pd.DataFrame({str(self.data.to_dict())})\n"
+
 		if (xAttr.dataModel == "measure"):
-			yAttrField = alt.Y(yAttr.attribute, type = yAttr.dataType, axis=alt.Axis(labelOverlap=True))
-			xAttrField = alt.X(xAttr.attribute, type=xAttr.dataType,title=f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}")
+			aggTitle = f'{xAttr.aggregation.capitalize()} of {xAttr.attribute}'
+			yAttrField = alt.Y(yAttr.attribute, type= yAttr.dataType, axis=alt.Axis(labelOverlap=True))
+			xAttrField = alt.X(xAttr.attribute, type= xAttr.dataType, title=aggTitle)
+			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.dataType}', axis=alt.Axis(labelOverlap=True))"
+			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type= '{xAttr.dataType}', title='{aggTitle}')"
+
 			if (yAttr.sort=="ascending"):
 				yAttrField.sort="-x"
+				yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.dataType}', axis=alt.Axis(labelOverlap=True), sort ='-x')"
 		else:
+			aggTitle = f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}"
 			xAttrField = alt.X(xAttr.attribute, type = xAttr.dataType,axis=alt.Axis(labelOverlap=True))
+			yAttrField = alt.Y(yAttr.attribute,type=yAttr.dataType,title=aggTitle)
+			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type= '{xAttr.dataType}', axis=alt.Axis(labelOverlap=True))"
+			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.dataType}', title='{aggTitle}')"
 			if (xAttr.sort=="ascending"):
 				xAttrField.sort="-y"
-			yAttrField = alt.Y(yAttr.attribute,type=yAttr.dataType,title=f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}")
+				xAttrFieldCode = f"alt.X('{xAttr.attribute}', type= '{xAttr.dataType}', axis=alt.Axis(labelOverlap=True),sort='-y')"
+			
 		chart = alt.Chart(self.data).mark_bar().encode(
 			    y = yAttrField,
 			    x = xAttrField
 			)
-		# TODO: tooltip messes up the count() bar charts
-		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
+		# TODO: tooltip messes up the count() bar charts		
 		# Can not do interactive whenever you have default count measure otherwise output strange error (Javascript Error: Cannot read property 'length' of undefined)
 		#chart = chart.interactive() # If you want to enable Zooming and Panning
-		return chart 
-	def getChartCode(self):
-		return '''
-		import altair as alt
-		# Altair code placeholder
+		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
+
+		self.code += f'''
+		chart = alt.Chart(viewData).mark_bar(size=12).encode(
+		    y = {yAttrFieldCode},
+		    x = {xAttrFieldCode},
+		)
+		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		'''
+		return chart 

@@ -81,13 +81,34 @@ class View:
 			else:
 				newSpec.append(self.specLst[i])
 		self.specLst = newSpec
+	def toAltair(self) -> str:
+		"""
+		Generate minimal Altair code to visualize the view
 
-	def renderVSpec(self, renderer="altair"):
+		Returns
+		-------
+		str
+			String version of the Altair code. Need to print out the string to apply formatting.
+		"""		
 		from lux.vizLib.altair.AltairRenderer import AltairRenderer
-		if (renderer == "altair"):
-			renderer = AltairRenderer()
+		renderer = AltairRenderer(outputType="Altair")
 		self.vis= renderer.createVis(self)
 		return self.vis
-	'''
-	Possibly add more helper functions for retrieving information fro specified SpecLst 
-	'''
+
+	def toVegaLite(self) -> dict:
+		"""
+		Generate minimal VegaLite code to visualize the view
+
+		Returns
+		-------
+		dict
+			Dictionary of the VegaLite JSON specification
+		"""		
+		from lux.vizLib.altair.AltairRenderer import AltairRenderer
+		renderer = AltairRenderer(outputType="VegaLite")
+		self.vis= renderer.createVis(self)
+		return self.vis
+		
+	def renderVSpec(self, renderer="altair"):
+		if (renderer == "altair"):
+			return self.toVegaLite()
