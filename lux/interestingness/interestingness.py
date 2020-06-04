@@ -53,10 +53,10 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 	# Histogram
 	elif (n_dim == 0 and n_msr == 1):
 		if (n_filter == 0):
-			v = view.data["Count of Records (binned)"]
+			v = view.data["Count of Records"]
 			return skewness(v)
 		elif (n_filter == 1):
-			return deviationFromOverall(view,ldf,filterSpecs,"Count of Records (binned)")
+			return deviationFromOverall(view,ldf,filterSpecs,"Count of Records")
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
 		if (n_filter==1):
