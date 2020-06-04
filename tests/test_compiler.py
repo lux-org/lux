@@ -1,15 +1,9 @@
 from .context import lux
 import pytest
 import pandas as pd
-def test_underspecifiedNoVis():
+
+def test_underspecifiedNoVis(test_showMore):
 	noViewActions = ["Correlation", "Distribution", "Category"]
-
-	def test_showMore(df, actions):
-		df.showMore()
-		assert (len(df._recInfo) > 0)
-		for rec in df._recInfo:
-			assert (rec["action"] in actions)
-
 	df = pd.read_csv("lux/data/car.csv")
 	test_showMore(df,noViewActions)
 	assert len(df.viewCollection)==0
@@ -19,15 +13,8 @@ def test_underspecifiedNoVis():
 	test_showMore(df,noViewActions)
 	assert len(df.viewCollection)==0
 
-def test_underspecifiedSingleVis():
+def test_underspecifiedSingleVis(test_showMore):
 	oneViewActions = ["Enhance", "Filter", "Generalize"]
-
-	def test_showMore(df, actions):
-		df.showMore()
-		assert (len(df._recInfo) > 0)
-		for rec in df._recInfo:
-			assert (rec["action"] in actions)
-
 	df = pd.read_csv("lux/data/car.csv")
 	df.setContext([lux.Spec(attribute = "MilesPerGal"),lux.Spec(attribute = "Weight")])
 	assert len(df.viewCollection)==1
@@ -36,13 +23,7 @@ def test_underspecifiedSingleVis():
 	for attr in df.viewCollection[0].specLst: assert attr.dataType=="quantitative"
 	test_showMore(df,oneViewActions)
 
-def test_underspecifiedVisCollection():
-	def test_showMore(df, actions):
-		df.showMore()
-		assert (len(df._recInfo) > 0)
-		for rec in df._recInfo:
-			assert (rec["action"] in actions)
-
+def test_underspecifiedVisCollection(test_showMore):
 	multipleViewActions = ["View Collection"]
 
 	df = pd.read_csv("lux/data/car.csv")
@@ -73,6 +54,15 @@ def test_underspecifiedVisCollection():
 	df.setContext([lux.Spec(attribute = "?", dataModel="measure"),lux.Spec(attribute = "?", dataModel="measure")])
 	assert len(df.viewCollection) == len([view.getAttrByDataModel("measure") for view in df.viewCollection]) #should be 25
 	test_showMore(df,multipleViewActions)
+
+@pytest.fixture
+def test_showMore():
+	def test_showMore_function(df, actions):
+		df.showMore()
+		assert (len(df._recInfo) > 0)
+		for rec in df._recInfo:
+			assert (rec["action"] in actions)
+	return test_showMore_function
 
 def test_parse():
 	df = pd.read_csv("lux/data/car.csv")
@@ -151,12 +141,12 @@ def test_autoencodingScatter():
 	checkAttributeOnChannel(view, "MilesPerGal", "y")
 	checkAttributeOnChannel(view, "Weight", "x")
 
-# 	# Full channel specified
+	# Full channel specified
 	df.setContext([lux.Spec(attribute="MilesPerGal", channel="y"),lux.Spec(attribute="Weight",channel="x")])
 	view = df.viewCollection[0]
 	checkAttributeOnChannel(view, "MilesPerGal", "y")
 	checkAttributeOnChannel(view, "Weight", "x")
-# 	# Duplicate channel specified
+	# Duplicate channel specified
 	with pytest.raises(ValueError):
 		# Should throw error because there should not be columns with the same channel specified
 		df.setContext([lux.Spec(attribute="MilesPerGal", channel="x"), lux.Spec(attribute="Weight", channel="x")])
@@ -189,7 +179,7 @@ def test_autoencodingLineChart():
 	checkAttributeOnChannel(view, "Year", "y")
 	checkAttributeOnChannel(view, "Acceleration", "x")
 
-# Full channel specified
+	# Full channel specified
 	df.setContext([lux.Spec(attribute="Year", channel="y"),lux.Spec(attribute="Acceleration", channel="x")])
 	view = df.viewCollection[0]
 	checkAttributeOnChannel(view, "Year", "y")
