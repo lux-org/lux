@@ -50,6 +50,9 @@ class Compiler:
 		# Output : DataObj/DataObjectCollection
 		# compiledCollection = []
 		viewCollection = Compiler.expandUnderspecified(ldf, viewCollection)  # autofill data type/model information
+
+		viewCollection = Compiler.removeAllInvalid(viewCollection)
+
 		for view in viewCollection:
 			Compiler.determineEncoding(ldf, view)  # autofill viz related information
 		return viewCollection
@@ -111,6 +114,8 @@ class Compiler:
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context
 
+		viewCollection : list[lux.view.View]
+			List of lux.View objects that will have their underspecified Spec details filled out.
 		Returns
 		-------
 		views: list[lux.View]
@@ -136,6 +141,36 @@ class Compiler:
 						chartTitle = spec.value
 					view.title = f"{spec.attribute} {spec.filterOp} {chartTitle}"
 		return views
+
+	@staticmethod
+	def removeAllInvalid(viewCollection):
+		"""
+		Given an expanded view collection, remove all views that are invalid.
+		Currently, the invalid views are ones that contain temporal by temporal attributes or overlapping attributes.
+		Parameters
+		----------
+		viewCollection : list[lux.view.View]
+			empty list that will be populated with specified lux.View objects.
+		Returns
+		-------
+		views: list[lux.View]
+			view collection with compiled lux.View objects.
+		"""
+		newVC = []
+
+		for view in viewCollection:
+			numTemporalSpecs = 0
+			attributeSet = set()
+			for spec in view.specLst:
+				attributeSet.add(spec.attribute)
+				if spec.dataType == "temporal":
+					numTemporalSpecs += 1
+			allDistinctSpecs = 0 == len(view.specLst) - len(attributeSet)
+			if numTemporalSpecs <= 1 or allDistinctSpecs:
+				newVC.append(view)
+
+		return ViewCollection(newVC)
+
 	@staticmethod
 	def determineEncoding(ldf: LuxDataFrame,view: View):
 		'''
