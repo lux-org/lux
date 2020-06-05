@@ -25,7 +25,7 @@ class View:
 				filter_spec = spec
 			if spec.attribute != "":
 				if spec.aggregation != "":
-					attribute = spec.aggregation + "(" + spec.attribute + ")"
+					attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
 				elif spec.binSize > 0:
 					attribute = "BIN(" + spec.attribute + ")"
 				else:
