@@ -323,18 +323,19 @@ class LuxDataFrame(pd.DataFrame):
     def getWidget(self):
         return self.widget
 
-    def getExported(self):
+    def getExported(self) -> typing.Union[typing.Dict[str,ViewCollection], ViewCollection]:
         """
         Convert the _exportedVisIdxs dictionary into a programmable ViewCollection
         Example _exportedVisIdxs : 
             {'Correlation': [0, 2], 'Category': [1]}
         indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Category` tab is selected.
-
+        
         Returns
         -------
-        When there are no exported vis, return empty list -> []
-        When all the exported vis is from the same tab, return a ViewCollection of selected views. -> ViewCollection(v1, v2...)
-        When the exported vis is from the different tabs, return a dictionary with the action name as key and selected views in the ViewCollection. -> {"Enhance": ViewCollection(v1, v2...), "Filter": ViewCollection(v5, v7...), ..}
+        typing.Union[typing.Dict[str,ViewCollection], ViewCollection]
+            When there are no exported vis, return empty list -> []
+            When all the exported vis is from the same tab, return a ViewCollection of selected views. -> ViewCollection(v1, v2...)
+            When the exported vis is from the different tabs, return a dictionary with the action name as key and selected views in the ViewCollection. -> {"Enhance": ViewCollection(v1, v2...), "Filter": ViewCollection(v5, v7...), ..}
         """        
         exportedVisLst =self.widget._exportedVisIdxs
         exportedViews = [] 
@@ -444,17 +445,6 @@ class LuxDataFrame(pd.DataFrame):
             currentViewSpec = vc[0].renderVSpec()
         elif (numVC>1):
             pass
-        # This behavior is jarring to user, so comment out for now
-        #     # if the compiled object is a collection, see if we can remove the elements with "?" and generate a Current View
-        #     specifiedDobj = currentViewDobj.getVariableFieldsRemoved()
-        #     if (specifiedDobj.spec!=[]): specifiedDobj.compile(enumerateCollection=False)
-        #     if (currentView!=""):
-        #         currentViewSpec = currentView.compiled.renderVSpec()
-        #     elif (specifiedDobj.isEmpty()):
-        #         currentViewSpec = {}
-        #     else:
-        #         specifiedDobj.compile(enumerateCollection=False)
-        #         currentViewSpec = specifiedDobj.compiled.renderVSpec()
         return currentViewSpec
     @staticmethod
     def recToJSON(recs):

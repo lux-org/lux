@@ -230,13 +230,13 @@ class Compiler:
 		# zAttr = view.getAttrByChannel("z")
 		autoChannel={}
 		if (Ndim == 0 and Nmsr == 1):
-			# Histogram with Count on the y axis
-			measure = view.getAttrByDataModel("measure")[0]
-			view.specLst.append(countCol)
+			# Histogram with Count 
+			measure = view.getAttrByDataModel("measure",excludeRecord=True)[0]
+			if (len(view.getAttrByAttrName("Record"))<0):
+				view.specLst.append(countCol)
 			# If no bin specified, then default as 10
 			if (measure.binSize == 0):
 				measure.binSize = 10
-			# measure.channel = "x"
 			autoChannel = {"x": measure, "y": countCol}
 			view.xMinMax = ldf.xMinMax
 			view.mark = "histogram"

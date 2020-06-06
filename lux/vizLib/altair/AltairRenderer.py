@@ -6,10 +6,10 @@ from lux.vizLib.altair.Histogram import Histogram
 
 class AltairRenderer:
 	"""
-	Renderer for Altair Charts
+	Renderer for Charts based on Altair (https://altair-viz.github.io/)
 	"""
-	def __init__(self):
-		pass
+	def __init__(self,outputType="VegaLite"):
+		self.outputType = outputType
 	def __repr__(self):
 		return f"AltairRenderer"
 	def createVis(self,view):
@@ -37,10 +37,12 @@ class AltairRenderer:
 		else:
 			chart = None
 		if (chart):
-			chartDict = chart.chart.to_dict()
-			# this is a bit of a work around because altair must take a pandas dataframe and we can only generate a luxDataFrame
-			# chart["data"] =  { "values": view.data.to_dict(orient='records') }
-			chartDict["width"] = 160
-			chartDict["height"] = 150
-			chartDict["code"] = chart.code
-			return chartDict
+			if (self.outputType=="VegaLite"):
+				chartDict = chart.chart.to_dict()
+				# this is a bit of a work around because altair must take a pandas dataframe and we can only generate a luxDataFrame
+				# chart["data"] =  { "values": view.data.to_dict(orient='records') }
+				chartDict["width"] = 160
+				chartDict["height"] = 150
+				return chartDict
+			elif (self.outputType=="Altair"):
+				return chart.code

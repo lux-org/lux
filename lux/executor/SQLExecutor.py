@@ -124,7 +124,7 @@ class SQLExecutor(Executor):
                 if i not in bucketLables:
                     binCountData = binCountData.append(pd.DataFrame([[i,0]], columns = binCountData.columns))
 
-        view.data = pd.DataFrame(np.array([binCenters,list(binCountData['count'])]).T,columns=[binAttribute.attribute, "Count of Records (binned)"])
+        view.data = pd.DataFrame(np.array([binCenters,list(binCountData['count'])]).T,columns=[binAttribute.attribute, "Count of Records"])
         view.data = utils.pandasToLux(view.data)
         
     @staticmethod
