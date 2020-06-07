@@ -19,18 +19,32 @@ class View:
 		x_channel = ""
 		y_channel = ""
 		filter_spec = None
+		channels, additional_channels = [], []
 		for spec in self.specLst:
 			if spec.value != "":
 				filter_spec = spec
-			if spec.channel == "x":
-				x_channel = spec.attribute
-			elif spec.channel == "y":
-				y_channel = spec.attribute
+			if spec.attribute != "":
+				if spec.aggregation != "":
+					attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
+				elif spec.binSize > 0:
+					attribute = "BIN(" + spec.attribute + ")"
+				else:
+					attribute = spec.attribute
+				if spec.channel == "x":
+					channels.insert(0, [spec.channel, attribute])
+				elif spec.channel == "y":
+					channels.insert(1, [spec.channel, attribute])
+				elif spec.channel != "":
+					additional_channels.append([spec.channel, attribute])
+		channels.extend(additional_channels)
+		str_channels = ""
+		for channel in channels:
+			str_channels += channel[0] + ": " + channel[1] + ", "
 
 		if filter_spec:
-			return f"<View  (x: {x_channel}, y: {y_channel} -- [{filter_spec.attribute}{filter_spec.filterOp}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
+			return f"<View  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filterOp}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
-			return f"<View  (x: {x_channel}, y: {y_channel}) mark: {self.mark}, score: {self.score} >"
+			return f"<View  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
 	def _repr_html_(self):
 		from IPython.display import display
 		checkImportLuxWidget()
