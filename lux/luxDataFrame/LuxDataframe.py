@@ -178,7 +178,9 @@ class LuxDataFrame(pd.DataFrame):
     #######################################################
     ########## SQL Metadata, type, model schema ###########
     #######################################################
-
+    def setDBConnection(self, connection, t_name):
+        if str(type(connection)) == "<class 'psycopg2.extensions.connection'>":
+            self.setSQLConnection(connection, t_name)
     def setSQLConnection(self, connection, t_name):
         #for benchmarking
         if self.toggleBenchmarking == True:

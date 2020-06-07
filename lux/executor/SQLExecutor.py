@@ -6,6 +6,7 @@ from lux.executor.Executor import Executor
 from lux.utils import utils
 import math
 
+import time
 class SQLExecutor(Executor):
     def __init__(self):
         self.name = "Executor"
@@ -26,6 +27,7 @@ class SQLExecutor(Executor):
         3) return a DataFrame with relevant results
         '''
         for view in viewCollection:
+            print(view, utils.getFilterSpecs(view.specLst))
             # Select relevant data based on attribute information
             attributes = set([])
             for spec in view.specLst:
@@ -46,9 +48,15 @@ class SQLExecutor(Executor):
                 data = pd.read_sql(query, ldf.SQLconnection)
                 view.data = utils.pandasToLux(data)
             if (view.mark =="bar" or view.mark =="line"):
+                #tic = time.perf_counter()
                 SQLExecutor.executeAggregate(view, ldf)
+                #toc = time.perf_counter()
+                #print(f"Retrieved aggregate data for bar/line chart in {toc - tic:0.4f} seconds")
             elif (view.mark =="histogram"):
+                #tic = time.perf_counter()
                 SQLExecutor.executeBinning(view, ldf)
+                #toc = time.perf_counter()
+                #print(f"Retrieved binned data for histogram chart in {toc - tic:0.4f} seconds")
 
     @staticmethod
     def executeAggregate(view:View, ldf:LuxDataFrame):
@@ -79,6 +87,14 @@ class SQLExecutor(Executor):
                 whereClause, filterVars = SQLExecutor.executeFilter(view)
                 if aggFunc == "mean":
                     meanQuery = "SELECT {}, AVG({}) as {} FROM {} {} GROUP BY {}".format(groupbyAttr.attribute, measureAttr.attribute, measureAttr.attribute, ldf.table_name, whereClause, groupbyAttr.attribute)
+                    view.data = pd.read_sql(meanQuery, ldf.SQLconnection)
+                    view.data = utils.pandasToLux(view.data)
+                if aggFunc == "sum":
+                    meanQuery = "SELECT {}, SUM({}) as {} FROM {} {} GROUP BY {}".format(groupbyAttr.attribute, measureAttr.attribute, measureAttr.attribute, ldf.table_name, whereClause, groupbyAttr.attribute)
+                    view.data = pd.read_sql(meanQuery, ldf.SQLconnection)
+                    view.data = utils.pandasToLux(view.data)
+                if aggFunc == "max":
+                    meanQuery = "SELECT {}, MAX({}) as {} FROM {} {} GROUP BY {}".format(groupbyAttr.attribute, measureAttr.attribute, measureAttr.attribute, ldf.table_name, whereClause, groupbyAttr.attribute)
                     view.data = pd.read_sql(meanQuery, ldf.SQLconnection)
                     view.data = utils.pandasToLux(view.data)
     @staticmethod
