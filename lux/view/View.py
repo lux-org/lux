@@ -1,3 +1,4 @@
+from __future__ import annotations
 from lux.context.Spec import Spec
 from lux.utils.utils import checkImportLuxWidget
 class View:
@@ -5,8 +6,9 @@ class View:
 	View Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
 	'''
 
-	def __init__(self, specifiedSpecLst,mark="", title=""):
-		self.specLst = specifiedSpecLst
+	def __init__(self, specLst, mark="", title=""):
+		# self.specLst = Parser.parse(specLst) #TODO: make sure this is not duplicated for programmatically generated views
+		self.specLst = specLst
 		self.title = title
 		self.mark = mark
 		self.data = None
@@ -14,10 +16,7 @@ class View:
 		self.vis = None
 		self.xMinMax = {}
 		self.yMinMax = {}
-
 	def __repr__(self):
-		x_channel = ""
-		y_channel = ""
 		filter_spec = None
 		channels, additional_channels = [], []
 		for spec in self.specLst:
@@ -120,9 +119,38 @@ class View:
 		"""		
 		from lux.vizLib.altair.AltairRenderer import AltairRenderer
 		renderer = AltairRenderer(outputType="VegaLite")
-		self.vis= renderer.createVis(self)
+		self.vis = renderer.createVis(self)
 		return self.vis
 		
 	def renderVSpec(self, renderer="altair"):
 		if (renderer == "altair"):
 			return self.toVegaLite()
+	
+	def load(self, ldf) -> View:
+		"""
+		Loading the data into the view by instantiating the specification and populating the view based on the data, effectively "materializing" the view.
+
+		Parameters
+		----------
+		ldf : LuxDataframe
+			Input Dataframe to be attached to the view
+
+		Returns
+		-------
+		View
+			Complete View with fully-specified fields
+
+		See Also
+		--------
+		lux.view.ViewCollection.load
+		"""		
+		from lux.compiler.Parser import Parser
+		from lux.compiler.Validator import Validator
+		from lux.compiler.Compiler import Compiler
+		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
+		#TODO: handle case when user input vanilla Pandas dataframe
+		self.specLst = Parser.parse(self.specLst)
+		Validator.validateSpec(self.specLst,ldf)
+		vc = Compiler.compile(ldf,[self],enumerateCollection=False)
+		PandasExecutor.execute(vc,ldf)
+		return vc[0]

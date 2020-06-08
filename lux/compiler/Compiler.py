@@ -40,19 +40,10 @@ class Compiler:
 		viewCollection: list[lux.View]
 			view collection with compiled lux.View objects.
 		"""
-		# 1. If the DataObj represent a collection, then compile it into a collection. Otherwise, return False
-		# Input: DataObj --> Output: DataObjCollection/False
 		if (enumerateCollection):
 			viewCollection = Compiler.enumerateCollection(ldf)
-		# else:
-		# 	dataObjCollection = False
-		# 2. For every DataObject in the DataObject Collection, expand underspecified
-		# Output : DataObj/DataObjectCollection
-		# compiledCollection = []
 		viewCollection = Compiler.expandUnderspecified(ldf, viewCollection)  # autofill data type/model information
-
-		viewCollection = Compiler.removeAllInvalid(viewCollection)
-
+		viewCollection = Compiler.removeAllInvalid(viewCollection) # remove invalid views from collection
 		for view in viewCollection:
 			Compiler.determineEncoding(ldf, view)  # autofill viz related information
 		return viewCollection
@@ -358,6 +349,7 @@ class Compiler:
 
 	@staticmethod
 	def populateWildcardOptions(ldf: LuxDataFrame) -> dict:
+	# def populateWildcardOptions(specLst:List[Spec],ldf: LuxDataFrame) -> dict:
 		"""
 		Given wildcards and constraints in the LuxDataFrame's context,
 		return the list of available values that satisfies the dataType or dataModel constraints.

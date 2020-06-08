@@ -66,8 +66,8 @@ class LuxDataFrame(pd.DataFrame):
         if self.SQLconnection == "":
             self.computeStats()
             self.computeDatasetMetadata()
-        Parser.parse(self)
-        Validator.validateSpec(self)
+        self.context = Parser.parse(self.getContext())
+        Validator.validateSpec(self.context,self)
         viewCollection = Compiler.compile(self,self.viewCollection)
         self.setViewCollection(viewCollection)
 
@@ -215,7 +215,7 @@ class LuxDataFrame(pd.DataFrame):
         for attribute in self.columns:
             if self.dataTypeLookup[attribute] == 'quantitative':
                 self.xMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[attribute]))
-                self.yMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[dimension]))
+                self.yMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[attribute]))
 
     def getSQLAttributes(self):
         if "." in self.table_name:
