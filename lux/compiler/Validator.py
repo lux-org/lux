@@ -1,5 +1,7 @@
 # from ..luxDataFrame.LuxDataframe import LuxDataFrame
-
+from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+from lux.context.Spec import Spec
+from typing import List
 class Validator:
 	'''
 	Contains methods for validating lux.Spec objects in the context.
@@ -11,8 +13,7 @@ class Validator:
 		return f"<Validator>"
 
 	@staticmethod
-	# def validateSpec(ldf: LuxDataFrame):
-	def validateSpec(ldf):
+	def validateSpec(specs: List[Spec], ldf:LuxDataFrame) -> None:
 		"""
 		Validates input specifications from the user to find inconsistencies and errors.
 
@@ -30,6 +31,9 @@ class Validator:
 		ValueError
 			Ensures no input specs are consistent with DataFrame.
 		"""
+		uniqueVals = ldf.uniqueValues
+		printWarning = False
+
 		def existsInDF(value,uniqueValues):
 			return any(value in uniqueValues[vals] for vals in uniqueValues)
 
@@ -58,19 +62,14 @@ class Validator:
 
 		# 1. Parse all string specification into Spec objects (nice-to-have)
 		# 2. Validate that the parsed specification is corresponds to the content in the LuxDataframe.
-		context = ldf.getContext()
-		uniqueVals = ldf.uniqueValues
-		printWarning = False
-		for spec in context:
+		for spec in specs:
 			if type(spec) is list:
 				for s in spec:
 					validateAttr(s)
 			else:
 				validateAttr(spec)
 
-
 		if printWarning:
-			#print warning
 			raise ValueError("Input spec is inconsistent with DataFrame.")
 
 		# lux.setContext(lux.Spec(attr = "Horsepower"))
