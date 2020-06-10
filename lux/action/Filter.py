@@ -66,7 +66,7 @@ def filter(ldf):
 				tempView = View(newSpec)
 				output.append(tempView)
 	vc = lux.view.ViewCollection.ViewCollection(output)
-	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
+	vc = Compiler.compile(ldf,ldf.context,vc,enumerateCollection=False)
 	
 	ldf.executor.execute(vc,ldf)
 	for view in vc:

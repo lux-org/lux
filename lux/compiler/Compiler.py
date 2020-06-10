@@ -19,7 +19,7 @@ class Compiler:
 		return f"<Compiler>"
 
 	@staticmethod
-	def compile(ldf: LuxDataFrame, viewCollection: ViewCollection, enumerateCollection=True) -> ViewCollection:
+	def compile(ldf: LuxDataFrame,specLst:List[Spec], viewCollection: ViewCollection, enumerateCollection=True) -> ViewCollection:
 		"""
 		Compiles input specifications in the context of the ldf into a collection of lux.View objects for visualization.
 		1) Enumerate a collection of views interested by the user to generate a view collection
@@ -41,7 +41,7 @@ class Compiler:
 			view collection with compiled lux.View objects.
 		"""
 		if (enumerateCollection):
-			viewCollection = Compiler.enumerateCollection(ldf)
+			viewCollection = Compiler.enumerateCollection(specLst,ldf)
 		viewCollection = Compiler.expandUnderspecified(ldf, viewCollection)  # autofill data type/model information
 		viewCollection = Compiler.removeAllInvalid(viewCollection) # remove invalid views from collection
 		for view in viewCollection:
@@ -49,7 +49,7 @@ class Compiler:
 		return viewCollection
 
 	@staticmethod
-	def enumerateCollection(ldf: LuxDataFrame) -> ViewCollection:
+	def enumerateCollection(specLst:List[Spec],ldf: LuxDataFrame) -> ViewCollection:
 		"""
 		Given specifications that have been expanded thorught populateOptions,
 		recursively iterate over the resulting list combinations to generate a View collection.
@@ -65,7 +65,7 @@ class Compiler:
 			view collection with compiled lux.View objects.
 		"""
 		import copy
-		specs = Compiler.populateWildcardOptions(ldf)
+		specs = Compiler.populateWildcardOptions(specLst,ldf)
 		attributes = specs['attributes']
 		filters = specs['filters']
 		if len(attributes) == 0 and len(filters) > 0:
@@ -91,7 +91,6 @@ class Compiler:
 						collection.append(view)
 				else:
 					combine(colAttrs[1:], columnList)
-
 		combine(attributes, [])
 		return ViewCollection(collection)
 
@@ -348,8 +347,8 @@ class Compiler:
 		return view
 
 	@staticmethod
-	def populateWildcardOptions(ldf: LuxDataFrame) -> dict:
-	# def populateWildcardOptions(specLst:List[Spec],ldf: LuxDataFrame) -> dict:
+	# def populateWildcardOptions(ldf: LuxDataFrame) -> dict:
+	def populateWildcardOptions(specLst:List[Spec],ldf: LuxDataFrame) -> dict:
 		"""
 		Given wildcards and constraints in the LuxDataFrame's context,
 		return the list of available values that satisfies the dataType or dataModel constraints.
@@ -368,7 +367,7 @@ class Compiler:
 		from lux.utils.utils import convert2List
 
 		specs = {"attributes": [], "filters": []}
-		for spec in ldf.context:
+		for spec in specLst:
 			specOptions = []
 			if spec.value == "":  # attribute
 				if spec.attribute == "?":
@@ -392,8 +391,8 @@ class Compiler:
 					options = []
 					if spec.value == "?":
 						options = ldf.uniqueValues[attr]
-						specInd = ldf.context.index(spec)
-						ldf.context[specInd] = Spec(attribute=spec.attribute, filterOp="=", value=list(options))
+						specInd = specLst.index(spec)
+						specLst[specInd] = Spec(attribute=spec.attribute, filterOp="=", value=list(options))
 					else:
 						options.extend(convert2List(spec.value))
 					for optStr in options:
