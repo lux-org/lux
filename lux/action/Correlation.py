@@ -36,7 +36,7 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 						   "description":"Show relationships between two quantitative variables."}
 	vc = ldf.viewCollection
 	# if (ignoreIdentity): vc = filter(lambda x: x.specLst[0].attribute!=x.specLst[1].attribute,ldf.viewCollection)
-	vc = Compiler.compile(ldf, vc, enumerateCollection=False)
+	vc = Compiler.compile(ldf,ldf.context, vc, enumerateCollection=False)
 
 	ldf.executor.execute(vc,ldf)
 	# Then use the data populated in the view collection to compute score

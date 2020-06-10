@@ -68,7 +68,7 @@ class LuxDataFrame(pd.DataFrame):
             self.computeDatasetMetadata()
         self.context = Parser.parse(self.getContext())
         Validator.validateSpec(self.context,self)
-        viewCollection = Compiler.compile(self,self.viewCollection)
+        viewCollection = Compiler.compile(self,self.context,self.viewCollection)
         self.setViewCollection(viewCollection)
 
     def setContext(self,context:typing.List[typing.Union[str,Spec]]):

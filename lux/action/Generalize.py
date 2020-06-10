@@ -61,7 +61,7 @@ def generalize(ldf):
 		output.append(tempView)
 		
 	vc = lux.view.ViewCollection.ViewCollection(output)
-	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
+	vc = Compiler.compile(ldf,ldf.context,vc,enumerateCollection=False)
 	ldf.executor.execute(vc,ldf)
 	recommendation["collection"] = vc
 	for view in vc:

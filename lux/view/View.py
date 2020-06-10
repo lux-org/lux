@@ -151,6 +151,6 @@ class View:
 		#TODO: handle case when user input vanilla Pandas dataframe
 		self.specLst = Parser.parse(self.specLst)
 		Validator.validateSpec(self.specLst,ldf)
-		vc = Compiler.compile(ldf,[self],enumerateCollection=False)
+		vc = Compiler.compile(ldf,ldf.context,[self],enumerateCollection=False)
 		PandasExecutor.execute(vc,ldf)
 		return vc[0]
