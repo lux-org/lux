@@ -10,13 +10,16 @@ class ViewCollection():
 	'''
 	def __init__(self,inputLst:Union[List[View],List[Spec]]):
 		# Overloaded Constructor
-		if (type(inputLst[0])==View):
-			self.collection = inputLst
-			self.inputType = "View"
-		elif (type(inputLst[0])==Spec):
-			self.specLst = inputLst
+		if len(inputLst)>0:
+			if (type(inputLst[0])==View):
+				self.collection = inputLst
+				self.inputType = "View"
+			elif (type(inputLst[0])==Spec):
+				self.specLst = inputLst
+				self.collection = []
+				self.inputType = "Spec"
+		else:
 			self.collection = []
-			self.inputType = "Spec"
 	def __getitem__(self, key):
 		return self.collection[key]
 	def __setitem__(self, key, value):

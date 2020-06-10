@@ -215,14 +215,14 @@ def test_populateOptions():
 	df = pd.read_csv("lux/data/cars.csv")
 	df.setContext([lux.Spec(attribute="?"), lux.Spec(attribute="MilesPerGal")])
 	colSet = set()
-	for specOptions in Compiler.populateWildcardOptions(df)["attributes"]:
+	for specOptions in Compiler.populateWildcardOptions(df.context,df)["attributes"]:
 		for spec in specOptions:
 			colSet.add(spec.attribute)
 	assert listEqual(list(colSet), list(df.columns))
 
 	df.setContext([lux.Spec(attribute="?",dataModel="measure"), lux.Spec(attribute="MilesPerGal")])
 	colSet = set()
-	for specOptions in Compiler.populateWildcardOptions(df)["attributes"]:
+	for specOptions in Compiler.populateWildcardOptions(df.context,df)["attributes"]:
 		for spec in specOptions:
 			colSet.add(spec.attribute)
 	assert listEqual(list(colSet), ['Acceleration', 'Weight', 'Horsepower', 'MilesPerGal', 'Displacement'])
