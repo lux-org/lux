@@ -61,8 +61,11 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 
 	#for benchmarking
 	if ldf.toggleBenchmarking == True:
+		import pandas as pd
 		toc = time.perf_counter()
-		print(f"Performed correlation action in {toc - tic:0.4f} seconds")
+		benchmarkData = {'action': ['correlation'], 'executor_type': [ldf.executorType], 'time': [toc-tic]}
+		benchmarkData = pd.DataFrame(data = benchmarkData)
+		benchmarkData.to_csv('C:\\Users\\thyne\\Documents\\GitHub\\thyne-lux\\lux\\data\\action_benchmarking.csv', mode = 'a', header = False)
 	return recommendation
 
 def checkTransposeNotComputed(ldf,a,b):

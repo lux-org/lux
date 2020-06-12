@@ -58,6 +58,9 @@ def enhance(ldf):
 	recommendation["collection"] = vc
 	#for benchmarking
 	if ldf.toggleBenchmarking == True:
+		import pandas as pd
 		toc = time.perf_counter()
-		print(f"Performed enhance action in {toc - tic:0.4f} seconds")
+		benchmarkData = {'action': ['enhance'], 'executor_type': [ldf.executorType], 'time': [toc-tic]}
+		benchmarkData = pd.DataFrame(data = benchmarkData)
+		benchmarkData.to_csv('C:\\Users\\thyne\\Documents\\GitHub\\thyne-lux\\lux\\data\\action_benchmarking.csv', mode = 'a', header = False)
 	return recommendation
