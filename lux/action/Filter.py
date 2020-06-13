@@ -66,9 +66,7 @@ def filter(ldf):
 				tempView = View(newSpec)
 				output.append(tempView)
 	vc = lux.view.ViewCollection.ViewCollection(output)
-	vc = Compiler.compile(ldf,ldf.context,vc,enumerateCollection=False)
-	
-	ldf.executor.execute(vc,ldf)
+	vc = vc.load(ldf)
 	for view in vc:
 		view.score = interestingness(view,ldf)
 	vc = vc.topK(10)

@@ -10,16 +10,22 @@ class ViewCollection():
 	'''
 	def __init__(self,inputLst:Union[List[View],List[Spec]]):
 		# Overloaded Constructor
+		self.inputLst = inputLst
 		if len(inputLst)>0:
-			if (type(inputLst[0])==View):
+			if (self._isViewInput()):
 				self.collection = inputLst
-				self.inputType = "View"
-			elif (type(inputLst[0])==Spec):
+				self.specLst = []
+			else:
 				self.specLst = inputLst
 				self.collection = []
-				self.inputType = "Spec"
 		else:
 			self.collection = []
+			self.specLst = []
+	def _isViewInput(self):
+		if (type(self.inputLst[0])==View):
+			return True
+		elif (type(self.inputLst[0])==Spec):
+			return False
 	def __getitem__(self, key):
 		return self.collection[key]
 	def __setitem__(self, key, value):
@@ -172,14 +178,17 @@ class ViewCollection():
 		from lux.compiler.Validator import Validator
 		from lux.compiler.Compiler import Compiler
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
-		if (self.inputType=="View"):
-			for view in self.collection:
-				view.specLst = Parser.parse(view.specLst)
-				Validator.validateSpec(view.specLst,ldf)
-			vc = Compiler.compile(ldf,ldf.context,self.collection,enumerateCollection=False)
-		elif (self.inputType=="Spec"):
-			self.specLst = Parser.parse(self.specLst)
-			Validator.validateSpec(self.specLst,ldf)
-			vc = Compiler.compile(ldf,self.specLst,self)
-		PandasExecutor.execute(vc,ldf)
-		return vc
+		if len(self.inputLst)>0:
+			if (self._isViewInput()):
+				for view in self.collection:
+					view.specLst = Parser.parse(view.specLst)
+					Validator.validateSpec(view.specLst,ldf)
+				vc = Compiler.compile(ldf,ldf.context,self.collection,enumerateCollection=False)
+			else:
+				self.specLst = Parser.parse(self.specLst)
+				Validator.validateSpec(self.specLst,ldf)
+				vc = Compiler.compile(ldf,self.specLst,self)
+			PandasExecutor.execute(vc,ldf)
+			return vc
+		else:
+			return self
