@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import List
 from lux.context.Spec import Spec
 from lux.utils.utils import checkImportLuxWidget
 class View:
@@ -20,21 +21,25 @@ class View:
 		filter_spec = None
 		channels, additional_channels = [], []
 		for spec in self.specLst:
-			if spec.value != "":
-				filter_spec = spec
-			if spec.attribute != "":
-				if spec.aggregation != "":
-					attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
-				elif spec.binSize > 0:
-					attribute = "BIN(" + spec.attribute + ")"
-				else:
-					attribute = spec.attribute
-				if spec.channel == "x":
-					channels.insert(0, [spec.channel, attribute])
-				elif spec.channel == "y":
-					channels.insert(1, [spec.channel, attribute])
-				elif spec.channel != "":
-					additional_channels.append([spec.channel, attribute])
+			
+			if hasattr(spec,"value"):
+				if spec.value != "":
+					filter_spec = spec
+			if hasattr(spec,"attribute"):
+				if spec.attribute != "":
+					if spec.aggregation != "":
+						attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
+					elif spec.binSize > 0:
+						attribute = "BIN(" + spec.attribute + ")"
+					else:
+						attribute = spec.attribute
+					if spec.channel == "x":
+						channels.insert(0, [spec.channel, attribute])
+					elif spec.channel == "y":
+						channels.insert(1, [spec.channel, attribute])
+					elif spec.channel != "":
+						additional_channels.append([spec.channel, attribute])
+				
 		channels.extend(additional_channels)
 		str_channels = ""
 		for channel in channels:
@@ -48,14 +53,17 @@ class View:
 		from IPython.display import display
 		checkImportLuxWidget()
 		import luxWidget
-		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-		# widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderTarget="viewOnly")
-		widget =  luxWidget.LuxWidget(
-                currentView= LuxDataFrame.currentViewToJSON([self]),
-                recommendations=[],
-                context={}
-            )
-		display(widget)
+		if (self.data is None):
+			raise Exception("No data populated in View. Use the 'load' function (e.g., view.load(df)) to populate the view with a data source.")
+		else:
+			from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+			# widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderTarget="viewOnly")
+			widget =  luxWidget.LuxWidget(
+					currentView= LuxDataFrame.currentViewToJSON([self]),
+					recommendations=[],
+					context={}
+				)
+			display(widget)
 	def getAttrByAttrName(self,attrName):
 		return list(filter(lambda x: x.attribute == attrName, self.specLst))
 		

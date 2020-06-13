@@ -97,3 +97,29 @@ So far, we have seen examples of how to express existing use cases based on `lux
 .. code-block:: python
     
     df.setContext([lux.Spec(attribute='AverageCost', channel='y')])
+
+Specifying wildcards
+~~~~~~~~~~~~~~~~~~~~~
+
+Let's say that you are interested in *any* attribute with respect to `AverageCost`. Lux support *wildcards* (based on .. _CompassQL: https://idl.cs.washington.edu/papers/compassql/), which specifies the enumeration of any possible attribute or values that satisfies the provided constraints.
+
+.. code-block:: python
+    
+    df.setContext(['AverageCost',lux.Spec('?')])
+
+The space of enumeration can be narrowed based on constraints. For example, you might only be interested in looking at scatterplots of `AverageCost` with respect to quantitative attributes. 
+
+.. code-block:: python
+    
+    df.setContext(['AverageCost',lux.Spec('?',dataType='quantitative')])
+
+The enumeration specifier can also be placed on the value field. For example, you might be interested in looking at how the distribution of `AverageCost` varies for all possible values of `Geography`.
+
+.. code-block:: python
+    
+    df.setContext(['AverageCost','Geography=?')])
+or 
+
+.. code-block:: python
+
+    df.setContext(['AverageCost',lux.Spec(attribute='Geography',filterOp='=',value='?')])

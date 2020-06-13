@@ -1,5 +1,5 @@
 from lux.context import Spec
-from typing import List, Dict
+from typing import List, Dict, Union
 from lux.view.View import View
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.view.ViewCollection import ViewCollection
@@ -43,7 +43,8 @@ class Compiler:
 		if (enumerateCollection):
 			viewCollection = Compiler.enumerateCollection(specLst,ldf)
 		viewCollection = Compiler.expandUnderspecified(ldf, viewCollection)  # autofill data type/model information
-		viewCollection = Compiler.removeAllInvalid(viewCollection) # remove invalid views from collection
+		if len(viewCollection)>1: 
+			viewCollection = Compiler.removeAllInvalid(viewCollection) # remove invalid views from collection
 		for view in viewCollection:
 			Compiler.determineEncoding(ldf, view)  # autofill viz related information
 		return viewCollection
@@ -133,7 +134,7 @@ class Compiler:
 		return views
 
 	@staticmethod
-	def removeAllInvalid(viewCollection):
+	def removeAllInvalid(viewCollection:ViewCollection) -> ViewCollection:
 		"""
 		Given an expanded view collection, remove all views that are invalid.
 		Currently, the invalid views are ones that contain temporal by temporal attributes or overlapping attributes.
