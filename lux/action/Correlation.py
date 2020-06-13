@@ -38,7 +38,21 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 	# if (ignoreIdentity): vc = filter(lambda x: x.specLst[0].attribute!=x.specLst[1].attribute,ldf.viewCollection)
 	vc = Compiler.compile(ldf, vc, enumerateCollection=False)
 
+	#for benchmarking executor
+	if ldf.toggleBenchmarking == True:
+		ticExec = time.perf_counter()
 	ldf.executor.execute(vc,ldf)
+	if ldf.toggleBenchmarking == True:
+		import pandas as pd
+		tocExec = time.perf_counter()
+		benchmarkData = {'action': ['correlation'], 'executor_type': [ldf.executorType], 'action_phase': ['viewcollection_execution'], 'time': [tocExec-ticExec]}
+		benchmarkData = pd.DataFrame(data = benchmarkData)
+		benchmarkData.to_csv('C:\\Users\\thyne\\Documents\\GitHub\\thyne-lux\\lux\\data\\action_benchmarking.csv', mode = 'a', header = False)
+	recommendation["collection"] = vc
+
+	#for benchmarking interestingness calculation
+	if ldf.toggleBenchmarking == True:
+		ticInt = time.perf_counter()
 	# Then use the data populated in the view collection to compute score
 	for view in vc:
 		measures = view.getAttrByDataModel("measure")
@@ -54,6 +68,11 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 			view.score = interestingness(view,ldf)
 		else:
 			view.score = -1
+	if ldf.toggleBenchmarking == True:
+		tocInt = time.perf_counter()
+		benchmarkData = {'action': ['correlation'], 'executor_type': [ldf.executorType], 'action_phase': ['interestingness_scoring'], 'time': [tocInt-ticInt]}
+		benchmarkData = pd.DataFrame(data = benchmarkData)
+		benchmarkData.to_csv('C:\\Users\\thyne\\Documents\\GitHub\\thyne-lux\\lux\\data\\action_benchmarking.csv', mode = 'a', header = False)
 	vc = vc.topK(15)
 	vc.sort(removeInvalid=True)
 	ldf.clearContext()
@@ -61,9 +80,8 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 
 	#for benchmarking
 	if ldf.toggleBenchmarking == True:
-		import pandas as pd
 		toc = time.perf_counter()
-		benchmarkData = {'action': ['correlation'], 'executor_type': [ldf.executorType], 'time': [toc-tic]}
+		benchmarkData = {'action': ['correlation'], 'executor_type': [ldf.executorType], 'action_phase':['entire_action'],'time': [toc-tic]}
 		benchmarkData = pd.DataFrame(data = benchmarkData)
 		benchmarkData.to_csv('C:\\Users\\thyne\\Documents\\GitHub\\thyne-lux\\lux\\data\\action_benchmarking.csv', mode = 'a', header = False)
 	return recommendation

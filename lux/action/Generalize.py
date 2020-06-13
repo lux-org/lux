@@ -62,17 +62,35 @@ def generalize(ldf):
 		
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
+
+	#for benchmarking executor
+	if ldf.toggleBenchmarking == True:
+		ticExec = time.perf_counter()
 	ldf.executor.execute(vc,ldf)
+	if ldf.toggleBenchmarking == True:
+		tocExec = time.perf_counter()
+		benchmarkData = {'action': ['generalize'], 'executor_type': [ldf.executorType], 'action_phase': ['viewcollection_execution'], 'time': [tocExec-ticExec]}
+		benchmarkData = pd.DataFrame(data = benchmarkData)
+		benchmarkData.to_csv('C:\\Users\\thyne\\Documents\\GitHub\\thyne-lux\\lux\\data\\action_benchmarking.csv', mode = 'a', header = False)
 	recommendation["collection"] = vc
+
+	#for benchmarking interestingness
+	if ldf.toggleBenchmarking == True:
+		ticInt = time.perf_counter()
 	for view in vc:
 		view.score = interestingness(view,ldf)
+	if ldf.toggleBenchmarking == True:
+		tocInt = time.perf_counter()
+		benchmarkData = {'action': ['generalize'], 'executor_type': [ldf.executorType], 'action_phase': ['interestingness_scoring'], 'time': [tocInt-ticInt]}
+		benchmarkData = pd.DataFrame(data = benchmarkData)
+		benchmarkData.to_csv('C:\\Users\\thyne\\Documents\\GitHub\\thyne-lux\\lux\\data\\action_benchmarking.csv', mode = 'a', header = False)
 	vc = vc.topK(10)
 	vc.sort(removeInvalid=True)
 	#for benchmarking
 	if ldf.toggleBenchmarking == True:
 		import pandas as pd
 		toc = time.perf_counter()
-		benchmarkData = {'action': ['generalize'], 'executor_type': [ldf.executorType], 'time': [toc-tic]}
+		benchmarkData = {'action': ['generalize'], 'executor_type': [ldf.executorType], 'action_phase':['entire_action'],'time': [toc-tic]}
 		benchmarkData = pd.DataFrame(data = benchmarkData)
 		benchmarkData.to_csv('C:\\Users\\thyne\\Documents\\GitHub\\thyne-lux\\lux\\data\\action_benchmarking.csv', mode = 'a', header = False)
 	return recommendation

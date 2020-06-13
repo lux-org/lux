@@ -46,11 +46,28 @@ def enhance(ldf):
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = Compiler.compile(ldf,vc,enumerateCollection=False)
 	
+	#for benchmarking executor
+	if ldf.toggleBenchmarking == True:
+		ticExec = time.perf_counter()
 	ldf.executor.execute(vc,ldf)
-		
-	# Then use the data populated in the view collection to compute score
+	if ldf.toggleBenchmarking == True:
+		import pandas as pd
+		tocExec = time.perf_counter()
+		benchmarkData = {'action': ['enhance'], 'executor_type': [ldf.executorType], 'action_phase': ['viewcollection_execution'], 'time': [tocExec-ticExec]}
+		benchmarkData = pd.DataFrame(data = benchmarkData)
+		benchmarkData.to_csv('C:\\Users\\thyne\\Documents\\GitHub\\thyne-lux\\lux\\data\\action_benchmarking.csv', mode = 'a', header = False)
+	recommendation["collection"] = vc
+
+	#for benchmarking interestingness
+	if ldf.toggleBenchmarking == True:
+		ticInt = time.perf_counter()
 	for view in vc:
 		view.score = interestingness(view,ldf)
+	if ldf.toggleBenchmarking == True:
+		tocInt = time.perf_counter()
+		benchmarkData = {'action': ['enhance'], 'executor_type': [ldf.executorType], 'action_phase': ['interestingness_scoring'], 'time': [tocInt-ticInt]}
+		benchmarkData = pd.DataFrame(data = benchmarkData)
+		benchmarkData.to_csv('C:\\Users\\thyne\\Documents\\GitHub\\thyne-lux\\lux\\data\\action_benchmarking.csv', mode = 'a', header = False)
 		# TODO: if (ldf.dataset.cardinality[cVar]>10): score is -1. add in interestingness
 	
 	vc = vc.topK(10)
@@ -58,9 +75,8 @@ def enhance(ldf):
 	recommendation["collection"] = vc
 	#for benchmarking
 	if ldf.toggleBenchmarking == True:
-		import pandas as pd
 		toc = time.perf_counter()
-		benchmarkData = {'action': ['enhance'], 'executor_type': [ldf.executorType], 'time': [toc-tic]}
+		benchmarkData = {'action': ['enhance'], 'executor_type': [ldf.executorType], 'action_phase':['entire_action'],'time': [toc-tic]}
 		benchmarkData = pd.DataFrame(data = benchmarkData)
 		benchmarkData.to_csv('C:\\Users\\thyne\\Documents\\GitHub\\thyne-lux\\lux\\data\\action_benchmarking.csv', mode = 'a', header = False)
 	return recommendation
