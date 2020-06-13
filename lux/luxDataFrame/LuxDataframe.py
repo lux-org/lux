@@ -1,5 +1,6 @@
 import pandas as pd
 from lux.context.Spec import Spec
+from lux.view.View import View
 from lux.view.ViewCollection import ViewCollection
 from lux.utils.utils import checkImportLuxWidget
 #import for benchmarking
@@ -47,7 +48,7 @@ class LuxDataFrame(pd.DataFrame):
         if (exe =="SQL"):
             import pkgutil
             if (pkgutil.find_loader("psycopg2") is None):
-                raise Exception("psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection.")
+                raise ImportError("psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection.")
             else:
                 import psycopg2
             from lux.executor.SQLExecutor import SQLExecutor
@@ -87,6 +88,18 @@ class LuxDataFrame(pd.DataFrame):
         """        
         self.context = context
         self._refreshContext()
+    def setContextAsView(self,view:View):
+        """
+        Set context of the dataframe as the View
+
+        Parameters
+        ----------
+        view : View
+            [description]
+        """        
+        self.context = view.specLst
+        self._refreshContext()
+
     def clearContext(self):
         self.context = []
         self.viewCollection = []
