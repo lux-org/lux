@@ -21,6 +21,7 @@ class View:
 		filter_spec = None
 		channels, additional_channels = [], []
 		for spec in self.specLst:
+
 			if hasattr(spec,"value"):
 				if spec.value != "":
 					filter_spec = spec
@@ -38,6 +39,7 @@ class View:
 						channels.insert(1, [spec.channel, attribute])
 					elif spec.channel != "":
 						additional_channels.append([spec.channel, attribute])
+						
 		channels.extend(additional_channels)
 		str_channels = ""
 		for channel in channels:
