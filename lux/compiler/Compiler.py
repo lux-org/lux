@@ -1,5 +1,5 @@
 from lux.context import Spec
-from typing import List, Dict
+from typing import List, Dict, Union
 from lux.view.View import View
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.view.ViewCollection import ViewCollection
@@ -19,7 +19,7 @@ class Compiler:
 		return f"<Compiler>"
 
 	@staticmethod
-	def compile(ldf: LuxDataFrame, viewCollection: ViewCollection, enumerateCollection=True) -> ViewCollection:
+	def compile(ldf: LuxDataFrame,specLst:List[Spec], viewCollection: ViewCollection, enumerateCollection=True) -> ViewCollection:
 		"""
 		Compiles input specifications in the context of the ldf into a collection of lux.View objects for visualization.
 		1) Enumerate a collection of views interested by the user to generate a view collection
@@ -40,22 +40,17 @@ class Compiler:
 		viewCollection: list[lux.View]
 			view collection with compiled lux.View objects.
 		"""
-		# 1. If the DataObj represent a collection, then compile it into a collection. Otherwise, return False
-		# Input: DataObj --> Output: DataObjCollection/False
 		if (enumerateCollection):
-			viewCollection = Compiler.enumerateCollection(ldf)
-		# else:
-		# 	dataObjCollection = False
-		# 2. For every DataObject in the DataObject Collection, expand underspecified
-		# Output : DataObj/DataObjectCollection
-		# compiledCollection = []
+			viewCollection = Compiler.enumerateCollection(specLst,ldf)
 		viewCollection = Compiler.expandUnderspecified(ldf, viewCollection)  # autofill data type/model information
+		if len(viewCollection)>1: 
+			viewCollection = Compiler.removeAllInvalid(viewCollection) # remove invalid views from collection
 		for view in viewCollection:
 			Compiler.determineEncoding(ldf, view)  # autofill viz related information
 		return viewCollection
 
 	@staticmethod
-	def enumerateCollection(ldf: LuxDataFrame) -> ViewCollection:
+	def enumerateCollection(specLst:List[Spec],ldf: LuxDataFrame) -> ViewCollection:
 		"""
 		Given specifications that have been expanded thorught populateOptions,
 		recursively iterate over the resulting list combinations to generate a View collection.
@@ -71,7 +66,7 @@ class Compiler:
 			view collection with compiled lux.View objects.
 		"""
 		import copy
-		specs = Compiler.populateWildcardOptions(ldf)
+		specs = Compiler.populateWildcardOptions(specLst,ldf)
 		attributes = specs['attributes']
 		filters = specs['filters']
 		if len(attributes) == 0 and len(filters) > 0:
@@ -97,7 +92,6 @@ class Compiler:
 						collection.append(view)
 				else:
 					combine(colAttrs[1:], columnList)
-
 		combine(attributes, [])
 		return ViewCollection(collection)
 
@@ -111,6 +105,8 @@ class Compiler:
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context
 
+		viewCollection : list[lux.view.View]
+			List of lux.View objects that will have their underspecified Spec details filled out.
 		Returns
 		-------
 		views: list[lux.View]
@@ -136,6 +132,36 @@ class Compiler:
 						chartTitle = spec.value
 					view.title = f"{spec.attribute} {spec.filterOp} {chartTitle}"
 		return views
+
+	@staticmethod
+	def removeAllInvalid(viewCollection:ViewCollection) -> ViewCollection:
+		"""
+		Given an expanded view collection, remove all views that are invalid.
+		Currently, the invalid views are ones that contain temporal by temporal attributes or overlapping attributes.
+		Parameters
+		----------
+		viewCollection : list[lux.view.View]
+			empty list that will be populated with specified lux.View objects.
+		Returns
+		-------
+		views: list[lux.View]
+			view collection with compiled lux.View objects.
+		"""
+		newVC = []
+
+		for view in viewCollection:
+			numTemporalSpecs = 0
+			attributeSet = set()
+			for spec in view.specLst:
+				attributeSet.add(spec.attribute)
+				if spec.dataType == "temporal":
+					numTemporalSpecs += 1
+			allDistinctSpecs = 0 == len(view.specLst) - len(attributeSet)
+			if numTemporalSpecs <= 1 or allDistinctSpecs:
+				newVC.append(view)
+
+		return ViewCollection(newVC)
+
 	@staticmethod
 	def determineEncoding(ldf: LuxDataFrame,view: View):
 		'''
@@ -195,13 +221,13 @@ class Compiler:
 		# zAttr = view.getAttrByChannel("z")
 		autoChannel={}
 		if (Ndim == 0 and Nmsr == 1):
-			# Histogram with Count on the y axis
-			measure = view.getAttrByDataModel("measure")[0]
-			view.specLst.append(countCol)
+			# Histogram with Count 
+			measure = view.getAttrByDataModel("measure",excludeRecord=True)[0]
+			if (len(view.getAttrByAttrName("Record"))<0):
+				view.specLst.append(countCol)
 			# If no bin specified, then default as 10
 			if (measure.binSize == 0):
 				measure.binSize = 10
-			# measure.channel = "x"
 			autoChannel = {"x": measure, "y": countCol}
 			view.xMinMax = ldf.xMinMax
 			view.mark = "histogram"
@@ -322,7 +348,8 @@ class Compiler:
 		return view
 
 	@staticmethod
-	def populateWildcardOptions(ldf: LuxDataFrame) -> dict:
+	# def populateWildcardOptions(ldf: LuxDataFrame) -> dict:
+	def populateWildcardOptions(specLst:List[Spec],ldf: LuxDataFrame) -> dict:
 		"""
 		Given wildcards and constraints in the LuxDataFrame's context,
 		return the list of available values that satisfies the dataType or dataModel constraints.
@@ -341,7 +368,7 @@ class Compiler:
 		from lux.utils.utils import convert2List
 
 		specs = {"attributes": [], "filters": []}
-		for spec in ldf.context:
+		for spec in specLst:
 			specOptions = []
 			if spec.value == "":  # attribute
 				if spec.attribute == "?":
@@ -365,8 +392,8 @@ class Compiler:
 					options = []
 					if spec.value == "?":
 						options = ldf.uniqueValues[attr]
-						specInd = ldf.context.index(spec)
-						ldf.context[specInd] = Spec(attribute=spec.attribute, filterOp="=", value=list(options))
+						specInd = specLst.index(spec)
+						specLst[specInd] = Spec(attribute=spec.attribute, filterOp="=", value=list(options))
 					else:
 						options.extend(convert2List(spec.value))
 					for optStr in options:

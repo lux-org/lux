@@ -1,12 +1,31 @@
+from __future__ import annotations
 from lux.vizLib.altair.AltairRenderer import AltairRenderer
 from lux.utils.utils import checkImportLuxWidget
+from typing import List, Union
+from lux.view.View import View
+from lux.context.Spec import Spec
 class ViewCollection():
 	'''
 	ViewCollection is a list of View objects. 
 	'''
-	def __init__(self,collection):
-		self.collection=collection
-
+	def __init__(self,inputLst:Union[List[View],List[Spec]]):
+		# Overloaded Constructor
+		self.inputLst = inputLst
+		if len(inputLst)>0:
+			if (self._isViewInput()):
+				self.collection = inputLst
+				self.specLst = []
+			else:
+				self.specLst = inputLst
+				self.collection = []
+		else:
+			self.collection = []
+			self.specLst = []
+	def _isViewInput(self):
+		if (type(self.inputLst[0])==View):
+			return True
+		elif (type(self.inputLst[0])==Spec):
+			return False
 	def __getitem__(self, key):
 		return self.collection[key]
 	def __setitem__(self, key, value):
@@ -136,3 +155,40 @@ class ViewCollection():
 				context={}
 			)
 		display(widget)	
+	
+	def load(self, ldf) -> ViewCollection:
+		"""
+		Loading the data into the views in the ViewCollection by instantiating the specification and populating the view based on the data, effectively "materializing" the view.
+
+		Parameters
+		----------
+		ldf : LuxDataframe
+			Input Dataframe to be attached to the ViewCollection
+
+		Returns
+		-------
+		ViewCollection
+			Complete ViewCollection with fully-specified fields
+		
+		See Also
+		--------
+		lux.view.View.load
+		"""		
+		from lux.compiler.Parser import Parser
+		from lux.compiler.Validator import Validator
+		from lux.compiler.Compiler import Compiler
+		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
+		if len(self.inputLst)>0:
+			if (self._isViewInput()):
+				for view in self.collection:
+					view.specLst = Parser.parse(view.specLst)
+					Validator.validateSpec(view.specLst,ldf)
+				vc = Compiler.compile(ldf,ldf.context,self.collection,enumerateCollection=False)
+			else:
+				self.specLst = Parser.parse(self.specLst)
+				Validator.validateSpec(self.specLst,ldf)
+				vc = Compiler.compile(ldf,self.specLst,self)
+			PandasExecutor.execute(vc,ldf)
+			return vc
+		else:
+			return self

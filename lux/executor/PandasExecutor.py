@@ -125,7 +125,7 @@ class PandasExecutor(Executor):
         #binEdges of size N+1, so need to compute binCenter as the bin location
         binCenter = np.mean(np.vstack([binEdges[0:-1],binEdges[1:]]), axis=0)
         # TODO: Should view.data be a LuxDataFrame or a Pandas DataFrame?
-        view.data = pd.DataFrame(np.array([binCenter,counts]).T,columns=[binAttribute.attribute, "Count of Records (binned)"])        
+        view.data = pd.DataFrame(np.array([binCenter,counts]).T,columns=[binAttribute.attribute, "Count of Records"])        
         
     @staticmethod
     def executeFilter(view: View):
