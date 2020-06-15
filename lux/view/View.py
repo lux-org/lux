@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Callable
 from lux.context.Spec import Spec
 from lux.utils.utils import checkImportLuxWidget
 class View:
@@ -15,6 +15,7 @@ class View:
 		self.data = None
 		self.score = 0.0
 		self.vis = None
+		self.plotConfig = None
 		self.xMinMax = {}
 		self.yMinMax = {}
 	def __repr__(self):
