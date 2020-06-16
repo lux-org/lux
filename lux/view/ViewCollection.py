@@ -127,11 +127,11 @@ class ViewCollection():
 
 	def topK(self,k):
 		#sort and truncate list to first K items
-		self.sort()
+		self.sort(removeInvalid=True)
 		return ViewCollection(self.collection[:k])
 	def bottomK(self,k):
 		#sort and truncate list to first K items
-		self.sort(descending=False)
+		self.sort(descending=False,removeInvalid=True)
 		return ViewCollection(self.collection[:k])
 	def normalizeScore(self, invertOrder = False):
 		maxScore = max(list(self.get("score")))

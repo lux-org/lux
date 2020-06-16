@@ -69,8 +69,7 @@ def filter(ldf):
 	vc = vc.load(ldf)
 	for view in vc:
 		view.score = interestingness(view,ldf)
-	vc = vc.topK(10)
-	vc.sort(removeInvalid=True)
+	vc = vc.topK(15)
 	recommendation["collection"] = vc
 	
 	#for benchmarking
