@@ -65,7 +65,6 @@ def generalize(ldf):
 	recommendation["collection"] = vc
 	for view in vc:
 		view.score = interestingness(view,ldf)
-	vc = vc.topK(10)
 	vc.sort(removeInvalid=True)
 	#for benchmarking
 	if ldf.toggleBenchmarking == True:

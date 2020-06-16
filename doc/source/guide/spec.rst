@@ -101,7 +101,7 @@ So far, we have seen examples of how to express existing use cases based on `lux
 Specifying wildcards
 ~~~~~~~~~~~~~~~~~~~~~
 
-Let's say that you are interested in *any* attribute with respect to `AverageCost`. Lux support *wildcards* (based on .. _CompassQL: https://idl.cs.washington.edu/papers/compassql/), which specifies the enumeration of any possible attribute or values that satisfies the provided constraints.
+Let's say that you are interested in *any* attribute with respect to `AverageCost`. Lux support *wildcards* (based on `CompassQL <https://idl.cs.washington.edu/papers/compassql/>`_ ), which specifies the enumeration of any possible attribute or values that satisfies the provided constraints.
 
 .. code-block:: python
     

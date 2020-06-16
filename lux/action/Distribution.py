@@ -42,8 +42,7 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 	vc = vc.load(ldf)	
 	for view in vc:
 		view.score = interestingness(view,ldf)
-	vc = vc.topK(10)
-	vc.sort()
+	vc = vc.topK(15)
 	recommendation["collection"] = vc
 	#for benchmarking
 	if ldf.toggleBenchmarking == True:

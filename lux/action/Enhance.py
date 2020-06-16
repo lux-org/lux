@@ -51,8 +51,7 @@ def enhance(ldf):
 		view.score = interestingness(view,ldf)
 		# TODO: if (ldf.dataset.cardinality[cVar]>10): score is -1. add in interestingness
 	
-	vc = vc.topK(10)
-	vc.sort(removeInvalid=True)
+	vc = vc.topK(15)
 	recommendation["collection"] = vc
 	#for benchmarking
 	if ldf.toggleBenchmarking == True:
