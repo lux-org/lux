@@ -60,7 +60,7 @@ class LuxDataFrame(pd.DataFrame):
         self.executorType = exe
     def setPlotConfig(self,configFunc:typing.Callable):
         """
-        Modify plot aesthetic settings to the Altair chart object 
+        Modify plot aesthetic settings to all Views in the dataframe display
         Currently only supported for Altair visualizations
 
         Parameters
