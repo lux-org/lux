@@ -1,7 +1,7 @@
 from __future__ import annotations
 from lux.vizLib.altair.AltairRenderer import AltairRenderer
 from lux.utils.utils import checkImportLuxWidget
-from typing import List, Union
+from typing import List, Union, Callable
 from lux.view.View import View
 from lux.context.Spec import Spec
 class ViewCollection():
@@ -118,7 +118,21 @@ class ViewCollection():
 
 	def set(self,fieldName,fieldVal):
 		return NotImplemented
+	def setPlotConfig(self,configFunc:Callable):
+		"""
+		Modify plot aesthetic settings to the View Collection
+		Currently only supported for Altair visualizations
 
+		Parameters
+		----------
+		configFunc : typing.Callable
+			A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
+		"""
+		for view in self.collection:
+			view.plotConfig = configFunc
+	def clearPlotConfig(self):
+		for view in self.collection:
+			view.plotConfig = None
 	def sort(self, removeInvalid=True, descending = True):
 		# remove the items that have invalid (-1) score
 		if (removeInvalid): self.collection = list(filter(lambda x: x.score!=-1,self.collection))

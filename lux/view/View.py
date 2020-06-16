@@ -8,7 +8,6 @@ class View:
 	'''
 
 	def __init__(self, specLst, mark="", title=""):
-		# self.specLst = Parser.parse(specLst) #TODO: make sure this is not duplicated for programmatically generated views
 		self.specLst = specLst
 		self.title = title
 		self.mark = mark
@@ -50,6 +49,19 @@ class View:
 			return f"<View  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filterOp}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
 			return f"<View  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
+	def setPlotConfig(self,configFunc:Callable):
+		"""
+		Modify plot aesthetic settings to the View
+		Currently only supported for Altair visualizations
+
+		Parameters
+		----------
+		configFunc : typing.Callable
+			A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
+		"""
+		self.plotConfig = configFunc
+	def clearPlotConfig(self):
+		self.plotConfig = None
 	def _repr_html_(self):
 		from IPython.display import display
 		checkImportLuxWidget()
