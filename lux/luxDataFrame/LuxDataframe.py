@@ -1,5 +1,6 @@
 import pandas as pd
 from lux.context.Spec import Spec
+from lux.view.View import View
 from lux.view.ViewCollection import ViewCollection
 from lux.utils.utils import checkImportLuxWidget
 #import for benchmarking
@@ -12,7 +13,7 @@ class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','dataTypeLookup','dataType','filterSpecs',
                  'dataModelLookup','dataModel','uniqueValues','cardinality',
-                 'xMinMax', 'yMinMax',
+                 'xMinMax', 'yMinMax','plotConfig',
                  'viewCollection','widget', '_recInfo', 'recommendation']
 
     def __init__(self,*args, **kw):
@@ -23,7 +24,6 @@ class LuxDataFrame(pd.DataFrame):
         self.viewCollection = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
-        tic = time.perf_counter()
         self.computeStats()
         self.computeDatasetMetadata()
 
@@ -34,6 +34,7 @@ class LuxDataFrame(pd.DataFrame):
         self.filterSpecs = []
         self.togglePandasView = True
         self.toggleBenchmarking = False
+        self.plotConfig = None
 
     @property
     def _constructor(self):
@@ -47,7 +48,7 @@ class LuxDataFrame(pd.DataFrame):
         if (exe =="SQL"):
             import pkgutil
             if (pkgutil.find_loader("psycopg2") is None):
-                raise Exception("psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection.")
+                raise ImportError("psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection.")
             else:
                 import psycopg2
             from lux.executor.SQLExecutor import SQLExecutor
@@ -56,6 +57,40 @@ class LuxDataFrame(pd.DataFrame):
             from lux.executor.PandasExecutor import PandasExecutor
             self.executor = PandasExecutor
         self.executorType = exe
+    def setPlotConfig(self,configFunc:typing.Callable):
+        """
+        Modify plot aesthetic settings to all Views in the dataframe display
+        Currently only supported for Altair visualizations
+
+        Parameters
+        ----------
+        configFunc : typing.Callable
+            A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
+        
+        Example
+        ----------
+        Changing the color of marks and adding a title for all charts displayed for this dataframe
+
+        >>> df = pd.read_csv("lux/data/car.csv")
+        >>> def changeColorAddTitle(chart):
+                chart = chart.configure_mark(color="red") # change mark color to red
+                chart.title = "Custom Title" # add title to chart
+                return chart
+        >>> df.setPlotConfig(changeColorAddTitle)
+        >>> df
+
+        Change the opacity of all scatterplots displayed for this dataframe
+        >>> df = pd.read_csv("lux/data/olympic.csv")
+        >>> def changeOpacityScatterOnly(chart):
+                if chart.mark=='circle':
+                    chart = chart.configure_mark(opacity=0.1) # lower opacity
+                return chart
+        >>> df.setPlotConfig(changeOpacityScatterOnly)
+        >>> df
+        """        
+        self.plotConfig = configFunc
+    def clearPlotConfig(self):
+        self.plotConfig = None
     def setViewCollection(self,viewCollection):
         self.viewCollection = viewCollection 
     def _refreshContext(self):
@@ -66,9 +101,9 @@ class LuxDataFrame(pd.DataFrame):
         if self.SQLconnection == "":
             self.computeStats()
             self.computeDatasetMetadata()
-        Parser.parse(self)
-        Validator.validateSpec(self)
-        viewCollection = Compiler.compile(self,self.viewCollection)
+        self.context = Parser.parse(self.getContext())
+        Validator.validateSpec(self.context,self)
+        viewCollection = Compiler.compile(self,self.context,self.viewCollection)
         self.setViewCollection(viewCollection)
 
     def setContext(self,context:typing.List[typing.Union[str,Spec]]):
@@ -87,6 +122,18 @@ class LuxDataFrame(pd.DataFrame):
         """        
         self.context = context
         self._refreshContext()
+    def setContextAsView(self,view:View):
+        """
+        Set context of the dataframe as the View
+
+        Parameters
+        ----------
+        view : View
+            [description]
+        """        
+        self.context = view.specLst
+        self._refreshContext()
+
     def clearContext(self):
         self.context = []
         self.viewCollection = []
@@ -215,7 +262,7 @@ class LuxDataFrame(pd.DataFrame):
         for attribute in self.columns:
             if self.dataTypeLookup[attribute] == 'quantitative':
                 self.xMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[attribute]))
-                self.yMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[dimension]))
+                self.yMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[attribute]))
 
     def getSQLAttributes(self):
         if "." in self.table_name:
@@ -311,6 +358,8 @@ class LuxDataFrame(pd.DataFrame):
         for recInfo in self._recInfo: 
             actionType = recInfo["action"]
             vc = recInfo["collection"]
+            if (self.plotConfig):
+                for view in vc: view.plotConfig = self.plotConfig
             self.recommendation[actionType]  = vc
 
         self.clearFilter()
@@ -325,6 +374,10 @@ class LuxDataFrame(pd.DataFrame):
 
     def getExported(self) -> typing.Union[typing.Dict[str,ViewCollection], ViewCollection]:
         """
+        Get selected views as exported View Collection
+
+        Notes
+        -----
         Convert the _exportedVisIdxs dictionary into a programmable ViewCollection
         Example _exportedVisIdxs : 
             {'Correlation': [0, 2], 'Category': [1]}
@@ -339,6 +392,10 @@ class LuxDataFrame(pd.DataFrame):
         """        
         exportedVisLst =self.widget._exportedVisIdxs
         exportedViews = [] 
+        if (exportedVisLst=={}):
+            import warnings
+            warnings.warn("No visualization selected to export")
+            return []
         if len(exportedVisLst) == 1 : 
             exportAction = list(exportedVisLst.keys())[0]
             exportedViews = ViewCollection(list(map(self.recommendation[exportAction].__getitem__, exportedVisLst[exportAction])))
@@ -424,13 +481,6 @@ class LuxDataFrame(pd.DataFrame):
         widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.viewCollection,inputCurrentView)
         
         widgetSpec["recommendation"] = []
-        # if (len(self.viewCollection)>1):
-        #     widgetSpec["recommendation"] = [
-        #         {"action": "Vis Collection",
-        #         "description": "The collection of visualizations generated by the specified context.",
-        #         "collection": self.viewCollection
-        #     }
-        #     ]
         
         # Recommended Collection
         recCollection = LuxDataFrame.recToJSON(self._recInfo)

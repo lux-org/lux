@@ -2,6 +2,7 @@ import lux
 from lux.interestingness.interestingness import interestingness
 from lux.compiler.Compiler import Compiler
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+from lux.view.ViewCollection import ViewCollection
 #for benchmarking
 import time
 # change ignoreTranspose to false for now.
@@ -27,18 +28,12 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 	if ldf.toggleBenchmarking == True:
 		tic = time.perf_counter()
 
-	context = [lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")]
-	context.extend(ldf.filterSpecs)
-
-	ldf.setContext(context)
-
+	query = [lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")]
+	query.extend(ldf.filterSpecs)
+	vc = ViewCollection(query)
 	recommendation = {"action":"Correlation",
 						   "description":"Show relationships between two quantitative variables."}
-	vc = ldf.viewCollection
-	# if (ignoreIdentity): vc = filter(lambda x: x.specLst[0].attribute!=x.specLst[1].attribute,ldf.viewCollection)
-	vc = Compiler.compile(ldf, vc, enumerateCollection=False)
-
-	ldf.executor.execute(vc,ldf)
+	vc = vc.load(ldf)
 	# Then use the data populated in the view collection to compute score
 	for view in vc:
 		measures = view.getAttrByDataModel("measure")
@@ -55,8 +50,6 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 		else:
 			view.score = -1
 	vc = vc.topK(15)
-	vc.sort(removeInvalid=True)
-	ldf.clearContext()
 	recommendation["collection"] = vc
 
 	#for benchmarking

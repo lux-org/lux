@@ -27,11 +27,10 @@ def similarPattern(ldf,queryContext,topK=-1):
     rowSpecs = list(filter(lambda x: x.value != "", queryContext))
     if(len(rowSpecs) == 1):
         searchSpaceVC = ViewCollection(ldf.viewCollection.collection.copy())
-        ldf.executor.execute(searchSpaceVC,ldf)
+        searchSpaceVC = searchSpaceVC.load(ldf)
 
-        ldf.setContext(queryContext)
-        queryVC = ldf.viewCollection
-        ldf.executor.execute(queryVC, ldf)
+        queryVC = ViewCollection(queryContext)
+        queryVC = queryVC.load(ldf)        
         queryView = queryVC[0]
         preprocess(queryView)
         #for loop to create assign euclidean distance
@@ -41,7 +40,6 @@ def similarPattern(ldf,queryContext,topK=-1):
             preprocess(view)
             view.score = euclideanDist(queryView, view)
         searchSpaceVC.normalizeScore(invertOrder=True)
-        searchSpaceVC.sort(removeInvalid=True)
         if(topK!=-1):
             searchSpaceVC = searchSpaceVC.topK(topK)
         recommendation["collection"] = searchSpaceVC

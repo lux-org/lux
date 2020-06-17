@@ -26,6 +26,7 @@ class SQLExecutor(Executor):
         3) return a DataFrame with relevant results
         '''
         for view in viewCollection:
+            print(view, utils.getFilterSpecs(view.specLst))
             # Select relevant data based on attribute information
             attributes = set([])
             for spec in view.specLst:
@@ -81,6 +82,14 @@ class SQLExecutor(Executor):
                     meanQuery = "SELECT {}, AVG({}) as {} FROM {} {} GROUP BY {}".format(groupbyAttr.attribute, measureAttr.attribute, measureAttr.attribute, ldf.table_name, whereClause, groupbyAttr.attribute)
                     view.data = pd.read_sql(meanQuery, ldf.SQLconnection)
                     view.data = utils.pandasToLux(view.data)
+                if aggFunc == "sum":
+                    meanQuery = "SELECT {}, SUM({}) as {} FROM {} {} GROUP BY {}".format(groupbyAttr.attribute, measureAttr.attribute, measureAttr.attribute, ldf.table_name, whereClause, groupbyAttr.attribute)
+                    view.data = pd.read_sql(meanQuery, ldf.SQLconnection)
+                    view.data = utils.pandasToLux(view.data)
+                if aggFunc == "max":
+                    meanQuery = "SELECT {}, MAX({}) as {} FROM {} {} GROUP BY {}".format(groupbyAttr.attribute, measureAttr.attribute, measureAttr.attribute, ldf.table_name, whereClause, groupbyAttr.attribute)
+                    view.data = pd.read_sql(meanQuery, ldf.SQLconnection)
+                    view.data = utils.pandasToLux(view.data)
     @staticmethod
     def executeBinning(view:View, ldf:LuxDataFrame):
         import numpy as np
@@ -124,7 +133,7 @@ class SQLExecutor(Executor):
                 if i not in bucketLables:
                     binCountData = binCountData.append(pd.DataFrame([[i,0]], columns = binCountData.columns))
 
-        view.data = pd.DataFrame(np.array([binCenters,list(binCountData['count'])]).T,columns=[binAttribute.attribute, "Count of Records"])
+        view.data = pd.DataFrame(np.array([binCenters,list(binCountData['count'])]).T,columns=[binAttribute.attribute, "Count of Records (binned)"])
         view.data = utils.pandasToLux(view.data)
         
     @staticmethod

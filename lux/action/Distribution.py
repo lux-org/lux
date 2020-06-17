@@ -1,4 +1,5 @@
 from lux.interestingness.interestingness import interestingness
+from lux.view.ViewCollection import ViewCollection
 import lux
 #for benchmarking
 import time
@@ -28,28 +29,21 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 		tic = time.perf_counter()
 
 	if (dataTypeConstraint=="quantitative"):
-		context = [lux.Spec("?",dataType="quantitative")]
-		context.extend(ldf.filterSpecs)
-		ldf.setContext(context)
+		query = [lux.Spec("?",dataType="quantitative")]
+		query.extend(ldf.filterSpecs)
 		recommendation = {"action":"Distribution",
 							"description":"Show univariate count distributions of different attributes in the dataset."}
 	elif (dataTypeConstraint=="nominal"):
-		context = [lux.Spec("?",dataType="nominal")]
-		context.extend(ldf.filterSpecs)
-		ldf.setContext(context)
+		query = [lux.Spec("?",dataType="nominal")]
+		query.extend(ldf.filterSpecs)
 		recommendation = {"action":"Category",
 						   "description":"Show bar chart distributions of different attributes in the dataset."}
-
-	vc = ldf.viewCollection
-	ldf.executor.execute(vc,ldf)
+	vc = ViewCollection(query)
+	vc = vc.load(ldf)	
 	for view in vc:
 		view.score = interestingness(view,ldf)
-
-	vc.sort()
-	ldf.clearContext()
+	vc = vc.topK(15)
 	recommendation["collection"] = vc
-	# dobj.recommendations.append(recommendation)
-
 	#for benchmarking
 	if ldf.toggleBenchmarking == True:
 		toc = time.perf_counter()

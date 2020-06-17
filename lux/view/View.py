@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import List, Callable
 from lux.context.Spec import Spec
 from lux.utils.utils import checkImportLuxWidget
 class View:
@@ -5,44 +7,76 @@ class View:
 	View Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
 	'''
 
-	def __init__(self, specifiedSpecLst,mark="", title=""):
-		self.specLst = specifiedSpecLst
+	def __init__(self, specLst, mark="", title=""):
+		self.specLst = specLst
 		self.title = title
 		self.mark = mark
 		self.data = None
 		self.score = 0.0
 		self.vis = None
+		self.plotConfig = None
 		self.xMinMax = {}
 		self.yMinMax = {}
-
 	def __repr__(self):
-		x_channel = ""
-		y_channel = ""
 		filter_spec = None
+		channels, additional_channels = [], []
 		for spec in self.specLst:
-			if spec.value != "":
-				filter_spec = spec
-			if spec.channel == "x":
-				x_channel = spec.attribute
-			elif spec.channel == "y":
-				y_channel = spec.attribute
+			
+			if hasattr(spec,"value"):
+				if spec.value != "":
+					filter_spec = spec
+			if hasattr(spec,"attribute"):
+				if spec.attribute != "":
+					if spec.aggregation != "":
+						attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
+					elif spec.binSize > 0:
+						attribute = "BIN(" + spec.attribute + ")"
+					else:
+						attribute = spec.attribute
+					if spec.channel == "x":
+						channels.insert(0, [spec.channel, attribute])
+					elif spec.channel == "y":
+						channels.insert(1, [spec.channel, attribute])
+					elif spec.channel != "":
+						additional_channels.append([spec.channel, attribute])
+				
+		channels.extend(additional_channels)
+		str_channels = ""
+		for channel in channels:
+			str_channels += channel[0] + ": " + channel[1] + ", "
 
 		if filter_spec:
-			return f"<View  (x: {x_channel}, y: {y_channel} -- [{filter_spec.attribute}{filter_spec.filterOp}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
+			return f"<View  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filterOp}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
-			return f"<View  (x: {x_channel}, y: {y_channel}) mark: {self.mark}, score: {self.score} >"
+			return f"<View  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
+	def setPlotConfig(self,configFunc:Callable):
+		"""
+		Modify plot aesthetic settings to the View
+		Currently only supported for Altair visualizations
+
+		Parameters
+		----------
+		configFunc : typing.Callable
+			A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
+		"""
+		self.plotConfig = configFunc
+	def clearPlotConfig(self):
+		self.plotConfig = None
 	def _repr_html_(self):
 		from IPython.display import display
 		checkImportLuxWidget()
 		import luxWidget
-		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-		# widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderTarget="viewOnly")
-		widget =  luxWidget.LuxWidget(
-                currentView= LuxDataFrame.currentViewToJSON([self]),
-                recommendations=[],
-                context={}
-            )
-		display(widget)
+		if (self.data is None):
+			raise Exception("No data populated in View. Use the 'load' function (e.g., view.load(df)) to populate the view with a data source.")
+		else:
+			from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+			# widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderTarget="viewOnly")
+			widget =  luxWidget.LuxWidget(
+					currentView= LuxDataFrame.currentViewToJSON([self]),
+					recommendations=[],
+					context={}
+				)
+			display(widget)
 	def getAttrByAttrName(self,attrName):
 		return list(filter(lambda x: x.attribute == attrName, self.specLst))
 		
@@ -106,9 +140,38 @@ class View:
 		"""		
 		from lux.vizLib.altair.AltairRenderer import AltairRenderer
 		renderer = AltairRenderer(outputType="VegaLite")
-		self.vis= renderer.createVis(self)
+		self.vis = renderer.createVis(self)
 		return self.vis
 		
 	def renderVSpec(self, renderer="altair"):
 		if (renderer == "altair"):
 			return self.toVegaLite()
+	
+	def load(self, ldf) -> View:
+		"""
+		Loading the data into the view by instantiating the specification and populating the view based on the data, effectively "materializing" the view.
+
+		Parameters
+		----------
+		ldf : LuxDataframe
+			Input Dataframe to be attached to the view
+
+		Returns
+		-------
+		View
+			Complete View with fully-specified fields
+
+		See Also
+		--------
+		lux.view.ViewCollection.load
+		"""		
+		from lux.compiler.Parser import Parser
+		from lux.compiler.Validator import Validator
+		from lux.compiler.Compiler import Compiler
+		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
+		#TODO: handle case when user input vanilla Pandas dataframe
+		self.specLst = Parser.parse(self.specLst)
+		Validator.validateSpec(self.specLst,ldf)
+		vc = Compiler.compile(ldf,ldf.context,[self],enumerateCollection=False)
+		PandasExecutor.execute(vc,ldf)
+		return vc[0]
