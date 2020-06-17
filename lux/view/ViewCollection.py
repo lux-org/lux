@@ -1,7 +1,7 @@
 from __future__ import annotations
 from lux.vizLib.altair.AltairRenderer import AltairRenderer
 from lux.utils.utils import checkImportLuxWidget
-from typing import List, Union, Callable
+from typing import List, Union, Callable, Dict
 from lux.view.View import View
 from lux.context.Spec import Spec
 class ViewCollection():
@@ -21,6 +21,30 @@ class ViewCollection():
 		else:
 			self.collection = []
 			self.specLst = []
+	def getExported(self) -> ViewCollection:
+		"""
+		Get selected views as exported View Collection
+
+		Notes
+        -----
+		Convert the _exportedVisIdxs dictionary into a programmable ViewCollection
+		Example _exportedVisIdxs : 
+			{'View Collection': [0, 2]}
+		
+		Returns
+		-------
+		ViewCollection
+		 	return a ViewCollection of selected views. -> ViewCollection(v1, v2...)
+		"""        
+		
+		exportedVisLst =self.widget._exportedVisIdxs
+		if (exportedVisLst=={}):
+			import warnings
+			warnings.warn("No visualization selected to export")
+			return []
+		else:
+			exportedViews = ViewCollection(list(map(self.__getitem__, exportedVisLst["View Collection"])))
+			return exportedViews
 	def _isViewInput(self):
 		if (type(self.inputLst[0])==View):
 			return True
@@ -153,6 +177,7 @@ class ViewCollection():
 			dobj.score = dobj.score/maxScore
 			if (invertOrder): dobj.score = 1 - dobj.score
 	def _repr_html_(self):
+		self.widget =  None
 		from IPython.display import display
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 		# widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderTarget="viewCollectionOnly")
@@ -163,12 +188,12 @@ class ViewCollection():
 		checkImportLuxWidget()
 		import luxWidget
 		recJSON = LuxDataFrame.recToJSON([recommendation])
-		widget =  luxWidget.LuxWidget(
+		self.widget =  luxWidget.LuxWidget(
 				currentView={},
 				recommendations=recJSON,
 				context={}
 			)
-		display(widget)	
+		display(self.widget)	
 	
 	def load(self, ldf) -> ViewCollection:
 		"""

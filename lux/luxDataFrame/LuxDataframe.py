@@ -24,7 +24,6 @@ class LuxDataFrame(pd.DataFrame):
         self.viewCollection = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
-        tic = time.perf_counter()
         self.computeStats()
         self.computeDatasetMetadata()
 
@@ -375,6 +374,10 @@ class LuxDataFrame(pd.DataFrame):
 
     def getExported(self) -> typing.Union[typing.Dict[str,ViewCollection], ViewCollection]:
         """
+        Get selected views as exported View Collection
+
+        Notes
+        -----
         Convert the _exportedVisIdxs dictionary into a programmable ViewCollection
         Example _exportedVisIdxs : 
             {'Correlation': [0, 2], 'Category': [1]}
@@ -389,6 +392,10 @@ class LuxDataFrame(pd.DataFrame):
         """        
         exportedVisLst =self.widget._exportedVisIdxs
         exportedViews = [] 
+        if (exportedVisLst=={}):
+            import warnings
+            warnings.warn("No visualization selected to export")
+            return []
         if len(exportedVisLst) == 1 : 
             exportAction = list(exportedVisLst.keys())[0]
             exportedViews = ViewCollection(list(map(self.recommendation[exportAction].__getitem__, exportedVisLst[exportAction])))
