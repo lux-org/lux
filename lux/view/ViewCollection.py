@@ -222,7 +222,7 @@ class ViewCollection():
 				for view in self.collection:
 					view.specLst = Parser.parse(view.specLst)
 					Validator.validateSpec(view.specLst,ldf)
-				vc = Compiler.compile(ldf,ldf.context,self.collection,enumerateCollection=False)
+				vc = Compiler.compile(ldf,ldf.context,self,enumerateCollection=False)
 			else:
 				self.specLst = Parser.parse(self.specLst)
 				Validator.validateSpec(self.specLst,ldf)
