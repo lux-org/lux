@@ -27,7 +27,7 @@ def enhance(ldf):
 	filters = utils.getFilterSpecs(ldf.context)
 	output = []
 	# Collect variables that already exist in the context
-	context = utils.getAttrsSpecs(ldf.context)
+	context = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
 	# context = [spec for spec in context if isinstance(spec.attribute,str)]
 	existingVars = [spec.attribute for spec in context]
 	# if we too many column attributes, return no views.
