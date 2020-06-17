@@ -43,15 +43,13 @@ def filter(ldf):
 				#creates new data objects with new filters
 				for i in range(0, len(uniqueValues)):
 					if uniqueValues[i] not in filterValues:
-						#create new Data Object
 						newSpec = columnSpec.copy()
 						newFilter = lux.Spec(attribute = row.attribute, value = uniqueValues[i])
 						newSpec.append(newFilter)
 						tempView = View(newSpec)
 				completedFilters.append(row.attribute)
 				output.append(tempView)
-	#if Row is not specified, create filters using unique values from all categorical variables in the dataset
-	else:
+	else:	#if no existing filters, create filters using unique values from all categorical variables in the dataset
 		categoricalVars = []
 		for col in list(ldf.columns):
 			# if cardinality is not too high, and attribute is not one of the X,Y (specified) column
