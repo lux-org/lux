@@ -11,7 +11,7 @@ class LuxDataFrame(pd.DataFrame):
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
     '''
     # MUST register here for new properties!!
-    _metadata = ['context','dataTypeLookup','dataType','filterSpecs',
+    _metadata = ['context','dataTypeLookup','dataType','filterSpecs','dateGranularity',
                  'dataModelLookup','dataModel','uniqueValues','cardinality',
                  'xMinMax', 'yMinMax','plotConfig',
                  'viewCollection','widget', '_recInfo', 'recommendation']
@@ -31,6 +31,7 @@ class LuxDataFrame(pd.DataFrame):
         self.executor = PandasExecutor
         self.SQLconnection = ""
         self.table_name = ""
+        self.dateGranularity = ""
         self.filterSpecs = []
         self.togglePandasView = True
         self.toggleBenchmarking = False
@@ -191,7 +192,6 @@ class LuxDataFrame(pd.DataFrame):
             "dimension": self.dataType["ordinal"] + self.dataType["nominal"] + self.dataType["temporal"]
         }
         self.dataModelLookup = self.reverseMapping(self.dataModel)
-
 
     def mapping(self, rmap):
         groupMap = {}
