@@ -25,31 +25,19 @@ def enhance(ldf):
 	recommendation = {"action":"Enhance",
 					"description":"Shows possible visualizations when an additional attribute is added to the current view."}
 	filters = utils.getFilterSpecs(ldf.context)
-	output = []
 	# Collect variables that already exist in the context
-	context = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
-	# context = [spec for spec in context if isinstance(spec.attribute,str)]
-	existingVars = [spec.attribute for spec in context]
-	# if we too many column attributes, return no views.
-	if(len(context)>2):
+	attrSpecs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
+	if(len(attrSpecs)>2): # if there are too many column attributes, return don't generate Enhance recommendations
 		recommendation["collection"] = []
 		return recommendation
-
-	# First loop through all variables to create new view collection
-	for qVar in list(ldf.columns):
-		if qVar not in existingVars and ldf.dataTypeLookup[qVar] != "temporal":
-			cxtNew = context.copy()
-			cxtNew.append(lux.Spec(attribute = qVar))
-			cxtNew.extend(filters)
-			view = lux.view.View.View(cxtNew)
-			output.append(view)
-	vc = lux.view.ViewCollection.ViewCollection(output)
+	query = ldf.context.copy()
+	query = filters + attrSpecs
+	query.append("?")
+	vc = lux.view.ViewCollection.ViewCollection(query)
 	vc = vc.load(ldf)
 		
 	# Then use the data populated in the view collection to compute score
-	for view in vc:
-		view.score = interestingness(view,ldf)
-		# TODO: if (ldf.dataset.cardinality[cVar]>10): score is -1. add in interestingness
+	for view in vc: view.score = interestingness(view,ldf)
 	
 	vc = vc.topK(15)
 	recommendation["collection"] = vc
