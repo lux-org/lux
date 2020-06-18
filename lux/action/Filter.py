@@ -34,21 +34,18 @@ def filter(ldf):
 	columnSpec = utils.getAttrsSpecs(ldf.viewCollection[0].specLst)
 	columnSpecAttr = map(lambda x: x.attribute,columnSpec)
 	if len(filters) > 0:
-		completedFilters = []
 		#get unique values for all categorical values specified and creates corresponding filters
 		for row in filters:
-			if row.attribute not in completedFilters:
-				uniqueValues = ldf.uniqueValues[row.attribute]
-				filterValues.append(row.value)
-				#creates new data objects with new filters
-				for i in range(0, len(uniqueValues)):
-					if uniqueValues[i] not in filterValues:
-						newSpec = columnSpec.copy()
-						newFilter = lux.Spec(attribute = row.attribute, value = uniqueValues[i])
-						newSpec.append(newFilter)
-						tempView = View(newSpec)
-				completedFilters.append(row.attribute)
-				output.append(tempView)
+			uniqueValues = ldf.uniqueValues[row.attribute]
+			filterValues.append(row.value)
+			#creates new data objects with new filters
+			for val in uniqueValues:
+				if val not in filterValues:
+					newSpec = columnSpec.copy()
+					newFilter = lux.Spec(attribute = row.attribute, value = val)
+					newSpec.append(newFilter)
+					tempView = View(newSpec)
+					output.append(tempView)
 	else:	#if no existing filters, create filters using unique values from all categorical variables in the dataset
 		categoricalVars = []
 		for col in list(ldf.columns):
