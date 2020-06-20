@@ -1,4 +1,5 @@
 import lux
+import pandas as pd
 from lux.vizLib.altair.BarChart import BarChart
 from lux.vizLib.altair.ScatterChart import ScatterChart
 from lux.vizLib.altair.LineChart import LineChart
@@ -26,6 +27,12 @@ class AltairRenderer:
 		chart : altair.Chart
 			Output Altair Chart Object
 		"""	
+		# If a column has a Period dtype, or contains Period objects, convert it back to Datetime
+		for attr in list(view.data.columns):
+			if pd.api.types.is_period_dtype(view.data.dtypes[attr]) or isinstance(view.data[attr].iloc[0], pd.Period):
+				dateColumn = view.data[attr]
+				view.data[attr] = pd.PeriodIndex(dateColumn.values).to_timestamp()
+		
 		if (view.mark =="histogram"):
 			chart = Histogram(view)
 		elif (view.mark =="bar"):
@@ -36,6 +43,7 @@ class AltairRenderer:
 			chart = LineChart(view)
 		else:
 			chart = None
+
 		if (chart):
 			if (self.outputType=="VegaLite"):
 				chartDict = chart.chart.to_dict()

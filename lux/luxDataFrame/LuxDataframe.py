@@ -144,7 +144,7 @@ class LuxDataFrame(pd.DataFrame):
                 self.dataTypeLookup[attr] = "nominal"
             
             # TODO: quick check if attribute is of type time (auto-detect logic borrow from Zenvisage data import)
-            elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
+            elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]) or pd.api.types.is_period_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
                 self.dataTypeLookup[attr] = "temporal"
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         # 	if self.cardinality[attr]>50:
