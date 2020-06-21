@@ -24,8 +24,6 @@ class AltairChart:
 		# self.addTooltip()
 		self.encodeColor()
 		self.addTitle()
-		self.code +="\nchart"
-		self.code = self.code.replace('\n\t\t','\n')
 		# ----- END self.code modification -----
 	def __repr__(self):
 		return f"AltairChart <{str(self.view)}>"

@@ -50,7 +50,6 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 		else:
 			view.score = -1
 	vc = vc.topK(15)
-	vc.sort(removeInvalid=True)
 	recommendation["collection"] = vc
 
 	#for benchmarking

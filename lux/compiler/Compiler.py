@@ -3,6 +3,7 @@ from typing import List, Dict, Union
 from lux.view.View import View
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.view.ViewCollection import ViewCollection
+from lux.utils import date_utils
 import pandas as pd
 import numpy as np
 
@@ -127,7 +128,7 @@ class Compiler:
 				if (spec.value!=""):
 					if(isinstance(spec.value,np.datetime64)):
 						# TODO: Make this more general and not specific to Year attributes
-						chartTitle = pd.to_datetime(spec.value, format='%Y').year
+						chartTitle = date_utils.dateFormatter(spec.value,ldf)
 					else:
 						chartTitle = spec.value
 					view.title = f"{spec.attribute} {spec.filterOp} {chartTitle}"
@@ -137,7 +138,7 @@ class Compiler:
 	def removeAllInvalid(viewCollection:ViewCollection) -> ViewCollection:
 		"""
 		Given an expanded view collection, remove all views that are invalid.
-		Currently, the invalid views are ones that contain temporal by temporal attributes or overlapping attributes.
+		Currently, the invalid views are ones that contain two of the same attribute, no more than two temporal attributes, or overlapping attributes (same filter attribute and visualized attribute).
 		Parameters
 		----------
 		viewCollection : list[lux.view.View]
@@ -148,7 +149,6 @@ class Compiler:
 			view collection with compiled lux.View objects.
 		"""
 		newVC = []
-
 		for view in viewCollection:
 			numTemporalSpecs = 0
 			attributeSet = set()
@@ -157,7 +157,7 @@ class Compiler:
 				if spec.dataType == "temporal":
 					numTemporalSpecs += 1
 			allDistinctSpecs = 0 == len(view.specLst) - len(attributeSet)
-			if numTemporalSpecs <= 1 or allDistinctSpecs:
+			if numTemporalSpecs < 2 and allDistinctSpecs:
 				newVC.append(view)
 
 		return ViewCollection(newVC)
@@ -233,7 +233,6 @@ class Compiler:
 			view.mark = "histogram"
 		elif (Ndim == 1 and (Nmsr == 0 or Nmsr == 1)):
 			# Line or Bar Chart
-			# if x is unspecified
 			if (Nmsr == 0):
 				view.specLst.append(countCol)
 			dimension = view.getAttrByDataModel("dimension")[0]

@@ -33,7 +33,7 @@ def generalize(ldf):
 						   "description":"Remove one attribute or filter to observe a more general trend."}
 	output = []
 	excludedColumns = []
-	columnSpec = utils.getAttrsSpecs(ldf.context)
+	columnSpec = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
 	rowSpecs = utils.getFilterSpecs(ldf.context)
 	# if we do no have enough column attributes or too many, return no views.
 	if(len(columnSpec)<2 or len(columnSpec)>4):
@@ -65,7 +65,6 @@ def generalize(ldf):
 	recommendation["collection"] = vc
 	for view in vc:
 		view.score = interestingness(view,ldf)
-	vc = vc.topK(10)
 	vc.sort(removeInvalid=True)
 	#for benchmarking
 	if ldf.toggleBenchmarking == True:

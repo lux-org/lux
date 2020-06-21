@@ -40,7 +40,6 @@ def similarPattern(ldf,queryContext,topK=-1):
             preprocess(view)
             view.score = euclideanDist(queryView, view)
         searchSpaceVC.normalizeScore(invertOrder=True)
-        searchSpaceVC.sort(removeInvalid=True)
         if(topK!=-1):
             searchSpaceVC = searchSpaceVC.topK(topK)
         recommendation["collection"] = searchSpaceVC

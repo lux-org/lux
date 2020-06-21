@@ -14,7 +14,6 @@ Welcome to Lux's documentation!
    :maxdepth: 1
    :caption: Getting Started
 
-   source/getting_started/quickstart
    source/getting_started/overview
    source/getting_started/installation
    
@@ -23,11 +22,22 @@ Welcome to Lux's documentation!
    :maxdepth: 1
    :caption: User Guide
    
-   source/guide/spec
-   source/guide/interestingness
-   source/guide/executor
-   source/guide/example
+   source/guide/query
+   source/guide/view
+   source/guide/export
+   source/guide/style
    source/guide/FAQ
+   source/guide/example
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Advanced Topics
+   
+   source/advanced/date
+   source/advanced/architecture
+   source/advanced/interestingness
+   source/advanced/executor
+   source/advanced/API
 
 Indices and tables
 ==================
