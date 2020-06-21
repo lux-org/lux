@@ -3,7 +3,7 @@ from typing import List, Dict, Union
 from lux.view.View import View
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.view.ViewCollection import ViewCollection
-from lux.utils import utils
+from lux.utils import date_utils
 import pandas as pd
 import numpy as np
 
@@ -128,7 +128,8 @@ class Compiler:
 				if (spec.value!=""):
 					if(isinstance(spec.value,np.datetime64)):
 						# TODO: Make this more general and not specific to Year attributes
-						chartTitle = utils.dateFormatter(spec.value,ldf)
+						print(type(spec.value))
+						chartTitle = date_utils.dateFormatter(spec.value,ldf)
 					else:
 						chartTitle = spec.value
 					view.title = f"{spec.attribute} {spec.filterOp} {chartTitle}"
