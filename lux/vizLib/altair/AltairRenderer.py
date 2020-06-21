@@ -29,10 +29,11 @@ class AltairRenderer:
 			Output Altair Chart Object
 		"""	
 		# If a column has a Period dtype, or contains Period objects, convert it back to Datetime
-		for attr in list(view.data.columns):
-			if pd.api.types.is_period_dtype(view.data.dtypes[attr]) or isinstance(view.data[attr].iloc[0], pd.Period):
-				dateColumn = view.data[attr]
-				view.data[attr] = pd.PeriodIndex(dateColumn.values).to_timestamp()
+		if view.data is not None:
+			for attr in list(view.data.columns):
+				if pd.api.types.is_period_dtype(view.data.dtypes[attr]) or isinstance(view.data[attr].iloc[0], pd.Period):
+					dateColumn = view.data[attr]
+					view.data[attr] = pd.PeriodIndex(dateColumn.values).to_timestamp()
 		
 		if (view.mark =="histogram"):
 			chart = Histogram(view)
