@@ -128,7 +128,6 @@ class Compiler:
 				if (spec.value!=""):
 					if(isinstance(spec.value,np.datetime64)):
 						# TODO: Make this more general and not specific to Year attributes
-						print(type(spec.value))
 						chartTitle = date_utils.dateFormatter(spec.value,ldf)
 					else:
 						chartTitle = spec.value
