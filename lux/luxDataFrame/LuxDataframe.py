@@ -192,7 +192,6 @@ class LuxDataFrame(pd.DataFrame):
         }
         self.dataModelLookup = self.reverseMapping(self.dataModel)
 
-
     def mapping(self, rmap):
         groupMap = {}
         for val in ["quantitative", "ordinal", "nominal", "temporal"]:

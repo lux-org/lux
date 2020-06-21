@@ -26,3 +26,5 @@ def checkImportLuxWidget():
 	import pkgutil
 	if (pkgutil.find_loader("luxWidget") is None):
 		raise Exception("luxWidget is not installed. Run `npm i lux-widget' to install the Jupyter widget.\nSee more at: https://github.com/lux-org/lux-widget")
+
+
