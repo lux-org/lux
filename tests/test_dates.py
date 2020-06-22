@@ -3,6 +3,7 @@ import pytest
 import pandas as pd
 import numpy as np
 from lux.utils import date_utils
+from lux.executor.PandasExecutor import PandasExecutor
 
 def test_dateformatter():
     ldf = pd.read_csv("lux/data/car.csv")
@@ -19,3 +20,45 @@ def test_dateformatter():
     ldf["Year"][0] = np.datetime64('1970-03-03') # make day non unique
 
     assert (date_utils.dateFormatter(timestamp, ldf) == '2019-8-26')
+
+def test_period_selection():
+	ldf = pd.read_csv("lux/data/car.csv")
+	ldf["Year"] = pd.to_datetime(ldf["Year"], format='%Y')
+
+	ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq='A')
+
+	ldf.setContext([lux.Spec(attribute = ["Horsepower","Weight","Acceleration"]),lux.Spec(attribute = "Year")])
+
+	PandasExecutor.execute(ldf.viewCollection,ldf)
+
+	assert all([type(vc.data)==lux.luxDataFrame.LuxDataframe.LuxDataFrame for vc in ldf.viewCollection])
+	assert all(ldf.viewCollection[2].data.columns ==["Year",'Acceleration'])
+
+def test_period_filter():
+	ldf = pd.read_csv("lux/data/car.csv")
+	ldf["Year"] = pd.to_datetime(ldf["Year"], format='%Y')
+
+	ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq='A')
+
+	ldf.setContext([lux.Spec(attribute = "Acceleration"),lux.Spec(attribute = "Horsepower")])
+
+	PandasExecutor.execute(ldf.viewCollection,ldf)
+	ldf.showMore()
+
+	assert isinstance(ldf.recommendation['Filter'][2].specLst[2].value, pd.Period)
+
+def test_period_toAltair():
+	chart = None
+	df = pd.read_csv("lux/data/car.csv")
+	df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+
+	df["Year"] = pd.DatetimeIndex(df["Year"]).to_period(freq='A')
+
+	df.setContext([lux.Spec(attribute = "Acceleration"),lux.Spec(attribute = "Horsepower")])
+
+	PandasExecutor.execute(df.viewCollection,df)
+	df.showMore()
+
+	exportedCode = df.recommendation['Filter'][2].toAltair()
+	
+	assert 'Year = 1971' in exportedCode
