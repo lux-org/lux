@@ -31,3 +31,5 @@ The decoupling of the view and its associated data is useful for making quick co
 
 .. toAltair
 .. toVegaLite
+
+.. `setContextAsView`
