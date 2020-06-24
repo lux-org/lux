@@ -18,6 +18,8 @@ class View:
 		self.xMinMax = {}
 		self.yMinMax = {}
 	def __repr__(self):
+		if not self.data:
+			return f"<View  ({str(self.specLst)}) mark: {self.mark}, score: {self.score} >"
 		filter_spec = None
 		channels, additional_channels = [], []
 		for spec in self.specLst:
