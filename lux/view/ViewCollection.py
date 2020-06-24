@@ -97,15 +97,7 @@ class ViewCollection():
 					filter_spec = spec
 
 				if spec.aggregation != "":
-<<<<<<< HEAD
-<<<<<<< HEAD
 					attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
-=======
-					attribute = spec.aggregation + "(" + spec.attribute + ")"
->>>>>>> add aggregation funcs and generalize channel output
-=======
-					attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
->>>>>>> capitalize aggregate function in repr
 				elif spec.binSize > 0:
 					attribute = "BIN(" + spec.attribute + ")"
 				else:
