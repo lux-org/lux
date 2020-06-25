@@ -57,6 +57,8 @@ class ViewCollection():
 	def __len__(self):
 		return len(self.collection)
 	def __repr__(self):
+		if len(self.collection) == 0:
+			return str(self.inputLst)
 		x_channel = ""
 		y_channel = ""
 		largest_mark = 0

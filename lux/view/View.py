@@ -18,6 +18,8 @@ class View:
 		self.xMinMax = {}
 		self.yMinMax = {}
 	def __repr__(self):
+		if not self.data:
+			return f"<View  ({str(self.specLst)}) mark: {self.mark}, score: {self.score} >"
 		filter_spec = None
 		channels, additional_channels = [], []
 		for spec in self.specLst:
@@ -39,7 +41,7 @@ class View:
 						channels.insert(1, [spec.channel, attribute])
 					elif spec.channel != "":
 						additional_channels.append([spec.channel, attribute])
-						
+
 		channels.extend(additional_channels)
 		str_channels = ""
 		for channel in channels:
