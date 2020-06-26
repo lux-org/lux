@@ -149,7 +149,10 @@ class LuxDataFrame(pd.DataFrame):
     def __repr__(self):
         # TODO: _repr_ gets called from _repr_html, need to get rid of this call
         return ""
-
+    def __setitem__(self, key, value):
+        super(LuxDataFrame, self).__setitem__(key, value)
+        self.computeStats()
+        self.computeDatasetMetadata()
     #######################################################
     ############ Metadata: data type, model #############
     #######################################################
