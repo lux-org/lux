@@ -62,3 +62,16 @@ def test_period_toAltair():
 	exportedCode = df.recommendation['Filter'][2].toAltair()
 	
 	assert 'Year = 1971' in exportedCode
+
+def test_refresh_inplace():
+	df = pd.DataFrame({'date': ['2020-01-01', '2020-02-01', '2020-03-01', '2020-04-01'], 'value': [10.5,15.2,20.3,25.2]})
+	
+	assert df.dataType['nominal'][0] == 'date'
+
+	from lux.view.View import View
+	view = View(["date","value"])
+	view.load(df)
+
+	df['date'] = pd.to_datetime(df['date'],format="%Y-%m-%d")
+
+	assert df.dataType['temporal'][0] == 'date'
