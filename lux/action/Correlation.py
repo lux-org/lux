@@ -58,7 +58,7 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=True):
 		print(f"Performed correlation action in {toc - tic:0.4f} seconds")
 	return recommendation
 
-def checkTransposeNotComputed(vc,a,b):
+def checkTransposeNotComputed(vc:ViewCollection,a:str,b:str):
 	transposeExist = list(filter(lambda x:(x.specLst[0].attribute==b) and (x.specLst[1].attribute==a),vc)) 
 	if (len(transposeExist)>0):
 		return transposeExist[0].score==-1
