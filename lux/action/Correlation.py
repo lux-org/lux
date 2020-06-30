@@ -6,7 +6,7 @@ from lux.view.ViewCollection import ViewCollection
 #for benchmarking
 import time
 # change ignoreTranspose to false for now.
-def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
+def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=True):
 	'''
 	Generates bivariate visualizations that represent all pairwise relationships in the data.
 
@@ -42,7 +42,7 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 		msr2 = measures[1].attribute
 		
 		if (ignoreTranspose):
-			checkTranspose = checkTransposeNotComputed(ldf,msr1,msr2)
+			checkTranspose = checkTransposeNotComputed(vc,msr1,msr2)
 		else:
 			checkTranspose = True
 		if (checkTranspose):
@@ -58,9 +58,8 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=False):
 		print(f"Performed correlation action in {toc - tic:0.4f} seconds")
 	return recommendation
 
-def checkTransposeNotComputed(ldf,a,b):
-	# how to know if these are just columns?
-	transposeExist = list(filter(lambda x:(x.specLst[0].attribute==b) and (x.specLst[1].attribute==a),ldf.viewCollection)) # Jaywoo
+def checkTransposeNotComputed(vc,a,b):
+	transposeExist = list(filter(lambda x:(x.specLst[0].attribute==b) and (x.specLst[1].attribute==a),vc)) 
 	if (len(transposeExist)>0):
 		return transposeExist[0].score==-1
 	else:
