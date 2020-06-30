@@ -64,7 +64,7 @@ For example, we might be interested in the attributes `AverageCost` and `SATAver
  - `Filter` adds a filter to the current selection, while keeping attributes (on the X and Y axes) fixed. These visualizations shows how the relationship of  `AverageCost` and `SATAverage` changes for different subsets of data. For instance, we see that colleges that offer Bachelor's degree as its highest degree offered shows a roughly linear trend between the two variables.
  - `Generalize` removes an attribute to display a more general trend, showing the distributions of `AverageCost` and `SATAverage` on its own. From the `AverageCost` histogram, we see that there are many colleges with average cost of around $20000 per year, corresponding to the bulge we see in the scatterplot view.
 
- See [this page](https://lux-api.readthedocs.io/en/dfapi/source/guide/spec.html) more information on additional ways for specifying the context.
+ See [this page](https://lux-api.readthedocs.io/en/latest/source/guide/spec.html) more information on additional ways for specifying the context.
 
 ### Easy programmatic access of exported visualization objects: 
 
@@ -85,10 +85,26 @@ We've seen how `View`s are automatically generated as part of the recommendation
 
 <img src="https://github.com/lux-org/lux/blob/master/examples/img/view.png?raw=true"
      alt="Example View"
-     style="width:400px" />
+     style="width:200px" />
 
-<!-- ### Powerful language for working with collections of visualizations: -->
+### Powerful language for working with collections of visualizations:
 
+Lux provides a powerful abstraction for working with collections of visualizations based on a partially specified queries. Users can provide a list or a wildcard to iterate over combinations of filter or attribute values and quickly browse through large numbers of visualizations. The partial specification is inspired by existing work on query languages for visualization languages, including [ZQL](https://github.com/vega/compassql) and [CompassQL](https://github.com/vega/compassql).
+
+For example, we might be interested in looking at how the `AverageCost` distribution differs across different `Region`s.
+
+```python    
+    from lux.view.ViewCollection import ViewCollection
+    differentRegions = ViewCollection(["Region=?","AverageCost"])
+    differentRegions.load(df)
+```    
+
+<img src="https://github.com/lux-org/lux/blob/master/examples/img/viewCollection.gif?raw=true"
+     alt="Example View Collection"
+     style="width:600px" />
+
+
+To find out more about other features in Lux, see the complete documentation on [ReadTheDocs](https://lux-api.readthedocs.io/).
 
 ## Quick Installation
 
