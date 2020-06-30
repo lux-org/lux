@@ -84,8 +84,8 @@ We've seen how `View`s are automatically generated as part of the recommendation
 ```    
 
 <img src="https://github.com/lux-org/lux/blob/master/examples/img/view.png?raw=true"
-     alt="Example View"
-     style="width:50px" />
+     alt="Specified Visualization"
+     width="200px" />
 
 ### Powerful language for working with collections of visualizations:
 
