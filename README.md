@@ -36,7 +36,7 @@ Then, Lux can be used as-is, without modifying any of your existing Pandas code.
 
 <img src="https://github.com/lux-org/lux/blob/master/examples/img/basicDemo.gif?raw=true"
      alt="Basic recommendations in Lux"
-     style="width:700px" />
+     style="width:900px" />
 
 Voila! Here's a set of visualizations that you can now use to explore your dataset further!
 
@@ -85,7 +85,7 @@ We've seen how `View`s are automatically generated as part of the recommendation
 
 <img src="https://github.com/lux-org/lux/blob/master/examples/img/view.png?raw=true"
      alt="Example View"
-     style="width:200px" />
+     style="width:50px" />
 
 ### Powerful language for working with collections of visualizations:
 
