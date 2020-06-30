@@ -9,6 +9,14 @@ General Information
 - How do I save my widgets in the notebook file?
 - What do I do with date-related attributes in my dataset?
 - What if my data is stored in a relational database? 
+- How do I access all of the current recommendations shown in my widget?
+    - df.recommendation
+- How do I turn off Lux?
+    - df.toPandas()
+    - Remove `import lux` statement and restart Jupyter notebook.
+- I want to change the opacity of my chart, add title, change chart font size, etc. How do I modify chart settings?
+    - 
+    - We currently only support chart modifications in Altair.
 
 Troubleshooting Tips
 -------------------
