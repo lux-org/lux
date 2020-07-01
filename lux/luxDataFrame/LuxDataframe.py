@@ -337,7 +337,8 @@ class LuxDataFrame(pd.DataFrame):
         noView = len(self.viewCollection) == 0
         oneCurrentView = len(self.viewCollection) == 1
         multipleCurrentViews = len(self.viewCollection) > 1
-
+        if (self.plotConfig):
+            for view in self.viewCollection: view.plotConfig = self.plotConfig
         if (noView):
             self._recInfo.append(correlation(self))
             self._recInfo.append(distribution(self,"quantitative"))
