@@ -116,7 +116,7 @@ def deviationFromOverall(view:View,ldf:LuxDataFrame,filterSpecs:list,msrAttribut
 	v_filter = view.data[msrAttribute]
 	v_filter = v_filter/v_filter.sum() # normalize by total to get ratio
 
-	# Generate an "Overall" View (TODO: This is computed multiple times for every view, alternative is to directly access df.viewCollection but we do not have guaruntee that will always be unfiltered view (in the non-Filter action scenario))
+	# Generate an "Overall" View (TODO: This is computed multiple times for every view, alternative is to directly access df.currentView but we do not have guaruntee that will always be unfiltered view (in the non-Filter action scenario))
 	import copy
 	unfilteredView = copy.copy(view)
 	unfilteredView.specLst = utils.getAttrsSpecs(view.specLst) # Remove filters, keep only attribute specs
