@@ -31,7 +31,7 @@ def filter(ldf):
 	filterValues = []
 	output = []
 	#if Row is specified, create visualizations where data is filtered by all values of the Row's categorical variable
-	columnSpec = utils.getAttrsSpecs(ldf.viewCollection[0].specLst)
+	columnSpec = utils.getAttrsSpecs(ldf.currentView[0].specLst)
 	columnSpecAttr = map(lambda x: x.attribute,columnSpec)
 	if len(filters) > 0:
 		#get unique values for all categorical values specified and creates corresponding filters

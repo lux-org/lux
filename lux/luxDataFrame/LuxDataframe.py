@@ -14,14 +14,14 @@ class LuxDataFrame(pd.DataFrame):
     _metadata = ['context','dataTypeLookup','dataType','filterSpecs',
                  'dataModelLookup','dataModel','uniqueValues','cardinality',
                  'xMinMax', 'yMinMax','plotConfig',
-                 'viewCollection','widget', '_recInfo', 'recommendation']
+                 'currentView','widget', '_recInfo', 'recommendation']
 
     def __init__(self,*args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
         self.context = []
         self._recInfo=[]
         self.recommendation = {}
-        self.viewCollection = []
+        self.currentView = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.computeStats()
@@ -92,7 +92,7 @@ class LuxDataFrame(pd.DataFrame):
     def clearPlotConfig(self):
         self.plotConfig = None
     def setViewCollection(self,viewCollection):
-        self.viewCollection = viewCollection 
+        self.currentView = viewCollection 
     def _refreshContext(self):
         from lux.compiler.Validator import Validator
         from lux.compiler.Compiler import Compiler
@@ -103,7 +103,7 @@ class LuxDataFrame(pd.DataFrame):
             self.computeDatasetMetadata()
         self.context = Parser.parse(self.getContext())
         Validator.validateSpec(self.context,self)
-        viewCollection = Compiler.compile(self,self.context,self.viewCollection)
+        viewCollection = Compiler.compile(self,self.context,self.currentView)
         self.setViewCollection(viewCollection)
 
     def setContext(self,context:typing.List[typing.Union[str,Spec]]):
@@ -136,7 +136,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def clearContext(self):
         self.context = []
-        self.viewCollection = []
+        self.currentView = []
     def clearFilter(self):
         self.filterSpecs = []  # reset filters
     def toPandas(self):
@@ -334,11 +334,11 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.Generalize import generalize
 
         self._recInfo = []
-        noView = len(self.viewCollection) == 0
-        oneCurrentView = len(self.viewCollection) == 1
-        multipleCurrentViews = len(self.viewCollection) > 1
+        noView = len(self.currentView) == 0
+        oneCurrentView = len(self.currentView) == 1
+        multipleCurrentViews = len(self.currentView) > 1
         if (self.plotConfig):
-            for view in self.viewCollection: view.plotConfig = self.plotConfig
+            for view in self.currentView: view.plotConfig = self.plotConfig
         if (noView):
             self._recInfo.append(correlation(self))
             self._recInfo.append(distribution(self,"quantitative"))
@@ -480,8 +480,8 @@ class LuxDataFrame(pd.DataFrame):
 
     def toJSON(self, inputCurrentView=""):
         widgetSpec = {}
-        self.executor.execute(self.viewCollection,self)
-        widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.viewCollection,inputCurrentView)
+        self.executor.execute(self.currentView,self)
+        widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.currentView,inputCurrentView)
         
         widgetSpec["recommendation"] = []
         
