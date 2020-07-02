@@ -6,6 +6,7 @@ from lux.utils.utils import checkImportLuxWidget
 #import for benchmarking
 import time
 import typing
+import warnings
 class LuxDataFrame(pd.DataFrame):
     '''
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
@@ -32,6 +33,7 @@ class LuxDataFrame(pd.DataFrame):
         self.SQLconnection = ""
         self.table_name = ""
         self.filterSpecs = []
+        self.defaultPandasView = True
         self.togglePandasView = True
         self.toggleBenchmarking = False
         self.plotConfig = None
@@ -40,6 +42,21 @@ class LuxDataFrame(pd.DataFrame):
     def _constructor(self):
         return LuxDataFrame
     
+    def setDefaultDisplay(self,type:str) -> None:
+        """
+        Set the widget display to show Pandas by default or Lux by default
+
+        Parameters
+        ----------
+        type : str
+            Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
+        """        
+        if (type.lower()=="lux"):
+            self.defaultPandasView = False
+        elif (type.lower()=="pandas"):
+            self.defaultPandasView = True
+        else: 
+            warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.")
     # @property
     # def context(self):
     #     return self.context
@@ -412,6 +429,7 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
+        self.togglePandasView = self.defaultPandasView # Reset to Pandas View everytime
         # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refreshContext)
         if self.executorType == "Pandas":
             self.computeStats()
