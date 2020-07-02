@@ -437,18 +437,19 @@ class LuxDataFrame(pd.DataFrame):
         #for benchmarking
         if self.toggleBenchmarking == True:
             tic = time.perf_counter()
-        self.showMore() # compute the recommendations
+        self.showMore() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self.widget)
         if self.toggleBenchmarking == True:
             toc = time.perf_counter()
             print(f"Computed recommendations in {toc - tic:0.4f} seconds")
 
         self.widget = LuxDataFrame.renderWidget(self)
 
-        button = widgets.Button(description="Toggle Pandas/Lux")
+        box = widgets.Box(layout=widgets.Layout(display='inline'))
+        button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',left='85%'))
         output = widgets.Output()
+        box.children = [button,output]
 
-        display(button, output)
-
+        display(box)
         def on_button_clicked(b):
             with output:
                 if (b):
