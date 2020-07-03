@@ -444,12 +444,13 @@ class LuxDataFrame(pd.DataFrame):
 
         self.widget = LuxDataFrame.renderWidget(self)
 
-        box = widgets.Box(layout=widgets.Layout(display='inline'))
-        button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',left='85%'))
+        # box = widgets.Box(layout=widgets.Layout(display='inline'))
+        button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',left='935px',top='20px'))
         output = widgets.Output()
-        box.children = [button,output]
-
-        display(box)
+        # box.children = [button,output]
+        # output.children = [button]
+        # display(box)
+        display(button,output)
         def on_button_clicked(b):
             with output:
                 if (b):
@@ -458,8 +459,9 @@ class LuxDataFrame(pd.DataFrame):
                 if (self.togglePandasView):
                     display(self.displayPandas())
                 else:
+                    # b.layout.display = "none"
                     display(self.widget)
-
+                    # b.layout.display = "inline-block"
         button.on_click(on_button_clicked)
         on_button_clicked(None)
 
