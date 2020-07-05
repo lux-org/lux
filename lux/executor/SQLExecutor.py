@@ -17,7 +17,7 @@ class SQLExecutor(Executor):
         return f"<Executor>"
 
     @staticmethod
-    def execute(viewCollection:ViewCollection, ldf: LuxDataFrame):
+    def execute(view_collection:ViewCollection, ldf: LuxDataFrame):
         import pandas as pd
         '''
         Given a ViewCollection, fetch the data required to render the view
@@ -25,7 +25,7 @@ class SQLExecutor(Executor):
         2) Retreive relevant attribute
         3) return a DataFrame with relevant results
         '''
-        for view in viewCollection:
+        for view in view_collection:
             print(view, utils.getFilterSpecs(view.specLst))
             # Select relevant data based on attribute information
             attributes = set([])

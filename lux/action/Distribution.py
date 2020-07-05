@@ -25,17 +25,17 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 	import numpy as np
 
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 
 	if (dataTypeConstraint=="quantitative"):
 		query = [lux.Spec("?",dataType="quantitative")]
-		query.extend(ldf.filterSpecs)
+		query.extend(ldf.filter_specs)
 		recommendation = {"action":"Distribution",
 							"description":"Show univariate count distributions of different attributes in the dataset."}
 	elif (dataTypeConstraint=="nominal"):
 		query = [lux.Spec("?",dataType="nominal")]
-		query.extend(ldf.filterSpecs)
+		query.extend(ldf.filter_specs)
 		recommendation = {"action":"Category",
 						   "description":"Show bar chart distributions of different attributes in the dataset."}
 	vc = ViewCollection(query)
@@ -45,7 +45,7 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 	vc = vc.topK(15)
 	recommendation["collection"] = vc
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		toc = time.perf_counter()
 		print(f"Performed distribution action in {toc - tic:0.4f} seconds")
 	return recommendation

@@ -37,11 +37,11 @@ Choosing an Executor
 
 Once a user has created a connection to their Postgresql database, they need to change Lux's execution engine so that the system can collect and process the data properly.
 By default Lux uses the Pandas executor to process local data in the Lux Dataframe, but users need to use the SQL executor when their Lux Dataframe is connected to a database.
-Users can specify the executor that a Lux Dataframe will use via the setExecutorType function as follows:
+Users can specify the executor that a Lux Dataframe will use via the set_executor_type function as follows:
 
 .. code-block:: python
 
-	lux_df.setExecutorType("SQL")
+	lux_df.set_executor_type("SQL")
 
 Once a Lux Dataframe has been connected to a Postgresql table and set to use the SQL Executor, users can take full advantage of Lux's visual exploration capabilities as-is. Users can set their context to specify which variables they are most interested in and discover insightful visualizations from their database.
 

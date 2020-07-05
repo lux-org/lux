@@ -14,7 +14,7 @@ class View:
 		self.data = None
 		self.score = 0.0
 		self.vis = None
-		self.plotConfig = None
+		self.plot_config = None
 		self.xMinMax = {}
 		self.yMinMax = {}
 	def __repr__(self):
@@ -51,7 +51,7 @@ class View:
 			return f"<View  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filterOp}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
 			return f"<View  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
-	def setPlotConfig(self,configFunc:Callable):
+	def set_plot_config(self,configFunc:Callable):
 		"""
 		Modify plot aesthetic settings to the View
 		Currently only supported for Altair visualizations
@@ -61,9 +61,9 @@ class View:
 		configFunc : typing.Callable
 			A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
 		"""
-		self.plotConfig = configFunc
-	def clearPlotConfig(self):
-		self.plotConfig = None
+		self.plot_config = configFunc
+	def clear_plot_config(self):
+		self.plot_config = None
 	def _repr_html_(self):
 		from IPython.display import display
 		checkImportLuxWidget()
@@ -173,7 +173,7 @@ class View:
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
 		#TODO: handle case when user input vanilla Pandas dataframe
 		self.specLst = Parser.parse(self.specLst)
-		Validator.validateSpec(self.specLst,ldf)
+		Validator.validate_spec(self.specLst,ldf)
 		vc = Compiler.compile(ldf,ldf.context,[self],enumerateCollection=False)
 		PandasExecutor.execute(vc,ldf)
 		return vc[0]

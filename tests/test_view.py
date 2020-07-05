@@ -2,7 +2,7 @@ from .context import lux
 import pytest
 import pandas as pd
 
-def test_viewCollection():
+def test_view_collection():
     df = pd.read_csv("lux/data/olympic.csv")
     from lux.view.ViewCollection import ViewCollection
     vc = ViewCollection(["Height","SportType=Ball","?"])
@@ -20,7 +20,7 @@ def test_customPlotSetting():
         chart.title = "Test Title"
         return chart
     df = pd.read_csv("lux/data/car.csv")
-    df.setPlotConfig(changeColorMakeTransparentAddTitle)
+    df.set_plot_config(changeColorMakeTransparentAddTitle)
     df.showMore()
     configMarkAddition = 'chart = chart.configure_mark(color="green",opacity=0.2)'
     titleAddition ='chart.title = "Test Title"'

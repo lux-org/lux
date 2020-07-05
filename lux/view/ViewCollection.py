@@ -144,7 +144,7 @@ class ViewCollection():
 
 	def set(self,fieldName,fieldVal):
 		return NotImplemented
-	def setPlotConfig(self,configFunc:Callable):
+	def set_plot_config(self,configFunc:Callable):
 		"""
 		Modify plot aesthetic settings to the View Collection
 		Currently only supported for Altair visualizations
@@ -155,10 +155,10 @@ class ViewCollection():
 			A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
 		"""
 		for view in self.collection:
-			view.plotConfig = configFunc
-	def clearPlotConfig(self):
+			view.plot_config = configFunc
+	def clear_plot_config(self):
 		for view in self.collection:
-			view.plotConfig = None
+			view.plot_config = None
 	def sort(self, removeInvalid=True, descending = True):
 		# remove the items that have invalid (-1) score
 		if (removeInvalid): self.collection = list(filter(lambda x: x.score!=-1,self.collection))
@@ -223,11 +223,11 @@ class ViewCollection():
 			if (self._isViewInput()):
 				for view in self.collection:
 					view.specLst = Parser.parse(view.specLst)
-					Validator.validateSpec(view.specLst,ldf)
+					Validator.validate_spec(view.specLst,ldf)
 				vc = Compiler.compile(ldf,ldf.context,self,enumerateCollection=False)
 			else:
 				self.specLst = Parser.parse(self.specLst)
-				Validator.validateSpec(self.specLst,ldf)
+				Validator.validate_spec(self.specLst,ldf)
 				vc = Compiler.compile(ldf,self.specLst,self)
 			PandasExecutor.execute(vc,ldf)
 			return vc

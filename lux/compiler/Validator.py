@@ -13,7 +13,7 @@ class Validator:
 		return f"<Validator>"
 
 	@staticmethod
-	def validateSpec(specs: List[Spec], ldf:LuxDataFrame) -> None:
+	def validate_spec(specs: List[Spec], ldf:LuxDataFrame) -> None:
 		"""
 		Validates input specifications from the user to find inconsistencies and errors.
 

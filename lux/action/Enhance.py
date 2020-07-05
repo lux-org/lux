@@ -7,7 +7,7 @@ from lux.utils import utils
 import time
 def enhance(ldf):
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 	'''
 	Given a set of views, generates possible visualizations when an additional attribute is added to the current view.
@@ -42,7 +42,7 @@ def enhance(ldf):
 	vc = vc.topK(15)
 	recommendation["collection"] = vc
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		toc = time.perf_counter()
 		print(f"Performed enhance action in {toc - tic:0.4f} seconds")
 	return recommendation

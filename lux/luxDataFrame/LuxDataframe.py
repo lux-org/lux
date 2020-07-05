@@ -11,30 +11,30 @@ class LuxDataFrame(pd.DataFrame):
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
     '''
     # MUST register here for new properties!!
-    _metadata = ['context','dataTypeLookup','dataType','filterSpecs',
+    _metadata = ['context','dataTypeLookup','dataType','filter_specs',
                  'dataModelLookup','dataModel','uniqueValues','cardinality',
-                 'xMinMax', 'yMinMax','plotConfig',
-                 'viewCollection','widget', '_recInfo', 'recommendation']
+                 'xMinMax', 'yMinMax','plot_config',
+                 'view_collection','widget', '_rec_info', 'recommendation']
 
     def __init__(self,*args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
         self.context = []
-        self._recInfo=[]
+        self._rec_info=[]
         self.recommendation = {}
-        self.viewCollection = []
+        self.view_collection = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
-        self.computeStats()
-        self.computeDatasetMetadata()
+        self.compute_stats()
+        self.compute_dataset_metadata()
 
-        self.executorType = "Pandas"
+        self.executor_type = "Pandas"
         self.executor = PandasExecutor
         self.SQLconnection = ""
         self.table_name = ""
-        self.filterSpecs = []
-        self.togglePandasView = True
-        self.toggleBenchmarking = False
-        self.plotConfig = None
+        self.filter_specs = []
+        self.toggle_pandas_view = True
+        self.toggle_benchmarking = False
+        self.plot_config = None
 
     @property
     def _constructor(self):
@@ -44,7 +44,7 @@ class LuxDataFrame(pd.DataFrame):
     # def context(self):
     #     return self.context
     
-    def setExecutorType(self, exe):
+    def set_executor_type(self, exe):
         if (exe =="SQL"):
             import pkgutil
             if (pkgutil.find_loader("psycopg2") is None):
@@ -56,8 +56,8 @@ class LuxDataFrame(pd.DataFrame):
         else:
             from lux.executor.PandasExecutor import PandasExecutor
             self.executor = PandasExecutor
-        self.executorType = exe
-    def setPlotConfig(self,configFunc:typing.Callable):
+        self.executor_type = exe
+    def set_plot_config(self,configFunc:typing.Callable):
         """
         Modify plot aesthetic settings to all Views in the dataframe display
         Currently only supported for Altair visualizations
@@ -76,7 +76,7 @@ class LuxDataFrame(pd.DataFrame):
                 chart = chart.configure_mark(color="red") # change mark color to red
                 chart.title = "Custom Title" # add title to chart
                 return chart
-        >>> df.setPlotConfig(changeColorAddTitle)
+        >>> df.set_plot_config(changeColorAddTitle)
         >>> df
 
         Change the opacity of all scatterplots displayed for this dataframe
@@ -85,26 +85,26 @@ class LuxDataFrame(pd.DataFrame):
                 if chart.mark=='circle':
                     chart = chart.configure_mark(opacity=0.1) # lower opacity
                 return chart
-        >>> df.setPlotConfig(changeOpacityScatterOnly)
+        >>> df.set_plot_config(changeOpacityScatterOnly)
         >>> df
         """        
-        self.plotConfig = configFunc
-    def clearPlotConfig(self):
-        self.plotConfig = None
-    def setViewCollection(self,viewCollection):
-        self.viewCollection = viewCollection 
+        self.plot_config = configFunc
+    def clear_plot_config(self):
+        self.plot_config = None
+    def set_view_collection(self,view_collection):
+        self.view_collection = view_collection 
     def _refreshContext(self):
         from lux.compiler.Validator import Validator
         from lux.compiler.Compiler import Compiler
         from lux.compiler.Parser import Parser
 
         if self.SQLconnection == "":
-            self.computeStats()
-            self.computeDatasetMetadata()
-        self.context = Parser.parse(self.getContext())
-        Validator.validateSpec(self.context,self)
-        viewCollection = Compiler.compile(self,self.context,self.viewCollection)
-        self.setViewCollection(viewCollection)
+            self.compute_stats()
+            self.compute_dataset_metadata()
+        self.context = Parser.parse(self.get_context())
+        Validator.validate_spec(self.context,self)
+        view_collection = Compiler.compile(self,self.context,self.view_collection)
+        self.set_view_collection(view_collection)
 
     def setContext(self,context:typing.List[typing.Union[str,Spec]]):
         """
@@ -136,27 +136,27 @@ class LuxDataFrame(pd.DataFrame):
 
     def clearContext(self):
         self.context = []
-        self.viewCollection = []
+        self.view_collection = []
     def clearFilter(self):
-        self.filterSpecs = []  # reset filters
+        self.filter_specs = []  # reset filters
     def toPandas(self):
         import lux.luxDataFrame
         return lux.luxDataFrame.originalDF(self,copy=False)
     def addToContext(self,context): 
         self.context.extend(context)
-    def getContext(self):
+    def get_context(self):
         return self.context
     def __repr__(self):
         # TODO: _repr_ gets called from _repr_html, need to get rid of this call
         return ""
     def __setitem__(self, key, value):
         super(LuxDataFrame, self).__setitem__(key, value)
-        self.computeStats()
-        self.computeDatasetMetadata()
+        self.compute_stats()
+        self.compute_dataset_metadata()
     #######################################################
     ############ Metadata: data type, model #############
     #######################################################
-    def computeDatasetMetadata(self):
+    def compute_dataset_metadata(self):
         self.dataTypeLookup = {}
         self.dataType = {}
         self.computeDataType()
@@ -209,7 +209,7 @@ class LuxDataFrame(pd.DataFrame):
                 reverseMap[val] = valKey
         return reverseMap
 
-    def computeStats(self):
+    def compute_stats(self):
         # precompute statistics
         self.uniqueValues = {}
         self.xMinMax = {}
@@ -229,15 +229,15 @@ class LuxDataFrame(pd.DataFrame):
 
     def setSQLConnection(self, connection, t_name):
         #for benchmarking
-        if self.toggleBenchmarking == True:
+        if self.toggle_benchmarking == True:
             tic = time.perf_counter()
         self.SQLconnection = connection
         self.table_name = t_name
         self.computeSQLDatasetMetadata()
-        if self.toggleBenchmarking == True:
+        if self.toggle_benchmarking == True:
             toc = time.perf_counter()
             print(f"Extracted Metadata from SQL Database in {toc - tic:0.4f} seconds")
-        self.setExecutorType("SQL")
+        self.set_executor_type("SQL")
 
     def computeSQLDatasetMetadata(self):
         self.getSQLAttributes()
@@ -333,35 +333,35 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.Filter import filter
         from lux.action.Generalize import generalize
 
-        self._recInfo = []
-        noView = len(self.viewCollection) == 0
-        oneCurrentView = len(self.viewCollection) == 1
-        multipleCurrentViews = len(self.viewCollection) > 1
+        self._rec_info = []
+        noView = len(self.view_collection) == 0
+        oneCurrentView = len(self.view_collection) == 1
+        multipleCurrentViews = len(self.view_collection) > 1
 
         if (noView):
-            self._recInfo.append(correlation(self))
-            self._recInfo.append(distribution(self,"quantitative"))
-            self._recInfo.append(distribution(self,"nominal"))
+            self._rec_info.append(correlation(self))
+            self._rec_info.append(distribution(self,"quantitative"))
+            self._rec_info.append(distribution(self,"nominal"))
         elif (oneCurrentView):
             enhance = enhance(self)
             filter = filter(self)
             generalize = generalize(self)
             if enhance['collection']:
-                self._recInfo.append(enhance)
+                self._rec_info.append(enhance)
             if filter['collection']:
-                self._recInfo.append(filter)
+                self._rec_info.append(filter)
             if generalize['collection']:
-                self._recInfo.append(generalize)
+                self._rec_info.append(generalize)
         elif (multipleCurrentViews):
-            self._recInfo.append(userDefined(self))
+            self._rec_info.append(userDefined(self))
             
-        # Store _recInfo into a more user-friendly dictionary form
+        # Store _rec_info into a more user-friendly dictionary form
         self.recommendation = {}
-        for recInfo in self._recInfo: 
+        for recInfo in self._rec_info: 
             actionType = recInfo["action"]
             vc = recInfo["collection"]
-            if (self.plotConfig):
-                for view in vc: view.plotConfig = self.plotConfig
+            if (self.plot_config):
+                for view in vc: view.plot_config = self.plot_config
             self.recommendation[actionType]  = vc
 
         self.clearFilter()
@@ -412,14 +412,14 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import clear_output
         import ipywidgets as widgets
         # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refreshContext)
-        if self.executorType == "Pandas":
-            self.computeStats()
-            self.computeDatasetMetadata()
+        if self.executor_type == "Pandas":
+            self.compute_stats()
+            self.compute_dataset_metadata()
         #for benchmarking
-        if self.toggleBenchmarking == True:
+        if self.toggle_benchmarking == True:
             tic = time.perf_counter()
         self.showMore() # compute the recommendations
-        if self.toggleBenchmarking == True:
+        if self.toggle_benchmarking == True:
             toc = time.perf_counter()
             print(f"Computed recommendations in {toc - tic:0.4f} seconds")
 
@@ -433,9 +433,9 @@ class LuxDataFrame(pd.DataFrame):
         def on_button_clicked(b):
             with output:
                 if (b):
-                    self.togglePandasView = not self.togglePandasView
+                    self.toggle_pandas_view = not self.toggle_pandas_view
                 clear_output()
-                if (self.togglePandasView):
+                if (self.toggle_pandas_view):
                     display(self.displayPandas())
                 else:
                     display(self.widget)
@@ -469,23 +469,23 @@ class LuxDataFrame(pd.DataFrame):
     def contextToJSON(context):
         from lux.utils import utils
 
-        filterSpecs = utils.getFilterSpecs(context)
+        filter_specs = utils.getFilterSpecs(context)
         attrsSpecs = utils.getAttrsSpecs(context)
         
         specs = {}
         specs['attributes'] = [spec.attribute for spec in attrsSpecs]
-        specs['filters'] = [spec.attribute for spec in filterSpecs]
+        specs['filters'] = [spec.attribute for spec in filter_specs]
         return specs
 
     def toJSON(self, inputCurrentView=""):
         widgetSpec = {}
-        self.executor.execute(self.viewCollection,self)
-        widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.viewCollection,inputCurrentView)
+        self.executor.execute(self.view_collection,self)
+        widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.view_collection,inputCurrentView)
         
         widgetSpec["recommendation"] = []
         
         # Recommended Collection
-        recCollection = LuxDataFrame.recToJSON(self._recInfo)
+        recCollection = LuxDataFrame.recToJSON(self._rec_info)
         widgetSpec["recommendation"].extend(recCollection)
         return widgetSpec
     

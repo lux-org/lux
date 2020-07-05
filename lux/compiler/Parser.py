@@ -23,7 +23,7 @@ class Parser:
 			Parsed list of lux.Spec objects.
 		"""		
 		import re
-		# specs = ldf.getContext()
+		# specs = ldf.get_context()
 		newContext = []
 		#checks for and converts users' string inputs into lux specifications
 		for s in specs:

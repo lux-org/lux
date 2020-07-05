@@ -25,11 +25,11 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=True):
 	'''
 	import numpy as np
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 
 	query = [lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")]
-	query.extend(ldf.filterSpecs)
+	query.extend(ldf.filter_specs)
 	vc = ViewCollection(query)
 	recommendation = {"action":"Correlation",
 						   "description":"Show relationships between two quantitative variables."}
@@ -53,7 +53,7 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=True):
 	recommendation["collection"] = vc
 
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		toc = time.perf_counter()
 		print(f"Performed correlation action in {toc - tic:0.4f} seconds")
 	return recommendation

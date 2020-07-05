@@ -10,7 +10,7 @@ class Executor:
     def __repr__(self):
         return f"<Executor>"
     @staticmethod
-    def execute(viewCollection:ViewCollection, ldf):
+    def execute(view_collection:ViewCollection, ldf):
         return NotImplemented
 
     @staticmethod

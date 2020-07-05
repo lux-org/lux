@@ -21,9 +21,9 @@ def userDefined(ldf):
     '''
     recommendation = {"action": "View Collection",
                       "description": "Shows a view collection defined by the context"}
-    recommendation["collection"] = ldf.viewCollection
+    recommendation["collection"] = ldf.view_collection
 
-    vc = ldf.viewCollection
+    vc = ldf.view_collection
     PandasExecutor.execute(vc, ldf)
     for view in vc: 
         view.score = interestingness(view,ldf)

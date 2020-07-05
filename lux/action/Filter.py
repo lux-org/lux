@@ -10,7 +10,7 @@ import time
 
 def filter(ldf):
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 	'''
 	Iterates over all possible values of a categorical variable and generates visualizations where each categorical value filters the data.
@@ -31,7 +31,7 @@ def filter(ldf):
 	filterValues = []
 	output = []
 	#if Row is specified, create visualizations where data is filtered by all values of the Row's categorical variable
-	columnSpec = utils.getAttrsSpecs(ldf.viewCollection[0].specLst)
+	columnSpec = utils.getAttrsSpecs(ldf.view_collection[0].specLst)
 	columnSpecAttr = map(lambda x: x.attribute,columnSpec)
 	if len(filters) > 0:
 		#get unique values for all categorical values specified and creates corresponding filters
@@ -68,7 +68,7 @@ def filter(ldf):
 	recommendation["collection"] = vc
 	
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		toc = time.perf_counter()
 		print(f"Performed filter action in {toc - tic:0.4f} seconds")
 	return recommendation

@@ -14,7 +14,7 @@ class PandasExecutor(Executor):
     def __repr__(self):
         return f"<PandasExecutor>"
     @staticmethod
-    def execute(viewCollection:ViewCollection, ldf:LuxDataFrame):
+    def execute(view_collection:ViewCollection, ldf:LuxDataFrame):
         '''
         Given a ViewCollection, fetch the data required to render the view.
         1) Apply filters
@@ -24,7 +24,7 @@ class PandasExecutor(Executor):
 
         Parameters
 		----------
-		viewCollection: list[lux.View]
+		view_collection: list[lux.View]
 		    view collection that contains lux.View objects for visualization.
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with specified context.
@@ -33,7 +33,7 @@ class PandasExecutor(Executor):
 		-------
 		None
         '''
-        for view in viewCollection:
+        for view in view_collection:
             view.data = ldf # The view data starts off being the same as the content of the original dataframe
             PandasExecutor.executeFilter(view)
             # Select relevant data based on attribute information

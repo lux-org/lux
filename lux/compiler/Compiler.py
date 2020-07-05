@@ -20,7 +20,7 @@ class Compiler:
 		return f"<Compiler>"
 
 	@staticmethod
-	def compile(ldf: LuxDataFrame,specLst:List[Spec], viewCollection: ViewCollection, enumerateCollection=True) -> ViewCollection:
+	def compile(ldf: LuxDataFrame,specLst:List[Spec], view_collection: ViewCollection, enumerateCollection=True) -> ViewCollection:
 		"""
 		Compiles input specifications in the context of the ldf into a collection of lux.View objects for visualization.
 		1) Enumerate a collection of views interested by the user to generate a view collection
@@ -31,24 +31,24 @@ class Compiler:
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context.
-		viewCollection : list[lux.view.View]
+		view_collection : list[lux.view.View]
 			empty list that will be populated with specified lux.View objects.
 		enumerateCollection : boolean
 			A boolean value that signals when to generate a collection of visualizations.
 
 		Returns
 		-------
-		viewCollection: list[lux.View]
+		view_collection: list[lux.View]
 			view collection with compiled lux.View objects.
 		"""
 		if (enumerateCollection):
-			viewCollection = Compiler.enumerateCollection(specLst,ldf)
-		viewCollection = Compiler.expandUnderspecified(ldf, viewCollection)  # autofill data type/model information
-		if len(viewCollection)>1: 
-			viewCollection = Compiler.removeAllInvalid(viewCollection) # remove invalid views from collection
-		for view in viewCollection:
+			view_collection = Compiler.enumerateCollection(specLst,ldf)
+		view_collection = Compiler.expandUnderspecified(ldf, view_collection)  # autofill data type/model information
+		if len(view_collection)>1: 
+			view_collection = Compiler.removeAllInvalid(view_collection) # remove invalid views from collection
+		for view in view_collection:
 			Compiler.determineEncoding(ldf, view)  # autofill viz related information
-		return viewCollection
+		return view_collection
 
 	@staticmethod
 	def enumerateCollection(specLst:List[Spec],ldf: LuxDataFrame) -> ViewCollection:
@@ -71,7 +71,7 @@ class Compiler:
 		attributes = specs['attributes']
 		filters = specs['filters']
 		if len(attributes) == 0 and len(filters) > 0:
-			ldf.filterSpecs = filters
+			ldf.filter_specs = filters
 			return []
 
 		collection = []
@@ -97,7 +97,7 @@ class Compiler:
 		return ViewCollection(collection)
 
 	@staticmethod
-	def expandUnderspecified(ldf, viewCollection):
+	def expandUnderspecified(ldf, view_collection):
 		"""
 		Given a underspecified Spec, populate the dataType and dataModel information accordingly
 
@@ -106,7 +106,7 @@ class Compiler:
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context
 
-		viewCollection : list[lux.view.View]
+		view_collection : list[lux.view.View]
 			List of lux.View objects that will have their underspecified Spec details filled out.
 		Returns
 		-------
@@ -115,7 +115,7 @@ class Compiler:
 		"""		
 		# TODO: copy might not be neccesary
 		import copy
-		views = copy.deepcopy(viewCollection)  # Preserve the original dobj
+		views = copy.deepcopy(view_collection)  # Preserve the original dobj
 		for view in views:
 			for spec in view.specLst:
 				if spec.description == "?":
@@ -135,13 +135,13 @@ class Compiler:
 		return views
 
 	@staticmethod
-	def removeAllInvalid(viewCollection:ViewCollection) -> ViewCollection:
+	def removeAllInvalid(view_collection:ViewCollection) -> ViewCollection:
 		"""
 		Given an expanded view collection, remove all views that are invalid.
 		Currently, the invalid views are ones that contain two of the same attribute, no more than two temporal attributes, or overlapping attributes (same filter attribute and visualized attribute).
 		Parameters
 		----------
-		viewCollection : list[lux.view.View]
+		view_collection : list[lux.view.View]
 			empty list that will be populated with specified lux.View objects.
 		Returns
 		-------
@@ -149,7 +149,7 @@ class Compiler:
 			view collection with compiled lux.View objects.
 		"""
 		newVC = []
-		for view in viewCollection:
+		for view in view_collection:
 			numTemporalSpecs = 0
 			attributeSet = set()
 			for spec in view.specLst:

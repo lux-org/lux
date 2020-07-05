@@ -30,7 +30,7 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 	n_dim = 0
 	n_msr = 0
 	
-	filterSpecs = utils.getFilterSpecs(view.specLst)
+	filter_specs = utils.getFilterSpecs(view.specLst)
 	viewAttrsSpecs = utils.getAttrsSpecs(view.specLst)
 
 	for spec in viewAttrsSpecs:
@@ -39,7 +39,7 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 				n_dim += 1
 			if (spec.dataModel == 'measure'):
 				n_msr += 1
-	n_filter = len(filterSpecs)
+	n_filter = len(filter_specs)
 	attr_specs = [spec for spec in viewAttrsSpecs if spec.attribute != "Record"]
 	dimensionLst = view.getAttrByDataModel("dimension")
 	measureLst = view.getAttrByDataModel("measure")
@@ -49,18 +49,18 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 		if (n_filter == 0):
 			return unevenness(view, ldf, measureLst, dimensionLst)
 		elif(n_filter==1):
-			return deviationFromOverall(view,ldf,filterSpecs,measureLst[0].attribute)
+			return deviationFromOverall(view,ldf,filter_specs,measureLst[0].attribute)
 	# Histogram
 	elif (n_dim == 0 and n_msr == 1):
 		if (n_filter == 0):
 			v = view.data["Count of Records"]
 			return skewness(v)
 		elif (n_filter == 1):
-			return deviationFromOverall(view,ldf,filterSpecs,"Count of Records")
+			return deviationFromOverall(view,ldf,filter_specs,"Count of Records")
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
 		if (n_filter==1):
-			v_filter_size = getFilteredSize(filterSpecs,view.data)
+			v_filter_size = getFilteredSize(filter_specs,view.data)
 			v_size = len(view.data)
 			sig = v_filter_size/v_size
 		else:
@@ -84,15 +84,15 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 	# Default
 	else:
 		return -1
-def getFilteredSize(filterSpecs,ldf):
-	filter_spec = filterSpecs[0]
+def getFilteredSize(filter_specs,ldf):
+	filter_spec = filter_specs[0]
 	result = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
 	return len(result)
 def skewness(v):
 	from scipy.stats import skew
 	return skew(v)
 
-def deviationFromOverall(view:View,ldf:LuxDataFrame,filterSpecs:list,msrAttribute:str) -> int:
+def deviationFromOverall(view:View,ldf:LuxDataFrame,filter_specs:list,msrAttribute:str) -> int:
 	"""
 	Difference in bar chart/histogram shape from overall chart
 	Note: this function assumes that the filtered view.data is operating on the same range as the unfiltered view.data. 
@@ -101,7 +101,7 @@ def deviationFromOverall(view:View,ldf:LuxDataFrame,filterSpecs:list,msrAttribut
 	----------
 	view : View
 	ldf : LuxDataFrame
-	filterSpecs : list
+	filter_specs : list
 		List of filters from the View
 	msrAttribute : str
 		The attribute name of the measure value of the chart
@@ -111,12 +111,12 @@ def deviationFromOverall(view:View,ldf:LuxDataFrame,filterSpecs:list,msrAttribut
 	int
 		Score describing how different the view is from the overall view
 	"""	
-	v_filter_size = getFilteredSize(filterSpecs,ldf)
+	v_filter_size = getFilteredSize(filter_specs,ldf)
 	v_size = len(view.data)
 	v_filter = view.data[msrAttribute]
 	v_filter = v_filter/v_filter.sum() # normalize by total to get ratio
 
-	# Generate an "Overall" View (TODO: This is computed multiple times for every view, alternative is to directly access df.viewCollection but we do not have guaruntee that will always be unfiltered view (in the non-Filter action scenario))
+	# Generate an "Overall" View (TODO: This is computed multiple times for every view, alternative is to directly access df.view_collection but we do not have guaruntee that will always be unfiltered view (in the non-Filter action scenario))
 	import copy
 	unfilteredView = copy.copy(view)
 	unfilteredView.specLst = utils.getAttrsSpecs(view.specLst) # Remove filters, keep only attribute specs
