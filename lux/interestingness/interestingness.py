@@ -187,11 +187,14 @@ def monotonicity(view:View,attr_specs:list,ignoreIdentity:bool=True) ->int:
 	from scipy.stats import spearmanr
 	msr1 = attr_specs[0].attribute
 	msr2 = attr_specs[1].attribute
-
 	if(ignoreIdentity and msr1 == msr2): #remove if measures are the same
 		return -1
 	v_x = view.data[msr1]
 	v_y = view.data[msr2]
-	return (spearmanr(v_x, v_y)[0]) ** 2
+	score = (spearmanr(v_x, v_y)[0]) ** 2
+	if pd.isnull(score):
+		return -1
+	else:
+		return score
 	# import scipy.stats
 	# return abs(scipy.stats.pearsonr(v_x,v_y)[0])
