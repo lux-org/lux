@@ -7,8 +7,8 @@ class View:
 	View Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
 	'''
 
-	def __init__(self, specLst, mark="", title=""):
-		self.specLst = specLst
+	def __init__(self, spec_lst, mark="", title=""):
+		self.spec_lst = spec_lst
 		self.title = title
 		self.mark = mark
 		self.data = None
@@ -19,10 +19,10 @@ class View:
 		self.yMinMax = {}
 	def __repr__(self):
 		if self.data is None:
-			return f"<View  ({str(self.specLst)}) mark: {self.mark}, score: {self.score} >"
+			return f"<View  ({str(self.spec_lst)}) mark: {self.mark}, score: {self.score} >"
 		filter_spec = None
 		channels, additional_channels = [], []
-		for spec in self.specLst:
+		for spec in self.spec_lst:
 
 			if hasattr(spec,"value"):
 				if spec.value != "":
@@ -80,30 +80,30 @@ class View:
 				)
 			display(widget)
 	def getAttrByAttrName(self,attrName):
-		return list(filter(lambda x: x.attribute == attrName, self.specLst))
+		return list(filter(lambda x: x.attribute == attrName, self.spec_lst))
 		
 	def getAttrByChannel(self, channel):
-		specObj = list(filter(lambda x: x.channel == channel and x.value=='' if hasattr(x, "channel") else False, self.specLst))
+		specObj = list(filter(lambda x: x.channel == channel and x.value=='' if hasattr(x, "channel") else False, self.spec_lst))
 		return specObj
 
 	def getAttrByDataModel(self, dmodel, excludeRecord=False):
 		if (excludeRecord):
-			return list(filter(lambda x: x.dataModel == dmodel and x.value=='' if x.attribute!="Record" and hasattr(x, "dataModel") else False, self.specLst))
+			return list(filter(lambda x: x.data_model == dmodel and x.value=='' if x.attribute!="Record" and hasattr(x, "data_model") else False, self.spec_lst))
 		else:
-			return list(filter(lambda x: x.dataModel == dmodel and x.value=='' if hasattr(x, "dataModel") else False, self.specLst))
+			return list(filter(lambda x: x.data_model == dmodel and x.value=='' if hasattr(x, "data_model") else False, self.spec_lst))
 
 	def getAttrByDataType(self, dtype):
-		return list(filter(lambda x: x.dataType == dtype and x.value=='' if hasattr(x, "dataType") else False, self.specLst))
+		return list(filter(lambda x: x.data_type == dtype and x.value=='' if hasattr(x, "data_type") else False, self.spec_lst))
 
 	def removeColumnFromSpec(self, attribute):
-		self.spec = list(filter(lambda x: x.attribute != attribute, self.specLst))
+		self.spec = list(filter(lambda x: x.attribute != attribute, self.spec_lst))
 
 	def removeColumnFromSpecNew(self, attribute):
 		newSpec = []
-		for i in range(0, len(self.specLst)):
-			if self.specLst[i].value=="": # spec is type attribute
+		for i in range(0, len(self.spec_lst)):
+			if self.spec_lst[i].value=="": # spec is type attribute
 				columnSpec = []
-				columnNames = self.specLst[i].attribute
+				columnNames = self.spec_lst[i].attribute
 				# if only one variable in a column, columnName results in a string and not a list so
 				# you need to differentiate the cases
 				if isinstance(columnNames, list):
@@ -115,8 +115,8 @@ class View:
 					if columnNames != attribute:
 						newSpec.append(Spec(attribute = columnNames))
 			else:
-				newSpec.append(self.specLst[i])
-		self.specLst = newSpec
+				newSpec.append(self.spec_lst[i])
+		self.spec_lst = newSpec
 	def toAltair(self) -> str:
 		"""
 		Generate minimal Altair code to visualize the view
@@ -172,8 +172,8 @@ class View:
 		from lux.compiler.Compiler import Compiler
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
 		#TODO: handle case when user input vanilla Pandas dataframe
-		self.specLst = Parser.parse(self.specLst)
-		Validator.validate_spec(self.specLst,ldf)
+		self.spec_lst = Parser.parse(self.spec_lst)
+		Validator.validate_spec(self.spec_lst,ldf)
 		vc = Compiler.compile(ldf,ldf.context,[self],enumerateCollection=False)
 		PandasExecutor.execute(vc,ldf)
 		return vc[0]

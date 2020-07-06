@@ -43,7 +43,7 @@ class Parser:
 					if "|" in s:
 						values = s[eqInd+1:].split("|")
 						for v in values:
-							# if v in ldf.uniqueValues[var]: #TODO: Move validation check to Validator
+							# if v in ldf.unique_values[var]: #TODO: Move validation check to Validator
 							validValues.append(v)
 					else:
 						validValues = s[eqInd+1:]

@@ -11,8 +11,8 @@ class LuxDataFrame(pd.DataFrame):
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
     '''
     # MUST register here for new properties!!
-    _metadata = ['context','dataTypeLookup','dataType','filter_specs',
-                 'dataModelLookup','dataModel','uniqueValues','cardinality',
+    _metadata = ['context','data_type_lookup','data_type','filter_specs',
+                 'data_model_lookup','data_model','unique_values','cardinality',
                  'xMinMax', 'yMinMax','plot_config',
                  'view_collection','widget', '_rec_info', 'recommendation']
 
@@ -93,7 +93,7 @@ class LuxDataFrame(pd.DataFrame):
         self.plot_config = None
     def set_view_collection(self,view_collection):
         self.view_collection = view_collection 
-    def _refreshContext(self):
+    def _refresh_context(self):
         from lux.compiler.Validator import Validator
         from lux.compiler.Compiler import Compiler
         from lux.compiler.Parser import Parser
@@ -121,8 +121,8 @@ class LuxDataFrame(pd.DataFrame):
             :doc:`../guide/spec`
         """        
         self.context = context
-        self._refreshContext()
-    def setContextAsView(self,view:View):
+        self._refresh_context()
+    def set_context_as_view(self,view:View):
         """
         Set context of the dataframe as the View
 
@@ -131,18 +131,18 @@ class LuxDataFrame(pd.DataFrame):
         view : View
             [description]
         """        
-        self.context = view.specLst
-        self._refreshContext()
+        self.context = view.spec_lst
+        self._refresh_context()
 
-    def clearContext(self):
+    def clear_context(self):
         self.context = []
         self.view_collection = []
-    def clearFilter(self):
+    def clear_filter(self):
         self.filter_specs = []  # reset filters
-    def toPandas(self):
+    def to_pandas(self):
         import lux.luxDataFrame
         return lux.luxDataFrame.originalDF(self,copy=False)
-    def addToContext(self,context): 
+    def add_to_context(self,context): 
         self.context.extend(context)
     def get_context(self):
         return self.context
@@ -157,71 +157,71 @@ class LuxDataFrame(pd.DataFrame):
     ############ Metadata: data type, model #############
     #######################################################
     def compute_dataset_metadata(self):
-        self.dataTypeLookup = {}
-        self.dataType = {}
-        self.computeDataType()
-        self.dataModelLookup = {}
-        self.dataModel = {}
-        self.computeDataModel()
+        self.data_type_lookup = {}
+        self.data_type = {}
+        self.compute_data_type()
+        self.data_model_lookup = {}
+        self.data_model = {}
+        self.compute_data_model()
 
-    def computeDataType(self):
+    def compute_data_type(self):
         for attr in list(self.columns):
             #TODO: Think about dropping NaN values
             if str(attr).lower() in ["month", "year"]:
-                self.dataTypeLookup[attr] = "temporal"
+                self.data_type_lookup[attr] = "temporal"
             elif self.dtypes[attr] == "float64":
-                self.dataTypeLookup[attr] = "quantitative"
+                self.data_type_lookup[attr] = "quantitative"
             elif self.dtypes[attr] == "int64":
                 if self.cardinality[attr] < 13: #TODO:nominal with high value breaks system
-                    self.dataTypeLookup[attr] = "nominal"
+                    self.data_type_lookup[attr] = "nominal"
                 else:
-                    self.dataTypeLookup[attr] = "quantitative"
+                    self.data_type_lookup[attr] = "quantitative"
             # Eliminate this clause because a single NaN value can cause the dtype to be object
             elif self.dtypes[attr] == "object":
-                self.dataTypeLookup[attr] = "nominal"
+                self.data_type_lookup[attr] = "nominal"
             
             # TODO: quick check if attribute is of type time (auto-detect logic borrow from Zenvisage data import)
             elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]) or pd.api.types.is_period_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
-                self.dataTypeLookup[attr] = "temporal"
+                self.data_type_lookup[attr] = "temporal"
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         # 	if self.cardinality[attr]>50:
-        self.dataType = self.mapping(self.dataTypeLookup)
+        self.data_type = self.mapping(self.data_type_lookup)
 
 
-    def computeDataModel(self):
-        self.dataModel = {
-            "measure": self.dataType["quantitative"],
-            "dimension": self.dataType["ordinal"] + self.dataType["nominal"] + self.dataType["temporal"]
+    def compute_data_model(self):
+        self.data_model = {
+            "measure": self.data_type["quantitative"],
+            "dimension": self.data_type["ordinal"] + self.data_type["nominal"] + self.data_type["temporal"]
         }
-        self.dataModelLookup = self.reverseMapping(self.dataModel)
+        self.data_model_lookup = self.reverseMapping(self.data_model)
 
     def mapping(self, rmap):
-        groupMap = {}
+        group_map = {}
         for val in ["quantitative", "ordinal", "nominal", "temporal"]:
-            groupMap[val] = list(filter(lambda x: rmap[x] == val, rmap))
-        return groupMap
+            group_map[val] = list(filter(lambda x: rmap[x] == val, rmap))
+        return group_map
 
 
     def reverseMapping(self, map):
-        reverseMap = {}
+        reverse_map = {}
         for valKey in map:
             for val in map[valKey]:
-                reverseMap[val] = valKey
-        return reverseMap
+                reverse_map[val] = valKey
+        return reverse_map
 
     def compute_stats(self):
         # precompute statistics
-        self.uniqueValues = {}
+        self.unique_values = {}
         self.xMinMax = {}
         self.yMinMax = {}
         self.cardinality = {}
 
         for attribute in self.columns:
-            self.uniqueValues[attribute] = list(self[attribute].unique())
-            self.cardinality[attribute] = len(self.uniqueValues[attribute])
+            self.unique_values[attribute] = list(self[attribute].unique())
+            self.cardinality[attribute] = len(self.unique_values[attribute])
             if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
-                self.xMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[attribute]))
-                self.yMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[attribute]))
+                self.xMinMax[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
+                self.yMinMax[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
 
     #######################################################
     ########## SQL Metadata, type, model schema ###########
@@ -243,28 +243,28 @@ class LuxDataFrame(pd.DataFrame):
         self.getSQLAttributes()
         for attr in list(self.columns):
             self[attr] = None
-        self.dataTypeLookup = {}
-        self.dataType = {}
+        self.data_type_lookup = {}
+        self.data_type = {}
         #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this 
         #####      in the initialization and do it just once
         self.computeSQLDataType()
-        self.computeSQLStats()
-        self.dataModelLookup = {}
-        self.dataModel = {}
-        self.computeDataModel()
+        self.compute_SQL_stats()
+        self.data_model_lookup = {}
+        self.data_model = {}
+        self.compute_data_model()
 
-    def computeSQLStats(self):
+    def compute_SQL_stats(self):
         # precompute statistics
-        self.uniqueValues = {}
+        self.unique_values = {}
         self.xMinMax = {}
         self.yMinMax = {}
 
         self.getSQLUniqueValues()
         #self.getSQLCardinality()
         for attribute in self.columns:
-            if self.dataTypeLookup[attribute] == 'quantitative':
-                self.xMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[attribute]))
-                self.yMinMax[attribute] = (min(self.uniqueValues[attribute]), max(self.uniqueValues[attribute]))
+            if self.data_type_lookup[attribute] == 'quantitative':
+                self.xMinMax[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
+                self.yMinMax[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
 
     def getSQLAttributes(self):
         if "." in self.table_name:
@@ -288,10 +288,10 @@ class LuxDataFrame(pd.DataFrame):
         for attr in list(self.columns):
             unique_query = pd.read_sql("SELECT Distinct({}) FROM {}".format(attr, self.table_name), self.SQLconnection)
             uniqueVals[attr] = list(unique_query[attr])
-        self.uniqueValues = uniqueVals
+        self.unique_values = uniqueVals
 
     def computeSQLDataType(self):
-        dataTypeLookup = {}
+        data_type_lookup = {}
         sqlDTypes = {}
         self.getSQLCardinality()
         if "." in self.table_name:
@@ -304,26 +304,26 @@ class LuxDataFrame(pd.DataFrame):
             datatype = list(pd.read_sql(datatype_query, self.SQLconnection)['data_type'])[0]
             sqlDTypes[attr] = datatype
 
-        dataType = {"quantitative":[], "ordinal":[], "nominal":[], "temporal":[]}
+        data_type = {"quantitative":[], "ordinal":[], "nominal":[], "temporal":[]}
         for attr in list(self.columns):
             if str(attr).lower() in ["month", "year"]:
-                dataTypeLookup[attr] = "temporal"
-                dataType["temporal"].append(attr)
+                data_type_lookup[attr] = "temporal"
+                data_type["temporal"].append(attr)
             elif sqlDTypes[attr] in ["character", "character varying", "boolean", "uuid", "text"]:
-                dataTypeLookup[attr] = "nominal"
-                dataType["nominal"].append(attr)
+                data_type_lookup[attr] = "nominal"
+                data_type["nominal"].append(attr)
             elif sqlDTypes[attr] in ["integer", "real", "smallint", "smallserial", "serial"]:
                 if self.cardinality[attr] < 13:
-                    dataTypeLookup[attr] = "nominal"
-                    dataType["nominal"].append(attr)
+                    data_type_lookup[attr] = "nominal"
+                    data_type["nominal"].append(attr)
                 else:
-                    dataTypeLookup[attr] = "quantitative"
-                    dataType["quantitative"].append(attr)
+                    data_type_lookup[attr] = "quantitative"
+                    data_type["quantitative"].append(attr)
             elif "time" in sqlDTypes[attr] or "date" in sqlDTypes[attr]:
-                dataTypeLookup[attr] = "temporal"
-                dataType["temporal"].append(attr)
-        self.dataTypeLookup = dataTypeLookup
-        self.dataType = dataType
+                data_type_lookup[attr] = "temporal"
+                data_type["temporal"].append(attr)
+        self.data_type_lookup = data_type_lookup
+        self.data_type = data_type
 
     def showMore(self):
         from lux.action.UserDefined import userDefined
@@ -364,7 +364,7 @@ class LuxDataFrame(pd.DataFrame):
                 for view in vc: view.plot_config = self.plot_config
             self.recommendation[actionType]  = vc
 
-        self.clearFilter()
+        self.clear_filter()
 
 
 
@@ -411,7 +411,7 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
-        # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refreshContext)
+        # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_context)
         if self.executor_type == "Pandas":
             self.compute_stats()
             self.compute_dataset_metadata()
@@ -444,7 +444,7 @@ class LuxDataFrame(pd.DataFrame):
         on_button_clicked(None)
 
     def displayPandas(self):
-        return self.toPandas()
+        return self.to_pandas()
     @staticmethod
     def renderWidget(ldf="", renderer:str ="altair", inputCurrentView=""):
         """

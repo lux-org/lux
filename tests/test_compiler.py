@@ -19,8 +19,8 @@ def test_underspecifiedSingleVis(test_showMore):
 	df.setContext([lux.Spec(attribute = "MilesPerGal"),lux.Spec(attribute = "Weight")])
 	assert len(df.view_collection)==1
 	assert df.view_collection[0].mark == "scatter"
-	for attr in df.view_collection[0].specLst: assert attr.dataModel=="measure"
-	for attr in df.view_collection[0].specLst: assert attr.dataType=="quantitative"
+	for attr in df.view_collection[0].spec_lst: assert attr.data_model=="measure"
+	for attr in df.view_collection[0].spec_lst: assert attr.data_type=="quantitative"
 	test_showMore(df,oneViewActions)
 
 def test_underspecifiedVisCollection(test_showMore):
@@ -42,16 +42,16 @@ def test_underspecifiedVisCollection(test_showMore):
 		assert (vc.getAttrByChannel("x")[0].attribute == "Year")
 	test_showMore(df,multipleViewActions)
 
-	df.setContext([lux.Spec(attribute = "?",dataType="quantitative"),lux.Spec(attribute = "Year")])
+	df.setContext([lux.Spec(attribute = "?",data_type="quantitative"),lux.Spec(attribute = "Year")])
 	assert len(df.view_collection) == len([view.getAttrByDataType("quantitative") for view in df.view_collection]) # should be 5
 	test_showMore(df,multipleViewActions)
 
-	df.setContext([lux.Spec(attribute = "?", dataModel="measure"),lux.Spec(attribute="MilesPerGal",channel="y")])
+	df.setContext([lux.Spec(attribute = "?", data_model="measure"),lux.Spec(attribute="MilesPerGal",channel="y")])
 	for vc in df.view_collection:
 		print (vc.getAttrByChannel("y")[0].attribute == "MilesPerGal")
 	test_showMore(df,multipleViewActions)
 
-	df.setContext([lux.Spec(attribute = "?", dataModel="measure"),lux.Spec(attribute = "?", dataModel="measure")])
+	df.setContext([lux.Spec(attribute = "?", data_model="measure"),lux.Spec(attribute = "?", data_model="measure")])
 	assert len(df.view_collection) == len([view.getAttrByDataModel("measure") for view in df.view_collection]) #should be 25
 	test_showMore(df,multipleViewActions)
 
@@ -87,18 +87,18 @@ def test_sortBar():
 	from lux.compiler.Compiler import Compiler
 	from lux.view.View import View
 	df = pd.read_csv("lux/data/car.csv")
-	view = View([lux.Spec(attribute="Acceleration",dataModel="measure",dataType="quantitative"),
-				lux.Spec(attribute="Origin",dataModel="dimension",dataType="nominal")])
+	view = View([lux.Spec(attribute="Acceleration",data_model="measure",data_type="quantitative"),
+				lux.Spec(attribute="Origin",data_model="dimension",data_type="nominal")])
 	Compiler.determineEncoding(df,view)
 	assert view.mark == "bar"
-	assert view.specLst[1].sort == ''
+	assert view.spec_lst[1].sort == ''
 
 	df = pd.read_csv("lux/data/car.csv")
-	view = View([lux.Spec(attribute="Acceleration",dataModel="measure",dataType="quantitative"),
-				lux.Spec(attribute="Name",dataModel="dimension",dataType="nominal")])
+	view = View([lux.Spec(attribute="Acceleration",data_model="measure",data_type="quantitative"),
+				lux.Spec(attribute="Name",data_model="dimension",data_type="nominal")])
 	Compiler.determineEncoding(df,view)
 	assert view.mark == "bar"
-	assert view.specLst[1].sort == 'ascending'
+	assert view.spec_lst[1].sort == 'ascending'
 
 def test_specifiedVisCollection():
 	df = pd.read_csv("lux/data/cars.csv")
@@ -220,7 +220,7 @@ def test_populateOptions():
 			colSet.add(spec.attribute)
 	assert listEqual(list(colSet), list(df.columns))
 
-	df.setContext([lux.Spec(attribute="?",dataModel="measure"), lux.Spec(attribute="MilesPerGal")])
+	df.setContext([lux.Spec(attribute="?",data_model="measure"), lux.Spec(attribute="MilesPerGal")])
 	colSet = set()
 	for specOptions in Compiler.populateWildcardOptions(df.context,df)["attributes"]:
 		for spec in specOptions:

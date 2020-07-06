@@ -31,15 +31,15 @@ def filter(ldf):
 	filterValues = []
 	output = []
 	#if Row is specified, create visualizations where data is filtered by all values of the Row's categorical variable
-	columnSpec = utils.getAttrsSpecs(ldf.view_collection[0].specLst)
+	columnSpec = utils.getAttrsSpecs(ldf.view_collection[0].spec_lst)
 	columnSpecAttr = map(lambda x: x.attribute,columnSpec)
 	if len(filters) > 0:
 		#get unique values for all categorical values specified and creates corresponding filters
 		for row in filters:
-			uniqueValues = ldf.uniqueValues[row.attribute]
+			unique_values = ldf.unique_values[row.attribute]
 			filterValues.append(row.value)
 			#creates new data objects with new filters
-			for val in uniqueValues:
+			for val in unique_values:
 				if val not in filterValues:
 					newSpec = columnSpec.copy()
 					newFilter = lux.Spec(attribute = row.attribute, value = val)
@@ -53,10 +53,10 @@ def filter(ldf):
 			if ldf.cardinality[col]<40 and col not in columnSpecAttr:
 				categoricalVars.append(col)
 		for cat in categoricalVars:
-			uniqueValues = ldf.uniqueValues[cat]
-			for i in range(0, len(uniqueValues)):
+			unique_values = ldf.unique_values[cat]
+			for i in range(0, len(unique_values)):
 				newSpec = columnSpec.copy()
-				newFilter = lux.Spec(attribute=cat, filterOp="=",value=uniqueValues[i])
+				newFilter = lux.Spec(attribute=cat, filterOp="=",value=unique_values[i])
 				newSpec.append(newFilter)
 				tempView = View(newSpec)
 				output.append(tempView)

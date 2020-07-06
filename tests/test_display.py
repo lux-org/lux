@@ -2,9 +2,9 @@ from .context import lux
 import pytest
 import pandas as pd
 
-def test_toPandas():
+def test_to_pandas():
     df = pd.read_csv("lux/data/car.csv")
-    df.toPandas()
+    df.to_pandas()
 
 def test_display_LuxDataframe():
     df = pd.read_csv("lux/data/car.csv")

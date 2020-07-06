@@ -14,13 +14,13 @@ class ViewCollection():
 		if len(inputLst)>0:
 			if (self._isViewInput()):
 				self.collection = inputLst
-				self.specLst = []
+				self.spec_lst = []
 			else:
-				self.specLst = inputLst
+				self.spec_lst = inputLst
 				self.collection = []
 		else:
 			self.collection = []
-			self.specLst = []
+			self.spec_lst = []
 	def getExported(self) -> ViewCollection:
 		"""
 		Get selected views as exported View Collection
@@ -65,7 +65,7 @@ class ViewCollection():
 		largest_filter = 0
 		for view in self.collection: #finds longest x attribute among all views
 			filter_spec = None
-			for spec in view.specLst:
+			for spec in view.spec_lst:
 				if spec.value != "":
 					filter_spec = spec
 
@@ -92,7 +92,7 @@ class ViewCollection():
 			x_channel = ""
 			y_channel = ""
 			additional_channels = []
-			for spec in view.specLst:
+			for spec in view.spec_lst:
 				if spec.value != "":
 					filter_spec = spec
 
@@ -222,13 +222,13 @@ class ViewCollection():
 		if len(self.inputLst)>0:
 			if (self._isViewInput()):
 				for view in self.collection:
-					view.specLst = Parser.parse(view.specLst)
-					Validator.validate_spec(view.specLst,ldf)
+					view.spec_lst = Parser.parse(view.spec_lst)
+					Validator.validate_spec(view.spec_lst,ldf)
 				vc = Compiler.compile(ldf,ldf.context,self,enumerateCollection=False)
 			else:
-				self.specLst = Parser.parse(self.specLst)
-				Validator.validate_spec(self.specLst,ldf)
-				vc = Compiler.compile(ldf,self.specLst,self)
+				self.spec_lst = Parser.parse(self.spec_lst)
+				Validator.validate_spec(self.spec_lst,ldf)
+				vc = Compiler.compile(ldf,self.spec_lst,self)
 			PandasExecutor.execute(vc,ldf)
 			return vc
 		else:

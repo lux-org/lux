@@ -60,8 +60,8 @@ def computeDateGranularity(ldf):
 		A str specifying the granularity of dates for the inspected temporal column
 	"""
 	dateFields = ["day", "month", "year"]
-	if ldf.dataType["temporal"]:
-		dateColumn = ldf[ldf.dataType["temporal"][0]] # assumes only one temporal column, may need to change this function to recieve multiple temporal columns in the future
+	if ldf.data_type["temporal"]:
+		dateColumn = ldf[ldf.data_type["temporal"][0]] # assumes only one temporal column, may need to change this function to recieve multiple temporal columns in the future
 		dateIndex = pd.DatetimeIndex(dateColumn)
 		for field in dateFields:
 			if hasattr(dateIndex,field) and len(getattr(dateIndex, field).unique()) != 1 : #can be changed to sum(getattr(dateIndex, field)) != 0

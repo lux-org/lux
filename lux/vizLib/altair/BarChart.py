@@ -24,25 +24,25 @@ class BarChart(AltairChart):
 		# self.code += f"viewData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
 		self.code += f"viewData = pd.DataFrame({str(self.data.to_dict())})\n"
 
-		if (xAttr.dataModel == "measure"):
+		if (xAttr.data_model == "measure"):
 			aggTitle = f'{xAttr.aggregation.capitalize()} of {xAttr.attribute}'
-			yAttrField = alt.Y(yAttr.attribute, type= yAttr.dataType, axis=alt.Axis(labelOverlap=True))
-			xAttrField = alt.X(xAttr.attribute, type= xAttr.dataType, title=aggTitle)
-			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.dataType}', axis=alt.Axis(labelOverlap=True))"
-			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type= '{xAttr.dataType}', title='{aggTitle}')"
+			yAttrField = alt.Y(yAttr.attribute, type= yAttr.data_type, axis=alt.Axis(labelOverlap=True))
+			xAttrField = alt.X(xAttr.attribute, type= xAttr.data_type, title=aggTitle)
+			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.data_type}', axis=alt.Axis(labelOverlap=True))"
+			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type= '{xAttr.data_type}', title='{aggTitle}')"
 
 			if (yAttr.sort=="ascending"):
 				yAttrField.sort="-x"
-				yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.dataType}', axis=alt.Axis(labelOverlap=True), sort ='-x')"
+				yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.data_type}', axis=alt.Axis(labelOverlap=True), sort ='-x')"
 		else:
 			aggTitle = f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}"
-			xAttrField = alt.X(xAttr.attribute, type = xAttr.dataType,axis=alt.Axis(labelOverlap=True))
-			yAttrField = alt.Y(yAttr.attribute,type=yAttr.dataType,title=aggTitle)
-			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type= '{xAttr.dataType}', axis=alt.Axis(labelOverlap=True))"
-			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.dataType}', title='{aggTitle}')"
+			xAttrField = alt.X(xAttr.attribute, type = xAttr.data_type,axis=alt.Axis(labelOverlap=True))
+			yAttrField = alt.Y(yAttr.attribute,type=yAttr.data_type,title=aggTitle)
+			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type= '{xAttr.data_type}', axis=alt.Axis(labelOverlap=True))"
+			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.data_type}', title='{aggTitle}')"
 			if (xAttr.sort=="ascending"):
 				xAttrField.sort="-y"
-				xAttrFieldCode = f"alt.X('{xAttr.attribute}', type= '{xAttr.dataType}', axis=alt.Axis(labelOverlap=True),sort='-y')"
+				xAttrFieldCode = f"alt.X('{xAttr.attribute}', type= '{xAttr.data_type}', axis=alt.Axis(labelOverlap=True),sort='-y')"
 			
 		chart = alt.Chart(self.data).mark_bar().encode(
 			    y = yAttrField,

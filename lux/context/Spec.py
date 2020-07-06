@@ -1,7 +1,7 @@
 import typing
 class Spec:
 	def __init__(self, description:typing.Union[str,list] ="",attribute: typing.Union[str,list] ="",value: typing.Union[str,list]="",
-				 filterOp:str ="=", channel:str ="", dataType:str="",dataModel:str="",
+				 filterOp:str ="=", channel:str ="", data_type:str="",data_model:str="",
 				 aggregation:str = "", binSize:int=0, weight:float=1,sort:str="", exclude: typing.Union[str,list] =""):
 		"""
 		Spec is the object representation of a single unit of the specification.
@@ -22,10 +22,10 @@ class Spec:
 		channel : str, optional
 			Encoding channel where the specified attribute should be placed.
 			Possible values: 'x','y','color', by default ""
-		dataType : str, optional
+		data_type : str, optional
 			Data type for the specified attribute.
 			Possible values: 'nominal', 'quantitative', 'ordinal','temporal', by default ""
-		dataModel : str, optional
+		data_model : str, optional
 			Data model for the specified attribute
 			Possible values: 'dimension', 'measure', by default ""
 		aggregation : str, optional
@@ -48,8 +48,8 @@ class Spec:
 		# self.parseDescription()
 		# Properties
 		self.channel = channel
-		self.dataType = dataType
-		self.dataModel = dataModel
+		self.data_type = data_type
+		self.data_model = data_model
 		self.aggregation = aggregation
 		self.binSize = binSize
 		self.weight = weight
@@ -68,10 +68,10 @@ class Spec:
 			attributes.append("         aggregation: " + self.aggregation)
 		if self.value!="" or  len(self.value) != 0 :
 			attributes.append("         value: " + str(self.value))
-		if self.dataModel != "":
-			attributes.append("         dataModel: " + self.dataModel)
-		if len(self.dataType) != 0:
-			attributes.append("         dataType: " + str(self.dataType))
+		if self.data_model != "":
+			attributes.append("         data_model: " + self.data_model)
+		if len(self.data_type) != 0:
+			attributes.append("         data_type: " + str(self.data_type))
 		if self.binSize != None:
 			attributes.append("         binSize: " + str(self.binSize))
 		if len(self.exclude) != 0:

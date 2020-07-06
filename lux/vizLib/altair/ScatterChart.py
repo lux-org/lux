@@ -24,8 +24,8 @@ class ScatterChart(AltairChart):
 		yMax = self.view.yMinMax[yAttr.attribute][1]
 
 		chart = alt.Chart(self.data).mark_circle().encode(
-		    x=alt.X(xAttr.attribute,scale=alt.Scale(domain=(xMin, xMax)),type=xAttr.dataType),
-		    y=alt.Y(yAttr.attribute,scale=alt.Scale(domain=(yMin, yMax)),type=yAttr.dataType)
+		    x=alt.X(xAttr.attribute,scale=alt.Scale(domain=(xMin, xMax)),type=xAttr.data_type),
+		    y=alt.Y(yAttr.attribute,scale=alt.Scale(domain=(yMin, yMax)),type=yAttr.data_type)
 		)
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		chart = chart.interactive() # Enable Zooming and Panning
@@ -38,8 +38,8 @@ class ScatterChart(AltairChart):
 		dfname = "df" # TODO: Placeholder (need to read dynamically via locals())
 		self.code += f'''
 		chart = alt.Chart({dfname}).mark_circle().encode(
-		    x=alt.X('{xAttr.attribute}',scale=alt.Scale(domain=({xMin}, {xMax})),type='{xAttr.dataType}'),
-		    y=alt.Y('{yAttr.attribute}',scale=alt.Scale(domain=({yMin}, {yMax})),type='{yAttr.dataType}')
+		    x=alt.X('{xAttr.attribute}',scale=alt.Scale(domain=({xMin}, {xMax})),type='{xAttr.data_type}'),
+		    y=alt.Y('{yAttr.attribute}',scale=alt.Scale(domain=({yMin}, {yMax})),type='{yAttr.data_type}')
 		)
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		chart = chart.interactive() # Enable Zooming and Panning

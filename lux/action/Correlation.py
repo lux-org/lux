@@ -28,7 +28,7 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=True):
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 
-	query = [lux.Spec("?",dataModel="measure"),lux.Spec("?",dataModel="measure")]
+	query = [lux.Spec("?",data_model="measure"),lux.Spec("?",data_model="measure")]
 	query.extend(ldf.filter_specs)
 	vc = ViewCollection(query)
 	recommendation = {"action":"Correlation",
@@ -59,7 +59,7 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=True):
 	return recommendation
 
 def checkTransposeNotComputed(vc:ViewCollection,a:str,b:str):
-	transposeExist = list(filter(lambda x:(x.specLst[0].attribute==b) and (x.specLst[1].attribute==a),vc)) 
+	transposeExist = list(filter(lambda x:(x.spec_lst[0].attribute==b) and (x.spec_lst[1].attribute==a),vc)) 
 	if (len(transposeExist)>0):
 		return transposeExist[0].score==-1
 	else:

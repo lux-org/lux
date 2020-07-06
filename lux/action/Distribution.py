@@ -29,12 +29,12 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 		tic = time.perf_counter()
 
 	if (dataTypeConstraint=="quantitative"):
-		query = [lux.Spec("?",dataType="quantitative")]
+		query = [lux.Spec("?",data_type="quantitative")]
 		query.extend(ldf.filter_specs)
 		recommendation = {"action":"Distribution",
 							"description":"Show univariate count distributions of different attributes in the dataset."}
 	elif (dataTypeConstraint=="nominal"):
-		query = [lux.Spec("?",dataType="nominal")]
+		query = [lux.Spec("?",data_type="nominal")]
 		query.extend(ldf.filter_specs)
 		recommendation = {"action":"Category",
 						   "description":"Show bar chart distributions of different attributes in the dataset."}

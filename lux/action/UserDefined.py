@@ -27,6 +27,6 @@ def userDefined(ldf):
     PandasExecutor.execute(vc, ldf)
     for view in vc: 
         view.score = interestingness(view,ldf)
-    # ldf.clearContext()
+    # ldf.clear_context()
     vc.sort(removeInvalid=True)
     return recommendation

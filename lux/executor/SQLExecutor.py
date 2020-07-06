@@ -26,10 +26,10 @@ class SQLExecutor(Executor):
         3) return a DataFrame with relevant results
         '''
         for view in view_collection:
-            print(view, utils.getFilterSpecs(view.specLst))
+            print(view, utils.getFilterSpecs(view.spec_lst))
             # Select relevant data based on attribute information
             attributes = set([])
-            for spec in view.specLst:
+            for spec in view.spec_lst:
                 if (spec.attribute):
                     if (spec.attribute=="Record"):
                         attributes.add(spec.attribute)
@@ -94,11 +94,11 @@ class SQLExecutor(Executor):
     def executeBinning(view:View, ldf:LuxDataFrame):
         import numpy as np
         import pandas as pd
-        binAttribute = list(filter(lambda x: x.binSize!=0,view.specLst))[0]
+        binAttribute = list(filter(lambda x: x.binSize!=0,view.spec_lst))[0]
         numBins = binAttribute.binSize
-        attrMin = min(ldf.uniqueValues[binAttribute.attribute])
-        attrMax = max(ldf.uniqueValues[binAttribute.attribute])
-        attrType = type(ldf.uniqueValues[binAttribute.attribute][0])
+        attrMin = min(ldf.unique_values[binAttribute.attribute])
+        attrMax = max(ldf.unique_values[binAttribute.attribute])
+        attrType = type(ldf.unique_values[binAttribute.attribute][0])
 
         #need to calculate the bin edges before querying for the relevant data
         binWidth = (attrMax-attrMin)/numBins
@@ -137,10 +137,10 @@ class SQLExecutor(Executor):
         view.data = utils.pandasToLux(view.data)
         
     @staticmethod
-    #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's specLst
+    #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's spec_lst
     def executeFilter(view:View):
         whereClause = []
-        filters = utils.getFilterSpecs(view.specLst)
+        filters = utils.getFilterSpecs(view.spec_lst)
         filterVars = []
         if (filters):
             for f in range(0,len(filters)):

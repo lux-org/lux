@@ -14,12 +14,12 @@ def pandasToLux(df):
 	ldf = LuxDataFrame(values, columns = df.columns)
 	return(ldf)
 
-def getAttrsSpecs(specLst):
-	specObj = list(filter(lambda x: x.value=="", specLst))
+def getAttrsSpecs(spec_lst):
+	specObj = list(filter(lambda x: x.value=="", spec_lst))
 	return specObj
 
-def getFilterSpecs(specLst):
-	specObj = list(filter(lambda x: x.value!="", specLst))
+def getFilterSpecs(spec_lst):
+	specObj = list(filter(lambda x: x.value!="", spec_lst))
 	return specObj
 
 def checkImportLuxWidget():

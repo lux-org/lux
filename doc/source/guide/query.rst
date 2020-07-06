@@ -111,7 +111,7 @@ The space of enumeration can be narrowed based on constraints. For example, you 
 
 .. code-block:: python
     
-    df.setContext(['AverageCost',lux.Spec('?',dataType='quantitative')])
+    df.setContext(['AverageCost',lux.Spec('?',data_type='quantitative')])
 
 The enumeration specifier can also be placed on the value field. For example, you might be interested in looking at how the distribution of `AverageCost` varies for all possible values of `Geography`.
 

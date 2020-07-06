@@ -33,8 +33,8 @@ class AltairChart:
 	def encodeColor(self):
 		colorAttr = self.view.getAttrByChannel("color")
 		if (len(colorAttr)==1):
-			self.chart = self.chart.encode(color=alt.Color(colorAttr[0].attribute,type=colorAttr[0].dataType))
-			self.code+=f"chart = chart.encode(color=alt.Color('{colorAttr[0].attribute}',type='{colorAttr[0].dataType}'))"
+			self.chart = self.chart.encode(color=alt.Color(colorAttr[0].attribute,type=colorAttr[0].data_type))
+			self.code+=f"chart = chart.encode(color=alt.Color('{colorAttr[0].attribute}',type='{colorAttr[0].data_type}'))"
 		elif (len(colorAttr)>1):
 			raise ValueError("There should not be more than one attribute specified in the same channel.")
 		

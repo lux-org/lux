@@ -25,18 +25,18 @@ class LineChart(AltairChart):
 		self.code += "from pandas._libs.tslibs.timestamps import Timestamp\n"
 		self.code += f"viewData = pd.DataFrame({str(self.data.to_dict())})\n"
 		
-		if (yAttr.dataModel == "measure"):
+		if (yAttr.data_model == "measure"):
 			aggTitle = f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}"
-			xAttrSpec = alt.X(xAttr.attribute, type = xAttr.dataType)
-			yAttrSpec = alt.Y(yAttr.attribute, type= yAttr.dataType, title=aggTitle)
-			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type = '{xAttr.dataType}')"
-			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.dataType}', title='{aggTitle}')"
+			xAttrSpec = alt.X(xAttr.attribute, type = xAttr.data_type)
+			yAttrSpec = alt.Y(yAttr.attribute, type= yAttr.data_type, title=aggTitle)
+			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type = '{xAttr.data_type}')"
+			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.data_type}', title='{aggTitle}')"
 		else:
 			aggTitle = f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}"
-			xAttrSpec = alt.X(xAttr.attribute,type= xAttr.dataType, title=aggTitle)
-			yAttrSpec = alt.Y(yAttr.attribute, type = yAttr.dataType)
-			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type = '{xAttr.dataType}', title='{aggTitle}')"
-			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.dataType}')"
+			xAttrSpec = alt.X(xAttr.attribute,type= xAttr.data_type, title=aggTitle)
+			yAttrSpec = alt.Y(yAttr.attribute, type = yAttr.data_type)
+			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type = '{xAttr.data_type}', title='{aggTitle}')"
+			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.data_type}')"
 
 		chart = alt.Chart(self.data).mark_line().encode(
 			    x = xAttrSpec,

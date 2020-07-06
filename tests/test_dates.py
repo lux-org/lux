@@ -45,7 +45,7 @@ def test_period_filter():
 	PandasExecutor.execute(ldf.view_collection,ldf)
 	ldf.showMore()
 
-	assert isinstance(ldf.recommendation['Filter'][2].specLst[2].value, pd.Period)
+	assert isinstance(ldf.recommendation['Filter'][2].spec_lst[2].value, pd.Period)
 
 def test_period_toAltair():
 	chart = None
@@ -66,7 +66,7 @@ def test_period_toAltair():
 def test_refresh_inplace():
 	df = pd.DataFrame({'date': ['2020-01-01', '2020-02-01', '2020-03-01', '2020-04-01'], 'value': [10.5,15.2,20.3,25.2]})
 	
-	assert df.dataType['nominal'][0] == 'date'
+	assert df.data_type['nominal'][0] == 'date'
 
 	from lux.view.View import View
 	view = View(["date","value"])
@@ -74,4 +74,4 @@ def test_refresh_inplace():
 
 	df['date'] = pd.to_datetime(df['date'],format="%Y-%m-%d")
 
-	assert df.dataType['temporal'][0] == 'date'
+	assert df.data_type['temporal'][0] == 'date'

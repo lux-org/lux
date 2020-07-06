@@ -38,7 +38,7 @@ class PandasExecutor(Executor):
             PandasExecutor.executeFilter(view)
             # Select relevant data based on attribute information
             attributes = set([])
-            for spec in view.specLst:
+            for spec in view.spec_lst:
                 if (spec.attribute):
                     if (spec.attribute!="Record"):
                         attributes.add(spec.attribute)
@@ -80,7 +80,7 @@ class PandasExecutor(Executor):
             groupbyAttr = yAttr
             measureAttr = xAttr
             aggFunc = xAttr.aggregation
-        allAttrVals = view.data.uniqueValues[groupbyAttr.attribute]
+        allAttrVals = view.data.unique_values[groupbyAttr.attribute]
         if (measureAttr!=""):
             if (measureAttr.attribute=="Record"):
                 view.data = view.data.reset_index()
@@ -119,7 +119,7 @@ class PandasExecutor(Executor):
         '''
         import numpy as np
         import pandas as pd # is this import going to be conflicting with LuxDf?
-        binAttribute = list(filter(lambda x: x.binSize!=0,view.specLst))[0]
+        binAttribute = list(filter(lambda x: x.binSize!=0,view.spec_lst))[0]
         #TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
         counts,binEdges = np.histogram(view.data[binAttribute.attribute],bins=binAttribute.binSize)
         #binEdges of size N+1, so need to compute binCenter as the bin location
@@ -130,7 +130,7 @@ class PandasExecutor(Executor):
     @staticmethod
     def executeFilter(view: View):
         assert view.data is not None, "executeFilter assumes input view.data is populated (if not, populate with LuxDataFrame values)"
-        filters = utils.getFilterSpecs(view.specLst)
+        filters = utils.getFilterSpecs(view.spec_lst)
         
         if (filters):
             # TODO: Need to handle OR logic

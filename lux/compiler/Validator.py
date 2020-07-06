@@ -31,11 +31,11 @@ class Validator:
 		ValueError
 			Ensures no input specs are consistent with DataFrame.
 		"""
-		uniqueVals = ldf.uniqueValues
+		uniqueVals = ldf.unique_values
 		printWarning = False
 
-		def existsInDF(value,uniqueValues):
-			return any(value in uniqueValues[vals] for vals in uniqueValues)
+		def existsInDF(value,unique_values):
+			return any(value in unique_values[vals] for vals in unique_values)
 
 		def validateAttr(spec):
 			if not((spec.attribute and spec.attribute == "?") or (spec.value and spec.value=="?")):
