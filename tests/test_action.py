@@ -8,5 +8,5 @@ def test_vary_filter_val():
     view = View(["Height","SportType=Ball"])
     view = view.load(df)
     df.set_context_as_view(view)
-    df.showMore()
+    df.show_more()
     assert len(df.recommendation["Filter"]) == len(df["SportType"].unique())-1

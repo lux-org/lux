@@ -1,6 +1,6 @@
 from __future__ import annotations
 from lux.vizLib.altair.AltairRenderer import AltairRenderer
-from lux.utils.utils import checkImportLuxWidget
+from lux.utils.utils import check_import_lux_widget
 from typing import List, Union, Callable, Dict
 from lux.view.View import View
 from lux.context.Spec import Spec
@@ -21,14 +21,14 @@ class ViewCollection():
 		else:
 			self.collection = []
 			self.spec_lst = []
-	def getExported(self) -> ViewCollection:
+	def get_exported(self) -> ViewCollection:
 		"""
 		Get selected views as exported View Collection
 
 		Notes
         -----
-		Convert the _exportedVisIdxs dictionary into a programmable ViewCollection
-		Example _exportedVisIdxs : 
+		Convert the _exported_vis_idxs dictionary into a programmable ViewCollection
+		Example _exported_vis_idxs : 
 			{'View Collection': [0, 2]}
 		
 		Returns
@@ -37,14 +37,14 @@ class ViewCollection():
 		 	return a ViewCollection of selected views. -> ViewCollection(v1, v2...)
 		"""        
 		
-		exportedVisLst =self.widget._exportedVisIdxs
-		if (exportedVisLst=={}):
+		exported_vis_lst =self.widget._exported_vis_idxs
+		if (exported_vis_lst=={}):
 			import warnings
 			warnings.warn("No visualization selected to export")
 			return []
 		else:
-			exportedViews = ViewCollection(list(map(self.__getitem__, exportedVisLst["View Collection"])))
-			return exportedViews
+			exported_views = ViewCollection(list(map(self.__getitem__, exported_vis_lst["View Collection"])))
+			return exported_views
 	def _isViewInput(self):
 		if (type(self.inputLst[0])==View):
 			return True
@@ -182,14 +182,14 @@ class ViewCollection():
 		self.widget =  None
 		from IPython.display import display
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-		# widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderTarget="viewCollectionOnly")
+		# widget  = LuxDataFrame.render_widget(inputCurrentView=self,renderTarget="viewCollectionOnly")
 		recommendation = {"action": "View Collection",
 					  "description": "Shows a view collection defined by the context"}
 		recommendation["collection"] = self
 
-		checkImportLuxWidget()
+		check_import_lux_widget()
 		import luxWidget
-		recJSON = LuxDataFrame.recToJSON([recommendation])
+		recJSON = LuxDataFrame.rec_to_JSON([recommendation])
 		self.widget =  luxWidget.LuxWidget(
 				currentView={},
 				recommendations=recJSON,

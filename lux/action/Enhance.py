@@ -24,7 +24,7 @@ def enhance(ldf):
 	'''
 	recommendation = {"action":"Enhance",
 					"description":"Shows possible visualizations when an additional attribute is added to the current view."}
-	filters = utils.getFilterSpecs(ldf.context)
+	filters = utils.get_filter_specs(ldf.context)
 	# Collect variables that already exist in the context
 	attrSpecs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
 	if(len(attrSpecs)>2): # if there are too many column attributes, return don't generate Enhance recommendations

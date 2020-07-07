@@ -31,7 +31,7 @@ class Validator:
 		ValueError
 			Ensures no input specs are consistent with DataFrame.
 		"""
-		uniqueVals = ldf.unique_values
+		unique_vals = ldf.unique_values
 		printWarning = False
 
 		def existsInDF(value,unique_values):
@@ -49,14 +49,14 @@ class Validator:
 							printWarning = True
 
 						if isinstance(spec.value, list):
-							checkValExists = spec.attribute in uniqueVals and all(v in uniqueVals[spec.attribute] for v in spec.value)
+							checkValExists = spec.attribute in unique_vals and all(v in unique_vals[spec.attribute] for v in spec.value)
 						else:
-							checkValExists = spec.attribute in uniqueVals and spec.value in uniqueVals[spec.attribute]
+							checkValExists = spec.attribute in unique_vals and spec.value in unique_vals[spec.attribute]
 						if spec.value and not checkValExists:
 							printWarning = True
 				
 				if isinstance(spec.value, list):
-					checkValExistsGroup = all(existsInDF(val, uniqueVals) for val in spec.value)
+					checkValExistsGroup = all(existsInDF(val, unique_vals) for val in spec.value)
 					if spec.value and not checkValExistsGroup:
 						printWarning = True
 

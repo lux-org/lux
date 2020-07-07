@@ -130,7 +130,7 @@ class PandasExecutor(Executor):
     @staticmethod
     def executeFilter(view: View):
         assert view.data is not None, "executeFilter assumes input view.data is populated (if not, populate with LuxDataFrame values)"
-        filters = utils.getFilterSpecs(view.spec_lst)
+        filters = utils.get_filter_specs(view.spec_lst)
         
         if (filters):
             # TODO: Need to handle OR logic

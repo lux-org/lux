@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Callable
 from lux.context.Spec import Spec
-from lux.utils.utils import checkImportLuxWidget
+from lux.utils.utils import check_import_lux_widget
 class View:
 	'''
 	View Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
@@ -15,8 +15,8 @@ class View:
 		self.score = 0.0
 		self.vis = None
 		self.plot_config = None
-		self.xMinMax = {}
-		self.yMinMax = {}
+		self.x_min_max = {}
+		self.y_min_max = {}
 	def __repr__(self):
 		if self.data is None:
 			return f"<View  ({str(self.spec_lst)}) mark: {self.mark}, score: {self.score} >"
@@ -66,15 +66,15 @@ class View:
 		self.plot_config = None
 	def _repr_html_(self):
 		from IPython.display import display
-		checkImportLuxWidget()
+		check_import_lux_widget()
 		import luxWidget
 		if (self.data is None):
 			raise Exception("No data populated in View. Use the 'load' function (e.g., view.load(df)) to populate the view with a data source.")
 		else:
 			from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-			# widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderTarget="viewOnly")
+			# widget  = LuxDataFrame.render_widget(inputCurrentView=self,renderTarget="viewOnly")
 			widget =  luxWidget.LuxWidget(
-					currentView= LuxDataFrame.currentViewToJSON([self]),
+					currentView= LuxDataFrame.current_view_to_JSON([self]),
 					recommendations=[],
 					context={}
 				)
@@ -145,7 +145,7 @@ class View:
 		self.vis = renderer.createVis(self)
 		return self.vis
 		
-	def renderVSpec(self, renderer="altair"):
+	def render_VSpec(self, renderer="altair"):
 		if (renderer == "altair"):
 			return self.toVegaLite()
 	

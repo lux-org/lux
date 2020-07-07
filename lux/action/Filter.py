@@ -27,11 +27,11 @@ def filter(ldf):
 	'''
 	recommendation = {"action":"Filter",
 						   "description":"Shows possible visualizations when filtered by categorical variables in the data object's dataset."}
-	filters = utils.getFilterSpecs(ldf.context)
+	filters = utils.get_filter_specs(ldf.context)
 	filterValues = []
 	output = []
 	#if Row is specified, create visualizations where data is filtered by all values of the Row's categorical variable
-	columnSpec = utils.getAttrsSpecs(ldf.view_collection[0].spec_lst)
+	columnSpec = utils.get_attrs_specs(ldf.view_collection[0].spec_lst)
 	columnSpecAttr = map(lambda x: x.attribute,columnSpec)
 	if len(filters) > 0:
 		#get unique values for all categorical values specified and creates corresponding filters

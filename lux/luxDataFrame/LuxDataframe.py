@@ -2,7 +2,7 @@ import pandas as pd
 from lux.context.Spec import Spec
 from lux.view.View import View
 from lux.view.ViewCollection import ViewCollection
-from lux.utils.utils import checkImportLuxWidget
+from lux.utils.utils import check_import_lux_widget
 #import for benchmarking
 import time
 import typing
@@ -13,7 +13,7 @@ class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['context','data_type_lookup','data_type','filter_specs',
                  'data_model_lookup','data_model','unique_values','cardinality',
-                 'xMinMax', 'yMinMax','plot_config',
+                 'x_min_max', 'y_min_max','plot_config',
                  'view_collection','widget', '_rec_info', 'recommendation']
 
     def __init__(self,*args, **kw):
@@ -212,42 +212,42 @@ class LuxDataFrame(pd.DataFrame):
     def compute_stats(self):
         # precompute statistics
         self.unique_values = {}
-        self.xMinMax = {}
-        self.yMinMax = {}
+        self.x_min_max = {}
+        self.y_min_max = {}
         self.cardinality = {}
 
         for attribute in self.columns:
             self.unique_values[attribute] = list(self[attribute].unique())
             self.cardinality[attribute] = len(self.unique_values[attribute])
             if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
-                self.xMinMax[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
-                self.yMinMax[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
+                self.x_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
+                self.y_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
 
     #######################################################
     ########## SQL Metadata, type, model schema ###########
     #######################################################
 
-    def setSQLConnection(self, connection, t_name):
+    def set_SQL_connection(self, connection, t_name):
         #for benchmarking
         if self.toggle_benchmarking == True:
             tic = time.perf_counter()
         self.SQLconnection = connection
         self.table_name = t_name
-        self.computeSQLDatasetMetadata()
+        self.compute_SQL_dataset_metadata()
         if self.toggle_benchmarking == True:
             toc = time.perf_counter()
             print(f"Extracted Metadata from SQL Database in {toc - tic:0.4f} seconds")
         self.set_executor_type("SQL")
 
-    def computeSQLDatasetMetadata(self):
-        self.getSQLAttributes()
+    def compute_SQL_dataset_metadata(self):
+        self.get_SQL_attributes()
         for attr in list(self.columns):
             self[attr] = None
         self.data_type_lookup = {}
         self.data_type = {}
         #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this 
         #####      in the initialization and do it just once
-        self.computeSQLDataType()
+        self.compute_SQL_data_type()
         self.compute_SQL_stats()
         self.data_model_lookup = {}
         self.data_model = {}
@@ -256,17 +256,17 @@ class LuxDataFrame(pd.DataFrame):
     def compute_SQL_stats(self):
         # precompute statistics
         self.unique_values = {}
-        self.xMinMax = {}
-        self.yMinMax = {}
+        self.x_min_max = {}
+        self.y_min_max = {}
 
-        self.getSQLUniqueValues()
-        #self.getSQLCardinality()
+        self.get_SQL_unique_values()
+        #self.get_SQL_cardinality()
         for attribute in self.columns:
             if self.data_type_lookup[attribute] == 'quantitative':
-                self.xMinMax[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
-                self.yMinMax[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
+                self.x_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
+                self.y_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
 
-    def getSQLAttributes(self):
+    def get_SQL_attributes(self):
         if "." in self.table_name:
             table_name = self.table_name[self.table_name.index(".")+1:]
         else:
@@ -276,24 +276,24 @@ class LuxDataFrame(pd.DataFrame):
         for attr in attributes:
             self[attr] = None
 
-    def getSQLCardinality(self):
+    def get_SQL_cardinality(self):
         cardinality = {}
         for attr in list(self.columns):
             card_query = pd.read_sql("SELECT Count(Distinct({})) FROM {}".format(attr, self.table_name), self.SQLconnection)
             cardinality[attr] = list(card_query["count"])[0]
         self.cardinality = cardinality
 
-    def getSQLUniqueValues(self):
-        uniqueVals = {}
+    def get_SQL_unique_values(self):
+        unique_vals = {}
         for attr in list(self.columns):
             unique_query = pd.read_sql("SELECT Distinct({}) FROM {}".format(attr, self.table_name), self.SQLconnection)
-            uniqueVals[attr] = list(unique_query[attr])
-        self.unique_values = uniqueVals
+            unique_vals[attr] = list(unique_query[attr])
+        self.unique_values = unique_vals
 
-    def computeSQLDataType(self):
+    def compute_SQL_data_type(self):
         data_type_lookup = {}
-        sqlDTypes = {}
-        self.getSQLCardinality()
+        sql_dtypes = {}
+        self.get_SQL_cardinality()
         if "." in self.table_name:
             table_name = self.table_name[self.table_name.index(".")+1:]
         else:
@@ -302,31 +302,31 @@ class LuxDataFrame(pd.DataFrame):
         for attr in list(self.columns):
             datatype_query = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{}' AND COLUMN_NAME = '{}'".format(table_name, attr)
             datatype = list(pd.read_sql(datatype_query, self.SQLconnection)['data_type'])[0]
-            sqlDTypes[attr] = datatype
+            sql_dtypes[attr] = datatype
 
         data_type = {"quantitative":[], "ordinal":[], "nominal":[], "temporal":[]}
         for attr in list(self.columns):
             if str(attr).lower() in ["month", "year"]:
                 data_type_lookup[attr] = "temporal"
                 data_type["temporal"].append(attr)
-            elif sqlDTypes[attr] in ["character", "character varying", "boolean", "uuid", "text"]:
+            elif sql_dtypes[attr] in ["character", "character varying", "boolean", "uuid", "text"]:
                 data_type_lookup[attr] = "nominal"
                 data_type["nominal"].append(attr)
-            elif sqlDTypes[attr] in ["integer", "real", "smallint", "smallserial", "serial"]:
+            elif sql_dtypes[attr] in ["integer", "real", "smallint", "smallserial", "serial"]:
                 if self.cardinality[attr] < 13:
                     data_type_lookup[attr] = "nominal"
                     data_type["nominal"].append(attr)
                 else:
                     data_type_lookup[attr] = "quantitative"
                     data_type["quantitative"].append(attr)
-            elif "time" in sqlDTypes[attr] or "date" in sqlDTypes[attr]:
+            elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
                 data_type_lookup[attr] = "temporal"
                 data_type["temporal"].append(attr)
         self.data_type_lookup = data_type_lookup
         self.data_type = data_type
 
-    def showMore(self):
-        from lux.action.UserDefined import userDefined
+    def show_more(self):
+        from lux.action.UserDefined import user_defined
         from lux.action.Correlation import correlation
         from lux.action.Distribution import distribution
         from lux.action.Enhance import enhance
@@ -334,15 +334,15 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.Generalize import generalize
 
         self._rec_info = []
-        noView = len(self.view_collection) == 0
-        oneCurrentView = len(self.view_collection) == 1
-        multipleCurrentViews = len(self.view_collection) > 1
+        no_view = len(self.view_collection) == 0
+        one_current_view = len(self.view_collection) == 1
+        multiple_current_views = len(self.view_collection) > 1
 
-        if (noView):
+        if (no_view):
             self._rec_info.append(correlation(self))
             self._rec_info.append(distribution(self,"quantitative"))
             self._rec_info.append(distribution(self,"nominal"))
-        elif (oneCurrentView):
+        elif (one_current_view):
             enhance = enhance(self)
             filter = filter(self)
             generalize = generalize(self)
@@ -352,17 +352,17 @@ class LuxDataFrame(pd.DataFrame):
                 self._rec_info.append(filter)
             if generalize['collection']:
                 self._rec_info.append(generalize)
-        elif (multipleCurrentViews):
-            self._rec_info.append(userDefined(self))
+        elif (multiple_current_views):
+            self._rec_info.append(user_defined(self))
             
         # Store _rec_info into a more user-friendly dictionary form
         self.recommendation = {}
-        for recInfo in self._rec_info: 
-            actionType = recInfo["action"]
-            vc = recInfo["collection"]
+        for rec_info in self._rec_info: 
+            action_type = rec_info["action"]
+            vc = rec_info["collection"]
             if (self.plot_config):
                 for view in vc: view.plot_config = self.plot_config
-            self.recommendation[actionType]  = vc
+            self.recommendation[action_type]  = vc
 
         self.clear_filter()
 
@@ -371,17 +371,17 @@ class LuxDataFrame(pd.DataFrame):
     #######################################################
     ############## LuxWidget Result Display ###############
     #######################################################
-    def getWidget(self):
+    def get_widget(self):
         return self.widget
 
-    def getExported(self) -> typing.Union[typing.Dict[str,ViewCollection], ViewCollection]:
+    def get_exported(self) -> typing.Union[typing.Dict[str,ViewCollection], ViewCollection]:
         """
         Get selected views as exported View Collection
 
         Notes
         -----
-        Convert the _exportedVisIdxs dictionary into a programmable ViewCollection
-        Example _exportedVisIdxs : 
+        Convert the _exported_vis_idxs dictionary into a programmable ViewCollection
+        Example _exported_vis_idxs : 
             {'Correlation': [0, 2], 'Category': [1]}
         indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Category` tab is selected.
         
@@ -392,20 +392,20 @@ class LuxDataFrame(pd.DataFrame):
             When all the exported vis is from the same tab, return a ViewCollection of selected views. -> ViewCollection(v1, v2...)
             When the exported vis is from the different tabs, return a dictionary with the action name as key and selected views in the ViewCollection. -> {"Enhance": ViewCollection(v1, v2...), "Filter": ViewCollection(v5, v7...), ..}
         """        
-        exportedVisLst =self.widget._exportedVisIdxs
-        exportedViews = [] 
-        if (exportedVisLst=={}):
+        exported_vis_lst =self.widget._exported_vis_idxs
+        exported_views = [] 
+        if (exported_vis_lst=={}):
             import warnings
             warnings.warn("No visualization selected to export")
             return []
-        if len(exportedVisLst) == 1 : 
-            exportAction = list(exportedVisLst.keys())[0]
-            exportedViews = ViewCollection(list(map(self.recommendation[exportAction].__getitem__, exportedVisLst[exportAction])))
-        elif len(exportedVisLst) > 1 : 
-            exportedViews  = {}
-            for exportAction in exportedVisLst: 
-                exportedViews[exportAction] = ViewCollection(list(map(self.recommendation[exportAction].__getitem__, exportedVisLst[exportAction])))
-        return exportedViews
+        if len(exported_vis_lst) == 1 : 
+            export_action = list(exported_vis_lst.keys())[0]
+            exported_views = ViewCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
+        elif len(exported_vis_lst) > 1 : 
+            exported_views  = {}
+            for export_action in exported_vis_lst: 
+                exported_views[export_action] = ViewCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
+        return exported_views
 
     def _repr_html_(self):
         from IPython.display import display
@@ -418,12 +418,12 @@ class LuxDataFrame(pd.DataFrame):
         #for benchmarking
         if self.toggle_benchmarking == True:
             tic = time.perf_counter()
-        self.showMore() # compute the recommendations
+        self.show_more() # compute the recommendations
         if self.toggle_benchmarking == True:
             toc = time.perf_counter()
             print(f"Computed recommendations in {toc - tic:0.4f} seconds")
 
-        self.widget = LuxDataFrame.renderWidget(self)
+        self.widget = LuxDataFrame.render_widget(self)
 
         button = widgets.Button(description="Toggle Pandas/Lux")
         output = widgets.Output()
@@ -436,17 +436,17 @@ class LuxDataFrame(pd.DataFrame):
                     self.toggle_pandas_view = not self.toggle_pandas_view
                 clear_output()
                 if (self.toggle_pandas_view):
-                    display(self.displayPandas())
+                    display(self.display_pandas())
                 else:
                     display(self.widget)
 
         button.on_click(on_button_clicked)
         on_button_clicked(None)
 
-    def displayPandas(self):
+    def display_pandas(self):
         return self.to_pandas()
     @staticmethod
-    def renderWidget(ldf="", renderer:str ="altair", inputCurrentView=""):
+    def render_widget(ldf="", renderer:str ="altair", input_current_view=""):
         """
         Generate a LuxWidget based on the LuxDataFrame
         
@@ -454,64 +454,64 @@ class LuxDataFrame(pd.DataFrame):
         ----------
         renderer : str, optional
             Choice of visualization rendering library, by default "altair"
-        inputCurrentView : lux.LuxDataFrame, optional
+        input_current_view : lux.LuxDataFrame, optional
             User-specified current view to override default Current View, by default 
         """       
-        checkImportLuxWidget()
+        check_import_lux_widget()
         import luxWidget
-        widgetJSON = ldf.toJSON(inputCurrentView=inputCurrentView)
+        widgetJSON = ldf.to_JSON(input_current_view=input_current_view)
         return luxWidget.LuxWidget(
             currentView=widgetJSON["currentView"],
             recommendations=widgetJSON["recommendation"],
-            context=LuxDataFrame.contextToJSON(ldf.context)
+            context=LuxDataFrame.context_to_JSON(ldf.context)
         )
     @staticmethod
-    def contextToJSON(context):
+    def context_to_JSON(context):
         from lux.utils import utils
 
-        filter_specs = utils.getFilterSpecs(context)
-        attrsSpecs = utils.getAttrsSpecs(context)
+        filter_specs = utils.get_filter_specs(context)
+        attrs_specs = utils.get_attrs_specs(context)
         
         specs = {}
-        specs['attributes'] = [spec.attribute for spec in attrsSpecs]
+        specs['attributes'] = [spec.attribute for spec in attrs_specs]
         specs['filters'] = [spec.attribute for spec in filter_specs]
         return specs
 
-    def toJSON(self, inputCurrentView=""):
-        widgetSpec = {}
+    def to_JSON(self, input_current_view=""):
+        widget_spec = {}
         self.executor.execute(self.view_collection,self)
-        widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.view_collection,inputCurrentView)
+        widget_spec["currentView"] = LuxDataFrame.current_view_to_JSON(self.view_collection,input_current_view)
         
-        widgetSpec["recommendation"] = []
+        widget_spec["recommendation"] = []
         
         # Recommended Collection
-        recCollection = LuxDataFrame.recToJSON(self._rec_info)
-        widgetSpec["recommendation"].extend(recCollection)
-        return widgetSpec
+        recCollection = LuxDataFrame.rec_to_JSON(self._rec_info)
+        widget_spec["recommendation"].extend(recCollection)
+        return widget_spec
     
     @staticmethod
-    def currentViewToJSON(vc, inputCurrentView=""):
-        currentViewSpec = {}
+    def current_view_to_JSON(vc, input_current_view=""):
+        current_view_spec = {}
         numVC = len(vc) #number of views in the view collection
         if (numVC==1):
-            currentViewSpec = vc[0].renderVSpec()
+            current_view_spec = vc[0].render_VSpec()
         elif (numVC>1):
             pass
-        return currentViewSpec
+        return current_view_spec
     @staticmethod
-    def recToJSON(recs):
-        recLst = []
+    def rec_to_JSON(recs):
+        rec_lst = []
         import copy
-        recCopy = copy.deepcopy(recs)
-        for idx,rec in enumerate(recCopy):
+        rec_copy = copy.deepcopy(recs)
+        for idx,rec in enumerate(rec_copy):
             if (rec != {}):
                 rec["vspec"] = []
                 for vis in rec["collection"]:
-                    chart = vis.renderVSpec()
+                    chart = vis.render_VSpec()
                     rec["vspec"].append(chart)
-                recLst.append(rec)
+                rec_lst.append(rec)
                 # delete DataObjectCollection since not JSON serializable
-                del recLst[idx]["collection"]
-        return recLst
+                del rec_lst[idx]["collection"]
+        return rec_lst
 
 

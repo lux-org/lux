@@ -43,7 +43,7 @@ def test_period_filter():
 	ldf.setContext([lux.Spec(attribute = "Acceleration"),lux.Spec(attribute = "Horsepower")])
 
 	PandasExecutor.execute(ldf.view_collection,ldf)
-	ldf.showMore()
+	ldf.show_more()
 
 	assert isinstance(ldf.recommendation['Filter'][2].spec_lst[2].value, pd.Period)
 
@@ -57,7 +57,7 @@ def test_period_toAltair():
 	df.setContext([lux.Spec(attribute = "Acceleration"),lux.Spec(attribute = "Horsepower")])
 
 	PandasExecutor.execute(df.view_collection,df)
-	df.showMore()
+	df.show_more()
 
 	exportedCode = df.recommendation['Filter'][2].toAltair()
 	

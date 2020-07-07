@@ -58,7 +58,7 @@ def test_underspecifiedVisCollection(test_showMore):
 @pytest.fixture
 def test_showMore():
 	def test_showMore_function(df, actions):
-		df.showMore()
+		df.show_more()
 		assert (len(df._rec_info) > 0)
 		for rec in df._rec_info:
 			assert (rec["action"] in actions)

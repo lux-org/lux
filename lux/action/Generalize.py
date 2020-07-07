@@ -34,7 +34,7 @@ def generalize(ldf):
 	output = []
 	excludedColumns = []
 	columnSpec = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
-	rowSpecs = utils.getFilterSpecs(ldf.context)
+	rowSpecs = utils.get_filter_specs(ldf.context)
 	# if we do no have enough column attributes or too many, return no views.
 	if(len(columnSpec)<2 or len(columnSpec)>4):
 		recommendation["collection"] = []

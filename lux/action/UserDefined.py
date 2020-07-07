@@ -5,7 +5,7 @@ from lux.executor.SQLExecutor import SQLExecutor
 #for benchmarking
 import time
 
-def userDefined(ldf):
+def user_defined(ldf):
     '''
     Generates user-defined views based on the context.
 

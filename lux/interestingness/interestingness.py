@@ -30,8 +30,8 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 	n_dim = 0
 	n_msr = 0
 	
-	filter_specs = utils.getFilterSpecs(view.spec_lst)
-	viewAttrsSpecs = utils.getAttrsSpecs(view.spec_lst)
+	filter_specs = utils.get_filter_specs(view.spec_lst)
+	viewAttrsSpecs = utils.get_attrs_specs(view.spec_lst)
 
 	for spec in viewAttrsSpecs:
 		if (spec.attribute!="Record"):
@@ -119,7 +119,7 @@ def deviationFromOverall(view:View,ldf:LuxDataFrame,filter_specs:list,msrAttribu
 	# Generate an "Overall" View (TODO: This is computed multiple times for every view, alternative is to directly access df.view_collection but we do not have guaruntee that will always be unfiltered view (in the non-Filter action scenario))
 	import copy
 	unfilteredView = copy.copy(view)
-	unfilteredView.spec_lst = utils.getAttrsSpecs(view.spec_lst) # Remove filters, keep only attribute specs
+	unfilteredView.spec_lst = utils.get_attrs_specs(view.spec_lst) # Remove filters, keep only attribute specs
 	ldf.executor.execute([unfilteredView],ldf)
 	
 	v = unfilteredView.data[msrAttribute]

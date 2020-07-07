@@ -21,7 +21,7 @@ def test_customPlotSetting():
         return chart
     df = pd.read_csv("lux/data/car.csv")
     df.set_plot_config(changeColorMakeTransparentAddTitle)
-    df.showMore()
+    df.show_more()
     configMarkAddition = 'chart = chart.configure_mark(color="green",opacity=0.2)'
     titleAddition ='chart.title = "Test Title"'
     exportedCodeStr = df.recommendation["Correlation"][0].toAltair()

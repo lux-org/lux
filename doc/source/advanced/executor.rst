@@ -24,13 +24,13 @@ To do this, users first need to specify a connection to their SQL database. This
 	import psycopg2
 	connection = psycopg2.connect("dbname=example_database user=example_user, password=example_password")
 
-Once this connection is created, users can connect their Lux Dataframe to the database using the Lux Dataframe's setSQLConnection command.
+Once this connection is created, users can connect their Lux Dataframe to the database using the Lux Dataframe's set_SQL_connection command.
 
 .. code-block:: python
 
-	lux_df.setSQLConnection(connection, "my_table")
+	lux_df.set_SQL_connection(connection, "my_table")
 
-When the setSQLConnection function is called, Lux will then populate the Dataframe with all the metadata it needs to run its context from the database table. 
+When the set_SQL_connection function is called, Lux will then populate the Dataframe with all the metadata it needs to run its context from the database table. 
 
 Choosing an Executor
 --------------------------

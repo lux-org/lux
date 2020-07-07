@@ -26,7 +26,7 @@ class SQLExecutor(Executor):
         3) return a DataFrame with relevant results
         '''
         for view in view_collection:
-            print(view, utils.getFilterSpecs(view.spec_lst))
+            print(view, utils.get_filter_specs(view.spec_lst))
             # Select relevant data based on attribute information
             attributes = set([])
             for spec in view.spec_lst:
@@ -140,7 +140,7 @@ class SQLExecutor(Executor):
     #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's spec_lst
     def executeFilter(view:View):
         whereClause = []
-        filters = utils.getFilterSpecs(view.spec_lst)
+        filters = utils.get_filter_specs(view.spec_lst)
         filterVars = []
         if (filters):
             for f in range(0,len(filters)):

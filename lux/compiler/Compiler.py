@@ -229,7 +229,7 @@ class Compiler:
 			if (measure.binSize == 0):
 				measure.binSize = 10
 			autoChannel = {"x": measure, "y": countCol}
-			view.xMinMax = ldf.xMinMax
+			view.x_min_max = ldf.x_min_max
 			view.mark = "histogram"
 		elif (Ndim == 1 and (Nmsr == 0 or Nmsr == 1)):
 			# Line or Bar Chart
@@ -264,8 +264,8 @@ class Compiler:
 			autoChannel["color"] = colorAttr
 		elif (Ndim == 0 and Nmsr == 2):
 			# Scatterplot
-			view.xMinMax = ldf.xMinMax
-			view.yMinMax = ldf.yMinMax
+			view.x_min_max = ldf.x_min_max
+			view.y_min_max = ldf.y_min_max
 			view.mark = "scatter"
 			autoChannel = {"x": view.spec_lst[0],
 						   "y": view.spec_lst[1]}
@@ -277,16 +277,16 @@ class Compiler:
 
 			colorAttr = view.getAttrByDataModel("dimension")[0]
 			view.removeColumnFromSpec(colorAttr)
-			view.xMinMax = ldf.xMinMax
-			view.yMinMax = ldf.yMinMax
+			view.x_min_max = ldf.x_min_max
+			view.y_min_max = ldf.y_min_max
 			view.mark = "scatter"
 			autoChannel = {"x": m1,
 						   "y": m2,
 						   "color": colorAttr}
 		elif (Ndim == 0 and Nmsr == 3):
 			# Scatterplot with color
-			view.xMinMax = ldf.xMinMax
-			view.yMinMax = ldf.yMinMax
+			view.x_min_max = ldf.x_min_max
+			view.y_min_max = ldf.y_min_max
 			view.mark = "scatter"
 			autoChannel = {"x": view.spec_lst[0],
 						   "y": view.spec_lst[1],
