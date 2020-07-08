@@ -57,14 +57,14 @@ class LuxDataFrame(pd.DataFrame):
             from lux.executor.PandasExecutor import PandasExecutor
             self.executor = PandasExecutor
         self.executor_type = exe
-    def set_plot_config(self,configFunc:typing.Callable):
+    def set_plot_config(self,config_func:typing.Callable):
         """
         Modify plot aesthetic settings to all Views in the dataframe display
         Currently only supported for Altair visualizations
 
         Parameters
         ----------
-        configFunc : typing.Callable
+        config_func : typing.Callable
             A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
         
         Example
@@ -88,7 +88,7 @@ class LuxDataFrame(pd.DataFrame):
         >>> df.set_plot_config(changeOpacityScatterOnly)
         >>> df
         """        
-        self.plot_config = configFunc
+        self.plot_config = config_func
     def clear_plot_config(self):
         self.plot_config = None
     def set_view_collection(self,view_collection):

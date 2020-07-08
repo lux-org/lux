@@ -1,4 +1,4 @@
-def convert2List(x):
+def convert_to_list(x):
 	'''
 	"a" --> ["a"]
 	["a","b"] --> ["a","b"]
@@ -8,19 +8,19 @@ def convert2List(x):
 	else:
 		return x
 
-def pandasToLux(df):
+def pandas_to_lux(df):
 	from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 	values = df.values.tolist()
 	ldf = LuxDataFrame(values, columns = df.columns)
 	return(ldf)
 
 def get_attrs_specs(spec_lst):
-	specObj = list(filter(lambda x: x.value=="", spec_lst))
-	return specObj
+	spec_obj = list(filter(lambda x: x.value=="", spec_lst))
+	return spec_obj
 
 def get_filter_specs(spec_lst):
-	specObj = list(filter(lambda x: x.value!="", spec_lst))
-	return specObj
+	spec_obj = list(filter(lambda x: x.value!="", spec_lst))
+	return spec_obj
 
 def check_import_lux_widget():
 	import pkgutil

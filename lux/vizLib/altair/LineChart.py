@@ -14,10 +14,10 @@ class LineChart(AltairChart):
 		super().__init__(dobj)
 	def __repr__(self):
 		return f"Line Chart <{str(self.view)}>"
-	def initializeChart(self):
+	def initialize_chart(self):
 		self.tooltip = False # tooltip looks weird for line chart
-		xAttr = self.view.getAttrByChannel("x")[0]
-		yAttr = self.view.getAttrByChannel("y")[0]
+		x_attr = self.view.get_attr_by_channel("x")[0]
+		y_attr = self.view.get_attr_by_channel("y")[0]
 
 
 		self.code += "import altair as alt\n"
@@ -25,28 +25,28 @@ class LineChart(AltairChart):
 		self.code += "from pandas._libs.tslibs.timestamps import Timestamp\n"
 		self.code += f"viewData = pd.DataFrame({str(self.data.to_dict())})\n"
 		
-		if (yAttr.data_model == "measure"):
-			aggTitle = f"{yAttr.aggregation.capitalize()} of {yAttr.attribute}"
-			xAttrSpec = alt.X(xAttr.attribute, type = xAttr.data_type)
-			yAttrSpec = alt.Y(yAttr.attribute, type= yAttr.data_type, title=aggTitle)
-			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type = '{xAttr.data_type}')"
-			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.data_type}', title='{aggTitle}')"
+		if (y_attr.data_model == "measure"):
+			agg_title = f"{y_attr.aggregation.capitalize()} of {y_attr.attribute}"
+			x_attr_spec = alt.X(x_attr.attribute, type = x_attr.data_type)
+			y_attr_spec = alt.Y(y_attr.attribute, type= y_attr.data_type, title=agg_title)
+			x_attr_field_code = f"alt.X('{x_attr.attribute}', type = '{x_attr.data_type}')"
+			y_attr_fieldCode = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', title='{agg_title}')"
 		else:
-			aggTitle = f"{xAttr.aggregation.capitalize()} of {xAttr.attribute}"
-			xAttrSpec = alt.X(xAttr.attribute,type= xAttr.data_type, title=aggTitle)
-			yAttrSpec = alt.Y(yAttr.attribute, type = yAttr.data_type)
-			xAttrFieldCode = f"alt.X('{xAttr.attribute}', type = '{xAttr.data_type}', title='{aggTitle}')"
-			yAttrFieldCode = f"alt.Y('{yAttr.attribute}', type= '{yAttr.data_type}')"
+			agg_title = f"{x_attr.aggregation.capitalize()} of {x_attr.attribute}"
+			x_attr_spec = alt.X(x_attr.attribute,type= x_attr.data_type, title=agg_title)
+			y_attr_spec = alt.Y(y_attr.attribute, type = y_attr.data_type)
+			x_attr_field_code = f"alt.X('{x_attr.attribute}', type = '{x_attr.data_type}', title='{agg_title}')"
+			y_attr_fieldCode = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}')"
 
 		chart = alt.Chart(self.data).mark_line().encode(
-			    x = xAttrSpec,
-			    y = yAttrSpec
+			    x = x_attr_spec,
+			    y = y_attr_spec
 			)
 		chart = chart.interactive() # Enable Zooming and Panning
 		self.code += f'''
 		chart = alt.Chart(viewData).mark_line().encode(
-		    y = {yAttrFieldCode},
-		    x = {xAttrFieldCode},
+		    y = {y_attr_fieldCode},
+		    x = {x_attr_field_code},
 		)
 		chart = chart.interactive() # Enable Zooming and Panning
 		'''

@@ -40,21 +40,21 @@ def test_aggregation():
 def test_filter():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
-    df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Year"), lux.Spec(attribute = "Origin", filterOp="=",value = "USA")])
+    df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Year"), lux.Spec(attribute = "Origin", filter_op="=",value = "USA")])
     view = df.view_collection[0]
     view.data = df
     PandasExecutor.executeFilter(view)
     assert len(view.data) == len(df[df["Origin"]=="USA"])
 def test_inequalityfilter():
     df = pd.read_csv("lux/data/car.csv")
-    df.setContext([lux.Spec(attribute = "Horsepower", filterOp=">",value=50),lux.Spec(attribute = "MilesPerGal")])
+    df.setContext([lux.Spec(attribute = "Horsepower", filter_op=">",value=50),lux.Spec(attribute = "MilesPerGal")])
     view = df.view_collection[0]
     view.data = df
     PandasExecutor.executeFilter(view)
     assert len(df) > len(view.data)
     assert len(view.data) == 386 
     
-    df.setContext([lux.Spec(attribute = "Horsepower", filterOp="<=",value=100),lux.Spec(attribute = "MilesPerGal")])
+    df.setContext([lux.Spec(attribute = "Horsepower", filter_op="<=",value=100),lux.Spec(attribute = "MilesPerGal")])
     view = df.view_collection[0]
     view.data = df
     PandasExecutor.executeFilter(view)
@@ -62,14 +62,14 @@ def test_inequalityfilter():
 
     # Test end-to-end
     PandasExecutor.execute(df.view_collection,df)
-    Nbins =list(filter(lambda x: x.binSize!=0 , df.view_collection[0].spec_lst))[0].binSize
+    Nbins =list(filter(lambda x: x.bin_size!=0 , df.view_collection[0].spec_lst))[0].bin_size
     assert len(df.view_collection[0].data) == Nbins
     
 def test_binning():
     df = pd.read_csv("lux/data/car.csv")
     df.setContext([lux.Spec(attribute = "Horsepower")])
     PandasExecutor.execute(df.view_collection,df)
-    Nbins =list(filter(lambda x: x.binSize!=0 , df.view_collection[0].spec_lst))[0].binSize
+    Nbins =list(filter(lambda x: x.bin_size!=0 , df.view_collection[0].spec_lst))[0].bin_size
     assert len(df.view_collection[0].data) == Nbins
 
 def test_record():
@@ -97,7 +97,7 @@ def test_exclude_attribute():
     view.data = df
     PandasExecutor.executeFilter(view)
     for vc in df.view_collection: 
-        assert (vc.getAttrByChannel("x")[0].attribute != "Year")
-        assert (vc.getAttrByChannel("x")[0].attribute != "Name")
-        assert (vc.getAttrByChannel("y")[0].attribute != "Year")
-        assert (vc.getAttrByChannel("y")[0].attribute != "Year") 
+        assert (vc.get_attr_by_channel("x")[0].attribute != "Year")
+        assert (vc.get_attr_by_channel("x")[0].attribute != "Name")
+        assert (vc.get_attr_by_channel("y")[0].attribute != "Year")
+        assert (vc.get_attr_by_channel("y")[0].attribute != "Year") 

@@ -8,15 +8,15 @@ class ViewCollection():
 	'''
 	ViewCollection is a list of View objects. 
 	'''
-	def __init__(self,inputLst:Union[List[View],List[Spec]]):
+	def __init__(self,input_lst:Union[List[View],List[Spec]]):
 		# Overloaded Constructor
-		self.inputLst = inputLst
-		if len(inputLst)>0:
-			if (self._isViewInput()):
-				self.collection = inputLst
+		self.input_lst = input_lst
+		if len(input_lst)>0:
+			if (self._is_view_input()):
+				self.collection = input_lst
 				self.spec_lst = []
 			else:
-				self.spec_lst = inputLst
+				self.spec_lst = input_lst
 				self.collection = []
 		else:
 			self.collection = []
@@ -45,10 +45,10 @@ class ViewCollection():
 		else:
 			exported_views = ViewCollection(list(map(self.__getitem__, exported_vis_lst["View Collection"])))
 			return exported_views
-	def _isViewInput(self):
-		if (type(self.inputLst[0])==View):
+	def _is_view_input(self):
+		if (type(self.input_lst[0])==View):
 			return True
-		elif (type(self.inputLst[0])==Spec):
+		elif (type(self.input_lst[0])==Spec):
 			return False
 	def __getitem__(self, key):
 		return self.collection[key]
@@ -58,7 +58,7 @@ class ViewCollection():
 		return len(self.collection)
 	def __repr__(self):
 		if len(self.collection) == 0:
-			return str(self.inputLst)
+			return str(self.input_lst)
 		x_channel = ""
 		y_channel = ""
 		largest_mark = 0
@@ -71,7 +71,7 @@ class ViewCollection():
 
 				if spec.aggregation != "":
 					attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
-				elif spec.binSize > 0:
+				elif spec.bin_size > 0:
 					attribute = "BIN(" + spec.attribute + ")"
 				else:
 					attribute = spec.attribute
@@ -98,7 +98,7 @@ class ViewCollection():
 
 				if spec.aggregation != "":
 					attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
-				elif spec.binSize > 0:
+				elif spec.bin_size > 0:
 					attribute = "BIN(" + spec.attribute + ")"
 				else:
 					attribute = spec.attribute
@@ -124,7 +124,7 @@ class ViewCollection():
 			for channel in additional_channels:
 				str_additional_channels += ", " + channel[0] + ": " + channel[1]
 			if filter_spec:
-				aligned_filter = " -- [" + filter_spec.attribute + filter_spec.filterOp + str(filter_spec.value) + "]"
+				aligned_filter = " -- [" + filter_spec.attribute + filter_spec.filter_op + str(filter_spec.value) + "]"
 				aligned_filter = aligned_filter.ljust(largest_filter + 8)
 				views_repr.append(f" <View  ({x_channel}{y_channel}{str_additional_channels} {aligned_filter}) mark: {aligned_mark}, score: {view.score:.2f} >") 
 			else:
@@ -134,55 +134,55 @@ class ViewCollection():
 		# generalized way of applying a function to each element
 		return map(function, self.collection)
 	
-	def get(self,fieldName):
+	def get(self,field_name):
 		# Get the value of the field for all objects in the collection
-		def getField(dObj):
-			fieldVal = getattr(dObj,fieldName)
+		def get_field(d_obj):
+			field_val = getattr(d_obj,field_name)
 			# Might want to write catch error if key not in field
-			return fieldVal
-		return self.map(getField)
+			return field_val
+		return self.map(get_field)
 
-	def set(self,fieldName,fieldVal):
+	def set(self,field_name,field_val):
 		return NotImplemented
-	def set_plot_config(self,configFunc:Callable):
+	def set_plot_config(self,config_func:Callable):
 		"""
 		Modify plot aesthetic settings to the View Collection
 		Currently only supported for Altair visualizations
 
 		Parameters
 		----------
-		configFunc : typing.Callable
+		config_func : typing.Callable
 			A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
 		"""
 		for view in self.collection:
-			view.plot_config = configFunc
+			view.plot_config = config_func
 	def clear_plot_config(self):
 		for view in self.collection:
 			view.plot_config = None
-	def sort(self, removeInvalid=True, descending = True):
+	def sort(self, remove_invalid=True, descending = True):
 		# remove the items that have invalid (-1) score
-		if (removeInvalid): self.collection = list(filter(lambda x: x.score!=-1,self.collection))
+		if (remove_invalid): self.collection = list(filter(lambda x: x.score!=-1,self.collection))
 		# sort in-place by “score” by default if available, otherwise user-specified field to sort by
 		self.collection.sort(key=lambda x: x.score, reverse=descending)
 
 	def topK(self,k):
 		#sort and truncate list to first K items
-		self.sort(removeInvalid=True)
+		self.sort(remove_invalid=True)
 		return ViewCollection(self.collection[:k])
 	def bottomK(self,k):
 		#sort and truncate list to first K items
-		self.sort(descending=False,removeInvalid=True)
+		self.sort(descending=False,remove_invalid=True)
 		return ViewCollection(self.collection[:k])
-	def normalizeScore(self, invertOrder = False):
-		maxScore = max(list(self.get("score")))
+	def normalize_score(self, invert_order = False):
+		max_score = max(list(self.get("score")))
 		for dobj in self.collection:
-			dobj.score = dobj.score/maxScore
-			if (invertOrder): dobj.score = 1 - dobj.score
+			dobj.score = dobj.score/max_score
+			if (invert_order): dobj.score = 1 - dobj.score
 	def _repr_html_(self):
 		self.widget =  None
 		from IPython.display import display
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-		# widget  = LuxDataFrame.render_widget(inputCurrentView=self,renderTarget="viewCollectionOnly")
+		# widget  = LuxDataFrame.render_widget(input_current_view=self,render_target="viewCollectionOnly")
 		recommendation = {"action": "View Collection",
 					  "description": "Shows a view collection defined by the context"}
 		recommendation["collection"] = self
@@ -219,12 +219,12 @@ class ViewCollection():
 		from lux.compiler.Validator import Validator
 		from lux.compiler.Compiler import Compiler
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
-		if len(self.inputLst)>0:
-			if (self._isViewInput()):
+		if len(self.input_lst)>0:
+			if (self._is_view_input()):
 				for view in self.collection:
 					view.spec_lst = Parser.parse(view.spec_lst)
 					Validator.validate_spec(view.spec_lst,ldf)
-				vc = Compiler.compile(ldf,ldf.context,self,enumerateCollection=False)
+				vc = Compiler.compile(ldf,ldf.context,self,enumerate_collection=False)
 			else:
 				self.spec_lst = Parser.parse(self.spec_lst)
 				Validator.validate_spec(self.spec_lst,ldf)

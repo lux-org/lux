@@ -29,7 +29,7 @@ The decoupling of the view and its associated data is useful for making quick co
 .. Exported Views
 .. --------------
 
-.. toAltair
-.. toVegaLite
+.. to_Altair
+.. to_VegaLite
 
 .. `set_context_as_view`

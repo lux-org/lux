@@ -10,7 +10,7 @@ class Parser:
 	def parse(specs: List[Spec]) -> List[Spec]:
 		"""
 		Given the string description from a list of input Specs (often context),
-		assign the appropriate spec.attribute, spec.filterOp, and spec.value.
+		assign the appropriate spec.attribute, spec.filter_op, and spec.value.
 		
 		Parameters
 		----------
@@ -48,7 +48,7 @@ class Parser:
 					else:
 						validValues = s[eqInd+1:]
 					# if var in list(ldf.columns): #TODO: Move validation check to Validator
-					tempSpec = Spec(attribute = var, filterOp = "=", value = validValues)
+					tempSpec = Spec(attribute = var, filter_op = "=", value = validValues)
 					newContext.append(tempSpec)
 				#case where user specifies a variable
 				else:
@@ -71,9 +71,9 @@ class Parser:
 				#TODO: Move validation check to Validator
 				#if ((spec.description in list(ldf.columns)) or spec.description == "?"):# if spec.description in the list of attributes
 				if any(ext in [">","<","="] for ext in spec.description): # spec.description contain ">","<". or "="
-					# then parse it and assign to spec.attribute, spec.filterOp, spec.values
-					spec.filterOp = re.findall(r'/.*/>|=|<|>=|<=|!=', spec.description)[0]
-					splitDescription = spec.description.split(spec.filterOp)
+					# then parse it and assign to spec.attribute, spec.filter_op, spec.values
+					spec.filter_op = re.findall(r'/.*/>|=|<|>=|<=|!=', spec.description)[0]
+					splitDescription = spec.description.split(spec.filter_op)
 					spec.attribute = splitDescription[0]
 					spec.value = splitDescription[1]
 				elif (type(spec.description) == str):

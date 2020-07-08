@@ -84,7 +84,7 @@ Similarly, we can use :mod:`lux.context.Spec` to specify values of interest:
 .. code-block:: python 
 
     df.setContext(['MedianDebt',
-                    lux.Spec(attribute='Region',filterOp='=', value=['New England','Southeast','Far West']
+                    lux.Spec(attribute='Region',filter_op='=', value=['New England','Southeast','Far West']
                   ])
 
 Both the `attribute` and `value` fields can take in either a single string or a list of attributes to specify items of interest. This example also demonstrates how we can intermix the `lux.Spec` specification alongside the basic string-based specification for convenience.
@@ -122,4 +122,4 @@ or
 
 .. code-block:: python
 
-    df.setContext(['AverageCost',lux.Spec(attribute='Geography',filterOp='=',value='?')])
+    df.setContext(['AverageCost',lux.Spec(attribute='Geography',filter_op='=',value='?')])

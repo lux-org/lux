@@ -10,11 +10,11 @@ class AltairRenderer:
 	"""
 	Renderer for Charts based on Altair (https://altair-viz.github.io/)
 	"""
-	def __init__(self,outputType="VegaLite"):
-		self.outputType = outputType
+	def __init__(self,output_type="VegaLite"):
+		self.output_type = output_type
 	def __repr__(self):
 		return f"AltairRenderer"
-	def createVis(self,view):
+	def create_vis(self,view):
 		"""
 		Input DataObject and return a visualization specification
 		
@@ -47,15 +47,15 @@ class AltairRenderer:
 			chart = None
 
 		if (chart):
-			if (self.outputType=="VegaLite"):
+			if (self.output_type=="VegaLite"):
 				if (view.plot_config): chart.chart = view.plot_config(chart.chart)
-				chartDict = chart.chart.to_dict()
+				chart_dict = chart.chart.to_dict()
 				# this is a bit of a work around because altair must take a pandas dataframe and we can only generate a luxDataFrame
 				# chart["data"] =  { "values": view.data.to_dict(orient='records') }
-				chartDict["width"] = 160
-				chartDict["height"] = 150
-				return chartDict
-			elif (self.outputType=="Altair"):
+				chart_dict["width"] = 160
+				chart_dict["height"] = 150
+				return chart_dict
+			elif (self.output_type=="Altair"):
 				import inspect
 				if (view.plot_config): chart.code +='\n'.join(inspect.getsource(view.plot_config).split('\n    ')[1:-1])
 				chart.code +="\nchart"

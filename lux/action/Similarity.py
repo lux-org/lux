@@ -39,7 +39,7 @@ def similarPattern(ldf,queryContext,topK=-1):
         for view in searchSpaceVC:
             preprocess(view)
             view.score = euclideanDist(queryView, view)
-        searchSpaceVC.normalizeScore(invertOrder=True)
+        searchSpaceVC.normalize_score(invert_order=True)
         if(topK!=-1):
             searchSpaceVC = searchSpaceVC.topK(topK)
         recommendation["collection"] = searchSpaceVC
@@ -59,10 +59,10 @@ def aggregate(view):
     -------
     None
     '''
-    if view.getAttrByChannel("x") and view.getAttrByChannel("y"):
+    if view.get_attr_by_channel("x") and view.get_attr_by_channel("y"):
 
-        xAxis = view.getAttrByChannel("x")[0].attribute
-        yAxis = view.getAttrByChannel("y")[0].attribute
+        xAxis = view.get_attr_by_channel("x")[0].attribute
+        yAxis = view.get_attr_by_channel("y")[0].attribute
 
         view.data = view.data[[xAxis,yAxis]].groupby(xAxis,as_index=False).agg({yAxis:'mean'}).copy()
 
@@ -81,10 +81,10 @@ def interpolate(view,length):
     -------
     None
     '''
-    if view.getAttrByChannel("x") and view.getAttrByChannel("y"):
+    if view.get_attr_by_channel("x") and view.get_attr_by_channel("y"):
 
-        xAxis = view.getAttrByChannel("x")[0].attribute
-        yAxis = view.getAttrByChannel("y")[0].attribute
+        xAxis = view.get_attr_by_channel("x")[0].attribute
+        yAxis = view.get_attr_by_channel("y")[0].attribute
 
         if xAxis and yAxis:
             yVals = view.data[yAxis]
@@ -127,8 +127,8 @@ def normalize(view):
     -------
     None
     '''
-    if view.getAttrByChannel("y"):
-        yAxis = view.getAttrByChannel("y")[0].attribute
+    if view.get_attr_by_channel("y"):
+        yAxis = view.get_attr_by_channel("y")[0].attribute
         max = view.data[yAxis].max()
         min = view.data[yAxis].min()
         if(max == min or (max-min<1)):
@@ -152,10 +152,10 @@ def euclideanDist(queryView,view):
         eculidean distance score
     '''
 
-    if queryView.getAttrByChannel("y") and view.getAttrByChannel("y"):
+    if queryView.get_attr_by_channel("y") and view.get_attr_by_channel("y"):
 
-        viewYAxis = view.getAttrByChannel("y")[0].attribute
-        queryYAxis = queryView.getAttrByChannel("y")[0].attribute
+        viewYAxis = view.get_attr_by_channel("y")[0].attribute
+        queryYAxis = queryView.get_attr_by_channel("y")[0].attribute
 
         viewVector = view.data[viewYAxis].values
         queryVector = queryView.data[queryYAxis].values

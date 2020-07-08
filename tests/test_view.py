@@ -7,8 +7,8 @@ def test_view_collection():
     from lux.view.ViewCollection import ViewCollection
     vc = ViewCollection(["Height","SportType=Ball","?"])
     vc = vc.load(df)
-    viewWithYear = list(filter(lambda x: x.getAttrByAttrName("Year")!=[],vc))[0]
-    assert viewWithYear.getAttrByChannel("x")[0].attribute=="Year"
+    viewWithYear = list(filter(lambda x: x.get_attr_by_attr_name("Year")!=[],vc))[0]
+    assert viewWithYear.get_attr_by_channel("x")[0].attribute=="Year"
     assert len(vc) == len(df.columns) -1 -1 #remove 1 for view with same filter attribute and remove 1 view with for same attribute
     vc = ViewCollection(["Height","?"])
     vc = vc.load(df)
@@ -24,6 +24,6 @@ def test_customPlotSetting():
     df.show_more()
     configMarkAddition = 'chart = chart.configure_mark(color="green",opacity=0.2)'
     titleAddition ='chart.title = "Test Title"'
-    exportedCodeStr = df.recommendation["Correlation"][0].toAltair()
+    exportedCodeStr = df.recommendation["Correlation"][0].to_Altair()
     assert configMarkAddition in exportedCodeStr
     assert titleAddition in exportedCodeStr

@@ -36,7 +36,7 @@ def correlation(ldf:LuxDataFrame,ignoreTranspose:bool=True):
 	vc = vc.load(ldf)
 	# Then use the data populated in the view collection to compute score
 	for view in vc:
-		measures = view.getAttrByDataModel("measure")
+		measures = view.get_attr_by_data_model("measure")
 		if len(measures)<2 : raise ValueError(f"Can not compute correlation between {[x.attribute for x in ldf.columns]} since less than 2 measure values present.")
 		msr1 = measures[0].attribute
 		msr2 = measures[1].attribute

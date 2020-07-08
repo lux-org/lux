@@ -68,18 +68,18 @@ class PandasExecutor(Executor):
         None
         '''
         import numpy as np
-        xAttr = view.getAttrByChannel("x")[0]
-        yAttr = view.getAttrByChannel("y")[0]
+        x_attr = view.get_attr_by_channel("x")[0]
+        y_attr = view.get_attr_by_channel("y")[0]
         groupbyAttr =""
         measureAttr =""
-        if (yAttr.aggregation!=""):
-            groupbyAttr = xAttr
-            measureAttr = yAttr
-            aggFunc = yAttr.aggregation
-        if (xAttr.aggregation!=""):
-            groupbyAttr = yAttr
-            measureAttr = xAttr
-            aggFunc = xAttr.aggregation
+        if (y_attr.aggregation!=""):
+            groupbyAttr = x_attr
+            measureAttr = y_attr
+            aggFunc = y_attr.aggregation
+        if (x_attr.aggregation!=""):
+            groupbyAttr = y_attr
+            measureAttr = x_attr
+            aggFunc = x_attr.aggregation
         allAttrVals = view.data.unique_values[groupbyAttr.attribute]
         if (measureAttr!=""):
             if (measureAttr.attribute=="Record"):
@@ -119,9 +119,9 @@ class PandasExecutor(Executor):
         '''
         import numpy as np
         import pandas as pd # is this import going to be conflicting with LuxDf?
-        binAttribute = list(filter(lambda x: x.binSize!=0,view.spec_lst))[0]
+        binAttribute = list(filter(lambda x: x.bin_size!=0,view.spec_lst))[0]
         #TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
-        counts,binEdges = np.histogram(view.data[binAttribute.attribute],bins=binAttribute.binSize)
+        counts,binEdges = np.histogram(view.data[binAttribute.attribute],bins=binAttribute.bin_size)
         #binEdges of size N+1, so need to compute binCenter as the bin location
         binCenter = np.mean(np.vstack([binEdges[0:-1],binEdges[1:]]), axis=0)
         # TODO: Should view.data be a LuxDataFrame or a Pandas DataFrame?
@@ -135,7 +135,7 @@ class PandasExecutor(Executor):
         if (filters):
             # TODO: Need to handle OR logic
             for filter in filters:
-                view.data = PandasExecutor.applyFilter(view.data,filter.attribute,filter.filterOp,filter.value)    
+                view.data = PandasExecutor.applyFilter(view.data,filter.attribute,filter.filter_op,filter.value)    
     @staticmethod
     def applyFilter(df: pandas.DataFrame, attribute:str, op: str, val: object) -> pandas.DataFrame:
         """

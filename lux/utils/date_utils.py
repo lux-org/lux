@@ -1,6 +1,6 @@
 import pandas as pd
 
-def dateFormatter(timeStamp,ldf):
+def date_formatter(time_stamp,ldf):
 	"""
 	Given a numpy timestamp and ldf, inspects which date granularity is appropriate and reformats timestamp accordingly
 
@@ -13,33 +13,33 @@ def dateFormatter(timeStamp,ldf):
 
 	Parameters
 	----------
-	timeStamp: np.datetime64 
+	time_stamp: np.datetime64 
 		timestamp object holding the date information
 	ldf : lux.luxDataFrame.LuxDataFrame
 		LuxDataFrame with a temporal field
 
 	Returns
 	-------
-	dateStr: str
-		A reformatted version of the timeStamp according to granularity
+	date_str: str
+		A reformatted version of the time_stamp according to granularity
 	"""
-	datetime = pd.to_datetime(timeStamp)
-	granularity = computeDateGranularity(ldf)
-	dateStr = ""
+	datetime = pd.to_datetime(time_stamp)
+	granularity = compute_date_granularity(ldf)
+	date_str = ""
 	if granularity == "year":
-		dateStr += str(datetime.year)
+		date_str += str(datetime.year)
 	elif granularity == "month":
-		dateStr += str(datetime.year)+ "-" + str(datetime.month)
+		date_str += str(datetime.year)+ "-" + str(datetime.month)
 	elif granularity == "day":
-		dateStr += str(datetime.year) +"-"+ str(datetime.month) +"-"+ str(datetime.day)
+		date_str += str(datetime.year) +"-"+ str(datetime.month) +"-"+ str(datetime.day)
 	else:
 		# non supported granularity
 		return datetime.date()
 
-	return dateStr
+	return date_str
 
 
-def computeDateGranularity(ldf):
+def compute_date_granularity(ldf):
 	"""
 	Given a ldf, inspects temporal column and finds out the granularity of dates.
 
@@ -59,10 +59,10 @@ def computeDateGranularity(ldf):
 	field: str
 		A str specifying the granularity of dates for the inspected temporal column
 	"""
-	dateFields = ["day", "month", "year"]
+	date_fields = ["day", "month", "year"]
 	if ldf.data_type["temporal"]:
-		dateColumn = ldf[ldf.data_type["temporal"][0]] # assumes only one temporal column, may need to change this function to recieve multiple temporal columns in the future
-		dateIndex = pd.DatetimeIndex(dateColumn)
-		for field in dateFields:
-			if hasattr(dateIndex,field) and len(getattr(dateIndex, field).unique()) != 1 : #can be changed to sum(getattr(dateIndex, field)) != 0
+		date_column = ldf[ldf.data_type["temporal"][0]] # assumes only one temporal column, may need to change this function to recieve multiple temporal columns in the future
+		date_index = pd.DatetimeIndex(date_column)
+		for field in date_fields:
+			if hasattr(date_index,field) and len(getattr(date_index, field).unique()) != 1 : #can be changed to sum(getattr(date_index, field)) != 0
 				return field

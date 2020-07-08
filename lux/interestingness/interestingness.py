@@ -41,8 +41,8 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 				n_msr += 1
 	n_filter = len(filter_specs)
 	attr_specs = [spec for spec in viewAttrsSpecs if spec.attribute != "Record"]
-	dimensionLst = view.getAttrByDataModel("dimension")
-	measureLst = view.getAttrByDataModel("measure")
+	dimensionLst = view.get_attr_by_data_model("dimension")
+	measureLst = view.get_attr_by_data_model("measure")
 
 	# Bar Chart
 	if (n_dim == 1 and (n_msr == 0 or n_msr==1)):
@@ -68,7 +68,7 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 		return sig * monotonicity(view,attr_specs)
 	# Scatterplot colored by Dimension
 	elif (n_dim == 1 and n_msr == 2):
-		colorAttr = view.getAttrByChannel("color")[0].attribute
+		colorAttr = view.get_attr_by_channel("color")[0].attribute
 		
 		C = ldf.cardinality[colorAttr]
 		if (C<40):
@@ -86,7 +86,7 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 		return -1
 def getFilteredSize(filter_specs,ldf):
 	filter_spec = filter_specs[0]
-	result = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
+	result = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filter_op, filter_spec.value)
 	return len(result)
 def skewness(v):
 	from scipy.stats import skew

@@ -9,7 +9,7 @@ def test_underspecifiedNoVis(test_showMore):
 	assert len(df.view_collection)==0
 
 	# test only one filter context case.
-	df.setContext([lux.Spec(attribute = "Origin", filterOp="=",value="USA")])
+	df.setContext([lux.Spec(attribute = "Origin", filter_op="=",value="USA")])
 	test_showMore(df,noViewActions)
 	assert len(df.view_collection)==0
 
@@ -33,26 +33,26 @@ def test_underspecifiedVisCollection(test_showMore):
 	assert len(df.view_collection)==3
 	assert df.view_collection[0].mark == "line"
 	for vc in df.view_collection:
-		assert (vc.getAttrByChannel("x")[0].attribute == "Year")
+		assert (vc.get_attr_by_channel("x")[0].attribute == "Year")
 	test_showMore(df,multipleViewActions)
 
 	df.setContext([lux.Spec(attribute = "?"),lux.Spec(attribute = "Year",channel="x")])
 	assert len(df.view_collection) == len(list(df.columns))-1 # we remove year by year so its 8 vis instead of 9
 	for vc in df.view_collection:
-		assert (vc.getAttrByChannel("x")[0].attribute == "Year")
+		assert (vc.get_attr_by_channel("x")[0].attribute == "Year")
 	test_showMore(df,multipleViewActions)
 
 	df.setContext([lux.Spec(attribute = "?",data_type="quantitative"),lux.Spec(attribute = "Year")])
-	assert len(df.view_collection) == len([view.getAttrByDataType("quantitative") for view in df.view_collection]) # should be 5
+	assert len(df.view_collection) == len([view.get_attr_by_data_type("quantitative") for view in df.view_collection]) # should be 5
 	test_showMore(df,multipleViewActions)
 
 	df.setContext([lux.Spec(attribute = "?", data_model="measure"),lux.Spec(attribute="MilesPerGal",channel="y")])
 	for vc in df.view_collection:
-		print (vc.getAttrByChannel("y")[0].attribute == "MilesPerGal")
+		print (vc.get_attr_by_channel("y")[0].attribute == "MilesPerGal")
 	test_showMore(df,multipleViewActions)
 
 	df.setContext([lux.Spec(attribute = "?", data_model="measure"),lux.Spec(attribute = "?", data_model="measure")])
-	assert len(df.view_collection) == len([view.getAttrByDataModel("measure") for view in df.view_collection]) #should be 25
+	assert len(df.view_collection) == len([view.get_attr_by_data_model("measure") for view in df.view_collection]) #should be 25
 	test_showMore(df,multipleViewActions)
 
 @pytest.fixture
@@ -75,12 +75,12 @@ def test_parse():
 def test_underspecifiedVisCollection_Zval():
 	# check if the number of charts is correct
 	df = pd.read_csv("lux/data/car.csv")
-	df.setContext([lux.Spec(attribute = "Origin", filterOp="=",value="?"),lux.Spec(attribute = "MilesPerGal")])
+	df.setContext([lux.Spec(attribute = "Origin", filter_op="=",value="?"),lux.Spec(attribute = "MilesPerGal")])
 	assert len(df.view_collection)==3
 
 	#does not work
 	# df = pd.read_csv("lux/data/cars.csv")
-	# df.setContext([lux.Spec(attribute = ["Origin","Cylinders"], filterOp="=",value="?"),lux.Spec(attribute = ["Horsepower"]),lux.Spec(attribute = "Weight")])
+	# df.setContext([lux.Spec(attribute = ["Origin","Cylinders"], filter_op="=",value="?"),lux.Spec(attribute = ["Horsepower"]),lux.Spec(attribute = "Weight")])
 	# assert len(df.view_collection) == 8
 
 def test_sortBar():
@@ -162,8 +162,8 @@ def test_autoencodingHistogram():
 
 	# Record instead of count
 	# df.setContext([lux.Spec(attribute="MilesPerGal",channel="x")])
-	# assert df.view_collection[0].getAttrByChannel("x")[0].attribute == "MilesPerGal"
-	# assert df.view_collection[0].getAttrByChannel("y")[0].attribute == "count()"
+	# assert df.view_collection[0].get_attr_by_channel("x")[0].attribute == "MilesPerGal"
+	# assert df.view_collection[0].get_attr_by_channel("y")[0].attribute == "count()"
 
 def test_autoencodingLineChart():
 	df = pd.read_csv("lux/data/cars.csv")
@@ -232,5 +232,5 @@ def listEqual(l1,l2):
     l2.sort()
     return l1==l2
 
-def checkAttributeOnChannel(view,attrName,channelName):
-	assert view.getAttrByChannel(channelName)[0].attribute == attrName
+def checkAttributeOnChannel(view,attr_name,channelName):
+	assert view.get_attr_by_channel(channelName)[0].attribute == attr_name

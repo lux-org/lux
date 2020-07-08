@@ -20,7 +20,7 @@ class Compiler:
 		return f"<Compiler>"
 
 	@staticmethod
-	def compile(ldf: LuxDataFrame,spec_lst:List[Spec], view_collection: ViewCollection, enumerateCollection=True) -> ViewCollection:
+	def compile(ldf: LuxDataFrame,spec_lst:List[Spec], view_collection: ViewCollection, enumerate_collection=True) -> ViewCollection:
 		"""
 		Compiles input specifications in the context of the ldf into a collection of lux.View objects for visualization.
 		1) Enumerate a collection of views interested by the user to generate a view collection
@@ -33,7 +33,7 @@ class Compiler:
 			LuxDataFrame with underspecified context.
 		view_collection : list[lux.view.View]
 			empty list that will be populated with specified lux.View objects.
-		enumerateCollection : boolean
+		enumerate_collection : boolean
 			A boolean value that signals when to generate a collection of visualizations.
 
 		Returns
@@ -41,8 +41,8 @@ class Compiler:
 		view_collection: list[lux.View]
 			view collection with compiled lux.View objects.
 		"""
-		if (enumerateCollection):
-			view_collection = Compiler.enumerateCollection(spec_lst,ldf)
+		if (enumerate_collection):
+			view_collection = Compiler.enumerate_collection(spec_lst,ldf)
 		view_collection = Compiler.expandUnderspecified(ldf, view_collection)  # autofill data type/model information
 		if len(view_collection)>1: 
 			view_collection = Compiler.removeAllInvalid(view_collection) # remove invalid views from collection
@@ -51,7 +51,7 @@ class Compiler:
 		return view_collection
 
 	@staticmethod
-	def enumerateCollection(spec_lst:List[Spec],ldf: LuxDataFrame) -> ViewCollection:
+	def enumerate_collection(spec_lst:List[Spec],ldf: LuxDataFrame) -> ViewCollection:
 		"""
 		Given specifications that have been expanded thorught populateOptions,
 		recursively iterate over the resulting list combinations to generate a View collection.
@@ -86,7 +86,7 @@ class Compiler:
 					if len(filters) > 0:  # if we have filters, generate combinations for each row.
 						for row in filters:
 							spec_lst = copy.deepcopy(columnList + [row])
-							view = View(spec_lst, title=f"{row.attribute} {row.filterOp} {row.value}")
+							view = View(spec_lst, title=f"{row.attribute} {row.filter_op} {row.value}")
 							collection.append(view)
 					else:
 						view = View(columnList)
@@ -128,10 +128,10 @@ class Compiler:
 				if (spec.value!=""):
 					if(isinstance(spec.value,np.datetime64)):
 						# TODO: Make this more general and not specific to Year attributes
-						chartTitle = date_utils.dateFormatter(spec.value,ldf)
+						chart_title = date_utils.date_formatter(spec.value,ldf)
 					else:
-						chartTitle = spec.value
-					view.title = f"{spec.attribute} {spec.filterOp} {chartTitle}"
+						chart_title = spec.value
+					view.title = f"{spec.attribute} {spec.filter_op} {chart_title}"
 		return views
 
 	@staticmethod
@@ -216,18 +216,18 @@ class Compiler:
 		# ShowMe logic + additional heuristics
 		#countCol = Spec( attribute="count()", data_model="measure")
 		countCol = Spec( attribute="Record", aggregation="count", data_model="measure", data_type="quantitative")
-		# xAttr = view.getAttrByChannel("x") # not used as of now
-		# yAttr = view.getAttrByChannel("y")
-		# zAttr = view.getAttrByChannel("z")
+		# x_attr = view.get_attr_by_channel("x") # not used as of now
+		# y_attr = view.get_attr_by_channel("y")
+		# zAttr = view.get_attr_by_channel("z")
 		autoChannel={}
 		if (Ndim == 0 and Nmsr == 1):
 			# Histogram with Count 
-			measure = view.getAttrByDataModel("measure",excludeRecord=True)[0]
-			if (len(view.getAttrByAttrName("Record"))<0):
+			measure = view.get_attr_by_data_model("measure",exclude_record=True)[0]
+			if (len(view.get_attr_by_attr_name("Record"))<0):
 				view.spec_lst.append(countCol)
 			# If no bin specified, then default as 10
-			if (measure.binSize == 0):
-				measure.binSize = 10
+			if (measure.bin_size == 0):
+				measure.bin_size = 10
 			autoChannel = {"x": measure, "y": countCol}
 			view.x_min_max = ldf.x_min_max
 			view.mark = "histogram"
@@ -235,33 +235,33 @@ class Compiler:
 			# Line or Bar Chart
 			if (Nmsr == 0):
 				view.spec_lst.append(countCol)
-			dimension = view.getAttrByDataModel("dimension")[0]
-			measure = view.getAttrByDataModel("measure")[0]
+			dimension = view.get_attr_by_data_model("dimension")[0]
+			measure = view.get_attr_by_data_model("measure")[0]
 			view.mark, autoChannel = lineOrBar(ldf,dimension, measure) 
 		elif (Ndim == 2 and (Nmsr == 0 or Nmsr == 1)):
 			# Line or Bar chart broken down by the dimension
-			dimensions = view.getAttrByDataModel("dimension")
+			dimensions = view.get_attr_by_data_model("dimension")
 			d1 = dimensions[0]
 			d2 = dimensions[1]
 			if (ldf.cardinality[d1.attribute] < ldf.cardinality[d2.attribute]):
 				# d1.channel = "color"
-				view.removeColumnFromSpec(d1.attribute)
+				view.remove_column_from_spec(d1.attribute)
 				dimension = d2
-				colorAttr = d1
+				color_attr = d1
 			else:
 				if (d1.attribute == d2.attribute):
 					view.spec_lst.pop(
-						0)  # if same attribute then removeColumnFromSpec will remove both dims, we only want to remove one
+						0)  # if same attribute then remove_column_from_spec will remove both dims, we only want to remove one
 				else:
-					view.removeColumnFromSpec(d2.attribute)
+					view.remove_column_from_spec(d2.attribute)
 				dimension = d1
-				colorAttr = d2
+				color_attr = d2
 			# Colored Bar/Line chart with Count as default measure
 			if (Nmsr == 0):
 				view.spec_lst.append(countCol)
-			measure = view.getAttrByDataModel("measure")[0]
+			measure = view.get_attr_by_data_model("measure")[0]
 			view.mark, autoChannel = lineOrBar(ldf,dimension, measure)
-			autoChannel["color"] = colorAttr
+			autoChannel["color"] = color_attr
 		elif (Ndim == 0 and Nmsr == 2):
 			# Scatterplot
 			view.x_min_max = ldf.x_min_max
@@ -271,18 +271,18 @@ class Compiler:
 						   "y": view.spec_lst[1]}
 		elif (Ndim == 1 and Nmsr == 2):
 			# Scatterplot broken down by the dimension
-			measure = view.getAttrByDataModel("measure")
+			measure = view.get_attr_by_data_model("measure")
 			m1 = measure[0]
 			m2 = measure[1]
 
-			colorAttr = view.getAttrByDataModel("dimension")[0]
-			view.removeColumnFromSpec(colorAttr)
+			color_attr = view.get_attr_by_data_model("dimension")[0]
+			view.remove_column_from_spec(color_attr)
 			view.x_min_max = ldf.x_min_max
 			view.y_min_max = ldf.y_min_max
 			view.mark = "scatter"
 			autoChannel = {"x": m1,
 						   "y": m2,
-						   "color": colorAttr}
+						   "color": color_attr}
 		elif (Ndim == 0 and Nmsr == 3):
 			# Scatterplot with color
 			view.x_min_max = ldf.x_min_max
@@ -321,7 +321,7 @@ class Compiler:
 		specifiedDict = {}  # specifiedDict={"x":[],"y":[list of Dobj with y specified as channel]}
 		# create a dictionary of specified channels in the given dobj
 		for val in autoChannel.keys():
-			specifiedDict[val] = view.getAttrByChannel(val)
+			specifiedDict[val] = view.get_attr_by_channel(val)
 			resultDict[val] = ""
 		# for every element, replace with what's in specifiedDict if specified
 		for sVal, sAttr in specifiedDict.items():
@@ -364,7 +364,7 @@ class Compiler:
 			a dictionary that holds the attributes and filters generated from wildcards and constraints.
 		"""
 		import copy
-		from lux.utils.utils import convert2List
+		from lux.utils.utils import convert_to_list
 
 		specs = {"attributes": [], "filters": []}
 		for spec in spec_lst:
@@ -378,7 +378,7 @@ class Compiler:
 						options = options.intersection(set(ldf.data_model[spec.data_model]))
 					options = list(options)
 				else:
-					options = convert2List(spec.attribute)
+					options = convert_to_list(spec.attribute)
 				for optStr in options:
 					if str(optStr) not in spec.exclude:
 						specCopy = copy.copy(spec)
@@ -386,15 +386,15 @@ class Compiler:
 						specOptions.append(specCopy)
 				specs["attributes"].append(specOptions)
 			else:  # filters
-				attrLst = convert2List(spec.attribute)
+				attrLst = convert_to_list(spec.attribute)
 				for attr in attrLst:
 					options = []
 					if spec.value == "?":
 						options = ldf.unique_values[attr]
 						specInd = spec_lst.index(spec)
-						spec_lst[specInd] = Spec(attribute=spec.attribute, filterOp="=", value=list(options))
+						spec_lst[specInd] = Spec(attribute=spec.attribute, filter_op="=", value=list(options))
 					else:
-						options.extend(convert2List(spec.value))
+						options.extend(convert_to_list(spec.value))
 					for optStr in options:
 						if str(optStr) not in spec.exclude:
 							specCopy = copy.copy(spec)

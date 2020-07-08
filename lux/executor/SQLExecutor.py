@@ -45,7 +45,7 @@ class SQLExecutor(Executor):
                 else:
                     query = "SELECT {} FROM {} {}".format(requiredVariables, ldf.table_name, whereClause)
                 data = pd.read_sql(query, ldf.SQLconnection)
-                view.data = utils.pandasToLux(data)
+                view.data = utils.pandas_to_lux(data)
             if (view.mark =="bar" or view.mark =="line"):
                 SQLExecutor.executeAggregate(view, ldf)
             elif (view.mark =="histogram"):
@@ -54,18 +54,18 @@ class SQLExecutor(Executor):
     @staticmethod
     def executeAggregate(view:View, ldf:LuxDataFrame):
         import pandas as pd
-        xAttr = view.getAttrByChannel("x")[0]
-        yAttr = view.getAttrByChannel("y")[0]
+        x_attr = view.get_attr_by_channel("x")[0]
+        y_attr = view.get_attr_by_channel("y")[0]
         groupbyAttr =""
         measureAttr =""
-        if (yAttr.aggregation!=""):
-            groupbyAttr = xAttr
-            measureAttr = yAttr
-            aggFunc = yAttr.aggregation
-        if (xAttr.aggregation!=""):
-            groupbyAttr = yAttr
-            measureAttr = xAttr
-            aggFunc = xAttr.aggregation
+        if (y_attr.aggregation!=""):
+            groupbyAttr = x_attr
+            measureAttr = y_attr
+            aggFunc = y_attr.aggregation
+        if (x_attr.aggregation!=""):
+            groupbyAttr = y_attr
+            measureAttr = x_attr
+            aggFunc = x_attr.aggregation
         
         if (measureAttr!=""):
             #barchart case, need count data for each group
@@ -74,28 +74,28 @@ class SQLExecutor(Executor):
                 countQuery = "SELECT {}, COUNT({}) FROM {} {} GROUP BY {}".format(groupbyAttr.attribute, groupbyAttr.attribute, ldf.table_name, whereClause, groupbyAttr.attribute)
                 view.data = pd.read_sql(countQuery, ldf.SQLconnection)
                 view.data = view.data.rename(columns={"count":"Record"})
-                view.data = utils.pandasToLux(view.data)
+                view.data = utils.pandas_to_lux(view.data)
 
             else:
                 whereClause, filterVars = SQLExecutor.executeFilter(view)
                 if aggFunc == "mean":
                     meanQuery = "SELECT {}, AVG({}) as {} FROM {} {} GROUP BY {}".format(groupbyAttr.attribute, measureAttr.attribute, measureAttr.attribute, ldf.table_name, whereClause, groupbyAttr.attribute)
                     view.data = pd.read_sql(meanQuery, ldf.SQLconnection)
-                    view.data = utils.pandasToLux(view.data)
+                    view.data = utils.pandas_to_lux(view.data)
                 if aggFunc == "sum":
                     meanQuery = "SELECT {}, SUM({}) as {} FROM {} {} GROUP BY {}".format(groupbyAttr.attribute, measureAttr.attribute, measureAttr.attribute, ldf.table_name, whereClause, groupbyAttr.attribute)
                     view.data = pd.read_sql(meanQuery, ldf.SQLconnection)
-                    view.data = utils.pandasToLux(view.data)
+                    view.data = utils.pandas_to_lux(view.data)
                 if aggFunc == "max":
                     meanQuery = "SELECT {}, MAX({}) as {} FROM {} {} GROUP BY {}".format(groupbyAttr.attribute, measureAttr.attribute, measureAttr.attribute, ldf.table_name, whereClause, groupbyAttr.attribute)
                     view.data = pd.read_sql(meanQuery, ldf.SQLconnection)
-                    view.data = utils.pandasToLux(view.data)
+                    view.data = utils.pandas_to_lux(view.data)
     @staticmethod
     def executeBinning(view:View, ldf:LuxDataFrame):
         import numpy as np
         import pandas as pd
-        binAttribute = list(filter(lambda x: x.binSize!=0,view.spec_lst))[0]
-        numBins = binAttribute.binSize
+        binAttribute = list(filter(lambda x: x.bin_size!=0,view.spec_lst))[0]
+        numBins = binAttribute.bin_size
         attrMin = min(ldf.unique_values[binAttribute.attribute])
         attrMax = max(ldf.unique_values[binAttribute.attribute])
         attrType = type(ldf.unique_values[binAttribute.attribute][0])
@@ -114,7 +114,7 @@ class SQLExecutor(Executor):
         binCountQuery = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket({}, '{}') FROM {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(binAttribute.attribute, '{'+upperEdges+'}', ldf.table_name)
         binCountData = pd.read_sql(binCountQuery, ldf.SQLconnection)
 
-        #counts,binEdges = np.histogram(ldf[binAttribute.attribute],bins=binAttribute.binSize)
+        #counts,binEdges = np.histogram(ldf[binAttribute.attribute],bins=binAttribute.bin_size)
         #binEdges of size N+1, so need to compute binCenter as the bin location
         upperEdges = [float(i) for i in upperEdges.split(",")] 
         if attrType == int:
@@ -134,7 +134,7 @@ class SQLExecutor(Executor):
                     binCountData = binCountData.append(pd.DataFrame([[i,0]], columns = binCountData.columns))
 
         view.data = pd.DataFrame(np.array([binCenters,list(binCountData['count'])]).T,columns=[binAttribute.attribute, "Count of Records (binned)"])
-        view.data = utils.pandasToLux(view.data)
+        view.data = utils.pandas_to_lux(view.data)
         
     @staticmethod
     #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's spec_lst
@@ -148,7 +148,7 @@ class SQLExecutor(Executor):
                     whereClause.append("WHERE")
                 else:
                     whereClause.append("AND")
-                whereClause.extend([str(filters[f].attribute), str(filters[f].filterOp), "'" + str(filters[f].value) + "'"])
+                whereClause.extend([str(filters[f].attribute), str(filters[f].filter_op), "'" + str(filters[f].value) + "'"])
                 if filters[f].attribute not in filterVars:
                     filterVars.append(filters[f].attribute)
         if whereClause == []:

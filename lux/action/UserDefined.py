@@ -28,5 +28,5 @@ def user_defined(ldf):
     for view in vc: 
         view.score = interestingness(view,ldf)
     # ldf.clear_context()
-    vc.sort(removeInvalid=True)
+    vc.sort(remove_invalid=True)
     return recommendation
