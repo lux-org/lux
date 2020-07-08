@@ -134,8 +134,8 @@ def deviationFromOverall(view:View,ldf:LuxDataFrame,filterSpecs:list,msrAttribut
 		dimList = view.getAttrByDataModel("dimension")
 
 		#use Pandas rank function to calculate rank positions for each category
-		v_rank = unfilteredView.data.toPandas().rank().toPandas()
-		v_filter_rank = view.data.toPandas().rank().toPandas()
+		v_rank = unfilteredView.data.rank().toPandas()
+		v_filter_rank = view.data.rank().toPandas()
 		#go through and count the number of ranking changes between the filtered and unfiltered data
 		numCategories = ldf.cardinality[dimList[0].attribute]
 		for r in range(0, numCategories-1):
