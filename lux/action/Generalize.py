@@ -32,9 +32,9 @@ def generalize(ldf):
 	recommendation = {"action":"Generalize",
 						   "description":"Remove one attribute or filter to observe a more general trend."}
 	output = []
-	excludedColumns = []
+	excluded_columns = []
 	column_spec = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
-	rowSpecs = utils.get_filter_specs(ldf.context)
+	row_specs = utils.get_filter_specs(ldf.context)
 	# if we do no have enough column attributes or too many, return no views.
 	if(len(column_spec)<2 or len(column_spec)>4):
 		recommendation["collection"] = []
@@ -43,22 +43,22 @@ def generalize(ldf):
 		columns = spec.attribute
 		if type(columns) == list:
 			for column in columns:
-				if column not in excludedColumns:
-					tempView = View(ldf.context)
-					tempView.remove_column_from_spec_new(column)
-					excludedColumns.append(column)
-					output.append(tempView)
+				if column not in excluded_columns:
+					temp_view = View(ldf.context)
+					temp_view.remove_column_from_spec_new(column)
+					excluded_columns.append(column)
+					output.append(temp_view)
 		elif type(columns) == str:
-			if columns not in excludedColumns:
-				tempView = View(ldf.context)
-				tempView.remove_column_from_spec_new(columns)
-				excludedColumns.append(columns)
-		output.append(tempView)
-	for i, spec in enumerate(rowSpecs):
+			if columns not in excluded_columns:
+				temp_view = View(ldf.context)
+				temp_view.remove_column_from_spec_new(columns)
+				excluded_columns.append(columns)
+		output.append(temp_view)
+	for i, spec in enumerate(row_specs):
 		new_spec = ldf.context.copy()
 		new_spec.pop(i)
-		tempView = View(new_spec)
-		output.append(tempView)
+		temp_view = View(new_spec)
+		output.append(temp_view)
 		
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = vc.load(ldf)

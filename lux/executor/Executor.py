@@ -14,12 +14,12 @@ class Executor:
         return NotImplemented
 
     @staticmethod
-    def executeAggregate(view, ldf):
+    def execute_aggregate(view, ldf):
         return NotImplemented
     @staticmethod
-    def executeBinning(view, ldf):
+    def execute_binning(view, ldf):
         return NotImplemented
         
     @staticmethod
-    def executeFilter(view, ldf):
+    def execute_filter(view, ldf):
         return NotImplemented

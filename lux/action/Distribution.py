@@ -4,7 +4,7 @@ import lux
 #for benchmarking
 import time
 
-def distribution(ldf,dataTypeConstraint="quantitative"):
+def distribution(ldf, data_type_constraint="quantitative"):
 	'''
 	Generates bar chart distributions of different attributes in the dataset.
 
@@ -13,7 +13,7 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 	ldf : lux.luxDataFrame.LuxDataFrame
 		LuxDataFrame with underspecified context.
 
-	dataTypeConstraint: str
+	data_type_constraint: str
 		The variable that controls the type of distribution chart that will be rendered.
 
 	Returns
@@ -28,12 +28,12 @@ def distribution(ldf,dataTypeConstraint="quantitative"):
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 
-	if (dataTypeConstraint=="quantitative"):
+	if (data_type_constraint== "quantitative"):
 		query = [lux.Spec("?",data_type="quantitative")]
 		query.extend(ldf.filter_specs)
 		recommendation = {"action":"Distribution",
 							"description":"Show univariate count distributions of different attributes in the dataset."}
-	elif (dataTypeConstraint=="nominal"):
+	elif (data_type_constraint == "nominal"):
 		query = [lux.Spec("?",data_type="nominal")]
 		query.extend(ldf.filter_specs)
 		recommendation = {"action":"Category",

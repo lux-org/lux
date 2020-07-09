@@ -4,7 +4,7 @@ import math
 import numpy as np
 from lux.view.ViewCollection import ViewCollection
 
-def similarPattern(ldf,queryContext,topK=-1):
+def similar_pattern(ldf, queryContext, topK=-1):
     '''
     Generates visualizations with similar patterns to a query visualization.
 
@@ -24,25 +24,25 @@ def similarPattern(ldf,queryContext,topK=-1):
     recommendations : Dict[str,obj]
     	object with a collection of visualizations that result from the Similarity action
     '''
-    rowSpecs = list(filter(lambda x: x.value != "", queryContext))
-    if(len(rowSpecs) == 1):
-        searchSpaceVC = ViewCollection(ldf.view_collection.collection.copy())
-        searchSpaceVC = searchSpaceVC.load(ldf)
+    row_specs = list(filter(lambda x: x.value != "", queryContext))
+    if(len(row_specs) == 1):
+        search_space_vc = ViewCollection(ldf.view_collection.collection.copy())
+        search_space_vc = search_space_vc.load(ldf)
 
-        queryVC = ViewCollection(queryContext)
-        queryVC = queryVC.load(ldf)        
-        queryView = queryVC[0]
-        preprocess(queryView)
+        query_vc = ViewCollection(queryContext)
+        query_vc = query_vc.load(ldf)
+        query_view = query_vc[0]
+        preprocess(query_view)
         #for loop to create assign euclidean distance
         recommendation = {"action":"Similarity",
                                "description":"Show other charts that are visually similar to the Current View."}
-        for view in searchSpaceVC:
+        for view in search_space_vc:
             preprocess(view)
-            view.score = euclideanDist(queryView, view)
-        searchSpaceVC.normalize_score(invert_order=True)
+            view.score = euclidean_dist(query_view, view)
+        search_space_vc.normalize_score(invert_order=True)
         if(topK!=-1):
-            searchSpaceVC = searchSpaceVC.topK(topK)
-        recommendation["collection"] = searchSpaceVC
+            search_space_vc = search_space_vc.topK(topK)
+        recommendation["collection"] = search_space_vc
         return recommendation
     else:
         print("Query needs to have 1 row value")
@@ -91,27 +91,27 @@ def interpolate(view,length):
             xVals = view.data[xAxis]
             n = length
 
-            interpolatedXVals = [0.0]*(length)
-            interpolatedYVals = [0.0]*(length)
+            interpolated_x_vals = [0.0]*(length)
+            interpolated_y_vals = [0.0]*(length)
 
             granularity = (xVals[len(xVals)-1] - xVals[0]) / n
 
             count = 0
 
             for i in range(0,n):
-                interpolatedX = xVals[0] + i * granularity
-                interpolatedXVals[i] = interpolatedX
+                interpolated_x = xVals[0] + i * granularity
+                interpolated_x_vals[i] = interpolated_x
 
-                while xVals[count] < interpolatedX:
+                while xVals[count] < interpolated_x:
                     if(count < len(xVals)):
                         count += 1
-                if xVals[count] == interpolatedX:
-                    interpolatedYVals[i] = yVals[count]
+                if xVals[count] == interpolated_x:
+                    interpolated_y_vals[i] = yVals[count]
                 else:
-                    xDiff = xVals[count] - xVals[count-1]
+                    x_diff = xVals[count] - xVals[count-1]
                     yDiff = yVals[count] - yVals[count-1]
-                    interpolatedYVals[i] = yVals[count-1] + (interpolatedX - xVals[count-1]) / xDiff * yDiff
-            view.data = pd.DataFrame(list(zip(interpolatedXVals, interpolatedYVals)),columns = [xAxis, yAxis])
+                    interpolated_y_vals[i] = yVals[count-1] + (interpolated_x - xVals[count-1]) / x_diff * yDiff
+            view.data = pd.DataFrame(list(zip(interpolated_x_vals, interpolated_y_vals)),columns = [xAxis, yAxis])
 
 # interpolate dataset
 
@@ -128,20 +128,20 @@ def normalize(view):
     None
     '''
     if view.get_attr_by_channel("y"):
-        yAxis = view.get_attr_by_channel("y")[0].attribute
-        max = view.data[yAxis].max()
-        min = view.data[yAxis].min()
+        y_axis = view.get_attr_by_channel("y")[0].attribute
+        max = view.data[y_axis].max()
+        min = view.data[y_axis].min()
         if(max == min or (max-min<1)):
             return
-        view.data[yAxis] = (view.data[yAxis] - min) / (max - min)
+        view.data[y_axis] = (view.data[y_axis] - min) / (max - min)
 
-def euclideanDist(queryView,view):
+def euclidean_dist(query_view, view):
     '''
     Calculates euclidean distance score for similarity between two views
 
     Parameters
     ----------
-    queryView : lux.view.View
+    query_view : lux.view.View
         view that represents the query pattern
     view : lux.view.View
         view that represents the candidate visualization
@@ -149,17 +149,17 @@ def euclideanDist(queryView,view):
     Returns
     -------
     score : float
-        eculidean distance score
+        euclidean distance score
     '''
 
-    if queryView.get_attr_by_channel("y") and view.get_attr_by_channel("y"):
+    if query_view.get_attr_by_channel("y") and view.get_attr_by_channel("y"):
 
-        viewYAxis = view.get_attr_by_channel("y")[0].attribute
-        queryYAxis = queryView.get_attr_by_channel("y")[0].attribute
+        view_y_axis = view.get_attr_by_channel("y")[0].attribute
+        query_y_axis = query_view.get_attr_by_channel("y")[0].attribute
 
-        viewVector = view.data[viewYAxis].values
-        queryVector = queryView.data[queryYAxis].values
-        score = np.linalg.norm(viewVector - queryVector)
+        view_vector = view.data[view_y_axis].values
+        query_vector = query_view.data[query_y_axis].values
+        score = np.linalg.norm(view_vector - query_vector)
 
         return score
     else:

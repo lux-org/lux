@@ -26,12 +26,12 @@ def enhance(ldf):
 					"description":"Shows possible visualizations when an additional attribute is added to the current view."}
 	filters = utils.get_filter_specs(ldf.context)
 	# Collect variables that already exist in the context
-	attrSpecs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
-	if(len(attrSpecs)>2): # if there are too many column attributes, return don't generate Enhance recommendations
+	attr_specs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
+	if(len(attr_specs)>2): # if there are too many column attributes, return don't generate Enhance recommendations
 		recommendation["collection"] = []
 		return recommendation
 	query = ldf.context.copy()
-	query = filters + attrSpecs
+	query = filters + attr_specs
 	query.append("?")
 	vc = lux.view.ViewCollection.ViewCollection(query)
 	vc = vc.load(ldf)

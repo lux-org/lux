@@ -18,7 +18,7 @@ class Action:
 		# -->  return DataObjectCollection with the scores 
 		raise NotImplementedError
 
-	def displayAsWidget():
+	def display_as_widget():
 		# display result in widget
 		raise NotImplementedError
 

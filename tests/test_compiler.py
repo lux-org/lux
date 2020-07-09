@@ -89,14 +89,14 @@ def test_sortBar():
 	df = pd.read_csv("lux/data/car.csv")
 	view = View([lux.Spec(attribute="Acceleration",data_model="measure",data_type="quantitative"),
 				lux.Spec(attribute="Origin",data_model="dimension",data_type="nominal")])
-	Compiler.determineEncoding(df,view)
+	Compiler.determine_encoding(df, view)
 	assert view.mark == "bar"
 	assert view.spec_lst[1].sort == ''
 
 	df = pd.read_csv("lux/data/car.csv")
 	view = View([lux.Spec(attribute="Acceleration",data_model="measure",data_type="quantitative"),
 				lux.Spec(attribute="Name",data_model="dimension",data_type="nominal")])
-	Compiler.determineEncoding(df,view)
+	Compiler.determine_encoding(df, view)
 	assert view.mark == "bar"
 	assert view.spec_lst[1].sort == 'ascending'
 
@@ -215,14 +215,14 @@ def test_populateOptions():
 	df = pd.read_csv("lux/data/cars.csv")
 	df.setContext([lux.Spec(attribute="?"), lux.Spec(attribute="MilesPerGal")])
 	colSet = set()
-	for specOptions in Compiler.populateWildcardOptions(df.context,df)["attributes"]:
+	for specOptions in Compiler.populate_wildcard_options(df.context, df)["attributes"]:
 		for spec in specOptions:
 			colSet.add(spec.attribute)
 	assert listEqual(list(colSet), list(df.columns))
 
 	df.setContext([lux.Spec(attribute="?",data_model="measure"), lux.Spec(attribute="MilesPerGal")])
 	colSet = set()
-	for specOptions in Compiler.populateWildcardOptions(df.context,df)["attributes"]:
+	for specOptions in Compiler.populate_wildcard_options(df.context, df)["attributes"]:
 		for spec in specOptions:
 			colSet.add(spec.attribute)
 	assert listEqual(list(colSet), ['Acceleration', 'Weight', 'Horsepower', 'MilesPerGal', 'Displacement'])

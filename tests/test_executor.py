@@ -43,21 +43,21 @@ def test_filter():
     df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Year"), lux.Spec(attribute = "Origin", filter_op="=",value = "USA")])
     view = df.view_collection[0]
     view.data = df
-    PandasExecutor.executeFilter(view)
+    PandasExecutor.execute_filter(view)
     assert len(view.data) == len(df[df["Origin"]=="USA"])
 def test_inequalityfilter():
     df = pd.read_csv("lux/data/car.csv")
     df.setContext([lux.Spec(attribute = "Horsepower", filter_op=">",value=50),lux.Spec(attribute = "MilesPerGal")])
     view = df.view_collection[0]
     view.data = df
-    PandasExecutor.executeFilter(view)
+    PandasExecutor.execute_filter(view)
     assert len(df) > len(view.data)
     assert len(view.data) == 386 
     
     df.setContext([lux.Spec(attribute = "Horsepower", filter_op="<=",value=100),lux.Spec(attribute = "MilesPerGal")])
     view = df.view_collection[0]
     view.data = df
-    PandasExecutor.executeFilter(view)
+    PandasExecutor.execute_filter(view)
     assert len(view.data) == len(df[df["Horsepower"]<=100]) == 242
 
     # Test end-to-end
@@ -95,7 +95,7 @@ def test_exclude_attribute():
     df.setContext([lux.Spec("?", exclude=["Name", "Year"]),lux.Spec("Horsepower")])
     view = df.view_collection[0]
     view.data = df
-    PandasExecutor.executeFilter(view)
+    PandasExecutor.execute_filter(view)
     for vc in df.view_collection: 
         assert (vc.get_attr_by_channel("x")[0].attribute != "Year")
         assert (vc.get_attr_by_channel("x")[0].attribute != "Name")

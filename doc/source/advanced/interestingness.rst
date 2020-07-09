@@ -11,11 +11,11 @@ The choice of an interestingness metric is dependent on the chart type, as shown
 +================+=========+==================================================================+
 | Bar/Line Chart | ✔       | :func:`lux.interestingness.interestingness.unevenness`           |
 |                +---------+------------------------------------------------------------------+
-|                | X       | :func:`lux.interestingness.interestingness.deviationFromOverall` |
+|                | X       | :func:`lux.interestingness.interestingness.deviation_from_overall` |
 +----------------+---------+------------------------------------------------------------------+
 | Histogram      | ✔       | :func:`lux.interestingness.interestingness.skewness`             |
 |                +---------+------------------------------------------------------------------+
-|                | X       | :func:`lux.interestingness.interestingness.deviationFromOverall` |
+|                | X       | :func:`lux.interestingness.interestingness.deviation_from_overall` |
 +----------------+---------+------------------------------------------------------------------+
 | Scatterplot    | ✔/X     | :func:`lux.interestingness.interestingness.monotonicity`         |
 +----------------+---------+------------------------------------------------------------------+

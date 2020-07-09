@@ -43,11 +43,11 @@ class Compiler:
 		"""
 		if (enumerate_collection):
 			view_collection = Compiler.enumerate_collection(spec_lst,ldf)
-		view_collection = Compiler.expandUnderspecified(ldf, view_collection)  # autofill data type/model information
+		view_collection = Compiler.expand_underspecified(ldf, view_collection)  # autofill data type/model information
 		if len(view_collection)>1: 
-			view_collection = Compiler.removeAllInvalid(view_collection) # remove invalid views from collection
+			view_collection = Compiler.remove_all_invalid(view_collection) # remove invalid views from collection
 		for view in view_collection:
-			Compiler.determineEncoding(ldf, view)  # autofill viz related information
+			Compiler.determine_encoding(ldf, view)  # autofill viz related information
 		return view_collection
 
 	@staticmethod
@@ -67,7 +67,7 @@ class Compiler:
 			view collection with compiled lux.View objects.
 		"""
 		import copy
-		specs = Compiler.populateWildcardOptions(spec_lst,ldf)
+		specs = Compiler.populate_wildcard_options(spec_lst, ldf)
 		attributes = specs['attributes']
 		filters = specs['filters']
 		if len(attributes) == 0 and len(filters) > 0:
@@ -77,27 +77,27 @@ class Compiler:
 		collection = []
 
 		# TODO: generate combinations of column attributes recursively by continuing to accumulate attributes for len(colAtrr) times
-		def combine(colAttrs, accum):
-			last = (len(colAttrs) == 1)
-			n = len(colAttrs[0])
+		def combine(col_attrs, accum):
+			last = (len(col_attrs) == 1)
+			n = len(col_attrs[0])
 			for i in range(n):
-				columnList = copy.deepcopy(accum + [colAttrs[0][i]])
+				column_list = copy.deepcopy(accum + [col_attrs[0][i]])
 				if last:
 					if len(filters) > 0:  # if we have filters, generate combinations for each row.
 						for row in filters:
-							spec_lst = copy.deepcopy(columnList + [row])
+							spec_lst = copy.deepcopy(column_list + [row])
 							view = View(spec_lst, title=f"{row.attribute} {row.filter_op} {row.value}")
 							collection.append(view)
 					else:
-						view = View(columnList)
+						view = View(column_list)
 						collection.append(view)
 				else:
-					combine(colAttrs[1:], columnList)
+					combine(col_attrs[1:], column_list)
 		combine(attributes, [])
 		return ViewCollection(collection)
 
 	@staticmethod
-	def expandUnderspecified(ldf, view_collection):
+	def expand_underspecified(ldf, view_collection):
 		"""
 		Given a underspecified Spec, populate the data_type and data_model information accordingly
 
@@ -135,7 +135,7 @@ class Compiler:
 		return views
 
 	@staticmethod
-	def removeAllInvalid(view_collection:ViewCollection) -> ViewCollection:
+	def remove_all_invalid(view_collection:ViewCollection) -> ViewCollection:
 		"""
 		Given an expanded view collection, remove all views that are invalid.
 		Currently, the invalid views are ones that contain two of the same attribute, no more than two temporal attributes, or overlapping attributes (same filter attribute and visualized attribute).
@@ -148,22 +148,22 @@ class Compiler:
 		views: list[lux.View]
 			view collection with compiled lux.View objects.
 		"""
-		newVC = []
+		new_vc = []
 		for view in view_collection:
-			numTemporalSpecs = 0
-			attributeSet = set()
+			num_temporal_specs = 0
+			attribute_set = set()
 			for spec in view.spec_lst:
-				attributeSet.add(spec.attribute)
+				attribute_set.add(spec.attribute)
 				if spec.data_type == "temporal":
-					numTemporalSpecs += 1
-			allDistinctSpecs = 0 == len(view.spec_lst) - len(attributeSet)
-			if numTemporalSpecs < 2 and allDistinctSpecs:
-				newVC.append(view)
+					num_temporal_specs += 1
+			all_distinct_specs = 0 == len(view.spec_lst) - len(attribute_set)
+			if num_temporal_specs < 2 and all_distinct_specs:
+				new_vc.append(view)
 
-		return ViewCollection(newVC)
+		return ViewCollection(new_vc)
 
 	@staticmethod
-	def determineEncoding(ldf: LuxDataFrame,view: View):
+	def determine_encoding(ldf: LuxDataFrame, view: View):
 		'''
 		Populates View with the appropriate mark type and channel information based on ShowMe logic
 		Currently support up to 3 dimensions or measures
@@ -187,24 +187,24 @@ class Compiler:
 		https://doi.org/10.1109/TVCG.2007.70594
 		'''
 		# Count number of measures and dimensions
-		Ndim = 0
-		Nmsr = 0
+		ndim = 0
+		nmsr = 0
 		filters = []
 		for spec in view.spec_lst:
 			if (spec.value==""):
 				if (spec.data_model == "dimension"):
-					Ndim += 1
+					ndim += 1
 				elif (spec.data_model == "measure" and spec.attribute!="Record"):
-					Nmsr += 1
+					nmsr += 1
 			else:  # preserve to add back to spec_lst later
 				filters.append(spec)
 		# Helper function (TODO: Move this into utils)
-		def lineOrBar(ldf,dimension, measure):
-			dimType = dimension.data_type
+		def line_or_bar(ldf, dimension, measure):
+			dim_type = dimension.data_type
 			# If no aggregation function is specified, then default as average
 			if (measure.aggregation==""):
 				measure.aggregation = "mean"
-			if (dimType == "temporal" or dimType == "oridinal"):
+			if (dim_type == "temporal" or dim_type == "oridinal"):
 				return "line", {"x": dimension, "y": measure}
 			else:  # unordered categorical
 				# if cardinality large than 5 then sort bars
@@ -214,31 +214,31 @@ class Compiler:
 		
 
 		# ShowMe logic + additional heuristics
-		#countCol = Spec( attribute="count()", data_model="measure")
-		countCol = Spec( attribute="Record", aggregation="count", data_model="measure", data_type="quantitative")
+		#count_col = Spec( attribute="count()", data_model="measure")
+		count_col = Spec( attribute="Record", aggregation="count", data_model="measure", data_type="quantitative")
 		# x_attr = view.get_attr_by_channel("x") # not used as of now
 		# y_attr = view.get_attr_by_channel("y")
 		# zAttr = view.get_attr_by_channel("z")
-		autoChannel={}
-		if (Ndim == 0 and Nmsr == 1):
+		auto_channel={}
+		if (ndim == 0 and nmsr == 1):
 			# Histogram with Count 
 			measure = view.get_attr_by_data_model("measure",exclude_record=True)[0]
 			if (len(view.get_attr_by_attr_name("Record"))<0):
-				view.spec_lst.append(countCol)
+				view.spec_lst.append(count_col)
 			# If no bin specified, then default as 10
 			if (measure.bin_size == 0):
 				measure.bin_size = 10
-			autoChannel = {"x": measure, "y": countCol}
+			auto_channel = {"x": measure, "y": count_col}
 			view.x_min_max = ldf.x_min_max
 			view.mark = "histogram"
-		elif (Ndim == 1 and (Nmsr == 0 or Nmsr == 1)):
+		elif (ndim == 1 and (nmsr == 0 or nmsr == 1)):
 			# Line or Bar Chart
-			if (Nmsr == 0):
-				view.spec_lst.append(countCol)
+			if (nmsr == 0):
+				view.spec_lst.append(count_col)
 			dimension = view.get_attr_by_data_model("dimension")[0]
 			measure = view.get_attr_by_data_model("measure")[0]
-			view.mark, autoChannel = lineOrBar(ldf,dimension, measure) 
-		elif (Ndim == 2 and (Nmsr == 0 or Nmsr == 1)):
+			view.mark, auto_channel = line_or_bar(ldf, dimension, measure)
+		elif (ndim == 2 and (nmsr == 0 or nmsr == 1)):
 			# Line or Bar chart broken down by the dimension
 			dimensions = view.get_attr_by_data_model("dimension")
 			d1 = dimensions[0]
@@ -257,19 +257,19 @@ class Compiler:
 				dimension = d1
 				color_attr = d2
 			# Colored Bar/Line chart with Count as default measure
-			if (Nmsr == 0):
-				view.spec_lst.append(countCol)
+			if (nmsr == 0):
+				view.spec_lst.append(count_col)
 			measure = view.get_attr_by_data_model("measure")[0]
-			view.mark, autoChannel = lineOrBar(ldf,dimension, measure)
-			autoChannel["color"] = color_attr
-		elif (Ndim == 0 and Nmsr == 2):
+			view.mark, auto_channel = line_or_bar(ldf, dimension, measure)
+			auto_channel["color"] = color_attr
+		elif (ndim == 0 and nmsr == 2):
 			# Scatterplot
 			view.x_min_max = ldf.x_min_max
 			view.y_min_max = ldf.y_min_max
 			view.mark = "scatter"
-			autoChannel = {"x": view.spec_lst[0],
+			auto_channel = {"x": view.spec_lst[0],
 						   "y": view.spec_lst[1]}
-		elif (Ndim == 1 and Nmsr == 2):
+		elif (ndim == 1 and nmsr == 2):
 			# Scatterplot broken down by the dimension
 			measure = view.get_attr_by_data_model("measure")
 			m1 = measure[0]
@@ -280,23 +280,23 @@ class Compiler:
 			view.x_min_max = ldf.x_min_max
 			view.y_min_max = ldf.y_min_max
 			view.mark = "scatter"
-			autoChannel = {"x": m1,
+			auto_channel = {"x": m1,
 						   "y": m2,
 						   "color": color_attr}
-		elif (Ndim == 0 and Nmsr == 3):
+		elif (ndim == 0 and nmsr == 3):
 			# Scatterplot with color
 			view.x_min_max = ldf.x_min_max
 			view.y_min_max = ldf.y_min_max
 			view.mark = "scatter"
-			autoChannel = {"x": view.spec_lst[0],
+			auto_channel = {"x": view.spec_lst[0],
 						   "y": view.spec_lst[1],
 						   "color": view.spec_lst[2]}
-		if (autoChannel!={}):
-			view = Compiler.enforceSpecifiedChannel(view, autoChannel)
+		if (auto_channel!={}):
+			view = Compiler.enforce_specified_channel(view, auto_channel)
 			view.spec_lst.extend(filters)  # add back the preserved filters
 
 	@staticmethod
-	def enforceSpecifiedChannel(view: View, autoChannel: Dict[str,str]):
+	def enforce_specified_channel(view: View, auto_channel: Dict[str, str]):
 		"""
 		Enforces that the channels specified in the View by users overrides the showMe autoChannels.
 		
@@ -304,51 +304,51 @@ class Compiler:
 		----------
 		view : lux.view.View
 			Input View without channel specification.
-		autoChannel : Dict[str,str]
+		auto_channel : Dict[str,str]
 			Key-value pair in the form [channel: attributeName] specifying the showMe recommended channel location.
 		
 		Returns
 		-------
 		view : lux.view.View
-			View with channel specification combining both original and autoChannel specification.
+			View with channel specification combining both original and auto_channel specification.
 		
 		Raises
 		------
 		ValueError
 			Ensures no more than one attribute is placed in the same channel.
-		"""		
-		resultDict = {}  # result of enforcing specified channel will be stored in resultDict
-		specifiedDict = {}  # specifiedDict={"x":[],"y":[list of Dobj with y specified as channel]}
+		"""
+		result_dict = {}  # result of enforcing specified channel will be stored in result_dict
+		specified_dict = {}  # specified_dict={"x":[],"y":[list of Dobj with y specified as channel]}
 		# create a dictionary of specified channels in the given dobj
-		for val in autoChannel.keys():
-			specifiedDict[val] = view.get_attr_by_channel(val)
-			resultDict[val] = ""
-		# for every element, replace with what's in specifiedDict if specified
-		for sVal, sAttr in specifiedDict.items():
+		for val in auto_channel.keys():
+			specified_dict[val] = view.get_attr_by_channel(val)
+			result_dict[val] = ""
+		# for every element, replace with what's in specified_dict if specified
+		for sVal, sAttr in specified_dict.items():
 			if (len(sAttr) == 1):  # if specified in dobj
-				# remove the specified channel from autoChannel (matching by value, since channel key may not be same)
-				for i in list(autoChannel.keys()):
-					if ((autoChannel[i].attribute == sAttr[0].attribute)
-						and (autoChannel[i].channel==sVal)): # need to ensure that the channel is the same (edge case when duplicate Cols with same attribute name)
-						autoChannel.pop(i)
+				# remove the specified channel from auto_channel (matching by value, since channel key may not be same)
+				for i in list(auto_channel.keys()):
+					if ((auto_channel[i].attribute == sAttr[0].attribute)
+						and (auto_channel[i].channel == sVal)): # need to ensure that the channel is the same (edge case when duplicate Cols with same attribute name)
+						auto_channel.pop(i)
 						break
 				sAttr[0].channel = sVal
-				resultDict[sVal] = sAttr[0]
+				result_dict[sVal] = sAttr[0]
 			elif (len(sAttr) > 1):
 				raise ValueError("There should not be more than one attribute specified in the same channel.")
-		# For the leftover channels that are still unspecified in resultDict,
-		# and the leftovers in the autoChannel specification,
+		# For the leftover channels that are still unspecified in result_dict,
+		# and the leftovers in the auto_channel specification,
 		# step through them together and fill it automatically.
-		leftover_channels = list(filter(lambda x: resultDict[x] == '', resultDict))
-		for leftover_channel, leftover_encoding in zip(leftover_channels, autoChannel.values()):
+		leftover_channels = list(filter(lambda x: result_dict[x] == '', result_dict))
+		for leftover_channel, leftover_encoding in zip(leftover_channels, auto_channel.values()):
 			leftover_encoding.channel = leftover_channel
-			resultDict[leftover_channel] = leftover_encoding
-		view.spec_lst = list(resultDict.values())
+			result_dict[leftover_channel] = leftover_encoding
+		view.spec_lst = list(result_dict.values())
 		return view
 
 	@staticmethod
-	# def populateWildcardOptions(ldf: LuxDataFrame) -> dict:
-	def populateWildcardOptions(spec_lst:List[Spec],ldf: LuxDataFrame) -> dict:
+	# def populate_wildcard_options(ldf: LuxDataFrame) -> dict:
+	def populate_wildcard_options(spec_lst:List[Spec], ldf: LuxDataFrame) -> dict:
 		"""
 		Given wildcards and constraints in the LuxDataFrame's context,
 		return the list of available values that satisfies the data_type or data_model constraints.
@@ -368,7 +368,7 @@ class Compiler:
 
 		specs = {"attributes": [], "filters": []}
 		for spec in spec_lst:
-			specOptions = []
+			spec_options = []
 			if spec.value == "":  # attribute
 				if spec.attribute == "?":
 					options = set(list(ldf.columns))  # all attributes
@@ -381,13 +381,13 @@ class Compiler:
 					options = convert_to_list(spec.attribute)
 				for optStr in options:
 					if str(optStr) not in spec.exclude:
-						specCopy = copy.copy(spec)
-						specCopy.attribute = optStr
-						specOptions.append(specCopy)
-				specs["attributes"].append(specOptions)
+						spec_copy = copy.copy(spec)
+						spec_copy.attribute = optStr
+						spec_options.append(spec_copy)
+				specs["attributes"].append(spec_options)
 			else:  # filters
-				attrLst = convert_to_list(spec.attribute)
-				for attr in attrLst:
+				attr_lst = convert_to_list(spec.attribute)
+				for attr in attr_lst:
 					options = []
 					if spec.value == "?":
 						options = ldf.unique_values[attr]
@@ -397,10 +397,10 @@ class Compiler:
 						options.extend(convert_to_list(spec.value))
 					for optStr in options:
 						if str(optStr) not in spec.exclude:
-							specCopy = copy.copy(spec)
-							specCopy.attribute = attr
-							specCopy.value = optStr
-							specOptions.append(specCopy)
-				specs["filters"].extend(specOptions)
+							spec_copy = copy.copy(spec)
+							spec_copy.attribute = attr
+							spec_copy.value = optStr
+							spec_options.append(spec_copy)
+				specs["filters"].extend(spec_options)
 
 		return specs
