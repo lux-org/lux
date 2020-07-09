@@ -445,7 +445,7 @@ class LuxDataFrame(pd.DataFrame):
         self.widget = LuxDataFrame.render_widget(self)
 
         # box = widgets.Box(layout=widgets.Layout(display='inline'))
-        button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',left='935px',top='20px'))
+        button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
         output = widgets.Output()
         # box.children = [button,output]
         # output.children = [button]
