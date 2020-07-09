@@ -10,7 +10,7 @@ import time
 
 def filter(ldf):
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 	'''
 	Iterates over all possible values of a categorical variable and generates visualizations where each categorical value filters the data.
@@ -27,39 +27,39 @@ def filter(ldf):
 	'''
 	recommendation = {"action":"Filter",
 						   "description":"Shows possible visualizations when filtered by categorical variables in the data object's dataset."}
-	filters = utils.getFilterSpecs(ldf.context)
-	filterValues = []
+	filters = utils.get_filter_specs(ldf.context)
+	filter_values = []
 	output = []
 	#if Row is specified, create visualizations where data is filtered by all values of the Row's categorical variable
-	columnSpec = utils.getAttrsSpecs(ldf.currentView[0].specLst)
-	columnSpecAttr = map(lambda x: x.attribute,columnSpec)
+	column_spec = utils.get_attrs_specs(ldf.current_view[0].spec_lst)
+	column_spec_attr = map(lambda x: x.attribute,column_spec)
 	if len(filters) > 0:
 		#get unique values for all categorical values specified and creates corresponding filters
 		for row in filters:
-			uniqueValues = ldf.uniqueValues[row.attribute]
-			filterValues.append(row.value)
+			unique_values = ldf.unique_values[row.attribute]
+			filter_values.append(row.value)
 			#creates new data objects with new filters
-			for val in uniqueValues:
-				if val not in filterValues:
-					newSpec = columnSpec.copy()
-					newFilter = lux.Spec(attribute = row.attribute, value = val)
-					newSpec.append(newFilter)
-					tempView = View(newSpec)
-					output.append(tempView)
+			for val in unique_values:
+				if val not in filter_values:
+					new_spec = column_spec.copy()
+					new_filter = lux.Spec(attribute = row.attribute, value = val)
+					new_spec.append(new_filter)
+					temp_view = View(new_spec)
+					output.append(temp_view)
 	else:	#if no existing filters, create filters using unique values from all categorical variables in the dataset
-		categoricalVars = []
+		categorical_vars = []
 		for col in list(ldf.columns):
 			# if cardinality is not too high, and attribute is not one of the X,Y (specified) column
-			if ldf.cardinality[col]<40 and col not in columnSpecAttr:
-				categoricalVars.append(col)
-		for cat in categoricalVars:
-			uniqueValues = ldf.uniqueValues[cat]
-			for i in range(0, len(uniqueValues)):
-				newSpec = columnSpec.copy()
-				newFilter = lux.Spec(attribute=cat, filterOp="=",value=uniqueValues[i])
-				newSpec.append(newFilter)
-				tempView = View(newSpec)
-				output.append(tempView)
+			if ldf.cardinality[col]<40 and col not in column_spec_attr:
+				categorical_vars.append(col)
+		for cat in categorical_vars:
+			unique_values = ldf.unique_values[cat]
+			for i in range(0, len(unique_values)):
+				new_spec = column_spec.copy()
+				new_filter = lux.Spec(attribute=cat, filter_op="=",value=unique_values[i])
+				new_spec.append(new_filter)
+				temp_view = View(new_spec)
+				output.append(temp_view)
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = vc.load(ldf)
 	for view in vc:
@@ -68,7 +68,7 @@ def filter(ldf):
 	recommendation["collection"] = vc
 	
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		toc = time.perf_counter()
 		print(f"Performed filter action in {toc - tic:0.4f} seconds")
 	return recommendation

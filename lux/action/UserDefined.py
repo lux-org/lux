@@ -5,7 +5,7 @@ from lux.executor.SQLExecutor import SQLExecutor
 #for benchmarking
 import time
 
-def userDefined(ldf):
+def user_defined(ldf):
     '''
     Generates user-defined views based on the context.
 
@@ -21,12 +21,13 @@ def userDefined(ldf):
     '''
     recommendation = {"action": "Current Views",
                       "description": "Shows a view collection defined by the context"}
-    recommendation["collection"] = ldf.currentView
 
-    vc = ldf.currentView
+    recommendation["collection"] = ldf.current_view
+
+    vc = ldf.current_view
     PandasExecutor.execute(vc, ldf)
     for view in vc: 
         view.score = interestingness(view,ldf)
-    # ldf.clearContext()
-    vc.sort(removeInvalid=True)
+    # ldf.clear_context()
+    vc.sort(remove_invalid=True)
     return recommendation

@@ -7,7 +7,7 @@ from lux.utils import utils
 import time
 def enhance(ldf):
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 	'''
 	Given a set of views, generates possible visualizations when an additional attribute is added to the current view.
@@ -24,14 +24,14 @@ def enhance(ldf):
 	'''
 	recommendation = {"action":"Enhance",
 					"description":"Shows possible visualizations when an additional attribute is added to the current view."}
-	filters = utils.getFilterSpecs(ldf.context)
+	filters = utils.get_filter_specs(ldf.context)
 	# Collect variables that already exist in the context
-	attrSpecs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
-	if(len(attrSpecs)>2): # if there are too many column attributes, return don't generate Enhance recommendations
+	attr_specs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
+	if(len(attr_specs)>2): # if there are too many column attributes, return don't generate Enhance recommendations
 		recommendation["collection"] = []
 		return recommendation
 	query = ldf.context.copy()
-	query = filters + attrSpecs
+	query = filters + attr_specs
 	query.append("?")
 	vc = lux.view.ViewCollection.ViewCollection(query)
 	vc = vc.load(ldf)
@@ -42,7 +42,7 @@ def enhance(ldf):
 	vc = vc.topK(15)
 	recommendation["collection"] = vc
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		toc = time.perf_counter()
 		print(f"Performed enhance action in {toc - tic:0.4f} seconds")
 	return recommendation

@@ -10,16 +10,16 @@ class Executor:
     def __repr__(self):
         return f"<Executor>"
     @staticmethod
-    def execute(viewCollection:ViewCollection, ldf):
+    def execute(view_collection:ViewCollection, ldf):
         return NotImplemented
 
     @staticmethod
-    def executeAggregate(view, ldf):
+    def execute_aggregate(view, ldf):
         return NotImplemented
     @staticmethod
-    def executeBinning(view, ldf):
+    def execute_binning(view, ldf):
         return NotImplemented
         
     @staticmethod
-    def executeFilter(view, ldf):
+    def execute_filter(view, ldf):
         return NotImplemented

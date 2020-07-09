@@ -51,7 +51,7 @@ In addition to dataframe visualizations at every step in the exploration, you ca
 For example, we might be interested in the attributes `AverageCost` and `SATAverage`.
 
 ```python
-    df.setContext(["AverageCost","SATAverage"])
+    df.set_context(["AverageCost","SATAverage"])
     df
 ```
 <img src="https://github.com/lux-org/lux/blob/master/examples/img/contextRec.gif?raw=true"

@@ -12,7 +12,7 @@ General Information
 - How do I access all of the current recommendations shown in my widget?
     - df.recommendation
 - How do I turn off Lux?
-    - df.toPandas()
+    - df.to_pandas()
     - Remove `import lux` statement and restart Jupyter notebook.
 - I want to change the opacity of my chart, add title, change chart font size, etc. How do I modify chart settings?
     - 
