@@ -11,7 +11,7 @@ import time
 # from compiler.Compiler import Compiler
 def generalize(ldf):
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 	'''
 	Generates all possible visualizations when one attribute or filter from the current view is removed.
@@ -32,42 +32,42 @@ def generalize(ldf):
 	recommendation = {"action":"Generalize",
 						   "description":"Remove one attribute or filter to observe a more general trend."}
 	output = []
-	excludedColumns = []
-	columnSpec = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
-	rowSpecs = utils.getFilterSpecs(ldf.context)
+	excluded_columns = []
+	column_spec = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
+	row_specs = utils.get_filter_specs(ldf.context)
 	# if we do no have enough column attributes or too many, return no views.
-	if(len(columnSpec)<2 or len(columnSpec)>4):
+	if(len(column_spec)<2 or len(column_spec)>4):
 		recommendation["collection"] = []
 		return recommendation
-	for spec in columnSpec:
+	for spec in column_spec:
 		columns = spec.attribute
 		if type(columns) == list:
 			for column in columns:
-				if column not in excludedColumns:
-					tempView = View(ldf.context)
-					tempView.removeColumnFromSpecNew(column)
-					excludedColumns.append(column)
-					output.append(tempView)
+				if column not in excluded_columns:
+					temp_view = View(ldf.context)
+					temp_view.remove_column_from_spec_new(column)
+					excluded_columns.append(column)
+					output.append(temp_view)
 		elif type(columns) == str:
-			if columns not in excludedColumns:
-				tempView = View(ldf.context)
-				tempView.removeColumnFromSpecNew(columns)
-				excludedColumns.append(columns)
-		output.append(tempView)
-	for i, spec in enumerate(rowSpecs):
-		newSpec = ldf.context.copy()
-		newSpec.pop(i)
-		tempView = View(newSpec)
-		output.append(tempView)
+			if columns not in excluded_columns:
+				temp_view = View(ldf.context)
+				temp_view.remove_column_from_spec_new(columns)
+				excluded_columns.append(columns)
+		output.append(temp_view)
+	for i, spec in enumerate(row_specs):
+		new_spec = ldf.context.copy()
+		new_spec.pop(i)
+		temp_view = View(new_spec)
+		output.append(temp_view)
 		
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = vc.load(ldf)
 	recommendation["collection"] = vc
 	for view in vc:
 		view.score = interestingness(view,ldf)
-	vc.sort(removeInvalid=True)
+	vc.sort(remove_invalid=True)
 	#for benchmarking
-	if ldf.toggleBenchmarking == True:
+	if ldf.toggle_benchmarking == True:
 		toc = time.perf_counter()
 		print(f"Performed generalize action in {toc - tic:0.4f} seconds")
 	return recommendation

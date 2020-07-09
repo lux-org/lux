@@ -84,7 +84,7 @@ Similarly, we can use :mod:`lux.context.Spec` to specify values of interest:
 .. code-block:: python 
 
     df.setContext(['MedianDebt',
-                    lux.Spec(attribute='Region',filterOp='=', value=['New England','Southeast','Far West']
+                    lux.Spec(attribute='Region',filter_op='=', value=['New England','Southeast','Far West']
                   ])
 
 Both the `attribute` and `value` fields can take in either a single string or a list of attributes to specify items of interest. This example also demonstrates how we can intermix the `lux.Spec` specification alongside the basic string-based specification for convenience.
@@ -111,7 +111,7 @@ The space of enumeration can be narrowed based on constraints. For example, you 
 
 .. code-block:: python
     
-    df.setContext(['AverageCost',lux.Spec('?',dataType='quantitative')])
+    df.setContext(['AverageCost',lux.Spec('?',data_type='quantitative')])
 
 The enumeration specifier can also be placed on the value field. For example, you might be interested in looking at how the distribution of `AverageCost` varies for all possible values of `Geography`.
 
@@ -122,4 +122,4 @@ or
 
 .. code-block:: python
 
-    df.setContext(['AverageCost',lux.Spec(attribute='Geography',filterOp='=',value='?')])
+    df.setContext(['AverageCost',lux.Spec(attribute='Geography',filter_op='=',value='?')])

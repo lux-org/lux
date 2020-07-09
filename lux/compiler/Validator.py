@@ -13,7 +13,7 @@ class Validator:
 		return f"<Validator>"
 
 	@staticmethod
-	def validateSpec(specs: List[Spec], ldf:LuxDataFrame) -> None:
+	def validate_spec(specs: List[Spec], ldf:LuxDataFrame) -> None:
 		"""
 		Validates input specifications from the user to find inconsistencies and errors.
 
@@ -31,45 +31,45 @@ class Validator:
 		ValueError
 			Ensures no input specs are consistent with DataFrame.
 		"""
-		uniqueVals = ldf.uniqueValues
-		printWarning = False
+		unique_vals = ldf.unique_values
+		print_warning = False
 
-		def existsInDF(value,uniqueValues):
-			return any(value in uniqueValues[vals] for vals in uniqueValues)
+		def exists_in_df(value, unique_values):
+			return any(value in unique_values[vals] for vals in unique_values)
 
-		def validateAttr(spec):
+		def validate_attr(spec):
 			if not((spec.attribute and spec.attribute == "?") or (spec.value and spec.value=="?")):
 				if isinstance(spec.attribute,list):
-					checkAttrExistsGroup = all(attr in list(ldf.columns) for attr in spec.attribute)
-					if spec.attribute and not checkAttrExistsGroup:
-						printWarning = True
+					check_attr_exists_group = all(attr in list(ldf.columns) for attr in spec.attribute)
+					if spec.attribute and not check_attr_exists_group:
+						print_warning = True
 				else:
-						checkAttrExists = spec.attribute in list(ldf.columns)
-						if spec.attribute and not checkAttrExists:
-							printWarning = True
+						check_attr_exists = spec.attribute in list(ldf.columns)
+						if spec.attribute and not check_attr_exists:
+							print_warning = True
 
 						if isinstance(spec.value, list):
-							checkValExists = spec.attribute in uniqueVals and all(v in uniqueVals[spec.attribute] for v in spec.value)
+							check_val_exists = spec.attribute in unique_vals and all(v in unique_vals[spec.attribute] for v in spec.value)
 						else:
-							checkValExists = spec.attribute in uniqueVals and spec.value in uniqueVals[spec.attribute]
-						if spec.value and not checkValExists:
-							printWarning = True
+							check_val_exists = spec.attribute in unique_vals and spec.value in unique_vals[spec.attribute]
+						if spec.value and not check_val_exists:
+							print_warning = True
 				
 				if isinstance(spec.value, list):
-					checkValExistsGroup = all(existsInDF(val, uniqueVals) for val in spec.value)
-					if spec.value and not checkValExistsGroup:
-						printWarning = True
+					check_val_exists_group = all(exists_in_df(val, unique_vals) for val in spec.value)
+					if spec.value and not check_val_exists_group:
+						print_warning = True
 
 		# 1. Parse all string specification into Spec objects (nice-to-have)
 		# 2. Validate that the parsed specification is corresponds to the content in the LuxDataframe.
 		for spec in specs:
 			if type(spec) is list:
 				for s in spec:
-					validateAttr(s)
+					validate_attr(s)
 			else:
-				validateAttr(spec)
+				validate_attr(spec)
 
-		if printWarning:
+		if print_warning:
 			raise ValueError("Input spec is inconsistent with DataFrame.")
 
 		# lux.setContext(lux.Spec(attr = "Horsepower"))

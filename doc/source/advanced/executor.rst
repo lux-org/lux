@@ -24,24 +24,24 @@ To do this, users first need to specify a connection to their SQL database. This
 	import psycopg2
 	connection = psycopg2.connect("dbname=example_database user=example_user, password=example_password")
 
-Once this connection is created, users can connect their Lux Dataframe to the database using the Lux Dataframe's setSQLConnection command.
+Once this connection is created, users can connect their Lux Dataframe to the database using the Lux Dataframe's set_SQL_connection command.
 
 .. code-block:: python
 
-	lux_df.setSQLConnection(connection, "my_table")
+	lux_df.set_SQL_connection(connection, "my_table")
 
-When the setSQLConnection function is called, Lux will then populate the Dataframe with all the metadata it needs to run its context from the database table. 
+When the set_SQL_connection function is called, Lux will then populate the Dataframe with all the metadata it needs to run its context from the database table. 
 
 Choosing an Executor
 --------------------------
 
 Once a user has created a connection to their Postgresql database, they need to change Lux's execution engine so that the system can collect and process the data properly.
 By default Lux uses the Pandas executor to process local data in the Lux Dataframe, but users need to use the SQL executor when their Lux Dataframe is connected to a database.
-Users can specify the executor that a Lux Dataframe will use via the setExecutorType function as follows:
+Users can specify the executor that a Lux Dataframe will use via the set_executor_type function as follows:
 
 .. code-block:: python
 
-	lux_df.setExecutorType("SQL")
+	lux_df.set_executor_type("SQL")
 
 Once a Lux Dataframe has been connected to a Postgresql table and set to use the SQL Executor, users can take full advantage of Lux's visual exploration capabilities as-is. Users can set their context to specify which variables they are most interested in and discover insightful visualizations from their database.
 

@@ -30,37 +30,37 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 	n_dim = 0
 	n_msr = 0
 	
-	filterSpecs = utils.getFilterSpecs(view.specLst)
-	viewAttrsSpecs = utils.getAttrsSpecs(view.specLst)
+	filter_specs = utils.get_filter_specs(view.spec_lst)
+	view_attrs_specs = utils.get_attrs_specs(view.spec_lst)
 
-	for spec in viewAttrsSpecs:
+	for spec in view_attrs_specs:
 		if (spec.attribute!="Record"):
-			if (spec.dataModel == 'dimension'):
+			if (spec.data_model == 'dimension'):
 				n_dim += 1
-			if (spec.dataModel == 'measure'):
+			if (spec.data_model == 'measure'):
 				n_msr += 1
-	n_filter = len(filterSpecs)
-	attr_specs = [spec for spec in viewAttrsSpecs if spec.attribute != "Record"]
-	dimensionLst = view.getAttrByDataModel("dimension")
-	measureLst = view.getAttrByDataModel("measure")
+	n_filter = len(filter_specs)
+	attr_specs = [spec for spec in view_attrs_specs if spec.attribute != "Record"]
+	dimension_lst = view.get_attr_by_data_model("dimension")
+	measure_lst = view.get_attr_by_data_model("measure")
 
 	# Bar Chart
 	if (n_dim == 1 and (n_msr == 0 or n_msr==1)):
 		if (n_filter == 0):
-			return unevenness(view, ldf, measureLst, dimensionLst)
+			return unevenness(view, ldf, measure_lst, dimension_lst)
 		elif(n_filter==1):
-			return deviationFromOverall(view,ldf,filterSpecs,measureLst[0].attribute)
+			return deviation_from_overall(view, ldf, filter_specs, measure_lst[0].attribute)
 	# Histogram
 	elif (n_dim == 0 and n_msr == 1):
 		if (n_filter == 0):
 			v = view.data["Count of Records"]
 			return skewness(v)
 		elif (n_filter == 1):
-			return deviationFromOverall(view,ldf,filterSpecs,"Count of Records")
+			return deviation_from_overall(view, ldf, filter_specs, "Count of Records")
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
 		if (n_filter==1):
-			v_filter_size = getFilteredSize(filterSpecs,view.data)
+			v_filter_size = get_filtered_size(filter_specs, view.data)
 			v_size = len(view.data)
 			sig = v_filter_size/v_size
 		else:
@@ -68,9 +68,9 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 		return sig * monotonicity(view,attr_specs)
 	# Scatterplot colored by Dimension
 	elif (n_dim == 1 and n_msr == 2):
-		colorAttr = view.getAttrByChannel("color")[0].attribute
+		color_attr = view.get_attr_by_channel("color")[0].attribute
 		
-		C = ldf.cardinality[colorAttr]
+		C = ldf.cardinality[color_attr]
 		if (C<40):
 			return 1/C
 		else:
@@ -84,15 +84,15 @@ def interestingness(view:View ,ldf:LuxDataFrame) -> int:
 	# Default
 	else:
 		return -1
-def getFilteredSize(filterSpecs,ldf):
-	filter_spec = filterSpecs[0]
-	result = PandasExecutor.applyFilter(ldf, filter_spec.attribute, filter_spec.filterOp, filter_spec.value)
+def get_filtered_size(filter_specs, ldf):
+	filter_spec = filter_specs[0]
+	result = PandasExecutor.apply_filter(ldf, filter_spec.attribute, filter_spec.filter_op, filter_spec.value)
 	return len(result)
 def skewness(v):
 	from scipy.stats import skew
 	return skew(v)
 
-def deviationFromOverall(view:View,ldf:LuxDataFrame,filterSpecs:list,msrAttribute:str) -> int:
+def deviation_from_overall(view:View, ldf:LuxDataFrame, filter_specs:list, msr_attribute:str) -> int:
 	"""
 	Difference in bar chart/histogram shape from overall chart
 	Note: this function assumes that the filtered view.data is operating on the same range as the unfiltered view.data. 
@@ -101,28 +101,28 @@ def deviationFromOverall(view:View,ldf:LuxDataFrame,filterSpecs:list,msrAttribut
 	----------
 	view : View
 	ldf : LuxDataFrame
-	filterSpecs : list
+	filter_specs : list
 		List of filters from the View
-	msrAttribute : str
+	msr_attribute : str
 		The attribute name of the measure value of the chart
 
 	Returns
 	-------
 	int
 		Score describing how different the view is from the overall view
-	"""	
-	v_filter_size = getFilteredSize(filterSpecs,ldf)
+	"""
+	v_filter_size = get_filtered_size(filter_specs, ldf)
 	v_size = len(view.data)
-	v_filter = view.data[msrAttribute]
+	v_filter = view.data[msr_attribute]
 	v_filter = v_filter/v_filter.sum() # normalize by total to get ratio
 
 	# Generate an "Overall" View (TODO: This is computed multiple times for every view, alternative is to directly access df.currentView but we do not have guaruntee that will always be unfiltered view (in the non-Filter action scenario))
 	import copy
-	unfilteredView = copy.copy(view)
-	unfilteredView.specLst = utils.getAttrsSpecs(view.specLst) # Remove filters, keep only attribute specs
-	ldf.executor.execute([unfilteredView],ldf)
+	unfiltered_view = copy.copy(view)
+	unfiltered_view.spec_lst = utils.get_attrs_specs(view.spec_lst) # Remove filters, keep only attribute specs
+	ldf.executor.execute([unfiltered_view],ldf)
 	
-	v = unfilteredView.data[msrAttribute]
+	v = unfiltered_view.data[msr_attribute]
 	v = v/v.sum()  
 	assert len(v) == len(v_filter), "Data for filtered and unfiltered view have unequal length." 
 	sig = v_filter_size/v_size #significance factor
@@ -130,7 +130,7 @@ def deviationFromOverall(view:View,ldf:LuxDataFrame,filterSpecs:list,msrAttribut
 	from scipy.spatial.distance import euclidean
 	return sig* euclidean(v, v_filter)
 
-def unevenness(view:View,ldf:LuxDataFrame,measureLst:list,dimensionLst:list) -> int:
+def unevenness(view:View, ldf:LuxDataFrame, measure_lst:list, dimension_lst:list) -> int:
 	"""
 	Measure the unevenness of a bar chart view.
 	If a bar chart is highly uneven across the possible values, then it may be interesting. (e.g., USA produces lots of cars compared to Japan and Europe)
@@ -141,18 +141,18 @@ def unevenness(view:View,ldf:LuxDataFrame,measureLst:list,dimensionLst:list) -> 
 	----------
 	view : View
 	ldf : LuxDataFrame
-	measureLst : list
+	measure_lst : list
 		List of measures
-	dimensionLst : list
+	dimension_lst : list
 		List of dimensions
 	Returns
 	-------
 	int
 		Score describing how uneven the bar chart is.
-	"""	
-	v = view.data[measureLst[0].attribute]
+	"""
+	v = view.data[measure_lst[0].attribute]
 	v = v/v.sum() # normalize by total to get ratio
-	C = ldf.cardinality[dimensionLst[0].attribute]
+	C = ldf.cardinality[dimension_lst[0].attribute]
 	D = (0.5) ** C # cardinality-based discounting factor
 	v_flat = pd.Series([1 / C] * len(v))
 	if (is_datetime(v)):
@@ -165,7 +165,7 @@ def mutual_information(v_x:list , v_y:list) -> int:
 	from sklearn.metrics import mutual_info_score
 	return mutual_info_score(v_x, v_y)
 
-def monotonicity(view:View,attr_specs:list,ignoreIdentity:bool=True) ->int:
+def monotonicity(view:View, attr_specs:list, ignore_identity:bool=True) ->int:
 	"""
 	Monotonicity measures there is a monotonic trend in the scatterplot, whether linear or not.
 	This score is computed as the square of the Spearman correlation coefficient, which is the Pearson correlation on the ranks of x and y.
@@ -176,18 +176,19 @@ def monotonicity(view:View,attr_specs:list,ignoreIdentity:bool=True) ->int:
 	attr_spec: list
 		List of attribute Spec objects
 
-	ignoreIdentity: bool
+	ignore_identity: bool
 		Boolean flag to ignore items with the same x and y attribute (score as -1)
 
 	Returns
 	-------
 	int
 		Score describing the strength of monotonic relationship in view
-	"""	
+	"""
 	from scipy.stats import spearmanr
 	msr1 = attr_specs[0].attribute
 	msr2 = attr_specs[1].attribute
-	if(ignoreIdentity and msr1 == msr2): #remove if measures are the same
+
+	if(ignore_identity and msr1 == msr2): #remove if measures are the same
 		return -1
 	v_x = view.data[msr1]
 	v_y = view.data[msr2]
