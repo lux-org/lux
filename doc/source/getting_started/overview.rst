@@ -54,7 +54,7 @@ For example, let's say that you are interested in learning more about the median
 
 .. code-block:: python
 
-    df.setContext(["MedianEarnings"])
+    df.set_context(["MedianEarnings"])
 
 When you print out the dataframe again, you should see three tabs of visualizations recommended to you. 
 
@@ -72,7 +72,7 @@ You can specify a variety of things that you might be interested in, for example
 
 .. code-block:: python
 
-    df.setContext(["MedianEarnings", "FundingModel=Public"])
+    df.set_context(["MedianEarnings", "FundingModel=Public"])
 
 For more advance use of context, refer to this page on how to specify the context.
 
@@ -93,7 +93,7 @@ In the earlier example, when `MedianEarning` is added to the context, the curren
 
 .. code-block:: python
 
-    df.setContext(["MedianEarnings"])
+    df.set_context(["MedianEarnings"])
 
 Given the updated context, additional actions are generated. 
 

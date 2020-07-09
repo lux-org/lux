@@ -1,28 +1,28 @@
 from __future__ import annotations
 from typing import List, Callable
 from lux.context.Spec import Spec
-from lux.utils.utils import checkImportLuxWidget
+from lux.utils.utils import check_import_lux_widget
 class View:
 	'''
 	View Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
 	'''
 
-	def __init__(self, specLst, mark="", title=""):
-		self.specLst = specLst
+	def __init__(self, spec_lst, mark="", title=""):
+		self.spec_lst = spec_lst
 		self.title = title
 		self.mark = mark
 		self.data = None
 		self.score = 0.0
 		self.vis = None
-		self.plotConfig = None
-		self.xMinMax = {}
-		self.yMinMax = {}
+		self.plot_config = None
+		self.x_min_max = {}
+		self.y_min_max = {}
 	def __repr__(self):
 		if self.data is None:
-			return f"<View  ({str(self.specLst)}) mark: {self.mark}, score: {self.score} >"
+			return f"<View  ({str(self.spec_lst)}) mark: {self.mark}, score: {self.score} >"
 		filter_spec = None
 		channels, additional_channels = [], []
-		for spec in self.specLst:
+		for spec in self.spec_lst:
 
 			if hasattr(spec,"value"):
 				if spec.value != "":
@@ -31,7 +31,7 @@ class View:
 				if spec.attribute != "":
 					if spec.aggregation != "":
 						attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
-					elif spec.binSize > 0:
+					elif spec.bin_size > 0:
 						attribute = "BIN(" + spec.attribute + ")"
 					else:
 						attribute = spec.attribute
@@ -48,76 +48,76 @@ class View:
 			str_channels += channel[0] + ": " + channel[1] + ", "
 
 		if filter_spec:
-			return f"<View  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filterOp}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
+			return f"<View  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filter_op}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
 			return f"<View  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
-	def setPlotConfig(self,configFunc:Callable):
+	def set_plot_config(self,config_func:Callable):
 		"""
 		Modify plot aesthetic settings to the View
 		Currently only supported for Altair visualizations
 
 		Parameters
 		----------
-		configFunc : typing.Callable
+		config_func : typing.Callable
 			A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
 		"""
-		self.plotConfig = configFunc
-	def clearPlotConfig(self):
-		self.plotConfig = None
+		self.plot_config = config_func
+	def clear_plot_config(self):
+		self.plot_config = None
 	def _repr_html_(self):
 		from IPython.display import display
-		checkImportLuxWidget()
+		check_import_lux_widget()
 		import luxWidget
 		if (self.data is None):
 			raise Exception("No data populated in View. Use the 'load' function (e.g., view.load(df)) to populate the view with a data source.")
 		else:
 			from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-			# widget  = LuxDataFrame.renderWidget(inputCurrentView=self,renderTarget="viewOnly")
+			# widget  = LuxDataFrame.render_widget(input_current_view=self,render_target="viewOnly")
 			widget =  luxWidget.LuxWidget(
-					currentView= LuxDataFrame.currentViewToJSON([self]),
+					currentView= LuxDataFrame.current_view_to_JSON([self]),
 					recommendations=[],
 					context={}
 				)
 			display(widget)
-	def getAttrByAttrName(self,attrName):
-		return list(filter(lambda x: x.attribute == attrName, self.specLst))
+	def get_attr_by_attr_name(self,attr_name):
+		return list(filter(lambda x: x.attribute == attr_name, self.spec_lst))
 		
-	def getAttrByChannel(self, channel):
-		specObj = list(filter(lambda x: x.channel == channel and x.value=='' if hasattr(x, "channel") else False, self.specLst))
-		return specObj
+	def get_attr_by_channel(self, channel):
+		spec_obj = list(filter(lambda x: x.channel == channel and x.value=='' if hasattr(x, "channel") else False, self.spec_lst))
+		return spec_obj
 
-	def getAttrByDataModel(self, dmodel, excludeRecord=False):
-		if (excludeRecord):
-			return list(filter(lambda x: x.dataModel == dmodel and x.value=='' if x.attribute!="Record" and hasattr(x, "dataModel") else False, self.specLst))
+	def get_attr_by_data_model(self, dmodel, exclude_record=False):
+		if (exclude_record):
+			return list(filter(lambda x: x.data_model == dmodel and x.value=='' if x.attribute!="Record" and hasattr(x, "data_model") else False, self.spec_lst))
 		else:
-			return list(filter(lambda x: x.dataModel == dmodel and x.value=='' if hasattr(x, "dataModel") else False, self.specLst))
+			return list(filter(lambda x: x.data_model == dmodel and x.value=='' if hasattr(x, "data_model") else False, self.spec_lst))
 
-	def getAttrByDataType(self, dtype):
-		return list(filter(lambda x: x.dataType == dtype and x.value=='' if hasattr(x, "dataType") else False, self.specLst))
+	def get_attr_by_data_type(self, dtype):
+		return list(filter(lambda x: x.data_type == dtype and x.value=='' if hasattr(x, "data_type") else False, self.spec_lst))
 
-	def removeColumnFromSpec(self, attribute):
-		self.spec = list(filter(lambda x: x.attribute != attribute, self.specLst))
+	def remove_column_from_spec(self, attribute):
+		self.spec = list(filter(lambda x: x.attribute != attribute, self.spec_lst))
 
-	def removeColumnFromSpecNew(self, attribute):
-		newSpec = []
-		for i in range(0, len(self.specLst)):
-			if self.specLst[i].value=="": # spec is type attribute
-				columnSpec = []
-				columnNames = self.specLst[i].attribute
+	def remove_column_from_spec_new(self, attribute):
+		new_spec = []
+		for i in range(0, len(self.spec_lst)):
+			if self.spec_lst[i].value=="": # spec is type attribute
+				column_spec = []
+				column_names = self.spec_lst[i].attribute
 				# if only one variable in a column, columnName results in a string and not a list so
 				# you need to differentiate the cases
-				if isinstance(columnNames, list):
-					for column in columnNames:
+				if isinstance(column_names, list):
+					for column in column_names:
 						if column != attribute:
-							columnSpec.append(column)
-					newSpec.append(Spec(columnSpec))
+							column_spec.append(column)
+					new_spec.append(Spec(column_spec))
 				else:
-					if columnNames != attribute:
-						newSpec.append(Spec(attribute = columnNames))
+					if column_names != attribute:
+						new_spec.append(Spec(attribute = column_names))
 			else:
-				newSpec.append(self.specLst[i])
-		self.specLst = newSpec
-	def toAltair(self) -> str:
+				new_spec.append(self.spec_lst[i])
+		self.spec_lst = new_spec
+	def to_Altair(self) -> str:
 		"""
 		Generate minimal Altair code to visualize the view
 
@@ -127,11 +127,11 @@ class View:
 			String version of the Altair code. Need to print out the string to apply formatting.
 		"""		
 		from lux.vizLib.altair.AltairRenderer import AltairRenderer
-		renderer = AltairRenderer(outputType="Altair")
-		self.vis= renderer.createVis(self)
+		renderer = AltairRenderer(output_type="Altair")
+		self.vis= renderer.create_vis(self)
 		return self.vis
 
-	def toVegaLite(self) -> dict:
+	def to_VegaLite(self) -> dict:
 		"""
 		Generate minimal VegaLite code to visualize the view
 
@@ -141,13 +141,13 @@ class View:
 			Dictionary of the VegaLite JSON specification
 		"""		
 		from lux.vizLib.altair.AltairRenderer import AltairRenderer
-		renderer = AltairRenderer(outputType="VegaLite")
-		self.vis = renderer.createVis(self)
+		renderer = AltairRenderer(output_type="VegaLite")
+		self.vis = renderer.create_vis(self)
 		return self.vis
 		
-	def renderVSpec(self, renderer="altair"):
+	def render_VSpec(self, renderer="altair"):
 		if (renderer == "altair"):
-			return self.toVegaLite()
+			return self.to_VegaLite()
 	
 	def load(self, ldf) -> View:
 		"""
@@ -172,8 +172,8 @@ class View:
 		from lux.compiler.Compiler import Compiler
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
 		#TODO: handle case when user input vanilla Pandas dataframe
-		self.specLst = Parser.parse(self.specLst)
-		Validator.validateSpec(self.specLst,ldf)
-		vc = Compiler.compile(ldf,ldf.context,[self],enumerateCollection=False)
+		self.spec_lst = Parser.parse(self.spec_lst)
+		Validator.validate_spec(self.spec_lst,ldf)
+		vc = Compiler.compile(ldf,ldf.context,[self],enumerate_collection=False)
 		PandasExecutor.execute(vc,ldf)
 		return vc[0]
