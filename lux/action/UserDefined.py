@@ -19,11 +19,12 @@ def user_defined(ldf):
     recommendations : Dict[str,obj]
         object with a collection of visualizations that result from the Distribution action.
     '''
-    recommendation = {"action": "View Collection",
+    recommendation = {"action": "Current Views",
                       "description": "Shows a view collection defined by the context"}
-    recommendation["collection"] = ldf.view_collection
 
-    vc = ldf.view_collection
+    recommendation["collection"] = ldf.currentView
+
+    vc = ldf.currentView
     PandasExecutor.execute(vc, ldf)
     for view in vc: 
         view.score = interestingness(view,ldf)

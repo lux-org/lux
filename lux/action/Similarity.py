@@ -26,13 +26,13 @@ def similar_pattern(ldf, queryContext, topK=-1):
     '''
     row_specs = list(filter(lambda x: x.value != "", queryContext))
     if(len(row_specs) == 1):
-        search_space_vc = ViewCollection(ldf.view_collection.collection.copy())
+        search_space_vc = ViewCollection(ldf.currentView.collection.copy())
         search_space_vc = search_space_vc.load(ldf)
 
         query_vc = ViewCollection(queryContext)
-        query_vc = query_vc.load(ldf)
+        query_vc = query_vc.load(ldf)       
         query_view = query_vc[0]
-        preprocess(query_view)
+        preprocess(queryView)
         #for loop to create assign euclidean distance
         recommendation = {"action":"Similarity",
                                "description":"Show other charts that are visually similar to the Current View."}

@@ -29,10 +29,10 @@ def test_period_selection():
 
 	ldf.setContext([lux.Spec(attribute = ["Horsepower","Weight","Acceleration"]),lux.Spec(attribute = "Year")])
 
-	PandasExecutor.execute(ldf.view_collection,ldf)
+	PandasExecutor.execute(ldf.currentView,ldf)
 
-	assert all([type(vc.data)==lux.luxDataFrame.LuxDataframe.LuxDataFrame for vc in ldf.view_collection])
-	assert all(ldf.view_collection[2].data.columns ==["Year",'Acceleration'])
+	assert all([type(vc.data)==lux.luxDataFrame.LuxDataframe.LuxDataFrame for vc in ldf.currentView])
+	assert all(ldf.currentView[2].data.columns ==["Year",'Acceleration'])
 
 def test_period_filter():
 	ldf = pd.read_csv("lux/data/car.csv")
@@ -42,7 +42,7 @@ def test_period_filter():
 
 	ldf.setContext([lux.Spec(attribute = "Acceleration"),lux.Spec(attribute = "Horsepower")])
 
-	PandasExecutor.execute(ldf.view_collection,ldf)
+	PandasExecutor.execute(ldf.currentView,ldf)
 	ldf.show_more()
 
 	assert isinstance(ldf.recommendation['Filter'][2].spec_lst[2].value, pd.Period)
@@ -56,7 +56,7 @@ def test_period_toAltair():
 
 	df.setContext([lux.Spec(attribute = "Acceleration"),lux.Spec(attribute = "Horsepower")])
 
-	PandasExecutor.execute(df.view_collection,df)
+	PandasExecutor.execute(df.currentView,df)
 	df.show_more()
 
 	exportedCode = df.recommendation['Filter'][2].to_Altair()
