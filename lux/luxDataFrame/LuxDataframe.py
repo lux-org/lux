@@ -6,6 +6,7 @@ from lux.utils.utils import checkImportLuxWidget
 #import for benchmarking
 import time
 import typing
+import warnings
 class LuxDataFrame(pd.DataFrame):
     '''
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
@@ -14,14 +15,14 @@ class LuxDataFrame(pd.DataFrame):
     _metadata = ['context','dataTypeLookup','dataType','filterSpecs',
                  'dataModelLookup','dataModel','uniqueValues','cardinality',
                  'xMinMax', 'yMinMax','plotConfig',
-                 'viewCollection','widget', '_recInfo', 'recommendation']
+                 'currentView','widget', '_recInfo', 'recommendation']
 
     def __init__(self,*args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
         self.context = []
         self._recInfo=[]
         self.recommendation = {}
-        self.viewCollection = []
+        self.currentView = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.computeStats()
@@ -32,6 +33,7 @@ class LuxDataFrame(pd.DataFrame):
         self.SQLconnection = ""
         self.table_name = ""
         self.filterSpecs = []
+        self.defaultPandasView = True
         self.togglePandasView = True
         self.toggleBenchmarking = False
         self.plotConfig = None
@@ -40,6 +42,21 @@ class LuxDataFrame(pd.DataFrame):
     def _constructor(self):
         return LuxDataFrame
     
+    def setDefaultDisplay(self,type:str) -> None:
+        """
+        Set the widget display to show Pandas by default or Lux by default
+
+        Parameters
+        ----------
+        type : str
+            Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
+        """        
+        if (type.lower()=="lux"):
+            self.defaultPandasView = False
+        elif (type.lower()=="pandas"):
+            self.defaultPandasView = True
+        else: 
+            warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.")
     # @property
     # def context(self):
     #     return self.context
@@ -92,7 +109,7 @@ class LuxDataFrame(pd.DataFrame):
     def clearPlotConfig(self):
         self.plotConfig = None
     def setViewCollection(self,viewCollection):
-        self.viewCollection = viewCollection 
+        self.currentView = viewCollection 
     def _refreshContext(self):
         from lux.compiler.Validator import Validator
         from lux.compiler.Compiler import Compiler
@@ -103,7 +120,7 @@ class LuxDataFrame(pd.DataFrame):
             self.computeDatasetMetadata()
         self.context = Parser.parse(self.getContext())
         Validator.validateSpec(self.context,self)
-        viewCollection = Compiler.compile(self,self.context,self.viewCollection)
+        viewCollection = Compiler.compile(self,self.context,self.currentView)
         self.setViewCollection(viewCollection)
 
     def setContext(self,context:typing.List[typing.Union[str,Spec]]):
@@ -136,7 +153,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def clearContext(self):
         self.context = []
-        self.viewCollection = []
+        self.currentView = []
     def clearFilter(self):
         self.filterSpecs = []  # reset filters
     def toPandas(self):
@@ -334,10 +351,11 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.Generalize import generalize
 
         self._recInfo = []
-        noView = len(self.viewCollection) == 0
-        oneCurrentView = len(self.viewCollection) == 1
-        multipleCurrentViews = len(self.viewCollection) > 1
-
+        noView = len(self.currentView) == 0
+        oneCurrentView = len(self.currentView) == 1
+        multipleCurrentViews = len(self.currentView) > 1
+        if (self.plotConfig):
+            for view in self.currentView: view.plotConfig = self.plotConfig
         if (noView):
             self._recInfo.append(correlation(self))
             self._recInfo.append(distribution(self,"quantitative"))
@@ -411,6 +429,7 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
+        self.togglePandasView = self.defaultPandasView # Reset to Pandas View everytime
         # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refreshContext)
         if self.executorType == "Pandas":
             self.computeStats()
@@ -418,18 +437,20 @@ class LuxDataFrame(pd.DataFrame):
         #for benchmarking
         if self.toggleBenchmarking == True:
             tic = time.perf_counter()
-        self.showMore() # compute the recommendations
+        self.showMore() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self.widget)
         if self.toggleBenchmarking == True:
             toc = time.perf_counter()
             print(f"Computed recommendations in {toc - tic:0.4f} seconds")
 
         self.widget = LuxDataFrame.renderWidget(self)
 
-        button = widgets.Button(description="Toggle Pandas/Lux")
+        # box = widgets.Box(layout=widgets.Layout(display='inline'))
+        button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',left='935px',top='20px'))
         output = widgets.Output()
-
-        display(button, output)
-
+        # box.children = [button,output]
+        # output.children = [button]
+        # display(box)
+        display(button,output)
         def on_button_clicked(b):
             with output:
                 if (b):
@@ -438,8 +459,9 @@ class LuxDataFrame(pd.DataFrame):
                 if (self.togglePandasView):
                     display(self.displayPandas())
                 else:
+                    # b.layout.display = "none"
                     display(self.widget)
-
+                    # b.layout.display = "inline-block"
         button.on_click(on_button_clicked)
         on_button_clicked(None)
 
@@ -479,8 +501,8 @@ class LuxDataFrame(pd.DataFrame):
 
     def toJSON(self, inputCurrentView=""):
         widgetSpec = {}
-        self.executor.execute(self.viewCollection,self)
-        widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.viewCollection,inputCurrentView)
+        self.executor.execute(self.currentView,self)
+        widgetSpec["currentView"] = LuxDataFrame.currentViewToJSON(self.currentView,inputCurrentView)
         
         widgetSpec["recommendation"] = []
         
