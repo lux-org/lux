@@ -26,7 +26,7 @@ def similar_pattern(ldf, queryContext, topK=-1):
     '''
     row_specs = list(filter(lambda x: x.value != "", queryContext))
     if(len(row_specs) == 1):
-        search_space_vc = ViewCollection(ldf.currentView.collection.copy())
+        search_space_vc = ViewCollection(ldf.current_view.collection.copy())
         search_space_vc = search_space_vc.load(ldf)
 
         query_vc = ViewCollection(queryContext)

@@ -15,14 +15,14 @@ class LuxDataFrame(pd.DataFrame):
     _metadata = ['context','data_type_lookup','data_type','filter_specs',
                  'data_model_lookup','data_model','unique_values','cardinality',
                  'x_min_max', 'y_min_max','plot_config',
-                 'currentView','widget', '_rec_info', 'recommendation']
+                 'current_view','widget', '_rec_info', 'recommendation']
 
     def __init__(self,*args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
         self.context = []
         self._rec_info=[]
         self.recommendation = {}
-        self.currentView = []
+        self.current_view = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.compute_stats()
@@ -33,7 +33,7 @@ class LuxDataFrame(pd.DataFrame):
         self.SQLconnection = ""
         self.table_name = ""
         self.filter_specs = []
-        self.defaultPandasView = True
+        self.default_pandas_view = True
         self.toggle_pandas_view = True
         self.toggle_benchmarking = False
         self.plot_config = None
@@ -42,7 +42,7 @@ class LuxDataFrame(pd.DataFrame):
     def _constructor(self):
         return LuxDataFrame
     
-    def setDefaultDisplay(self,type:str) -> None:
+    def set_default_display(self, type:str) -> None:
         """
         Set the widget display to show Pandas by default or Lux by default
 
@@ -52,9 +52,9 @@ class LuxDataFrame(pd.DataFrame):
             Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
         """        
         if (type.lower()=="lux"):
-            self.defaultPandasView = False
+            self.default_pandas_view = False
         elif (type.lower()=="pandas"):
-            self.defaultPandasView = True
+            self.default_pandas_view = True
         else: 
             warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.")
     # @property
@@ -109,7 +109,7 @@ class LuxDataFrame(pd.DataFrame):
     def clear_plot_config(self):
         self.plot_config = None
     def set_view_collection(self,view_collection):
-        self.currentView = view_collection 
+        self.current_view = view_collection
     def _refresh_context(self):
         from lux.compiler.Validator import Validator
         from lux.compiler.Compiler import Compiler
@@ -120,10 +120,10 @@ class LuxDataFrame(pd.DataFrame):
             self.compute_dataset_metadata()
         self.context = Parser.parse(self.get_context())
         Validator.validate_spec(self.context,self)
-        view_collection = Compiler.compile(self,self.context,self.currentView)
+        view_collection = Compiler.compile(self, self.context, self.current_view)
         self.set_view_collection(view_collection)
 
-    def setContext(self,context:typing.List[typing.Union[str,Spec]]):
+    def set_context(self, context:typing.List[typing.Union[str, Spec]]):
         """
         Main function to set the context of the dataframe.
         The context input goes through the parser, so that the string inputs are parsed into a lux.Spec object.
@@ -153,7 +153,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def clear_context(self):
         self.context = []
-        self.currentView = []
+        self.current_view = []
     def clear_filter(self):
         self.filter_specs = []  # reset filters
     def to_pandas(self):
@@ -351,9 +351,9 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.Generalize import generalize
 
         self._rec_info = []
-        no_view = len(self.currentView) == 0
-        one_current_view = len(self.currentView) == 1
-        multiple_current_views = len(self.currentView) > 1
+        no_view = len(self.current_view) == 0
+        one_current_view = len(self.current_view) == 1
+        multiple_current_views = len(self.current_view) > 1
 
         if (no_view):
             self._rec_info.append(correlation(self))
@@ -483,7 +483,7 @@ class LuxDataFrame(pd.DataFrame):
         import luxWidget
         widgetJSON = ldf.to_JSON(input_current_view=input_current_view)
         return luxWidget.LuxWidget(
-            currentView=widgetJSON["currentView"],
+            currentView=widgetJSON["current_view"],
             recommendations=widgetJSON["recommendation"],
             context=LuxDataFrame.context_to_JSON(ldf.context)
         )
@@ -501,8 +501,8 @@ class LuxDataFrame(pd.DataFrame):
 
     def to_JSON(self, input_current_view=""):
         widget_spec = {}
-        self.executor.execute(self.currentView,self)
-        widget_spec["currentView"] = LuxDataFrame.current_view_to_JSON(self.currentView,input_current_view)
+        self.executor.execute(self.current_view, self)
+        widget_spec["current_view"] = LuxDataFrame.current_view_to_JSON(self.current_view, input_current_view)
         
         widget_spec["recommendation"] = []
         

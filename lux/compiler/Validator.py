@@ -72,5 +72,5 @@ class Validator:
 		if print_warning:
 			raise ValueError("Input spec is inconsistent with DataFrame.")
 
-		# lux.setContext(lux.Spec(attr = "Horsepower"))
-		# lux.setContext(lux.Spec(attr = "A")) --> Warning
+		# lux.set_context(lux.Spec(attr = "Horsepower"))
+		# lux.set_context(lux.Spec(attr = "A")) --> Warning
