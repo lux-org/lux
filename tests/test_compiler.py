@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 
 def test_underspecified_no_vis(test_show_more):
-	no_view_actions = ["Correlation", "Distribution", "Category"]
+	no_view_actions = ["Correlation", "Distribution", "Category","Temporal"]
 	df = pd.read_csv("lux/data/car.csv")
 	test_show_more(df, no_view_actions)
 	assert len(df.current_view) == 0
