@@ -26,7 +26,7 @@ def filter(ldf):
 		object with a collection of visualizations that result from the Filter action.
 	'''
 	recommendation = {"action":"Filter",
-						   "description":"Shows possible visualizations when filtered by categorical variables in the data object's dataset."}
+						   "description":"Shows possible visualizations when filtered by categorical variables in the dataset."}
 	filters = utils.get_filter_specs(ldf.context)
 	filter_values = []
 	output = []
@@ -38,7 +38,7 @@ def filter(ldf):
 		for row in filters:
 			unique_values = ldf.unique_values[row.attribute]
 			filter_values.append(row.value)
-			#creates new data objects with new filters
+			#creates views with new filters
 			for val in unique_values:
 				if val not in filter_values:
 					new_spec = column_spec.copy()

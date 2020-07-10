@@ -4,9 +4,9 @@ import lux
 #for benchmarking
 import time
 
-def distribution(ldf, data_type_constraint="quantitative"):
+def univariate(ldf, data_type_constraint="quantitative"):
 	'''
-	Generates bar chart distributions of different attributes in the dataset.
+	Generates bar chart distributions of different attributes in the dataframe.
 
 	Parameters
 	----------
@@ -14,7 +14,7 @@ def distribution(ldf, data_type_constraint="quantitative"):
 		LuxDataFrame with underspecified context.
 
 	data_type_constraint: str
-		The variable that controls the type of distribution chart that will be rendered.
+		Controls the type of distribution chart that will be rendered.
 
 	Returns
 	-------
@@ -32,12 +32,17 @@ def distribution(ldf, data_type_constraint="quantitative"):
 		query = [lux.Spec("?",data_type="quantitative")]
 		query.extend(ldf.filter_specs)
 		recommendation = {"action":"Distribution",
-							"description":"Show univariate count distributions of different attributes in the dataset."}
+							"description":"Show histogram distributions of different attributes in the dataframe."}
 	elif (data_type_constraint == "nominal"):
 		query = [lux.Spec("?",data_type="nominal")]
 		query.extend(ldf.filter_specs)
 		recommendation = {"action":"Category",
-						   "description":"Show bar chart distributions of different attributes in the dataset."}
+						   "description":"Show bar charts of different attributes in the dataframe."}
+	elif (data_type_constraint == "temporal"):
+		query = [lux.Spec("?",data_type="temporal")]
+		query.extend(ldf.filter_specs)
+		recommendation = {"action":"Temporal",
+						   "description":"Show line chart distributions of time-related attributes in the dataframe."}
 	vc = ViewCollection(query)
 	vc = vc.load(ldf)	
 	for view in vc:
