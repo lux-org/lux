@@ -399,8 +399,8 @@ class LuxDataFrame(pd.DataFrame):
 
         Notes
         -----
-        Convert the _exported_vis_idxs dictionary into a programmable ViewCollection
-        Example _exported_vis_idxs : 
+        Convert the _exportedVisIdxs dictionary into a programmable ViewCollection
+        Example _exportedVisIdxs : 
             {'Correlation': [0, 2], 'Category': [1]}
         indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Category` tab is selected.
         

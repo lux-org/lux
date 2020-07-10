@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Callable
+from typing import List, Callable, Union
 from lux.context.Spec import Spec
 from lux.utils.utils import check_import_lux_widget
 class View:
@@ -148,23 +148,27 @@ class View:
 		self.vis= renderer.create_vis(self)
 		return self.vis
 
-	def to_VegaLite(self) -> dict:
+	def to_VegaLite(self, prettyOutput = True) -> Union[dict,str]:
 		"""
-		Generate minimal VegaLite code to visualize the view
+		Generate minimal Vega-Lite code to visualize the view
 
 		Returns
 		-------
-		dict
-			Dictionary of the VegaLite JSON specification
+		Union[dict,str]
+			String or Dictionary of the VegaLite JSON specification
 		"""		
+		import json
 		from lux.vizLib.altair.AltairRenderer import AltairRenderer
 		renderer = AltairRenderer(output_type="VegaLite")
 		self.vis = renderer.create_vis(self)
-		return self.vis
+		if (prettyOutput):
+			return "** Copy Text Below to Vega Editor(vega.github.io/editor) to view and edit **\n"+json.dumps(self.vis, indent=2)
+		else:
+			return self.vis
 		
 	def render_VSpec(self, renderer="altair"):
 		if (renderer == "altair"):
-			return self.to_VegaLite()
+			return self.to_VegaLite(prettyOutput=False)
 	
 	def load(self, ldf) -> View:
 		"""
