@@ -66,6 +66,7 @@ def generalize(ldf):
 	for view in vc:
 		view.score = interestingness(view,ldf)
 	vc.sort(remove_invalid=True)
+	vc.remove_duplicates()
 	#for benchmarking
 	if ldf.toggle_benchmarking == True:
 		toc = time.perf_counter()
