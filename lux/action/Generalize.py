@@ -45,13 +45,13 @@ def generalize(ldf):
 			for column in columns:
 				if column not in excluded_columns:
 					temp_view = View(ldf.context)
-					temp_view.remove_column_from_spec_new(column)
+					temp_view.remove_column_from_spec_new(column,remove_first=True)
 					excluded_columns.append(column)
 					output.append(temp_view)
 		elif type(columns) == str:
 			if columns not in excluded_columns:
 				temp_view = View(ldf.context)
-				temp_view.remove_column_from_spec_new(columns)
+				temp_view.remove_column_from_spec_new(columns,remove_first=True)
 				excluded_columns.append(columns)
 		output.append(temp_view)
 	for i, spec in enumerate(row_specs):
