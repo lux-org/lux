@@ -98,8 +98,19 @@ class View:
 	def remove_column_from_spec(self, attribute):
 		self.spec = list(filter(lambda x: x.attribute != attribute, self.spec_lst))
 
-	def remove_column_from_spec_new(self, attribute):
+	def remove_column_from_spec_new(self, attribute:str,remove_first:bool=False):
+		"""
+		Removes an attribute from the View's spec
+
+		Parameters
+		----------
+		attribute : str
+			attribute to be removed
+		remove_first : bool, optional
+			Boolean flag to determine whether to remove all instances of the attribute or only one (first) instance, by default False
+		"""		
 		new_spec = []
+		skip_check = False
 		for i in range(0, len(self.spec_lst)):
 			if self.spec_lst[i].value=="": # spec is type attribute
 				column_spec = []
@@ -108,12 +119,18 @@ class View:
 				# you need to differentiate the cases
 				if isinstance(column_names, list):
 					for column in column_names:
-						if column != attribute:
+						if (column != attribute) or skip_check:
 							column_spec.append(column)
+						elif (remove_first):
+							remove_first = True
 					new_spec.append(Spec(column_spec))
 				else:
-					if column_names != attribute:
+					if (column_names != attribute) or skip_check:
 						new_spec.append(Spec(attribute = column_names))
+					elif (remove_first):
+						remove_first = True
+				if (remove_first):
+					skip_check = True
 			else:
 				new_spec.append(self.spec_lst[i])
 		self.spec_lst = new_spec

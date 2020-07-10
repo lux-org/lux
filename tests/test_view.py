@@ -27,3 +27,18 @@ def test_custom_plot_setting():
     exported_code_str = df.recommendation["Correlation"][0].to_Altair()
     assert config_mark_addition in exported_code_str
     assert title_addition in exported_code_str
+
+def test_remove():
+    from lux.view.View import View
+    df = pd.read_csv("lux/data/car.csv")
+    view = View(["Horsepower","Horsepower"])
+    view.load(df)
+    view.remove_column_from_spec_new("Horsepower",remove_first=False)
+    assert (view.spec_lst == []),"Remove all instances of Horsepower"
+
+    df = pd.read_csv("lux/data/car.csv")
+    view = View(["Horsepower","Horsepower"])
+    view.load(df)
+    view.remove_column_from_spec_new("Horsepower",remove_first=True)
+    assert (len(view.spec_lst)==1),"Remove only 1 instances of Horsepower"
+    assert (view.spec_lst[0].attribute=="Horsepower"),"Remove only 1 instances of Horsepower"
