@@ -35,7 +35,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	query.extend(ldf.filter_specs)
 	vc = ViewCollection(query)
 	recommendation = {"action": "Correlation",
-					  "description": "Show relationships between two quantitative variables."}
+					  "description": "Show relationships between two quantitative attributes."}
 	vc = vc.load(ldf)
 	# Then use the data populated in the view collection to compute score
 	for view in vc:
