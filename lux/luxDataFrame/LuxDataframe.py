@@ -380,7 +380,8 @@ class LuxDataFrame(pd.DataFrame):
             vc = rec_info["collection"]
             if (self.plot_config):
                 for view in vc: view.plot_config = self.plot_config
-            self.recommendation[action_type]  = vc
+            if (len(vc)>0):
+                self.recommendation[action_type]  = vc
 
         self.clear_filter()
 
@@ -527,7 +528,7 @@ class LuxDataFrame(pd.DataFrame):
         import copy
         rec_copy = copy.deepcopy(recs)
         for idx,rec in enumerate(rec_copy):
-            if (rec != {}):
+            if (len(rec["collection"])>0):
                 rec["vspec"] = []
                 for vis in rec["collection"]:
                     chart = vis.render_VSpec()
