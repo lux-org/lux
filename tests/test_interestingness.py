@@ -14,15 +14,23 @@ def test_interestingness_1_0_0():
     
     df.setContext([lux.Spec(attribute = "Origin")])
     df.executor.execute(df.viewCollection,df)
-    #check for top recommended Enhance graph
-    assert df.recommendation['Enhance'][0].mark == 'bar'
-    assert df.recommendation['Enhance'][0].specLst[0].attribute == 'Displacement'
-    assert df.recommendation['Enhance'][0].specLst[0].aggregation == 'mean'
+    df.showMore()
+    #check that top recommended enhance graph score is not none and that ordering makes intuitive sense
+    assert interestingness(df.recommendation['Enhance'][0],df) != None
+    rank1 = -1
+    rank2 = -1
+    rank3 = -1
+    for f in range(0, len(df.recommendation['Enhance'])):
+        if df.recommendation['Enhance'][f].specLst[0].attribute == 'Displacement':
+            rank1 = f
+        if df.recommendation['Enhance'][f].specLst[0].attribute == 'Weight':
+            rank2 = f
+        if df.recommendation['Enhance'][f].specLst[0].attribute == 'Acceleration':
+            rank3 = f
+    assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
-    assert df.recommendation['Enhance'][0].specLst[1].attribute == 'Origin'
-    assert df.recommendation['Enhance'][0].specLst[1].aggregation == ''
-
-    #check that graph with filter 
+    #check that top recommended filter graph score is not none and that ordering makes intuitive sense
+    assert interestingness(df.recommendation['Filter'][0],df) != None
     rank1 = -1
     rank2 = -1
     rank3 = -1
@@ -40,23 +48,31 @@ def test_interestingness_1_0_0():
 #     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
     
 #     df.setContext([lux.Spec(attribute = "Origin", filterOp="=",value="USA"),lux.Spec(attribute = "Origin")])
-#     assert df.viewCollection[0].mark == 'bar'
-#     assert df.viewCollection[0].specLst[0].attribute == "Record"
-#     assert df.viewCollection[0].specLst[0].aggregation == "count"
-#     assert df.viewCollection[0].specLst[1].attribute == "Origin"
-
+#     df.showMore()
+#     assert interestingness(df.viewCollection[0],df) != None
 
 def test_interestingness_0_1_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
     df.setContext([lux.Spec(attribute = "Horsepower")])
-    #check for top recommended Enhance graph
-    assert df.recommendation['Enhance'][0].mark == 'scatter'
-    assert df.recommendation['Enhance'][0].specLst[0].attribute == 'Horsepower'
-    assert df.recommendation['Enhance'][0].specLst[1].attribute == 'Weight'
+    df.showMore()
+    #check that top recommended enhance graph score is not none and that ordering makes intuitive sense
+    assert interestingness(df.recommendation['Enhance'][0],df) != None
+    rank1 = -1
+    rank2 = -1
+    rank3 = -1
+    for f in range(0, len(df.recommendation['Enhance'])):
+        if df.recommendation['Enhance'][f].mark == 'scatter' and df.recommendation['Enhance'][f].specLst[1].attribute == 'Weight':
+            rank1 = f
+        if df.recommendation['Enhance'][f].mark == 'scatter' and df.recommendation['Enhance'][f].specLst[1].attribute == 'Acceleration':
+            rank2 = f
+        if df.recommendation['Enhance'][f].mark == 'line' and df.recommendation['Enhance'][f].specLst[0].attribute == 'Year':
+            rank3 = f
+    assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
-    #check that ordering of recommended filter graphs make sense
+    #check that top recommended filter graph score is not none and that ordering makes intuitive sense
+    assert interestingness(df.recommendation['Filter'][0],df) != None
     rank1 = -1
     rank2 = -1
     rank3 = -1
@@ -75,78 +91,105 @@ def test_interestingness_0_1_1():
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
     
     df.setContext([lux.Spec(attribute = "Origin", filterOp="=",value="?"),lux.Spec(attribute = "MilesPerGal")])
-    df
-    assert np.isclose(interestingness(df.viewCollection[0],df), 2.3074607255595923, atol=.01)
+    df.showMore()
+    assert interestingness(df.recommendation['View Collection'][0],df) != None
+    assert str(df.recommendation['View Collection'][0].specLst[2].value) == 'USA'
 
 def test_interestingness_1_1_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
     df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Year")])
-    #check for top recommended Enhance graph
-    assert df.recommendation['Enhance'][0].mark == 'scatter'
-    assert df.recommendation['Enhance'][0].specLst[0].attribute == 'Horsepower'
-    assert df.recommendation['Enhance'][0].specLst[1].attribute == 'Displacement'
-    assert df.recommendation['Enhance'][0].specLst[2].attribute == 'Year'
+    df.showMore()
+    #check that top recommended Enhance graph score is not none and that ordering makes intuitive sense
+    assert interestingness(df.recommendation['Enhance'][0],df) != None
+    rank1 = -1
+    rank2 = -1
+    rank3 = -1
+    for f in range(0, len(df.recommendation['Enhance'])):
+        if df.recommendation['Enhance'][f].specLst[1].attribute == "Displacement" and df.recommendation['Enhance'][f].specLst[2].attribute == 'Year':
+            rank1 = f
+        if df.recommendation['Enhance'][f].specLst[1].attribute == "Weight" and df.recommendation['Enhance'][f].specLst[2].attribute == 'Year':
+            rank2 = f
 
-    #check for top recommended Filter graph
-    assert df.recommendation['Filter'][0].mark == 'line'
-    assert df.recommendation['Filter'][0].specLst[0].attribute == 'Year'
-    assert df.recommendation['Filter'][0].specLst[1].attribute == 'Horsepower'
-    assert df.recommendation['Filter'][0].specLst[1].aggregation == 'mean'
-    assert df.recommendation['Filter'][0].specLst[2].attribute == 'Cylinders'
-    assert df.recommendation['Filter'][0].specLst[2].value == 6
+    assert rank1 < rank2 
 
-    #check for top recommended Generalize graph
-    assert df.recommendation['Generalize'][0].mark == 'histogram'
-    assert df.recommendation['Generalize'][0].specLst[0].attribute == 'Horsepower'
-    assert df.recommendation['Generalize'][0].specLst[1].attribute == 'Record'
-    assert df.recommendation['Generalize'][0].specLst[1].aggregation == 'count'
+    #check that top recommended filter graph score is not none and that ordering makes intuitive sense
+    assert interestingness(df.recommendation['Filter'][0],df) != None
+    rank1 = -1
+    rank2 = -1
+    rank3 = -1
+    for f in range(0, len(df.recommendation['Filter'])):
+        if df.recommendation['Filter'][f].specLst[2].value == 6:
+            rank1 = f
+        if str(df.recommendation['Filter'][f].specLst[2].value) == "Europe":
+            rank2 = f
+        if df.recommendation['Filter'][f].specLst[2].value == 5:
+            rank3 = f
+    assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
+
+    #check that top recommended generalize graph score is not none
+    assert interestingness(df.recommendation['Filter'][0],df) != None
 
 def test_interestingness_1_1_1():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
     df.setContext([lux.Spec(attribute = "Horsepower"), lux.Spec(attribute = "Origin", filterOp="=",value = "USA", binSize=20)])
-    #check for top recommended Enhance graph
-    assert df.recommendation['Enhance'][0].mark == 'bar'
-    assert df.recommendation['Enhance'][0].specLst[0].attribute == 'Horsepower'
-    assert df.recommendation['Enhance'][0].specLst[0].aggregation == 'mean'
-    assert df.recommendation['Enhance'][0].specLst[1].attribute == 'Cylinders'
-    assert df.recommendation['Enhance'][0].specLst[2].attribute == 'Origin'
-    assert df.recommendation['Enhance'][0].specLst[2].value == 'USA'
+    df.showMore()
+    #check that top recommended Enhance graph score is not none and that ordering makes intuitive sense
+    assert interestingness(df.recommendation['Enhance'][0],df) != None
+    rank1 = -1
+    rank2 = -1
+    rank3 = -1
+    for f in range(0, len(df.recommendation['Enhance'])):
+        if str(df.recommendation['Enhance'][f].specLst[2].value) == "USA" and str(df.recommendation['Enhance'][f].specLst[1].attribute) == 'Cylinders':
+            rank1 = f
+        if str(df.recommendation['Enhance'][f].specLst[2].value) == "USA" and str(df.recommendation['Enhance'][f].specLst[1].attribute) == 'Weight':
+            rank2 = f
+        if str(df.recommendation['Enhance'][f].specLst[2].value) == "USA" and str(df.recommendation['Enhance'][f].specLst[1].attribute) == 'Horsepower':
+            rank3 = f
+    assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
-    #check for top recommended Filter graph
-    assert df.recommendation['Filter'][0].mark == 'histogram'
-    assert df.recommendation['Filter'][0].specLst[0].attribute == 'Horsepower'
-    assert df.recommendation['Filter'][0].specLst[1].attribute == 'Record'
-    assert df.recommendation['Filter'][0].specLst[1].aggregation == 'count'
-    assert df.recommendation['Filter'][0].specLst[2].attribute == 'Origin'
-    assert df.recommendation['Filter'][0].specLst[2].value == 'Europe'
+    #check for top recommended Filter graph score is not none
+    assert interestingness(df.recommendation['Filter'][0],df) != None
 
 def test_interestingness_0_2_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
     df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Acceleration")])
-    #check for top recommended Enhance graph
-    assert df.recommendation['Enhance'][0].mark == 'scatter'
-    assert df.recommendation['Enhance'][0].specLst[0].attribute == 'Horsepower'
-    assert df.recommendation['Enhance'][0].specLst[1].attribute == 'Acceleration'
-    assert df.recommendation['Enhance'][0].specLst[2].attribute == 'Origin'
+    df.showMore()
+    #check that top recommended enhance graph score is not none and that ordering makes intuitive sense
+    assert interestingness(df.recommendation['Enhance'][0],df) != None
+    rank1 = -1
+    rank2 = -1
+    rank3 = -1
+    for f in range(0, len(df.recommendation['Enhance'])):
+        if str(df.recommendation['Enhance'][f].specLst[2].attribute) == "Origin" and str(df.recommendation['Enhance'][f].mark) == 'scatter':
+            rank1 = f
+        if str(df.recommendation['Enhance'][f].specLst[2].attribute) == "Displacement" and str(df.recommendation['Enhance'][f].mark) == 'scatter':
+            rank2 = f
+        if str(df.recommendation['Enhance'][f].specLst[2].attribute) == "Year" and str(df.recommendation['Enhance'][f].mark) == 'scatter':
+            rank3 = f
+    assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
-    #check for top recommended Filter graph
-    assert df.recommendation['Filter'][0].mark == 'scatter'
-    assert df.recommendation['Filter'][0].specLst[0].attribute == 'Horsepower'
-    assert df.recommendation['Filter'][0].specLst[1].attribute == 'Acceleration'
-    assert df.recommendation['Filter'][0].specLst[2].attribute == 'Year'
-    assert df.recommendation['Filter'][0].specLst[2].dataType == 'temporal'
+    #check that top recommended filter graph score is not none and that ordering makes intuitive sense
+    assert interestingness(df.recommendation['Filter'][0],df) != None
+    rank1 = -1
+    rank2 = -1
+    rank3 = -1
+    for f in range(0, len(df.recommendation['Filter'])):
+        if '1973' in str(df.recommendation['Filter'][f].specLst[2].value):
+            rank1 = f
+        if '1976' in str(df.recommendation['Filter'][f].specLst[2].value):
+            rank2 = f
+        if str(df.recommendation['Filter'][f].specLst[2].value) == "Europe":
+            rank3 = f
+    assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
-    #check for top recommended Generalize graph
-    assert df.recommendation['Generalize'][0].mark == 'histogram'
-    assert df.recommendation['Generalize'][0].specLst[0].attribute == 'Horsepower'
-    assert df.recommendation['Generalize'][0].specLst[1].attribute == 'Record'
-    assert df.recommendation['Generalize'][0].specLst[1].aggregation == 'count'
+    #check that top recommended Generalize graph score is not none
+    assert interestingness(df.recommendation['Generalize'][0],df) != None
 
 
 def test_interestingness_0_2_1():
@@ -154,5 +197,6 @@ def test_interestingness_0_2_1():
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
     df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Acceleration"),lux.Spec(attribute = "Acceleration", filterOp=">",value = 10)])
-    # assert np.isclose(interestingness(df.viewCollection[0],df), 0.39945113787283737, atol=.01)
-    assert np.isclose(interestingness(df.viewCollection[0], df), 0.39945113787283737, atol=.01)
+    df.showMore()
+    #check that top recommended Generalize graph score is not none
+    assert interestingness(df.recommendation['Generalize'][0],df) != None
