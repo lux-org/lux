@@ -12,9 +12,9 @@ def test_interestingness_1_0_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
     
-    df.setContext([lux.Spec(attribute = "Origin")])
+    df.set_context([lux.Spec(attribute = "Origin")])
     df.executor.execute(df.viewCollection,df)
-    df.showMore()
+    df.show_more()
     #check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation['Enhance'][0],df) != None
     rank1 = -1
@@ -47,16 +47,16 @@ def test_interestingness_1_0_0():
 #     df = pd.read_csv("lux/data/car.csv")
 #     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
     
-#     df.setContext([lux.Spec(attribute = "Origin", filterOp="=",value="USA"),lux.Spec(attribute = "Origin")])
-#     df.showMore()
+#     df.set_context([lux.Spec(attribute = "Origin", filterOp="=",value="USA"),lux.Spec(attribute = "Origin")])
+#     df.show_more()
 #     assert interestingness(df.viewCollection[0],df) != None
 
 def test_interestingness_0_1_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-    df.setContext([lux.Spec(attribute = "Horsepower")])
-    df.showMore()
+    df.set_context([lux.Spec(attribute = "Horsepower")])
+    df.show_more()
     #check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation['Enhance'][0],df) != None
     rank1 = -1
@@ -90,8 +90,8 @@ def test_interestingness_0_1_1():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
     
-    df.setContext([lux.Spec(attribute = "Origin", filterOp="=",value="?"),lux.Spec(attribute = "MilesPerGal")])
-    df.showMore()
+    df.set_context([lux.Spec(attribute = "Origin", filterOp="=",value="?"),lux.Spec(attribute = "MilesPerGal")])
+    df.show_more()
     assert interestingness(df.recommendation['View Collection'][0],df) != None
     assert str(df.recommendation['View Collection'][0].specLst[2].value) == 'USA'
 
@@ -99,8 +99,8 @@ def test_interestingness_1_1_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-    df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Year")])
-    df.showMore()
+    df.set_context([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Year")])
+    df.show_more()
     #check that top recommended Enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation['Enhance'][0],df) != None
     rank1 = -1
@@ -135,8 +135,8 @@ def test_interestingness_1_1_1():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-    df.setContext([lux.Spec(attribute = "Horsepower"), lux.Spec(attribute = "Origin", filterOp="=",value = "USA", binSize=20)])
-    df.showMore()
+    df.set_context([lux.Spec(attribute = "Horsepower"), lux.Spec(attribute = "Origin", filterOp="=",value = "USA", binSize=20)])
+    df.show_more()
     #check that top recommended Enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation['Enhance'][0],df) != None
     rank1 = -1
@@ -158,8 +158,8 @@ def test_interestingness_0_2_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-    df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Acceleration")])
-    df.showMore()
+    df.set_context([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Acceleration")])
+    df.show_more()
     #check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation['Enhance'][0],df) != None
     rank1 = -1
@@ -196,7 +196,7 @@ def test_interestingness_0_2_1():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-    df.setContext([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Acceleration"),lux.Spec(attribute = "Acceleration", filterOp=">",value = 10)])
-    df.showMore()
+    df.set_context([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Acceleration"),lux.Spec(attribute = "Acceleration", filterOp=">",value = 10)])
+    df.show_more()
     #check that top recommended Generalize graph score is not none
     assert interestingness(df.recommendation['Generalize'][0],df) != None

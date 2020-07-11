@@ -131,7 +131,7 @@ def deviation_from_overall(view:View, ldf:LuxDataFrame, filter_specs:list, msr_a
 	rankSig = 1 #category measure value ranking significance factor
 	#if the view is a barchart, count how many categories' rank, based on measure value, changes after the filter is applied
 	if view.mark == "bar":
-		dimList = view.getAttrByDataModel("dimension")
+		dimList = view.get_attr_by_data_model("dimension")
 
 		#use Pandas rank function to calculate rank positions for each category
 		v_rank = unfilteredView.data.rank().toPandas()
