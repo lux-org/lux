@@ -100,18 +100,8 @@ def test_interestingness_1_1_0():
 
     df.set_context([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Year")])
     df.show_more()
-    #check that top recommended Enhance graph score is not none and that ordering makes intuitive sense
+    #check that top recommended Enhance graph score is not none (all graphs here have same score)
     assert interestingness(df.recommendation['Enhance'][0],df) != None
-    rank1 = -1
-    rank2 = -1
-    rank3 = -1
-    for f in range(0, len(df.recommendation['Enhance'])):
-        if df.recommendation['Enhance'][f].spec_lst[1].attribute == "Displacement" and df.recommendation['Enhance'][f].spec_lst[2].attribute == 'Year':
-            rank1 = f
-        if df.recommendation['Enhance'][f].spec_lst[1].attribute == "Weight" and df.recommendation['Enhance'][f].spec_lst[2].attribute == 'Year':
-            rank2 = f
-
-    assert rank1 < rank2 
 
     #check that top recommended filter graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation['Filter'][0],df) != None
