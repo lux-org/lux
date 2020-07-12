@@ -95,7 +95,7 @@ class PandasExecutor(Executor):
                 # For filtered aggregation that have missing groupby-attribute values, set these aggregated value as 0, since no datapoints
                 for vals in all_attr_vals:
                     if (vals not in result_vals):
-                        view.data.loc[len(view.data)] = [vals,0]
+                        view.data.loc[len(view.data)] = [vals]+[0]*(len(view.data.columns)-1)
             assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
             view.data = view.data.sort_values(by=groupby_attr.attribute, ascending=True)
             view.data = view.data.reset_index()
