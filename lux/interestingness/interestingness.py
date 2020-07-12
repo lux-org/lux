@@ -127,8 +127,25 @@ def deviation_from_overall(view:View, ldf:LuxDataFrame, filter_specs:list, msr_a
 	assert len(v) == len(v_filter), "Data for filtered and unfiltered view have unequal length." 
 	sig = v_filter_size/v_size #significance factor
 	# Euclidean distance as L2 function
+
+	rankSig = 1 #category measure value ranking significance factor
+	#if the view is a barchart, count how many categories' rank, based on measure value, changes after the filter is applied
+	if view.mark == "bar":
+		dimList = view.get_attr_by_data_model("dimension")
+
+		#use Pandas rank function to calculate rank positions for each category
+		v_rank = unfiltered_view.data.rank().to_pandas()
+		v_filter_rank = view.data.rank().to_pandas()
+		#go through and count the number of ranking changes between the filtered and unfiltered data
+		numCategories = ldf.cardinality[dimList[0].attribute]
+		for r in range(0, numCategories-1):
+			if v_rank[msr_attribute][r] != v_filter_rank[msr_attribute][r]:
+				rankSig += 1
+		#normalize ranking significance factor
+		rankSig = rankSig/numCategories
+
 	from scipy.spatial.distance import euclidean
-	return sig* euclidean(v, v_filter)
+	return sig*rankSig* euclidean(v, v_filter)
 
 def unevenness(view:View, ldf:LuxDataFrame, measure_lst:list, dimension_lst:list) -> int:
 	"""
