@@ -70,12 +70,14 @@ class Parser:
 			if (spec.description):
 				#TODO: Move validation check to Validator
 				#if ((spec.description in list(ldf.columns)) or spec.description == "?"):# if spec.description in the list of attributes
-				if any(ext in [">","<","="] for ext in spec.description): # spec.description contain ">","<". or "="
+				if any(ext in [">","<","=","!="] for ext in spec.description): # spec.description contain ">","<". or "="
 					# then parse it and assign to spec.attribute, spec.filter_op, spec.values
-					spec.filter_op = re.findall(r'/.*/>|=|<|>=|<=|!=', spec.description)[0]
+					spec.filter_op = re.findall(r'/.*/|>|=|<|>=|<=|!=', spec.description)[0]
 					split_description = spec.description.split(spec.filter_op)
 					spec.attribute = split_description[0]
 					spec.value = split_description[1]
+					if re.match(r'^-?\d+(?:\.\d+)?$', spec.value):
+						spec.value = float(spec.value)
 				elif (type(spec.description) == str):
 					spec.attribute = spec.description
 				elif (type(spec.description)==list):

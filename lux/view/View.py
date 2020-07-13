@@ -7,12 +7,12 @@ class View:
 	View Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
 	'''
 
-	def __init__(self, spec_lst, mark="", title=""):
+	def __init__(self, spec_lst, mark="", title="",data=None, score=0.0):
 		self.spec_lst = spec_lst
 		self.title = title
 		self.mark = mark
-		self.data = None
-		self.score = 0.0
+		self.data = data
+		self.score = score
 		self.vis = None
 		self.plot_config = None
 		self.x_min_max = {}
