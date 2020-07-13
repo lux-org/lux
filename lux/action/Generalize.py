@@ -39,27 +39,33 @@ def generalize(ldf):
 	if(len(column_spec)<2 or len(column_spec)>4):
 		recommendation["collection"] = []
 		return recommendation
+	#for each column specification, create a copy of the ldf's view and remove the column specification
+	#then append the view to the output
 	for spec in column_spec:
 		columns = spec.attribute
 		if type(columns) == list:
 			for column in columns:
 				if column not in excluded_columns:
-					temp_view = View(ldf.context)
-					temp_view.remove_column_from_spec_new(column,remove_first=True)
+					temp_view = View(ldf.context.copy())
+					temp_view.remove_column_from_spec(column, remove_first = False)
 					excluded_columns.append(column)
 					output.append(temp_view)
 		elif type(columns) == str:
 			if columns not in excluded_columns:
-				temp_view = View(ldf.context)
-				temp_view.remove_column_from_spec_new(columns,remove_first=True)
+				temp_view = View(ldf.context.copy())
+				temp_view.remove_column_from_spec(columns, remove_first = False)
+				print(temp_view)
 				excluded_columns.append(columns)
 		output.append(temp_view)
-	for i, spec in enumerate(row_specs):
-		new_spec = ldf.context.copy()
-		new_spec.pop(i)
-		temp_view = View(new_spec)
+	#for each filter specification, create a copy of the ldf's current view and remove the filter specification,
+	#then append the view to the output
+	for spec in row_specs:
+		#new_spec = ldf.context.copy()
+		#new_spec.remove_column_from_spec(new_spec.attribute)
+		temp_view = View(ldf.current_view[0].spec_lst.copy())
+		temp_view.remove_filter_from_spec(spec.value)
 		output.append(temp_view)
-		
+
 	vc = lux.view.ViewCollection.ViewCollection(output)
 	vc = vc.load(ldf)
 	recommendation["collection"] = vc

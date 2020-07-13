@@ -188,4 +188,4 @@ def test_interestingness_0_2_1():
     df.set_context([lux.Spec(attribute = "Horsepower"),lux.Spec(attribute = "Acceleration"),lux.Spec(attribute = "Acceleration", filter_op=">",value = 10)])
     df.show_more()
     #check that top recommended Generalize graph score is not none
-    #assert interestingness(df.recommendation['Generalize'][0],df) != None
+    assert interestingness(df.recommendation['Generalize'][0],df) != None
