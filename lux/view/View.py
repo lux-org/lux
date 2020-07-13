@@ -95,10 +95,10 @@ class View:
 	def get_attr_by_data_type(self, dtype):
 		return list(filter(lambda x: x.data_type == dtype and x.value=='' if hasattr(x, "data_type") else False, self.spec_lst))
 
-	def remove_column_from_spec(self, attribute):
-		self.spec = list(filter(lambda x: x.attribute != attribute, self.spec_lst))
+	def remove_filter_from_spec(self, value):
+		self.spec_lst = list(filter(lambda x: x.value != value, self.spec_lst))
 
-	def remove_column_from_spec_new(self, attribute:str,remove_first:bool=False):
+	def remove_column_from_spec(self, attribute, remove_first:bool=False):
 		"""
 		Removes an attribute from the View's spec
 
@@ -109,31 +109,35 @@ class View:
 		remove_first : bool, optional
 			Boolean flag to determine whether to remove all instances of the attribute or only one (first) instance, by default False
 		"""		
-		new_spec = []
-		skip_check = False
-		for i in range(0, len(self.spec_lst)):
-			if self.spec_lst[i].value=="": # spec is type attribute
-				column_spec = []
-				column_names = self.spec_lst[i].attribute
-				# if only one variable in a column, columnName results in a string and not a list so
-				# you need to differentiate the cases
-				if isinstance(column_names, list):
-					for column in column_names:
-						if (column != attribute) or skip_check:
-							column_spec.append(column)
+		if (not remove_first):
+			self.spec_lst = list(filter(lambda x: x.attribute != attribute, self.spec_lst))
+		elif (remove_first):
+			new_spec = []
+			skip_check = False
+			for i in range(0, len(self.spec_lst)):
+				if self.spec_lst[i].value=="": # spec is type attribute
+					column_spec = []
+					column_names = self.spec_lst[i].attribute
+					# if only one variable in a column, columnName results in a string and not a list so
+					# you need to differentiate the cases
+					if isinstance(column_names, list):
+						for column in column_names:
+							if (column != attribute) or skip_check:
+								column_spec.append(column)
+							elif (remove_first):
+								remove_first = True
+						new_spec.append(Spec(column_spec))
+					else:
+						if (column_names != attribute) or skip_check:
+							new_spec.append(Spec(attribute = column_names))
 						elif (remove_first):
 							remove_first = True
-					new_spec.append(Spec(column_spec))
+					if (remove_first):
+						skip_check = True
 				else:
-					if (column_names != attribute) or skip_check:
-						new_spec.append(Spec(attribute = column_names))
-					elif (remove_first):
-						remove_first = True
-				if (remove_first):
-					skip_check = True
-			else:
-				new_spec.append(self.spec_lst[i])
-		self.spec_lst = new_spec
+					new_spec.append(self.spec_lst[i])
+			self.spec_lst = new_spec
+
 	def to_Altair(self) -> str:
 		"""
 		Generate minimal Altair code to visualize the view
