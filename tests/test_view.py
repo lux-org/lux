@@ -31,6 +31,13 @@ def test_custom_plot_setting():
 def test_remove():
     from lux.view.View import View
     df = pd.read_csv("lux/data/car.csv")
+    view = View([lux.Spec("Horsepower"),lux.Spec("Acceleration")])
+    view.load(df)
+    view.remove_column_from_spec("Horsepower",remove_first=False)
+    assert view.spec_lst[0].attribute == "Acceleration"
+def test_remove_identity():
+    from lux.view.View import View
+    df = pd.read_csv("lux/data/car.csv")
     view = View(["Horsepower","Horsepower"])
     view.load(df)
     view.remove_column_from_spec("Horsepower")
@@ -43,3 +50,10 @@ def test_remove():
     view.remove_column_from_spec("Horsepower",remove_first=True)
     assert (len(view.spec_lst)==1),"Remove only 1 instances of Horsepower"
     assert (view.spec_lst[0].attribute=="Horsepower"),"Remove only 1 instances of Horsepower"
+def test_load_collection():
+    df = pd.read_csv("lux/data/car.csv")
+    df.set_context([lux.Spec(attribute = "Acceleration"),lux.Spec(attribute = "Horsepower")])
+    df.show_more()
+    enhanceCollection = df.recommendation["Enhance"]
+    enhanceCollection.load(df[df["Origin"]=="USA"])
+    
