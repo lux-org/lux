@@ -68,8 +68,8 @@ def test_refresh_inplace():
 	
 	assert df.data_type['nominal'][0] == 'date'
 
-	from lux.view.View import View
-	view = View(["date","value"])
+	from lux.vis.Vis import Vis
+	view = Vis(["date","value"])
 	view.load(df)
 
 	df['date'] = pd.to_datetime(df['date'],format="%Y-%m-%d")

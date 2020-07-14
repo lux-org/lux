@@ -1,7 +1,7 @@
 import lux
 from lux.interestingness.interestingness import interestingness
-from lux.view.View import View
-from lux.view.ViewCollection import ViewCollection
+from lux.vis.Vis import Vis
+from lux.vis.VisCollection import VisCollection
 from lux.compiler.Compiler import Compiler
 from lux.utils import utils
 
@@ -44,7 +44,7 @@ def filter(ldf):
 					new_spec = column_spec.copy()
 					new_filter = lux.Spec(attribute = row.attribute, value = val)
 					new_spec.append(new_filter)
-					temp_view = View(new_spec)
+					temp_view = Vis(new_spec)
 					output.append(temp_view)
 	else:	#if no existing filters, create filters using unique values from all categorical variables in the dataset
 		categorical_vars = []
@@ -58,9 +58,9 @@ def filter(ldf):
 				new_spec = column_spec.copy()
 				new_filter = lux.Spec(attribute=cat, filter_op="=",value=unique_values[i])
 				new_spec.append(new_filter)
-				temp_view = View(new_spec)
+				temp_view = Vis(new_spec)
 				output.append(temp_view)
-	vc = lux.view.ViewCollection.ViewCollection(output)
+	vc = lux.vis.VisCollection.VisCollection(output)
 	vc = vc.load(ldf)
 	for view in vc:
 		view.score = interestingness(view,ldf)

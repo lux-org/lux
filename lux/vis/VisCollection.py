@@ -2,17 +2,17 @@ from __future__ import annotations
 from lux.vizLib.altair.AltairRenderer import AltairRenderer
 from lux.utils.utils import check_import_lux_widget
 from typing import List, Union, Callable, Dict
-from lux.view.View import View
+from lux.vis.Vis import Vis
 from lux.context.Spec import Spec
-class ViewCollection():
+class VisCollection():
 	'''
-	ViewCollection is a list of View objects. 
+	VisCollection is a list of Vis objects. 
 	'''
-	def __init__(self,input_lst:Union[List[View],List[Spec]]):
+	def __init__(self,input_lst:Union[List[Vis],List[Spec]]):
 		# Overloaded Constructor
 		self.input_lst = input_lst
 		if len(input_lst)>0:
-			if (self._is_view_input()):
+			if (self._is_vis_input()):
 				self.collection = input_lst
 				self.spec_lst = []
 			else:
@@ -21,20 +21,20 @@ class ViewCollection():
 		else:
 			self.collection = []
 			self.spec_lst = []
-	def get_exported(self) -> ViewCollection:
+	def get_exported(self) -> VisCollection:
 		"""
-		Get selected views as exported View Collection
+		Get selected visualizations as exported Vis Collection
 
 		Notes
         -----
-		Convert the _exportedVisIdxs dictionary into a programmable ViewCollection
+		Convert the _exportedVisIdxs dictionary into a programmable VisCollection
 		Example _exportedVisIdxs : 
-			{'View Collection': [0, 2]}
+			{'Vis Collection': [0, 2]}
 		
 		Returns
 		-------
-		ViewCollection
-		 	return a ViewCollection of selected views. -> ViewCollection(v1, v2...)
+		VisCollection
+		 	return a VisCollection of selected visualizations. -> VisCollection(v1, v2...)
 		"""        
 		
 		exported_vis_lst =self.widget._exportedVisIdxs
@@ -43,15 +43,15 @@ class ViewCollection():
 			warnings.warn("No visualization selected to export")
 			return []
 		else:
-			exported_views = ViewCollection(list(map(self.__getitem__, exported_vis_lst["View Collection"])))
+			exported_views = VisCollection(list(map(self.__getitem__, exported_vis_lst["Vis Collection"])))
 			return exported_views
 	def remove_duplicates(self) -> None: 
 		"""
-		Removes duplicate views in View collection
+		Removes duplicate visualizations in Vis Collection
 		"""		
 		self.collection = list(set(self.collection))
-	def _is_view_input(self):
-		if (type(self.input_lst[0])==View):
+	def _is_vis_input(self):
+		if (type(self.input_lst[0])==Vis):
 			return True
 		elif (type(self.input_lst[0])==Spec):
 			return False
@@ -68,9 +68,9 @@ class ViewCollection():
 		y_channel = ""
 		largest_mark = 0
 		largest_filter = 0
-		for view in self.collection: #finds longest x attribute among all views
+		for vis in self.collection: #finds longest x attribute among all visualizations
 			filter_spec = None
-			for spec in view.spec_lst:
+			for spec in vis.spec_lst:
 				if spec.value != "":
 					filter_spec = spec
 
@@ -85,19 +85,19 @@ class ViewCollection():
 					x_channel = attribute
 				if spec.channel == "y" and len(y_channel) < len(attribute):
 					y_channel = attribute
-			if len(view.mark) > largest_mark:
-				largest_mark = len(view.mark)
+			if len(vis.mark) > largest_mark:
+				largest_mark = len(vis.mark)
 			if filter_spec and len(str(filter_spec.value)) + len(filter_spec.attribute) > largest_filter:
 				largest_filter = len(str(filter_spec.value)) + len(filter_spec.attribute) 
-		views_repr = []
+		vis_repr = []
 		largest_x_length = len(x_channel)
 		largest_y_length = len(y_channel)
-		for view in self.collection: #pads the shorter views with spaces before the y attribute
+		for vis in self.collection: #pads the shorter visualizations with spaces before the y attribute
 			filter_spec = None
 			x_channel = ""
 			y_channel = ""
 			additional_channels = []
-			for spec in view.spec_lst:
+			for spec in vis.spec_lst:
 				if spec.value != "":
 					filter_spec = spec
 
@@ -124,17 +124,17 @@ class ViewCollection():
 				x_channel = "x: " + x_channel + ", "
 			if y_channel != "":
 				y_channel = "y: " + y_channel
-			aligned_mark = view.mark.ljust(largest_mark)
+			aligned_mark = vis.mark.ljust(largest_mark)
 			str_additional_channels = ""
 			for channel in additional_channels:
 				str_additional_channels += ", " + channel[0] + ": " + channel[1]
 			if filter_spec:
 				aligned_filter = " -- [" + filter_spec.attribute + filter_spec.filter_op + str(filter_spec.value) + "]"
 				aligned_filter = aligned_filter.ljust(largest_filter + 8)
-				views_repr.append(f" <View  ({x_channel}{y_channel}{str_additional_channels} {aligned_filter}) mark: {aligned_mark}, score: {view.score:.2f} >") 
+				vis_repr.append(f" <Visualizations  ({x_channel}{y_channel}{str_additional_channels} {aligned_filter}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
 			else:
-				views_repr.append(f" <View  ({x_channel}{y_channel}{str_additional_channels}) mark: {aligned_mark}, score: {view.score:.2f} >") 
-		return '['+',\n'.join(views_repr)[1:]+']'
+				vis_repr.append(f" <Visualizations  ({x_channel}{y_channel}{str_additional_channels}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
+		return '['+',\n'.join(vis_repr)[1:]+']'
 	def map(self,function):
 		# generalized way of applying a function to each element
 		return map(function, self.collection)
@@ -151,7 +151,7 @@ class ViewCollection():
 		return NotImplemented
 	def set_plot_config(self,config_func:Callable):
 		"""
-		Modify plot aesthetic settings to the View Collection
+		Modify plot aesthetic settings to the Vis Collection
 		Currently only supported for Altair visualizations
 
 		Parameters
@@ -159,11 +159,11 @@ class ViewCollection():
 		config_func : typing.Callable
 			A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
 		"""
-		for view in self.collection:
-			view.plot_config = config_func
+		for vis in self.collection:
+			vis.plot_config = config_func
 	def clear_plot_config(self):
-		for view in self.collection:
-			view.plot_config = None
+		for vis in self.collection:
+			vis.plot_config = None
 	def sort(self, remove_invalid=True, descending = True):
 		# remove the items that have invalid (-1) score
 		if (remove_invalid): self.collection = list(filter(lambda x: x.score!=-1,self.collection))
@@ -173,11 +173,11 @@ class ViewCollection():
 	def topK(self,k):
 		#sort and truncate list to first K items
 		self.sort(remove_invalid=True)
-		return ViewCollection(self.collection[:k])
+		return VisCollection(self.collection[:k])
 	def bottomK(self,k):
 		#sort and truncate list to first K items
 		self.sort(descending=False,remove_invalid=True)
-		return ViewCollection(self.collection[:k])
+		return VisCollection(self.collection[:k])
 	def normalize_score(self, invert_order = False):
 		max_score = max(list(self.get("score")))
 		for dobj in self.collection:
@@ -187,9 +187,8 @@ class ViewCollection():
 		self.widget =  None
 		from IPython.display import display
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-		# widget  = LuxDataFrame.render_widget(input_current_view=self,render_target="viewCollectionOnly")
-		recommendation = {"action": "View Collection",
-					  "description": "Shows a view collection defined by the context"}
+		recommendation = {"action": "Vis Collection",
+					  "description": "Shows a vis collection defined by the context"}
 		recommendation["collection"] = self
 
 		check_import_lux_widget()
@@ -202,33 +201,33 @@ class ViewCollection():
 			)
 		display(self.widget)	
 	
-	def load(self, ldf) -> ViewCollection:
+	def load(self, ldf) -> VisCollection:
 		"""
-		Loading the data into the views in the ViewCollection by instantiating the specification and populating the view based on the data, effectively "materializing" the view.
+		Loading the data into the visualizations in the VisCollection by instantiating the specification and populating the visualization based on the data, effectively "materializing" the visualization.
 
 		Parameters
 		----------
 		ldf : LuxDataframe
-			Input Dataframe to be attached to the ViewCollection
+			Input Dataframe to be attached to the VisCollection
 
 		Returns
 		-------
-		ViewCollection
-			Complete ViewCollection with fully-specified fields
+		VisCollection
+			Complete VisCollection with fully-specified fields
 		
 		See Also
 		--------
-		lux.view.View.load
+		lux.vis.Vis.load
 		"""		
 		from lux.compiler.Parser import Parser
 		from lux.compiler.Validator import Validator
 		from lux.compiler.Compiler import Compiler
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
 		if len(self.input_lst)>0:
-			if (self._is_view_input()):
-				for view in self.collection:
-					view.spec_lst = Parser.parse(view.spec_lst)
-					Validator.validate_spec(view.spec_lst,ldf)
+			if (self._is_vis_input()):
+				for vis in self.collection:
+					vis.spec_lst = Parser.parse(vis.spec_lst)
+					Validator.validate_spec(vis.spec_lst,ldf)
 				vc = Compiler.compile(ldf,ldf.context,self,enumerate_collection=False)
 			else:
 				self.spec_lst = Parser.parse(self.spec_lst)

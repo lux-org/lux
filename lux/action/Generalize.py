@@ -1,7 +1,7 @@
 import lux
 import scipy.stats
 import numpy as np
-from lux.view.View import View
+from lux.vis.Vis import Vis
 from lux.compiler.Compiler import Compiler
 from lux.utils import utils
 from lux.interestingness.interestingness import interestingness
@@ -46,13 +46,13 @@ def generalize(ldf):
 		if type(columns) == list:
 			for column in columns:
 				if column not in excluded_columns:
-					temp_view = View(ldf.context.copy(),score=1)
+					temp_view = Vis(ldf.context.copy(),score=1)
 					temp_view.remove_column_from_spec(column, remove_first = False)
 					excluded_columns.append(column)
 					output.append(temp_view)
 		elif type(columns) == str:
 			if columns not in excluded_columns:
-				temp_view = View(ldf.context.copy(),score=1)
+				temp_view = Vis(ldf.context.copy(),score=1)
 				temp_view.remove_column_from_spec(columns, remove_first = False)
 				excluded_columns.append(columns)
 		output.append(temp_view)
@@ -61,11 +61,11 @@ def generalize(ldf):
 	for spec in filter_specs:
 		#new_spec = ldf.context.copy()
 		#new_spec.remove_column_from_spec(new_spec.attribute)
-		temp_view = View(ldf.current_view[0].spec_lst.copy(),title="Overall",score=0)
+		temp_view = Vis(ldf.current_view[0].spec_lst.copy(),title="Overall",score=0)
 		temp_view.remove_filter_from_spec(spec.value)
 		output.append(temp_view)
 
-	vc = lux.view.ViewCollection.ViewCollection(output)
+	vc = lux.vis.VisCollection.VisCollection(output)
 	vc = vc.load(ldf)
 	# Ignore interestingness sorting since Generalize yields very few vis (preserve order of remove attribute, then remove filters)
 	# for view in vc:

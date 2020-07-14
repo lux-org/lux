@@ -2,7 +2,7 @@ import lux
 from lux.interestingness.interestingness import interestingness
 from lux.compiler.Compiler import Compiler
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-from lux.view.ViewCollection import ViewCollection
+from lux.vis.VisCollection import VisCollection
 # for benchmarking
 import time
 
@@ -33,7 +33,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 
 	query = [lux.Spec("?", data_model="measure"), lux.Spec("?", data_model="measure")]
 	query.extend(ldf.filter_specs)
-	vc = ViewCollection(query)
+	vc = VisCollection(query)
 	recommendation = {"action": "Correlation",
 					  "description": "Show relationships between two quantitative attributes."}
 	vc = vc.load(ldf)
@@ -63,7 +63,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	return recommendation
 
 
-def check_transpose_not_computed(vc: ViewCollection, a: str, b: str):
+def check_transpose_not_computed(vc: VisCollection, a: str, b: str):
 	transpose_exist = list(filter(lambda x: (x.spec_lst[0].attribute == b) and (x.spec_lst[1].attribute == a), vc))
 	if (len(transpose_exist) > 0):
 		return transpose_exist[0].score == -1

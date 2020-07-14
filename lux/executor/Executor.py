@@ -1,4 +1,4 @@
-from lux.view.ViewCollection import ViewCollection
+from lux.vis.VisCollection import VisCollection
 from lux.utils import utils
 class Executor:
     """
@@ -10,7 +10,7 @@ class Executor:
     def __repr__(self):
         return f"<Executor>"
     @staticmethod
-    def execute(view_collection:ViewCollection, ldf):
+    def execute(view_collection:VisCollection, ldf):
         return NotImplemented
 
     @staticmethod
