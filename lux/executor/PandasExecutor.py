@@ -1,6 +1,6 @@
 import pandas
-from lux.view.ViewCollection import ViewCollection
-from lux.view.View import View
+from lux.vis.VisCollection import VisCollection
+from lux.vis.Vis import Vis
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
@@ -14,9 +14,9 @@ class PandasExecutor(Executor):
     def __repr__(self):
         return f"<PandasExecutor>"
     @staticmethod
-    def execute(view_collection:ViewCollection, ldf:LuxDataFrame):
+    def execute(view_collection:VisCollection, ldf:LuxDataFrame):
         '''
-        Given a ViewCollection, fetch the data required to render the view.
+        Given a VisCollection, fetch the data required to render the view.
         1) Apply filters
         2) Retrieve relevant attribute
         3) Perform vis-related processing (aggregation, binning)
@@ -52,7 +52,7 @@ class PandasExecutor(Executor):
                 PandasExecutor.execute_binning(view)
 
     @staticmethod
-    def execute_aggregate(view: View):
+    def execute_aggregate(view: Vis):
         '''
         Aggregate data points on an axis for bar or line charts
 
@@ -102,7 +102,7 @@ class PandasExecutor(Executor):
             view.data = view.data.drop(columns="index")
 
     @staticmethod
-    def execute_binning(view: View):
+    def execute_binning(view: Vis):
         '''
         Binning of data points for generating histograms
 
@@ -128,7 +128,7 @@ class PandasExecutor(Executor):
         view.data = pd.DataFrame(np.array([bin_center,counts]).T,columns=[bin_attribute.attribute, "Count of Records"])
         
     @staticmethod
-    def execute_filter(view: View):
+    def execute_filter(view: Vis):
         assert view.data is not None, "execute_filter assumes input view.data is populated (if not, populate with LuxDataFrame values)"
         filters = utils.get_filter_specs(view.spec_lst)
         

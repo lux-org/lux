@@ -2,9 +2,9 @@ from __future__ import annotations
 from typing import List, Callable, Union
 from lux.context.Spec import Spec
 from lux.utils.utils import check_import_lux_widget
-class View:
+class Vis:
 	'''
-	View Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
+	Vis Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
 	'''
 
 	def __init__(self, spec_lst, mark="", title="",data=None, score=0.0):
@@ -13,13 +13,13 @@ class View:
 		self.mark = mark
 		self.data = data
 		self.score = score
-		self.vis = None
+		self.code = None
 		self.plot_config = None
 		self.x_min_max = {}
 		self.y_min_max = {}
 	def __repr__(self):
 		if self.data is None:
-			return f"<View  ({str(self.spec_lst)}) mark: {self.mark}, score: {self.score} >"
+			return f"<Vis  ({str(self.spec_lst)}) mark: {self.mark}, score: {self.score} >"
 		filter_spec = None
 		channels, additional_channels = [], []
 		for spec in self.spec_lst:
@@ -48,12 +48,12 @@ class View:
 			str_channels += channel[0] + ": " + channel[1] + ", "
 
 		if filter_spec:
-			return f"<View  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filter_op}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
+			return f"<Vis  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filter_op}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
-			return f"<View  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
+			return f"<Vis  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
 	def set_plot_config(self,config_func:Callable):
 		"""
-		Modify plot aesthetic settings to the View
+		Modify plot aesthetic settings to the Vis
 		Currently only supported for Altair visualizations
 
 		Parameters
@@ -69,10 +69,9 @@ class View:
 		check_import_lux_widget()
 		import luxWidget
 		if (self.data is None):
-			raise Exception("No data populated in View. Use the 'load' function (e.g., view.load(df)) to populate the view with a data source.")
+			raise Exception("No data populated in Vis. Use the 'load' function (e.g., vis.load(df)) to populate the Vis with a data source.")
 		else:
 			from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-			# widget  = LuxDataFrame.render_widget(input_current_view=self,render_target="viewOnly")
 			widget =  luxWidget.LuxWidget(
 					currentView= LuxDataFrame.current_view_to_JSON([self]),
 					recommendations=[],
@@ -100,7 +99,7 @@ class View:
 
 	def remove_column_from_spec(self, attribute, remove_first:bool=False):
 		"""
-		Removes an attribute from the View's spec
+		Removes an attribute from the Vis's spec
 
 		Parameters
 		----------
@@ -140,7 +139,7 @@ class View:
 
 	def to_Altair(self) -> str:
 		"""
-		Generate minimal Altair code to visualize the view
+		Generate minimal Altair code to visualize the Vis
 
 		Returns
 		-------
@@ -149,12 +148,12 @@ class View:
 		"""		
 		from lux.vizLib.altair.AltairRenderer import AltairRenderer
 		renderer = AltairRenderer(output_type="Altair")
-		self.vis= renderer.create_vis(self)
-		return self.vis
+		self.code= renderer.create_vis(self)
+		return self.code
 
 	def to_VegaLite(self, prettyOutput = True) -> Union[dict,str]:
 		"""
-		Generate minimal Vega-Lite code to visualize the view
+		Generate minimal Vega-Lite code to visualize the Vis
 
 		Returns
 		-------
@@ -164,33 +163,33 @@ class View:
 		import json
 		from lux.vizLib.altair.AltairRenderer import AltairRenderer
 		renderer = AltairRenderer(output_type="VegaLite")
-		self.vis = renderer.create_vis(self)
+		self.code = renderer.create_vis(self)
 		if (prettyOutput):
-			return "** Copy Text Below to Vega Editor(vega.github.io/editor) to view and edit **\n"+json.dumps(self.vis, indent=2)
+			return "** Copy Text Below to Vega Editor(vega.github.io/editor) to Vis and edit **\n"+json.dumps(self.code, indent=2)
 		else:
-			return self.vis
+			return self.code
 		
 	def render_VSpec(self, renderer="altair"):
 		if (renderer == "altair"):
 			return self.to_VegaLite(prettyOutput=False)
 	
-	def load(self, ldf) -> View:
+	def load(self, ldf) -> Vis:
 		"""
-		Loading the data into the view by instantiating the specification and populating the view based on the data, effectively "materializing" the view.
+		Loading the data into the Vis by instantiating the specification and populating the Vis based on the data, effectively "materializing" the Vis.
 
 		Parameters
 		----------
 		ldf : LuxDataframe
-			Input Dataframe to be attached to the view
+			Input Dataframe to be attached to the Vis
 
 		Returns
 		-------
-		View
-			Complete View with fully-specified fields
+		Vis
+			Complete Vis with fully-specified fields
 
 		See Also
 		--------
-		lux.view.ViewCollection.load
+		lux.Vis.VisCollection.load
 		"""		
 		from lux.compiler.Parser import Parser
 		from lux.compiler.Validator import Validator

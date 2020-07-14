@@ -1,8 +1,8 @@
 from lux.context import Spec
 from typing import List, Dict, Union
-from lux.view.View import View
+from lux.vis.Vis import Vis
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-from lux.view.ViewCollection import ViewCollection
+from lux.vis.VisCollection import VisCollection
 from lux.utils import date_utils
 import pandas as pd
 import numpy as np
@@ -20,7 +20,7 @@ class Compiler:
 		return f"<Compiler>"
 
 	@staticmethod
-	def compile(ldf: LuxDataFrame,spec_lst:List[Spec], view_collection: ViewCollection, enumerate_collection=True) -> ViewCollection:
+	def compile(ldf: LuxDataFrame,spec_lst:List[Spec], view_collection: VisCollection, enumerate_collection=True) -> VisCollection:
 		"""
 		Compiles input specifications in the context of the ldf into a collection of lux.View objects for visualization.
 		1) Enumerate a collection of views interested by the user to generate a view collection
@@ -31,7 +31,7 @@ class Compiler:
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context.
-		view_collection : list[lux.view.View]
+		view_collection : list[lux.vis.Vis]
 			empty list that will be populated with specified lux.View objects.
 		enumerate_collection : boolean
 			A boolean value that signals when to generate a collection of visualizations.
@@ -51,7 +51,7 @@ class Compiler:
 		return view_collection
 
 	@staticmethod
-	def enumerate_collection(spec_lst:List[Spec],ldf: LuxDataFrame) -> ViewCollection:
+	def enumerate_collection(spec_lst:List[Spec],ldf: LuxDataFrame) -> VisCollection:
 		"""
 		Given specifications that have been expanded thorught populateOptions,
 		recursively iterate over the resulting list combinations to generate a View collection.
@@ -63,7 +63,7 @@ class Compiler:
 
 		Returns
 		-------
-		ViewCollection: list[lux.View]
+		VisCollection: list[lux.View]
 			view collection with compiled lux.View objects.
 		"""
 		import copy
@@ -86,15 +86,15 @@ class Compiler:
 					if len(filters) > 0:  # if we have filters, generate combinations for each row.
 						for row in filters:
 							spec_lst = copy.deepcopy(column_list + [row])
-							view = View(spec_lst, title=f"{row.attribute} {row.filter_op} {row.value}")
+							view = Vis(spec_lst, title=f"{row.attribute} {row.filter_op} {row.value}")
 							collection.append(view)
 					else:
-						view = View(column_list)
+						view = Vis(column_list)
 						collection.append(view)
 				else:
 					combine(col_attrs[1:], column_list)
 		combine(attributes, [])
-		return ViewCollection(collection)
+		return VisCollection(collection)
 
 	@staticmethod
 	def expand_underspecified(ldf, view_collection):
@@ -106,7 +106,7 @@ class Compiler:
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context
 
-		view_collection : list[lux.view.View]
+		view_collection : list[lux.vis.Vis]
 			List of lux.View objects that will have their underspecified Spec details filled out.
 		Returns
 		-------
@@ -135,13 +135,13 @@ class Compiler:
 		return views
 
 	@staticmethod
-	def remove_all_invalid(view_collection:ViewCollection) -> ViewCollection:
+	def remove_all_invalid(view_collection:VisCollection) -> VisCollection:
 		"""
 		Given an expanded view collection, remove all views that are invalid.
 		Currently, the invalid views are ones that contain two of the same attribute, no more than two temporal attributes, or overlapping attributes (same filter attribute and visualized attribute).
 		Parameters
 		----------
-		view_collection : list[lux.view.View]
+		view_collection : list[lux.vis.Vis]
 			empty list that will be populated with specified lux.View objects.
 		Returns
 		-------
@@ -160,10 +160,10 @@ class Compiler:
 			if num_temporal_specs < 2 and all_distinct_specs:
 				new_vc.append(view)
 
-		return ViewCollection(new_vc)
+		return VisCollection(new_vc)
 
 	@staticmethod
-	def determine_encoding(ldf: LuxDataFrame, view: View):
+	def determine_encoding(ldf: LuxDataFrame, view: Vis):
 		'''
 		Populates View with the appropriate mark type and channel information based on ShowMe logic
 		Currently support up to 3 dimensions or measures
@@ -172,7 +172,7 @@ class Compiler:
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context
-		view : lux.view.View
+		view : lux.vis.Vis
 
 		Returns
 		-------
@@ -296,20 +296,20 @@ class Compiler:
 			view.spec_lst.extend(filters)  # add back the preserved filters
 
 	@staticmethod
-	def enforce_specified_channel(view: View, auto_channel: Dict[str, str]):
+	def enforce_specified_channel(view: Vis, auto_channel: Dict[str, str]):
 		"""
 		Enforces that the channels specified in the View by users overrides the showMe autoChannels.
 		
 		Parameters
 		----------
-		view : lux.view.View
+		view : lux.vis.Vis
 			Input View without channel specification.
 		auto_channel : Dict[str,str]
 			Key-value pair in the form [channel: attributeName] specifying the showMe recommended channel location.
 		
 		Returns
 		-------
-		view : lux.view.View
+		view : lux.vis.Vis
 			View with channel specification combining both original and auto_channel specification.
 		
 		Raises

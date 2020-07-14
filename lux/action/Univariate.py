@@ -1,5 +1,5 @@
 from lux.interestingness.interestingness import interestingness
-from lux.view.ViewCollection import ViewCollection
+from lux.vis.VisCollection import VisCollection
 import lux
 #for benchmarking
 import time
@@ -43,7 +43,7 @@ def univariate(ldf, data_type_constraint="quantitative"):
 		query.extend(ldf.filter_specs)
 		recommendation = {"action":"Temporal",
 						   "description":"Show line chart distributions of time-related attributes in the dataframe."}
-	vc = ViewCollection(query)
+	vc = VisCollection(query)
 	vc = vc.load(ldf)	
 	for view in vc:
 		view.score = interestingness(view,ldf)

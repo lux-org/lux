@@ -20,7 +20,7 @@ class AltairRenderer:
 		
 		Parameters
 		----------
-		view: lux.view.View
+		view: lux.vis.Vis
 			Input View (with data)
 		
 		Returns

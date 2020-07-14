@@ -4,13 +4,13 @@ import pandas as pd
 
 def test_view_collection():
     df = pd.read_csv("lux/data/olympic.csv")
-    from lux.view.ViewCollection import ViewCollection
-    vc = ViewCollection(["Height","SportType=Ball","?"])
+    from lux.vis.VisCollection import VisCollection
+    vc = VisCollection(["Height","SportType=Ball","?"])
     vc = vc.load(df)
     view_with_year = list(filter(lambda x: x.get_attr_by_attr_name("Year")!=[],vc))[0]
     assert view_with_year.get_attr_by_channel("x")[0].attribute=="Year"
     assert len(vc) == len(df.columns) -1 -1 #remove 1 for view with same filter attribute and remove 1 view with for same attribute
-    vc = ViewCollection(["Height","?"])
+    vc = VisCollection(["Height","?"])
     vc = vc.load(df)
     assert len(vc) == len(df.columns) -1 #remove 1 for view with for same attribute
 
@@ -29,22 +29,22 @@ def test_custom_plot_setting():
     assert title_addition in exported_code_str
 
 def test_remove():
-    from lux.view.View import View
+    from lux.vis.Vis import Vis
     df = pd.read_csv("lux/data/car.csv")
-    view = View([lux.Spec("Horsepower"),lux.Spec("Acceleration")])
+    view = Vis([lux.Spec("Horsepower"),lux.Spec("Acceleration")])
     view.load(df)
     view.remove_column_from_spec("Horsepower",remove_first=False)
     assert view.spec_lst[0].attribute == "Acceleration"
 def test_remove_identity():
-    from lux.view.View import View
+    from lux.vis.Vis import Vis
     df = pd.read_csv("lux/data/car.csv")
-    view = View(["Horsepower","Horsepower"])
+    view = Vis(["Horsepower","Horsepower"])
     view.load(df)
     view.remove_column_from_spec("Horsepower")
     assert (view.spec_lst == []),"Remove all instances of Horsepower"
 
     df = pd.read_csv("lux/data/car.csv")
-    view = View(["Horsepower","Horsepower"])
+    view = Vis(["Horsepower","Horsepower"])
     view.load(df)
     print(len(view.spec_lst))
     view.remove_column_from_spec("Horsepower",remove_first=True)

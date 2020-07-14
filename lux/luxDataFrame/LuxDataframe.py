@@ -1,7 +1,7 @@
 import pandas as pd
 from lux.context.Spec import Spec
-from lux.view.View import View
-from lux.view.ViewCollection import ViewCollection
+from lux.vis.Vis import Vis
+from lux.vis.VisCollection import VisCollection
 from lux.utils.utils import check_import_lux_widget
 #import for benchmarking
 import time
@@ -139,7 +139,7 @@ class LuxDataFrame(pd.DataFrame):
         """        
         self.context = context
         self._refresh_context()
-    def set_context_as_view(self,view:View):
+    def set_context_as_vis(self,vis:Vis):
         """
         Set context of the dataframe as the View
 
@@ -148,7 +148,7 @@ class LuxDataFrame(pd.DataFrame):
         view : View
             [description]
         """        
-        self.context = view.spec_lst
+        self.context = vis.spec_lst
         self._refresh_context()
 
     def clear_context(self):
@@ -393,23 +393,23 @@ class LuxDataFrame(pd.DataFrame):
     def get_widget(self):
         return self.widget
 
-    def get_exported(self) -> typing.Union[typing.Dict[str,ViewCollection], ViewCollection]:
+    def get_exported(self) -> typing.Union[typing.Dict[str,VisCollection], VisCollection]:
         """
         Get selected views as exported View Collection
 
         Notes
         -----
-        Convert the _exportedVisIdxs dictionary into a programmable ViewCollection
+        Convert the _exportedVisIdxs dictionary into a programmable VisCollection
         Example _exportedVisIdxs : 
             {'Correlation': [0, 2], 'Category': [1]}
         indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Category` tab is selected.
         
         Returns
         -------
-        typing.Union[typing.Dict[str,ViewCollection], ViewCollection]
+        typing.Union[typing.Dict[str,VisCollection], VisCollection]
             When there are no exported vis, return empty list -> []
-            When all the exported vis is from the same tab, return a ViewCollection of selected views. -> ViewCollection(v1, v2...)
-            When the exported vis is from the different tabs, return a dictionary with the action name as key and selected views in the ViewCollection. -> {"Enhance": ViewCollection(v1, v2...), "Filter": ViewCollection(v5, v7...), ..}
+            When all the exported vis is from the same tab, return a VisCollection of selected views. -> VisCollection(v1, v2...)
+            When the exported vis is from the different tabs, return a dictionary with the action name as key and selected views in the VisCollection. -> {"Enhance": VisCollection(v1, v2...), "Filter": VisCollection(v5, v7...), ..}
         """        
         exported_vis_lst =self.widget._exportedVisIdxs
         exported_views = [] 
@@ -419,11 +419,11 @@ class LuxDataFrame(pd.DataFrame):
             return []
         if len(exported_vis_lst) == 1 : 
             export_action = list(exported_vis_lst.keys())[0]
-            exported_views = ViewCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
+            exported_views = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
         elif len(exported_vis_lst) > 1 : 
             exported_views  = {}
             for export_action in exported_vis_lst: 
-                exported_views[export_action] = ViewCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
+                exported_views[export_action] = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
         return exported_views
 
     def _repr_html_(self):

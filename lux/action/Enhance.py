@@ -33,7 +33,7 @@ def enhance(ldf):
 	query = ldf.context.copy()
 	query = filters + attr_specs
 	query.append("?")
-	vc = lux.view.ViewCollection.ViewCollection(query)
+	vc = lux.vis.VisCollection.VisCollection(query)
 	vc = vc.load(ldf)
 		
 	# Then use the data populated in the view collection to compute score

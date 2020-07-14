@@ -1,6 +1,6 @@
 import pandas
-from lux.view.ViewCollection import ViewCollection
-from lux.view.View import View
+from lux.vis.VisCollection import VisCollection
+from lux.vis.Vis import Vis
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
@@ -17,10 +17,10 @@ class SQLExecutor(Executor):
         return f"<Executor>"
 
     @staticmethod
-    def execute(view_collection:ViewCollection, ldf: LuxDataFrame):
+    def execute(view_collection:VisCollection, ldf: LuxDataFrame):
         import pandas as pd
         '''
-        Given a ViewCollection, fetch the data required to render the view
+        Given a VisCollection, fetch the data required to render the view
         1) Apply filters
         2) Retreive relevant attribute
         3) return a DataFrame with relevant results
@@ -52,7 +52,7 @@ class SQLExecutor(Executor):
                 SQLExecutor.execute_binning(view, ldf)
 
     @staticmethod
-    def execute_aggregate(view:View, ldf:LuxDataFrame):
+    def execute_aggregate(view:Vis, ldf:LuxDataFrame):
         import pandas as pd
         x_attr = view.get_attr_by_channel("x")[0]
         y_attr = view.get_attr_by_channel("y")[0]
@@ -91,7 +91,7 @@ class SQLExecutor(Executor):
                     view.data = pd.read_sql(mean_query, ldf.SQLconnection)
                     view.data = utils.pandas_to_lux(view.data)
     @staticmethod
-    def execute_binning(view:View, ldf:LuxDataFrame):
+    def execute_binning(view:Vis, ldf:LuxDataFrame):
         import numpy as np
         import pandas as pd
         bin_attribute = list(filter(lambda x: x.bin_size!=0,view.spec_lst))[0]
@@ -138,7 +138,7 @@ class SQLExecutor(Executor):
         
     @staticmethod
     #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's spec_lst
-    def execute_filter(view:View):
+    def execute_filter(view:Vis):
         where_clause = []
         filters = utils.get_filter_specs(view.spec_lst)
         filter_vars = []

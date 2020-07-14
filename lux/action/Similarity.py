@@ -2,7 +2,7 @@ import lux
 import pandas as pd
 import math
 import numpy as np
-from lux.view.ViewCollection import ViewCollection
+from lux.vis.VisCollection import VisCollection
 
 def similar_pattern(ldf, queryContext, topK=-1):
     '''
@@ -26,10 +26,10 @@ def similar_pattern(ldf, queryContext, topK=-1):
     '''
     row_specs = list(filter(lambda x: x.value != "", queryContext))
     if(len(row_specs) == 1):
-        search_space_vc = ViewCollection(ldf.current_view.collection.copy())
+        search_space_vc = VisCollection(ldf.current_view.collection.copy())
         search_space_vc = search_space_vc.load(ldf)
 
-        query_vc = ViewCollection(queryContext)
+        query_vc = VisCollection(queryContext)
         query_vc = query_vc.load(ldf)       
         query_view = query_vc[0]
         preprocess(queryView)
@@ -53,7 +53,7 @@ def aggregate(view):
 
     Parameters
     ----------
-    view : lux.view.View
+    view : lux.vis.Vis
         view that represents the candidate visualization
     Returns
     -------
@@ -72,7 +72,7 @@ def interpolate(view,length):
 
     Parameters
     ----------
-    view : lux.view.View
+    view : lux.vis.Vis
         view that represents the candidate visualization
     length : int
         number of points a view should have
@@ -121,7 +121,7 @@ def normalize(view):
 
     Parameters
     ----------
-    view : lux.view.View
+    view : lux.vis.Vis
         view that represents the candidate visualization
     Returns
     -------
@@ -141,9 +141,9 @@ def euclidean_dist(query_view, view):
 
     Parameters
     ----------
-    query_view : lux.view.View
+    query_view : lux.vis.Vis
         view that represents the query pattern
-    view : lux.view.View
+    view : lux.vis.Vis
         view that represents the candidate visualization
 
     Returns
@@ -171,7 +171,7 @@ def preprocess(view):
 
     Parameters
     ----------
-    view : lux.view.View
+    view : lux.vis.Vis
         view that represents the candidate visualization
     Returns
     -------

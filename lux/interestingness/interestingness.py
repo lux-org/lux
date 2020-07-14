@@ -1,5 +1,5 @@
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-from lux.view.View import View
+from lux.vis.Vis import Vis
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.utils import utils
 
@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from scipy.spatial.distance import euclidean
-def interestingness(view:View ,ldf:LuxDataFrame) -> int:
+def interestingness(view:Vis ,ldf:LuxDataFrame) -> int:
 	"""
 	Compute the interestingness score of the view.
 	The interestingness metric is dependent on the view type.
@@ -92,7 +92,7 @@ def skewness(v):
 	from scipy.stats import skew
 	return skew(v)
 
-def deviation_from_overall(view:View, ldf:LuxDataFrame, filter_specs:list, msr_attribute:str) -> int:
+def deviation_from_overall(view:Vis, ldf:LuxDataFrame, filter_specs:list, msr_attribute:str) -> int:
 	"""
 	Difference in bar chart/histogram shape from overall chart
 	Note: this function assumes that the filtered view.data is operating on the same range as the unfiltered view.data. 
@@ -147,7 +147,7 @@ def deviation_from_overall(view:View, ldf:LuxDataFrame, filter_specs:list, msr_a
 	from scipy.spatial.distance import euclidean
 	return sig*rankSig* euclidean(v, v_filter)
 
-def unevenness(view:View, ldf:LuxDataFrame, measure_lst:list, dimension_lst:list) -> int:
+def unevenness(view:Vis, ldf:LuxDataFrame, measure_lst:list, dimension_lst:list) -> int:
 	"""
 	Measure the unevenness of a bar chart view.
 	If a bar chart is highly uneven across the possible values, then it may be interesting. (e.g., USA produces lots of cars compared to Japan and Europe)
@@ -182,7 +182,7 @@ def mutual_information(v_x:list , v_y:list) -> int:
 	from sklearn.metrics import mutual_info_score
 	return mutual_info_score(v_x, v_y)
 
-def monotonicity(view:View, attr_specs:list, ignore_identity:bool=True) ->int:
+def monotonicity(view:Vis, attr_specs:list, ignore_identity:bool=True) ->int:
 	"""
 	Monotonicity measures there is a monotonic trend in the scatterplot, whether linear or not.
 	This score is computed as the square of the Spearman correlation coefficient, which is the Pearson correlation on the ranks of x and y.
