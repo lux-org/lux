@@ -1,26 +1,26 @@
-from lux.context.Spec import Spec
+from lux.vis.VisSpec import VisSpec
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from typing import List
 class Parser:
 	"""
 	The parser takes in the user's input specifications (with string `description` fields),
-	then generates the Lux internal specification through lux.Spec.
+	then generates the Lux internal specification through lux.VisSpec.
 	"""	
 	@staticmethod
-	def parse(specs: List[Spec]) -> List[Spec]:
+	def parse(specs: List[VisSpec]) -> List[VisSpec]:
 		"""
 		Given the string description from a list of input Specs (often context),
 		assign the appropriate spec.attribute, spec.filter_op, and spec.value.
 		
 		Parameters
 		----------
-		specs : List[Spec]
-			Underspecified list of lux.Spec objects.
+		specs : List[VisSpec]
+			Underspecified list of lux.VisSpec objects.
 
 		Returns
 		-------
-		List[Spec]
-			Parsed list of lux.Spec objects.
+		List[VisSpec]
+			Parsed list of lux.VisSpec objects.
 		"""		
 		import re
 		# specs = ldf.get_context()
@@ -33,7 +33,7 @@ class Parser:
 				for v in s:
 					if type(v) is str: # and v in list(ldf.columns): #TODO: Move validation check to Validator
 						valid_values.append(v)
-				temp_spec = Spec(attribute = valid_values)
+				temp_spec = VisSpec(attribute = valid_values)
 				new_context.append(temp_spec)
 			elif type(s) is str:
 				#case where user specifies a filter
@@ -48,7 +48,7 @@ class Parser:
 					else:
 						valid_values = s[eqInd+1:]
 					# if var in list(ldf.columns): #TODO: Move validation check to Validator
-					temp_spec = Spec(attribute = var, filter_op = "=", value = valid_values)
+					temp_spec = VisSpec(attribute = var, filter_op = "=", value = valid_values)
 					new_context.append(temp_spec)
 				#case where user specifies a variable
 				else:
@@ -59,9 +59,9 @@ class Parser:
 							valid_values.append(v)
 					else:
 						valid_values = s
-					temp_spec = Spec(attribute = valid_values)
+					temp_spec = VisSpec(attribute = valid_values)
 					new_context.append(temp_spec)
-			elif type(s) is Spec:
+			elif type(s) is VisSpec:
 				new_context.append(s)
 		specs = new_context
 		# ldf.context = new_context

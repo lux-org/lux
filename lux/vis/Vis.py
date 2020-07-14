@@ -1,22 +1,23 @@
 from __future__ import annotations
 from typing import List, Callable, Union
-from lux.context.Spec import Spec
+from lux.vis.VisSpec import VisSpec
 from lux.utils.utils import check_import_lux_widget
 class Vis:
 	'''
 	Vis Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
 	'''
 
-	def __init__(self, spec_lst, mark="", title="",data=None, score=0.0):
+	def __init__(self, spec_lst, data=None , mark="", title="", score=0.0):
 		self.spec_lst = spec_lst
+		self.data = data
 		self.title = title
 		self.mark = mark
-		self.data = data
 		self.score = score
 		self.code = None
 		self.plot_config = None
 		self.x_min_max = {}
 		self.y_min_max = {}
+		if (data is not None): self.refresh_data(data)
 	def __repr__(self):
 		if self.data is None:
 			return f"<Vis  ({str(self.spec_lst)}) mark: {self.mark}, score: {self.score} >"
@@ -51,6 +52,26 @@ class Vis:
 			return f"<Vis  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filter_op}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
 			return f"<Vis  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
+	def get_specs(self) -> List[VisSpec]:
+		"""
+		Returns the VisSpecs describing the Vis 
+
+		Returns
+		-------
+		List[VisSpec]
+		"""		
+		return self.spec_lst
+	def set_specs(self, specs:List[VisSpec]) -> None:
+		"""
+		Sets the spec_lst of the Vis and refresh the data based on the new specs
+
+		Parameters
+		----------
+		query : List[VisSpec]
+			Query specifying the desired VisCollection
+		"""		
+		self.spec_lst = specs
+		self.refresh_data(self.data)
 	def set_plot_config(self,config_func:Callable):
 		"""
 		Modify plot aesthetic settings to the Vis
@@ -68,8 +89,10 @@ class Vis:
 		from IPython.display import display
 		check_import_lux_widget()
 		import luxWidget
+		print ("repr_html")
+		print (self)
 		if (self.data is None):
-			raise Exception("No data populated in Vis. Use the 'load' function (e.g., vis.load(df)) to populate the Vis with a data source.")
+			raise Exception("No data populated in Vis. Use the 'refresh_data' function (e.g., vis.refresh_data(df)) to populate the Vis with a data source.")
 		else:
 			from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 			widget =  luxWidget.LuxWidget(
@@ -125,10 +148,10 @@ class Vis:
 								column_spec.append(column)
 							elif (remove_first):
 								remove_first = True
-						new_spec.append(Spec(column_spec))
+						new_spec.append(VisSpec(column_spec))
 					else:
 						if (column_names != attribute) or skip_check:
-							new_spec.append(Spec(attribute = column_names))
+							new_spec.append(VisSpec(attribute = column_names))
 						elif (remove_first):
 							remove_first = True
 					if (remove_first):
@@ -173,7 +196,7 @@ class Vis:
 		if (renderer == "altair"):
 			return self.to_VegaLite(prettyOutput=False)
 	
-	def load(self, ldf) -> Vis:
+	def refresh_data(self, ldf):# -> Vis:
 		"""
 		Loading the data into the Vis by instantiating the specification and populating the Vis based on the data, effectively "materializing" the Vis.
 
@@ -189,15 +212,21 @@ class Vis:
 
 		See Also
 		--------
-		lux.Vis.VisCollection.load
+		lux.Vis.VisCollection.refresh_data
 		"""		
 		from lux.compiler.Parser import Parser
 		from lux.compiler.Validator import Validator
 		from lux.compiler.Compiler import Compiler
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
+		self.data = ldf
+		print ("refresh vis data")
 		#TODO: handle case when user input vanilla Pandas dataframe
 		self.spec_lst = Parser.parse(self.spec_lst)
 		Validator.validate_spec(self.spec_lst,ldf)
-		vc = Compiler.compile(ldf,ldf.context,[self],enumerate_collection=False)
-		PandasExecutor.execute(vc,ldf)
-		return vc[0]
+		self = Compiler.compile(ldf,ldf.context,[self],enumerate_collection=False)[0]
+		PandasExecutor.execute([self],ldf)
+		# print (vc[0])
+		# print (type(vc[0]))
+		# # self = vc[0]
+		# print (self)
+		# # return vc[0]

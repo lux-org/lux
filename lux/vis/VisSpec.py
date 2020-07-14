@@ -1,10 +1,10 @@
 import typing
-class Spec:
+class VisSpec:
 	def __init__(self, description:typing.Union[str,list] ="",attribute: typing.Union[str,list] ="",value: typing.Union[str,list]="",
 				 filter_op:str ="=", channel:str ="", data_type:str="",data_model:str="",
 				 aggregation:str = "", bin_size:int=0, weight:float=1,sort:str="", exclude: typing.Union[str,list] =""):
 		"""
-		Spec is the object representation of a single unit of the specification.
+		VisSpec is the object representation of a single unit of the specification.
 
 		Parameters
 		----------
@@ -34,7 +34,7 @@ class Spec:
 		bin_size : int, optional
 			Number of bins for histograms, by default 0
 		weight : float, optional
-			A number between 0 and 1 indicating the importance of this Spec, by default 1
+			A number between 0 and 1 indicating the importance of this VisSpec, by default 1
 		sort : str, optional
 			Specifying whether and how the bar chart should be sorted
 			Possible values: 'ascending', 'descending', by default ""
@@ -76,6 +76,6 @@ class Spec:
 			attributes.append("         bin_size: " + str(self.bin_size))
 		if len(self.exclude) != 0:
 			attributes.append("         exclude: " + str(self.exclude))
-		attributes[0] = "<Spec" + attributes[0][5:]
+		attributes[0] = "<VisSpec" + attributes[0][5:]
 		attributes[len(attributes) - 1] += " >"
 		return ',\n'.join(attributes)

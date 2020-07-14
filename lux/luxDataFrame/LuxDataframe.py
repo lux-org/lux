@@ -1,5 +1,5 @@
 import pandas as pd
-from lux.context.Spec import Spec
+from lux.vis.VisSpec import VisSpec
 from lux.vis.Vis import Vis
 from lux.vis.VisCollection import VisCollection
 from lux.utils.utils import check_import_lux_widget
@@ -123,15 +123,15 @@ class LuxDataFrame(pd.DataFrame):
         view_collection = Compiler.compile(self, self.context, self.current_view)
         self.set_view_collection(view_collection)
 
-    def set_context(self, context:typing.List[typing.Union[str, Spec]]):
+    def set_context(self, context:typing.List[typing.Union[str, VisSpec]]):
         """
         Main function to set the context of the dataframe.
-        The context input goes through the parser, so that the string inputs are parsed into a lux.Spec object.
+        The context input goes through the parser, so that the string inputs are parsed into a lux.VisSpec object.
 
         Parameters
         ----------
-        context : typing.List[str,Spec]
-            Context list, can be a mix of string shorthand or a lux.Spec object
+        context : typing.List[str,VisSpec]
+            Context list, can be a mix of string shorthand or a lux.VisSpec object
 
         Notes
         -----
@@ -343,12 +343,12 @@ class LuxDataFrame(pd.DataFrame):
         self.data_type = data_type
 
     def show_more(self):
-        from lux.action.UserDefined import user_defined
-        from lux.action.Correlation import correlation
-        from lux.action.Univariate import univariate
-        from lux.action.Enhance import enhance
-        from lux.action.Filter import filter
-        from lux.action.Generalize import generalize
+        from lux.action.custom import custom
+        from lux.action.correlation import correlation
+        from lux.action.univariate import univariate
+        from lux.action.enhance import enhance
+        from lux.action.filter import filter
+        from lux.action.generalize import generalize
 
         self._rec_info = []
         no_view = len(self.current_view) == 0
@@ -371,7 +371,7 @@ class LuxDataFrame(pd.DataFrame):
             if generalize['collection']:
                 self._rec_info.append(generalize)
         elif (multiple_current_views):
-            self._rec_info.append(user_defined(self))
+            self._rec_info.append(custom(self))
             
         # Store _rec_info into a more user-friendly dictionary form
         self.recommendation = {}

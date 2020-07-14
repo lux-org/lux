@@ -4,7 +4,7 @@ import pandas as pd
 from lux.executor.PandasExecutor import PandasExecutor
 def test_lazy_execution():
     df = pd.read_csv("lux/data/car.csv")
-    df.set_context([lux.Spec(attribute ="Horsepower", aggregation="mean"), lux.Spec(attribute ="Origin")])
+    df.set_context([lux.VisSpec(attribute ="Horsepower", aggregation="mean"), lux.VisSpec(attribute ="Origin")])
     # Check data field in vis is empty before calling executor
     assert df.current_view[0].data == None
     PandasExecutor.execute(df.current_view, df)
@@ -13,7 +13,7 @@ def test_lazy_execution():
 def test_selection():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
-    df.set_context([lux.Spec(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.Spec(attribute ="Year")])
+    df.set_context([lux.VisSpec(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.VisSpec(attribute ="Year")])
 
     PandasExecutor.execute(df.current_view, df)
 
@@ -22,17 +22,17 @@ def test_selection():
 
 def test_aggregation():
     df = pd.read_csv("lux/data/car.csv")
-    df.set_context([lux.Spec(attribute ="Horsepower", aggregation="mean"), lux.Spec(attribute ="Origin")])
+    df.set_context([lux.VisSpec(attribute ="Horsepower", aggregation="mean"), lux.VisSpec(attribute ="Origin")])
     PandasExecutor.execute(df.current_view, df)
     result_df = df.current_view[0].data
     assert int(result_df[result_df["Origin"]=="USA"]["Horsepower"])==119
 
-    df.set_context([lux.Spec(attribute ="Horsepower", aggregation="sum"), lux.Spec(attribute ="Origin")])
+    df.set_context([lux.VisSpec(attribute ="Horsepower", aggregation="sum"), lux.VisSpec(attribute ="Origin")])
     PandasExecutor.execute(df.current_view, df)
     result_df = df.current_view[0].data
     assert int(result_df[result_df["Origin"]=="Japan"]["Horsepower"])==6307
 
-    df.set_context([lux.Spec(attribute ="Horsepower", aggregation="max"), lux.Spec(attribute ="Origin")])
+    df.set_context([lux.VisSpec(attribute ="Horsepower", aggregation="max"), lux.VisSpec(attribute ="Origin")])
     PandasExecutor.execute(df.current_view, df)
     result_df = df.current_view[0].data
     assert int(result_df[result_df["Origin"]=="Europe"]["Horsepower"])==133
@@ -40,21 +40,21 @@ def test_aggregation():
 def test_filter():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
-    df.set_context([lux.Spec(attribute ="Horsepower"), lux.Spec(attribute ="Year"), lux.Spec(attribute ="Origin", filter_op="=", value ="USA")])
+    df.set_context([lux.VisSpec(attribute ="Horsepower"), lux.VisSpec(attribute ="Year"), lux.VisSpec(attribute ="Origin", filter_op="=", value ="USA")])
     vis = df.current_view[0]
     vis.data = df
     PandasExecutor.execute_filter(vis)
     assert len(vis.data) == len(df[df["Origin"]=="USA"])
 def test_inequalityfilter():
     df = pd.read_csv("lux/data/car.csv")
-    df.set_context([lux.Spec(attribute ="Horsepower", filter_op=">", value=50), lux.Spec(attribute ="MilesPerGal")])
+    df.set_context([lux.VisSpec(attribute ="Horsepower", filter_op=">", value=50), lux.VisSpec(attribute ="MilesPerGal")])
     vis = df.current_view[0]
     vis.data = df
     PandasExecutor.execute_filter(vis)
     assert len(df) > len(vis.data)
     assert len(vis.data) == 386 
     
-    df.set_context([lux.Spec(attribute ="Horsepower", filter_op="<=", value=100), lux.Spec(attribute ="MilesPerGal")])
+    df.set_context([lux.VisSpec(attribute ="Horsepower", filter_op="<=", value=100), lux.VisSpec(attribute ="MilesPerGal")])
     vis = df.current_view[0]
     vis.data = df
     PandasExecutor.execute_filter(vis)
@@ -67,20 +67,20 @@ def test_inequalityfilter():
     
 def test_binning():
     df = pd.read_csv("lux/data/car.csv")
-    df.set_context([lux.Spec(attribute ="Horsepower")])
+    df.set_context([lux.VisSpec(attribute ="Horsepower")])
     PandasExecutor.execute(df.current_view, df)
     nbins =list(filter(lambda x: x.bin_size!=0, df.current_view[0].spec_lst))[0].bin_size
     assert len(df.current_view[0].data) == nbins
 
 def test_record():
     df = pd.read_csv("lux/data/car.csv")
-    df.set_context([lux.Spec(attribute ="Cylinders")])
+    df.set_context([lux.VisSpec(attribute ="Cylinders")])
     PandasExecutor.execute(df.current_view, df)
     assert len(df.current_view[0].data) == len(df["Cylinders"].unique())
     
 def test_filter_aggregation_fillzero_aligned():
     df = pd.read_csv("lux/data/car.csv")
-    df.set_context([lux.Spec(attribute="Cylinders"), lux.Spec(attribute="MilesPerGal"), lux.Spec("Origin=Japan")])
+    df.set_context([lux.VisSpec(attribute="Cylinders"), lux.VisSpec(attribute="MilesPerGal"), lux.VisSpec("Origin=Japan")])
     PandasExecutor.execute(df.current_view, df)
     result = df.current_view[0].data
     externalValidation = df[df["Origin"]=="Japan"].groupby("Cylinders").mean()["MilesPerGal"]
@@ -92,7 +92,7 @@ def test_filter_aggregation_fillzero_aligned():
 
 def test_exclude_attribute():
     df = pd.read_csv("lux/data/car.csv")
-    df.set_context([lux.Spec("?", exclude=["Name", "Year"]), lux.Spec("Horsepower")])
+    df.set_context([lux.VisSpec("?", exclude=["Name", "Year"]), lux.VisSpec("Horsepower")])
     vis = df.current_view[0]
     vis.data = df
     PandasExecutor.execute_filter(vis)

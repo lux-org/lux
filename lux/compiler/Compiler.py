@@ -1,4 +1,4 @@
-from lux.context import Spec
+from lux.vis import VisSpec
 from typing import List, Dict, Union
 from lux.vis.Vis import Vis
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
@@ -20,38 +20,38 @@ class Compiler:
 		return f"<Compiler>"
 
 	@staticmethod
-	def compile(ldf: LuxDataFrame,spec_lst:List[Spec], view_collection: VisCollection, enumerate_collection=True) -> VisCollection:
+	def compile(ldf: LuxDataFrame,spec_lst:List[VisSpec], vis_collection: VisCollection, enumerate_collection=True) -> VisCollection:
 		"""
-		Compiles input specifications in the context of the ldf into a collection of lux.View objects for visualization.
+		Compiles input specifications in the context of the ldf into a collection of lux.vis objects for visualization.
 		1) Enumerate a collection of views interested by the user to generate a view collection
-		2) Expand underspecified specifications(lux.Spec) for each of the generated views.
+		2) Expand underspecified specifications(lux.VisSpec) for each of the generated views.
 		3) Determine encoding properties for each view
 
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context.
-		view_collection : list[lux.vis.Vis]
+		vis_collection : list[lux.vis.Vis]
 			empty list that will be populated with specified lux.View objects.
 		enumerate_collection : boolean
 			A boolean value that signals when to generate a collection of visualizations.
 
 		Returns
 		-------
-		view_collection: list[lux.View]
+		vis_collection: list[lux.View]
 			view collection with compiled lux.View objects.
 		"""
 		if (enumerate_collection):
-			view_collection = Compiler.enumerate_collection(spec_lst,ldf)
-		view_collection = Compiler.expand_underspecified(ldf, view_collection)  # autofill data type/model information
-		if len(view_collection)>1: 
-			view_collection = Compiler.remove_all_invalid(view_collection) # remove invalid views from collection
-		for view in view_collection:
+			vis_collection = Compiler.enumerate_collection(spec_lst,ldf)
+		vis_collection = Compiler.expand_underspecified(ldf, vis_collection)  # autofill data type/model information
+		if len(vis_collection)>1: 
+			vis_collection = Compiler.remove_all_invalid(vis_collection) # remove invalid views from collection
+		for view in vis_collection:
 			Compiler.determine_encoding(ldf, view)  # autofill viz related information
-		return view_collection
+		return vis_collection
 
 	@staticmethod
-	def enumerate_collection(spec_lst:List[Spec],ldf: LuxDataFrame) -> VisCollection:
+	def enumerate_collection(spec_lst:List[VisSpec],ldf: LuxDataFrame) -> VisCollection:
 		"""
 		Given specifications that have been expanded thorught populateOptions,
 		recursively iterate over the resulting list combinations to generate a View collection.
@@ -97,17 +97,17 @@ class Compiler:
 		return VisCollection(collection)
 
 	@staticmethod
-	def expand_underspecified(ldf, view_collection):
+	def expand_underspecified(ldf, vis_collection):
 		"""
-		Given a underspecified Spec, populate the data_type and data_model information accordingly
+		Given a underspecified VisSpec, populate the data_type and data_model information accordingly
 
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context
 
-		view_collection : list[lux.vis.Vis]
-			List of lux.View objects that will have their underspecified Spec details filled out.
+		vis_collection : list[lux.vis.Vis]
+			List of lux.View objects that will have their underspecified VisSpec details filled out.
 		Returns
 		-------
 		views: list[lux.View]
@@ -115,7 +115,7 @@ class Compiler:
 		"""		
 		# TODO: copy might not be neccesary
 		import copy
-		views = copy.deepcopy(view_collection)  # Preserve the original dobj
+		views = copy.deepcopy(vis_collection)  # Preserve the original dobj
 		for view in views:
 			for spec in view.spec_lst:
 				if spec.description == "?":
@@ -135,13 +135,13 @@ class Compiler:
 		return views
 
 	@staticmethod
-	def remove_all_invalid(view_collection:VisCollection) -> VisCollection:
+	def remove_all_invalid(vis_collection:VisCollection) -> VisCollection:
 		"""
 		Given an expanded view collection, remove all views that are invalid.
 		Currently, the invalid views are ones that contain two of the same attribute, no more than two temporal attributes, or overlapping attributes (same filter attribute and visualized attribute).
 		Parameters
 		----------
-		view_collection : list[lux.vis.Vis]
+		vis_collection : list[lux.vis.Vis]
 			empty list that will be populated with specified lux.View objects.
 		Returns
 		-------
@@ -149,7 +149,7 @@ class Compiler:
 			view collection with compiled lux.View objects.
 		"""
 		new_vc = []
-		for view in view_collection:
+		for view in vis_collection:
 			num_temporal_specs = 0
 			attribute_set = set()
 			for spec in view.spec_lst:
@@ -214,8 +214,8 @@ class Compiler:
 		
 
 		# ShowMe logic + additional heuristics
-		#count_col = Spec( attribute="count()", data_model="measure")
-		count_col = Spec( attribute="Record", aggregation="count", data_model="measure", data_type="quantitative")
+		#count_col = VisSpec( attribute="count()", data_model="measure")
+		count_col = VisSpec( attribute="Record", aggregation="count", data_model="measure", data_type="quantitative")
 		# x_attr = view.get_attr_by_channel("x") # not used as of now
 		# y_attr = view.get_attr_by_channel("y")
 		# zAttr = view.get_attr_by_channel("z")
@@ -348,7 +348,7 @@ class Compiler:
 
 	@staticmethod
 	# def populate_wildcard_options(ldf: LuxDataFrame) -> dict:
-	def populate_wildcard_options(spec_lst:List[Spec], ldf: LuxDataFrame) -> dict:
+	def populate_wildcard_options(spec_lst:List[VisSpec], ldf: LuxDataFrame) -> dict:
 		"""
 		Given wildcards and constraints in the LuxDataFrame's context,
 		return the list of available values that satisfies the data_type or data_model constraints.
@@ -392,7 +392,7 @@ class Compiler:
 					if spec.value == "?":
 						options = ldf.unique_values[attr]
 						specInd = spec_lst.index(spec)
-						spec_lst[specInd] = Spec(attribute=spec.attribute, filter_op="=", value=list(options))
+						spec_lst[specInd] = VisSpec(attribute=spec.attribute, filter_op="=", value=list(options))
 					else:
 						options.extend(convert_to_list(spec.value))
 					for optStr in options:

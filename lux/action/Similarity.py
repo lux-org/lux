@@ -13,7 +13,7 @@ def similar_pattern(ldf, queryContext, topK=-1):
     ldf : lux.luxDataFrame.LuxDataFrame
     	LuxDataFrame with underspecified context.
 
-    queryContext: list[lux.Spec]
+    queryContext: list[lux.VisSpec]
         context for specifying the visual query for the similarity search.
 
     topK: int
@@ -26,19 +26,17 @@ def similar_pattern(ldf, queryContext, topK=-1):
     '''
     row_specs = list(filter(lambda x: x.value != "", queryContext))
     if(len(row_specs) == 1):
-        search_space_vc = VisCollection(ldf.current_view.collection.copy())
-        search_space_vc = search_space_vc.load(ldf)
+        search_space_vc = VisCollection(ldf.current_vis.collection.copy(),ldf)
 
-        query_vc = VisCollection(queryContext)
-        query_vc = query_vc.load(ldf)       
-        query_view = query_vc[0]
-        preprocess(queryView)
+        query_vc = VisCollection(queryContext,ldf)     
+        query_vis = query_vc[0]
+        preprocess(query_vis)
         #for loop to create assign euclidean distance
         recommendation = {"action":"Similarity",
-                               "description":"Show other charts that are visually similar to the Current View."}
-        for view in search_space_vc:
-            preprocess(view)
-            view.score = euclidean_dist(query_view, view)
+                               "description":"Show other charts that are visually similar to the Current vis."}
+        for vis in search_space_vc:
+            preprocess(vis)
+            vis.score = euclidean_dist(query_vis, vis)
         search_space_vc.normalize_score(invert_order=True)
         if(topK!=-1):
             search_space_vc = search_space_vc.topK(topK)
@@ -47,48 +45,48 @@ def similar_pattern(ldf, queryContext, topK=-1):
     else:
         print("Query needs to have 1 row value")
 
-def aggregate(view):
+def aggregate(vis):
     '''
-    Aggregates data values on the y axis so that the view is a time series
+    Aggregates data values on the y axis so that the vis is a time series
 
     Parameters
     ----------
-    view : lux.vis.Vis
-        view that represents the candidate visualization
+    vis : lux.vis.Vis
+        vis that represents the candidate visualization
     Returns
     -------
     None
     '''
-    if view.get_attr_by_channel("x") and view.get_attr_by_channel("y"):
+    if vis.get_attr_by_channel("x") and vis.get_attr_by_channel("y"):
 
-        xAxis = view.get_attr_by_channel("x")[0].attribute
-        yAxis = view.get_attr_by_channel("y")[0].attribute
+        xAxis = vis.get_attr_by_channel("x")[0].attribute
+        yAxis = vis.get_attr_by_channel("y")[0].attribute
 
-        view.data = view.data[[xAxis,yAxis]].groupby(xAxis,as_index=False).agg({yAxis:'mean'}).copy()
+        vis.data = vis.data[[xAxis,yAxis]].groupby(xAxis,as_index=False).agg({yAxis:'mean'}).copy()
 
-def interpolate(view,length):
+def interpolate(vis,length):
     '''
-    Interpolates the view data so that the number of data points is fixed to a constant
+    Interpolates the vis data so that the number of data points is fixed to a constant
 
     Parameters
     ----------
-    view : lux.vis.Vis
-        view that represents the candidate visualization
+    vis : lux.vis.Vis
+        vis that represents the candidate visualization
     length : int
-        number of points a view should have
+        number of points a vis should have
 
     Returns
     -------
     None
     '''
-    if view.get_attr_by_channel("x") and view.get_attr_by_channel("y"):
+    if vis.get_attr_by_channel("x") and vis.get_attr_by_channel("y"):
 
-        xAxis = view.get_attr_by_channel("x")[0].attribute
-        yAxis = view.get_attr_by_channel("y")[0].attribute
+        xAxis = vis.get_attr_by_channel("x")[0].attribute
+        yAxis = vis.get_attr_by_channel("y")[0].attribute
 
         if xAxis and yAxis:
-            yVals = view.data[yAxis]
-            xVals = view.data[xAxis]
+            yVals = vis.data[yAxis]
+            xVals = vis.data[xAxis]
             n = length
 
             interpolated_x_vals = [0.0]*(length)
@@ -111,40 +109,40 @@ def interpolate(view,length):
                     x_diff = xVals[count] - xVals[count-1]
                     yDiff = yVals[count] - yVals[count-1]
                     interpolated_y_vals[i] = yVals[count-1] + (interpolated_x - xVals[count-1]) / x_diff * yDiff
-            view.data = pd.DataFrame(list(zip(interpolated_x_vals, interpolated_y_vals)),columns = [xAxis, yAxis])
+            vis.data = pd.DataFrame(list(zip(interpolated_x_vals, interpolated_y_vals)),columns = [xAxis, yAxis])
 
 # interpolate dataset
 
-def normalize(view):
+def normalize(vis):
     '''
-    Normalizes the view data so that the range of values is 0 to 1 for the view
+    Normalizes the vis data so that the range of values is 0 to 1 for the vis
 
     Parameters
     ----------
-    view : lux.vis.Vis
-        view that represents the candidate visualization
+    vis : lux.vis.Vis
+        vis that represents the candidate visualization
     Returns
     -------
     None
     '''
-    if view.get_attr_by_channel("y"):
-        y_axis = view.get_attr_by_channel("y")[0].attribute
-        max = view.data[y_axis].max()
-        min = view.data[y_axis].min()
+    if vis.get_attr_by_channel("y"):
+        y_axis = vis.get_attr_by_channel("y")[0].attribute
+        max = vis.data[y_axis].max()
+        min = vis.data[y_axis].min()
         if(max == min or (max-min<1)):
             return
-        view.data[y_axis] = (view.data[y_axis] - min) / (max - min)
+        vis.data[y_axis] = (vis.data[y_axis] - min) / (max - min)
 
-def euclidean_dist(query_view, view):
+def euclidean_dist(query_vis, vis):
     '''
-    Calculates euclidean distance score for similarity between two views
+    Calculates euclidean distance score for similarity between two viss
 
     Parameters
     ----------
-    query_view : lux.vis.Vis
-        view that represents the query pattern
-    view : lux.vis.Vis
-        view that represents the candidate visualization
+    query_vis : lux.vis.Vis
+        vis that represents the query pattern
+    vis : lux.vis.Vis
+        vis that represents the candidate visualization
 
     Returns
     -------
@@ -152,32 +150,32 @@ def euclidean_dist(query_view, view):
         euclidean distance score
     '''
 
-    if query_view.get_attr_by_channel("y") and view.get_attr_by_channel("y"):
+    if query_vis.get_attr_by_channel("y") and vis.get_attr_by_channel("y"):
 
-        view_y_axis = view.get_attr_by_channel("y")[0].attribute
-        query_y_axis = query_view.get_attr_by_channel("y")[0].attribute
+        vis_y_axis = vis.get_attr_by_channel("y")[0].attribute
+        query_y_axis = query_vis.get_attr_by_channel("y")[0].attribute
 
-        view_vector = view.data[view_y_axis].values
-        query_vector = query_view.data[query_y_axis].values
-        score = np.linalg.norm(view_vector - query_vector)
+        vis_vector = vis.data[vis_y_axis].values
+        query_vector = query_vis.data[query_y_axis].values
+        score = np.linalg.norm(vis_vector - query_vector)
 
         return score
     else:
         print("no y axis detected")
         return 0
-def preprocess(view):
+def preprocess(vis):
     '''
-    Processes view data to allow similarity comparisons between visualizations
+    Processes vis data to allow similarity comparisons between visualizations
 
     Parameters
     ----------
-    view : lux.vis.Vis
-        view that represents the candidate visualization
+    vis : lux.vis.Vis
+        vis that represents the candidate visualization
     Returns
     -------
     None
     '''
-    aggregate(view)
-    interpolate(view, 100)
-    normalize(view)
+    aggregate(vis)
+    interpolate(vis, 100)
+    normalize(vis)
 
