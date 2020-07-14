@@ -3,13 +3,14 @@ from lux.vizLib.altair.AltairRenderer import AltairRenderer
 from lux.utils.utils import check_import_lux_widget
 from typing import List, Union, Callable, Dict
 from lux.vis.Vis import Vis
-from lux.context.Spec import Spec
+from lux.vis.VisSpec import VisSpec
 class VisCollection():
 	'''
 	VisCollection is a list of Vis objects. 
 	'''
-	def __init__(self,input_lst:Union[List[Vis],List[Spec]]):
+	def __init__(self,input_lst:Union[List[Vis],List[VisSpec]],data=None):
 		# Overloaded Constructor
+		self.data = data 
 		self.input_lst = input_lst
 		if len(input_lst)>0:
 			if (self._is_vis_input()):
@@ -21,6 +22,27 @@ class VisCollection():
 		else:
 			self.collection = []
 			self.spec_lst = []
+		if (data is not None): self.refresh_data(data)
+	def get_specs(self) -> List[VisSpec]:
+		"""
+		Returns the VisSpecs describing the VisCollection
+
+		Returns
+		-------
+		List[VisSpec]
+		"""		
+		return self.spec_lst
+	def set_specs(self, specs:List[VisSpec]) -> None:
+		"""
+		Sets the spec_lst of the VisCollection and refresh the data based on the new spec
+
+		Parameters
+		----------
+		query : List[VisSpec]
+			Query specifying the desired VisCollection
+		"""		
+		self.spec_lst = specs
+		self.refresh_data(self.data)
 	def get_exported(self) -> VisCollection:
 		"""
 		Get selected visualizations as exported Vis Collection
@@ -45,7 +67,7 @@ class VisCollection():
 		else:
 			exported_views = VisCollection(list(map(self.__getitem__, exported_vis_lst["Vis Collection"])))
 			return exported_views
-	def remove_duplicates(self) -> None: 
+	def remove_duplicates(self) -> None:
 		"""
 		Removes duplicate visualizations in Vis Collection
 		"""		
@@ -53,7 +75,7 @@ class VisCollection():
 	def _is_vis_input(self):
 		if (type(self.input_lst[0])==Vis):
 			return True
-		elif (type(self.input_lst[0])==Spec):
+		elif (type(self.input_lst[0])==VisSpec):
 			return False
 	def __getitem__(self, key):
 		return self.collection[key]
@@ -189,7 +211,7 @@ class VisCollection():
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 		recommendation = {"action": "Vis Collection",
 					  "description": "Shows a vis collection defined by the context"}
-		recommendation["collection"] = self
+		recommendation["collection"] = self.collection
 
 		check_import_lux_widget()
 		import luxWidget
@@ -201,7 +223,7 @@ class VisCollection():
 			)
 		display(self.widget)	
 	
-	def load(self, ldf) -> VisCollection:
+	def refresh_data(self, ldf) :#-> VisCollection:
 		"""
 		Loading the data into the visualizations in the VisCollection by instantiating the specification and populating the visualization based on the data, effectively "materializing" the visualization.
 
@@ -217,23 +239,25 @@ class VisCollection():
 		
 		See Also
 		--------
-		lux.vis.Vis.load
+		lux.vis.Vis.refresh_data
 		"""		
 		from lux.compiler.Parser import Parser
 		from lux.compiler.Validator import Validator
 		from lux.compiler.Compiler import Compiler
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
+		print ("refresh_data")
+		self.data = ldf
 		if len(self.input_lst)>0:
 			if (self._is_vis_input()):
 				for vis in self.collection:
 					vis.spec_lst = Parser.parse(vis.spec_lst)
 					Validator.validate_spec(vis.spec_lst,ldf)
-				vc = Compiler.compile(ldf,ldf.context,self,enumerate_collection=False)
+				self.collection = Compiler.compile(ldf,ldf.context,self,enumerate_collection=False)
 			else:
 				self.spec_lst = Parser.parse(self.spec_lst)
 				Validator.validate_spec(self.spec_lst,ldf)
-				vc = Compiler.compile(ldf,self.spec_lst,self)
-			PandasExecutor.execute(vc,ldf)
-			return vc
-		else:
-			return self
+				self.collection = Compiler.compile(ldf,self.spec_lst,self)
+			PandasExecutor.execute(self.collection,ldf)
+		# 	return self.collection
+		# else:
+		# 	return self

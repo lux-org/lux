@@ -27,7 +27,7 @@ def test_period_selection():
 
 	ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq='A')
 
-	ldf.set_context([lux.Spec(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.Spec(attribute ="Year")])
+	ldf.set_context([lux.VisSpec(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.VisSpec(attribute ="Year")])
 
 	PandasExecutor.execute(ldf.current_view, ldf)
 
@@ -40,7 +40,7 @@ def test_period_filter():
 
 	ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq='A')
 
-	ldf.set_context([lux.Spec(attribute ="Acceleration"), lux.Spec(attribute ="Horsepower")])
+	ldf.set_context([lux.VisSpec(attribute ="Acceleration"), lux.VisSpec(attribute ="Horsepower")])
 
 	PandasExecutor.execute(ldf.current_view, ldf)
 	ldf.show_more()
@@ -54,7 +54,7 @@ def test_period_to_altair():
 
 	df["Year"] = pd.DatetimeIndex(df["Year"]).to_period(freq='A')
 
-	df.set_context([lux.Spec(attribute ="Acceleration"), lux.Spec(attribute ="Horsepower")])
+	df.set_context([lux.VisSpec(attribute ="Acceleration"), lux.VisSpec(attribute ="Horsepower")])
 
 	PandasExecutor.execute(df.current_view, df)
 	df.show_more()
@@ -69,8 +69,7 @@ def test_refresh_inplace():
 	assert df.data_type['nominal'][0] == 'date'
 
 	from lux.vis.Vis import Vis
-	view = Vis(["date","value"])
-	view.load(df)
+	view = Vis(["date","value"],df)
 
 	df['date'] = pd.to_datetime(df['date'],format="%Y-%m-%d")
 

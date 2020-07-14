@@ -31,12 +31,11 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 
-	query = [lux.Spec("?", data_model="measure"), lux.Spec("?", data_model="measure")]
+	query = [lux.VisSpec("?", data_model="measure"), lux.VisSpec("?", data_model="measure")]
 	query.extend(ldf.filter_specs)
-	vc = VisCollection(query)
+	vc = VisCollection(query,ldf)
 	recommendation = {"action": "Correlation",
 					  "description": "Show relationships between two quantitative attributes."}
-	vc = vc.load(ldf)
 	# Then use the data populated in the view collection to compute score
 	for view in vc:
 		measures = view.get_attr_by_data_model("measure")

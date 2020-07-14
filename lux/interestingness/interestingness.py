@@ -191,7 +191,7 @@ def monotonicity(view:Vis, attr_specs:list, ignore_identity:bool=True) ->int:
 	----------
 	view : View
 	attr_spec: list
-		List of attribute Spec objects
+		List of attribute VisSpec objects
 
 	ignore_identity: bool
 		Boolean flag to ignore items with the same x and y attribute (score as -1)
