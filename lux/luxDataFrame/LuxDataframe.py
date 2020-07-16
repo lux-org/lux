@@ -422,7 +422,7 @@ class LuxDataFrame(pd.DataFrame):
         elif len(exported_vis_lst) > 1: 
             exported_views  = {}
             if ("currentView" in exported_vis_lst):
-                exported_views["currentView"] = self.current_view
+                exported_views["Current Vis"] = self.current_view
             for export_action in exported_vis_lst:
                 if (export_action != "currentView"):
                     exported_views[export_action] = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
