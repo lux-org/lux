@@ -7,9 +7,10 @@ class Vis:
 	Vis Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
 	'''
 
-	def __init__(self, spec_lst, data=None , mark="", title="", score=0.0):
+	def __init__(self, spec_lst, source =None , mark="", title="", score=0.0):
 		self.spec_lst = spec_lst
-		self.data = data
+		self.source = source # This is the data that is attached to the Vis
+		self.data = None # This is the data that represents the Vis (e.g., selected, aggregated, binned)
 		self.title = title
 		self.mark = mark
 		self.score = score
@@ -17,9 +18,9 @@ class Vis:
 		self.plot_config = None
 		self.x_min_max = {}
 		self.y_min_max = {}
-		if (data is not None): self.refresh_data(data)
+		if (source is not None): self.refresh_source(source)
 	def __repr__(self):
-		if self.data is None:
+		if self.source is None:
 			return f"<Vis  ({str(self.spec_lst)}) mark: {self.mark}, score: {self.score} >"
 		filter_spec = None
 		channels, additional_channels = [], []
@@ -63,7 +64,7 @@ class Vis:
 		return self.spec_lst
 	def set_specs(self, specs:List[VisSpec]) -> None:
 		"""
-		Sets the spec_lst of the Vis and refresh the data based on the new specs
+		Sets the spec_lst of the Vis and refresh the source based on the new specs
 
 		Parameters
 		----------
@@ -71,7 +72,7 @@ class Vis:
 			Query specifying the desired VisCollection
 		"""		
 		self.spec_lst = specs
-		self.refresh_data(self.data)
+		self.refresh_source(self.source)
 	def set_plot_config(self,config_func:Callable):
 		"""
 		Modify plot aesthetic settings to the Vis
@@ -89,10 +90,8 @@ class Vis:
 		from IPython.display import display
 		check_import_lux_widget()
 		import luxWidget
-		print ("repr_html")
-		print (self)
 		if (self.data is None):
-			raise Exception("No data populated in Vis. Use the 'refresh_data' function (e.g., vis.refresh_data(df)) to populate the Vis with a data source.")
+			raise Exception("No data is populated in Vis. In order to generate data required for the vis, use the 'refresh_source' function to populate the Vis with a data source (e.g., vis.refresh_source(df)).")
 		else:
 			from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 			widget =  luxWidget.LuxWidget(
@@ -196,9 +195,9 @@ class Vis:
 		if (renderer == "altair"):
 			return self.to_VegaLite(prettyOutput=False)
 	
-	def refresh_data(self, ldf):# -> Vis:
+	def refresh_source(self, ldf):# -> Vis:
 		"""
-		Loading the data into the Vis by instantiating the specification and populating the Vis based on the data, effectively "materializing" the Vis.
+		Loading the source data into the Vis by instantiating the specification and populating the Vis based on the source data, effectively "materializing" the Vis.
 
 		Parameters
 		----------
@@ -212,21 +211,23 @@ class Vis:
 
 		See Also
 		--------
-		lux.Vis.VisCollection.refresh_data
+		lux.Vis.VisCollection.refresh_source
 		"""		
 		from lux.compiler.Parser import Parser
 		from lux.compiler.Validator import Validator
 		from lux.compiler.Compiler import Compiler
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
-		self.data = ldf
-		print ("refresh vis data")
+		self.source = ldf
 		#TODO: handle case when user input vanilla Pandas dataframe
 		self.spec_lst = Parser.parse(self.spec_lst)
 		Validator.validate_spec(self.spec_lst,ldf)
-		self = Compiler.compile(ldf,ldf.context,[self],enumerate_collection=False)[0]
-		PandasExecutor.execute([self],ldf)
-		# print (vc[0])
-		# print (type(vc[0]))
-		# # self = vc[0]
-		# print (self)
-		# # return vc[0]
+		vc = Compiler.compile(ldf,ldf.context,[self],enumerate_collection=False)
+		PandasExecutor.execute(vc,ldf)
+		# Copying properties over since we can not redefine `self` within class function
+		vis = vc[0]
+		self.title = vis.title
+		self.mark = vis.mark
+		self.spec_lst = vis.spec_lst
+		self.data = vis.data
+		self.x_min_max = vis.x_min_max
+		self.y_min_max = vis.y_min_max

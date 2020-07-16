@@ -8,9 +8,9 @@ class VisCollection():
 	'''
 	VisCollection is a list of Vis objects. 
 	'''
-	def __init__(self,input_lst:Union[List[Vis],List[VisSpec]],data=None):
+	def __init__(self,input_lst:Union[List[Vis],List[VisSpec]],source=None):
 		# Overloaded Constructor
-		self.data = data 
+		self.source = source 
 		self.input_lst = input_lst
 		if len(input_lst)>0:
 			if (self._is_vis_input()):
@@ -22,7 +22,7 @@ class VisCollection():
 		else:
 			self.collection = []
 			self.spec_lst = []
-		if (data is not None): self.refresh_data(data)
+		if (source is not None): self.refresh_source(source)
 	def get_specs(self) -> List[VisSpec]:
 		"""
 		Returns the VisSpecs describing the VisCollection
@@ -34,7 +34,7 @@ class VisCollection():
 		return self.spec_lst
 	def set_specs(self, specs:List[VisSpec]) -> None:
 		"""
-		Sets the spec_lst of the VisCollection and refresh the data based on the new spec
+		Sets the spec_lst of the VisCollection and refresh the source based on the new spec
 
 		Parameters
 		----------
@@ -42,7 +42,7 @@ class VisCollection():
 			Query specifying the desired VisCollection
 		"""		
 		self.spec_lst = specs
-		self.refresh_data(self.data)
+		self.refresh_source(self.source)
 	def get_exported(self) -> VisCollection:
 		"""
 		Get selected visualizations as exported Vis Collection
@@ -153,9 +153,9 @@ class VisCollection():
 			if filter_spec:
 				aligned_filter = " -- [" + filter_spec.attribute + filter_spec.filter_op + str(filter_spec.value) + "]"
 				aligned_filter = aligned_filter.ljust(largest_filter + 8)
-				vis_repr.append(f" <Visualizations  ({x_channel}{y_channel}{str_additional_channels} {aligned_filter}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
+				vis_repr.append(f" <VisCollection  ({x_channel}{y_channel}{str_additional_channels} {aligned_filter}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
 			else:
-				vis_repr.append(f" <Visualizations  ({x_channel}{y_channel}{str_additional_channels}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
+				vis_repr.append(f" <VisCollection  ({x_channel}{y_channel}{str_additional_channels}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
 		return '['+',\n'.join(vis_repr)[1:]+']'
 	def map(self,function):
 		# generalized way of applying a function to each element
@@ -223,9 +223,9 @@ class VisCollection():
 			)
 		display(self.widget)	
 	
-	def refresh_data(self, ldf) :#-> VisCollection:
+	def refresh_source(self, ldf) :#-> VisCollection:
 		"""
-		Loading the data into the visualizations in the VisCollection by instantiating the specification and populating the visualization based on the data, effectively "materializing" the visualization.
+		Loading the source into the visualizations in the VisCollection by instantiating the specification and populating the visualization based on the source, effectively "materializing" the visualization.
 
 		Parameters
 		----------
@@ -239,14 +239,13 @@ class VisCollection():
 		
 		See Also
 		--------
-		lux.vis.Vis.refresh_data
+		lux.vis.Vis.refresh_source
 		"""		
 		from lux.compiler.Parser import Parser
 		from lux.compiler.Validator import Validator
 		from lux.compiler.Compiler import Compiler
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
-		print ("refresh_data")
-		self.data = ldf
+		self.source = ldf
 		if len(self.input_lst)>0:
 			if (self._is_vis_input()):
 				for vis in self.collection:
@@ -258,6 +257,3 @@ class VisCollection():
 				Validator.validate_spec(self.spec_lst,ldf)
 				self.collection = Compiler.compile(ldf,self.spec_lst,self)
 			PandasExecutor.execute(self.collection,ldf)
-		# 	return self.collection
-		# else:
-		# 	return self
