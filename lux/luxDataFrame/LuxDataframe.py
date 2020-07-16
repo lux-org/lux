@@ -417,14 +417,24 @@ class LuxDataFrame(pd.DataFrame):
             import warnings
             warnings.warn("No visualization selected to export")
             return []
-        if len(exported_vis_lst) == 1 : 
+        if len(exported_vis_lst) == 1 and "currentView" in exported_vis_lst:
+            return self.current_view
+        elif len(exported_vis_lst) > 1: 
+            exported_views  = {}
+            if ("currentView" in exported_vis_lst):
+                exported_views["currentView"] = self.current_view
+            for export_action in exported_vis_lst:
+                if (export_action != "currentView"):
+                    exported_views[export_action] = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
+            return exported_views
+        elif len(exported_vis_lst) == 1 and ("currentView" not in exported_vis_lst): 
             export_action = list(exported_vis_lst.keys())[0]
             exported_views = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
-        elif len(exported_vis_lst) > 1 : 
-            exported_views  = {}
-            for export_action in exported_vis_lst: 
-                exported_views[export_action] = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
-        return exported_views
+            return exported_views
+        else:
+            import warnings
+            warnings.warn("No visualization selected to export")
+            return []
 
     def _repr_html_(self):
         from IPython.display import display
