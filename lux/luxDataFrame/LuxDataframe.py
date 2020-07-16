@@ -108,8 +108,6 @@ class LuxDataFrame(pd.DataFrame):
         self.plot_config = config_func
     def clear_plot_config(self):
         self.plot_config = None
-    def set_view_collection(self,view_collection):
-        self.current_view = view_collection
     def _refresh_context(self):
         from lux.compiler.Validator import Validator
         from lux.compiler.Compiler import Compiler
@@ -120,8 +118,7 @@ class LuxDataFrame(pd.DataFrame):
             self.compute_dataset_metadata()
         self.context = Parser.parse(self.get_context())
         Validator.validate_spec(self.context,self)
-        view_collection = Compiler.compile(self, self.context, self.current_view)
-        self.set_view_collection(view_collection)
+        self.current_view = Compiler.compile(self, self.context, self.current_view)
 
     def set_context(self, context:typing.List[typing.Union[str, VisSpec]]):
         """
