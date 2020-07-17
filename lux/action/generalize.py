@@ -69,6 +69,7 @@ def generalize(ldf):
 	# Ignore interestingness sorting since Generalize yields very few vis (preserve order of remove attribute, then remove filters)
 	# for view in vc:
 	# 	view.score = interestingness(view,ldf)
+
 	vc.remove_duplicates()
 	vc.sort(remove_invalid=True)
 	recommendation["collection"] = vc

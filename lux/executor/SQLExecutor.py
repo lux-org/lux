@@ -26,7 +26,6 @@ class SQLExecutor(Executor):
         3) return a DataFrame with relevant results
         '''
         for view in view_collection:
-            print(view, utils.get_filter_specs(view.spec_lst))
             # Select relevant data based on attribute information
             attributes = set([])
             for spec in view.spec_lst:
@@ -90,6 +89,15 @@ class SQLExecutor(Executor):
                     mean_query = "SELECT {}, MAX({}) as {} FROM {} {} GROUP BY {}".format(groupby_attr.attribute, measure_attr.attribute, measure_attr.attribute, ldf.table_name, where_clause, groupby_attr.attribute)
                     view.data = pd.read_sql(mean_query, ldf.SQLconnection)
                     view.data = utils.pandas_to_lux(view.data)
+
+            #pad empty categories with 0 counts after filter is applied
+            all_attr_vals = ldf.unique_values[groupby_attr.attribute]
+            result_vals = list(view.data[groupby_attr.attribute])
+            if (len(result_vals) != len(all_attr_vals)):
+                # For filtered aggregation that have missing groupby-attribute values, set these aggregated value as 0, since no datapoints
+                for vals in all_attr_vals:
+                    if (vals not in result_vals):
+                        view.data.loc[len(view.data)] = [vals]+[0]*(len(view.data.columns)-1)
     @staticmethod
     def execute_binning(view:Vis, ldf:LuxDataFrame):
         import numpy as np
@@ -133,7 +141,7 @@ class SQLExecutor(Executor):
                 if i not in bucket_lables:
                     bin_count_data = bin_count_data.append(pd.DataFrame([[i,0]], columns = bin_count_data.columns))
 
-        view.data = pd.DataFrame(np.array([bin_centers,list(bin_count_data['count'])]).T,columns=[bin_attribute.attribute, "Count of Records (binned)"])
+        view.data = pd.DataFrame(np.array([bin_centers,list(bin_count_data['count'])]).T,columns=[bin_attribute.attribute, "Count of Records"])
         view.data = utils.pandas_to_lux(view.data)
         
     @staticmethod
