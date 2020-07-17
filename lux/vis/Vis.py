@@ -151,6 +151,7 @@ class Vis:
 					else:
 						if (column_names != attribute) or skip_check:
 							new_spec.append(VisSpec(attribute = column_names))
+
 						elif (remove_first):
 							remove_first = True
 					if (remove_first):
