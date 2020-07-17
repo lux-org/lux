@@ -72,4 +72,19 @@ def test_refresh_collection():
     df.show_more()
     enhanceCollection = df.recommendation["Enhance"]
     enhanceCollection.refresh_source(df[df["Origin"]=="USA"])
+
+def test_vis_custom_aggregation_as_str():
+    df = pd.read_csv("lux/data/college.csv")
+    from lux.vis.Vis import Vis
+    import numpy as np
+    vis = Vis(["HighestDegree",lux.VisSpec("AverageCost",aggregation="max")],df)
+    assert vis.get_attr_by_data_model("measure")[0].aggregation == "max"
+    assert vis.get_attr_by_data_model("measure")[0]._aggregation_name =='max'    
     
+def test_vis_custom_aggregation_as_numpy_func():
+    df = pd.read_csv("lux/data/college.csv")
+    from lux.vis.Vis import Vis
+    import numpy as np
+    vis = Vis(["HighestDegree",lux.VisSpec("AverageCost",aggregation=np.ptp)],df)
+    assert vis.get_attr_by_data_model("measure")[0].aggregation == np.ptp
+    assert vis.get_attr_by_data_model("measure")[0]._aggregation_name =='ptp'

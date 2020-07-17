@@ -48,6 +48,7 @@ In Lux, you can also specify particular values corresponding to subsets of the d
 You can also specify multiple values of interest using the same `|` notation that we saw earlier. For example, you might be comparing colleges in New England, Southeast, and Far West.
 
 .. code-block:: python
+
     df.set_context(["MedianDebt","Region=New England|Southeast|Far West"])
 
 .. note::
@@ -61,7 +62,7 @@ You can also specify multiple values of interest using the same `|` notation tha
     
     .. code-block:: python
         
-        df.set_context("Region=New England")
+        df.set_context(["Region=New England"])
 
     So while both approaches applies the filter on the specified view, the slightly different interpretation results in different recommendations. In general, we encourage using Pandas for filtering if the user is certain about applying the filter (e.g., a cleaning operation deleting a specific data subset), and specify the context in Lux if the user may want to experiment and change aspects related to the filter in their analysis. 
 
@@ -97,6 +98,26 @@ So far, we have seen examples of how to express existing use cases based on `lux
 .. code-block:: python
     
     df.set_context([lux.Spec(attribute='AverageCost', channel='y')])
+
+We can also set constraints on the type of aggregation that is used. For example, by default, we use `mean` as the default aggregation function for quantitative attributes.
+
+.. code-block:: python
+
+    df.set_context(["HighestDegree","AverageCost"])
+
+We can override the aggregation function to be `sum` instead. 
+
+.. code-block:: python
+
+    df.set_context(["HighestDegree",lux.VisSpec("AverageCost",aggregation="sum")])
+
+The possible aggregation values are the same as the ones supported in Pandas's `agg <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.agg.html>`_ function, which can either be a string shorthand (e.g., "sum", "count", "min", "max", "median") or as a numpy aggregation function.
+
+For example, we can change the aggregation function to be the point-to-point value (`np.ptp <https://numpy.org/doc/stable/reference/generated/numpy.ptp.html>`_) by inputting the numpy function.
+
+.. code-block:: python
+
+    df.set_context(["HighestDegree",lux.VisSpec("AverageCost",aggregation=np.ptp)])
 
 Specifying wildcards
 ~~~~~~~~~~~~~~~~~~~~~
