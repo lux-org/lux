@@ -256,4 +256,4 @@ class VisCollection():
 				self.spec_lst = Parser.parse(self.spec_lst)
 				Validator.validate_spec(self.spec_lst,ldf)
 				self.collection = Compiler.compile(ldf,self.spec_lst,self)
-			PandasExecutor.execute(self.collection,ldf)
+			ldf.executor.execute(self.collection,ldf)
