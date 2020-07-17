@@ -30,7 +30,7 @@ class VisSpec:
 			Possible values: 'dimension', 'measure', by default ""
 		aggregation : str, optional
 			Aggregation function for specified attribute, by default ""
-			Possible values: 'sum','mean', and others supported by Pandas.aggregate (https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.aggregate.html), by default ""
+			Possible values: 'sum','mean', and others supported by Pandas.aggregate (https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.aggregate.html), including numpy aggregation functions (e.g., np.ptp), by default ""
 		bin_size : int, optional
 			Number of bins for histograms, by default 0
 		weight : float, optional
@@ -55,6 +55,11 @@ class VisSpec:
 		self.weight = weight
 		self.sort = sort
 		self.exclude = exclude
+		# If aggregation input is a function (e.g., np.std), get the string name of the function for plotting
+		if hasattr(self.aggregation,'__name__'): 
+			self._aggregation_name = self.aggregation.__name__
+		else:
+			self._aggregation_name = self.aggregation
 			
 	def __repr__(self):
 		attributes = []
@@ -65,7 +70,7 @@ class VisSpec:
 		if len(self.attribute) != 0:
 			attributes.append("         attribute: " + str(self.attribute))
 		if self.aggregation != "":
-			attributes.append("         aggregation: " + self.aggregation)
+			attributes.append("         aggregation: " + self._aggregation_name)
 		if self.value!="" or  len(self.value) != 0 :
 			attributes.append("         value: " + str(self.value))
 		if self.data_model != "":
