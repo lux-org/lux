@@ -134,6 +134,8 @@ class LuxDataFrame(pd.DataFrame):
         -----
             :doc:`../guide/spec`
         """        
+        if type(context)!=list:
+            raise TypeError("Input context must be a list consisting of string descriptions or lux.VisSpec objects. \nSee more at: https://lux-api.readthedocs.io/en/dfapi/source/guide/spec.html")
         self.context = context
         self._refresh_context()
     def set_context_as_vis(self,vis:Vis):
