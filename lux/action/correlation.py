@@ -5,6 +5,7 @@ from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.vis.VisCollection import VisCollection
 # for benchmarking
 import time
+from lux.utils import utils
 
 
 # change ignore_transpose to false for now.
@@ -30,9 +31,9 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	# for benchmarking
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
-
+	filter_specs = utils.get_filter_specs(ldf.context)
 	query = [lux.VisSpec("?", data_model="measure"), lux.VisSpec("?", data_model="measure")]
-	query.extend(ldf.filter_specs)
+	query.extend(filter_specs)
 	vc = VisCollection(query,ldf)
 	recommendation = {"action": "Correlation",
 					  "description": "Show relationships between two quantitative attributes."}

@@ -58,11 +58,13 @@ class VisCollection():
 		VisCollection
 		 	return a VisCollection of selected visualizations. -> VisCollection(v1, v2...)
 		"""        
-		
+		if (self.widget is None):
+			warnings.warn("No widget attached to the VisCollection. Please assign VisCollection to an output variable.", stacklevel=2)
+
 		exported_vis_lst =self.widget._exportedVisIdxs
 		if (exported_vis_lst=={}):
 			import warnings
-			warnings.warn("No visualization selected to export")
+			warnings.warn("No visualization selected to export",stacklevel=2)
 			return []
 		else:
 			exported_views = VisCollection(list(map(self.__getitem__, exported_vis_lst["Vis Collection"])))

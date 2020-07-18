@@ -15,10 +15,12 @@ def pandas_to_lux(df):
 	return(ldf)
 
 def get_attrs_specs(spec_lst):
+	if (spec_lst is None): return []
 	spec_obj = list(filter(lambda x: x.value=="", spec_lst))
 	return spec_obj
 
 def get_filter_specs(spec_lst):
+	if (spec_lst is None): return []
 	spec_obj = list(filter(lambda x: x.value!="", spec_lst))
 	return spec_obj
 
