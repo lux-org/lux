@@ -3,7 +3,7 @@ from lux.vis.VisCollection import VisCollection
 import lux
 #for benchmarking
 import time
-
+from lux.utils import utils
 def univariate(ldf, data_type_constraint="quantitative"):
 	'''
 	Generates bar chart distributions of different attributes in the dataframe.
@@ -27,20 +27,20 @@ def univariate(ldf, data_type_constraint="quantitative"):
 	#for benchmarking
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
-
+	filter_specs = utils.get_filter_specs(ldf.context)
 	if (data_type_constraint== "quantitative"):
 		query = [lux.VisSpec("?",data_type="quantitative")]
-		query.extend(ldf.filter_specs)
+		query.extend(filter_specs)
 		recommendation = {"action":"Distribution",
 							"description":"Show histogram distributions of different attributes in the dataframe."}
 	elif (data_type_constraint == "nominal"):
 		query = [lux.VisSpec("?",data_type="nominal")]
-		query.extend(ldf.filter_specs)
+		query.extend(filter_specs)
 		recommendation = {"action":"Category",
 						   "description":"Show bar charts of different attributes in the dataframe."}
 	elif (data_type_constraint == "temporal"):
 		query = [lux.VisSpec("?",data_type="temporal")]
-		query.extend(ldf.filter_specs)
+		query.extend(filter_specs)
 		recommendation = {"action":"Temporal",
 						   "description":"Show line chart distributions of time-related attributes in the dataframe."}
 	vc = VisCollection(query,ldf)
