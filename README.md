@@ -11,6 +11,9 @@
     <a href='https://lux-api.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/lux-api/badge/?version=latest' alt='Documentation Status'  align="center"/>
     </a>
+    <a href='http://lux-project.slack.com/'>
+        <img src='https://img.shields.io/static/v1?label=chat&logo=slack&message=Slack&color=brightgreen' alt='Slack'  align="center"/>
+    </a>
 </p>
 
 Lux is a Python library that makes data science easier by automating certain aspects of the data exploration process. Lux is designed to facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Lux is integrated with [an interactive Jupyter widget](https://github.com/lux-org/lux-widget) that allows users to quickly browse through large collections of data directly within their Jupyter notebooks.
@@ -124,4 +127,8 @@ See the [installation page](https://lux-api.readthedocs.io/en/latest/source/gett
 
 <!-- For more detailed examples of how to use Lux, check out this demo [notebook](https://github.com/lux-org/lux/blob/master/examples/demo.ipynb).  -->
 
-Lux is undergoing active development. Please report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues). 
+# Dev Support 
+Lux is undergoing active development. Please report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues) or post on the #help channel in the <a href="http://lux-project.slack.com/">Lux Slack org</a>.
+
+If you are interested in participating in a user study on Lux, please contact Doris Lee (<a href="mailto:dorislee@berkeley.edu">dorislee@berkeley.edu</a>) for more detail.
+
