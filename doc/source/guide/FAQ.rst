@@ -12,22 +12,34 @@ General Information
 - How do I access all of the current recommendations shown in my widget?
 
   - df.recommendation
-- How do I turn off Lux?
+- How do I set the Lux widgets to show up on default? 
+    - By default, we show the Pandas display and users can use the toggle button to switch to the Lux display. The `set_default_display` function allows users to change the setting so that the Lux widget is set as the default view for future operations on the specified dataframe: 
 
+    .. code-block:: python
+    
+        df.set_default_display("lux")
+    
+    To switch back to Pandas as the default display: 
+
+    .. code-block:: python
+    
+        df.set_default_display("pandas")
+
+- How do I turn off Lux?
+    - To tempora
   - df.to_pandas()
   - Remove `import lux` statement and restart Jupyter notebook.
 - I want to change the opacity of my chart, add title, change chart font size, etc. How do I modify chart settings?
 
   - We currently only support chart modifications in Altair.
 
-- How do I override the default values in the VisSpec? 
-
-  - For example, how do I change the aggregation function to be something that is not average? how do I set an attribute to display on the x-axis instead of y-axis? See the tutorial on `"Adding constraints" <https://lux-api.readthedocs.io/en/latest/source/guide/query.html#adding-constraints>`_.
+- How do I override the default values in the VisSpec? For example, how do I change the aggregation function to be something that is not average? how do I set an attribute to display on the x-axis instead of y-axis? 
+  - To override automatically inferred properties, you can specify additional arguements inside `lux.VisSpec` to set the value of the VisSpec properties. See the tutorial on `"Adding constraints" <https://lux-api.readthedocs.io/en/latest/source/guide/query.html#adding-constraints>`_.
 
 Troubleshooting Tips
 -------------------
 
-- The Jupyter widget does not show up when I print a dataframe.
+- The Lux Jupyter widget does not show up when I print a dataframe.
     - Output message "A Jupyter widget could not be displayed because the widget state could not be found. This could happen if the kernel storing the widget is no longer available, or if the widget state was not saved in the notebook. You may be able to create the widget by running the appropriate cells."
     - Output message "LuxWidget(...)"
 
@@ -53,3 +65,4 @@ Troubleshooting Tips
 
 - When I print out the dataframe, the cell is taking a long time to run.
 - I have a question or bug that is not addressed by any of the FAQs.
+    - Please submit a Github Issue or ask a question on Slack.
