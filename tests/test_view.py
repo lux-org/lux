@@ -51,6 +51,7 @@ def test_custom_plot_setting():
 def test_remove():
     from lux.vis.Vis import Vis
     df = pd.read_csv("lux/data/car.csv")
+<<<<<<< HEAD
     vis = Vis([lux.VisSpec("Horsepower"),lux.VisSpec("Acceleration")],df)
     vis.remove_column_from_spec("Horsepower",remove_first=False)
     assert vis.spec_lst[0].attribute == "Acceleration"
@@ -88,3 +89,17 @@ def test_vis_custom_aggregation_as_numpy_func():
     vis = Vis(["HighestDegree",lux.VisSpec("AverageCost",aggregation=np.ptp)],df)
     assert vis.get_attr_by_data_model("measure")[0].aggregation == np.ptp
     assert vis.get_attr_by_data_model("measure")[0]._aggregation_name =='ptp'
+=======
+    view = View(["Horsepower","Horsepower"])
+    view.load(df)
+    view.remove_column_from_spec("Horsepower")
+    assert (view.spec_lst == []),"Remove all instances of Horsepower"
+
+    df = pd.read_csv("lux/data/car.csv")
+    view = View(["Horsepower","Horsepower"])
+    view.load(df)
+    print(len(view.spec_lst))
+    view.remove_column_from_spec("Horsepower",remove_first=True)
+    assert (len(view.spec_lst)==1),"Remove only 1 instances of Horsepower"
+    assert (view.spec_lst[0].attribute=="Horsepower"),"Remove only 1 instances of Horsepower"
+>>>>>>> Merge remove_column functions, Bugfix in Generalize Action, update test_view

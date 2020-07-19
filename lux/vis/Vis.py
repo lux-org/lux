@@ -32,7 +32,7 @@ class Vis:
 			if hasattr(spec,"attribute"):
 				if spec.attribute != "":
 					if spec.aggregation != "":
-						attribute = spec._aggregation_name.upper() + "(" + spec.attribute + ")"
+						attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
 					elif spec.bin_size > 0:
 						attribute = "BIN(" + spec.attribute + ")"
 					else:
