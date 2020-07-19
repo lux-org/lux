@@ -33,8 +33,8 @@ class LuxDataFrame(pd.DataFrame):
         self.SQLconnection = ""
         self.table_name = ""
         self.filter_specs = []
-        self.default_pandas_view = True
-        self.toggle_pandas_view = True
+        self.default_pandas_display = True
+        self.toggle_pandas_display = True
         self.toggle_benchmarking = False
         self.plot_config = None
 
@@ -52,9 +52,9 @@ class LuxDataFrame(pd.DataFrame):
             Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
         """        
         if (type.lower()=="lux"):
-            self.default_pandas_view = False
+            self.default_pandas_display = False
         elif (type.lower()=="pandas"):
-            self.default_pandas_view = True
+            self.default_pandas_display = True
         else: 
             warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.",stacklevel=2)
     # @property
@@ -135,7 +135,9 @@ class LuxDataFrame(pd.DataFrame):
             :doc:`../guide/spec`
         """        
         if type(context)!=list:
-            raise TypeError("Input context must be a list consisting of string descriptions or lux.VisSpec objects. \nSee more at: https://lux-api.readthedocs.io/en/dfapi/source/guide/spec.html")
+            raise TypeError("Input context must be a list consisting of string descriptions or lux.VisSpec objects."
+                    "\nSee more at: https://lux-api.readthedocs.io/en/dfapi/source/guide/spec.html"
+                    )
         self.context = context
         self._refresh_context()
     def set_context_as_vis(self,vis:Vis):
@@ -152,7 +154,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def clear_context(self):
         self.context = []
-        self.current_view = []
+        self.current_vis = []
     def clear_filter(self):
         self.filter_specs = []  # reset filters
     def to_pandas(self):
@@ -410,14 +412,21 @@ class LuxDataFrame(pd.DataFrame):
             When there are no exported vis, return empty list -> []
             When all the exported vis is from the same tab, return a VisCollection of selected views. -> VisCollection(v1, v2...)
             When the exported vis is from the different tabs, return a dictionary with the action name as key and selected views in the VisCollection. -> {"Enhance": VisCollection(v1, v2...), "Filter": VisCollection(v5, v7...), ..}
-        """        
-        if (self.widget is None):
-            warnings.warn("No widget attached to the dataframe. Please assign dataframe to an output variable.", stacklevel=2)
+        """
+        if not hasattr(self,"widget"):
+            warnings.warn(
+						"\nNo widget attached to the dataframe."
+						"Please assign dataframe to an output variable.\n"
+						"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
+						, stacklevel=2)
+            return []
         exported_vis_lst =self.widget._exportedVisIdxs
         exported_views = [] 
         if (exported_vis_lst=={}):
-            import warnings
-            warnings.warn("No visualization selected to export",stacklevel=2)
+            warnings.warn(
+				"\nNo visualization selected to export.\n"
+				"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
+				,stacklevel=2)
             return []
         if len(exported_vis_lst) == 1 and "currentView" in exported_vis_lst:
             return self.current_view
@@ -434,7 +443,10 @@ class LuxDataFrame(pd.DataFrame):
             exported_views = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
             return exported_views
         else:
-            warnings.warn("No visualization selected to export",stacklevel=2)
+            warnings.warn(
+				"\nNo visualization selected to export.\n"
+				"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
+				,stacklevel=2)
             return []
 
     def _repr_html_(self):
@@ -444,10 +456,16 @@ class LuxDataFrame(pd.DataFrame):
         
         try: 
             if (type(self.index) != pd.core.indexes.range.RangeIndex):# if multi-index, then default to pandas output
-                warnings.warn("\n Lux does not currently support dataframes with hierarchical indexes. \n Please convert the dataframe into a flat table via `pandas.DataFrame.reset_index`.",stacklevel=2)
+                warnings.warn(
+                            "Lux does not currently support dataframes"
+                            "with hierarchical indexes.\n"
+                            "Please convert the dataframe into a flat"
+                            "table via `pandas.DataFrame.reset_index`.\n",
+                            stacklevel=2,
+                        )
                 display(self.display_pandas())
                 return
-            self.toggle_pandas_view = self.default_pandas_view # Reset to Pandas View everytime
+            self.toggle_pandas_display = self.default_pandas_display # Reset to Pandas View everytime
             # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_context)
             if self.executor_type == "Pandas":
                 self.compute_stats()
@@ -473,9 +491,9 @@ class LuxDataFrame(pd.DataFrame):
             def on_button_clicked(b):
                 with output:
                     if (b):
-                        self.toggle_pandas_view = not self.toggle_pandas_view
+                        self.toggle_pandas_display = not self.toggle_pandas_display
                     clear_output()
-                    if (self.toggle_pandas_view):
+                    if (self.toggle_pandas_display):
                         display(self.display_pandas())
                     else:
                         # b.layout.display = "none"
@@ -486,7 +504,11 @@ class LuxDataFrame(pd.DataFrame):
         except(KeyboardInterrupt,SystemExit):
             raise
         except:
-            warnings.warn("\nUnexpected error in rendering Lux widget and recommendations. Falling back to Pandas display.\n Please report this issue on Github (https://github.com/lux-org/lux/issues).",stacklevel=2)
+            warnings.warn(
+                    "\nUnexpected error in rendering Lux widget and recommendations. "
+                    "Falling back to Pandas display.\n\n" 
+                    "Please report this issue on Github: https://github.com/lux-org/lux/issues "
+                ,stacklevel=2)
             display(self.display_pandas())
     def display_pandas(self):
         return self.to_pandas()

@@ -4,6 +4,7 @@ from lux.utils.utils import check_import_lux_widget
 from typing import List, Union, Callable, Dict
 from lux.vis.Vis import Vis
 from lux.vis.VisSpec import VisSpec
+import warnings
 class VisCollection():
 	'''
 	VisCollection is a list of Vis objects. 
@@ -22,6 +23,7 @@ class VisCollection():
 		else:
 			self.collection = []
 			self.spec_lst = []
+		self.widget = None
 		if (source is not None): self.refresh_source(source)
 	def get_specs(self) -> List[VisSpec]:
 		"""
@@ -58,13 +60,19 @@ class VisCollection():
 		VisCollection
 		 	return a VisCollection of selected visualizations. -> VisCollection(v1, v2...)
 		"""        
-		if (self.widget is None):
-			warnings.warn("No widget attached to the VisCollection. Please assign VisCollection to an output variable.", stacklevel=2)
-
+		if not hasattr(self,"widget"):
+			warnings.warn(
+						"\nNo widget attached to the VisCollection."
+						"Please assign VisCollection to an output variable.\n"
+						"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
+						, stacklevel=2)
+			return []
 		exported_vis_lst =self.widget._exportedVisIdxs
 		if (exported_vis_lst=={}):
-			import warnings
-			warnings.warn("No visualization selected to export",stacklevel=2)
+			warnings.warn(
+				"\nNo visualization selected to export.\n"
+				"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
+				,stacklevel=2)
 			return []
 		else:
 			exported_views = VisCollection(list(map(self.__getitem__, exported_vis_lst["Vis Collection"])))
