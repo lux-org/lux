@@ -30,7 +30,7 @@ class VisSpec:
 			Possible values: 'dimension', 'measure', by default ""
 		aggregation : str, optional
 			Aggregation function for specified attribute, by default ""
-			Possible values: 'sum','mean', and others supported by Pandas.aggregate (https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.aggregate.html), by default ""
+			Possible values: 'sum','mean', and others supported by Pandas.aggregate (https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.aggregate.html), including numpy aggregation functions (e.g., np.ptp), by default ""
 		bin_size : int, optional
 			Number of bins for histograms, by default 0
 		weight : float, optional
