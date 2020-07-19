@@ -340,7 +340,9 @@ class LuxDataFrame(pd.DataFrame):
                 data_type["temporal"].append(attr)
         self.data_type_lookup = data_type_lookup
         self.data_type = data_type
-
+    def _append_recInfo(self,recommendations:typing.Dict):
+        if (recommendations["collection"] is not None and len(recommendations["collection"])>0):
+            self._rec_info.append(recommendations)
     def show_more(self):
         from lux.action.custom import custom
         from lux.action.correlation import correlation
@@ -360,22 +362,16 @@ class LuxDataFrame(pd.DataFrame):
             multiple_current_views = len(self.current_view) > 1
 
         if (no_view):
-            self._rec_info.append(correlation(self))
-            self._rec_info.append(univariate(self,"quantitative"))
-            self._rec_info.append(univariate(self,"nominal"))
-            self._rec_info.append(univariate(self,"temporal"))
+            self._append_recInfo(correlation(self))
+            self._append_recInfo(univariate(self,"quantitative"))
+            self._append_recInfo(univariate(self,"nominal"))
+            self._append_recInfo(univariate(self,"temporal"))
         elif (one_current_view):
-            enhance = enhance(self)
-            filter = filter(self)
-            generalize = generalize(self)
-            if enhance['collection']:
-                self._rec_info.append(enhance)
-            if filter['collection']:
-                self._rec_info.append(filter)
-            if generalize['collection']:
-                self._rec_info.append(generalize)
+            self._append_recInfo(enhance(self))
+            self._append_recInfo(filter(self))
+            self._append_recInfo(generalize(self))
         elif (multiple_current_views):
-            self._rec_info.append(custom(self))
+            self._append_recInfo(custom(self))
             
         # Store _rec_info into a more user-friendly dictionary form
         self.recommendation = {}
