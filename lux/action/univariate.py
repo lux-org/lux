@@ -28,11 +28,14 @@ def univariate(ldf, data_type_constraint="quantitative"):
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 	filter_specs = utils.get_filter_specs(ldf.context)
+	ignore_rec_flag = False
 	if (data_type_constraint== "quantitative"):
 		query = [lux.VisSpec("?",data_type="quantitative")]
 		query.extend(filter_specs)
 		recommendation = {"action":"Distribution",
 							"description":"Show histogram distributions of different attributes in the dataframe."}
+		if (len(ldf)<5): # Doesn't make sense to generate a histogram if there is less than 5 datapoints
+			ignore_rec_flag = True
 	elif (data_type_constraint == "nominal"):
 		query = [lux.VisSpec("?",data_type="nominal")]
 		query.extend(filter_specs)
@@ -43,6 +46,11 @@ def univariate(ldf, data_type_constraint="quantitative"):
 		query.extend(filter_specs)
 		recommendation = {"action":"Temporal",
 						   "description":"Show line chart distributions of time-related attributes in the dataframe."}
+		if (len(ldf)<3): # Doesn't make sense to generate a histogram if there is less than 3 datapoints
+			ignore_rec_flag = True
+	if (ignore_rec_flag):
+		recommendation["collection"] = []
+		return recommendation
 	vc = VisCollection(query,ldf)
 	for view in vc:
 		view.score = interestingness(view,ldf)
