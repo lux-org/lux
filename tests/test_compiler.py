@@ -6,21 +6,21 @@ def test_underspecified_no_vis(test_show_more):
 	no_view_actions = ["Correlation", "Distribution", "Category","Temporal"]
 	df = pd.read_csv("lux/data/car.csv")
 	test_show_more(df, no_view_actions)
-	assert len(df.current_view) == 0
+	assert len(df.current_context) == 0
 
 	# test only one filter context case.
 	df.set_context([lux.VisSpec(attribute ="Origin", filter_op="=", value="USA")])
 	test_show_more(df, no_view_actions)
-	assert len(df.current_view) == 0
+	assert len(df.current_context) == 0
 
 def test_underspecified_single_vis(test_show_more):
 	one_view_actions = ["Enhance", "Filter", "Generalize"]
 	df = pd.read_csv("lux/data/car.csv")
 	df.set_context([lux.VisSpec(attribute ="MilesPerGal"), lux.VisSpec(attribute ="Weight")])
-	assert len(df.current_view) == 1
-	assert df.current_view[0].mark == "scatter"
-	for attr in df.current_view[0].spec_lst: assert attr.data_model == "measure"
-	for attr in df.current_view[0].spec_lst: assert attr.data_type == "quantitative"
+	assert len(df.current_context) == 1
+	assert df.current_context[0].mark == "scatter"
+	for attr in df.current_context[0].spec_lst: assert attr.data_model == "measure"
+	for attr in df.current_context[0].spec_lst: assert attr.data_type == "quantitative"
 	test_show_more(df, one_view_actions)
 
 # def test_underspecified_vis_collection(test_show_more):
@@ -30,29 +30,29 @@ def test_underspecified_single_vis(test_show_more):
 # 	df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
 
 # 	df.set_context([lux.VisSpec(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.VisSpec(attribute ="Year", channel="x")])
-# 	assert len(df.current_view) == 3
-# 	assert df.current_view[0].mark == "line"
-# 	for vc in df.current_view:
+# 	assert len(df.current_context) == 3
+# 	assert df.current_context[0].mark == "line"
+# 	for vc in df.current_context:
 # 		assert (vc.get_attr_by_channel("x")[0].attribute == "Year")
 # 	test_show_more(df, multiple_view_actions)
 
 # 	df.set_context([lux.VisSpec(attribute ="?"), lux.VisSpec(attribute ="Year", channel="x")])
-# 	assert len(df.current_view) == len(list(df.columns)) - 1 # we remove year by year so its 8 vis instead of 9
-# 	for vc in df.current_view:
+# 	assert len(df.current_context) == len(list(df.columns)) - 1 # we remove year by year so its 8 vis instead of 9
+# 	for vc in df.current_context:
 # 		assert (vc.get_attr_by_channel("x")[0].attribute == "Year")
 # 	test_show_more(df, multiple_view_actions)
 
 # 	df.set_context([lux.VisSpec(attribute ="?", data_type="quantitative"), lux.VisSpec(attribute ="Year")])
-# 	assert len(df.current_view) == len([view.get_attr_by_data_type("quantitative") for view in df.current_view]) # should be 5
+# 	assert len(df.current_context) == len([view.get_attr_by_data_type("quantitative") for view in df.current_context]) # should be 5
 # 	test_show_more(df, multiple_view_actions)
 
 # 	df.set_context([lux.VisSpec(attribute ="?", data_model="measure"), lux.VisSpec(attribute="MilesPerGal", channel="y")])
-# 	for vc in df.current_view:
+# 	for vc in df.current_context:
 # 		print (vc.get_attr_by_channel("y")[0].attribute == "MilesPerGal")
 # 	test_show_more(df, multiple_view_actions)
 
 # 	df.set_context([lux.VisSpec(attribute ="?", data_model="measure"), lux.VisSpec(attribute ="?", data_model="measure")])
-# 	assert len(df.current_view) == len([view.get_attr_by_data_model("measure") for view in df.current_view]) #should be 25
+# 	assert len(df.current_context) == len([view.get_attr_by_data_model("measure") for view in df.current_context]) #should be 25
 # 	test_show_more(df, multiple_view_actions)
 
 @pytest.fixture
@@ -67,21 +67,21 @@ def test_show_more():
 def test_parse():
 	df = pd.read_csv("lux/data/car.csv")
 	df.set_context([lux.VisSpec("Origin=?"), lux.VisSpec(attribute ="MilesPerGal")])
-	assert len(df.current_view) == 3
+	assert len(df.current_context) == 3
 
 	df = pd.read_csv("lux/data/car.csv")
 	df.set_context([lux.VisSpec("Origin=?"), lux.VisSpec("MilesPerGal")])
-	assert len(df.current_view) == 3
+	assert len(df.current_context) == 3
 def test_underspecified_vis_collection_zval():
 	# check if the number of charts is correct
 	df = pd.read_csv("lux/data/car.csv")
 	df.set_context([lux.VisSpec(attribute ="Origin", filter_op="=", value="?"), lux.VisSpec(attribute ="MilesPerGal")])
-	assert len(df.current_view) == 3
+	assert len(df.current_context) == 3
 
 	#does not work
 	# df = pd.read_csv("lux/data/cars.csv")
 	# df.set_context([lux.VisSpec(attribute = ["Origin","Cylinders"], filter_op="=",value="?"),lux.VisSpec(attribute = ["Horsepower"]),lux.VisSpec(attribute = "Weight")])
-	# assert len(df.current_view) == 8
+	# assert len(df.current_context) == 8
 
 def test_sort_bar():
 	from lux.compiler.Compiler import Compiler
@@ -106,14 +106,14 @@ def test_specified_vis_collection():
 
 	df.set_context(
 		[lux.VisSpec(attribute="Horsepower"),lux.VisSpec(attribute="Brand"), lux.VisSpec(attribute = "Origin",value=["Japan","USA"])])
-	assert len(df.current_view) == 2
+	assert len(df.current_context) == 2
 
 	df.set_context(
 		[lux.VisSpec(attribute=["Horsepower","Weight"]),lux.VisSpec(attribute="Brand"), lux.VisSpec(attribute = "Origin",value=["Japan","USA"])])
-	assert len(df.current_view) == 4
+	assert len(df.current_context) == 4
 
 # 	# test if z axis has been filtered correctly
-	chart_titles = [view.title for view in df.current_view.collection]
+	chart_titles = [view.title for view in df.current_context.collection]
 	assert "Origin = USA" and "Origin = Japan" in chart_titles
 	assert "Origin = Europe" not in chart_titles
 
@@ -123,7 +123,7 @@ def test_specified_channel_enforced_vis_collection():
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 	df.set_context(
 		[lux.VisSpec(attribute="?"),lux.VisSpec(attribute="MilesPerGal",channel="x")])
-	for view in df.current_view:
+	for view in df.current_context:
 		check_attribute_on_channel(view, "MilesPerGal", "x")
 
 def test_autoencoding_scatter():
@@ -131,19 +131,19 @@ def test_autoencoding_scatter():
 	df = pd.read_csv("lux/data/cars.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 	df.set_context([lux.VisSpec(attribute="MilesPerGal"), lux.VisSpec(attribute="Weight")])
-	view = df.current_view[0]
+	view = df.current_context[0]
 	check_attribute_on_channel(view, "MilesPerGal", "x")
 	check_attribute_on_channel(view, "Weight", "y")
 
 	# Partial channel specified
 	df.set_context([lux.VisSpec(attribute="MilesPerGal", channel="y"), lux.VisSpec(attribute="Weight")])
-	view = df.current_view[0]
+	view = df.current_context[0]
 	check_attribute_on_channel(view, "MilesPerGal", "y")
 	check_attribute_on_channel(view, "Weight", "x")
 
 	# Full channel specified
 	df.set_context([lux.VisSpec(attribute="MilesPerGal", channel="y"), lux.VisSpec(attribute="Weight", channel="x")])
-	view = df.current_view[0]
+	view = df.current_context[0]
 	check_attribute_on_channel(view, "MilesPerGal", "y")
 	check_attribute_on_channel(view, "Weight", "x")
 	# Duplicate channel specified
@@ -157,31 +157,31 @@ def test_autoencoding_histogram():
 	df = pd.read_csv("lux/data/cars.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 	df.set_context([lux.VisSpec(attribute="MilesPerGal", channel="y")])
-	view = df.current_view[0]
+	view = df.current_context[0]
 	check_attribute_on_channel(view, "MilesPerGal", "y")
 
 	# Record instead of count
 	# df.set_context([lux.VisSpec(attribute="MilesPerGal",channel="x")])
-	# assert df.current_view[0].get_attr_by_channel("x")[0].attribute == "MilesPerGal"
-	# assert df.current_view[0].get_attr_by_channel("y")[0].attribute == "count()"
+	# assert df.current_context[0].get_attr_by_channel("x")[0].attribute == "MilesPerGal"
+	# assert df.current_context[0].get_attr_by_channel("y")[0].attribute == "count()"
 
 def test_autoencoding_line_chart():
 	df = pd.read_csv("lux/data/cars.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 	df.set_context([lux.VisSpec(attribute="Year"), lux.VisSpec(attribute="Acceleration")])
-	view = df.current_view[0]
+	view = df.current_context[0]
 	check_attribute_on_channel(view, "Year", "x")
 	check_attribute_on_channel(view, "Acceleration", "y")
 
 	# Partial channel specified
 	df.set_context([lux.VisSpec(attribute="Year", channel="y"), lux.VisSpec(attribute="Acceleration")])
-	view = df.current_view[0]
+	view = df.current_context[0]
 	check_attribute_on_channel(view, "Year", "y")
 	check_attribute_on_channel(view, "Acceleration", "x")
 
 	# Full channel specified
 	df.set_context([lux.VisSpec(attribute="Year", channel="y"), lux.VisSpec(attribute="Acceleration", channel="x")])
-	view = df.current_view[0]
+	view = df.current_context[0]
 	check_attribute_on_channel(view, "Year", "y")
 	check_attribute_on_channel(view, "Acceleration", "x")
 
@@ -194,7 +194,7 @@ def test_autoencoding_color_line_chart():
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 	df.set_context([lux.VisSpec(attribute="Year"), lux.VisSpec(attribute="Acceleration"), lux.VisSpec(attribute="Origin")])
 
-	view = df.current_view[0]
+	view = df.current_context[0]
 
 	check_attribute_on_channel(view, "Year", "x")
 	check_attribute_on_channel(view, "Acceleration", "y")
@@ -204,11 +204,11 @@ def test_autoencoding_color_scatter_chart():
 	df = pd.read_csv("lux/data/cars.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 	df.set_context([lux.VisSpec(attribute="Horsepower"), lux.VisSpec(attribute="Acceleration"), lux.VisSpec(attribute="Origin")])
-	view = df.current_view[0]
+	view = df.current_context[0]
 	check_attribute_on_channel(view, "Origin", "color")
 
 	df.set_context([lux.VisSpec(attribute="Horsepower"), lux.VisSpec(attribute="Acceleration", channel="color"), lux.VisSpec(attribute="Origin")])
-	view = df.current_view[0]
+	view = df.current_context[0]
 	check_attribute_on_channel(view, "Acceleration", "color")
 
 def test_populate_options():
