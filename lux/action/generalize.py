@@ -61,7 +61,7 @@ def generalize(ldf):
 	for spec in filter_specs:
 		#new_spec = ldf.context.copy()
 		#new_spec.remove_column_from_spec(new_spec.attribute)
-		temp_view = Vis(ldf.current_view[0].spec_lst.copy(),ldf,title="Overall",score=0)
+		temp_view = Vis(ldf.current_context[0].spec_lst.copy(),ldf,title="Overall",score=0)
 		temp_view.remove_filter_from_spec(spec.value)
 		output.append(temp_view)
 

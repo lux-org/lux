@@ -15,14 +15,14 @@ class LuxDataFrame(pd.DataFrame):
     _metadata = ['context','data_type_lookup','data_type','filter_specs',
                  'data_model_lookup','data_model','unique_values','cardinality',
                  'x_min_max', 'y_min_max','plot_config',
-                 'current_view','widget', '_rec_info', 'recommendation']
+                 'current_context','widget', '_rec_info', 'recommendation']
 
     def __init__(self,*args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
         self.context = []
         self._rec_info=[]
         self.recommendation = {}
-        self.current_view = []
+        self.current_context = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.compute_stats()
@@ -118,7 +118,7 @@ class LuxDataFrame(pd.DataFrame):
             self.compute_dataset_metadata()
         self.context = Parser.parse(self.get_context())
         Validator.validate_spec(self.context,self)
-        self.current_view = Compiler.compile(self, self.context, self.current_view)
+        self.current_context = Compiler.compile(self, self.context, self.current_context)
 
     def set_context(self, context:typing.List[typing.Union[str, VisSpec]]):
         """
@@ -154,7 +154,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def clear_context(self):
         self.context = []
-        self.current_vis = []
+        self.current_context = []
     def clear_filter(self):
         self.filter_specs = []  # reset filters
     def to_pandas(self):
@@ -354,14 +354,14 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.generalize import generalize
 
         self._rec_info = []
-        if (self.current_view is None):
+        if (self.current_context is None):
             no_view = True
             one_current_view = False
             multiple_current_views = False
         else:
-            no_view = len(self.current_view) == 0
-            one_current_view = len(self.current_view) == 1
-            multiple_current_views = len(self.current_view) > 1
+            no_view = len(self.current_context) == 0
+            one_current_view = len(self.current_context) == 1
+            multiple_current_views = len(self.current_context) > 1
 
         if (no_view):
             self._append_recInfo(correlation(self))
@@ -429,11 +429,11 @@ class LuxDataFrame(pd.DataFrame):
 				,stacklevel=2)
             return []
         if len(exported_vis_lst) == 1 and "currentView" in exported_vis_lst:
-            return self.current_view
+            return self.current_context
         elif len(exported_vis_lst) > 1: 
             exported_views  = {}
             if ("currentView" in exported_vis_lst):
-                exported_views["Current Vis"] = self.current_view
+                exported_views["Current Vis"] = self.current_context
             for export_action in exported_vis_lst:
                 if (export_action != "currentView"):
                     exported_views[export_action] = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
@@ -528,7 +528,7 @@ class LuxDataFrame(pd.DataFrame):
         import luxWidget
         widgetJSON = ldf.to_JSON(input_current_view=input_current_view)
         return luxWidget.LuxWidget(
-            currentView=widgetJSON["current_view"],
+            currentView=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
             context=LuxDataFrame.context_to_JSON(ldf.context)
         )
@@ -546,11 +546,11 @@ class LuxDataFrame(pd.DataFrame):
 
     def to_JSON(self, input_current_view=""):
         widget_spec = {}
-        if (self.current_view): 
-            self.executor.execute(self.current_view, self)
-            widget_spec["current_view"] = LuxDataFrame.current_view_to_JSON(self.current_view, input_current_view)
+        if (self.current_context): 
+            self.executor.execute(self.current_context, self)
+            widget_spec["current_vis"] = LuxDataFrame.current_view_to_JSON(self.current_context, input_current_view)
         else:
-            widget_spec["current_view"] = {}
+            widget_spec["current_vis"] = {}
         widget_spec["recommendation"] = []
         
         # Recommended Collection
