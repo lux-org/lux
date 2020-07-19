@@ -149,6 +149,13 @@ class LuxDataFrame(pd.DataFrame):
         """        
         self.context = vis.spec_lst
         self._refresh_context()
+    def copy_context(self):
+        #creates a true copy of the dataframe's context
+        output = []
+        for spec in self.context:
+            temp_spec = spec.copy_spec()
+            output.append(temp_spec)
+        return(output)
 
     def clear_context(self):
         self.context = []

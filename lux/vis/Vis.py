@@ -223,7 +223,7 @@ class Vis:
 		self.spec_lst = Parser.parse(self.spec_lst)
 		Validator.validate_spec(self.spec_lst,ldf)
 		vc = Compiler.compile(ldf,ldf.context,[self],enumerate_collection=False)
-		PandasExecutor.execute(vc,ldf)
+		ldf.executor.execute(vc,ldf)
 		# Copying properties over since we can not redefine `self` within class function
 		vis = vc[0]
 		self.title = vis.title
