@@ -412,7 +412,7 @@ class LuxDataFrame(pd.DataFrame):
             When the exported vis is from the different tabs, return a dictionary with the action name as key and selected views in the VisCollection. -> {"Enhance": VisCollection(v1, v2...), "Filter": VisCollection(v5, v7...), ..}
         """        
         if (self.widget is None):
-            warnings.warn("No widget attached to the dataframe. Please assign widget to an output variable.", stacklevel=2)
+            warnings.warn("No widget attached to the dataframe. Please assign dataframe to an output variable.", stacklevel=2)
         exported_vis_lst =self.widget._exportedVisIdxs
         exported_views = [] 
         if (exported_vis_lst=={}):
@@ -442,47 +442,52 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import clear_output
         import ipywidgets as widgets
         
-        if (type(self.index) != pd.core.indexes.range.RangeIndex):# if multi-index, then default to pandas output
-            warnings.warn("\n Lux does not currently support dataframes with hierarchical indexes. \n Please convert the dataframe into a flat table via `pandas.DataFrame.reset_index`.",stacklevel=2)
+        try: 
+            if (type(self.index) != pd.core.indexes.range.RangeIndex):# if multi-index, then default to pandas output
+                warnings.warn("\n Lux does not currently support dataframes with hierarchical indexes. \n Please convert the dataframe into a flat table via `pandas.DataFrame.reset_index`.",stacklevel=2)
+                display(self.display_pandas())
+                return
+            self.toggle_pandas_view = self.default_pandas_view # Reset to Pandas View everytime
+            # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_context)
+            if self.executor_type == "Pandas":
+                self.compute_stats()
+                self.compute_dataset_metadata()
+
+            #for benchmarking
+            if self.toggle_benchmarking == True:
+                tic = time.perf_counter()
+            self.show_more() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self.widget)
+            if self.toggle_benchmarking == True:
+                toc = time.perf_counter()
+                print(f"Computed recommendations in {toc - tic:0.4f} seconds")
+
+            self.widget = LuxDataFrame.render_widget(self)
+
+            # box = widgets.Box(layout=widgets.Layout(display='inline'))
+            button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
+            output = widgets.Output()
+            # box.children = [button,output]
+            # output.children = [button]
+            # display(box)
+            display(button,output)
+            def on_button_clicked(b):
+                with output:
+                    if (b):
+                        self.toggle_pandas_view = not self.toggle_pandas_view
+                    clear_output()
+                    if (self.toggle_pandas_view):
+                        display(self.display_pandas())
+                    else:
+                        # b.layout.display = "none"
+                        display(self.widget)
+                        # b.layout.display = "inline-block"
+            button.on_click(on_button_clicked)
+            on_button_clicked(None)
+        except(KeyboardInterrupt,SystemExit):
+            raise
+        except:
+            warnings.warn("\nUnexpected error in rendering Lux widget and recommendations. Falling back to Pandas display.\n Please report this issue on Github (https://github.com/lux-org/lux/issues).",stacklevel=2)
             display(self.display_pandas())
-            return
-        self.toggle_pandas_view = self.default_pandas_view # Reset to Pandas View everytime
-        # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_context)
-        if self.executor_type == "Pandas":
-            self.compute_stats()
-            self.compute_dataset_metadata()
-
-        #for benchmarking
-        if self.toggle_benchmarking == True:
-            tic = time.perf_counter()
-        self.show_more() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self.widget)
-        if self.toggle_benchmarking == True:
-            toc = time.perf_counter()
-            print(f"Computed recommendations in {toc - tic:0.4f} seconds")
-
-        self.widget = LuxDataFrame.render_widget(self)
-
-        # box = widgets.Box(layout=widgets.Layout(display='inline'))
-        button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
-        output = widgets.Output()
-        # box.children = [button,output]
-        # output.children = [button]
-        # display(box)
-        display(button,output)
-        def on_button_clicked(b):
-            with output:
-                if (b):
-                    self.toggle_pandas_view = not self.toggle_pandas_view
-                clear_output()
-                if (self.toggle_pandas_view):
-                    display(self.display_pandas())
-                else:
-                    # b.layout.display = "none"
-                    display(self.widget)
-                    # b.layout.display = "inline-block"
-        button.on_click(on_button_clicked)
-        on_button_clicked(None)
-
     def display_pandas(self):
         return self.to_pandas()
     @staticmethod
