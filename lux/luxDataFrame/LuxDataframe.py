@@ -45,7 +45,6 @@ class LuxDataFrame(pd.DataFrame):
     def set_default_display(self, type:str) -> None:
         """
         Set the widget display to show Pandas by default or Lux by default
-
         Parameters
         ----------
         type : str
@@ -56,7 +55,7 @@ class LuxDataFrame(pd.DataFrame):
         elif (type.lower()=="pandas"):
             self.default_pandas_view = True
         else: 
-            warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.")
+            warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.",stacklevel=2)
     # @property
     # def context(self):
     #     return self.context
@@ -78,7 +77,6 @@ class LuxDataFrame(pd.DataFrame):
         """
         Modify plot aesthetic settings to all Views in the dataframe display
         Currently only supported for Altair visualizations
-
         Parameters
         ----------
         config_func : typing.Callable
@@ -87,7 +85,6 @@ class LuxDataFrame(pd.DataFrame):
         Example
         ----------
         Changing the color of marks and adding a title for all charts displayed for this dataframe
-
         >>> df = pd.read_csv("lux/data/car.csv")
         >>> def changeColorAddTitle(chart):
                 chart = chart.configure_mark(color="red") # change mark color to red
@@ -95,7 +92,6 @@ class LuxDataFrame(pd.DataFrame):
                 return chart
         >>> df.set_plot_config(changeColorAddTitle)
         >>> df
-
         Change the opacity of all scatterplots displayed for this dataframe
         >>> df = pd.read_csv("lux/data/olympic.csv")
         >>> def changeOpacityScatterOnly(chart):
@@ -124,22 +120,21 @@ class LuxDataFrame(pd.DataFrame):
         """
         Main function to set the context of the dataframe.
         The context input goes through the parser, so that the string inputs are parsed into a lux.VisSpec object.
-
         Parameters
         ----------
         context : typing.List[str,VisSpec]
             Context list, can be a mix of string shorthand or a lux.VisSpec object
-
         Notes
         -----
             :doc:`../guide/spec`
         """        
+        if type(context)!=list:
+            raise TypeError("Input context must be a list consisting of string descriptions or lux.VisSpec objects. \nSee more at: https://lux-api.readthedocs.io/en/dfapi/source/guide/spec.html")
         self.context = context
         self._refresh_context()
     def set_context_as_vis(self,vis:Vis):
         """
         Set context of the dataframe as the View
-
         Parameters
         ----------
         view : View
@@ -154,7 +149,6 @@ class LuxDataFrame(pd.DataFrame):
             temp_spec = spec.copy_spec()
             output.append(temp_spec)
         return(output)
-
     def clear_context(self):
         self.context = []
         self.current_view = []
@@ -355,9 +349,14 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.generalize import generalize
 
         self._rec_info = []
-        no_view = len(self.current_view) == 0
-        one_current_view = len(self.current_view) == 1
-        multiple_current_views = len(self.current_view) > 1
+        if (self.current_view is None):
+            no_view = True
+            one_current_view = False
+            multiple_current_views = False
+        else:
+            no_view = len(self.current_view) == 0
+            one_current_view = len(self.current_view) == 1
+            multiple_current_views = len(self.current_view) > 1
 
         if (no_view):
             self._rec_info.append(correlation(self))
@@ -400,7 +399,6 @@ class LuxDataFrame(pd.DataFrame):
     def get_exported(self) -> typing.Union[typing.Dict[str,VisCollection], VisCollection]:
         """
         Get selected views as exported View Collection
-
         Notes
         -----
         Convert the _exportedVisIdxs dictionary into a programmable VisCollection
@@ -415,11 +413,13 @@ class LuxDataFrame(pd.DataFrame):
             When all the exported vis is from the same tab, return a VisCollection of selected views. -> VisCollection(v1, v2...)
             When the exported vis is from the different tabs, return a dictionary with the action name as key and selected views in the VisCollection. -> {"Enhance": VisCollection(v1, v2...), "Filter": VisCollection(v5, v7...), ..}
         """        
+        if (self.widget is None):
+            warnings.warn("No widget attached to the dataframe. Please assign widget to an output variable.", stacklevel=2)
         exported_vis_lst =self.widget._exportedVisIdxs
         exported_views = [] 
         if (exported_vis_lst=={}):
             import warnings
-            warnings.warn("No visualization selected to export")
+            warnings.warn("No visualization selected to export",stacklevel=2)
             return []
         if len(exported_vis_lst) == 1 and "currentView" in exported_vis_lst:
             return self.current_view
@@ -436,14 +436,18 @@ class LuxDataFrame(pd.DataFrame):
             exported_views = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
             return exported_views
         else:
-            import warnings
-            warnings.warn("No visualization selected to export")
+            warnings.warn("No visualization selected to export",stacklevel=2)
             return []
 
     def _repr_html_(self):
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
+        
+        if (type(self.index) != pd.core.indexes.range.RangeIndex):# if multi-index, then default to pandas output
+            warnings.warn("\n Lux does not currently support dataframes with hierarchical indexes. \n Please convert the dataframe into a flat table via `pandas.DataFrame.reset_index`.",stacklevel=2)
+            display(self.display_pandas())
+            return
         self.toggle_pandas_view = self.default_pandas_view # Reset to Pandas View everytime
         # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_context)
         if self.executor_type == "Pandas":
@@ -517,9 +521,11 @@ class LuxDataFrame(pd.DataFrame):
 
     def to_JSON(self, input_current_view=""):
         widget_spec = {}
-        self.executor.execute(self.current_view, self)
-        widget_spec["current_view"] = LuxDataFrame.current_view_to_JSON(self.current_view, input_current_view)
-        
+        if (self.current_view): 
+            self.executor.execute(self.current_view, self)
+            widget_spec["current_view"] = LuxDataFrame.current_view_to_JSON(self.current_view, input_current_view)
+        else:
+            widget_spec["current_view"] = {}
         widget_spec["recommendation"] = []
         
         # Recommended Collection
@@ -551,5 +557,3 @@ class LuxDataFrame(pd.DataFrame):
                 # delete DataObjectCollection since not JSON serializable
                 del rec_lst[idx]["collection"]
         return rec_lst
-
-
