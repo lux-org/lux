@@ -6,7 +6,7 @@ from lux.executor.Executor import Executor
 from lux.utils import utils
 class PandasExecutor(Executor):
     '''
-    Given a View objects with complete specifications, fetch and process data using Pandas dataframe operations.
+    Given a Vis objects with complete specifications, fetch and process data using Pandas dataframe operations.
     '''
     def __init__(self):
         self.name = "PandasExecutor"
@@ -24,8 +24,8 @@ class PandasExecutor(Executor):
 
         Parameters
 		----------
-		view_collection: list[lux.View]
-		    view collection that contains lux.View objects for visualization.
+		view_collection: list[lux.Vis]
+		    view collection that contains lux.Vis objects for visualization.
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with specified context.
 
@@ -58,8 +58,8 @@ class PandasExecutor(Executor):
 
         Parameters
         ----------
-        view: lux.View
-            lux.View object that represents a visualization
+        view: lux.Vis
+            lux.Vis object that represents a visualization
         ldf : lux.luxDataFrame.LuxDataFrame
             LuxDataFrame with specified context.
 
@@ -108,8 +108,8 @@ class PandasExecutor(Executor):
 
         Parameters
         ----------
-        view: lux.View
-            lux.View object that represents a visualization
+        view: lux.Vis
+            lux.Vis object that represents a visualization
         ldf : lux.luxDataFrame.LuxDataFrame
             LuxDataFrame with specified context.
 

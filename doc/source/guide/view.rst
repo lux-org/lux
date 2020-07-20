@@ -1,8 +1,8 @@
 ********************************
-Specifying View/View Collections
+Specifying Vis/Vis Collections
 ********************************
 
-:mod:`lux.view.View` objects represents individual visualizations displayed in Lux. Lists of views are stored as :mod:`lux.view.ViewCollection` objects.
+:mod:`lux.vis.Vis` objects represents individual visualizations displayed in Lux. Lists of views are stored as :mod:`lux.vis.VisCollection` objects.
 Views can either be automatically generated in Lux or defined by the user.
 
 Basic descriptions 
@@ -10,8 +10,8 @@ Basic descriptions
 We can create a visualization by defining a view. A view is simply a skeleton of the visualization. 
 
 .. code-block:: python
-    from lux.view.View import View
-    view = View(["MilesPerGal"])
+    from lux.vis.Vis import Vis
+    view = Vis(["MilesPerGal"])
 
 To render the visualization, we need to attach the view to data via the load function.
 .. [Note: Alternatives to `load`]

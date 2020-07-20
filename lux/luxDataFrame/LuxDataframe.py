@@ -76,7 +76,7 @@ class LuxDataFrame(pd.DataFrame):
         self.executor_type = exe
     def set_plot_config(self,config_func:typing.Callable):
         """
-        Modify plot aesthetic settings to all Views in the dataframe display
+        Modify plot aesthetic settings to all visualizations in the dataframe display
         Currently only supported for Altair visualizations
 
         Parameters
@@ -142,11 +142,11 @@ class LuxDataFrame(pd.DataFrame):
         self._refresh_context()
     def set_context_as_vis(self,vis:Vis):
         """
-        Set context of the dataframe as the View
+        Set context of the dataframe as the Vis
 
         Parameters
         ----------
-        view : View
+        view : Vis
             [description]
         """        
         self.context = vis.spec_lst
@@ -355,24 +355,24 @@ class LuxDataFrame(pd.DataFrame):
 
         self._rec_info = []
         if (self.current_context is None):
-            no_view = True
-            one_current_view = False
-            multiple_current_views = False
+            no_vis = True
+            one_current_vis = False
+            multiple_current_vis = False
         else:
-            no_view = len(self.current_context) == 0
-            one_current_view = len(self.current_context) == 1
-            multiple_current_views = len(self.current_context) > 1
+            no_vis = len(self.current_context) == 0
+            one_current_vis = len(self.current_context) == 1
+            multiple_current_vis = len(self.current_context) > 1
 
-        if (no_view):
+        if (no_vis):
             self._append_recInfo(correlation(self))
             self._append_recInfo(univariate(self,"quantitative"))
             self._append_recInfo(univariate(self,"nominal"))
             self._append_recInfo(univariate(self,"temporal"))
-        elif (one_current_view):
+        elif (one_current_vis):
             self._append_recInfo(enhance(self))
             self._append_recInfo(filter(self))
             self._append_recInfo(generalize(self))
-        elif (multiple_current_views):
+        elif (multiple_current_vis):
             self._append_recInfo(custom(self))
             
         # Store _rec_info into a more user-friendly dictionary form
@@ -381,7 +381,7 @@ class LuxDataFrame(pd.DataFrame):
             action_type = rec_info["action"]
             vc = rec_info["collection"]
             if (self.plot_config):
-                for view in vc: view.plot_config = self.plot_config
+                for vis in vc: vis.plot_config = self.plot_config
             if (len(vc)>0):
                 self.recommendation[action_type]  = vc
 
@@ -397,7 +397,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def get_exported(self) -> typing.Union[typing.Dict[str,VisCollection], VisCollection]:
         """
-        Get selected views as exported View Collection
+        Get selected visualizations as exported Vis Collection
 
         Notes
         -----
@@ -410,8 +410,8 @@ class LuxDataFrame(pd.DataFrame):
         -------
         typing.Union[typing.Dict[str,VisCollection], VisCollection]
             When there are no exported vis, return empty list -> []
-            When all the exported vis is from the same tab, return a VisCollection of selected views. -> VisCollection(v1, v2...)
-            When the exported vis is from the different tabs, return a dictionary with the action name as key and selected views in the VisCollection. -> {"Enhance": VisCollection(v1, v2...), "Filter": VisCollection(v5, v7...), ..}
+            When all the exported vis is from the same tab, return a VisCollection of selected visualizations. -> VisCollection(v1, v2...)
+            When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisCollection. -> {"Enhance": VisCollection(v1, v2...), "Filter": VisCollection(v5, v7...), ..}
         """
         if not hasattr(self,"widget"):
             warnings.warn(
@@ -421,7 +421,7 @@ class LuxDataFrame(pd.DataFrame):
 						, stacklevel=2)
             return []
         exported_vis_lst =self.widget._exportedVisIdxs
-        exported_views = [] 
+        exported_vis = [] 
         if (exported_vis_lst=={}):
             warnings.warn(
 				"\nNo visualization selected to export.\n"
@@ -431,17 +431,17 @@ class LuxDataFrame(pd.DataFrame):
         if len(exported_vis_lst) == 1 and "currentView" in exported_vis_lst:
             return self.current_context
         elif len(exported_vis_lst) > 1: 
-            exported_views  = {}
+            exported_vis  = {}
             if ("currentView" in exported_vis_lst):
-                exported_views["Current Vis"] = self.current_context
+                exported_vis["Current Vis"] = self.current_context
             for export_action in exported_vis_lst:
                 if (export_action != "currentView"):
-                    exported_views[export_action] = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
-            return exported_views
+                    exported_vis[export_action] = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
+            return exported_vis
         elif len(exported_vis_lst) == 1 and ("currentView" not in exported_vis_lst): 
             export_action = list(exported_vis_lst.keys())[0]
-            exported_views = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
-            return exported_views
+            exported_vis = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
+            return exported_vis
         else:
             warnings.warn(
 				"\nNo visualization selected to export.\n"
@@ -465,7 +465,7 @@ class LuxDataFrame(pd.DataFrame):
                         )
                 display(self.display_pandas())
                 return
-            self.toggle_pandas_display = self.default_pandas_display # Reset to Pandas View everytime
+            self.toggle_pandas_display = self.default_pandas_display # Reset to Pandas Vis everytime
             # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_context)
             if self.executor_type == "Pandas":
                 self.compute_stats()
@@ -522,7 +522,7 @@ class LuxDataFrame(pd.DataFrame):
         renderer : str, optional
             Choice of visualization rendering library, by default "altair"
         input_current_view : lux.LuxDataFrame, optional
-            User-specified current view to override default Current View, by default 
+            User-specified current view to override default Current Vis, by default 
         """       
         check_import_lux_widget()
         import luxWidget
@@ -561,7 +561,7 @@ class LuxDataFrame(pd.DataFrame):
     @staticmethod
     def current_view_to_JSON(vc, input_current_view=""):
         current_view_spec = {}
-        numVC = len(vc) #number of views in the view collection
+        numVC = len(vc) #number of visualizations in the vis collection
         if (numVC==1):
             current_view_spec = vc[0].render_VSpec()
         elif (numVC>1):

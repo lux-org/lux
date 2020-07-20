@@ -1,21 +1,21 @@
-lux.view package
+lux.vis package
 ================
 
 Submodules
 ----------
 
-lux.view.View module
+lux.vis.Vis module
 --------------------
 
-.. automodule:: lux.view.View
+.. automodule:: lux.vis.Vis
    :members:
    :undoc-members:
    :show-inheritance:
 
-lux.view.ViewCollection module
+lux.vis.VisCollection module
 ------------------------------
 
-.. automodule:: lux.view.ViewCollection
+.. automodule:: lux.vis.VisCollection
    :members:
    :undoc-members:
    :show-inheritance:
@@ -24,7 +24,7 @@ lux.view.ViewCollection module
 Module contents
 ---------------
 
-.. automodule:: lux.view
+.. automodule:: lux.vis
    :members:
    :undoc-members:
    :show-inheritance:
