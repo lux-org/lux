@@ -12,38 +12,29 @@ class VisCollection():
 	def __init__(self,input_lst:Union[List[Vis],List[VisSpec]],source=None):
 		# Overloaded Constructor
 		self.source = source 
-		self.input_lst = input_lst
+		self._input_lst = input_lst
 		if len(input_lst)>0:
 			if (self._is_vis_input()):
 				self.collection = input_lst
-				self.spec_lst = []
+				self.query = []
 			else:
-				self.spec_lst = input_lst
+				self.query = input_lst
 				self.collection = []
 		else:
 			self.collection = []
-			self.spec_lst = []
+			self.query = []
 		self.widget = None
 		if (source is not None): self.refresh_source(source)
-	def get_specs(self) -> List[VisSpec]:
+	def set_query(self, query:List[VisSpec]) -> None:
 		"""
-		Returns the VisSpecs describing the VisCollection
-
-		Returns
-		-------
-		List[VisSpec]
-		"""		
-		return self.spec_lst
-	def set_specs(self, specs:List[VisSpec]) -> None:
-		"""
-		Sets the spec_lst of the VisCollection and refresh the source based on the new spec
+		Sets the query of the VisCollection and refresh the source based on the new spec
 
 		Parameters
 		----------
 		query : List[VisSpec]
 			Query specifying the desired VisCollection
 		"""		
-		self.spec_lst = specs
+		self.query = query
 		self.refresh_source(self.source)
 	def get_exported(self) -> VisCollection:
 		"""
@@ -83,9 +74,9 @@ class VisCollection():
 		"""		
 		self.collection = list(set(self.collection))
 	def _is_vis_input(self):
-		if (type(self.input_lst[0])==Vis):
+		if (type(self._input_lst[0])==Vis):
 			return True
-		elif (type(self.input_lst[0])==VisSpec):
+		elif (type(self._input_lst[0])==VisSpec):
 			return False
 	def __getitem__(self, key):
 		return self.collection[key]
@@ -95,14 +86,14 @@ class VisCollection():
 		return len(self.collection)
 	def __repr__(self):
 		if len(self.collection) == 0:
-			return str(self.input_lst)
+			return str(self._input_lst)
 		x_channel = ""
 		y_channel = ""
 		largest_mark = 0
 		largest_filter = 0
 		for vis in self.collection: #finds longest x attribute among all visualizations
 			filter_spec = None
-			for spec in vis.spec_lst:
+			for spec in vis._inferred_query:
 				if spec.value != "":
 					filter_spec = spec
 
@@ -129,7 +120,7 @@ class VisCollection():
 			x_channel = ""
 			y_channel = ""
 			additional_channels = []
-			for spec in vis.spec_lst:
+			for spec in vis._inferred_query:
 				if spec.value != "":
 					filter_spec = spec
 
@@ -233,9 +224,10 @@ class VisCollection():
 			)
 		display(self.widget)	
 	
-	def refresh_source(self, ldf) :#-> VisCollection:
+	def refresh_source(self, ldf) :
 		"""
-		Loading the source into the visualizations in the VisCollection by instantiating the specification and populating the visualization based on the source, effectively "materializing" the visualization.
+		Loading the source into the visualizations in the VisCollection, then populating each visualization 
+		based on the new source data, effectively "materializing" the visualization collection.
 
 		Parameters
 		----------
@@ -250,20 +242,24 @@ class VisCollection():
 		See Also
 		--------
 		lux.vis.Vis.refresh_source
+
+		Note
+		----
+		Function derives a new _inferred_query by instantiating the query specification on the new data
 		"""		
 		from lux.compiler.Parser import Parser
 		from lux.compiler.Validator import Validator
 		from lux.compiler.Compiler import Compiler
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
 		self.source = ldf
-		if len(self.input_lst)>0:
+		if len(self._input_lst)>0:
 			if (self._is_vis_input()):
 				for vis in self.collection:
-					vis.spec_lst = Parser.parse(vis.spec_lst)
-					Validator.validate_spec(vis.spec_lst,ldf)
+					vis._inferred_query = Parser.parse(vis.query)
+					Validator.validate_spec(vis._inferred_query,ldf)
 				self.collection = Compiler.compile(ldf,ldf.context,self,enumerate_collection=False)
 			else:
-				self.spec_lst = Parser.parse(self.spec_lst)
-				Validator.validate_spec(self.spec_lst,ldf)
-				self.collection = Compiler.compile(ldf,self.spec_lst,self)
+				self._inferred_query = Parser.parse(self.query)
+				Validator.validate_spec(self._inferred_query,ldf)
+				self.collection = Compiler.compile(ldf,self._inferred_query,self)
 			ldf.executor.execute(self.collection,ldf)

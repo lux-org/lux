@@ -45,7 +45,7 @@ def test_period_filter():
 	PandasExecutor.execute(ldf.current_context, ldf)
 	ldf.show_more()
 
-	assert isinstance(ldf.recommendation['Filter'][2].spec_lst[2].value, pd.Period)
+	assert isinstance(ldf.recommendation['Filter'][2]._inferred_query[2].value, pd.Period)
 
 def test_period_to_altair():
 	chart = None
@@ -69,8 +69,13 @@ def test_refresh_inplace():
 	assert df.data_type['nominal'][0] == 'date'
 
 	from lux.vis.Vis import Vis
-	view = Vis(["date","value"],df)
+	vis = Vis(["date","value"],df)
 
 	df['date'] = pd.to_datetime(df['date'],format="%Y-%m-%d")
 
 	assert df.data_type['temporal'][0] == 'date'
+
+	vis.refresh_source(df)
+	assert vis.mark == "line"
+	assert vis.get_attr_by_channel("x")[0].attribute == "date"
+	assert vis.get_attr_by_channel("y")[0].attribute == "value"

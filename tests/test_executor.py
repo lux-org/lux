@@ -62,14 +62,14 @@ def test_inequalityfilter():
 
     # Test end-to-end
     PandasExecutor.execute(df.current_context, df)
-    Nbins =list(filter(lambda x: x.bin_size!=0, df.current_context[0].spec_lst))[0].bin_size
+    Nbins =list(filter(lambda x: x.bin_size!=0, df.current_context[0]._inferred_query))[0].bin_size
     assert len(df.current_context[0].data) == Nbins
     
 def test_binning():
     df = pd.read_csv("lux/data/car.csv")
     df.set_context([lux.VisSpec(attribute ="Horsepower")])
     PandasExecutor.execute(df.current_context, df)
-    nbins =list(filter(lambda x: x.bin_size!=0, df.current_context[0].spec_lst))[0].bin_size
+    nbins =list(filter(lambda x: x.bin_size!=0, df.current_context[0]._inferred_query))[0].bin_size
     assert len(df.current_context[0].data) == nbins
 
 def test_record():

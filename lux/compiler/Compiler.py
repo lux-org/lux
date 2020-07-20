@@ -20,7 +20,7 @@ class Compiler:
 		return f"<Compiler>"
 
 	@staticmethod
-	def compile(ldf: LuxDataFrame,spec_lst:List[VisSpec], vis_collection: VisCollection, enumerate_collection=True) -> VisCollection:
+	def compile(ldf: LuxDataFrame,_inferred_query:List[VisSpec], vis_collection: VisCollection, enumerate_collection=True) -> VisCollection:
 		"""
 		Compiles input specifications in the context of the ldf into a collection of lux.vis objects for visualization.
 		1) Enumerate a collection of visualizations interested by the user to generate a vis collection
@@ -42,8 +42,8 @@ class Compiler:
 			vis collection with compiled lux.Vis objects.
 		"""
 		if (enumerate_collection):
-			vis_collection = Compiler.enumerate_collection(spec_lst,ldf)
-		vis_collection = Compiler.expand_underspecified(ldf, vis_collection)  # autofill data type/model information
+			vis_collection = Compiler.enumerate_collection(_inferred_query,ldf)
+		vis_collection = Compiler.populate_data_type_model(ldf, vis_collection)  # autofill data type/model information
 		if len(vis_collection)>1: 
 			vis_collection = Compiler.remove_all_invalid(vis_collection) # remove invalid visualizations from collection
 		for vis in vis_collection:
@@ -51,7 +51,7 @@ class Compiler:
 		return vis_collection
 
 	@staticmethod
-	def enumerate_collection(spec_lst:List[VisSpec],ldf: LuxDataFrame) -> VisCollection:
+	def enumerate_collection(_inferred_query:List[VisSpec],ldf: LuxDataFrame) -> VisCollection:
 		"""
 		Given specifications that have been expanded thorught populateOptions,
 		recursively iterate over the resulting list combinations to generate a Vis collection.
@@ -67,7 +67,7 @@ class Compiler:
 			vis collection with compiled lux.Vis objects.
 		"""
 		import copy
-		specs = Compiler.populate_wildcard_options(spec_lst, ldf)
+		specs = Compiler.populate_wildcard_options(_inferred_query, ldf)
 		attributes = specs['attributes']
 		filters = specs['filters']
 		if len(attributes) == 0 and len(filters) > 0:
@@ -85,8 +85,8 @@ class Compiler:
 				if last:
 					if len(filters) > 0:  # if we have filters, generate combinations for each row.
 						for row in filters:
-							spec_lst = copy.deepcopy(column_list + [row])
-							vis = Vis(spec_lst, title=f"{row.attribute} {row.filter_op} {row.value}")
+							_inferred_query = copy.deepcopy(column_list + [row])
+							vis = Vis(_inferred_query, title=f"{row.attribute} {row.filter_op} {row.value}")
 							collection.append(vis)
 					else:
 						vis = Vis(column_list)
@@ -97,7 +97,7 @@ class Compiler:
 		return VisCollection(collection)
 
 	@staticmethod
-	def expand_underspecified(ldf, vis_collection) -> VisCollection:
+	def populate_data_type_model(ldf, vis_collection) -> VisCollection:
 		"""
 		Given a underspecified VisSpec, populate the data_type and data_model information accordingly
 
@@ -117,14 +117,14 @@ class Compiler:
 		import copy
 		vc = copy.deepcopy(vis_collection)  # Preserve the original dobj
 		for vis in vc:
-			for spec in vis.spec_lst:
-				if spec.description == "?":
+			for spec in vis._inferred_query:
+				if (spec.description == "?"):
 					spec.description = ""
-				if spec.attribute:
-					if (spec.data_type == ""):
-						spec.data_type = ldf.data_type_lookup[spec.attribute]
-					if (spec.data_model == ""):
-						spec.data_model = ldf.data_model_lookup[spec.attribute]
+				if (spec.attribute!="" and spec.attribute!="Record"):
+					# if (spec.data_type == ""):
+					spec.data_type = ldf.data_type_lookup[spec.attribute]
+					# if (spec.data_model == ""):
+					spec.data_model = ldf.data_model_lookup[spec.attribute]
 				if (spec.value!=""):
 					if(isinstance(spec.value,np.datetime64)):
 						# TODO: Make this more general and not specific to Year attributes
@@ -152,11 +152,11 @@ class Compiler:
 		for vis in vis_collection:
 			num_temporal_specs = 0
 			attribute_set = set()
-			for spec in vis.spec_lst:
+			for spec in vis._inferred_query:
 				attribute_set.add(spec.attribute)
 				if spec.data_type == "temporal":
 					num_temporal_specs += 1
-			all_distinct_specs = 0 == len(vis.spec_lst) - len(attribute_set)
+			all_distinct_specs = 0 == len(vis._inferred_query) - len(attribute_set)
 			if num_temporal_specs < 2 and all_distinct_specs:
 				new_vc.append(vis)
 
@@ -190,13 +190,13 @@ class Compiler:
 		ndim = 0
 		nmsr = 0
 		filters = []
-		for spec in vis.spec_lst:
+		for spec in vis._inferred_query:
 			if (spec.value==""):
 				if (spec.data_model == "dimension"):
 					ndim += 1
 				elif (spec.data_model == "measure" and spec.attribute!="Record"):
 					nmsr += 1
-			else:  # preserve to add back to spec_lst later
+			else:  # preserve to add back to _inferred_query later
 				filters.append(spec)
 		# Helper function (TODO: Move this into utils)
 		def line_or_bar(ldf, dimension:VisSpec, measure:VisSpec):
@@ -211,8 +211,6 @@ class Compiler:
 				if ldf.cardinality[dimension.attribute]>5:
 					dimension.sort = "ascending"
 				return "bar", {"x": measure, "y": dimension}
-		
-
 		# ShowMe logic + additional heuristics
 		#count_col = VisSpec( attribute="count()", data_model="measure")
 		count_col = VisSpec( attribute="Record", aggregation="count", data_model="measure", data_type="quantitative")
@@ -221,7 +219,7 @@ class Compiler:
 			# Histogram with Count 
 			measure = vis.get_attr_by_data_model("measure",exclude_record=True)[0]
 			if (len(vis.get_attr_by_attr_name("Record"))<0):
-				vis.spec_lst.append(count_col)
+				vis._inferred_query.append(count_col)
 			# If no bin specified, then default as 10
 			if (measure.bin_size == 0):
 				measure.bin_size = 10
@@ -231,7 +229,7 @@ class Compiler:
 		elif (ndim == 1 and (nmsr == 0 or nmsr == 1)):
 			# Line or Bar Chart
 			if (nmsr == 0):
-				vis.spec_lst.append(count_col)
+				vis._inferred_query.append(count_col)
 			dimension = vis.get_attr_by_data_model("dimension")[0]
 			measure = vis.get_attr_by_data_model("measure")[0]
 			vis.mark, auto_channel = line_or_bar(ldf, dimension, measure)
@@ -247,7 +245,7 @@ class Compiler:
 				color_attr = d1
 			else:
 				if (d1.attribute == d2.attribute):
-					vis.spec_lst.pop(
+					vis._inferred_query.pop(
 						0)  # if same attribute then remove_column_from_spec will remove both dims, we only want to remove one
 				else:
 					vis.remove_column_from_spec(d2.attribute)
@@ -255,7 +253,7 @@ class Compiler:
 				color_attr = d2
 			# Colored Bar/Line chart with Count as default measure
 			if (nmsr == 0):
-				vis.spec_lst.append(count_col)
+				vis._inferred_query.append(count_col)
 			measure = vis.get_attr_by_data_model("measure")[0]
 			vis.mark, auto_channel = line_or_bar(ldf, dimension, measure)
 			auto_channel["color"] = color_attr
@@ -264,8 +262,8 @@ class Compiler:
 			vis.x_min_max = ldf.x_min_max
 			vis.y_min_max = ldf.y_min_max
 			vis.mark = "scatter"
-			auto_channel = {"x": vis.spec_lst[0],
-						   "y": vis.spec_lst[1]}
+			auto_channel = {"x": vis._inferred_query[0],
+						   "y": vis._inferred_query[1]}
 		elif (ndim == 1 and nmsr == 2):
 			# Scatterplot broken down by the dimension
 			measure = vis.get_attr_by_data_model("measure")
@@ -285,12 +283,12 @@ class Compiler:
 			vis.x_min_max = ldf.x_min_max
 			vis.y_min_max = ldf.y_min_max
 			vis.mark = "scatter"
-			auto_channel = {"x": vis.spec_lst[0],
-						   "y": vis.spec_lst[1],
-						   "color": vis.spec_lst[2]}
+			auto_channel = {"x": vis._inferred_query[0],
+						   "y": vis._inferred_query[1],
+						   "color": vis._inferred_query[2]}
 		if (auto_channel!={}):
 			vis = Compiler.enforce_specified_channel(vis, auto_channel)
-			vis.spec_lst.extend(filters)  # add back the preserved filters
+			vis._inferred_query.extend(filters)  # add back the preserved filters
 
 	@staticmethod
 	def enforce_specified_channel(vis: Vis, auto_channel: Dict[str, str]):
@@ -340,12 +338,12 @@ class Compiler:
 		for leftover_channel, leftover_encoding in zip(leftover_channels, auto_channel.values()):
 			leftover_encoding.channel = leftover_channel
 			result_dict[leftover_channel] = leftover_encoding
-		vis.spec_lst = list(result_dict.values())
+		vis._inferred_query = list(result_dict.values())
 		return vis
 
 	@staticmethod
 	# def populate_wildcard_options(ldf: LuxDataFrame) -> dict:
-	def populate_wildcard_options(spec_lst:List[VisSpec], ldf: LuxDataFrame) -> dict:
+	def populate_wildcard_options(_inferred_query:List[VisSpec], ldf: LuxDataFrame) -> dict:
 		"""
 		Given wildcards and constraints in the LuxDataFrame's context,
 		return the list of available values that satisfies the data_type or data_model constraints.
@@ -364,7 +362,7 @@ class Compiler:
 		from lux.utils.utils import convert_to_list
 
 		specs = {"attributes": [], "filters": []}
-		for spec in spec_lst:
+		for spec in _inferred_query:
 			spec_options = []
 			if spec.value == "":  # attribute
 				if spec.attribute == "?":
@@ -388,8 +386,8 @@ class Compiler:
 					options = []
 					if spec.value == "?":
 						options = ldf.unique_values[attr]
-						specInd = spec_lst.index(spec)
-						spec_lst[specInd] = VisSpec(attribute=spec.attribute, filter_op="=", value=list(options))
+						specInd = _inferred_query.index(spec)
+						_inferred_query[specInd] = VisSpec(attribute=spec.attribute, filter_op="=", value=list(options))
 					else:
 						options.extend(convert_to_list(spec.value))
 					for optStr in options:

@@ -19,8 +19,8 @@ def test_underspecified_single_vis(test_show_more):
 	df.set_context([lux.VisSpec(attribute ="MilesPerGal"), lux.VisSpec(attribute ="Weight")])
 	assert len(df.current_context) == 1
 	assert df.current_context[0].mark == "scatter"
-	for attr in df.current_context[0].spec_lst: assert attr.data_model == "measure"
-	for attr in df.current_context[0].spec_lst: assert attr.data_type == "quantitative"
+	for attr in df.current_context[0]._inferred_query: assert attr.data_model == "measure"
+	for attr in df.current_context[0]._inferred_query: assert attr.data_type == "quantitative"
 	test_show_more(df, one_view_actions)
 
 # def test_underspecified_vis_collection(test_show_more):
@@ -91,14 +91,14 @@ def test_sort_bar():
 				lux.VisSpec(attribute="Origin",data_model="dimension",data_type="nominal")])
 	Compiler.determine_encoding(df, view)
 	assert view.mark == "bar"
-	assert view.spec_lst[1].sort == ''
+	assert view._inferred_query[1].sort == ''
 
 	df = pd.read_csv("lux/data/car.csv")
 	view = Vis([lux.VisSpec(attribute="Acceleration",data_model="measure",data_type="quantitative"),
 				lux.VisSpec(attribute="Name",data_model="dimension",data_type="nominal")])
 	Compiler.determine_encoding(df, view)
 	assert view.mark == "bar"
-	assert view.spec_lst[1].sort == 'ascending'
+	assert view._inferred_query[1].sort == 'ascending'
 
 def test_specified_vis_collection():
 	df = pd.read_csv("lux/data/cars.csv")

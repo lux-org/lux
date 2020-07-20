@@ -149,9 +149,8 @@ class LuxDataFrame(pd.DataFrame):
         view : Vis
             [description]
         """        
-        self.context = vis.spec_lst
+        self.context = vis._inferred_query
         self._refresh_context()
-
     def clear_context(self):
         self.context = []
         self.current_context = []
