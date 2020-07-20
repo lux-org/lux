@@ -2,7 +2,7 @@ import typing
 class VisSpec:
 	def __init__(self, description:typing.Union[str,list] ="",attribute: typing.Union[str,list] ="",value: typing.Union[str,list]="",
 				 filter_op:str ="=", channel:str ="", data_type:str="",data_model:str="",
-				 aggregation:str = "", bin_size:int=0, weight:float=1,sort:str="", exclude: typing.Union[str,list] =""):
+				 aggregation:typing.Union[str,callable] = "", bin_size:int=0, weight:float=1,sort:str="", exclude: typing.Union[str,list] =""):
 		"""
 		VisSpec is the object representation of a single unit of the specification.
 
@@ -28,9 +28,9 @@ class VisSpec:
 		data_model : str, optional
 			Data model for the specified attribute
 			Possible values: 'dimension', 'measure', by default ""
-		aggregation : str, optional
+		aggregation : typing.Union[str,callable], optional
 			Aggregation function for specified attribute, by default ""
-			Possible values: 'sum','mean', and others supported by Pandas.aggregate (https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.aggregate.html), including numpy aggregation functions (e.g., np.ptp), by default ""
+			Possible values: 'sum','mean', and others string shorthand or functions supported by Pandas.aggregate (https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.aggregate.html), including numpy aggregation functions (e.g., np.ptp), by default ""
 		bin_size : int, optional
 			Number of bins for histograms, by default 0
 		weight : float, optional
@@ -50,17 +50,27 @@ class VisSpec:
 		self.channel = channel
 		self.data_type = data_type
 		self.data_model = data_model
-		self.aggregation = aggregation
+		self.set_aggregation(aggregation)
 		self.bin_size = bin_size
 		self.weight = weight
 		self.sort = sort
 		self.exclude = exclude
+		
+	def set_aggregation(self,aggregation:typing.Union[str,callable]):
+		"""
+		Sets the aggregation function of VisSpec, 
+		while updating _aggregation_name internally
+
+		Parameters
+		----------
+		aggregation : typing.Union[str,callable]
+		"""		
+		self.aggregation = aggregation
 		# If aggregation input is a function (e.g., np.std), get the string name of the function for plotting
 		if hasattr(self.aggregation,'__name__'): 
 			self._aggregation_name = self.aggregation.__name__
 		else:
 			self._aggregation_name = self.aggregation
-			
 	def __repr__(self):
 		attributes = []
 		if self.description != "":
