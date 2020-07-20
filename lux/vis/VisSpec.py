@@ -79,6 +79,8 @@ class VisSpec:
 			attributes.append("         channel: " + self.channel)
 		if len(self.attribute) != 0:
 			attributes.append("         attribute: " + str(self.attribute))
+		if self.filter_op != "=":
+			attributes.append(f"         filter_op: {str(self.filter_op)}" )
 		if self.aggregation != "":
 			attributes.append("         aggregation: " + self._aggregation_name)
 		if self.value!="" or  len(self.value) != 0 :

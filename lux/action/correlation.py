@@ -64,7 +64,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 
 
 def check_transpose_not_computed(vc: VisCollection, a: str, b: str):
-	transpose_exist = list(filter(lambda x: (x.spec_lst[0].attribute == b) and (x.spec_lst[1].attribute == a), vc))
+	transpose_exist = list(filter(lambda x: (x._inferred_query[0].attribute == b) and (x._inferred_query[1].attribute == a), vc))
 	if (len(transpose_exist) > 0):
 		return transpose_exist[0].score == -1
 	else:
