@@ -10,7 +10,7 @@ import numpy as np
 
 class Compiler:
 	'''
-	Given a context with underspecified inputs, compile the context into fully specified views for visualization.
+	Given a context with underspecified inputs, compile the context into fully specified visualizations for visualization.
 	'''
 
 	def __init__(self):
@@ -23,38 +23,38 @@ class Compiler:
 	def compile(ldf: LuxDataFrame,spec_lst:List[VisSpec], vis_collection: VisCollection, enumerate_collection=True) -> VisCollection:
 		"""
 		Compiles input specifications in the context of the ldf into a collection of lux.vis objects for visualization.
-		1) Enumerate a collection of views interested by the user to generate a view collection
-		2) Expand underspecified specifications(lux.VisSpec) for each of the generated views.
-		3) Determine encoding properties for each view
+		1) Enumerate a collection of visualizations interested by the user to generate a vis collection
+		2) Expand underspecified specifications(lux.VisSpec) for each of the generated visualizations.
+		3) Determine encoding properties for each vis
 
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context.
 		vis_collection : list[lux.vis.Vis]
-			empty list that will be populated with specified lux.View objects.
+			empty list that will be populated with specified lux.Vis objects.
 		enumerate_collection : boolean
 			A boolean value that signals when to generate a collection of visualizations.
 
 		Returns
 		-------
-		vis_collection: list[lux.View]
-			view collection with compiled lux.View objects.
+		vis_collection: list[lux.Vis]
+			vis collection with compiled lux.Vis objects.
 		"""
 		if (enumerate_collection):
 			vis_collection = Compiler.enumerate_collection(spec_lst,ldf)
 		vis_collection = Compiler.expand_underspecified(ldf, vis_collection)  # autofill data type/model information
 		if len(vis_collection)>1: 
-			vis_collection = Compiler.remove_all_invalid(vis_collection) # remove invalid views from collection
-		for view in vis_collection:
-			Compiler.determine_encoding(ldf, view)  # autofill viz related information
+			vis_collection = Compiler.remove_all_invalid(vis_collection) # remove invalid visualizations from collection
+		for vis in vis_collection:
+			Compiler.determine_encoding(ldf, vis)  # autofill viz related information
 		return vis_collection
 
 	@staticmethod
 	def enumerate_collection(spec_lst:List[VisSpec],ldf: LuxDataFrame) -> VisCollection:
 		"""
 		Given specifications that have been expanded thorught populateOptions,
-		recursively iterate over the resulting list combinations to generate a View collection.
+		recursively iterate over the resulting list combinations to generate a Vis collection.
 
 		Parameters
 		----------
@@ -63,8 +63,8 @@ class Compiler:
 
 		Returns
 		-------
-		VisCollection: list[lux.View]
-			view collection with compiled lux.View objects.
+		VisCollection: list[lux.Vis]
+			vis collection with compiled lux.Vis objects.
 		"""
 		import copy
 		specs = Compiler.populate_wildcard_options(spec_lst, ldf)
@@ -86,18 +86,18 @@ class Compiler:
 					if len(filters) > 0:  # if we have filters, generate combinations for each row.
 						for row in filters:
 							spec_lst = copy.deepcopy(column_list + [row])
-							view = Vis(spec_lst, title=f"{row.attribute} {row.filter_op} {row.value}")
-							collection.append(view)
+							vis = Vis(spec_lst, title=f"{row.attribute} {row.filter_op} {row.value}")
+							collection.append(vis)
 					else:
-						view = Vis(column_list)
-						collection.append(view)
+						vis = Vis(column_list)
+						collection.append(vis)
 				else:
 					combine(col_attrs[1:], column_list)
 		combine(attributes, [])
 		return VisCollection(collection)
 
 	@staticmethod
-	def expand_underspecified(ldf, vis_collection):
+	def expand_underspecified(ldf, vis_collection) -> VisCollection:
 		"""
 		Given a underspecified VisSpec, populate the data_type and data_model information accordingly
 
@@ -107,17 +107,17 @@ class Compiler:
 			LuxDataFrame with underspecified context
 
 		vis_collection : list[lux.vis.Vis]
-			List of lux.View objects that will have their underspecified VisSpec details filled out.
+			List of lux.Vis objects that will have their underspecified VisSpec details filled out.
 		Returns
 		-------
-		views: list[lux.View]
-			view collection with compiled lux.View objects.
+		vc: VisCollection
+			vis collection with compiled lux.Vis objects.
 		"""		
 		# TODO: copy might not be neccesary
 		import copy
-		views = copy.deepcopy(vis_collection)  # Preserve the original dobj
-		for view in views:
-			for spec in view.spec_lst:
+		vc = copy.deepcopy(vis_collection)  # Preserve the original dobj
+		for vis in vc:
+			for spec in vis.spec_lst:
 				if spec.description == "?":
 					spec.description = ""
 				if spec.attribute:
@@ -131,48 +131,48 @@ class Compiler:
 						chart_title = date_utils.date_formatter(spec.value,ldf)
 					else:
 						chart_title = spec.value
-					view.title = f"{spec.attribute} {spec.filter_op} {chart_title}"
-		return views
+					vis.title = f"{spec.attribute} {spec.filter_op} {chart_title}"
+		return vc
 
 	@staticmethod
 	def remove_all_invalid(vis_collection:VisCollection) -> VisCollection:
 		"""
-		Given an expanded view collection, remove all views that are invalid.
-		Currently, the invalid views are ones that contain two of the same attribute, no more than two temporal attributes, or overlapping attributes (same filter attribute and visualized attribute).
+		Given an expanded vis collection, remove all visualizations that are invalid.
+		Currently, the invalid visualizations are ones that contain two of the same attribute, no more than two temporal attributes, or overlapping attributes (same filter attribute and visualized attribute).
 		Parameters
 		----------
 		vis_collection : list[lux.vis.Vis]
-			empty list that will be populated with specified lux.View objects.
+			empty list that will be populated with specified lux.Vis objects.
 		Returns
 		-------
-		views: list[lux.View]
-			view collection with compiled lux.View objects.
+		lux.vis.VisCollection
+			vis collection with compiled lux.Vis objects.
 		"""
 		new_vc = []
-		for view in vis_collection:
+		for vis in vis_collection:
 			num_temporal_specs = 0
 			attribute_set = set()
-			for spec in view.spec_lst:
+			for spec in vis.spec_lst:
 				attribute_set.add(spec.attribute)
 				if spec.data_type == "temporal":
 					num_temporal_specs += 1
-			all_distinct_specs = 0 == len(view.spec_lst) - len(attribute_set)
+			all_distinct_specs = 0 == len(vis.spec_lst) - len(attribute_set)
 			if num_temporal_specs < 2 and all_distinct_specs:
-				new_vc.append(view)
+				new_vc.append(vis)
 
 		return VisCollection(new_vc)
 
 	@staticmethod
-	def determine_encoding(ldf: LuxDataFrame, view: Vis):
+	def determine_encoding(ldf: LuxDataFrame, vis: Vis):
 		'''
-		Populates View with the appropriate mark type and channel information based on ShowMe logic
+		Populates Vis with the appropriate mark type and channel information based on ShowMe logic
 		Currently support up to 3 dimensions or measures
 		
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with underspecified context
-		view : lux.vis.Vis
+		vis : lux.vis.Vis
 
 		Returns
 		-------
@@ -190,7 +190,7 @@ class Compiler:
 		ndim = 0
 		nmsr = 0
 		filters = []
-		for spec in view.spec_lst:
+		for spec in vis.spec_lst:
 			if (spec.value==""):
 				if (spec.data_model == "dimension"):
 					ndim += 1
@@ -216,101 +216,98 @@ class Compiler:
 		# ShowMe logic + additional heuristics
 		#count_col = VisSpec( attribute="count()", data_model="measure")
 		count_col = VisSpec( attribute="Record", aggregation="count", data_model="measure", data_type="quantitative")
-		# x_attr = view.get_attr_by_channel("x") # not used as of now
-		# y_attr = view.get_attr_by_channel("y")
-		# zAttr = view.get_attr_by_channel("z")
 		auto_channel={}
 		if (ndim == 0 and nmsr == 1):
 			# Histogram with Count 
-			measure = view.get_attr_by_data_model("measure",exclude_record=True)[0]
-			if (len(view.get_attr_by_attr_name("Record"))<0):
-				view.spec_lst.append(count_col)
+			measure = vis.get_attr_by_data_model("measure",exclude_record=True)[0]
+			if (len(vis.get_attr_by_attr_name("Record"))<0):
+				vis.spec_lst.append(count_col)
 			# If no bin specified, then default as 10
 			if (measure.bin_size == 0):
 				measure.bin_size = 10
 			auto_channel = {"x": measure, "y": count_col}
-			view.x_min_max = ldf.x_min_max
-			view.mark = "histogram"
+			vis.x_min_max = ldf.x_min_max
+			vis.mark = "histogram"
 		elif (ndim == 1 and (nmsr == 0 or nmsr == 1)):
 			# Line or Bar Chart
 			if (nmsr == 0):
-				view.spec_lst.append(count_col)
-			dimension = view.get_attr_by_data_model("dimension")[0]
-			measure = view.get_attr_by_data_model("measure")[0]
-			view.mark, auto_channel = line_or_bar(ldf, dimension, measure)
+				vis.spec_lst.append(count_col)
+			dimension = vis.get_attr_by_data_model("dimension")[0]
+			measure = vis.get_attr_by_data_model("measure")[0]
+			vis.mark, auto_channel = line_or_bar(ldf, dimension, measure)
 		elif (ndim == 2 and (nmsr == 0 or nmsr == 1)):
 			# Line or Bar chart broken down by the dimension
-			dimensions = view.get_attr_by_data_model("dimension")
+			dimensions = vis.get_attr_by_data_model("dimension")
 			d1 = dimensions[0]
 			d2 = dimensions[1]
 			if (ldf.cardinality[d1.attribute] < ldf.cardinality[d2.attribute]):
 				# d1.channel = "color"
-				view.remove_column_from_spec(d1.attribute)
+				vis.remove_column_from_spec(d1.attribute)
 				dimension = d2
 				color_attr = d1
 			else:
 				if (d1.attribute == d2.attribute):
-					view.spec_lst.pop(
+					vis.spec_lst.pop(
 						0)  # if same attribute then remove_column_from_spec will remove both dims, we only want to remove one
 				else:
-					view.remove_column_from_spec(d2.attribute)
+					vis.remove_column_from_spec(d2.attribute)
 				dimension = d1
 				color_attr = d2
 			# Colored Bar/Line chart with Count as default measure
 			if (nmsr == 0):
-				view.spec_lst.append(count_col)
-			measure = view.get_attr_by_data_model("measure")[0]
-			view.mark, auto_channel = line_or_bar(ldf, dimension, measure)
+				vis.spec_lst.append(count_col)
+			measure = vis.get_attr_by_data_model("measure")[0]
+			vis.mark, auto_channel = line_or_bar(ldf, dimension, measure)
 			auto_channel["color"] = color_attr
 		elif (ndim == 0 and nmsr == 2):
 			# Scatterplot
-			view.x_min_max = ldf.x_min_max
-			view.y_min_max = ldf.y_min_max
-			view.mark = "scatter"
-			auto_channel = {"x": view.spec_lst[0],
-						   "y": view.spec_lst[1]}
+			vis.x_min_max = ldf.x_min_max
+			vis.y_min_max = ldf.y_min_max
+			vis.mark = "scatter"
+			auto_channel = {"x": vis.spec_lst[0],
+						   "y": vis.spec_lst[1]}
 		elif (ndim == 1 and nmsr == 2):
 			# Scatterplot broken down by the dimension
-			measure = view.get_attr_by_data_model("measure")
+			measure = vis.get_attr_by_data_model("measure")
 			m1 = measure[0]
 			m2 = measure[1]
 
-			color_attr = view.get_attr_by_data_model("dimension")[0]
-			view.remove_column_from_spec(color_attr)
-			view.x_min_max = ldf.x_min_max
-			view.y_min_max = ldf.y_min_max
-			view.mark = "scatter"
+			color_attr = vis.get_attr_by_data_model("dimension")[0]
+			vis.remove_column_from_spec(color_attr)
+			vis.x_min_max = ldf.x_min_max
+			vis.y_min_max = ldf.y_min_max
+			vis.mark = "scatter"
 			auto_channel = {"x": m1,
 						   "y": m2,
 						   "color": color_attr}
 		elif (ndim == 0 and nmsr == 3):
 			# Scatterplot with color
-			view.x_min_max = ldf.x_min_max
-			view.y_min_max = ldf.y_min_max
-			view.mark = "scatter"
-			auto_channel = {"x": view.spec_lst[0],
-						   "y": view.spec_lst[1],
-						   "color": view.spec_lst[2]}
+			vis.x_min_max = ldf.x_min_max
+			vis.y_min_max = ldf.y_min_max
+			vis.mark = "scatter"
+			auto_channel = {"x": vis.spec_lst[0],
+						   "y": vis.spec_lst[1],
+						   "color": vis.spec_lst[2]}
 		if (auto_channel!={}):
-			view = Compiler.enforce_specified_channel(view, auto_channel)
-			view.spec_lst.extend(filters)  # add back the preserved filters
+			vis = Compiler.enforce_specified_channel(vis, auto_channel)
+			vis.spec_lst.extend(filters)  # add back the preserved filters
 
 	@staticmethod
-	def enforce_specified_channel(view: Vis, auto_channel: Dict[str, str]):
+	def enforce_specified_channel(vis: Vis, auto_channel: Dict[str, str]):
 		"""
-		Enforces that the channels specified in the View by users overrides the showMe autoChannels.
+		Enforces that the channels specified in the Vis by users overrides the showMe autoChannels.
 		
 		Parameters
 		----------
-		view : lux.vis.Vis
-			Input View without channel specification.
+		vis : lux.vis.Vis
+			Input Vis without channel specification.
 		auto_channel : Dict[str,str]
 			Key-value pair in the form [channel: attributeName] specifying the showMe recommended channel location.
 		
 		Returns
 		-------
-		view : lux.vis.Vis
-			View with channel specification combining both original and auto_channel specification.
+		vis : lux.vis.Vis
+			Vis with channel specification combining both original and auto_channel specification.
 		
 		Raises
 		------
@@ -321,7 +318,7 @@ class Compiler:
 		specified_dict = {}  # specified_dict={"x":[],"y":[list of Dobj with y specified as channel]}
 		# create a dictionary of specified channels in the given dobj
 		for val in auto_channel.keys():
-			specified_dict[val] = view.get_attr_by_channel(val)
+			specified_dict[val] = vis.get_attr_by_channel(val)
 			result_dict[val] = ""
 		# for every element, replace with what's in specified_dict if specified
 		for sVal, sAttr in specified_dict.items():
@@ -343,8 +340,8 @@ class Compiler:
 		for leftover_channel, leftover_encoding in zip(leftover_channels, auto_channel.values()):
 			leftover_encoding.channel = leftover_channel
 			result_dict[leftover_channel] = leftover_encoding
-		view.spec_lst = list(result_dict.values())
-		return view
+		vis.spec_lst = list(result_dict.values())
+		return vis
 
 	@staticmethod
 	# def populate_wildcard_options(ldf: LuxDataFrame) -> dict:

@@ -34,14 +34,14 @@ stores these objects in a list named the Context, which holds all current specif
 generating recommendations. An essential job of the LDF is to maintain the Specs within
 the Context, so that generated visual recommendations are up to date with the user's input.
 
-View/ViewCollection
+Vis/VisCollection
 --------------------------------
 Since Lux maintains sets of visualizations, we require a data structure that encapsulates
 each visualization and its properties so that we can score, rank and display them later. Hence,
-we define a View object for each visualization as a representation of all information required
-for data fetching and rendering. The LDF stores multiple Views in a View Collection, which 
+we define a Vis object for each visualization as a representation of all information required
+for data fetching and rendering. The LDF stores multiple Views in a Vis Collection, which 
 represents a set of visualizations to display to the user. Since data fetching 
-for a View is an expensive operation, Lux's Views are decoupled from the
+for a Vis is an expensive operation, Lux's Views are decoupled from the
 data, making modification or transfering of Views easier during query processing stages.
 
 Lux System
@@ -81,8 +81,8 @@ Spec objects often require additional processing before they are used for creati
 Underspecified information for Specs within the Context are inferred during the compilation
 stage. The transformation of these Specs into Views is a three-step process.
 
-1. **View Collection generation**: The system generates list of Views for visualization. These Views are created from Specs in the Context that are fully or partially specified. In the fully defined case, there is no ambiguity in which attributes the user wants to visualize. For partially specified instances, the system locates any Spec objects that include wildcard characters that are denoted by a question mark. These wildcard Specs are further processed to enumerate all candidate Views that hold explicit Specs. Ultimately, Lux creates a list of Views that correspond to each visualization that will be displayed in the frontend.
-2. **Infer data type and data model information**: The system auto-fills missing details for each View. Each View holds Specs that correspond to the attributes for a visualization. For each of the attributes, we populate the Specs with corresponding data type information. These bits of information are necessary for encoding data into the correct visual elements.
+1. **Vis Collection generation**: The system generates list of Views for visualization. These Views are created from Specs in the Context that are fully or partially specified. In the fully defined case, there is no ambiguity in which attributes the user wants to visualize. For partially specified instances, the system locates any Spec objects that include wildcard characters that are denoted by a question mark. These wildcard Specs are further processed to enumerate all candidate Views that hold explicit Specs. Ultimately, Lux creates a list of Views that correspond to each visualization that will be displayed in the frontend.
+2. **Infer data type and data model information**: The system auto-fills missing details for each Vis. Each Vis holds Specs that correspond to the attributes for a visualization. For each of the attributes, we populate the Specs with corresponding data type information. These bits of information are necessary for encoding data into the correct visual elements.
 3. **Visual Encoding**: The final step in the compilation is an automatic encoding process that determines visualization mappings. The system automatically infers type, marks, channels and additional details that can be left underspecified in the input specifications. The system implements a set of visualization encoding rules that automatically determines marks and channels of each visualization based on data properties determined in step 2, as shown in the table below. 
 
 ========================== ========================== ========================== 
@@ -100,6 +100,6 @@ Number of Dimensions       Number of Measures         Mark Type
 
 Executor
 --------------------------------
-The data executor populates each View with a subset of the dataframe based on their View
+The data executor populates each Vis with a subset of the dataframe based on their Vis
 specifications. You can read more on the Lux Execution Engines' specifics  
 `here <https://lux-api.readthedocs.io/en/dfapi/source/guide/executor.html>`_.

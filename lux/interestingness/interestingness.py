@@ -14,7 +14,7 @@ def interestingness(view:Vis ,ldf:LuxDataFrame) -> int:
 
 	Parameters
 	----------
-	view : View
+	view : Vis
 	ldf : LuxDataFrame
 
 	Returns
@@ -25,7 +25,7 @@ def interestingness(view:Vis ,ldf:LuxDataFrame) -> int:
 	
 
 	if view.data is None:
-		raise Exception("View.data needs to be populated before interestingness can be computed. Run Executor.execute(view,ldf).")
+		raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(view,ldf).")
 
 	n_dim = 0
 	n_msr = 0
@@ -99,10 +99,10 @@ def deviation_from_overall(view:Vis, ldf:LuxDataFrame, filter_specs:list, msr_at
 
 	Parameters
 	----------
-	view : View
+	view : Vis
 	ldf : LuxDataFrame
 	filter_specs : list
-		List of filters from the View
+		List of filters from the Vis
 	msr_attribute : str
 		The attribute name of the measure value of the chart
 
@@ -116,7 +116,7 @@ def deviation_from_overall(view:Vis, ldf:LuxDataFrame, filter_specs:list, msr_at
 	v_filter = view.data[msr_attribute]
 	v_filter = v_filter/v_filter.sum() # normalize by total to get ratio
 
-	# Generate an "Overall" View (TODO: This is computed multiple times for every view, alternative is to directly access df.current_context but we do not have guaruntee that will always be unfiltered view (in the non-Filter action scenario))
+	# Generate an "Overall" Vis (TODO: This is computed multiple times for every view, alternative is to directly access df.current_context but we do not have guaruntee that will always be unfiltered view (in the non-Filter action scenario))
 	import copy
 	unfiltered_view = copy.copy(view)
 	unfiltered_view.spec_lst = utils.get_attrs_specs(view.spec_lst) # Remove filters, keep only attribute specs
@@ -156,7 +156,7 @@ def unevenness(view:Vis, ldf:LuxDataFrame, measure_lst:list, dimension_lst:list)
 
 	Parameters
 	----------
-	view : View
+	view : Vis
 	ldf : LuxDataFrame
 	measure_lst : list
 		List of measures
@@ -189,7 +189,7 @@ def monotonicity(view:Vis, attr_specs:list, ignore_identity:bool=True) ->int:
 	See "Graph-Theoretic Scagnostics", Wilkinson et al 2005: https://research.tableau.com/sites/default/files/Wilkinson_Infovis-05.pdf
 	Parameters
 	----------
-	view : View
+	view : Vis
 	attr_spec: list
 		List of attribute VisSpec objects
 

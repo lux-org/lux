@@ -61,7 +61,7 @@ For example, we might be interested in the attributes `AverageCost` and `SATAver
      alt="Next-step Recommendations Based on User Context"
      style="width:600px" />
  
- The left-hand side of the widget shows the Current View, which corresponds to the visualization based on what the user is interested in. On the right, Lux generates three sets of recommendations, organized as separate tabs on the widget:
+ The left-hand side of the widget shows the Current Vis, which corresponds to the visualization based on what the user is interested in. On the right, Lux generates three sets of recommendations, organized as separate tabs on the widget:
 
  - `Enhance` adds an additional attribute to the current selection, essentially highlighting how additional variables affect the relationship of `AverageCost` and `SATAverage`. We see that if we breakdown the relationship by `FundingModel`, there is a clear separation between public colleges (shown in red) and private colleges (in blue), with public colleges being cheaper to attend and with SAT average of lower than 1400.
  - `Filter` adds a filter to the current selection, while keeping attributes (on the X and Y axes) fixed. These visualizations shows how the relationship of  `AverageCost` and `SATAverage` changes for different subsets of data. For instance, we see that colleges that offer Bachelor's degree as its highest degree offered shows a roughly linear trend between the two variables.
@@ -71,18 +71,18 @@ For example, we might be interested in the attributes `AverageCost` and `SATAver
 
 ### Easy programmatic access of exported visualization objects: 
 
-Now that we have found some interesting visualizations through Lux, we might be interested in digging into these visualizations a bit more. We can click on one or more visualizations to be exported, so we can programmatically access these visualizations further in Jupyter. Visualizations are represented as `View` objects in Lux. These `View` objects can be translated into Altair or VegaLite code, so that we can further edit these visualizations.
+Now that we have found some interesting visualizations through Lux, we might be interested in digging into these visualizations a bit more. We can click on one or more visualizations to be exported, so we can programmatically access these visualizations further in Jupyter. Visualizations are represented as `Vis` objects in Lux. These `Vis` objects can be translated into Altair or VegaLite code, so that we can further edit these visualizations.
 
 <img src="https://github.com/lux-org/lux/blob/master/examples/img/export.gif?raw=true"
      alt="Easily exportable visualization object"
      style="width:600px" />
 
 ### Quick, on-demand visualizations with the help of automatic encoding: 
-We've seen how `View`s are automatically generated as part of the recommendations, users can also create their own View via the same syntax as specifying the context. Lux is built on the philosophy that users should always be able to visualize anything they want, without having to think about *how* the visualization should look like. Lux automatically determines the mark and channel mappings based on a set of [best practices](http://hosteddocs.ittoolbox.com/fourshowmeautomaticpresentations.pdf) from [Tableau](https://www.tableau.com). The visualizations are rendered via [Altair](https://github.com/altair-viz/altair/tree/master/altair) into [Vega-Lite](https://github.com/vega/vega-lite) specifications.
+We've seen how `Vis`s are automatically generated as part of the recommendations, users can also create their own Vis via the same syntax as specifying the context. Lux is built on the philosophy that users should always be able to visualize anything they want, without having to think about *how* the visualization should look like. Lux automatically determines the mark and channel mappings based on a set of [best practices](http://hosteddocs.ittoolbox.com/fourshowmeautomaticpresentations.pdf) from [Tableau](https://www.tableau.com). The visualizations are rendered via [Altair](https://github.com/altair-viz/altair/tree/master/altair) into [Vega-Lite](https://github.com/vega/vega-lite) specifications.
 
 ```python    
-    from lux.view.View import View
-    newEnglandCost = View(["Region=New England","MedianEarnings"])
+    from lux.vis.Vis import Vis
+    newEnglandCost = Vis(["Region=New England","MedianEarnings"])
     newEnglandCost.load(df)
 ```    
 
@@ -97,13 +97,13 @@ Lux provides a powerful abstraction for working with collections of visualizatio
 For example, we might be interested in looking at how the `AverageCost` distribution differs across different `Region`s.
 
 ```python    
-    from lux.view.ViewCollection import ViewCollection
-    differentRegions = ViewCollection(["Region=?","AverageCost"])
+    from lux.vis.VisCollection import VisCollection
+    differentRegions = VisCollection(["Region=?","AverageCost"])
     differentRegions.load(df)
 ```    
 
 <img src="https://github.com/lux-org/lux/blob/master/examples/img/viewCollection.gif?raw=true"
-     alt="Example View Collection"
+     alt="Example Vis Collection"
      style="width:600px" />
 
 
