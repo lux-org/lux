@@ -199,11 +199,11 @@ class Compiler:
 			else:  # preserve to add back to spec_lst later
 				filters.append(spec)
 		# Helper function (TODO: Move this into utils)
-		def line_or_bar(ldf, dimension, measure):
+		def line_or_bar(ldf, dimension:VisSpec, measure:VisSpec):
 			dim_type = dimension.data_type
 			# If no aggregation function is specified, then default as average
 			if (measure.aggregation==""):
-				measure.aggregation = "mean"
+				measure.set_aggregation("mean")
 			if (dim_type == "temporal" or dim_type == "oridinal"):
 				return "line", {"x": dimension, "y": measure}
 			else:  # unordered categorical
