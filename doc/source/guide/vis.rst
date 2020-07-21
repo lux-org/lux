@@ -2,7 +2,7 @@
 Specifying Vis/Vis Collections
 ********************************
 
-:mod:`lux.vis.Vis` objects represents individual visualizations displayed in Lux. Lists of views are stored as :mod:`lux.vis.VisCollection` objects.
+:mod:`lux.vis.Vis` objects represents individual visualizations displayed in Lux. Lists of views are stored as :mod:`lux.vis.VisList` objects.
 Views can either be automatically generated in Lux or defined by the user.
 
 Basic descriptions 

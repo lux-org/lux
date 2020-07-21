@@ -41,8 +41,8 @@ def generalize(ldf):
 		return recommendation
 	#for each column specification, create a copy of the ldf's view and remove the column specification
 	#then append the view to the output
-	for spec in column_spec:
-		columns = spec.attribute
+	for clause in column_spec:
+		columns = clause.attribute
 		if type(columns) == list:
 			for column in columns:
 				if column not in excluded_columns:
@@ -58,14 +58,14 @@ def generalize(ldf):
 		output.append(temp_view)
 	#for each filter specification, create a copy of the ldf's current view and remove the filter specification,
 	#then append the view to the output
-	for spec in filter_specs:
+	for clause in filter_specs:
 		#new_spec = ldf.context.copy()
 		#new_spec.remove_column_from_spec(new_spec.attribute)
 		temp_view = Vis(ldf.current_context[0]._inferred_query.copy(),source = ldf,title="Overall",score=0)
-		temp_view.remove_filter_from_spec(spec.value)
+		temp_view.remove_filter_from_spec(clause.value)
 		output.append(temp_view)
 	
-	vc = lux.vis.VisCollection.VisCollection(output,source=ldf)
+	vc = lux.vis.VisList.VisList(output,source=ldf)
 	# Ignore interestingness sorting since Generalize yields very few vis (preserve order of remove attribute, then remove filters)
 	# for view in vc:
 	# 	view.score = interestingness(view,ldf)

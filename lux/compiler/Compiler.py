@@ -1,8 +1,8 @@
-from lux.vis import VisSpec
+from lux.vis import Clause
 from typing import List, Dict, Union
 from lux.vis.Vis import Vis
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-from lux.vis.VisCollection import VisCollection
+from lux.vis.VisList import VisList
 from lux.utils import date_utils
 import pandas as pd
 import numpy as np
@@ -20,11 +20,11 @@ class Compiler:
 		return f"<Compiler>"
 
 	@staticmethod
-	def compile(ldf: LuxDataFrame,_inferred_query:List[VisSpec], vis_collection: VisCollection, enumerate_collection=True) -> VisCollection:
+	def compile(ldf: LuxDataFrame,_inferred_query:List[Clause], vis_collection: VisList, enumerate_collection=True) -> VisList:
 		"""
 		Compiles input specifications in the context of the ldf into a collection of lux.vis objects for visualization.
-		1) Enumerate a collection of visualizations interested by the user to generate a vis collection
-		2) Expand underspecified specifications(lux.VisSpec) for each of the generated visualizations.
+		1) Enumerate a collection of visualizations interested by the user to generate a vis list
+		2) Expand underspecified specifications(lux.Clause) for each of the generated visualizations.
 		3) Determine encoding properties for each vis
 
 		Parameters
@@ -39,7 +39,7 @@ class Compiler:
 		Returns
 		-------
 		vis_collection: list[lux.Vis]
-			vis collection with compiled lux.Vis objects.
+			vis list with compiled lux.Vis objects.
 		"""
 		if (enumerate_collection):
 			vis_collection = Compiler.enumerate_collection(_inferred_query,ldf)
@@ -51,10 +51,10 @@ class Compiler:
 		return vis_collection
 
 	@staticmethod
-	def enumerate_collection(_inferred_query:List[VisSpec],ldf: LuxDataFrame) -> VisCollection:
+	def enumerate_collection(_inferred_query:List[Clause],ldf: LuxDataFrame) -> VisList:
 		"""
 		Given specifications that have been expanded thorught populateOptions,
-		recursively iterate over the resulting list combinations to generate a Vis collection.
+		recursively iterate over the resulting list combinations to generate a vis list.
 
 		Parameters
 		----------
@@ -63,13 +63,13 @@ class Compiler:
 
 		Returns
 		-------
-		VisCollection: list[lux.Vis]
-			vis collection with compiled lux.Vis objects.
+		VisList: list[lux.Vis]
+			vis list with compiled lux.Vis objects.
 		"""
 		import copy
-		specs = Compiler.populate_wildcard_options(_inferred_query, ldf)
-		attributes = specs['attributes']
-		filters = specs['filters']
+		query = Compiler.populate_wildcard_options(_inferred_query, ldf)
+		attributes = query['attributes']
+		filters = query['filters']
 		if len(attributes) == 0 and len(filters) > 0:
 			ldf.filter_specs = filters
 			return []
@@ -94,12 +94,12 @@ class Compiler:
 				else:
 					combine(col_attrs[1:], column_list)
 		combine(attributes, [])
-		return VisCollection(collection)
+		return VisList(collection)
 
 	@staticmethod
-	def populate_data_type_model(ldf, vis_collection) -> VisCollection:
+	def populate_data_type_model(ldf, vis_collection) -> VisList:
 		"""
-		Given a underspecified VisSpec, populate the data_type and data_model information accordingly
+		Given a underspecified Clause, populate the data_type and data_model information accordingly
 
 		Parameters
 		----------
@@ -107,37 +107,37 @@ class Compiler:
 			LuxDataFrame with underspecified context
 
 		vis_collection : list[lux.vis.Vis]
-			List of lux.Vis objects that will have their underspecified VisSpec details filled out.
+			List of lux.Vis objects that will have their underspecified Clause details filled out.
 		Returns
 		-------
-		vc: VisCollection
-			vis collection with compiled lux.Vis objects.
+		vc: VisList
+			vis list with compiled lux.Vis objects.
 		"""		
 		# TODO: copy might not be neccesary
 		import copy
 		vc = copy.deepcopy(vis_collection)  # Preserve the original dobj
 		for vis in vc:
-			for spec in vis._inferred_query:
-				if (spec.description == "?"):
-					spec.description = ""
-				if (spec.attribute!="" and spec.attribute!="Record"):
-					# if (spec.data_type == ""):
-					spec.data_type = ldf.data_type_lookup[spec.attribute]
-					# if (spec.data_model == ""):
-					spec.data_model = ldf.data_model_lookup[spec.attribute]
-				if (spec.value!=""):
-					if(isinstance(spec.value,np.datetime64)):
+			for clause in vis._inferred_query:
+				if (clause.description == "?"):
+					clause.description = ""
+				if (clause.attribute!="" and clause.attribute!="Record"):
+					# if (clause.data_type == ""):
+					clause.data_type = ldf.data_type_lookup[clause.attribute]
+					# if (clause.data_model == ""):
+					clause.data_model = ldf.data_model_lookup[clause.attribute]
+				if (clause.value!=""):
+					if(isinstance(clause.value,np.datetime64)):
 						# TODO: Make this more general and not specific to Year attributes
-						chart_title = date_utils.date_formatter(spec.value,ldf)
+						chart_title = date_utils.date_formatter(clause.value,ldf)
 					else:
-						chart_title = spec.value
-					vis.title = f"{spec.attribute} {spec.filter_op} {chart_title}"
+						chart_title = clause.value
+					vis.title = f"{clause.attribute} {clause.filter_op} {chart_title}"
 		return vc
 
 	@staticmethod
-	def remove_all_invalid(vis_collection:VisCollection) -> VisCollection:
+	def remove_all_invalid(vis_collection:VisList) -> VisList:
 		"""
-		Given an expanded vis collection, remove all visualizations that are invalid.
+		Given an expanded vis list, remove all visualizations that are invalid.
 		Currently, the invalid visualizations are ones that contain two of the same attribute, no more than two temporal attributes, or overlapping attributes (same filter attribute and visualized attribute).
 		Parameters
 		----------
@@ -145,22 +145,22 @@ class Compiler:
 			empty list that will be populated with specified lux.Vis objects.
 		Returns
 		-------
-		lux.vis.VisCollection
-			vis collection with compiled lux.Vis objects.
+		lux.vis.VisList
+			vis list with compiled lux.Vis objects.
 		"""
 		new_vc = []
 		for vis in vis_collection:
 			num_temporal_specs = 0
 			attribute_set = set()
-			for spec in vis._inferred_query:
-				attribute_set.add(spec.attribute)
-				if spec.data_type == "temporal":
+			for clause in vis._inferred_query:
+				attribute_set.add(clause.attribute)
+				if clause.data_type == "temporal":
 					num_temporal_specs += 1
 			all_distinct_specs = 0 == len(vis._inferred_query) - len(attribute_set)
 			if num_temporal_specs < 2 and all_distinct_specs:
 				new_vc.append(vis)
 
-		return VisCollection(new_vc)
+		return VisList(new_vc)
 
 	@staticmethod
 	def determine_encoding(ldf: LuxDataFrame, vis: Vis):
@@ -190,16 +190,16 @@ class Compiler:
 		ndim = 0
 		nmsr = 0
 		filters = []
-		for spec in vis._inferred_query:
-			if (spec.value==""):
-				if (spec.data_model == "dimension"):
+		for clause in vis._inferred_query:
+			if (clause.value==""):
+				if (clause.data_model == "dimension"):
 					ndim += 1
-				elif (spec.data_model == "measure" and spec.attribute!="Record"):
+				elif (clause.data_model == "measure" and clause.attribute!="Record"):
 					nmsr += 1
 			else:  # preserve to add back to _inferred_query later
-				filters.append(spec)
+				filters.append(clause)
 		# Helper function (TODO: Move this into utils)
-		def line_or_bar(ldf, dimension:VisSpec, measure:VisSpec):
+		def line_or_bar(ldf, dimension:Clause, measure:Clause):
 			dim_type = dimension.data_type
 			# If no aggregation function is specified, then default as average
 			if (measure.aggregation==""):
@@ -212,8 +212,8 @@ class Compiler:
 					dimension.sort = "ascending"
 				return "bar", {"x": measure, "y": dimension}
 		# ShowMe logic + additional heuristics
-		#count_col = VisSpec( attribute="count()", data_model="measure")
-		count_col = VisSpec( attribute="Record", aggregation="count", data_model="measure", data_type="quantitative")
+		#count_col = Clause( attribute="count()", data_model="measure")
+		count_col = Clause( attribute="Record", aggregation="count", data_model="measure", data_type="quantitative")
 		auto_channel={}
 		if (ndim == 0 and nmsr == 1):
 			# Histogram with Count 
@@ -343,7 +343,7 @@ class Compiler:
 
 	@staticmethod
 	# def populate_wildcard_options(ldf: LuxDataFrame) -> dict:
-	def populate_wildcard_options(_inferred_query:List[VisSpec], ldf: LuxDataFrame) -> dict:
+	def populate_wildcard_options(_inferred_query:List[Clause], ldf: LuxDataFrame) -> dict:
 		"""
 		Given wildcards and constraints in the LuxDataFrame's context,
 		return the list of available values that satisfies the data_type or data_model constraints.
@@ -355,47 +355,47 @@ class Compiler:
 
 		Returns
 		-------
-		specs: Dict[str,list]
+		query: Dict[str,list]
 			a dictionary that holds the attributes and filters generated from wildcards and constraints.
 		"""
 		import copy
 		from lux.utils.utils import convert_to_list
 
-		specs = {"attributes": [], "filters": []}
-		for spec in _inferred_query:
+		query = {"attributes": [], "filters": []}
+		for clause in _inferred_query:
 			spec_options = []
-			if spec.value == "":  # attribute
-				if spec.attribute == "?":
+			if clause.value == "":  # attribute
+				if clause.attribute == "?":
 					options = set(list(ldf.columns))  # all attributes
-					if (spec.data_type != ""):
-						options = options.intersection(set(ldf.data_type[spec.data_type]))
-					if (spec.data_model != ""):
-						options = options.intersection(set(ldf.data_model[spec.data_model]))
+					if (clause.data_type != ""):
+						options = options.intersection(set(ldf.data_type[clause.data_type]))
+					if (clause.data_model != ""):
+						options = options.intersection(set(ldf.data_model[clause.data_model]))
 					options = list(options)
 				else:
-					options = convert_to_list(spec.attribute)
+					options = convert_to_list(clause.attribute)
 				for optStr in options:
-					if str(optStr) not in spec.exclude:
-						spec_copy = copy.copy(spec)
+					if str(optStr) not in clause.exclude:
+						spec_copy = copy.copy(clause)
 						spec_copy.attribute = optStr
 						spec_options.append(spec_copy)
-				specs["attributes"].append(spec_options)
+				query["attributes"].append(spec_options)
 			else:  # filters
-				attr_lst = convert_to_list(spec.attribute)
+				attr_lst = convert_to_list(clause.attribute)
 				for attr in attr_lst:
 					options = []
-					if spec.value == "?":
+					if clause.value == "?":
 						options = ldf.unique_values[attr]
-						specInd = _inferred_query.index(spec)
-						_inferred_query[specInd] = VisSpec(attribute=spec.attribute, filter_op="=", value=list(options))
+						specInd = _inferred_query.index(clause)
+						_inferred_query[specInd] = Clause(attribute=clause.attribute, filter_op="=", value=list(options))
 					else:
-						options.extend(convert_to_list(spec.value))
+						options.extend(convert_to_list(clause.value))
 					for optStr in options:
-						if str(optStr) not in spec.exclude:
-							spec_copy = copy.copy(spec)
+						if str(optStr) not in clause.exclude:
+							spec_copy = copy.copy(clause)
 							spec_copy.attribute = attr
 							spec_copy.value = optStr
 							spec_options.append(spec_copy)
-				specs["filters"].extend(spec_options)
+				query["filters"].extend(spec_options)
 
-		return specs
+		return query

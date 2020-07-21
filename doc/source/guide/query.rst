@@ -4,7 +4,7 @@ Composing Basic Queries
 
 Lux provides a flexible language for communicating your analytical goals and intent to the system, so that the system can provide better and more relevant recommendations to you. In this tutorial, we will see various ways of specifying the context, including the attributes and values that you are interested or not interested in, enumeration specifiers, as well as any constraints on the visualization encoding.
 
-The primary way to set the context is through :func:`lux.context.LuxDataframe.set_context`. :func:`lux.context.LuxDataframe.set_context` takes in a list of specification. We will first describe how context can be specified through convenient shorthand descriptions, then we will describe advance usage via the :mod:`lux.context.Spec` object.
+The primary way to set the context is through :func:`lux.context.LuxDataframe.set_context`. :func:`lux.context.LuxDataframe.set_context` takes in a list of specification. We will first describe how context can be specified through convenient shorthand descriptions, then we will describe advance usage via the :mod:`lux.context.Clause` object.
 
 Basic descriptions
 ------------------
@@ -66,38 +66,38 @@ You can also specify multiple values of interest using the same `|` notation tha
 
     So while both approaches applies the filter on the specified view, the slightly different interpretation results in different recommendations. In general, we encourage using Pandas for filtering if the user is certain about applying the filter (e.g., a cleaning operation deleting a specific data subset), and specify the context in Lux if the user may want to experiment and change aspects related to the filter in their analysis. 
 
-Advanced usage of :mod:`lux.context.Spec`
+Advanced usage of :mod:`lux.context.Clause`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The basic string-based descriptions provides a convenient way of specifying the context. However, not all specification can be expressed through the descriptions, more complex specification can be expressed through the :mod:`lux.context.Spec` object. The two modes of specification is essentially equivalent, with the :mod:`lux.compiler.Parser` parsing the specified string into the `description` field in the :mod:`lux.context.Spec` object.
+The basic string-based descriptions provides a convenient way of specifying the context. However, not all specification can be expressed through the descriptions, more complex specification can be expressed through the :mod:`lux.context.Clause` object. The two modes of specification is essentially equivalent, with the :mod:`lux.compiler.Parser` parsing the specified string into the `description` field in the :mod:`lux.context.Clause` object.
 
 Specifying attributes or values of interest
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To see an example of how lux.VisSpec is used, we rewrite our earlier example of expressing interest in `AverageCost` as: 
+To see an example of how lux.Clause is used, we rewrite our earlier example of expressing interest in `AverageCost` as: 
 
 .. code-block:: python
     
-    df.set_context([lux.VisSpec(attribute='AverageCost')])
+    df.set_context([lux.Clause(attribute='AverageCost')])
 
-Similarly, we can use :mod:`lux.context.Spec` to specify values of interest:
+Similarly, we can use :mod:`lux.context.Clause` to specify values of interest:
 
 .. code-block:: python 
 
     df.set_context(['MedianDebt',
-                    lux.VisSpec(attribute='Region',filter_op='=', value=['New England','Southeast','Far West']
+                    lux.Clause(attribute='Region',filter_op='=', value=['New England','Southeast','Far West']
                   ])
 
-Both the `attribute` and `value` fields can take in either a single string or a list of attributes to specify items of interest. This example also demonstrates how we can intermix the `lux.VisSpec` specification alongside the basic string-based specification for convenience.
+Both the `attribute` and `value` fields can take in either a single string or a list of attributes to specify items of interest. This example also demonstrates how we can intermix the `lux.Clause` specification alongside the basic string-based specification for convenience.
 
 Adding constraints 
 ~~~~~~~~~~~~~~~~~~~
 
-So far, we have seen examples of how to express existing use cases based on `lux.VisSpec`. Additional fields on the Spec object that acts as constraints to the specification. For example, we can indicate to Lux that we are interested in pinning `AverageCost` to the y axis.
+So far, we have seen examples of how to express existing use cases based on `lux.Clause`. Additional fields on the Clause object that acts as constraints to the specification. For example, we can indicate to Lux that we are interested in pinning `AverageCost` to the y axis.
     
 .. code-block:: python
     
-    df.set_context([lux.VisSpec(attribute='AverageCost', channel='y')])
+    df.set_context([lux.Clause(attribute='AverageCost', channel='y')])
 
 We can also set constraints on the type of aggregation that is used. For example, by default, we use `mean` as the default aggregation function for quantitative attributes.
 
@@ -109,7 +109,7 @@ We can override the aggregation function to be `sum` instead.
 
 .. code-block:: python
 
-    df.set_context(["HighestDegree",lux.VisSpec("AverageCost",aggregation="sum")])
+    df.set_context(["HighestDegree",lux.Clause("AverageCost",aggregation="sum")])
 
 The possible aggregation values are the same as the ones supported in Pandas's `agg <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.agg.html>`_ function, which can either be a string shorthand (e.g., "sum", "count", "min", "max", "median") or as a numpy aggregation function.
 
@@ -117,7 +117,7 @@ For example, we can change the aggregation function to be the point-to-point val
 
 .. code-block:: python
 
-    df.set_context(["HighestDegree",lux.VisSpec("AverageCost",aggregation=np.ptp)])
+    df.set_context(["HighestDegree",lux.Clause("AverageCost",aggregation=np.ptp)])
 
 Specifying wildcards
 ~~~~~~~~~~~~~~~~~~~~~
@@ -126,13 +126,13 @@ Let's say that you are interested in *any* attribute with respect to `AverageCos
 
 .. code-block:: python
     
-    df.set_context(['AverageCost',lux.VisSpec('?')])
+    df.set_context(['AverageCost',lux.Clause('?')])
 
 The space of enumeration can be narrowed based on constraints. For example, you might only be interested in looking at scatterplots of `AverageCost` with respect to quantitative attributes. 
 
 .. code-block:: python
     
-    df.set_context(['AverageCost',lux.VisSpec('?',data_type='quantitative')])
+    df.set_context(['AverageCost',lux.Clause('?',data_type='quantitative')])
 
 The enumeration specifier can also be placed on the value field. For example, you might be interested in looking at how the distribution of `AverageCost` varies for all possible values of `Geography`.
 
@@ -143,4 +143,4 @@ or
 
 .. code-block:: python
 
-    df.set_context(['AverageCost',lux.VisSpec(attribute='Geography',filter_op='=',value='?')])
+    df.set_context(['AverageCost',lux.Clause(attribute='Geography',filter_op='=',value='?')])

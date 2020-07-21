@@ -33,9 +33,9 @@ def enhance(ldf):
 	query = ldf.context.copy()
 	query = filters + attr_specs
 	query.append("?")
-	vc = lux.vis.VisCollection.VisCollection(query,ldf)
+	vc = lux.vis.VisList.VisList(query,ldf)
 		
-	# Then use the data populated in the view collection to compute score
+	# Then use the data populated in the vis list to compute score
 	for view in vc: view.score = interestingness(view,ldf)
 	
 	vc = vc.topK(15)

@@ -3,13 +3,13 @@ from lux.vizLib.altair.AltairRenderer import AltairRenderer
 from lux.utils.utils import check_import_lux_widget
 from typing import List, Union, Callable, Dict
 from lux.vis.Vis import Vis
-from lux.vis.VisSpec import VisSpec
+from lux.vis.Clause import Clause
 import warnings
-class VisCollection():
+class VisList():
 	'''
-	VisCollection is a list of Vis objects. 
+	VisList is a list of Vis objects. 
 	'''
-	def __init__(self,input_lst:Union[List[Vis],List[VisSpec]],source=None):
+	def __init__(self,input_lst:Union[List[Vis],List[Clause]],source=None):
 		# Overloaded Constructor
 		self.source = source 
 		self._input_lst = input_lst
@@ -25,36 +25,36 @@ class VisCollection():
 			self.query = []
 		self.widget = None
 		if (source is not None): self.refresh_source(source)
-	def set_query(self, query:List[VisSpec]) -> None:
+	def set_query(self, query:List[Clause]) -> None:
 		"""
-		Sets the query of the VisCollection and refresh the source based on the new spec
+		Sets the query of the VisList and refresh the source based on the new clause
 
 		Parameters
 		----------
-		query : List[VisSpec]
-			Query specifying the desired VisCollection
+		query : List[Clause]
+			Query specifying the desired VisList
 		"""		
 		self.query = query
 		self.refresh_source(self.source)
-	def get_exported(self) -> VisCollection:
+	def get_exported(self) -> VisList:
 		"""
-		Get selected visualizations as exported Vis Collection
+		Get selected visualizations as exported Vis List
 
 		Notes
         -----
-		Convert the _exportedVisIdxs dictionary into a programmable VisCollection
+		Convert the _exportedVisIdxs dictionary into a programmable VisList
 		Example _exportedVisIdxs : 
-			{'Vis Collection': [0, 2]}
+			{'Vis List': [0, 2]}
 		
 		Returns
 		-------
-		VisCollection
-		 	return a VisCollection of selected visualizations. -> VisCollection(v1, v2...)
+		VisList
+		 	return a VisList of selected visualizations. -> VisList(v1, v2...)
 		"""        
 		if not hasattr(self,"widget"):
 			warnings.warn(
-						"\nNo widget attached to the VisCollection."
-						"Please assign VisCollection to an output variable.\n"
+						"\nNo widget attached to the VisList."
+						"Please assign VisList to an output variable.\n"
 						"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
 						, stacklevel=2)
 			return []
@@ -66,17 +66,17 @@ class VisCollection():
 				,stacklevel=2)
 			return []
 		else:
-			exported_views = VisCollection(list(map(self.__getitem__, exported_vis_lst["Vis Collection"])))
+			exported_views = VisList(list(map(self.__getitem__, exported_vis_lst["Vis List"])))
 			return exported_views
 	def remove_duplicates(self) -> None:
 		"""
-		Removes duplicate visualizations in Vis Collection
+		Removes duplicate visualizations in Vis List
 		"""		
 		self.collection = list(set(self.collection))
 	def _is_vis_input(self):
 		if (type(self._input_lst[0])==Vis):
 			return True
-		elif (type(self._input_lst[0])==VisSpec):
+		elif (type(self._input_lst[0])==Clause):
 			return False
 	def __getitem__(self, key):
 		return self.collection[key]
@@ -93,20 +93,20 @@ class VisCollection():
 		largest_filter = 0
 		for vis in self.collection: #finds longest x attribute among all visualizations
 			filter_spec = None
-			for spec in vis._inferred_query:
-				if spec.value != "":
-					filter_spec = spec
+			for clause in vis._inferred_query:
+				if clause.value != "":
+					filter_spec = clause
 
-				if spec.aggregation != "":
-					attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
-				elif spec.bin_size > 0:
-					attribute = "BIN(" + spec.attribute + ")"
+				if clause.aggregation != "":
+					attribute = clause.aggregation.upper() + "(" + clause.attribute + ")"
+				elif clause.bin_size > 0:
+					attribute = "BIN(" + clause.attribute + ")"
 				else:
-					attribute = spec.attribute
+					attribute = clause.attribute
 
-				if spec.channel == "x" and len(x_channel) < len(attribute):
+				if clause.channel == "x" and len(x_channel) < len(attribute):
 					x_channel = attribute
-				if spec.channel == "y" and len(y_channel) < len(attribute):
+				if clause.channel == "y" and len(y_channel) < len(attribute):
 					y_channel = attribute
 			if len(vis.mark) > largest_mark:
 				largest_mark = len(vis.mark)
@@ -120,23 +120,23 @@ class VisCollection():
 			x_channel = ""
 			y_channel = ""
 			additional_channels = []
-			for spec in vis._inferred_query:
-				if spec.value != "":
-					filter_spec = spec
+			for clause in vis._inferred_query:
+				if clause.value != "":
+					filter_spec = clause
 
-				if spec.aggregation != "":
-					attribute = spec.aggregation.upper() + "(" + spec.attribute + ")"
-				elif spec.bin_size > 0:
-					attribute = "BIN(" + spec.attribute + ")"
+				if clause.aggregation != "":
+					attribute = clause.aggregation.upper() + "(" + clause.attribute + ")"
+				elif clause.bin_size > 0:
+					attribute = "BIN(" + clause.attribute + ")"
 				else:
-					attribute = spec.attribute
+					attribute = clause.attribute
 
-				if spec.channel == "x":
+				if clause.channel == "x":
 					x_channel = attribute.ljust(largest_x_length)
-				elif spec.channel == "y":
+				elif clause.channel == "y":
 					y_channel = attribute
-				elif spec.channel != "":
-					additional_channels.append([spec.channel, attribute])
+				elif clause.channel != "":
+					additional_channels.append([clause.channel, attribute])
 			if filter_spec:
 				y_channel = y_channel.ljust(largest_y_length)
 			elif largest_filter != 0:
@@ -154,9 +154,9 @@ class VisCollection():
 			if filter_spec:
 				aligned_filter = " -- [" + filter_spec.attribute + filter_spec.filter_op + str(filter_spec.value) + "]"
 				aligned_filter = aligned_filter.ljust(largest_filter + 8)
-				vis_repr.append(f" <VisCollection  ({x_channel}{y_channel}{str_additional_channels} {aligned_filter}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
+				vis_repr.append(f" <VisList  ({x_channel}{y_channel}{str_additional_channels} {aligned_filter}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
 			else:
-				vis_repr.append(f" <VisCollection  ({x_channel}{y_channel}{str_additional_channels}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
+				vis_repr.append(f" <VisList  ({x_channel}{y_channel}{str_additional_channels}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
 		return '['+',\n'.join(vis_repr)[1:]+']'
 	def map(self,function):
 		# generalized way of applying a function to each element
@@ -174,7 +174,7 @@ class VisCollection():
 		return NotImplemented
 	def set_plot_config(self,config_func:Callable):
 		"""
-		Modify plot aesthetic settings to the Vis Collection
+		Modify plot aesthetic settings to the Vis List
 		Currently only supported for Altair visualizations
 
 		Parameters
@@ -196,11 +196,11 @@ class VisCollection():
 	def topK(self,k):
 		#sort and truncate list to first K items
 		self.sort(remove_invalid=True)
-		return VisCollection(self.collection[:k])
+		return VisList(self.collection[:k])
 	def bottomK(self,k):
 		#sort and truncate list to first K items
 		self.sort(descending=False,remove_invalid=True)
-		return VisCollection(self.collection[:k])
+		return VisList(self.collection[:k])
 	def normalize_score(self, invert_order = False):
 		max_score = max(list(self.get("score")))
 		for dobj in self.collection:
@@ -210,15 +210,15 @@ class VisCollection():
 		self.widget =  None
 		from IPython.display import display
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-		recommendation = {"action": "Vis Collection",
-					  "description": "Shows a vis collection defined by the context"}
+		recommendation = {"action": "Vis List",
+					  "description": "Shows a vis list defined by the context"}
 		recommendation["collection"] = self.collection
 
 		check_import_lux_widget()
 		import luxWidget
 		recJSON = LuxDataFrame.rec_to_JSON([recommendation])
 		self.widget =  luxWidget.LuxWidget(
-				currentView={},
+				currentVis={},
 				recommendations=recJSON,
 				context={}
 			)
@@ -226,18 +226,18 @@ class VisCollection():
 	
 	def refresh_source(self, ldf) :
 		"""
-		Loading the source into the visualizations in the VisCollection, then populating each visualization 
+		Loading the source into the visualizations in the VisList, then populating each visualization 
 		based on the new source data, effectively "materializing" the visualization collection.
 
 		Parameters
 		----------
 		ldf : LuxDataframe
-			Input Dataframe to be attached to the VisCollection
+			Input Dataframe to be attached to the VisList
 
 		Returns
 		-------
-		VisCollection
-			Complete VisCollection with fully-specified fields
+		VisList
+			Complete VisList with fully-specified fields
 		
 		See Also
 		--------

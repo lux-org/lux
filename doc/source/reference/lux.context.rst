@@ -12,10 +12,10 @@ lux.context.Context module
    :undoc-members:
    :show-inheritance:
 
-lux.context.Spec module
+lux.context.Clause module
 -----------------------
 
-.. automodule:: lux.context.Spec
+.. automodule:: lux.context.Clause
    :members:
    :undoc-members:
    :show-inheritance:

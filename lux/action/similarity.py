@@ -2,7 +2,7 @@ import lux
 import pandas as pd
 import math
 import numpy as np
-from lux.vis.VisCollection import VisCollection
+from lux.vis.VisList import VisList
 
 def similar_pattern(ldf, queryContext, topK=-1):
     '''
@@ -13,7 +13,7 @@ def similar_pattern(ldf, queryContext, topK=-1):
     ldf : lux.luxDataFrame.LuxDataFrame
     	LuxDataFrame with underspecified context.
 
-    queryContext: list[lux.VisSpec]
+    queryContext: list[lux.Clause]
         context for specifying the visual query for the similarity search.
 
     topK: int
@@ -26,9 +26,9 @@ def similar_pattern(ldf, queryContext, topK=-1):
     '''
     row_specs = list(filter(lambda x: x.value != "", queryContext))
     if(len(row_specs) == 1):
-        search_space_vc = VisCollection(ldf.current_context.collection.copy(),ldf)
+        search_space_vc = VisList(ldf.current_context.collection.copy(),ldf)
 
-        query_vc = VisCollection(queryContext,ldf)     
+        query_vc = VisList(queryContext,ldf)     
         query_vis = query_vc[0]
         preprocess(query_vis)
         #for loop to create assign euclidean distance

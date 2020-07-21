@@ -1,5 +1,5 @@
 import pandas
-from lux.vis.VisCollection import VisCollection
+from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.executor.Executor import Executor
@@ -14,9 +14,9 @@ class PandasExecutor(Executor):
     def __repr__(self):
         return f"<PandasExecutor>"
     @staticmethod
-    def execute(view_collection:VisCollection, ldf:LuxDataFrame):
+    def execute(view_collection:VisList, ldf:LuxDataFrame):
         '''
-        Given a VisCollection, fetch the data required to render the view.
+        Given a VisList, fetch the data required to render the view.
         1) Apply filters
         2) Retrieve relevant attribute
         3) Perform vis-related processing (aggregation, binning)
@@ -25,7 +25,7 @@ class PandasExecutor(Executor):
         Parameters
 		----------
 		view_collection: list[lux.Vis]
-		    view collection that contains lux.Vis objects for visualization.
+		    vis list that contains lux.Vis objects for visualization.
 		ldf : lux.luxDataFrame.LuxDataFrame
 			LuxDataFrame with specified context.
 
@@ -38,10 +38,10 @@ class PandasExecutor(Executor):
             PandasExecutor.execute_filter(view)
             # Select relevant data based on attribute information
             attributes = set([])
-            for spec in view._inferred_query:
-                if (spec.attribute):
-                    if (spec.attribute!="Record"):
-                        attributes.add(spec.attribute)
+            for clause in view._inferred_query:
+                if (clause.attribute):
+                    if (clause.attribute!="Record"):
+                        attributes.add(clause.attribute)
             if len(view.data) > 10000:
                 view.data = view.data[list(attributes)].sample(n = 10000, random_state = 1)
             else:
