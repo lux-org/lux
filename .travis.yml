@@ -4,8 +4,6 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install git+https://github.com/lux-org/lux-widget
-  - jupyter nbextension install --py luxWidget
-  - jupyter nbextension enable --py luxWidget
   #- npm i lux-widget
 # command to run tests
 script:
