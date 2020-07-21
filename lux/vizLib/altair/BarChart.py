@@ -23,9 +23,13 @@ class BarChart(AltairChart):
 		self.code += "import altair as alt\n"
 		# self.code += f"viewData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
 		self.code += f"viewData = pd.DataFrame({str(self.data.to_dict())})\n"
-
+		def get_agg_title(clause):
+			if (clause.aggregation is None):
+				return f'{clause.attribute}'
+			else:
+				return f'{clause._aggregation_name.capitalize()} of {clause.attribute}'
 		if (x_attr.data_model == "measure"):
-			agg_title = f'{x_attr._aggregation_name.capitalize()} of {x_attr.attribute}'
+			agg_title = get_agg_title(x_attr)
 			y_attr_field = alt.Y(y_attr.attribute, type= y_attr.data_type, axis=alt.Axis(labelOverlap=True))
 			x_attr_field = alt.X(x_attr.attribute, type= x_attr.data_type, title=agg_title)
 			y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
@@ -35,7 +39,7 @@ class BarChart(AltairChart):
 				y_attr_field.sort="-x"
 				y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True), sort ='-x')"
 		else:
-			agg_title = f"{y_attr._aggregation_name.capitalize()} of {y_attr.attribute}"
+			agg_title = get_agg_title(y_attr)
 			x_attr_field = alt.X(x_attr.attribute, type = x_attr.data_type,axis=alt.Axis(labelOverlap=True))
 			y_attr_field = alt.Y(y_attr.attribute,type=y_attr.data_type,title=agg_title)
 			x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
