@@ -1,7 +1,7 @@
 import pandas as pd
-from lux.vis.VisSpec import VisSpec
+from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
-from lux.vis.VisCollection import VisCollection
+from lux.vis.VisList import VisList
 from lux.utils.utils import check_import_lux_widget
 #import for benchmarking
 import time
@@ -120,23 +120,23 @@ class LuxDataFrame(pd.DataFrame):
         Validator.validate_spec(self.context,self)
         self.current_context = Compiler.compile(self, self.context, self.current_context)
 
-    def set_context(self, context:typing.List[typing.Union[str, VisSpec]]):
+    def set_context(self, context:typing.List[typing.Union[str, Clause]]):
         """
         Main function to set the context of the dataframe.
-        The context input goes through the parser, so that the string inputs are parsed into a lux.VisSpec object.
+        The context input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
 
         Parameters
         ----------
-        context : typing.List[str,VisSpec]
-            Context list, can be a mix of string shorthand or a lux.VisSpec object
+        context : typing.List[str,Clause]
+            Context list, can be a mix of string shorthand or a lux.Clause object
 
         Notes
         -----
-            :doc:`../guide/spec`
+            :doc:`../guide/clause`
         """        
         if type(context)!=list:
-            raise TypeError("Input context must be a list consisting of string descriptions or lux.VisSpec objects."
-                    "\nSee more at: https://lux-api.readthedocs.io/en/dfapi/source/guide/spec.html"
+            raise TypeError("Input context must be a list consisting of string descriptions or lux.Clause objects."
+                    "\nSee more at: https://lux-api.readthedocs.io/en/dfapi/source/guide/clause.html"
                     )
         self.context = context
         self._refresh_context()
@@ -394,23 +394,23 @@ class LuxDataFrame(pd.DataFrame):
     def get_widget(self):
         return self.widget
 
-    def get_exported(self) -> typing.Union[typing.Dict[str,VisCollection], VisCollection]:
+    def get_exported(self) -> typing.Union[typing.Dict[str,VisList], VisList]:
         """
-        Get selected visualizations as exported Vis Collection
+        Get selected visualizations as exported Vis List
 
         Notes
         -----
-        Convert the _exportedVisIdxs dictionary into a programmable VisCollection
+        Convert the _exportedVisIdxs dictionary into a programmable VisList
         Example _exportedVisIdxs : 
             {'Correlation': [0, 2], 'Category': [1]}
         indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Category` tab is selected.
         
         Returns
         -------
-        typing.Union[typing.Dict[str,VisCollection], VisCollection]
+        typing.Union[typing.Dict[str,VisList], VisList]
             When there are no exported vis, return empty list -> []
-            When all the exported vis is from the same tab, return a VisCollection of selected visualizations. -> VisCollection(v1, v2...)
-            When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisCollection. -> {"Enhance": VisCollection(v1, v2...), "Filter": VisCollection(v5, v7...), ..}
+            When all the exported vis is from the same tab, return a VisList of selected visualizations. -> VisList(v1, v2...)
+            When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisList. -> {"Enhance": VisList(v1, v2...), "Filter": VisList(v5, v7...), ..}
         """
         if not hasattr(self,"widget"):
             warnings.warn(
@@ -427,19 +427,19 @@ class LuxDataFrame(pd.DataFrame):
 				"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
 				,stacklevel=2)
             return []
-        if len(exported_vis_lst) == 1 and "currentView" in exported_vis_lst:
+        if len(exported_vis_lst) == 1 and "currentVis" in exported_vis_lst:
             return self.current_context
         elif len(exported_vis_lst) > 1: 
             exported_vis  = {}
-            if ("currentView" in exported_vis_lst):
+            if ("currentVis" in exported_vis_lst):
                 exported_vis["Current Vis"] = self.current_context
             for export_action in exported_vis_lst:
-                if (export_action != "currentView"):
-                    exported_vis[export_action] = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
+                if (export_action != "currentVis"):
+                    exported_vis[export_action] = VisList(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
             return exported_vis
-        elif len(exported_vis_lst) == 1 and ("currentView" not in exported_vis_lst): 
+        elif len(exported_vis_lst) == 1 and ("currentVis" not in exported_vis_lst): 
             export_action = list(exported_vis_lst.keys())[0]
-            exported_vis = VisCollection(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
+            exported_vis = VisList(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
             return exported_vis
         else:
             warnings.warn(
@@ -527,7 +527,7 @@ class LuxDataFrame(pd.DataFrame):
         import luxWidget
         widgetJSON = ldf.to_JSON(input_current_view=input_current_view)
         return luxWidget.LuxWidget(
-            currentView=widgetJSON["current_vis"],
+            currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
             context=LuxDataFrame.context_to_JSON(ldf.context)
         )
@@ -538,10 +538,10 @@ class LuxDataFrame(pd.DataFrame):
         filter_specs = utils.get_filter_specs(context)
         attrs_specs = utils.get_attrs_specs(context)
         
-        specs = {}
-        specs['attributes'] = [spec.attribute for spec in attrs_specs]
-        specs['filters'] = [spec.attribute for spec in filter_specs]
-        return specs
+        query = {}
+        query['attributes'] = [clause.attribute for clause in attrs_specs]
+        query['filters'] = [clause.attribute for clause in filter_specs]
+        return query
 
     def to_JSON(self, input_current_view=""):
         widget_spec = {}
@@ -560,7 +560,7 @@ class LuxDataFrame(pd.DataFrame):
     @staticmethod
     def current_view_to_JSON(vc, input_current_view=""):
         current_view_spec = {}
-        numVC = len(vc) #number of visualizations in the vis collection
+        numVC = len(vc) #number of visualizations in the vis list
         if (numVC==1):
             current_view_spec = vc[0].render_VSpec()
         elif (numVC>1):

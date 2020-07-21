@@ -1,10 +1,10 @@
 import typing
-class VisSpec:
+class Clause:
 	def __init__(self, description:typing.Union[str,list] ="",attribute: typing.Union[str,list] ="",value: typing.Union[str,list]="",
 				 filter_op:str ="=", channel:str ="", data_type:str="",data_model:str="",
 				 aggregation:typing.Union[str,callable] = "", bin_size:int=0, weight:float=1,sort:str="", exclude: typing.Union[str,list] =""):
 		"""
-		VisSpec is the object representation of a single unit of the specification.
+		Clause is the object representation of a single unit of the specification.
 
 		Parameters
 		----------
@@ -34,7 +34,7 @@ class VisSpec:
 		bin_size : int, optional
 			Number of bins for histograms, by default 0
 		weight : float, optional
-			A number between 0 and 1 indicating the importance of this VisSpec, by default 1
+			A number between 0 and 1 indicating the importance of this Clause, by default 1
 		sort : str, optional
 			Specifying whether and how the bar chart should be sorted
 			Possible values: 'ascending', 'descending', by default ""
@@ -58,7 +58,7 @@ class VisSpec:
 		
 	def set_aggregation(self,aggregation:typing.Union[str,callable]):
 		"""
-		Sets the aggregation function of VisSpec, 
+		Sets the aggregation function of Clause, 
 		while updating _aggregation_name internally
 
 		Parameters
@@ -93,6 +93,6 @@ class VisSpec:
 			attributes.append("         bin_size: " + str(self.bin_size))
 		if len(self.exclude) != 0:
 			attributes.append("         exclude: " + str(self.exclude))
-		attributes[0] = "<VisSpec" + attributes[0][5:]
+		attributes[0] = "<Clause" + attributes[0][5:]
 		attributes[len(attributes) - 1] += " >"
 		return ',\n'.join(attributes)

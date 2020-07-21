@@ -2,7 +2,7 @@ import lux
 from lux.interestingness.interestingness import interestingness
 from lux.compiler.Compiler import Compiler
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-from lux.vis.VisCollection import VisCollection
+from lux.vis.VisList import VisList
 # for benchmarking
 import time
 from lux.utils import utils
@@ -32,12 +32,12 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 	filter_specs = utils.get_filter_specs(ldf.context)
-	query = [lux.VisSpec("?", data_model="measure"), lux.VisSpec("?", data_model="measure")]
+	query = [lux.Clause("?", data_model="measure"), lux.Clause("?", data_model="measure")]
 	query.extend(filter_specs)
-	vc = VisCollection(query,ldf)
+	vc = VisList(query,ldf)
 	recommendation = {"action": "Correlation",
 					  "description": "Show relationships between two quantitative attributes."}
-	# Then use the data populated in the view collection to compute score
+	# Then use the data populated in the vis list to compute score
 	for view in vc:
 		measures = view.get_attr_by_data_model("measure")
 		if len(measures) < 2: raise ValueError(
@@ -63,7 +63,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	return recommendation
 
 
-def check_transpose_not_computed(vc: VisCollection, a: str, b: str):
+def check_transpose_not_computed(vc: VisList, a: str, b: str):
 	transpose_exist = list(filter(lambda x: (x._inferred_query[0].attribute == b) and (x._inferred_query[1].attribute == a), vc))
 	if (len(transpose_exist) > 0):
 		return transpose_exist[0].score == -1

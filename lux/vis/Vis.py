@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import List, Callable, Union
-from lux.vis.VisSpec import VisSpec
+from lux.vis.Clause import Clause
 from lux.utils.utils import check_import_lux_widget
 class Vis:
 	'''
@@ -25,25 +25,25 @@ class Vis:
 			return f"<Vis  ({str(self.query)}) mark: {self.mark}, score: {self.score} >"
 		filter_spec = None
 		channels, additional_channels = [], []
-		for spec in self._inferred_query:
+		for clause in self._inferred_query:
 
-			if hasattr(spec,"value"):
-				if spec.value != "":
-					filter_spec = spec
-			if hasattr(spec,"attribute"):
-				if spec.attribute != "":
-					if spec.aggregation != "":
-						attribute = spec._aggregation_name.upper() + "(" + spec.attribute + ")"
-					elif spec.bin_size > 0:
-						attribute = "BIN(" + spec.attribute + ")"
+			if hasattr(clause,"value"):
+				if clause.value != "":
+					filter_spec = clause
+			if hasattr(clause,"attribute"):
+				if clause.attribute != "":
+					if clause.aggregation != "":
+						attribute = clause._aggregation_name.upper() + "(" + clause.attribute + ")"
+					elif clause.bin_size > 0:
+						attribute = "BIN(" + clause.attribute + ")"
 					else:
-						attribute = spec.attribute
-					if spec.channel == "x":
-						channels.insert(0, [spec.channel, attribute])
-					elif spec.channel == "y":
-						channels.insert(1, [spec.channel, attribute])
-					elif spec.channel != "":
-						additional_channels.append([spec.channel, attribute])
+						attribute = clause.attribute
+					if clause.channel == "x":
+						channels.insert(0, [clause.channel, attribute])
+					elif clause.channel == "y":
+						channels.insert(1, [clause.channel, attribute])
+					elif clause.channel != "":
+						additional_channels.append([clause.channel, attribute])
 
 		channels.extend(additional_channels)
 		str_channels = ""
@@ -54,14 +54,14 @@ class Vis:
 			return f"<Vis  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filter_op}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
 			return f"<Vis  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
-	def set_query(self, query:List[VisSpec]) -> None:
+	def set_query(self, query:List[Clause]) -> None:
 		"""
 		Sets the query of the Vis and refresh the source based on the new query
 
 		Parameters
 		----------
-		query : List[VisSpec]
-			Query specifying the desired VisCollection
+		query : List[Clause]
+			Query specifying the desired VisList
 		"""		
 		self.query = query
 		self.refresh_source(self.source)
@@ -87,7 +87,7 @@ class Vis:
 		else:
 			from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 			widget =  luxWidget.LuxWidget(
-					currentView= LuxDataFrame.current_view_to_JSON([self]),
+					currentVis= LuxDataFrame.current_view_to_JSON([self]),
 					recommendations=[],
 					context={}
 				)
@@ -113,7 +113,7 @@ class Vis:
 
 	def remove_column_from_spec(self, attribute, remove_first:bool=False):
 		"""
-		Removes an attribute from the Vis's spec
+		Removes an attribute from the Vis's clause
 
 		Parameters
 		----------
@@ -128,7 +128,7 @@ class Vis:
 			new_spec = []
 			skip_check = False
 			for i in range(0, len(self._inferred_query)):
-				if self._inferred_query[i].value=="": # spec is type attribute
+				if self._inferred_query[i].value=="": # clause is type attribute
 					column_spec = []
 					column_names = self._inferred_query[i].attribute
 					# if only one variable in a column, columnName results in a string and not a list so
@@ -139,10 +139,10 @@ class Vis:
 								column_spec.append(column)
 							elif (remove_first):
 								remove_first = True
-						new_spec.append(VisSpec(column_spec))
+						new_spec.append(Clause(column_spec))
 					else:
 						if (column_names != attribute) or skip_check:
-							new_spec.append(VisSpec(attribute = column_names))
+							new_spec.append(Clause(attribute = column_names))
 
 						elif (remove_first):
 							remove_first = True
@@ -205,7 +205,7 @@ class Vis:
 
 		See Also
 		--------
-		lux.Vis.VisCollection.refresh_source
+		lux.Vis.VisList.refresh_source
 
 		Note
 		----

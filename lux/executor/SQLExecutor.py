@@ -1,5 +1,5 @@
 import pandas
-from lux.vis.VisCollection import VisCollection
+from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.executor.Executor import Executor
@@ -17,10 +17,10 @@ class SQLExecutor(Executor):
         return f"<Executor>"
 
     @staticmethod
-    def execute(view_collection:VisCollection, ldf: LuxDataFrame):
+    def execute(view_collection:VisList, ldf: LuxDataFrame):
         import pandas as pd
         '''
-        Given a VisCollection, fetch the data required to render the view
+        Given a VisList, fetch the data required to render the view
         1) Apply filters
         2) Retreive relevant attribute
         3) return a DataFrame with relevant results
@@ -28,12 +28,12 @@ class SQLExecutor(Executor):
         for view in view_collection:
             # Select relevant data based on attribute information
             attributes = set([])
-            for spec in view._inferred_query:
-                if (spec.attribute):
-                    if (spec.attribute=="Record"):
-                        attributes.add(spec.attribute)
+            for clause in view._inferred_query:
+                if (clause.attribute):
+                    if (clause.attribute=="Record"):
+                        attributes.add(clause.attribute)
                     #else:
-                    attributes.add(spec.attribute)
+                    attributes.add(clause.attribute)
             if view.mark not in ["bar", "line", "histogram"]:
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
                 required_variables = attributes | set(filterVars)

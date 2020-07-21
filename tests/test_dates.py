@@ -27,7 +27,7 @@ def test_period_selection():
 
 	ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq='A')
 
-	ldf.set_context([lux.VisSpec(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.VisSpec(attribute ="Year")])
+	ldf.set_context([lux.Clause(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.Clause(attribute ="Year")])
 
 	PandasExecutor.execute(ldf.current_context, ldf)
 
@@ -40,7 +40,7 @@ def test_period_filter():
 
 	ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq='A')
 
-	ldf.set_context([lux.VisSpec(attribute ="Acceleration"), lux.VisSpec(attribute ="Horsepower")])
+	ldf.set_context([lux.Clause(attribute ="Acceleration"), lux.Clause(attribute ="Horsepower")])
 
 	PandasExecutor.execute(ldf.current_context, ldf)
 	ldf.show_more()
@@ -54,7 +54,7 @@ def test_period_to_altair():
 
 	df["Year"] = pd.DatetimeIndex(df["Year"]).to_period(freq='A')
 
-	df.set_context([lux.VisSpec(attribute ="Acceleration"), lux.VisSpec(attribute ="Horsepower")])
+	df.set_context([lux.Clause(attribute ="Acceleration"), lux.Clause(attribute ="Horsepower")])
 
 	PandasExecutor.execute(df.current_context, df)
 	df.show_more()

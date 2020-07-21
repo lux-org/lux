@@ -70,7 +70,7 @@ For example, we might be interested in the attributes `AverageCost` and `SATAver
  - `Filter` adds a filter to the current selection, while keeping attributes (on the X and Y axes) fixed. These visualizations shows how the relationship of  `AverageCost` and `SATAverage` changes for different subsets of data. For instance, we see that colleges that offer Bachelor's degree as its highest degree offered shows a roughly linear trend between the two variables.
  - `Generalize` removes an attribute to display a more general trend, showing the distributions of `AverageCost` and `SATAverage` on its own. From the `AverageCost` histogram, we see that there are many colleges with average cost of around $20000 per year, corresponding to the bulge we see in the scatterplot view.
 
- See [this page](https://lux-api.readthedocs.io/en/latest/source/guide/spec.html) more information on additional ways for specifying the context.
+ See [this page](https://lux-api.readthedocs.io/en/latest/source/guide/query.html) more information on additional ways for specifying the context.
 
 ### Easy programmatic access of exported visualization objects: 
 
@@ -100,13 +100,13 @@ Lux provides a powerful abstraction for working with collections of visualizatio
 For example, we might be interested in looking at how the `AverageCost` distribution differs across different `Region`s.
 
 ```python    
-    from lux.vis.VisCollection import VisCollection
-    differentRegions = VisCollection(["Region=?","AverageCost"])
+    from lux.vis.VisList import VisList
+    differentRegions = VisList(["Region=?","AverageCost"])
     differentRegions.load(df)
 ```    
 
 <img src="https://github.com/lux-org/lux/blob/master/examples/img/viewCollection.gif?raw=true"
-     alt="Example Vis Collection"
+     alt="Example Vis List"
      style="width:600px" />
 
 

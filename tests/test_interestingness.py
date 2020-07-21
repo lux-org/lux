@@ -12,7 +12,7 @@ def test_interestingness_1_0_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
     
-    df.set_context([lux.VisSpec(attribute = "Origin")])
+    df.set_context([lux.Clause(attribute = "Origin")])
     df.show_more()
     #check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation['Enhance'][0],df) != None
@@ -46,7 +46,7 @@ def test_interestingness_1_0_0():
 #     df = pd.read_csv("lux/data/car.csv")
 #     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
     
-#     df.set_context([lux.VisSpec(attribute = "Origin", filter_op="=",value="USA"),lux.VisSpec(attribute = "Origin")])
+#     df.set_context([lux.Clause(attribute = "Origin", filter_op="=",value="USA"),lux.Clause(attribute = "Origin")])
 #     df.show_more()
 #     assert interestingness(df.view_collection[0],df) != None
 
@@ -54,7 +54,7 @@ def test_interestingness_0_1_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-    df.set_context([lux.VisSpec(attribute = "Horsepower")])
+    df.set_context([lux.Clause(attribute = "Horsepower")])
     df.show_more()
     #check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation['Enhance'][0],df) != None
@@ -89,7 +89,7 @@ def test_interestingness_0_1_1():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
     
-    df.set_context([lux.VisSpec(attribute = "Origin", filter_op="=",value="?"),lux.VisSpec(attribute = "MilesPerGal")])
+    df.set_context([lux.Clause(attribute = "Origin", filter_op="=",value="?"),lux.Clause(attribute = "MilesPerGal")])
     df.show_more()
     assert interestingness(df.recommendation['Current Context'][0],df) != None
     assert str(df.recommendation['Current Context'][0]._inferred_query[2].value) == 'USA'
@@ -98,7 +98,7 @@ def test_interestingness_1_1_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-    df.set_context([lux.VisSpec(attribute = "Horsepower"),lux.VisSpec(attribute = "Year")])
+    df.set_context([lux.Clause(attribute = "Horsepower"),lux.Clause(attribute = "Year")])
     df.show_more()
     #check that top recommended Enhance graph score is not none (all graphs here have same score)
     assert interestingness(df.recommendation['Enhance'][0],df) != None
@@ -124,7 +124,7 @@ def test_interestingness_1_1_1():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-    df.set_context([lux.VisSpec(attribute = "Horsepower"), lux.VisSpec(attribute = "Origin", filter_op="=",value = "USA", bin_size=20)])
+    df.set_context([lux.Clause(attribute = "Horsepower"), lux.Clause(attribute = "Origin", filter_op="=",value = "USA", bin_size=20)])
     df.show_more()
     #check that top recommended Enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation['Enhance'][0],df) != None
@@ -147,7 +147,7 @@ def test_interestingness_0_2_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-    df.set_context([lux.VisSpec(attribute = "Horsepower"),lux.VisSpec(attribute = "Acceleration")])
+    df.set_context([lux.Clause(attribute = "Horsepower"),lux.Clause(attribute = "Acceleration")])
     df.show_more()
     #check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation['Enhance'][0],df) != None
@@ -181,11 +181,11 @@ def test_interestingness_0_2_0():
     assert interestingness(df.recommendation['Generalize'][0],df) != None
 
 
-def test_interestingness_0_2_1():
-    df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+# def test_interestingness_0_2_1():
+#     df = pd.read_csv("lux/data/car.csv")
+#     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-    df.set_context([lux.VisSpec(attribute = "Horsepower"),lux.VisSpec(attribute = "Acceleration"),lux.VisSpec(attribute = "Acceleration", filter_op=">",value = 10)])
-    df.show_more()
-    #check that top recommended Generalize graph score is not none
-    assert interestingness(df.recommendation['Generalize'][0],df) != None
+#     df.set_context([lux.Clause(attribute = "Horsepower"),lux.Clause(attribute = "Acceleration"),lux.Clause(attribute = "Acceleration", filter_op=">",value = 10)])
+#     df.show_more()
+#     #check that top recommended Generalize graph score is not none
+#     assert interestingness(df.recommendation['Generalize'][0],df) != None

@@ -33,8 +33,8 @@ General Information
 
   - We currently only support chart modifications in Altair.
 
-- How do I override the default values in the VisSpec? For example, how do I change the aggregation function to be something that is not average? how do I set an attribute to display on the x-axis instead of y-axis? 
-  - To override automatically inferred properties, you can specify additional arguements inside `lux.VisSpec` to set the value of the VisSpec properties. See the tutorial on `"Adding constraints" <https://lux-api.readthedocs.io/en/latest/source/guide/query.html#adding-constraints>`_.
+- How do I override the default values in the Clause? For example, how do I change the aggregation function to be something that is not average? how do I set an attribute to display on the x-axis instead of y-axis? 
+  - To override automatically inferred properties, you can specify additional arguements inside `lux.Clause` to set the value of the Clause properties. See the tutorial on `"Adding constraints" <https://lux-api.readthedocs.io/en/latest/source/guide/query.html#adding-constraints>`_.
 
 Troubleshooting Tips
 -------------------
@@ -45,12 +45,12 @@ Troubleshooting Tips
 
 - I'm not able to export my visualizations via `.get_exported()`
     - First, make sure that after selecting the visualization, you have clicked on the export button (attach screenshot)
-    - If you are recieving a warning message "No widget attached to the dataframe/VisCollection. Please assign dataframe/VisCollection to an output variable." This means that the output widget that you exported your visualization on have not been stored to the variable that you are calling `get_exported` on. For example, you might have interacted with a widget directly by printing the results out.
+    - If you are recieving a warning message "No widget attached to the dataframe/VisList. Please assign dataframe/VisList to an output variable." This means that the output widget that you exported your visualization on have not been stored to the variable that you are calling `get_exported` on. For example, you might have interacted with a widget directly by printing the results out.
     .. code-block:: python
 
        df.groupby("HighestDegree").sum().reset_index()
 
-    You can resolve this issue by reassigning the dataframe or VisCollection output to a variable name, then exporting the visualization again based on the new widget.
+    You can resolve this issue by reassigning the dataframe or VisList output to a variable name, then exporting the visualization again based on the new widget.
 
     .. code-block:: python
     

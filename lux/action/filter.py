@@ -1,7 +1,7 @@
 import lux
 from lux.interestingness.interestingness import interestingness
 from lux.vis.Vis import Vis
-from lux.vis.VisCollection import VisCollection
+from lux.vis.VisList import VisList
 from lux.compiler.Compiler import Compiler
 from lux.utils import utils
 
@@ -42,7 +42,7 @@ def filter(ldf):
 			for val in unique_values:
 				if val not in filter_values:
 					new_spec = column_spec.copy()
-					new_filter = lux.VisSpec(attribute = row.attribute, value = val)
+					new_filter = lux.Clause(attribute = row.attribute, value = val)
 					new_spec.append(new_filter)
 					temp_view = Vis(new_spec)
 					output.append(temp_view)
@@ -56,11 +56,11 @@ def filter(ldf):
 			unique_values = ldf.unique_values[cat]
 			for i in range(0, len(unique_values)):
 				new_spec = column_spec.copy()
-				new_filter = lux.VisSpec(attribute=cat, filter_op="=",value=unique_values[i])
+				new_filter = lux.Clause(attribute=cat, filter_op="=",value=unique_values[i])
 				new_spec.append(new_filter)
 				temp_view = Vis(new_spec)
 				output.append(temp_view)
-	vc = lux.vis.VisCollection.VisCollection(output,ldf)
+	vc = lux.vis.VisList.VisList(output,ldf)
 	for view in vc:
 		view.score = interestingness(view,ldf)
 	vc = vc.topK(15)

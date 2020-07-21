@@ -20,7 +20,7 @@ def custom(ldf):
         object with a collection of visualizations that result from the Distribution action.
     '''
     recommendation = {"action": "Current Context",
-                      "description": "Shows the VisCollection defined by the current context"}
+                      "description": "Shows the VisList defined by the current context"}
 
     recommendation["collection"] = ldf.current_context
 

@@ -12,10 +12,10 @@ lux.vis.Vis module
    :undoc-members:
    :show-inheritance:
 
-lux.vis.VisCollection module
+lux.vis.VisList module
 ------------------------------
 
-.. automodule:: lux.vis.VisCollection
+.. automodule:: lux.vis.VisList
    :members:
    :undoc-members:
    :show-inheritance:
