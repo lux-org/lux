@@ -4,7 +4,7 @@ Composing Basic Queries
 
 Lux provides a flexible language for communicating your analytical goals and intent to the system, so that the system can provide better and more relevant recommendations to you. In this tutorial, we will see various ways of specifying the context, including the attributes and values that you are interested or not interested in, enumeration specifiers, as well as any constraints on the visualization encoding.
 
-The primary way to set the context is through :func:`lux.context.LuxDataframe.set_context`. :func:`lux.context.LuxDataframe.set_context` takes in a list of specification. We will first describe how context can be specified through convenient shorthand descriptions, then we will describe advance usage via the :mod:`lux.context.Clause` object.
+The primary way to set the context is through :func:`lux.vis.LuxDataframe.set_context`. :func:`lux.vis.LuxDataframe.set_context` takes in a list of specification. We will first describe how context can be specified through convenient shorthand descriptions, then we will describe advance usage via the :mod:`lux.vis.Clause` object.
 
 Basic descriptions
 ------------------
@@ -66,10 +66,10 @@ You can also specify multiple values of interest using the same `|` notation tha
 
     So while both approaches applies the filter on the specified view, the slightly different interpretation results in different recommendations. In general, we encourage using Pandas for filtering if the user is certain about applying the filter (e.g., a cleaning operation deleting a specific data subset), and specify the context in Lux if the user may want to experiment and change aspects related to the filter in their analysis. 
 
-Advanced usage of :mod:`lux.context.Clause`
+Advanced usage of :mod:`lux.vis.Clause`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The basic string-based descriptions provides a convenient way of specifying the context. However, not all specification can be expressed through the descriptions, more complex specification can be expressed through the :mod:`lux.context.Clause` object. The two modes of specification is essentially equivalent, with the :mod:`lux.compiler.Parser` parsing the specified string into the `description` field in the :mod:`lux.context.Clause` object.
+The basic string-based descriptions provides a convenient way of specifying the context. However, not all specification can be expressed through the descriptions, more complex specification can be expressed through the :mod:`lux.vis.Clause` object. The two modes of specification is essentially equivalent, with the :mod:`lux.compiler.Parser` parsing the specified string into the `description` field in the :mod:`lux.vis.Clause` object.
 
 Specifying attributes or values of interest
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -80,7 +80,7 @@ To see an example of how lux.Clause is used, we rewrite our earlier example of e
     
     df.set_context([lux.Clause(attribute='AverageCost')])
 
-Similarly, we can use :mod:`lux.context.Clause` to specify values of interest:
+Similarly, we can use :mod:`lux.vis.Clause` to specify values of interest:
 
 .. code-block:: python 
 
