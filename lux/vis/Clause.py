@@ -93,6 +93,6 @@ class Clause:
 			attributes.append("         bin_size: " + str(self.bin_size))
 		if len(self.exclude) != 0:
 			attributes.append("         exclude: " + str(self.exclude))
-		attributes[0] = "<Clause" + attributes[0][5:]
+		attributes[0] = "<Clause" + attributes[0][7:]
 		attributes[len(attributes) - 1] += " >"
 		return ',\n'.join(attributes)
