@@ -27,6 +27,7 @@ class LuxDataFrame(pd.DataFrame):
 
         self.compute_stats()
         self.compute_dataset_metadata()
+        self.infer_structure()
 
         self.executor_type = "Pandas"
         self.executor = PandasExecutor
@@ -60,7 +61,12 @@ class LuxDataFrame(pd.DataFrame):
     # @property
     # def context(self):
     #     return self.context
-    
+    def infer_structure(self):
+        # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
+        is_multi_index_flag = self.index.nlevels
+        not_range_index_flag = type(self.index) != pd.core.indexes.range.RangeIndex
+        small_df_flag = len(self)<10
+        self.pre_aggregated = (is_multi_index_flag or not_range_index_flag) and  small_df_flag 
     def set_executor_type(self, exe):
         if (exe =="SQL"):
             import pkgutil
@@ -189,22 +195,21 @@ class LuxDataFrame(pd.DataFrame):
             elif self.dtypes[attr] == "float64":
                 self.data_type_lookup[attr] = "quantitative"
             elif self.dtypes[attr] == "int64":
-                if self.cardinality[attr] < 13: #TODO:nominal with high value breaks system
+                # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
+                if self.cardinality[attr]/len(self) < 0.4 and self.cardinality[attr]<10: 
                     self.data_type_lookup[attr] = "nominal"
                 else:
                     self.data_type_lookup[attr] = "quantitative"
             # Eliminate this clause because a single NaN value can cause the dtype to be object
             elif self.dtypes[attr] == "object":
                 self.data_type_lookup[attr] = "nominal"
-            
-            # TODO: quick check if attribute is of type time (auto-detect logic borrow from Zenvisage data import)
             elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]) or pd.api.types.is_period_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
                 self.data_type_lookup[attr] = "temporal"
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         # 	if self.cardinality[attr]>50:
+        if (type(self.index) != pd.core.indexes.range.RangeIndex):
+            self.data_type_lookup[self.index.name] = "nominal"
         self.data_type = self.mapping(self.data_type_lookup)
-
-
     def compute_data_model(self):
         self.data_model = {
             "measure": self.data_type["quantitative"],
@@ -239,7 +244,10 @@ class LuxDataFrame(pd.DataFrame):
             if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
                 self.x_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
                 self.y_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
-
+        if (type(self.index) != pd.core.indexes.range.RangeIndex):
+            index_column_name = self.index.name
+            self.unique_values[index_column_name] = list(self.index)
+            self.cardinality[index_column_name] = len(self.index)
     #######################################################
     ########## SQL Metadata, type, model schema ###########
     #######################################################
@@ -345,14 +353,19 @@ class LuxDataFrame(pd.DataFrame):
         if (recommendations["collection"] is not None and len(recommendations["collection"])>0):
             self._rec_info.append(recommendations)
     def show_more(self):
+        print ("show_more")
         from lux.action.custom import custom
         from lux.action.correlation import correlation
         from lux.action.univariate import univariate
         from lux.action.enhance import enhance
         from lux.action.filter import filter
         from lux.action.generalize import generalize
+        from lux.action.indexgroup import indexgroup
 
         self._rec_info = []
+        if (self.pre_aggregated):
+            self._append_recInfo(indexgroup(self))
+
         if (self.current_context is None):
             no_vis = True
             one_current_vis = False
@@ -454,16 +467,16 @@ class LuxDataFrame(pd.DataFrame):
         import ipywidgets as widgets
         
         try: 
-            if (type(self.index) != pd.core.indexes.range.RangeIndex):# if multi-index, then default to pandas output
-                warnings.warn(
-                            "Lux does not currently support dataframes"
-                            "with hierarchical indexes.\n"
-                            "Please convert the dataframe into a flat"
-                            "table via `pandas.DataFrame.reset_index`.\n",
-                            stacklevel=2,
-                        )
-                display(self.display_pandas())
-                return
+            # if (type(self.index) != pd.core.indexes.range.RangeIndex):# if multi-index, then default to pandas output
+            #     warnings.warn(
+            #                 "Lux does not currently support dataframes"
+            #                 "with hierarchical indexes.\n"
+            #                 "Please convert the dataframe into a flat"
+            #                 "table via `pandas.DataFrame.reset_index`.\n",
+            #                 stacklevel=2,
+            #             )
+            #     display(self.display_pandas())
+            #     return
             self.toggle_pandas_display = self.default_pandas_display # Reset to Pandas Vis everytime
             # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_context)
             if self.executor_type == "Pandas":

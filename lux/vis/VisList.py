@@ -97,7 +97,7 @@ class VisList():
 				if clause.value != "":
 					filter_spec = clause
 
-				if clause.aggregation != "":
+				if (clause.aggregation != "" and clause.aggregation is not None):
 					attribute = clause.aggregation.upper() + "(" + clause.attribute + ")"
 				elif clause.bin_size > 0:
 					attribute = "BIN(" + clause.attribute + ")"
@@ -124,7 +124,7 @@ class VisList():
 				if clause.value != "":
 					filter_spec = clause
 
-				if clause.aggregation != "":
+				if (clause.aggregation != "" and clause.aggregation is not None):
 					attribute = clause.aggregation.upper() + "(" + clause.attribute + ")"
 				elif clause.bin_size > 0:
 					attribute = "BIN(" + clause.attribute + ")"

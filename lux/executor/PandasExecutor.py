@@ -72,6 +72,8 @@ class PandasExecutor(Executor):
         y_attr = view.get_attr_by_channel("y")[0]
         groupby_attr =""
         measure_attr =""
+        if (x_attr.aggregation is None or y_attr.aggregation is None):
+            return
         if (y_attr.aggregation!=""):
             groupby_attr = x_attr
             measure_attr = y_attr

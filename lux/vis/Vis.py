@@ -32,7 +32,7 @@ class Vis:
 					filter_spec = clause
 			if hasattr(clause,"attribute"):
 				if clause.attribute != "":
-					if clause.aggregation != "":
+					if clause.aggregation != "" and clause.aggregation is not None:
 						attribute = clause._aggregation_name.upper() + "(" + clause.attribute + ")"
 					elif clause.bin_size > 0:
 						attribute = "BIN(" + clause.attribute + ")"

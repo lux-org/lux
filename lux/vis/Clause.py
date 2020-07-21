@@ -29,8 +29,9 @@ class Clause:
 			Data model for the specified attribute
 			Possible values: 'dimension', 'measure', by default ""
 		aggregation : typing.Union[str,callable], optional
-			Aggregation function for specified attribute, by default ""
+			Aggregation function for specified attribute, by default "" set as 'mean'
 			Possible values: 'sum','mean', and others string shorthand or functions supported by Pandas.aggregate (https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.aggregate.html), including numpy aggregation functions (e.g., np.ptp), by default ""
+			Input `None` means no aggregation should be applied (e.g., data has been pre-aggregated)
 		bin_size : int, optional
 			Number of bins for histograms, by default 0
 		weight : float, optional
