@@ -23,7 +23,7 @@ Welcome to Lux's documentation!
    :caption: User Guide
    
    source/guide/query
-   source/guide/view
+   source/guide/vis
    source/guide/export
    source/guide/style
    source/guide/FAQ
