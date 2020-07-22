@@ -24,7 +24,9 @@ def date_formatter(time_stamp,ldf):
 		A reformatted version of the time_stamp according to granularity
 	"""
 	datetime = pd.to_datetime(time_stamp)
-	granularity = compute_date_granularity(ldf)
+	if ldf.data_type["temporal"]:
+		date_column = ldf[ldf.data_type["temporal"][0]] # assumes only one temporal column, may need to change this function to recieve multiple temporal columns in the future
+	granularity = compute_date_granularity(date_column)
 	date_str = ""
 	if granularity == "year":
 		date_str += str(datetime.year)
@@ -39,9 +41,9 @@ def date_formatter(time_stamp,ldf):
 	return date_str
 
 
-def compute_date_granularity(ldf):
+def compute_date_granularity(date_column:pd.core.series.Series):
 	"""
-	Given a ldf, inspects temporal column and finds out the granularity of dates.
+	Given a temporal column (pandas.core.series.Series), finds out the granularity of dates.
 
 	Example
 	----------
@@ -51,18 +53,16 @@ def compute_date_granularity(ldf):
 
 	Parameters
 	----------
-	ldf : lux.luxDataFrame.LuxDataFrame
-		LuxDataFrame with a temporal field
+	date_column: pandas.core.series.Series
+		Column series with datetime type
 
 	Returns
 	-------
 	field: str
 		A str specifying the granularity of dates for the inspected temporal column
 	"""
-	date_fields = ["day", "month", "year"]
-	if ldf.data_type["temporal"]:
-		date_column = ldf[ldf.data_type["temporal"][0]] # assumes only one temporal column, may need to change this function to recieve multiple temporal columns in the future
-		date_index = pd.DatetimeIndex(date_column)
-		for field in date_fields:
-			if hasattr(date_index,field) and len(getattr(date_index, field).unique()) != 1 : #can be changed to sum(getattr(date_index, field)) != 0
-				return field
+	date_fields = ["day", "month", "year"] #supporting a limited set of Vega-Lite TimeUnit (https://vega.github.io/vega-lite/docs/timeunit.html)
+	date_index = pd.DatetimeIndex(date_column)
+	for field in date_fields:
+		if hasattr(date_index,field) and len(getattr(date_index, field).unique()) != 1 : #can be changed to sum(getattr(date_index, field)) != 0
+			return field
