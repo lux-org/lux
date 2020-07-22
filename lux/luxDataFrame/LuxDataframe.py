@@ -63,10 +63,10 @@ class LuxDataFrame(pd.DataFrame):
     #     return self.context
     def infer_structure(self):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
-        is_multi_index_flag = self.index.nlevels
-        not_range_index_flag = type(self.index) != pd.core.indexes.range.RangeIndex
+        is_multi_index_flag = self.index.nlevels !=1
+        not_int_index_flag = self.index.dtype !='int64'
         small_df_flag = len(self)<10
-        self.pre_aggregated = (is_multi_index_flag or not_range_index_flag) and  small_df_flag 
+        self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag 
     def set_executor_type(self, exe):
         if (exe =="SQL"):
             import pkgutil
@@ -207,7 +207,7 @@ class LuxDataFrame(pd.DataFrame):
                 self.data_type_lookup[attr] = "temporal"
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         # 	if self.cardinality[attr]>50:
-        if (type(self.index) != pd.core.indexes.range.RangeIndex):
+        if (self.index.dtype !='int64' and self.index.name):
             self.data_type_lookup[self.index.name] = "nominal"
         self.data_type = self.mapping(self.data_type_lookup)
     def compute_data_model(self):
@@ -244,7 +244,7 @@ class LuxDataFrame(pd.DataFrame):
             if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
                 self.x_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
                 self.y_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
-        if (type(self.index) != pd.core.indexes.range.RangeIndex):
+        if (self.index.dtype !='int64'):
             index_column_name = self.index.name
             self.unique_values[index_column_name] = list(self.index)
             self.cardinality[index_column_name] = len(self.index)
@@ -353,7 +353,6 @@ class LuxDataFrame(pd.DataFrame):
         if (recommendations["collection"] is not None and len(recommendations["collection"])>0):
             self._rec_info.append(recommendations)
     def show_more(self):
-        print ("show_more")
         from lux.action.custom import custom
         from lux.action.correlation import correlation
         from lux.action.univariate import univariate
