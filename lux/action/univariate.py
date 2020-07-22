@@ -34,7 +34,7 @@ def univariate(ldf, data_type_constraint="quantitative"):
 		query.extend(filter_specs)
 		recommendation = {"action":"Distribution",
 							"description":"Show histogram distributions of different attributes in the dataframe."}
-		if (len(ldf)<5): # Doesn't make sense to generate a histogram if there is less than 5 datapoints
+		if (len(ldf)<5): # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
 			ignore_rec_flag = True
 	elif (data_type_constraint == "nominal"):
 		query = [lux.Clause("?",data_type="nominal")]
@@ -46,7 +46,7 @@ def univariate(ldf, data_type_constraint="quantitative"):
 		query.extend(filter_specs)
 		recommendation = {"action":"Temporal",
 						   "description":"Show line chart distributions of time-related attributes in the dataframe."}
-		if (len(ldf)<3): # Doesn't make sense to generate a histogram if there is less than 3 datapoints
+		if (len(ldf)<3): # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
 			ignore_rec_flag = True
 	if (ignore_rec_flag):
 		recommendation["collection"] = []
