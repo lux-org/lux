@@ -127,7 +127,6 @@ class Compiler:
 					clause.data_model = ldf.data_model_lookup[clause.attribute]
 				if (clause.value!=""):
 					if(isinstance(clause.value,np.datetime64)):
-						# TODO: Make this more general and not specific to Year attributes
 						chart_title = date_utils.date_formatter(clause.value,ldf)
 					else:
 						chart_title = clause.value
