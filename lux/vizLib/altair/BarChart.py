@@ -1,6 +1,7 @@
 from lux.vizLib.altair.AltairChart import AltairChart
 import altair as alt
 alt.data_transformers.disable_max_rows()
+from lux.utils.utils  import get_agg_title
 class BarChart(AltairChart):
 	"""
 	BarChart is a subclass of AltairChart that render as a bar charts.
@@ -23,11 +24,7 @@ class BarChart(AltairChart):
 		self.code += "import altair as alt\n"
 		# self.code += f"viewData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
 		self.code += f"viewData = pd.DataFrame({str(self.data.to_dict())})\n"
-		def get_agg_title(clause):
-			if (clause.aggregation is None):
-				return f'{clause.attribute}'
-			else:
-				return f'{clause._aggregation_name.capitalize()} of {clause.attribute}'
+		
 		if (x_attr.data_model == "measure"):
 			agg_title = get_agg_title(x_attr)
 			y_attr_field = alt.Y(y_attr.attribute, type= y_attr.data_type, axis=alt.Axis(labelOverlap=True))

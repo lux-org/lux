@@ -37,6 +37,9 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	vc = VisList(query,ldf)
 	recommendation = {"action": "Correlation",
 					  "description": "Show relationships between two quantitative attributes."}
+	ignore_rec_flag = False
+	if (len(ldf)<5): # Doesn't make sense to compute correlation if less than 4 data values
+		ignore_rec_flag = True
 	# Then use the data populated in the vis list to compute score
 	for view in vc:
 		measures = view.get_attr_by_data_model("measure")
@@ -53,9 +56,12 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 			view.score = interestingness(view, ldf)
 		else:
 			view.score = -1
+	if (ignore_rec_flag):
+		recommendation["collection"] = []
+		return recommendation
 	vc = vc.topK(15)
 	recommendation["collection"] = vc
-
+	
 	# for benchmarking
 	if ldf.toggle_benchmarking == True:
 		toc = time.perf_counter()

@@ -37,7 +37,7 @@ From the dataframe recommendations, the visualization showing the relationship b
     vis = df.get_exported()[0]
     vis
 
-Setting viss as Context
+Setting Visualizations as Context
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Now that we have exported the vis, we can set the new context of the dataframe to be the vis to get more recommendations related to this visualization.
@@ -56,7 +56,7 @@ Let's say that we are now interested in the bar chart distribution of country `S
     vis = df.recommendation["Category"][0]
     vis
 
-To allow further edits of visualizations, viss can be exported to code in `Altair <https://altair-viz.github.io/>`_ or as `Vega-Lite <https://vega.github.io/vega-lite/>`_ specification.
+To allow further edits of visualizations, visualizations can be exported to code in `Altair <https://altair-viz.github.io/>`_ or as `Vega-Lite <https://vega.github.io/vega-lite/>`_ specification.
 
 .. code-block:: python
 
