@@ -63,24 +63,9 @@ class VisSpec:
 			self._aggregation_name = self.aggregation
 
 	def copy_spec(self):
-		description_copy = self.description
-		# Description gets compiled to attribute, value, filter_op
-		attribute_copy = self.attribute
-		value_copy = self.value
-		filter_op_copy = self.filter_op
-		# self.parseDescription()
-		# Properties
-		channel_copy = self.channel
-		data_type_copy = self.data_type
-		data_model_copy = self.data_model
-		aggregation_copy = self.aggregation
-		bin_size_copy = self.bin_size
-		weight_copy = self.weight
-		sort_copy = self.sort
-		exclude_copy = self.exclude
-
-		copied_spec = VisSpec(description = description_copy, attribute = attribute_copy, value = value_copy, filter_op = filter_op_copy, channel = channel_copy, data_type = data_type_copy, data_model = data_model_copy, aggregation = aggregation_copy, bin_size = bin_size_copy, weight = weight_copy, sort = sort_copy, exclude = exclude_copy)
-		return copied_spec
+		copied_spec = VisSpec()
+		copied_spec.__dict__ = self.__dict__.copy()    # just a shallow copy
+		return(copied_spec)
 
 	def __repr__(self):
 		attributes = []
