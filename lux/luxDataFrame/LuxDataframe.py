@@ -126,7 +126,7 @@ class LuxDataFrame(pd.DataFrame):
         Validator.validate_spec(self.context,self)
         self.current_context = Compiler.compile(self, self.context, self.current_context)
 
-    def set_context(self, context:typing.List[typing.Union[str, Clause]]):
+    def set_intent(self, context:typing.List[typing.Union[str, Clause]]):
         """
         Main function to set the context of the dataframe.
         The context input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
@@ -146,7 +146,7 @@ class LuxDataFrame(pd.DataFrame):
                     )
         self.context = context
         self._refresh_context()
-    def set_context_as_vis(self,vis:Vis):
+    def set_intent_as_vis(self,vis:Vis):
         """
         Set context of the dataframe as the Vis
 
@@ -155,7 +155,7 @@ class LuxDataFrame(pd.DataFrame):
         view : Vis
             [description]
         """        
-        self.context = vis._inferred_query
+        self.context = vis._inferred_intent
         self._refresh_context()
     def clear_context(self):
         self.context = []
@@ -474,7 +474,7 @@ class LuxDataFrame(pd.DataFrame):
                 warnings.warn(
                                 "\nLux does not currently support dataframes "
                                 "with hierarchical indexes.\n"
-                                "Please convert the dataframe into a flat"
+                                "Please convert the dataframe into a flat "
                                 "table via `pandas.DataFrame.reset_index`.\n",
                                 stacklevel=2,
                             )
@@ -518,13 +518,13 @@ class LuxDataFrame(pd.DataFrame):
             on_button_clicked(None)
         except(KeyboardInterrupt,SystemExit):
             raise
-        except:
-            warnings.warn(
-                    "\nUnexpected error in rendering Lux widget and recommendations. "
-                    "Falling back to Pandas display.\n\n" 
-                    "Please report this issue on Github: https://github.com/lux-org/lux/issues "
-                ,stacklevel=2)
-            display(self.display_pandas())
+        # except:
+        #     warnings.warn(
+        #             "\nUnexpected error in rendering Lux widget and recommendations. "
+        #             "Falling back to Pandas display.\n\n" 
+        #             "Please report this issue on Github: https://github.com/lux-org/lux/issues "
+        #         ,stacklevel=2)
+        #     display(self.display_pandas())
     def display_pandas(self):
         return self.to_pandas()
     @staticmethod
@@ -554,10 +554,10 @@ class LuxDataFrame(pd.DataFrame):
         filter_specs = utils.get_filter_specs(context)
         attrs_specs = utils.get_attrs_specs(context)
         
-        query = {}
-        query['attributes'] = [clause.attribute for clause in attrs_specs]
-        query['filters'] = [clause.attribute for clause in filter_specs]
-        return query
+        intent = {}
+        intent['attributes'] = [clause.attribute for clause in attrs_specs]
+        intent['filters'] = [clause.attribute for clause in filter_specs]
+        return intent
 
     def to_JSON(self, input_current_view=""):
         widget_spec = {}

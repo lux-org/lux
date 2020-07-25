@@ -22,7 +22,7 @@ Welcome to Lux's documentation!
    :maxdepth: 1
    :caption: User Guide
    
-   source/guide/query
+   source/guide/intent
    source/guide/vis
    source/guide/export
    source/guide/style

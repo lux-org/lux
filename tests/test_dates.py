@@ -27,7 +27,7 @@ def test_period_selection():
 
 	ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq='A')
 
-	ldf.set_context([lux.Clause(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.Clause(attribute ="Year")])
+	ldf.set_intent([lux.Clause(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.Clause(attribute ="Year")])
 
 	PandasExecutor.execute(ldf.current_context, ldf)
 
@@ -40,12 +40,12 @@ def test_period_filter():
 
 	ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq='A')
 
-	ldf.set_context([lux.Clause(attribute ="Acceleration"), lux.Clause(attribute ="Horsepower")])
+	ldf.set_intent([lux.Clause(attribute ="Acceleration"), lux.Clause(attribute ="Horsepower")])
 
 	PandasExecutor.execute(ldf.current_context, ldf)
 	ldf.show_more()
 
-	assert isinstance(ldf.recommendation['Filter'][2]._inferred_query[2].value, pd.Period)
+	assert isinstance(ldf.recommendation['Filter'][2]._inferred_intent[2].value, pd.Period)
 
 def test_period_to_altair():
 	chart = None
@@ -54,7 +54,7 @@ def test_period_to_altair():
 
 	df["Year"] = pd.DatetimeIndex(df["Year"]).to_period(freq='A')
 
-	df.set_context([lux.Clause(attribute ="Acceleration"), lux.Clause(attribute ="Horsepower")])
+	df.set_intent([lux.Clause(attribute ="Acceleration"), lux.Clause(attribute ="Horsepower")])
 
 	PandasExecutor.execute(df.current_context, df)
 	df.show_more()

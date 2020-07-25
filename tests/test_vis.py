@@ -13,7 +13,7 @@ def test_vis_set_specs():
     df = pd.read_csv("lux/data/olympic.csv")
     from lux.vis.Vis import Vis
     vis = Vis(["Height","SportType=Ball"],df)
-    vis.set_query(["Height","SportType=Ice"])
+    vis.set_intent(["Height","SportType=Ice"])
     assert vis.get_attr_by_attr_name("SportType")[0].value =="Ice"
 
 def test_vis_collection():
@@ -26,13 +26,13 @@ def test_vis_collection():
     vc = VisList(["Height","?"],df)
     assert len(vc) == len(df.columns) -1 #remove 1 for vis with for same attribute
 
-def test_vis_collection_set_query():
+def test_vis_collection_set_intent():
     df = pd.read_csv("lux/data/olympic.csv")
     from lux.vis.VisList import VisList
     vc = VisList(["Height","SportType=Ice","?"],df)
-    vc.set_query(["Height","SportType=Boat","?"])
+    vc.set_intent(["Height","SportType=Boat","?"])
     for v in vc.collection: 
-        filter_vspec = list(filter(lambda x: x.channel=="",v._inferred_query))[0]
+        filter_vspec = list(filter(lambda x: x.channel=="",v._inferred_intent))[0]
         assert filter_vspec.value =="Boat"
 def test_custom_plot_setting():
     def change_color_make_transparent_add_title(chart):
@@ -53,22 +53,22 @@ def test_remove():
     df = pd.read_csv("lux/data/car.csv")
     vis = Vis([lux.Clause("Horsepower"),lux.Clause("Acceleration")],df)
     vis.remove_column_from_spec("Horsepower",remove_first=False)
-    assert vis._inferred_query[0].attribute == "Acceleration"
+    assert vis._inferred_intent[0].attribute == "Acceleration"
 def test_remove_identity():
     from lux.vis.Vis import Vis
     df = pd.read_csv("lux/data/car.csv")
     vis = Vis(["Horsepower","Horsepower"],df)
     vis.remove_column_from_spec("Horsepower")
-    assert (vis._inferred_query == []),"Remove all instances of Horsepower"
+    assert (vis._inferred_intent == []),"Remove all instances of Horsepower"
 
     df = pd.read_csv("lux/data/car.csv")
     vis = Vis(["Horsepower","Horsepower"],df)
     vis.remove_column_from_spec("Horsepower",remove_first=True)
-    assert (len(vis._inferred_query)==1),"Remove only 1 instances of Horsepower"
-    assert (vis._inferred_query[0].attribute=="Horsepower"),"Remove only 1 instances of Horsepower"
+    assert (len(vis._inferred_intent)==1),"Remove only 1 instances of Horsepower"
+    assert (vis._inferred_intent[0].attribute=="Horsepower"),"Remove only 1 instances of Horsepower"
 def test_refresh_collection():
     df = pd.read_csv("lux/data/car.csv")
-    df.set_context([lux.Clause(attribute = "Acceleration"),lux.Clause(attribute = "Horsepower")])
+    df.set_intent([lux.Clause(attribute = "Acceleration"),lux.Clause(attribute = "Horsepower")])
     df.show_more()
     enhanceCollection = df.recommendation["Enhance"]
     enhanceCollection.refresh_source(df[df["Origin"]=="USA"])

@@ -38,7 +38,7 @@ class PandasExecutor(Executor):
             PandasExecutor.execute_filter(view)
             # Select relevant data based on attribute information
             attributes = set([])
-            for clause in view._inferred_query:
+            for clause in view._inferred_intent:
                 if (clause.attribute):
                     if (clause.attribute!="Record"):
                         attributes.add(clause.attribute)
@@ -121,7 +121,7 @@ class PandasExecutor(Executor):
         '''
         import numpy as np
         import pandas as pd # is this import going to be conflicting with LuxDf?
-        bin_attribute = list(filter(lambda x: x.bin_size!=0,view._inferred_query))[0]
+        bin_attribute = list(filter(lambda x: x.bin_size!=0,view._inferred_intent))[0]
         #TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
         counts,bin_edges = np.histogram(view.data[bin_attribute.attribute],bins=bin_attribute.bin_size)
         #bin_edges of size N+1, so need to compute bin_center as the bin location
@@ -132,7 +132,7 @@ class PandasExecutor(Executor):
     @staticmethod
     def execute_filter(view: Vis):
         assert view.data is not None, "execute_filter assumes input view.data is populated (if not, populate with LuxDataFrame values)"
-        filters = utils.get_filter_specs(view._inferred_query)
+        filters = utils.get_filter_specs(view._inferred_intent)
         
         if (filters):
             # TODO: Need to handle OR logic

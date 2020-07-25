@@ -4,7 +4,7 @@ import math
 import numpy as np
 from lux.vis.VisList import VisList
 
-def similar_pattern(ldf, queryContext, topK=-1):
+def similar_pattern(ldf, intent, topK=-1):
     '''
     Generates visualizations with similar patterns to a query visualization.
 
@@ -13,7 +13,7 @@ def similar_pattern(ldf, queryContext, topK=-1):
     ldf : lux.luxDataFrame.LuxDataFrame
     	LuxDataFrame with underspecified context.
 
-    queryContext: list[lux.Clause]
+    intent: list[lux.Clause]
         context for specifying the visual query for the similarity search.
 
     topK: int
@@ -24,11 +24,11 @@ def similar_pattern(ldf, queryContext, topK=-1):
     recommendations : Dict[str,obj]
     	object with a collection of visualizations that result from the Similarity action
     '''
-    row_specs = list(filter(lambda x: x.value != "", queryContext))
+    row_specs = list(filter(lambda x: x.value != "", intent))
     if(len(row_specs) == 1):
         search_space_vc = VisList(ldf.current_context.collection.copy(),ldf)
 
-        query_vc = VisList(queryContext,ldf)     
+        query_vc = VisList(intent,ldf)     
         query_vis = query_vc[0]
         preprocess(query_vis)
         #for loop to create assign euclidean distance

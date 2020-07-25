@@ -44,7 +44,7 @@ Now that we have exported the vis, we can set the new context of the dataframe t
 
 .. code-block:: python
 
-    df.set_context_as_vis(vis)
+    df.set_intent_as_vis(vis)
     df
 
 Exporting Visualizations as Code

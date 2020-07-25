@@ -34,7 +34,7 @@ General Information
   - We currently only support chart modifications in Altair.
 
 - How do I override the default values in the Clause? For example, how do I change the aggregation function to be something that is not average? how do I set an attribute to display on the x-axis instead of y-axis? 
-  - To override automatically inferred properties, you can specify additional arguements inside `lux.Clause` to set the value of the Clause properties. See the tutorial on `"Adding constraints" <https://lux-api.readthedocs.io/en/latest/source/guide/query.html#adding-constraints>`_.
+  - To override automatically inferred properties, you can specify additional arguements inside `lux.Clause` to set the value of the Clause properties. See the tutorial on `"Adding constraints" <https://lux-api.readthedocs.io/en/latest/source/guide/intent.html#adding-constraints>`_.
 
 Troubleshooting Tips
 -------------------
