@@ -10,6 +10,22 @@ def test_vary_filter_val():
     df._repr_html_()
     assert len(df.recommendation["Filter"]) == len(df["SportType"].unique())-1
 
+def test_generalize_action():
+	#test that generalize action creates all unique visualizations
+	df = pd.read_csv("lux/data/car.csv")
+	df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
+	df.set_intent(["Acceleration", "MilesPerGal", "Cylinders", "Origin=USA"])
+	df.show_more()
+	assert(len(df.recommendation['Generalize']) == 4)
+	v1 = df.recommendation['Generalize'][0]
+	v2 = df.recommendation['Generalize'][1]
+	v3 = df.recommendation['Generalize'][2]
+	v4 = df.recommendation['Generalize'][3]
+
+	check1 = v1 != v2 and v1 != v3 and v1 != v4
+	check2 = v2 != v3 and v2 != v4
+	check3 = v3 != v4
+	assert(check1 and check2 and check3)
 
 def test_row_column_group():
     df = pd.read_csv("lux/data/state_timeseries.csv")
