@@ -5,23 +5,20 @@ from lux.utils import utils
 
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
-import pandas as pd
+
+#for benchmarking
 import time
-def column_group(ldf):
+def indexgroup(ldf):
 	#for benchmarking
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
-	recommendation = {"action":"Column Groups",
-					"description":"Shows charts of possible visualizations with respect to the column-wise index."}
+	recommendation = {"action":"Index-Group",
+					"description":"Shows charts of possible visualizations with respect to the index."}
 	collection = []
-	data = ldf.copy()
-	if (ldf.index.nlevels==1):
-		index_column_name = ldf.index.name
-		if isinstance(ldf.columns,pd.DatetimeIndex):
-			data.columns = ldf.columns.to_native_types()
-		for attribute in data.columns:
-			vis = Vis([index_column_name,lux.Clause(str(attribute),aggregation=None)],data[attribute].reset_index())
-			collection.append(vis)
+	index_column_name = ldf.index.name
+	for attribute in ldf.columns:
+		vis = Vis([index_column_name,lux.Clause(attribute,aggregation=None)],ldf[attribute].reset_index())
+		collection.append(vis)
 	vlst = VisList(collection)
 	# Note that we are not computing interestingness score here because we want to preserve the arrangement of the aggregated data
 	
