@@ -1,4 +1,4 @@
-from lux.vizLib.altair.AltairChart import AltairChart
+from lux.vislib.altair.AltairChart import AltairChart
 import altair as alt
 alt.data_transformers.disable_max_rows()
 class Histogram(AltairChart):

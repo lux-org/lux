@@ -11,7 +11,7 @@ def univariate(ldf, data_type_constraint="quantitative"):
 	Parameters
 	----------
 	ldf : lux.luxDataFrame.LuxDataFrame
-		LuxDataFrame with underspecified context.
+		LuxDataFrame with underspecified intent.
 
 	data_type_constraint: str
 		Controls the type of distribution chart that will be rendered.
@@ -27,7 +27,7 @@ def univariate(ldf, data_type_constraint="quantitative"):
 	#for benchmarking
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
-	filter_specs = utils.get_filter_specs(ldf.context)
+	filter_specs = utils.get_filter_specs(ldf.intent)
 	ignore_rec_flag = False
 	if (data_type_constraint== "quantitative"):
 		intent = [lux.Clause("?",data_type="quantitative")]

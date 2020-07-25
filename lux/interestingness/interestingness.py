@@ -119,7 +119,7 @@ def deviation_from_overall(vis:Vis, ldf:LuxDataFrame, filter_specs:list, msr_att
 	v_filter = vis.data[msr_attribute]
 	v_filter = v_filter/v_filter.sum() # normalize by total to get ratio
 
-	# Generate an "Overall" Vis (TODO: This is computed multiple times for every vis, alternative is to directly access df.current_context but we do not have guaruntee that will always be unfiltered vis (in the non-Filter action scenario))
+	# Generate an "Overall" Vis (TODO: This is computed multiple times for every vis, alternative is to directly access df.current_intent but we do not have guaruntee that will always be unfiltered vis (in the non-Filter action scenario))
 	import copy
 	unfiltered_vis = copy.copy(vis)
 	unfiltered_vis._inferred_intent = utils.get_attrs_specs(vis._inferred_intent) # Remove filters, keep only attribute intent

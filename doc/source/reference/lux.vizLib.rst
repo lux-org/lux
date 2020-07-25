@@ -1,4 +1,4 @@
-lux.vizLib package
+lux.vislib package
 ==================
 
 Subpackages
@@ -7,12 +7,12 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   lux.vizLib.altair
+   lux.vislib.altair
 
 Module contents
 ---------------
 
-.. automodule:: lux.vizLib
+.. automodule:: lux.vislib
    :members:
    :undoc-members:
    :show-inheritance:

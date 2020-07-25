@@ -1,53 +1,53 @@
-lux.vizLib.altair package
+lux.vislib.altair package
 =========================
 
 Submodules
 ----------
 
-lux.vizLib.altair.AltairChart module
+lux.vislib.altair.AltairChart module
 ------------------------------------
 
-.. automodule:: lux.vizLib.altair.AltairChart
+.. automodule:: lux.vislib.altair.AltairChart
    :members:
    :undoc-members:
    :show-inheritance:
 
-lux.vizLib.altair.AltairRenderer module
+lux.vislib.altair.AltairRenderer module
 ---------------------------------------
 
-.. automodule:: lux.vizLib.altair.AltairRenderer
+.. automodule:: lux.vislib.altair.AltairRenderer
    :members:
    :undoc-members:
    :show-inheritance:
 
-lux.vizLib.altair.BarChart module
+lux.vislib.altair.BarChart module
 ---------------------------------
 
-.. automodule:: lux.vizLib.altair.BarChart
+.. automodule:: lux.vislib.altair.BarChart
    :members:
    :undoc-members:
    :show-inheritance:
 
-lux.vizLib.altair.Histogram module
+lux.vislib.altair.Histogram module
 ----------------------------------
 
-.. automodule:: lux.vizLib.altair.Histogram
+.. automodule:: lux.vislib.altair.Histogram
    :members:
    :undoc-members:
    :show-inheritance:
 
-lux.vizLib.altair.LineChart module
+lux.vislib.altair.LineChart module
 ----------------------------------
 
-.. automodule:: lux.vizLib.altair.LineChart
+.. automodule:: lux.vislib.altair.LineChart
    :members:
    :undoc-members:
    :show-inheritance:
 
-lux.vizLib.altair.ScatterChart module
+lux.vislib.altair.ScatterChart module
 -------------------------------------
 
-.. automodule:: lux.vizLib.altair.ScatterChart
+.. automodule:: lux.vislib.altair.ScatterChart
    :members:
    :undoc-members:
    :show-inheritance:
@@ -56,7 +56,7 @@ lux.vizLib.altair.ScatterChart module
 Module contents
 ---------------
 
-.. automodule:: lux.vizLib.altair
+.. automodule:: lux.vislib.altair
    :members:
    :undoc-members:
    :show-inheritance:

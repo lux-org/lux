@@ -1,10 +1,10 @@
 import lux
 import pandas as pd
 from typing import Callable
-from lux.vizLib.altair.BarChart import BarChart
-from lux.vizLib.altair.ScatterChart import ScatterChart
-from lux.vizLib.altair.LineChart import LineChart
-from lux.vizLib.altair.Histogram import Histogram
+from lux.vislib.altair.BarChart import BarChart
+from lux.vislib.altair.ScatterChart import ScatterChart
+from lux.vislib.altair.LineChart import LineChart
+from lux.vislib.altair.Histogram import Histogram
 
 class AltairRenderer:
 	"""

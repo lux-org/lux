@@ -12,17 +12,17 @@ class LuxDataFrame(pd.DataFrame):
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
     '''
     # MUST register here for new properties!!
-    _metadata = ['context','data_type_lookup','data_type','filter_specs',
+    _metadata = ['intent','data_type_lookup','data_type','filter_specs',
                  'data_model_lookup','data_model','unique_values','cardinality',
                  'x_min_max', 'y_min_max','plot_config',
-                 'current_context','widget', '_rec_info', 'recommendation']
+                 'current_intent','widget', '_rec_info', 'recommendation']
 
     def __init__(self,*args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
-        self.context = []
+        self.intent = []
         self._rec_info=[]
         self.recommendation = {}
-        self.current_context = []
+        self.current_intent = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.compute_stats()
@@ -59,8 +59,8 @@ class LuxDataFrame(pd.DataFrame):
         else: 
             warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.",stacklevel=2)
     # @property
-    # def context(self):
-    #     return self.context
+    # def intent(self):
+    #     return self.intent
     def infer_structure(self):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels !=1
@@ -114,7 +114,7 @@ class LuxDataFrame(pd.DataFrame):
         self.plot_config = config_func
     def clear_plot_config(self):
         self.plot_config = None
-    def _refresh_context(self):
+    def _refresh_intent(self):
         from lux.compiler.Validator import Validator
         from lux.compiler.Compiler import Compiler
         from lux.compiler.Parser import Parser
@@ -122,34 +122,34 @@ class LuxDataFrame(pd.DataFrame):
         if self.SQLconnection == "":
             self.compute_stats()
             self.compute_dataset_metadata()
-        self.context = Parser.parse(self.get_context())
-        Validator.validate_spec(self.context,self)
-        self.current_context = Compiler.compile(self, self.context, self.current_context)
+        self.intent = Parser.parse(self.get_intent())
+        Validator.validate_spec(self.intent,self)
+        self.current_intent = Compiler.compile(self, self.intent, self.current_intent)
 
-    def set_intent(self, context:typing.List[typing.Union[str, Clause]]):
+    def set_intent(self, intent:typing.List[typing.Union[str, Clause]]):
         """
-        Main function to set the context of the dataframe.
-        The context input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
+        Main function to set the intent of the dataframe.
+        The intent input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
 
         Parameters
         ----------
-        context : typing.List[str,Clause]
-            Context list, can be a mix of string shorthand or a lux.Clause object
+        intent : typing.List[str,Clause]
+            intent list, can be a mix of string shorthand or a lux.Clause object
 
         Notes
         -----
             :doc:`../guide/clause`
         """        
-        if type(context)!=list:
-            raise TypeError("Input context must be a list consisting of string descriptions or lux.Clause objects."
+        if type(intent)!=list:
+            raise TypeError("Input intent must be a list consisting of string descriptions or lux.Clause objects."
                     "\nSee more at: https://lux-api.readthedocs.io/en/dfapi/source/guide/clause.html"
                     )
-        self.context = context
-        self._refresh_context()
-    def copy_context(self):
-        #creates a true copy of the dataframe's context
+        self.intent = intent
+        self._refresh_intent()
+    def copy_intent(self):
+        #creates a true copy of the dataframe's intent
         output = []
-        for clause in self.context:
+        for clause in self.intent:
             temp_clause = clause.copy_clause()
             output.append(temp_clause)
         return(output)
@@ -162,20 +162,20 @@ class LuxDataFrame(pd.DataFrame):
         ----------
         vis : Vis
         """        
-        self.context = vis._inferred_intent
-        self._refresh_context()
-    def clear_context(self):
-        self.context = []
-        self.current_context = []
+        self.intent = vis._inferred_intent
+        self._refresh_intent()
+    def clear_intent(self):
+        self.intent = []
+        self.current_intent = []
     def clear_filter(self):
         self.filter_specs = []  # reset filters
     def to_pandas(self):
         import lux.luxDataFrame
         return lux.luxDataFrame.originalDF(self,copy=False)
-    def add_to_context(self,context): 
-        self.context.extend(context)
-    def get_context(self):
-        return self.context
+    def add_to_intent(self,intent): 
+        self.intent.extend(intent)
+    def get_intent(self):
+        return self.intent
     def __repr__(self):
         # TODO: _repr_ gets called from _repr_html, need to get rid of this call
         return ""
@@ -376,14 +376,14 @@ class LuxDataFrame(pd.DataFrame):
             if (self.index.name is not None):
                 self._append_recInfo(column_group(self))
         else:
-            if (self.current_context is None):
+            if (self.current_intent is None):
                 no_vis = True
                 one_current_vis = False
                 multiple_current_vis = False
             else:
-                no_vis = len(self.current_context) == 0
-                one_current_vis = len(self.current_context) == 1
-                multiple_current_vis = len(self.current_context) > 1
+                no_vis = len(self.current_intent) == 0
+                one_current_vis = len(self.current_intent) == 1
+                multiple_current_vis = len(self.current_intent) > 1
 
             if (no_vis):
                 self._append_recInfo(correlation(self))
@@ -451,11 +451,11 @@ class LuxDataFrame(pd.DataFrame):
 				,stacklevel=2)
             return []
         if len(exported_vis_lst) == 1 and "currentVis" in exported_vis_lst:
-            return self.current_context
+            return self.current_intent
         elif len(exported_vis_lst) > 1: 
             exported_vis  = {}
             if ("currentVis" in exported_vis_lst):
-                exported_vis["Current Vis"] = self.current_context
+                exported_vis["Current Vis"] = self.current_intent
             for export_action in exported_vis_lst:
                 if (export_action != "currentVis"):
                     exported_vis[export_action] = VisList(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
@@ -488,7 +488,7 @@ class LuxDataFrame(pd.DataFrame):
                 display(self.display_pandas())
                 return
             self.toggle_pandas_display = self.default_pandas_display # Reset to Pandas Vis everytime
-            # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_context)
+            # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_intent)
             if self.executor_type == "Pandas":
                 self.compute_stats()
                 self.compute_dataset_metadata()
@@ -552,14 +552,14 @@ class LuxDataFrame(pd.DataFrame):
         return luxWidget.LuxWidget(
             currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
-            context=LuxDataFrame.context_to_JSON(ldf.context)
+            intent=LuxDataFrame.intent_to_JSON(ldf.intent)
         )
     @staticmethod
-    def context_to_JSON(context):
+    def intent_to_JSON(intent):
         from lux.utils import utils
 
-        filter_specs = utils.get_filter_specs(context)
-        attrs_specs = utils.get_attrs_specs(context)
+        filter_specs = utils.get_filter_specs(intent)
+        attrs_specs = utils.get_attrs_specs(intent)
         
         intent = {}
         intent['attributes'] = [clause.attribute for clause in attrs_specs]
@@ -568,9 +568,9 @@ class LuxDataFrame(pd.DataFrame):
 
     def to_JSON(self, input_current_view=""):
         widget_spec = {}
-        if (self.current_context): 
-            self.executor.execute(self.current_context, self)
-            widget_spec["current_vis"] = LuxDataFrame.current_view_to_JSON(self.current_context, input_current_view)
+        if (self.current_intent): 
+            self.executor.execute(self.current_intent, self)
+            widget_spec["current_vis"] = LuxDataFrame.current_view_to_JSON(self.current_intent, input_current_view)
         else:
             widget_spec["current_vis"] = {}
         widget_spec["recommendation"] = []

@@ -89,7 +89,7 @@ class Vis:
 			widget =  luxWidget.LuxWidget(
 					currentVis= LuxDataFrame.current_view_to_JSON([self]),
 					recommendations=[],
-					context={}
+					intent={}
 				)
 			display(widget)
 	def get_attr_by_attr_name(self,attr_name):
@@ -164,7 +164,7 @@ class Vis:
 		str
 			String version of the Altair code. Need to print out the string to apply formatting.
 		"""		
-		from lux.vizLib.altair.AltairRenderer import AltairRenderer
+		from lux.vislib.altair.AltairRenderer import AltairRenderer
 		renderer = AltairRenderer(output_type="Altair")
 		self.code= renderer.create_vis(self)
 		return self.code
@@ -179,7 +179,7 @@ class Vis:
 			String or Dictionary of the VegaLite JSON specification
 		"""		
 		import json
-		from lux.vizLib.altair.AltairRenderer import AltairRenderer
+		from lux.vislib.altair.AltairRenderer import AltairRenderer
 		renderer = AltairRenderer(output_type="VegaLite")
 		self.code = renderer.create_vis(self)
 		if (prettyOutput):

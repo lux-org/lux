@@ -1,5 +1,5 @@
 from __future__ import annotations
-from lux.vizLib.altair.AltairRenderer import AltairRenderer
+from lux.vislib.altair.AltairRenderer import AltairRenderer
 from lux.utils.utils import check_import_lux_widget
 from typing import List, Union, Callable, Dict
 from lux.vis.Vis import Vis
@@ -211,7 +211,7 @@ class VisList():
 		from IPython.display import display
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 		recommendation = {"action": "Vis List",
-					  "description": "Shows a vis list defined by the context"}
+					  "description": "Shows a vis list defined by the intent"}
 		recommendation["collection"] = self.collection
 
 		check_import_lux_widget()
@@ -220,7 +220,7 @@ class VisList():
 		self.widget =  luxWidget.LuxWidget(
 				currentVis={},
 				recommendations=recJSON,
-				context={}
+				intent={}
 			)
 		display(self.widget)	
 	
@@ -257,7 +257,7 @@ class VisList():
 				for vis in self.collection:
 					vis._inferred_intent = Parser.parse(vis.intent)
 					Validator.validate_spec(vis._inferred_intent,ldf)
-				self.collection = Compiler.compile(ldf,ldf.context,self,enumerate_collection=False)
+				self.collection = Compiler.compile(ldf,ldf.intent,self,enumerate_collection=False)
 			else:
 				self._inferred_intent = Parser.parse(self.intent)
 				Validator.validate_spec(self._inferred_intent,ldf)

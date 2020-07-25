@@ -30,7 +30,7 @@ Once this connection is created, users can connect their Lux Dataframe to the da
 
 	lux_df.set_SQL_connection(connection, "my_table")
 
-When the set_SQL_connection function is called, Lux will then populate the Dataframe with all the metadata it needs to run its context from the database table. 
+When the set_SQL_connection function is called, Lux will then populate the Dataframe with all the metadata it needs to run its intent from the database table. 
 
 Choosing an Executor
 --------------------------
@@ -43,9 +43,9 @@ Users can specify the executor that a Lux Dataframe will use via the set_executo
 
 	lux_df.set_executor_type("SQL")
 
-Once a Lux Dataframe has been connected to a Postgresql table and set to use the SQL Executor, users can take full advantage of Lux's visual exploration capabilities as-is. Users can set their context to specify which variables they are most interested in and discover insightful visualizations from their database.
+Once a Lux Dataframe has been connected to a Postgresql table and set to use the SQL Executor, users can take full advantage of Lux's visual exploration capabilities as-is. Users can set their intent to specify which variables they are most interested in and discover insightful visualizations from their database.
 
 SQL Executor Limitations
 --------------------------
 
-While users can make full use of Lux's functionalities on data within a database table, they will not be able to use any of Pandas' Dataframe functions to manipulate the data. Since the Lux SQL Executor delegates most data processing to the Postgresql database, it does not pull in the entire dataset into the Lux Dataframe. As such there is no actual data within the Lux Dataframe to manipulate, only the relevant metadata required to for Lux to manage its context. Thus, if users are interested in manipulating or querying their data, this needs to be done through SQL or an alternative RDBMS interface.
+While users can make full use of Lux's functionalities on data within a database table, they will not be able to use any of Pandas' Dataframe functions to manipulate the data. Since the Lux SQL Executor delegates most data processing to the Postgresql database, it does not pull in the entire dataset into the Lux Dataframe. As such there is no actual data within the Lux Dataframe to manipulate, only the relevant metadata required to for Lux to manage its intent. Thus, if users are interested in manipulating or querying their data, this needs to be done through SQL or an alternative RDBMS interface.

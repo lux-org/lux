@@ -16,7 +16,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	Parameters
 	----------
 	ldf : LuxDataFrame
-		LuxDataFrame with underspecified context.
+		LuxDataFrame with underspecified intent.
 
 	ignore_transpose: bool
 		Boolean flag to ignore pairs of attributes whose transpose are already computed (i.e., {X,Y} will be ignored if {Y,X} is already computed)
@@ -31,7 +31,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	# for benchmarking
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
-	filter_specs = utils.get_filter_specs(ldf.context)
+	filter_specs = utils.get_filter_specs(ldf.intent)
 	intent = [lux.Clause("?", data_model="measure"), lux.Clause("?", data_model="measure")]
 	intent.extend(filter_specs)
 	vc = VisList(intent,ldf)

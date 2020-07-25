@@ -19,7 +19,7 @@ def generalize(ldf):
 	Parameters
 	----------
 	ldf : lux.luxDataFrame.LuxDataFrame
-		LuxDataFrame with underspecified context.
+		LuxDataFrame with underspecified intent.
 
 	Returns
 	-------
@@ -33,8 +33,8 @@ def generalize(ldf):
 						   "description":"Remove one attribute or filter to observe a more general trend."}
 	output = []
 	excluded_columns = []
-	column_spec = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
-	filter_specs = utils.get_filter_specs(ldf.context)
+	column_spec = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.intent))
+	filter_specs = utils.get_filter_specs(ldf.intent)
 	# if we do no have enough column attributes or too many, return no views.
 	if(len(column_spec)<2 or len(column_spec)>4):
 		recommendation["collection"] = []
@@ -46,22 +46,22 @@ def generalize(ldf):
 		if type(columns) == list:
 			for column in columns:
 				if column not in excluded_columns:
-					temp_view = Vis(ldf.context.copy(),score=1)
+					temp_view = Vis(ldf.intent.copy(),score=1)
 					temp_view.remove_column_from_spec(column, remove_first = True)
 					excluded_columns.append(column)
 					output.append(temp_view)
 		elif type(columns) == str:
 			if columns not in excluded_columns:
-				temp_view = Vis(ldf.context.copy(),score=1)
+				temp_view = Vis(ldf.intent.copy(),score=1)
 				temp_view.remove_column_from_spec(columns, remove_first = True)
 				excluded_columns.append(columns)
 		output.append(temp_view)
 	#for each filter specification, create a copy of the ldf's current view and remove the filter specification,
 	#then append the view to the output
 	for clause in filter_specs:
-		#new_spec = ldf.context.copy()
+		#new_spec = ldf.intent.copy()
 		#new_spec.remove_column_from_spec(new_spec.attribute)
-		temp_view = Vis(ldf.current_context[0]._inferred_intent.copy(),source = ldf,title="Overall",score=0)
+		temp_view = Vis(ldf.current_intent[0]._inferred_intent.copy(),source = ldf,title="Overall",score=0)
 		temp_view.remove_filter_from_spec(clause.value)
 		output.append(temp_view)
 	

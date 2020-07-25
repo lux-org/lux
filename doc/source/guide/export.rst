@@ -40,7 +40,7 @@ From the dataframe recommendations, the visualization showing the relationship b
 Setting Visualizations as Context
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now that we have exported the vis, we can set the new context of the dataframe to be the vis to get more recommendations related to this visualization.
+Now that we have exported the vis, we can set the new intent of the dataframe to be the vis to get more recommendations related to this visualization.
 
 .. code-block:: python
 
@@ -83,7 +83,7 @@ The resulting output is a dictionary, keyed by the name of the recommendation ca
     
     df.recommendation["Distribution"]
 
-You can also access the vis represented by the current context via the property `current_vis`.
+You can also access the vis represented by the current intent via the property `current_vis`.
 
 .. code-block:: python
 
