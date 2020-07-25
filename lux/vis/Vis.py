@@ -109,7 +109,10 @@ class Vis:
 		return list(filter(lambda x: x.data_type == dtype and x.value=='' if hasattr(x, "data_type") else False, self._inferred_query))
 
 	def remove_filter_from_spec(self, value):
-		self._inferred_query = list(filter(lambda x: x.value != value, self._inferred_query))
+		new_inferred = list(filter(lambda x: x.value != value, self._inferred_query))
+		new_query = list(filter(lambda x: x.value != value, self.query))
+		self._inferred_query = new_inferred
+		self.query = new_query
 
 	def remove_column_from_spec(self, attribute, remove_first:bool=False):
 		"""
@@ -123,9 +126,11 @@ class Vis:
 			Boolean flag to determine whether to remove all instances of the attribute or only one (first) instance, by default False
 		"""		
 		if (not remove_first):
-			self._inferred_query = list(filter(lambda x: x.attribute != attribute, self._inferred_query))
+			new_inferred = list(filter(lambda x: x.attribute != attribute, self._inferred_query))
+			self._inferred_query = new_inferred
+			self.query = new_inferred
 		elif (remove_first):
-			new_spec = []
+			new_inferred = []
 			skip_check = False
 			for i in range(0, len(self._inferred_query)):
 				if self._inferred_query[i].value=="": # clause is type attribute
@@ -139,18 +144,16 @@ class Vis:
 								column_spec.append(column)
 							elif (remove_first):
 								remove_first = True
-						new_spec.append(Clause(column_spec))
+						new_inferred.append(Clause(column_spec))
 					else:
-						if (column_names != attribute) or skip_check:
-							new_spec.append(Clause(attribute = column_names))
-
+						if column_names != attribute or skip_check:
+							new_inferred.append(Clause(attribute = column_names))
 						elif (remove_first):
-							remove_first = True
-					if (remove_first):
-						skip_check = True
+							skip_check = True
 				else:
-					new_spec.append(self._inferred_query[i])
-			self._inferred_query = new_spec
+					new_inferred.append(self._inferred_query[i])
+			self.query = new_inferred
+			self._inferred_query = new_inferred
 
 	def to_Altair(self) -> str:
 		"""

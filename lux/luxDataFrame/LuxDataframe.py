@@ -146,6 +146,15 @@ class LuxDataFrame(pd.DataFrame):
                     )
         self.context = context
         self._refresh_context()
+
+    def copy_context(self):
+        #creates a true copy of the dataframe's context
+        output = []
+        for clause in self.context:
+            temp_clause = clause.copy_clause()
+            output.append(temp_clause)
+        return(output)
+
     def set_context_as_vis(self,vis:Vis):
         """
         Set context of the dataframe as the Vis

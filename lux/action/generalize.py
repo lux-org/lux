@@ -47,13 +47,13 @@ def generalize(ldf):
 			for column in columns:
 				if column not in excluded_columns:
 					temp_view = Vis(ldf.context.copy(),score=1)
-					temp_view.remove_column_from_spec(column, remove_first = False)
+					temp_view.remove_column_from_spec(column, remove_first = True)
 					excluded_columns.append(column)
 					output.append(temp_view)
 		elif type(columns) == str:
 			if columns not in excluded_columns:
 				temp_view = Vis(ldf.context.copy(),score=1)
-				temp_view.remove_column_from_spec(columns, remove_first = False)
+				temp_view.remove_column_from_spec(columns, remove_first = True)
 				excluded_columns.append(columns)
 		output.append(temp_view)
 	#for each filter specification, create a copy of the ldf's current view and remove the filter specification,
