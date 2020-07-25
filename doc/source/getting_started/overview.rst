@@ -3,112 +3,129 @@ Overview
 ********
 
 This tutorial provides an overview of how you can use Lux in your data exploration workflow. 
-You can follow along the tutorial using this Jupyter notebook. 
+.. You can follow along the tutorial using this Jupyter notebook. 
 
-Note: This tutorial assumes that you have already installed Lux and the associate Jupyter widget, if you have not done so already, please check out this page.
+Note: This tutorial assumes that you have already installed Lux and the associate Jupyter widget, if you have not done so already, please check out :doc:`this page <../getting_started/installation>`.
 
-.. TODO: add link to page
 
 Lux Overview
 ---------------------
 
-Lux is designed to be tightly integrated with `Pandas <https://pandas.pydata.org/>`_, so that Lux can be used as-is, without modifying your existing Pandas code.
-Lux preserves the Pandas dataframe semantics -- which means that you can apply any command from Pandas's API to the dataframes in Lux and expect the same behavior.
+Lux is designed to be tightly integrated with `Pandas <https://pandas.pydata.org/>`_ and can be used as-is, without modifying your existing Pandas code. To enable Lux, simply add `import lux` along with your Pandas import statement.
 
 .. code-block:: python
 
     import pandas as pd
     import lux
 
-We can load the dataset via any of the standard Pandas commands. For example, 
+Lux preserves the Pandas dataframe semantics -- which means that you can apply any command from Pandas's API to the dataframes in Lux and expect the same behavior. For example, we can load the dataset via standard Pandas `read_*` commands.
 
 .. code-block:: python
 
     df = pd.read_csv("lux/data/college.csv")
 
 Lux is built on the philosophy that generating useful visualizations should be as simple as printing out a dataframe. 
-When you print out the dataframe in the notebook, you see the default Pandas table with an additional button that allow you to explore the data visually through Lux.
+When you print out the dataframe in the notebook, you should see the default Pandas table display with an additional Toggle button. 
 
 .. code-block:: python
 
     df
 
-.. TODO: insert image
+.. TODO: insert GIFs (click on toggle, scroll on Correlation)
 
-When you click on this button, you should see three tabs of visualizations recommended to you. 
+By clicking on the Toggle button, you can now explore the data visually through Lux. You should see three tabs of visualizations recommended to you. 
 
-.. TODO: insert image
+.. TODO: insert GIF (click on Distribution and Category tabs)
 
-Voila! You have generated your first set of recommendations through Lux!
-We will describe the details of how these recommendations are generated in the later portion of this tutorial.
+Voila! You have generated your first set of recommendations through Lux! Next, we will describe the details of how these recommendations are generated.
 
-.. TODO: insert link
+Visualizing Dataframes with `Recommendations`
+---------------------------------------------
 
-Context: Specification of User Intent
--------------------------------------
+Recommendations highlight interesting patterns and trends in your dataframe. Lux offers different types of recommendations, known as `analytical actions`. These analytical actions represent different analysis that can be performed on the data. Lux recommends a set of actions depending on the content of your dataframe and your analysis goals and interests (described later). 
 
-We just saw an example of how recommendations can be generated for the dataset without providing additional information.
-Beyond these overview visualizations, you can further specify the data attributes and values that you are interested in to Lux. 
-This specification is known as the _context_.  
-For example, let's say that you are interested in learning more about the median earning of students after they attend the college (i.e. the attribute `MedianEarning`).
+As shown in the example above, by default, we display three types of actions shown as different tabs: 
+
+- **Correlation** displays relationships between two quantitative variables, ranked by the most to least correlated scatterplots.
+
+.. image:: ../img/correlation.png
+  :width: 400
+  :align: center
+  :alt: Example of high/low correlation visualizations
+
+- **Distribution** displays histogram distributions of different quantitative attributes in the dataframe, ranked by the most to least skewed distributions.
+
+.. image:: ../img/distribution.png
+  :width: 400
+  :align: center
+  :alt: Example of high/low skew distributions
+
+- **Category** displays bar chart distributions of different categorical attributes in the dataframe, ranked by the most to least uneven bar charts.
+
+.. image:: ../img/category.png
+  :width: 400
+  :align: center
+  :alt: Example of even and uneven category distributions
+  
+
+Refer to :doc:`this page <../advanced/action>` for details on different types of action in Lux.
+
+Expressing Analysis Interest and Goals with User `Intent`
+----------------------------------------------------------
+
+We saw an example of how recommendations can be generated for the dataframe without providing additional information.
+Beyond these basic recommendations, you can further specify your analysis *intent*, i.e., the data attributes and values that you are interested in visualizing. 
+
+For example, let's say that you are interested in learning more about the median earning of students after they attend the college. You can set your intent in Lux to indicate that you are interested  the attribute `MedianEarning`.
 
 .. code-block:: python
 
     df.set_intent(["MedianEarnings"])
 
-When you print out the dataframe again, you should see three tabs of visualizations recommended to you. 
+When you print out the dataframe again, you should see three different tabs of visualizations recommended to you. 
 
 .. code-block:: python
 
     df
 
-.. TODO: insert image
+.. TODO: insert GIF (scroll through Enhance, click on Filter tab)
 
-Lux is built on the principle that users should always be able to visualize and explore anything they specify, without having to think about how the visualization should look like. 
-Here, the Current Vis visualization represent the visualization that you have specified. 
-On the right, you will again see the recommendations based on this Current Vis.
+In the displayed widget, the visualization on the left represent the visualization that you have expressed as your intent. 
+On the right, you see the gallery of visualizations recommended based on the specified intent.
 
 You can specify a variety of things that you might be interested in, for example, let's say that you are interested in the the median earnings of students in publicly-funded colleges.
 
 .. code-block:: python
 
     df.set_intent(["MedianEarnings", "FundingModel=Public"])
+    df
 
-For more advance use of context, refer to this page on how to specify the context.
+For more advance use of context, refer to :doc:`this page <../getting_started/intent>` on how to specify the context.
 
-Recommendations in Lux
-----------------------
-
-Recommendations highlight interesting patterns and trends in your dataset. 
-Lux offers different types of recommendations, known as called `analytical actions`.
-We show a set of default recommendations depending on what you have specified in the context.
-
-By default, if no context is specified, we display three different types of actions by default: 
-
-- Correlation (:mod:`lux.action.Correlation`) displays relationships between two quantitative variables, ranked by the most to least correlated scatterplots.
-- Distribution (:mod:`lux.action.Distribution`) displays histogram distributions of different quantitative attributes in the dataset, ranked by the most to least skewed distributions.
-- Category displays bar chart distributions of different categorical attributes in the dataset, ranked by the most to least uneven bar charts.
-
-In the earlier example, when `MedianEarning` is added to the context, the current context is represented as C = {MedianEarnings}.
+Steering Recommendations via User Intent
+----------------------------------------
+In the earlier example, when `MedianEarning` is expressed as the intent, the current intent is represented as C = {MedianEarnings}.
 
 .. code-block:: python
 
     df.set_intent(["MedianEarnings"])
 
-Given the updated context, additional actions are generated. 
+Given the updated intent, additional actions (Enhance and Filter) are generated. 
 
-- Enhance adds an additional attribute to current context (:mod:`lux.action.Enhance`). For example, enhance displays visualizations involving C' = {MedianEarnings, *added attribute*}, including:
+- **Enhance** adds an additional attribute to intended visualization. Enhance lets users compare the effect the added variable on the intended visualization. For example, enhance displays visualizations involving C' = {MedianEarnings, *added attribute*}, including:
 
     - {MedianEarnings, **Expenditure**}
     - {MedianEarnings, **AverageCost**}
     - {MedianEarnings, **AverageFacultySalary**}.
 
-- Filter adds an additional filter to the current context (:mod:`lux.action.Filter`). For example, Filter displays visualizations involving C' = {MedianEarnings, *added filter*}, including: 
+.. TODO: insert screenshot of Enhance
+
+- **Filter** adds an additional filter to the intended visualization. Filter lets users browse through what the intended visualization looks like for different subsets of data. For example, Filter displays visualizations involving C' = {MedianEarnings, *added filter*}, including: 
 
     - {MedianEarnings, **FundingModel=Public**}
     - {MedianEarnings, **Region=Southeast**}
     - {MedianEarnings, **Region=Great Lakes**}.
 
-Refer to this page for additional information about the different types of action or how to define your own action types.
+.. TODO: insert screenshot of Filter
 
-.. Add link to recommendation type details page
+.. Lux is built on the principle that users should always be able to visualize and explore anything they specify, without having to think about how the visualization should look like. 
