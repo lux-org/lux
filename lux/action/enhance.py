@@ -10,7 +10,7 @@ def enhance(ldf):
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 	'''
-	Given a set of views, generates possible visualizations when an additional attribute is added to the current view.
+	Given a set of views, generates possible visualizations when an additional attribute is added to the current vis.
 
 	Parameters
 	----------
@@ -23,7 +23,7 @@ def enhance(ldf):
 		object with a collection of visualizations that result from the Enhance action.
 	'''
 	recommendation = {"action":"Enhance",
-					"description":"Shows possible visualizations when an additional attribute is added to the current view."}
+					"description":"Shows possible visualizations when an additional attribute is added to the current vis."}
 	filters = utils.get_filter_specs(ldf.intent)
 	# Collect variables that already exist in the intent
 	attr_specs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.intent))
