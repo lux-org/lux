@@ -7,9 +7,9 @@ class Vis:
 	Vis Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
 	'''
 
-	def __init__(self, query, source =None , mark="", title="", score=0.0):
-		self.query = query # This is the user's original query to Vis
-		self._inferred_query = query # This is the re-written, expanded version of user's original query (include inferred vis info)
+	def __init__(self, intent, source =None , mark="", title="", score=0.0):
+		self.intent = intent # This is the user's original intent to Vis
+		self._inferred_intent = intent # This is the re-written, expanded version of user's original intent (include inferred vis info)
 		self.source = source # This is the original data that is attached to the Vis
 		self.data = None # This is the data that represents the Vis (e.g., selected, aggregated, binned)
 		self.title = title
@@ -22,10 +22,10 @@ class Vis:
 		if (source is not None): self.refresh_source(source)
 	def __repr__(self):
 		if self.source is None:
-			return f"<Vis  ({str(self.query)}) mark: {self.mark}, score: {self.score} >"
+			return f"<Vis  ({str(self.intent)}) mark: {self.mark}, score: {self.score} >"
 		filter_spec = None
 		channels, additional_channels = [], []
-		for clause in self._inferred_query:
+		for clause in self._inferred_intent:
 
 			if hasattr(clause,"value"):
 				if clause.value != "":
@@ -54,16 +54,16 @@ class Vis:
 			return f"<Vis  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filter_op}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
 			return f"<Vis  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
-	def set_query(self, query:List[Clause]) -> None:
+	def set_intent(self, intent:List[Clause]) -> None:
 		"""
-		Sets the query of the Vis and refresh the source based on the new query
+		Sets the intent of the Vis and refresh the source based on the new intent
 
 		Parameters
 		----------
-		query : List[Clause]
+		intent : List[Clause]
 			Query specifying the desired VisList
 		"""		
-		self.query = query
+		self.intent = intent
 		self.refresh_source(self.source)
 	def set_plot_config(self,config_func:Callable):
 		"""
@@ -93,27 +93,27 @@ class Vis:
 				)
 			display(widget)
 	def get_attr_by_attr_name(self,attr_name):
-		return list(filter(lambda x: x.attribute == attr_name, self._inferred_query))
+		return list(filter(lambda x: x.attribute == attr_name, self._inferred_intent))
 		
 	def get_attr_by_channel(self, channel):
-		spec_obj = list(filter(lambda x: x.channel == channel and x.value=='' if hasattr(x, "channel") else False, self._inferred_query))
+		spec_obj = list(filter(lambda x: x.channel == channel and x.value=='' if hasattr(x, "channel") else False, self._inferred_intent))
 		return spec_obj
 
 	def get_attr_by_data_model(self, dmodel, exclude_record=False):
 		if (exclude_record):
-			return list(filter(lambda x: x.data_model == dmodel and x.value=='' if x.attribute!="Record" and hasattr(x, "data_model") else False, self._inferred_query))
+			return list(filter(lambda x: x.data_model == dmodel and x.value=='' if x.attribute!="Record" and hasattr(x, "data_model") else False, self._inferred_intent))
 		else:
-			return list(filter(lambda x: x.data_model == dmodel and x.value=='' if hasattr(x, "data_model") else False, self._inferred_query))
+			return list(filter(lambda x: x.data_model == dmodel and x.value=='' if hasattr(x, "data_model") else False, self._inferred_intent))
 
 	def get_attr_by_data_type(self, dtype):
-		return list(filter(lambda x: x.data_type == dtype and x.value=='' if hasattr(x, "data_type") else False, self._inferred_query))
+		return list(filter(lambda x: x.data_type == dtype and x.value=='' if hasattr(x, "data_type") else False, self._inferred_intent))
 
 	def remove_filter_from_spec(self, value):
-		new_inferred = list(filter(lambda x: x.value != value, self._inferred_query))
+		new_inferred = list(filter(lambda x: x.value != value, self._inferred_intent))
 		new_query = list(filter(lambda x: x.value != value, self.query))
-		self._inferred_query = new_inferred
+		self._inferred_intent = new_inferred
 		self.query = new_query
-
+		
 	def remove_column_from_spec(self, attribute, remove_first:bool=False):
 		"""
 		Removes an attribute from the Vis's clause
@@ -126,16 +126,16 @@ class Vis:
 			Boolean flag to determine whether to remove all instances of the attribute or only one (first) instance, by default False
 		"""		
 		if (not remove_first):
-			new_inferred = list(filter(lambda x: x.attribute != attribute, self._inferred_query))
-			self._inferred_query = new_inferred
+			new_inferred = list(filter(lambda x: x.attribute != attribute, self._inferred_intent))
+			self._inferred_intent = new_inferred
 			self.query = new_inferred
 		elif (remove_first):
 			new_inferred = []
 			skip_check = False
-			for i in range(0, len(self._inferred_query)):
-				if self._inferred_query[i].value=="": # clause is type attribute
+			for i in range(0, len(self._inferred_intent)):
+				if self._inferred_intent[i].value=="": # clause is type attribute
 					column_spec = []
-					column_names = self._inferred_query[i].attribute
+					column_names = self._inferred_intent[i].attribute
 					# if only one variable in a column, columnName results in a string and not a list so
 					# you need to differentiate the cases
 					if isinstance(column_names, list):
@@ -151,9 +151,9 @@ class Vis:
 						elif (remove_first):
 							skip_check = True
 				else:
-					new_inferred.append(self._inferred_query[i])
+					new_inferred.append(self._inferred_intent[i])
 			self.query = new_inferred
-			self._inferred_query = new_inferred
+			self._inferred_intent = new_inferred
 
 	def to_Altair(self) -> str:
 		"""
@@ -212,7 +212,7 @@ class Vis:
 
 		Note
 		----
-		Function derives a new _inferred_query by instantiating the query specification on the new data
+		Function derives a new _inferred_intent by instantiating the intent specification on the new data
 		"""		
 		from lux.compiler.Parser import Parser
 		from lux.compiler.Validator import Validator
@@ -220,15 +220,15 @@ class Vis:
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
 		self.source = ldf
 		#TODO: handle case when user input vanilla Pandas dataframe
-		self._inferred_query = Parser.parse(self.query)
-		Validator.validate_spec(self._inferred_query,ldf)
-		vc = Compiler.compile(ldf,self._inferred_query,[self],enumerate_collection=False)
+		self._inferred_intent = Parser.parse(self.intent)
+		Validator.validate_spec(self._inferred_intent,ldf)
+		vc = Compiler.compile(ldf,self._inferred_intent,[self],enumerate_collection=False)
 		ldf.executor.execute(vc,ldf)
 		# Copying properties over since we can not redefine `self` within class function
 		vis = vc[0]
 		self.title = vis.title
 		self.mark = vis.mark
-		self._inferred_query = vis._inferred_query
+		self._inferred_intent = vis._inferred_intent
 		self.data = vis.data
 		self.x_min_max = vis.x_min_max
 		self.y_min_max = vis.y_min_max

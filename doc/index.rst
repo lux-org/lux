@@ -14,15 +14,14 @@ Welcome to Lux's documentation!
    :maxdepth: 1
    :caption: Getting Started
 
-   source/getting_started/overview
    source/getting_started/installation
-   
+   source/getting_started/overview   
 
 .. toctree::
    :maxdepth: 1
    :caption: User Guide
    
-   source/guide/query
+   source/guide/intent
    source/guide/vis
    source/guide/export
    source/guide/style

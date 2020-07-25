@@ -28,7 +28,7 @@ class SQLExecutor(Executor):
         for view in view_collection:
             # Select relevant data based on attribute information
             attributes = set([])
-            for clause in view._inferred_query:
+            for clause in view._inferred_intent:
                 if (clause.attribute):
                     if (clause.attribute=="Record"):
                         attributes.add(clause.attribute)
@@ -102,7 +102,7 @@ class SQLExecutor(Executor):
     def execute_binning(view:Vis, ldf:LuxDataFrame):
         import numpy as np
         import pandas as pd
-        bin_attribute = list(filter(lambda x: x.bin_size!=0,view._inferred_query))[0]
+        bin_attribute = list(filter(lambda x: x.bin_size!=0,view._inferred_intent))[0]
         num_bins = bin_attribute.bin_size
         attr_min = min(ldf.unique_values[bin_attribute.attribute])
         attr_max = max(ldf.unique_values[bin_attribute.attribute])
@@ -145,10 +145,10 @@ class SQLExecutor(Executor):
         view.data = utils.pandas_to_lux(view.data)
         
     @staticmethod
-    #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's _inferred_query
+    #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's _inferred_intent
     def execute_filter(view:Vis):
         where_clause = []
-        filters = utils.get_filter_specs(view._inferred_query)
+        filters = utils.get_filter_specs(view._inferred_intent)
         filter_vars = []
         if (filters):
             for f in range(0,len(filters)):

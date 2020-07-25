@@ -7,14 +7,14 @@ class Parser:
 	then generates the Lux internal specification through lux.Clause.
 	"""	
 	@staticmethod
-	def parse(query: List[Clause]) -> List[Clause]:
+	def parse(intent: List[Clause]) -> List[Clause]:
 		"""
 		Given the string description from a list of input Clauses (often context),
 		assign the appropriate clause.attribute, clause.filter_op, and clause.value.
 		
 		Parameters
 		----------
-		query : List[Clause]
+		intent : List[Clause]
 			Underspecified list of lux.Clause objects.
 
 		Returns
@@ -23,10 +23,10 @@ class Parser:
 			Parsed list of lux.Clause objects.
 		"""		
 		import re
-		# query = ldf.get_context()
+		# intent = ldf.get_context()
 		new_context = []
 		#checks for and converts users' string inputs into lux specifications
-		for s in query:
+		for s in intent:
 			valid_values = []
 			if type(s) is list:
 				valid_values = []
@@ -63,10 +63,10 @@ class Parser:
 					new_context.append(temp_spec)
 			elif type(s) is Clause:
 				new_context.append(s)
-		query = new_context
+		intent = new_context
 		# ldf.context = new_context
 
-		for clause in query:
+		for clause in intent:
 			if (clause.description):
 				#TODO: Move validation check to Validator
 				#if ((clause.description in list(ldf.columns)) or clause.description == "?"):# if clause.description in the list of attributes
@@ -84,5 +84,5 @@ class Parser:
 					clause.attribute = clause.description
 				# else: # then it is probably a value 
 				# 	clause.values = clause.description
-		return query
-		# ldf.context = query
+		return intent
+		# ldf.context = intent
