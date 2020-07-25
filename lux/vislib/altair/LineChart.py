@@ -24,7 +24,7 @@ class LineChart(AltairChart):
 		self.code += "import altair as alt\n"
 		self.code += "import pandas._libs.tslibs.timestamps\n"
 		self.code += "from pandas._libs.tslibs.timestamps import Timestamp\n"
-		self.code += f"viewData = pd.DataFrame({str(self.data.to_dict())})\n"
+		self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
 		
 		if (y_attr.data_model == "measure"):
 			agg_title = get_agg_title(y_attr)
@@ -45,7 +45,7 @@ class LineChart(AltairChart):
 			)
 		chart = chart.interactive() # Enable Zooming and Panning
 		self.code += f'''
-		chart = alt.Chart(viewData).mark_line().encode(
+		chart = alt.Chart(visData).mark_line().encode(
 		    y = {y_attr_fieldCode},
 		    x = {x_attr_field_code},
 		)
