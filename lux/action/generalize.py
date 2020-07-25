@@ -14,7 +14,7 @@ def generalize(ldf):
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 	'''
-	Generates all possible visualizations when one attribute or filter from the current view is removed.
+	Generates all possible visualizations when one attribute or filter from the current vis is removed.
 
 	Parameters
 	----------
@@ -56,7 +56,7 @@ def generalize(ldf):
 				temp_view.remove_column_from_spec(columns, remove_first = True)
 				excluded_columns.append(columns)
 		output.append(temp_view)
-	#for each filter specification, create a copy of the ldf's current view and remove the filter specification,
+	#for each filter specification, create a copy of the ldf's current vis and remove the filter specification,
 	#then append the view to the output
 	for clause in filter_specs:
 		#new_spec = ldf.intent.copy()

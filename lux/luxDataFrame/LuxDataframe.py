@@ -403,6 +403,7 @@ class LuxDataFrame(pd.DataFrame):
             action_type = rec_info["action"]
             vc = rec_info["collection"]
             if (self.plot_config):
+                for vis in self.current_vis: vis.plot_config = self.plot_config
                 for vis in vc: vis.plot_config = self.plot_config
             if (len(vc)>0):
                 self.recommendation[action_type]  = vc
@@ -544,7 +545,7 @@ class LuxDataFrame(pd.DataFrame):
         renderer : str, optional
             Choice of visualization rendering library, by default "altair"
         input_current_view : lux.LuxDataFrame, optional
-            User-specified current view to override default Current Vis, by default 
+            User-specified current vis to override default Current Vis, by default 
         """       
         check_import_lux_widget()
         import luxWidget
