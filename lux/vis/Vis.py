@@ -110,9 +110,9 @@ class Vis:
 
 	def remove_filter_from_spec(self, value):
 		new_inferred = list(filter(lambda x: x.value != value, self._inferred_intent))
-		new_query = list(filter(lambda x: x.value != value, self.query))
+		new_intent = list(filter(lambda x: x.value != value, self.intent))
 		self._inferred_intent = new_inferred
-		self.query = new_query
+		self.intent = new_intent
 		
 	def remove_column_from_spec(self, attribute, remove_first:bool=False):
 		"""
@@ -128,7 +128,7 @@ class Vis:
 		if (not remove_first):
 			new_inferred = list(filter(lambda x: x.attribute != attribute, self._inferred_intent))
 			self._inferred_intent = new_inferred
-			self.query = new_inferred
+			self.intent = new_inferred
 		elif (remove_first):
 			new_inferred = []
 			skip_check = False
@@ -152,7 +152,7 @@ class Vis:
 							skip_check = True
 				else:
 					new_inferred.append(self._inferred_intent[i])
-			self.query = new_inferred
+			self.intent = new_inferred
 			self._inferred_intent = new_inferred
 
 	def to_Altair(self) -> str:
