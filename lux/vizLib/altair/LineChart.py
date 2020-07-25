@@ -1,7 +1,6 @@
 from lux.vizLib.altair.AltairChart import AltairChart
 import altair as alt
 alt.data_transformers.disable_max_rows()
-from lux.utils.utils  import get_agg_title
 class LineChart(AltairChart):
 	"""
 	LineChart is a subclass of AltairChart that render as a line charts.
@@ -27,13 +26,13 @@ class LineChart(AltairChart):
 		self.code += f"viewData = pd.DataFrame({str(self.data.to_dict())})\n"
 		
 		if (y_attr.data_model == "measure"):
-			agg_title = get_agg_title(y_attr)
+			agg_title = f"{y_attr.aggregation.capitalize()} of {y_attr.attribute}"
 			x_attr_spec = alt.X(x_attr.attribute, type = x_attr.data_type)
 			y_attr_spec = alt.Y(y_attr.attribute, type= y_attr.data_type, title=agg_title)
 			x_attr_field_code = f"alt.X('{x_attr.attribute}', type = '{x_attr.data_type}')"
 			y_attr_fieldCode = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', title='{agg_title}')"
 		else:
-			agg_title = get_agg_title(x_attr)
+			agg_title = f"{x_attr.aggregation.capitalize()} of {x_attr.attribute}"
 			x_attr_spec = alt.X(x_attr.attribute,type= x_attr.data_type, title=agg_title)
 			y_attr_spec = alt.Y(y_attr.attribute, type = y_attr.data_type)
 			x_attr_field_code = f"alt.X('{x_attr.attribute}', type = '{x_attr.data_type}', title='{agg_title}')"

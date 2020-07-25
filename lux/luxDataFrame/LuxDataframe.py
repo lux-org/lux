@@ -65,7 +65,7 @@ class LuxDataFrame(pd.DataFrame):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels !=1
         not_int_index_flag = self.index.dtype !='int64'
-        small_df_flag = len(self)<100
+        small_df_flag = len(self)<10
         self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag 
     def set_executor_type(self, exe):
         if (exe =="SQL"):
@@ -359,36 +359,32 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.enhance import enhance
         from lux.action.filter import filter
         from lux.action.generalize import generalize
-        from lux.action.row_group import row_group
-        from lux.action.column_group import column_group
+        from lux.action.indexgroup import indexgroup
 
         self._rec_info = []
         if (self.pre_aggregated):
-            if (self.columns.name is not None):
-                self._append_recInfo(row_group(self))
-            if (self.index.name is not None):
-                self._append_recInfo(column_group(self))
-        else:
-            if (self.current_context is None):
-                no_vis = True
-                one_current_vis = False
-                multiple_current_vis = False
-            else:
-                no_vis = len(self.current_context) == 0
-                one_current_vis = len(self.current_context) == 1
-                multiple_current_vis = len(self.current_context) > 1
+            self._append_recInfo(indexgroup(self))
 
-            if (no_vis):
-                self._append_recInfo(correlation(self))
-                self._append_recInfo(univariate(self,"quantitative"))
-                self._append_recInfo(univariate(self,"nominal"))
-                self._append_recInfo(univariate(self,"temporal"))
-            elif (one_current_vis):
-                self._append_recInfo(enhance(self))
-                self._append_recInfo(filter(self))
-                self._append_recInfo(generalize(self))
-            elif (multiple_current_vis):
-                self._append_recInfo(custom(self))
+        if (self.current_context is None):
+            no_vis = True
+            one_current_vis = False
+            multiple_current_vis = False
+        else:
+            no_vis = len(self.current_context) == 0
+            one_current_vis = len(self.current_context) == 1
+            multiple_current_vis = len(self.current_context) > 1
+
+        if (no_vis):
+            self._append_recInfo(correlation(self))
+            self._append_recInfo(univariate(self,"quantitative"))
+            self._append_recInfo(univariate(self,"nominal"))
+            self._append_recInfo(univariate(self,"temporal"))
+        elif (one_current_vis):
+            self._append_recInfo(enhance(self))
+            self._append_recInfo(filter(self))
+            self._append_recInfo(generalize(self))
+        elif (multiple_current_vis):
+            self._append_recInfo(custom(self))
             
         # Store _rec_info into a more user-friendly dictionary form
         self.recommendation = {}
@@ -470,16 +466,16 @@ class LuxDataFrame(pd.DataFrame):
         import ipywidgets as widgets
         
         try: 
-            if(self.index.nlevels>=2):
-                warnings.warn(
-                                "\nLux does not currently support dataframes "
-                                "with hierarchical indexes.\n"
-                                "Please convert the dataframe into a flat"
-                                "table via `pandas.DataFrame.reset_index`.\n",
-                                stacklevel=2,
-                            )
-                display(self.display_pandas())
-                return
+            # if (type(self.index) != pd.core.indexes.range.RangeIndex):# if multi-index, then default to pandas output
+            #     warnings.warn(
+            #                 "Lux does not currently support dataframes"
+            #                 "with hierarchical indexes.\n"
+            #                 "Please convert the dataframe into a flat"
+            #                 "table via `pandas.DataFrame.reset_index`.\n",
+            #                 stacklevel=2,
+            #             )
+            #     display(self.display_pandas())
+            #     return
             self.toggle_pandas_display = self.default_pandas_display # Reset to Pandas Vis everytime
             # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_context)
             if self.executor_type == "Pandas":

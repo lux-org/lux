@@ -135,7 +135,7 @@ def normalize(vis):
 
 def euclidean_dist(query_vis, vis):
     '''
-    Calculates euclidean distance score for similarity between two visualizations
+    Calculates euclidean distance score for similarity between two viss
 
     Parameters
     ----------
