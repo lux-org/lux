@@ -57,7 +57,7 @@ In addition to dataframe visualizations at every step in the exploration, you ca
 For example, we might be interested in the attributes `AverageCost` and `SATAverage`.
 
 ```python
-    df.set_context(["AverageCost","SATAverage"])
+    df.set_intent(["AverageCost","SATAverage"])
     df
 ```
 <img src="https://github.com/lux-org/lux/blob/master/examples/img/contextRec.gif?raw=true"
@@ -70,7 +70,7 @@ For example, we might be interested in the attributes `AverageCost` and `SATAver
  - `Filter` adds a filter to the current selection, while keeping attributes (on the X and Y axes) fixed. These visualizations shows how the relationship of  `AverageCost` and `SATAverage` changes for different subsets of data. For instance, we see that colleges that offer Bachelor's degree as its highest degree offered shows a roughly linear trend between the two variables.
  - `Generalize` removes an attribute to display a more general trend, showing the distributions of `AverageCost` and `SATAverage` on its own. From the `AverageCost` histogram, we see that there are many colleges with average cost of around $20000 per year, corresponding to the bulge we see in the scatterplot view.
 
- See [this page](https://lux-api.readthedocs.io/en/latest/source/guide/query.html) more information on additional ways for specifying the context.
+ See [this page](https://lux-api.readthedocs.io/en/latest/source/guide/intent.html) more information on additional ways for specifying the context.
 
 ### Easy programmatic access of exported visualization objects: 
 
@@ -95,7 +95,7 @@ We've seen how `Vis`s are automatically generated as part of the recommendations
 
 ### Powerful language for working with collections of visualizations:
 
-Lux provides a powerful abstraction for working with collections of visualizations based on a partially specified queries. Users can provide a list or a wildcard to iterate over combinations of filter or attribute values and quickly browse through large numbers of visualizations. The partial specification is inspired by existing work on query languages for visualization languages, including [ZQL](https://github.com/vega/compassql) and [CompassQL](https://github.com/vega/compassql).
+Lux provides a powerful abstraction for working with collections of visualizations based on a partially specified queries. Users can provide a list or a wildcard to iterate over combinations of filter or attribute values and quickly browse through large numbers of visualizations. The partial specification is inspired by existing work on intent languages for visualization languages, including [ZQL](https://github.com/vega/compassql) and [CompassQL](https://github.com/vega/compassql).
 
 For example, we might be interested in looking at how the `AverageCost` distribution differs across different `Region`s.
 

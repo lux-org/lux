@@ -30,10 +30,10 @@ def enhance(ldf):
 	if(len(attr_specs)>2): # if there are too many column attributes, return don't generate Enhance recommendations
 		recommendation["collection"] = []
 		return recommendation
-	query = ldf.context.copy()
-	query = filters + attr_specs
-	query.append("?")
-	vc = lux.vis.VisList.VisList(query,ldf)
+	intent = ldf.context.copy()
+	intent = filters + attr_specs
+	intent.append("?")
+	vc = lux.vis.VisList.VisList(intent,ldf)
 		
 	# Then use the data populated in the vis list to compute score
 	for view in vc: view.score = interestingness(view,ldf)
