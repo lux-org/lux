@@ -52,8 +52,8 @@ class AltairRenderer:
 				chart_dict = chart.chart.to_dict()
 				# this is a bit of a work around because altair must take a pandas dataframe and we can only generate a luxDataFrame
 				# chart["data"] =  { "values": view.data.to_dict(orient='records') }
-				chart_dict["width"] = 160
-				chart_dict["height"] = 150
+				# chart_dict["width"] = 160
+				# chart_dict["height"] = 150
 				return chart_dict
 			elif (self.output_type=="Altair"):
 				import inspect

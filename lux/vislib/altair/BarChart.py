@@ -22,8 +22,8 @@ class BarChart(AltairChart):
 		y_attr = self.view.get_attr_by_channel("y")[0]
 
 		self.code += "import altair as alt\n"
-		# self.code += f"viewData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
-		self.code += f"viewData = pd.DataFrame({str(self.data.to_dict())})\n"
+		# self.code += f"visData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
+		self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
 		
 		if (x_attr.data_model == "measure"):
 			agg_title = get_agg_title(x_attr)
@@ -55,7 +55,7 @@ class BarChart(AltairChart):
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 
 		self.code += f'''
-		chart = alt.Chart(viewData).mark_bar(size=12).encode(
+		chart = alt.Chart(visData).mark_bar().encode(
 		    y = {y_attr_field_code},
 		    x = {x_attr_field_code},
 		)

@@ -183,7 +183,7 @@ class Vis:
 		renderer = AltairRenderer(output_type="VegaLite")
 		self.code = renderer.create_vis(self)
 		if (prettyOutput):
-			return "** Copy Text Below to Vega Editor(vega.github.io/editor) to Vis and edit **\n"+json.dumps(self.code, indent=2)
+			return "** Remove this comment -- Copy Text Below to Vega Editor(vega.github.io/editor) to visualize and edit **\n"+json.dumps(self.code, indent=2)
 		else:
 			return self.code
 		
