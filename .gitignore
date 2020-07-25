@@ -9,3 +9,4 @@ dist/
 static/
 *.egg-info*
 build/
+.DS_Store
