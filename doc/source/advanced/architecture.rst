@@ -6,7 +6,7 @@ Overview of Lux Architecture
 =================================
 Lux is composed of multiple modules, each with distinct responsibilities. The
 architecture can be described in layers: the user interface layer, the user input validation
-and parsing layer, the query processing layer, the data execution layer, and finally the
+and parsing layer, the intent processing layer, the data execution layer, and finally the
 analytics layer. The principle behind this design is to take advantage of the extensibility of loosely coupled modules.
 
 .. image:: ../lux/doc/source/guide/Lux_Architecture.PNG
@@ -39,10 +39,10 @@ Vis/VisList
 Since Lux maintains sets of visualizations, we require a data structure that encapsulates
 each visualization and its properties so that we can score, rank and display them later. Hence,
 we define a Vis object for each visualization as a representation of all information required
-for data fetching and rendering. The LDF stores multiple Views in a Vis List, which 
+for data fetching and rendering. The LDF stores multiple Vis objects in a Vis List, which 
 represents a set of visualizations to display to the user. Since data fetching 
-for a Vis is an expensive operation, Lux's Views are decoupled from the
-data, making modification or transfering of Views easier during query processing stages.
+for a Vis is an expensive operation, a Vis in Lux is decoupled from the
+data, making modification or transfering of Vis easier for query processing.
 
 Lux System
 =================================

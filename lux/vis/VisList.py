@@ -16,25 +16,25 @@ class VisList():
 		if len(input_lst)>0:
 			if (self._is_vis_input()):
 				self.collection = input_lst
-				self.query = []
+				self.intent = []
 			else:
-				self.query = input_lst
+				self.intent = input_lst
 				self.collection = []
 		else:
 			self.collection = []
-			self.query = []
+			self.intent = []
 		self.widget = None
 		if (source is not None): self.refresh_source(source)
-	def set_query(self, query:List[Clause]) -> None:
+	def set_intent(self, intent:List[Clause]) -> None:
 		"""
-		Sets the query of the VisList and refresh the source based on the new clause
+		Sets the intent of the VisList and refresh the source based on the new clause
 
 		Parameters
 		----------
-		query : List[Clause]
+		intent : List[Clause]
 			Query specifying the desired VisList
 		"""		
-		self.query = query
+		self.intent = intent
 		self.refresh_source(self.source)
 	def get_exported(self) -> VisList:
 		"""
@@ -93,7 +93,7 @@ class VisList():
 		largest_filter = 0
 		for vis in self.collection: #finds longest x attribute among all visualizations
 			filter_spec = None
-			for clause in vis._inferred_query:
+			for clause in vis._inferred_intent:
 				if clause.value != "":
 					filter_spec = clause
 
@@ -120,7 +120,7 @@ class VisList():
 			x_channel = ""
 			y_channel = ""
 			additional_channels = []
-			for clause in vis._inferred_query:
+			for clause in vis._inferred_intent:
 				if clause.value != "":
 					filter_spec = clause
 
@@ -245,7 +245,7 @@ class VisList():
 
 		Note
 		----
-		Function derives a new _inferred_query by instantiating the query specification on the new data
+		Function derives a new _inferred_intent by instantiating the intent specification on the new data
 		"""		
 		from lux.compiler.Parser import Parser
 		from lux.compiler.Validator import Validator
@@ -255,11 +255,11 @@ class VisList():
 		if len(self._input_lst)>0:
 			if (self._is_vis_input()):
 				for vis in self.collection:
-					vis._inferred_query = Parser.parse(vis.query)
-					Validator.validate_spec(vis._inferred_query,ldf)
+					vis._inferred_intent = Parser.parse(vis.intent)
+					Validator.validate_spec(vis._inferred_intent,ldf)
 				self.collection = Compiler.compile(ldf,ldf.context,self,enumerate_collection=False)
 			else:
-				self._inferred_query = Parser.parse(self.query)
-				Validator.validate_spec(self._inferred_query,ldf)
-				self.collection = Compiler.compile(ldf,self._inferred_query,self)
+				self._inferred_intent = Parser.parse(self.intent)
+				Validator.validate_spec(self._inferred_intent,ldf)
+				self.collection = Compiler.compile(ldf,self._inferred_intent,self)
 			ldf.executor.execute(self.collection,ldf)

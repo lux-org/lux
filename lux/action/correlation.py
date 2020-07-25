@@ -32,9 +32,9 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 	filter_specs = utils.get_filter_specs(ldf.context)
-	query = [lux.Clause("?", data_model="measure"), lux.Clause("?", data_model="measure")]
-	query.extend(filter_specs)
-	vc = VisList(query,ldf)
+	intent = [lux.Clause("?", data_model="measure"), lux.Clause("?", data_model="measure")]
+	intent.extend(filter_specs)
+	vc = VisList(intent,ldf)
 	recommendation = {"action": "Correlation",
 					  "description": "Show relationships between two quantitative attributes."}
 	ignore_rec_flag = False
@@ -70,7 +70,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 
 
 def check_transpose_not_computed(vc: VisList, a: str, b: str):
-	transpose_exist = list(filter(lambda x: (x._inferred_query[0].attribute == b) and (x._inferred_query[1].attribute == a), vc))
+	transpose_exist = list(filter(lambda x: (x._inferred_intent[0].attribute == b) and (x._inferred_intent[1].attribute == a), vc))
 	if (len(transpose_exist) > 0):
 		return transpose_exist[0].score == -1
 	else:

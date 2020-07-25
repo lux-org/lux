@@ -30,20 +30,20 @@ def univariate(ldf, data_type_constraint="quantitative"):
 	filter_specs = utils.get_filter_specs(ldf.context)
 	ignore_rec_flag = False
 	if (data_type_constraint== "quantitative"):
-		query = [lux.Clause("?",data_type="quantitative")]
-		query.extend(filter_specs)
+		intent = [lux.Clause("?",data_type="quantitative")]
+		intent.extend(filter_specs)
 		recommendation = {"action":"Distribution",
 							"description":"Show histogram distributions of different attributes in the dataframe."}
 		if (len(ldf)<5): # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
 			ignore_rec_flag = True
 	elif (data_type_constraint == "nominal"):
-		query = [lux.Clause("?",data_type="nominal")]
-		query.extend(filter_specs)
+		intent = [lux.Clause("?",data_type="nominal")]
+		intent.extend(filter_specs)
 		recommendation = {"action":"Category",
 						   "description":"Show bar charts of different attributes in the dataframe."}
 	elif (data_type_constraint == "temporal"):
-		query = [lux.Clause("?",data_type="temporal")]
-		query.extend(filter_specs)
+		intent = [lux.Clause("?",data_type="temporal")]
+		intent.extend(filter_specs)
 		recommendation = {"action":"Temporal",
 						   "description":"Show line chart distributions of time-related attributes in the dataframe."}
 		if (len(ldf)<3): # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
@@ -51,7 +51,7 @@ def univariate(ldf, data_type_constraint="quantitative"):
 	if (ignore_rec_flag):
 		recommendation["collection"] = []
 		return recommendation
-	vc = VisList(query,ldf)
+	vc = VisList(intent,ldf)
 	for view in vc:
 		view.score = interestingness(view,ldf)
 	vc = vc.topK(15)
