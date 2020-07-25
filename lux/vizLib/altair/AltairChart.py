@@ -1,5 +1,6 @@
 import pandas as pd
 import altair as alt
+from lux.utils.date_utils import compute_date_granularity
 class AltairChart:
 	"""
 	AltairChart is a representation of a chart. 
@@ -20,33 +21,38 @@ class AltairChart:
 		self.tooltip = True
 		# ----- START self.code modification -----
 		self.code = "" 
-		self.chart = self.initializeChart()
-		# self.addTooltip()
-		self.encodeColor()
-		self.addTitle()
-		self.code +="\nchart"
-		self.code = self.code.replace('\n\t\t','\n')
+		self.chart = self.initialize_chart()
+		# self.add_tooltip()
+		self.encode_color()
+		self.add_title()
 		# ----- END self.code modification -----
 	def __repr__(self):
 		return f"AltairChart <{str(self.view)}>"
-	def addTooltip(self):
+	def add_tooltip(self):
 		if (self.tooltip): 
 			self.chart = self.chart.encode(tooltip=list(self.view.data.columns))
-	def encodeColor(self):
-		colorAttr = self.view.getAttrByChannel("color")
-		if (len(colorAttr)==1):
-			self.chart = self.chart.encode(color=alt.Color(colorAttr[0].attribute,type=colorAttr[0].dataType))
-			self.code+=f"chart = chart.encode(color=alt.Color('{colorAttr[0].attribute}',type='{colorAttr[0].dataType}'))"
-		elif (len(colorAttr)>1):
+	def encode_color(self):
+		color_attr = self.view.get_attr_by_channel("color")
+		if (len(color_attr)==1):
+			color_attr_name = color_attr[0].attribute
+			color_attr_type = color_attr[0].data_type
+			if (color_attr_type=="temporal"):
+				timeUnit = compute_date_granularity(self.view.data[color_attr_name])
+				self.chart = self.chart.encode(color=alt.Color(color_attr_name,type=color_attr_type,timeUnit=timeUnit,title=color_attr_name))	
+				self.code+=f"chart = chart.encode(color=alt.Color('{color_attr_name}',type='{color_attr_type}',timeUnit='{timeUnit}',title='{color_attr_name}'))"
+			else:
+				self.chart = self.chart.encode(color=alt.Color(color_attr_name,type=color_attr_type))
+				self.code+=f"chart = chart.encode(color=alt.Color('{color_attr_name}',type='{color_attr_type}'))"
+		elif (len(color_attr)>1):
 			raise ValueError("There should not be more than one attribute specified in the same channel.")
 		
-	def addTitle(self):
-		chartTitle = self.view.title
-		if chartTitle:
+	def add_title(self):
+		chart_title = self.view.title
+		if chart_title:
 			self.chart = self.chart.encode().properties(
-				title = chartTitle
+				title = chart_title
 			)
 			if (self.code!=""):
-				self.code+=f"chart = chart.encode().properties(title = '{chartTitle}')"
-	def initializeChart(self):
+				self.code+=f"chart = chart.encode().properties(title = '{chart_title}')"
+	def initialize_chart(self):
 		return NotImplemented

@@ -1,21 +1,21 @@
-lux.context package
+lux.vis.package
 ===================
 
 Submodules
 ----------
 
-lux.context.Context module
+lux.vis.Context module
 --------------------------
 
-.. automodule:: lux.context.Context
+.. automodule:: lux.vis.Context
    :members:
    :undoc-members:
    :show-inheritance:
 
-lux.context.Spec module
+lux.vis.Clause module
 -----------------------
 
-.. automodule:: lux.context.Spec
+.. automodule:: lux.vis.Clause
    :members:
    :undoc-members:
    :show-inheritance:

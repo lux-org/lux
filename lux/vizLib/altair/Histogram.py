@@ -14,27 +14,27 @@ class Histogram(AltairChart):
 		super().__init__(view)
 	def __repr__(self):
 		return f"Histogram <{str(self.view)}>"
-	def initializeChart(self):
+	def initialize_chart(self):
 		self.tooltip = False
-		measure = self.view.getAttrByDataModel("measure",excludeRecord=True)[0]
-		msrAttr = self.view.getAttrByChannel(measure.channel)[0]
-		xMin = self.view.xMinMax[msrAttr.attribute][0]
-		xMax = self.view.xMinMax[msrAttr.attribute][1]
+		measure = self.view.get_attr_by_data_model("measure",exclude_record=True)[0]
+		msr_attr = self.view.get_attr_by_channel(measure.channel)[0]
+		x_min = self.view.x_min_max[msr_attr.attribute][0]
+		x_max = self.view.x_min_max[msr_attr.attribute][1]
 
-		xRange = abs(max(self.view.data[msrAttr.attribute]) - 
-			min(self.view.data[msrAttr.attribute]))
-		plotRange = abs(xMax - xMin)
-		markbar = xRange / plotRange * 12
+		x_range = abs(max(self.view.data[msr_attr.attribute]) - 
+			min(self.view.data[msr_attr.attribute]))
+		plot_range = abs(x_max - x_min)
+		markbar = x_range / plot_range * 12
 
 		if (measure.channel=="x"):	
 			chart = alt.Chart(self.data).mark_bar(size=markbar).encode(
-				alt.X(msrAttr.attribute, title=f'{msrAttr.attribute} (binned)',bin=alt.Bin(binned=True), type=msrAttr.dataType, axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=(xMin, xMax))),
+				alt.X(msr_attr.attribute, title=f'{msr_attr.attribute} (binned)',bin=alt.Bin(binned=True), type=msr_attr.data_type, axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=(x_min, x_max))),
 				alt.Y("Count of Records", type="quantitative")
 			)
 		elif (measure.channel=="y"):
 			chart = alt.Chart(self.data).mark_bar(size=markbar).encode(
 				x = alt.X("Count of Records", type="quantitative"),
-				y = alt.Y(msrAttr.attribute, title=f'{msrAttr.attribute} (binned)', bin=alt.Bin(binned=True), axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=(xMin, xMax)))
+				y = alt.Y(msr_attr.attribute, title=f'{msr_attr.attribute} (binned)', bin=alt.Bin(binned=True), axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=(x_min, x_max)))
 			)
 		#####################################
 		## Constructing Altair Code String ##
@@ -46,14 +46,14 @@ class Histogram(AltairChart):
 		if (measure.channel=="x"):	
 			self.code += f'''
 		chart = alt.Chart(viewData).mark_bar(size={markbar*3}).encode(
-		    alt.X('{msrAttr.attribute}', title='{msrAttr.attribute} (binned)',bin=alt.Bin(binned=True), type='{msrAttr.dataType}', axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=({xMin}, {xMax}))),
+		    alt.X('{msr_attr.attribute}', title='{msr_attr.attribute} (binned)',bin=alt.Bin(binned=True), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=({x_min}, {x_max}))),
 		    alt.Y("Count of Records", type="quantitative")
 		)
 		'''
 		elif (measure.channel=="y"):
 			self.code += f'''
 		chart = alt.Chart(viewData).mark_bar(size={markbar*3}).encode(
-		    alt.Y('{msrAttr.attribute}', title='{msrAttr.attribute} (binned)',bin=alt.Bin(binned=True), type='{msrAttr.dataType}', axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=({xMin}, {xMax}))),
+		    alt.Y('{msr_attr.attribute}', title='{msr_attr.attribute} (binned)',bin=alt.Bin(binned=True), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=({x_min}, {x_max}))),
 		    alt.X("Count of Records", type="quantitative")
 		)
 		'''

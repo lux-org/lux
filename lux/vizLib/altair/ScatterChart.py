@@ -14,18 +14,18 @@ class ScatterChart(AltairChart):
 		super().__init__(view)
 	def __repr__(self):
 		return f"ScatterChart <{str(self.view)}>"
-	def initializeChart(self):
-		xAttr = self.view.getAttrByChannel("x")[0]
-		yAttr = self.view.getAttrByChannel("y")[0]
-		xMin = self.view.xMinMax[xAttr.attribute][0]
-		xMax = self.view.xMinMax[xAttr.attribute][1]
+	def initialize_chart(self):
+		x_attr = self.view.get_attr_by_channel("x")[0]
+		y_attr = self.view.get_attr_by_channel("y")[0]
+		x_min = self.view.x_min_max[x_attr.attribute][0]
+		x_max = self.view.x_min_max[x_attr.attribute][1]
 
-		yMin = self.view.yMinMax[yAttr.attribute][0]
-		yMax = self.view.yMinMax[yAttr.attribute][1]
+		y_min = self.view.y_min_max[y_attr.attribute][0]
+		y_max = self.view.y_min_max[y_attr.attribute][1]
 
 		chart = alt.Chart(self.data).mark_circle().encode(
-		    x=alt.X(xAttr.attribute,scale=alt.Scale(domain=(xMin, xMax)),type=xAttr.dataType),
-		    y=alt.Y(yAttr.attribute,scale=alt.Scale(domain=(yMin, yMax)),type=yAttr.dataType)
+		    x=alt.X(x_attr.attribute,scale=alt.Scale(domain=(x_min, x_max)),type=x_attr.data_type),
+		    y=alt.Y(y_attr.attribute,scale=alt.Scale(domain=(y_min, y_max)),type=y_attr.data_type)
 		)
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		chart = chart.interactive() # Enable Zooming and Panning
@@ -38,8 +38,8 @@ class ScatterChart(AltairChart):
 		dfname = "df" # TODO: Placeholder (need to read dynamically via locals())
 		self.code += f'''
 		chart = alt.Chart({dfname}).mark_circle().encode(
-		    x=alt.X('{xAttr.attribute}',scale=alt.Scale(domain=({xMin}, {xMax})),type='{xAttr.dataType}'),
-		    y=alt.Y('{yAttr.attribute}',scale=alt.Scale(domain=({yMin}, {yMax})),type='{yAttr.dataType}')
+		    x=alt.X('{x_attr.attribute}',scale=alt.Scale(domain=({x_min}, {x_max})),type='{x_attr.data_type}'),
+		    y=alt.Y('{y_attr.attribute}',scale=alt.Scale(domain=({y_min}, {y_max})),type='{y_attr.data_type}')
 		)
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		chart = chart.interactive() # Enable Zooming and Panning
