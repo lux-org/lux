@@ -18,7 +18,7 @@ def filter(ldf):
 	Parameters
 	----------
 	ldf : lux.luxDataFrame.LuxDataFrame
-		LuxDataFrame with underspecified context.
+		LuxDataFrame with underspecified intent.
 
 	Returns
 	-------
@@ -27,11 +27,11 @@ def filter(ldf):
 	'''
 	recommendation = {"action":"Filter",
 						   "description":"Shows possible visualizations when filtered by categorical variables in the dataset."}
-	filters = utils.get_filter_specs(ldf.context)
+	filters = utils.get_filter_specs(ldf.intent)
 	filter_values = []
 	output = []
 	#if Row is specified, create visualizations where data is filtered by all values of the Row's categorical variable
-	column_spec = utils.get_attrs_specs(ldf.current_context[0]._inferred_intent)
+	column_spec = utils.get_attrs_specs(ldf.current_intent[0]._inferred_intent)
 	column_spec_attr = map(lambda x: x.attribute,column_spec)
 	if len(filters) > 0:
 		#get unique values for all categorical values specified and creates corresponding filters

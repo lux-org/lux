@@ -100,7 +100,7 @@ You can specify a variety of things that you might be interested in, for example
     df.set_intent(["MedianEarnings", "FundingModel=Public"])
     df
 
-For more advance use of context, refer to :doc:`this page <../getting_started/intent>` on how to specify the context.
+For more advance use of intent, refer to :doc:`this page <../getting_started/intent>` on how to specify the intent.
 
 Steering Recommendations via User Intent
 ----------------------------------------

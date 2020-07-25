@@ -15,7 +15,7 @@ def enhance(ldf):
 	Parameters
 	----------
 	ldf : lux.luxDataFrame.LuxDataFrame
-		LuxDataFrame with underspecified context.
+		LuxDataFrame with underspecified intent.
 
 	Returns
 	-------
@@ -24,13 +24,13 @@ def enhance(ldf):
 	'''
 	recommendation = {"action":"Enhance",
 					"description":"Shows possible visualizations when an additional attribute is added to the current view."}
-	filters = utils.get_filter_specs(ldf.context)
-	# Collect variables that already exist in the context
-	attr_specs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
+	filters = utils.get_filter_specs(ldf.intent)
+	# Collect variables that already exist in the intent
+	attr_specs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.intent))
 	if(len(attr_specs)>2): # if there are too many column attributes, return don't generate Enhance recommendations
 		recommendation["collection"] = []
 		return recommendation
-	intent = ldf.context.copy()
+	intent = ldf.intent.copy()
 	intent = filters + attr_specs
 	intent.append("?")
 	vc = lux.vis.VisList.VisList(intent,ldf)

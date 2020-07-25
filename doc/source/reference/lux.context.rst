@@ -24,7 +24,7 @@ lux.vis.Clause module
 Module contents
 ---------------
 
-.. automodule:: lux.context
+.. automodule:: lux.intent
    :members:
    :undoc-members:
    :show-inheritance:

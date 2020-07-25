@@ -55,7 +55,7 @@ the ratio of the number of rows in the filtered v.s. unfiltered view.
 
     \frac{|V_F|}{|V|}\cdot L_2(V,V_F)
 .. Add illustration
-.. Example: "Filter" recommendation where the context only has 1 dimension.
+.. Example: "Filter" recommendation where the intent only has 1 dimension.
 
 Histogram Interestingness
 =========================
@@ -88,7 +88,7 @@ The deviation measures how different is the filtered distribution from the overa
     \frac{|V_F|}{|V|}\cdot L_2(V,V_F)
 
 .. Add illustration
-.. Example: "Filter" recommendation where the context only has 1 measure.
+.. Example: "Filter" recommendation where the intent only has 1 measure.
 
 Scatterplot Interestingness
 =========================

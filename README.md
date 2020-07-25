@@ -50,9 +50,9 @@ Voila! Here's a set of visualizations that you can now use to explore your datas
 Lux provides a suite of capabilities that enables users to effortlessly discover visual insights from their data. -->
 
 <!-- Lux guides users to potential next-steps in their exploration. -->
-### Next-step recommendations based on user context: 
+### Next-step recommendations based on user intent: 
 
-In addition to dataframe visualizations at every step in the exploration, you can specify in Lux the attributes and values you're interested in. Based on this context information, Lux guides users towards potential next-steps in their exploration.
+In addition to dataframe visualizations at every step in the exploration, you can specify in Lux the attributes and values you're interested in. Based on this intent information, Lux guides users towards potential next-steps in their exploration.
 
 For example, we might be interested in the attributes `AverageCost` and `SATAverage`.
 
@@ -70,7 +70,7 @@ For example, we might be interested in the attributes `AverageCost` and `SATAver
  - `Filter` adds a filter to the current selection, while keeping attributes (on the X and Y axes) fixed. These visualizations shows how the relationship of  `AverageCost` and `SATAverage` changes for different subsets of data. For instance, we see that colleges that offer Bachelor's degree as its highest degree offered shows a roughly linear trend between the two variables.
  - `Generalize` removes an attribute to display a more general trend, showing the distributions of `AverageCost` and `SATAverage` on its own. From the `AverageCost` histogram, we see that there are many colleges with average cost of around $20000 per year, corresponding to the bulge we see in the scatterplot view.
 
- See [this page](https://lux-api.readthedocs.io/en/latest/source/guide/intent.html) more information on additional ways for specifying the context.
+ See [this page](https://lux-api.readthedocs.io/en/latest/source/guide/intent.html) more information on additional ways for specifying the intent.
 
 ### Easy programmatic access of exported visualization objects: 
 
@@ -81,7 +81,7 @@ Now that we have found some interesting visualizations through Lux, we might be 
      style="width:600px" />
 
 ### Quick, on-demand visualizations with the help of automatic encoding: 
-We've seen how `Vis`s are automatically generated as part of the recommendations, users can also create their own Vis via the same syntax as specifying the context. Lux is built on the philosophy that users should always be able to visualize anything they want, without having to think about *how* the visualization should look like. Lux automatically determines the mark and channel mappings based on a set of [best practices](http://hosteddocs.ittoolbox.com/fourshowmeautomaticpresentations.pdf) from [Tableau](https://www.tableau.com). The visualizations are rendered via [Altair](https://github.com/altair-viz/altair/tree/master/altair) into [Vega-Lite](https://github.com/vega/vega-lite) specifications.
+We've seen how `Vis`s are automatically generated as part of the recommendations, users can also create their own Vis via the same syntax as specifying the intent. Lux is built on the philosophy that users should always be able to visualize anything they want, without having to think about *how* the visualization should look like. Lux automatically determines the mark and channel mappings based on a set of [best practices](http://hosteddocs.ittoolbox.com/fourshowmeautomaticpresentations.pdf) from [Tableau](https://www.tableau.com). The visualizations are rendered via [Altair](https://github.com/altair-viz/altair/tree/master/altair) into [Vega-Lite](https://github.com/vega/vega-lite) specifications.
 
 ```python    
     from lux.vis.Vis import Vis

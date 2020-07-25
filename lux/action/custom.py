@@ -7,12 +7,12 @@ import time
 
 def custom(ldf):
     '''
-    Generates user-defined views based on the context.
+    Generates user-defined views based on the intent.
 
     Parameters
     ----------
     ldf : lux.luxDataFrame.LuxDataFrame
-        LuxDataFrame with underspecified context.
+        LuxDataFrame with underspecified intent.
 
     Returns
     -------
@@ -20,14 +20,14 @@ def custom(ldf):
         object with a collection of visualizations that result from the Distribution action.
     '''
     recommendation = {"action": "Current Context",
-                      "description": "Shows the VisList defined by the current context"}
+                      "description": "Shows the VisList defined by the current intent"}
 
-    recommendation["collection"] = ldf.current_context
+    recommendation["collection"] = ldf.current_intent
 
-    vc = ldf.current_context
+    vc = ldf.current_intent
     PandasExecutor.execute(vc, ldf)
     for view in vc: 
         view.score = interestingness(view,ldf)
-    # ldf.clear_context()
+    # ldf.clear_intent()
     vc.sort(remove_invalid=True)
     return recommendation

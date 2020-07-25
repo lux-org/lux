@@ -4,7 +4,7 @@ from lux.vis.Clause import Clause
 from typing import List
 class Validator:
 	'''
-	Contains methods for validating lux.Clause objects in the context.
+	Contains methods for validating lux.Clause objects in the intent.
 	'''
 	def __init__(self):
 		self.name = "Validator"
@@ -20,7 +20,7 @@ class Validator:
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
-			LuxDataFrame with underspecified context.
+			LuxDataFrame with underspecified intent.
 
 		Returns
 		-------

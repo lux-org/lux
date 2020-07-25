@@ -9,7 +9,7 @@ class Parser:
 	@staticmethod
 	def parse(intent: List[Clause]) -> List[Clause]:
 		"""
-		Given the string description from a list of input Clauses (often context),
+		Given the string description from a list of input Clauses (intent),
 		assign the appropriate clause.attribute, clause.filter_op, and clause.value.
 		
 		Parameters
@@ -64,7 +64,7 @@ class Parser:
 			elif type(s) is Clause:
 				new_context.append(s)
 		intent = new_context
-		# ldf.context = new_context
+		# ldf.intent = new_context
 
 		for clause in intent:
 			if (clause.description):
@@ -85,4 +85,4 @@ class Parser:
 				# else: # then it is probably a value 
 				# 	clause.values = clause.description
 		return intent
-		# ldf.context = intent
+		# ldf.intent = intent

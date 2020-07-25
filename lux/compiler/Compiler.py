@@ -10,7 +10,7 @@ import numpy as np
 
 class Compiler:
 	'''
-	Given a context with underspecified inputs, compile the context into fully specified visualizations for visualization.
+	Given a intent with underspecified inputs, compile the intent into fully specified visualizations for visualization.
 	'''
 
 	def __init__(self):
@@ -22,7 +22,7 @@ class Compiler:
 	@staticmethod
 	def compile(ldf: LuxDataFrame,_inferred_intent:List[Clause], vis_collection: VisList, enumerate_collection=True) -> VisList:
 		"""
-		Compiles input specifications in the context of the ldf into a collection of lux.vis objects for visualization.
+		Compiles input specifications in the intent of the ldf into a collection of lux.vis objects for visualization.
 		1) Enumerate a collection of visualizations interested by the user to generate a vis list
 		2) Expand underspecified specifications(lux.Clause) for each of the generated visualizations.
 		3) Determine encoding properties for each vis
@@ -30,7 +30,7 @@ class Compiler:
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
-			LuxDataFrame with underspecified context.
+			LuxDataFrame with underspecified intent.
 		vis_collection : list[lux.vis.Vis]
 			empty list that will be populated with specified lux.Vis objects.
 		enumerate_collection : boolean
@@ -59,7 +59,7 @@ class Compiler:
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
-			LuxDataFrame with underspecified context.
+			LuxDataFrame with underspecified intent.
 
 		Returns
 		-------
@@ -104,7 +104,7 @@ class Compiler:
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
-			LuxDataFrame with underspecified context
+			LuxDataFrame with underspecified intent
 
 		vis_collection : list[lux.vis.Vis]
 			List of lux.Vis objects that will have their underspecified Clause details filled out.
@@ -170,7 +170,7 @@ class Compiler:
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
-			LuxDataFrame with underspecified context
+			LuxDataFrame with underspecified intent
 		vis : lux.vis.Vis
 
 		Returns
@@ -344,7 +344,7 @@ class Compiler:
 	# def populate_wildcard_options(ldf: LuxDataFrame) -> dict:
 	def populate_wildcard_options(_inferred_intent:List[Clause], ldf: LuxDataFrame) -> dict:
 		"""
-		Given wildcards and constraints in the LuxDataFrame's context,
+		Given wildcards and constraints in the LuxDataFrame's intent,
 		return the list of available values that satisfies the data_type or data_model constraints.
 
 		Parameters

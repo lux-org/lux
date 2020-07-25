@@ -27,7 +27,7 @@ class PandasExecutor(Executor):
 		view_collection: list[lux.Vis]
 		    vis list that contains lux.Vis objects for visualization.
 		ldf : lux.luxDataFrame.LuxDataFrame
-			LuxDataFrame with specified context.
+			LuxDataFrame with specified intent.
 
         Returns
 		-------
@@ -61,7 +61,7 @@ class PandasExecutor(Executor):
         view: lux.Vis
             lux.Vis object that represents a visualization
         ldf : lux.luxDataFrame.LuxDataFrame
-            LuxDataFrame with specified context.
+            LuxDataFrame with specified intent.
 
         Returns
         -------
@@ -113,7 +113,7 @@ class PandasExecutor(Executor):
         view: lux.Vis
             lux.Vis object that represents a visualization
         ldf : lux.luxDataFrame.LuxDataFrame
-            LuxDataFrame with specified context.
+            LuxDataFrame with specified intent.
 
         Returns
         -------
