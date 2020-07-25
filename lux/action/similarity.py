@@ -26,7 +26,7 @@ def similar_pattern(ldf, intent, topK=-1):
     '''
     row_specs = list(filter(lambda x: x.value != "", intent))
     if(len(row_specs) == 1):
-        search_space_vc = VisList(ldf.current_intent.collection.copy(),ldf)
+        search_space_vc = VisList(ldf.current_vis.collection.copy(),ldf)
 
         query_vc = VisList(intent,ldf)     
         query_vis = query_vc[0]
