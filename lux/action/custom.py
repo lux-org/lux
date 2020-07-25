@@ -22,9 +22,9 @@ def custom(ldf):
     recommendation = {"action": "Current Context",
                       "description": "Shows the VisList defined by the current intent"}
 
-    recommendation["collection"] = ldf.current_intent
+    recommendation["collection"] = ldf.current_vis
 
-    vc = ldf.current_intent
+    vc = ldf.current_vis
     PandasExecutor.execute(vc, ldf)
     for view in vc: 
         view.score = interestingness(view,ldf)

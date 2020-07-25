@@ -15,14 +15,14 @@ class LuxDataFrame(pd.DataFrame):
     _metadata = ['intent','data_type_lookup','data_type','filter_specs',
                  'data_model_lookup','data_model','unique_values','cardinality',
                  'x_min_max', 'y_min_max','plot_config',
-                 'current_intent','widget', '_rec_info', 'recommendation']
+                 'current_vis','widget', '_rec_info', 'recommendation']
 
     def __init__(self,*args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
         self.intent = []
         self._rec_info=[]
         self.recommendation = {}
-        self.current_intent = []
+        self.current_vis = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.compute_stats()
@@ -124,7 +124,7 @@ class LuxDataFrame(pd.DataFrame):
             self.compute_dataset_metadata()
         self.intent = Parser.parse(self.get_intent())
         Validator.validate_spec(self.intent,self)
-        self.current_intent = Compiler.compile(self, self.intent, self.current_intent)
+        self.current_vis = Compiler.compile(self, self.intent, self.current_vis)
 
     def set_intent(self, intent:typing.List[typing.Union[str, Clause]]):
         """
@@ -166,7 +166,7 @@ class LuxDataFrame(pd.DataFrame):
         self._refresh_intent()
     def clear_intent(self):
         self.intent = []
-        self.current_intent = []
+        self.current_vis = []
     def clear_filter(self):
         self.filter_specs = []  # reset filters
     def to_pandas(self):
@@ -376,14 +376,14 @@ class LuxDataFrame(pd.DataFrame):
             if (self.index.name is not None):
                 self._append_recInfo(column_group(self))
         else:
-            if (self.current_intent is None):
+            if (self.current_vis is None):
                 no_vis = True
                 one_current_vis = False
                 multiple_current_vis = False
             else:
-                no_vis = len(self.current_intent) == 0
-                one_current_vis = len(self.current_intent) == 1
-                multiple_current_vis = len(self.current_intent) > 1
+                no_vis = len(self.current_vis) == 0
+                one_current_vis = len(self.current_vis) == 1
+                multiple_current_vis = len(self.current_vis) > 1
 
             if (no_vis):
                 self._append_recInfo(correlation(self))
@@ -451,11 +451,11 @@ class LuxDataFrame(pd.DataFrame):
 				,stacklevel=2)
             return []
         if len(exported_vis_lst) == 1 and "currentVis" in exported_vis_lst:
-            return self.current_intent
+            return self.current_vis
         elif len(exported_vis_lst) > 1: 
             exported_vis  = {}
             if ("currentVis" in exported_vis_lst):
-                exported_vis["Current Vis"] = self.current_intent
+                exported_vis["Current Vis"] = self.current_vis
             for export_action in exported_vis_lst:
                 if (export_action != "currentVis"):
                     exported_vis[export_action] = VisList(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
@@ -568,9 +568,9 @@ class LuxDataFrame(pd.DataFrame):
 
     def to_JSON(self, input_current_view=""):
         widget_spec = {}
-        if (self.current_intent): 
-            self.executor.execute(self.current_intent, self)
-            widget_spec["current_vis"] = LuxDataFrame.current_view_to_JSON(self.current_intent, input_current_view)
+        if (self.current_vis): 
+            self.executor.execute(self.current_vis, self)
+            widget_spec["current_vis"] = LuxDataFrame.current_view_to_JSON(self.current_vis, input_current_view)
         else:
             widget_spec["current_vis"] = {}
         widget_spec["recommendation"] = []
