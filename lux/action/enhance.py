@@ -22,11 +22,15 @@ def enhance(ldf):
 	recommendations : Dict[str,obj]
 		object with a collection of visualizations that result from the Enhance action.
 	'''
-	recommendation = {"action":"Enhance",
-					"description":"Shows possible visualizations when an additional attribute is added to the current vis."}
+	
 	filters = utils.get_filter_specs(ldf.intent)
 	# Collect variables that already exist in the intent
 	attr_specs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.intent))
+	fltr_str = [fltr.attribute+fltr.filter_op+fltr.value for fltr in filters]
+	attr_str = [clause.attribute for clause in attr_specs]
+	intended_attrs = '<p class="highlight-text">'+', '.join(attr_str+fltr_str)+'</p>'
+	recommendation = {"action":"Enhance",
+					"description":f"Add an attribute to {intended_attrs}."}
 	if(len(attr_specs)>2): # if there are too many column attributes, return don't generate Enhance recommendations
 		recommendation["collection"] = []
 		return recommendation
