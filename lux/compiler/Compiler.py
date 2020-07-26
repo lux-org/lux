@@ -245,8 +245,7 @@ class Compiler:
 				color_attr = d1
 			else:
 				if (d1.attribute == d2.attribute):
-					vis._inferred_intent.pop(
-						0)  # if same attribute then remove_column_from_spec will remove both dims, we only want to remove one
+					vis._inferred_intent.pop(0)  # if same attribute then remove_column_from_spec will remove both dims, we only want to remove one
 				else:
 					vis.remove_column_from_spec(d2.attribute)
 				dimension = d1

@@ -19,8 +19,8 @@ def custom(ldf):
     recommendations : Dict[str,obj]
         object with a collection of visualizations that result from the Distribution action.
     '''
-    recommendation = {"action": "Current Context",
-                      "description": "Shows the VisList defined by the current intent"}
+    recommendation = {"action": "Current Vis",
+                      "description": "Shows the list of visualizations generated based on user specified intent"}
 
     recommendation["collection"] = ldf.current_vis
 
