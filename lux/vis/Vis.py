@@ -109,10 +109,8 @@ class Vis:
 		return list(filter(lambda x: x.data_type == dtype and x.value=='' if hasattr(x, "data_type") else False, self._inferred_intent))
 
 	def remove_filter_from_spec(self, value):
-		new_inferred = list(filter(lambda x: x.value != value, self._inferred_intent))
-		new_intent = list(filter(lambda x: x.value != value, self.intent))
-		self._inferred_intent = new_inferred
-		self.intent = new_intent
+		new_intent = list(filter(lambda x: x.value != value, self._inferred_intent))
+		self.set_intent(new_intent)
 		
 	def remove_column_from_spec(self, attribute, remove_first:bool=False):
 		"""
