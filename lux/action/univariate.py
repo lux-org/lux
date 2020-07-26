@@ -33,7 +33,7 @@ def univariate(ldf, data_type_constraint="quantitative"):
 		intent = [lux.Clause("?",data_type="quantitative")]
 		intent.extend(filter_specs)
 		recommendation = {"action":"Distribution",
-							"description":"Show univariate histograms of <p class='highlight-text'>quantitative</p>  attributes."}
+						  "description":"Show univariate histograms of <p class='highlight-text'>quantitative</p>  attributes."}
 		if (len(ldf)<5): # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
 			ignore_rec_flag = True
 	elif (data_type_constraint == "nominal"):

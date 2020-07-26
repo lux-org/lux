@@ -4,58 +4,74 @@ lux.action package
 Submodules
 ----------
 
-lux.action.Action module
-------------------------
+lux.action.column\_group module
+-------------------------------
 
-.. automodule:: lux.action.Action
+.. automodule:: lux.action.column_group
    :members:
    :undoc-members:
    :show-inheritance:
 
-lux.action.Correlation module
+lux.action.correlation module
 -----------------------------
 
-.. automodule:: lux.action.Correlation
+.. automodule:: lux.action.correlation
    :members:
    :undoc-members:
    :show-inheritance:
 
-lux.action.Distribution module
-------------------------------
-
-.. automodule:: lux.action.Distribution
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-lux.action.Enhance module
--------------------------
-
-.. automodule:: lux.action.Enhance
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-lux.action.Filter module
+lux.action.custom module
 ------------------------
 
-.. automodule:: lux.action.Filter
+.. automodule:: lux.action.custom
    :members:
    :undoc-members:
    :show-inheritance:
 
-lux.action.Generalize module
-----------------------------
+lux.action.enhance module
+-------------------------
 
-.. automodule:: lux.action.Generalize
+.. automodule:: lux.action.enhance
    :members:
    :undoc-members:
    :show-inheritance:
 
-lux.action.Similarity module
+lux.action.filter module
+------------------------
+
+.. automodule:: lux.action.filter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+lux.action.generalize module
 ----------------------------
 
-.. automodule:: lux.action.Similarity
+.. automodule:: lux.action.generalize
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+lux.action.row\_group module
+----------------------------
+
+.. automodule:: lux.action.row_group
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+lux.action.similarity module
+----------------------------
+
+.. automodule:: lux.action.similarity
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+lux.action.univariate module
+----------------------------
+
+.. automodule:: lux.action.univariate
    :members:
    :undoc-members:
    :show-inheritance:

@@ -50,7 +50,7 @@ def filter(ldf):
 	else:	#if no existing filters, create filters using unique values from all categorical variables in the dataset
 		intended_attrs = '<b>'+', '.join([clause.attribute for clause in ldf.intent if clause.value=='' and clause.attribute!="Record"])+'</b>'
 		recommendation = {"action":"Filter",
-					 "description":f"Add a filter to {intended_attrs} for possible data subsets."}
+					 "description":f"Add a filter to <p class='highlight-text'>{intended_attrs}</p> for possible data subsets."}
 		categorical_vars = []
 		for col in list(ldf.columns):
 			# if cardinality is not too high, and attribute is not one of the X,Y (specified) column

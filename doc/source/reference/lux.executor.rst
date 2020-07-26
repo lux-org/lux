@@ -4,14 +4,6 @@ lux.executor package
 Submodules
 ----------
 
-lux.executor.ExecutionEngine module
------------------------------------
-
-.. automodule:: lux.executor.ExecutionEngine
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 lux.executor.Executor module
 ----------------------------
 
