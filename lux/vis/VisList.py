@@ -154,9 +154,9 @@ class VisList():
 			if filter_spec:
 				aligned_filter = " -- [" + filter_spec.attribute + filter_spec.filter_op + str(filter_spec.value) + "]"
 				aligned_filter = aligned_filter.ljust(largest_filter + 8)
-				vis_repr.append(f" <VisList  ({x_channel}{y_channel}{str_additional_channels} {aligned_filter}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
+				vis_repr.append(f" <Vis  ({x_channel}{y_channel}{str_additional_channels} {aligned_filter}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
 			else:
-				vis_repr.append(f" <VisList  ({x_channel}{y_channel}{str_additional_channels}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
+				vis_repr.append(f" <Vis  ({x_channel}{y_channel}{str_additional_channels}) mark: {aligned_mark}, score: {vis.score:.2f} >") 
 		return '['+',\n'.join(vis_repr)[1:]+']'
 	def map(self,function):
 		# generalized way of applying a function to each element

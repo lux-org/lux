@@ -45,14 +45,14 @@ class Histogram(AltairChart):
 		self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
 		if (measure.channel=="x"):	
 			self.code += f'''
-		chart = alt.Chart(visData).mark_bar(size={markbar*3}).encode(
+		chart = alt.Chart(visData).mark_bar(size={markbar}).encode(
 		    alt.X('{msr_attr.attribute}', title='{msr_attr.attribute} (binned)',bin=alt.Bin(binned=True), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=({x_min}, {x_max}))),
 		    alt.Y("Count of Records", type="quantitative")
 		)
 		'''
 		elif (measure.channel=="y"):
 			self.code += f'''
-		chart = alt.Chart(visData).mark_bar(size={markbar*3}).encode(
+		chart = alt.Chart(visData).mark_bar(size={markbar}).encode(
 		    alt.Y('{msr_attr.attribute}', title='{msr_attr.attribute} (binned)',bin=alt.Bin(binned=True), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=({x_min}, {x_max}))),
 		    alt.X("Count of Records", type="quantitative")
 		)
