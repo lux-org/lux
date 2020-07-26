@@ -91,8 +91,8 @@ def test_interestingness_0_1_1():
     
     df.set_intent([lux.Clause(attribute = "Origin", filter_op="=",value="?"),lux.Clause(attribute = "MilesPerGal")])
     df.show_more()
-    assert interestingness(df.recommendation['Current Context'][0],df) != None
-    assert str(df.recommendation['Current Context'][0]._inferred_intent[2].value) == 'USA'
+    assert interestingness(df.recommendation['Current Vis'][0],df) != None
+    assert str(df.recommendation['Current Vis'][0]._inferred_intent[2].value) == 'USA'
 
 def test_interestingness_1_1_0():
     df = pd.read_csv("lux/data/car.csv")
