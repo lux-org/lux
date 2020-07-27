@@ -34,7 +34,7 @@ def generalize(ldf):
 	attributes = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.intent))
 	filters = utils.get_filter_specs(ldf.intent)
 
-	fltr_str = [fltr.attribute+fltr.filter_op+fltr.value for fltr in filters]
+	fltr_str = [fltr.attribute+fltr.filter_op+str(fltr.value) for fltr in filters]
 	attr_str = [clause.attribute for clause in attributes]
 	intended_attrs = '<p class="highlight-text">'+', '.join(attr_str+fltr_str)+'</p>'
 

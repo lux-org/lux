@@ -39,13 +39,13 @@ def test_interestingness_1_0_0():
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
-# def test_interestingness_1_0_1():
-#     df = pd.read_csv("lux/data/car.csv")
-#     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+def test_interestingness_1_0_1():
+    df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
     
-#     df.set_intent([lux.Clause(attribute = "Origin", filter_op="=",value="USA"),lux.Clause(attribute = "Origin")])
-#     df.show_more()
-#     assert interestingness(df.view_collection[0],df) != None
+    df.set_intent([lux.Clause(attribute = "Origin", filter_op="=",value="USA"),lux.Clause(attribute = "Origin")])
+    df._repr_html_()
+    assert df.current_vis[0].score ==0
 
 def test_interestingness_0_1_0():
     df = pd.read_csv("lux/data/car.csv")
@@ -178,11 +178,11 @@ def test_interestingness_0_2_0():
     assert interestingness(df.recommendation['Generalize'][0],df) != None
 
 
-# def test_interestingness_0_2_1():
-#     df = pd.read_csv("lux/data/car.csv")
-#     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+def test_interestingness_0_2_1():
+    df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-#     df.set_intent([lux.Clause(attribute = "Horsepower"),lux.Clause(attribute = "Acceleration"),lux.Clause(attribute = "Acceleration", filter_op=">",value = 10)])
-#     df.show_more()
-#     #check that top recommended Generalize graph score is not none
-#     assert interestingness(df.recommendation['Generalize'][0],df) != None
+    df.set_intent([lux.Clause(attribute = "Horsepower"),lux.Clause(attribute = "Acceleration"),lux.Clause(attribute = "Acceleration", filter_op=">",value = 10)])
+    df.show_more()
+    #check that top recommended Generalize graph score is not none
+    assert interestingness(df.recommendation['Generalize'][0],df) != None
