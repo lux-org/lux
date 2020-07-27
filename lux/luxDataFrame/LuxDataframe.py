@@ -24,9 +24,10 @@ class LuxDataFrame(pd.DataFrame):
         self.current_vis = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
-        self.compute_stats()
-        self.compute_dataset_metadata()
-        self.infer_structure()
+        if (len(self)>0): #only compute metadata information if the dataframe is non-empty
+            self.compute_stats()
+            self.compute_dataset_metadata()
+            self.infer_structure()
 
         self.executor_type = "Pandas"
         self.executor = PandasExecutor
@@ -247,7 +248,7 @@ class LuxDataFrame(pd.DataFrame):
             self.unique_values[attribute] = list(self[attribute].unique())
             self.cardinality[attribute] = len(self.unique_values[attribute])
             if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
-                self.min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
+                self.min_max[attribute] = (self[attribute].min(), self[attribute].max())
         if (self.index.dtype !='int64'):
             index_column_name = self.index.name
             self.unique_values[index_column_name] = list(self.index)
@@ -291,7 +292,7 @@ class LuxDataFrame(pd.DataFrame):
         #self.get_SQL_cardinality()
         for attribute in self.columns:
             if self.data_type_lookup[attribute] == 'quantitative':
-                self.min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
+                self.min_max[attribute] = (self[attribute].min(), self[attribute].max())
 
     def get_SQL_attributes(self):
         if "." in self.table_name:
@@ -483,6 +484,12 @@ class LuxDataFrame(pd.DataFrame):
                             )
                 display(self.display_pandas())
                 return
+
+            if (len(self)<=0):
+                warnings.warn("\nLux can not operate on an empty dataframe.\nPlease check your input again.\n",stacklevel=2)
+                display(self.display_pandas()) 
+                return
+
             self.toggle_pandas_display = self.default_pandas_display # Reset to Pandas Vis everytime
             # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_intent)
             if self.executor_type == "Pandas":
