@@ -35,7 +35,7 @@ class PandasExecutor(Executor):
         '''
         for view in view_collection:
             view.data = ldf # The view data starts off being the same as the content of the original dataframe
-            PandasExecutor.execute_filter(view)
+            filter_executed = PandasExecutor.execute_filter(view)
             # Select relevant data based on attribute information
             attributes = set([])
             for clause in view._inferred_intent:
@@ -47,12 +47,12 @@ class PandasExecutor(Executor):
             else:
                 view.data = view.data[list(attributes)]
             if (view.mark =="bar" or view.mark =="line"):
-                PandasExecutor.execute_aggregate(view)
+                PandasExecutor.execute_aggregate(view,isFiltered = filter_executed)
             elif (view.mark =="histogram"):
                 PandasExecutor.execute_binning(view)
 
     @staticmethod
-    def execute_aggregate(view: Vis):
+    def execute_aggregate(view: Vis,isFiltered = True):
         '''
         Aggregate data points on an axis for bar or line charts
 
@@ -116,7 +116,7 @@ class PandasExecutor(Executor):
                     groupby_result = view.data.groupby(groupby_attr.attribute)
                 view.data = groupby_result.agg(agg_func).reset_index()
             result_vals = list(view.data[groupby_attr.attribute])
-            if (len(result_vals) != len(all_attr_vals)):
+            if (len(result_vals) != len(all_attr_vals) and isFiltered):
                 ####### ORIGINAL
                 # For filtered aggregation that have missing groupby-attribute values, set these aggregated value as 0, since no datapoints
                 # for vals in all_attr_vals:
@@ -181,10 +181,7 @@ class PandasExecutor(Executor):
 
                 for col in columns[1:]:
                     view.data[col] = view.data[col].fillna(0)
-
-
-
-            assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
+                assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
             view.data = view.data.sort_values(by=groupby_attr.attribute, ascending=True)
             view.data = view.data.reset_index()
             view.data = view.data.drop(columns="index")
@@ -224,6 +221,9 @@ class PandasExecutor(Executor):
             # TODO: Need to handle OR logic
             for filter in filters:
                 view.data = PandasExecutor.apply_filter(view.data, filter.attribute, filter.filter_op, filter.value)
+            return True
+        else:
+            return False
     @staticmethod
     def apply_filter(df: pandas.DataFrame, attribute:str, op: str, val: object) -> pandas.DataFrame:
         """
