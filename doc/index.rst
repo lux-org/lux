@@ -33,6 +33,7 @@ Welcome to Lux's documentation!
    :caption: Advanced Topics
    
    source/advanced/date
+   source/advanced/indexgroup
    source/advanced/architecture
    source/advanced/interestingness
    source/advanced/executor
