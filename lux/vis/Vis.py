@@ -17,8 +17,7 @@ class Vis:
 		self.score = score
 		self.code = None
 		self.plot_config = None
-		self.x_min_max = {}
-		self.y_min_max = {}
+		self.min_max = {}
 		if (source is not None): self.refresh_source(source)
 	def __repr__(self):
 		if self.source is None:
@@ -228,5 +227,4 @@ class Vis:
 		self.mark = vis.mark
 		self._inferred_intent = vis._inferred_intent
 		self.data = vis.data
-		self.x_min_max = vis.x_min_max
-		self.y_min_max = vis.y_min_max
+		self.min_max = vis.min_max

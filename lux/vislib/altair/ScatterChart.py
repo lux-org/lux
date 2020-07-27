@@ -17,11 +17,11 @@ class ScatterChart(AltairChart):
 	def initialize_chart(self):
 		x_attr = self.view.get_attr_by_channel("x")[0]
 		y_attr = self.view.get_attr_by_channel("y")[0]
-		x_min = self.view.x_min_max[x_attr.attribute][0]
-		x_max = self.view.x_min_max[x_attr.attribute][1]
+		x_min = self.view.min_max[x_attr.attribute][0]
+		x_max = self.view.min_max[x_attr.attribute][1]
 
-		y_min = self.view.y_min_max[y_attr.attribute][0]
-		y_max = self.view.y_min_max[y_attr.attribute][1]
+		y_min = self.view.min_max[y_attr.attribute][0]
+		y_max = self.view.min_max[y_attr.attribute][1]
 
 		chart = alt.Chart(self.data).mark_circle().encode(
 		    x=alt.X(x_attr.attribute,scale=alt.Scale(domain=(x_min, x_max)),type=x_attr.data_type),

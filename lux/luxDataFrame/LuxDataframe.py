@@ -14,8 +14,7 @@ class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['intent','data_type_lookup','data_type','filter_specs',
                  'data_model_lookup','data_model','unique_values','cardinality',
-                 'x_min_max', 'y_min_max','plot_config',
-                 'current_vis','widget', '_rec_info', 'recommendation']
+                'min_max','plot_config', 'current_vis','widget', '_rec_info', 'recommendation']
 
     def __init__(self,*args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
@@ -241,16 +240,14 @@ class LuxDataFrame(pd.DataFrame):
     def compute_stats(self):
         # precompute statistics
         self.unique_values = {}
-        self.x_min_max = {}
-        self.y_min_max = {}
+        self.min_max = {}
         self.cardinality = {}
 
         for attribute in self.columns:
             self.unique_values[attribute] = list(self[attribute].unique())
             self.cardinality[attribute] = len(self.unique_values[attribute])
             if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
-                self.x_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
-                self.y_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
+                self.min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
         if (self.index.dtype !='int64'):
             index_column_name = self.index.name
             self.unique_values[index_column_name] = list(self.index)
@@ -288,15 +285,13 @@ class LuxDataFrame(pd.DataFrame):
     def compute_SQL_stats(self):
         # precompute statistics
         self.unique_values = {}
-        self.x_min_max = {}
-        self.y_min_max = {}
+        self.min_max = {}
 
         self.get_SQL_unique_values()
         #self.get_SQL_cardinality()
         for attribute in self.columns:
             if self.data_type_lookup[attribute] == 'quantitative':
-                self.x_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
-                self.y_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
+                self.min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
 
     def get_SQL_attributes(self):
         if "." in self.table_name:
@@ -526,13 +521,13 @@ class LuxDataFrame(pd.DataFrame):
             on_button_clicked(None)
         except(KeyboardInterrupt,SystemExit):
             raise
-        except:
-            warnings.warn(
-                    "\nUnexpected error in rendering Lux widget and recommendations. "
-                    "Falling back to Pandas display.\n\n" 
-                    "Please report this issue on Github: https://github.com/lux-org/lux/issues "
-                ,stacklevel=2)
-            display(self.display_pandas())
+        # except:
+        #     warnings.warn(
+        #             "\nUnexpected error in rendering Lux widget and recommendations. "
+        #             "Falling back to Pandas display.\n\n" 
+        #             "Please report this issue on Github: https://github.com/lux-org/lux/issues "
+        #         ,stacklevel=2)
+        #     display(self.display_pandas())
     def display_pandas(self):
         return self.to_pandas()
     @staticmethod
