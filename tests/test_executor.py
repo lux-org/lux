@@ -36,6 +36,40 @@ def test_aggregation():
     PandasExecutor.execute(df.current_vis, df)
     result_df = df.current_vis[0].data
     assert int(result_df[result_df["Origin"]=="Europe"]["Horsepower"])==133
+
+def test_colored_bar_chart():
+    from lux.vis.Vis import Vis
+    from lux.vis.Vis import Clause
+    df = pd.read_csv("lux/data/car.csv")
+
+    x_clause = Clause(attribute = "MilesPerGal", channel = "x")
+    y_clause = Clause(attribute = "Origin", channel = "y")
+    color_clause = Clause(attribute = 'Cylinders', channel = "color")
+
+    new_vis = Vis([x_clause, y_clause, color_clause])
+    new_vis.refresh_source(df)
+    #make sure dimention of the data is correct
+    color_cardinality = len(df.unique_values['Cylinders'])
+    group_by_cardinality = len(df.unique_values['Origin'])
+    assert (len(new_vis.data.columns)==3)
+    assert(len(new_vis.data)==color_cardinality*group_by_cardinality)
+
+def test_colored_line_chart():
+    from lux.vis.Vis import Vis
+    from lux.vis.Vis import Clause
+    df = pd.read_csv("lux/data/car.csv")
+
+    x_clause = Clause(attribute = "Year", channel = "x")
+    y_clause = Clause(attribute = "MilesPerGal", channel = "y")
+    color_clause = Clause(attribute = 'Cylinders', channel = "color")
+
+    new_vis = Vis([x_clause, y_clause, color_clause])
+    new_vis.refresh_source(df)
+    #make sure dimention of the data is correct
+    color_cardinality = len(df.unique_values['Cylinders'])
+    group_by_cardinality = len(df.unique_values['Year'])
+    assert (len(new_vis.data.columns)==3)
+    assert(len(new_vis.data)==color_cardinality*group_by_cardinality)
     
 def test_filter():
     df = pd.read_csv("lux/data/car.csv")
