@@ -23,22 +23,22 @@ class PandasExecutor(Executor):
         4) return a DataFrame with relevant results
 
         Parameters
-		----------
-		view_collection: list[lux.Vis]
-		    vis list that contains lux.Vis objects for visualization.
-		ldf : lux.luxDataFrame.LuxDataFrame
-			LuxDataFrame with specified context.
+        ----------
+        view_collection: list[lux.Vis]
+            vis list that contains lux.Vis objects for visualization.
+        ldf : lux.luxDataFrame.LuxDataFrame
+            LuxDataFrame with specified intent.
 
         Returns
-		-------
-		None
+        -------
+        None
         '''
         for view in view_collection:
             view.data = ldf # The view data starts off being the same as the content of the original dataframe
             PandasExecutor.execute_filter(view)
             # Select relevant data based on attribute information
             attributes = set([])
-            for clause in view._inferred_query:
+            for clause in view._inferred_intent:
                 if (clause.attribute):
                     if (clause.attribute!="Record"):
                         attributes.add(clause.attribute)
@@ -61,7 +61,7 @@ class PandasExecutor(Executor):
         view: lux.Vis
             lux.Vis object that represents a visualization
         ldf : lux.luxDataFrame.LuxDataFrame
-            LuxDataFrame with specified context.
+            LuxDataFrame with specified intent.
 
         Returns
         -------
@@ -73,6 +73,7 @@ class PandasExecutor(Executor):
 
         x_attr = view.get_attr_by_channel("x")[0]
         y_attr = view.get_attr_by_channel("y")[0]
+        has_color = False
         groupby_attr =""
         measure_attr =""
         if (x_attr.aggregation is None or y_attr.aggregation is None):
@@ -85,15 +86,34 @@ class PandasExecutor(Executor):
             groupby_attr = y_attr
             measure_attr = x_attr
             agg_func = x_attr.aggregation
+        #checks if color is specified in the Vis
+        if len(view.get_attr_by_channel("color")) == 1:
+            color_attr = view.get_attr_by_channel("color")[0]
+            color_attr_vals = view.data.unique_values[color_attr.attribute]
+            color_cardinality = len(color_attr_vals)
+            #NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
+            has_color = True
+        else:
+            color_cardinality = 1
         all_attr_vals = view.data.unique_values[groupby_attr.attribute]
         if (measure_attr!=""):
             if (measure_attr.attribute=="Record"):
                 view.data = view.data.reset_index()
-                view.data = view.data.groupby(groupby_attr.attribute).count().reset_index()
-                view.data = view.data.rename(columns={"index":"Record"})
-                view.data = view.data[[groupby_attr.attribute,"Record"]]
+                #if color is specified, need to group by groupby_attr and color_attr
+                if has_color:
+                    view.data = view.data.groupby([groupby_attr.attribute, color_attr.attribute]).count().reset_index()
+                    view.data = view.data.rename(columns={"index":"Record"})
+                    view.data = view.data[[groupby_attr.attribute,color_attr.attribute,"Record"]]
+                else:
+                    view.data = view.data.groupby(groupby_attr.attribute).count().reset_index()
+                    view.data = view.data.rename(columns={"index":"Record"})
+                    view.data = view.data[[groupby_attr.attribute,"Record"]]
             else:
-                groupby_result = view.data.groupby(groupby_attr.attribute)
+                #if color is specified, need to group by groupby_attr and color_attr
+                if has_color:
+                    groupby_result = view.data.groupby([groupby_attr.attribute, color_attr.attribute])
+                else:
+                    groupby_result = view.data.groupby(groupby_attr.attribute)
                 view.data = groupby_result.agg(agg_func).reset_index()
             result_vals = list(view.data[groupby_attr.attribute])
             if (len(result_vals) != len(all_attr_vals)):
@@ -179,7 +199,7 @@ class PandasExecutor(Executor):
         view: lux.Vis
             lux.Vis object that represents a visualization
         ldf : lux.luxDataFrame.LuxDataFrame
-            LuxDataFrame with specified context.
+            LuxDataFrame with specified intent.
 
         Returns
         -------
@@ -187,7 +207,7 @@ class PandasExecutor(Executor):
         '''
         import numpy as np
         import pandas as pd # is this import going to be conflicting with LuxDf?
-        bin_attribute = list(filter(lambda x: x.bin_size!=0,view._inferred_query))[0]
+        bin_attribute = list(filter(lambda x: x.bin_size!=0,view._inferred_intent))[0]
         #TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
         counts,bin_edges = np.histogram(view.data[bin_attribute.attribute],bins=bin_attribute.bin_size)
         #bin_edges of size N+1, so need to compute bin_center as the bin location
@@ -198,7 +218,7 @@ class PandasExecutor(Executor):
     @staticmethod
     def execute_filter(view: Vis):
         assert view.data is not None, "execute_filter assumes input view.data is populated (if not, populate with LuxDataFrame values)"
-        filters = utils.get_filter_specs(view._inferred_query)
+        filters = utils.get_filter_specs(view._inferred_intent)
         
         if (filters):
             # TODO: Need to handle OR logic

@@ -4,7 +4,7 @@ from lux.vis.Clause import Clause
 from typing import List
 class Validator:
 	'''
-	Contains methods for validating lux.Clause objects in the context.
+	Contains methods for validating lux.Clause objects in the intent.
 	'''
 	def __init__(self):
 		self.name = "Validator"
@@ -13,14 +13,14 @@ class Validator:
 		return f"<Validator>"
 
 	@staticmethod
-	def validate_spec(query: List[Clause], ldf:LuxDataFrame) -> None:
+	def validate_spec(intent: List[Clause], ldf:LuxDataFrame) -> None:
 		"""
 		Validates input specifications from the user to find inconsistencies and errors.
 
 		Parameters
 		----------
 		ldf : lux.luxDataFrame.LuxDataFrame
-			LuxDataFrame with underspecified context.
+			LuxDataFrame with underspecified intent.
 
 		Returns
 		-------
@@ -29,7 +29,7 @@ class Validator:
 		Raises
 		------
 		ValueError
-			Ensures no input query are consistent with DataFrame.
+			Ensures no input intent are consistent with DataFrame.
 		"""
 		unique_vals = ldf.unique_values
 		print_warning = False
@@ -62,7 +62,7 @@ class Validator:
 
 		# 1. Parse all string specification into Clause objects (nice-to-have)
 		# 2. Validate that the parsed specification is corresponds to the content in the LuxDataframe.
-		for clause in query:
+		for clause in intent:
 			if type(clause) is list:
 				for s in clause:
 					validate_attr(s)
@@ -72,5 +72,5 @@ class Validator:
 		if print_warning:
 			raise ValueError("Input clause is inconsistent with DataFrame.")
 
-		# lux.set_context(lux.Clause(attr = "Horsepower"))
-		# lux.set_context(lux.Clause(attr = "A")) --> Warning
+		# lux.set_intent(lux.Clause(attr = "Horsepower"))
+		# lux.set_intent(lux.Clause(attr = "A")) --> Warning

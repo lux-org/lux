@@ -1,20 +1,20 @@
 from lux.vis.Clause import Clause
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-from typing import List
+from typing import List, Union
 class Parser:
 	"""
 	The parser takes in the user's input specifications (with string `description` fields),
 	then generates the Lux internal specification through lux.Clause.
 	"""	
 	@staticmethod
-	def parse(query: List[Clause]) -> List[Clause]:
+	def parse(intent: List[Union[Clause,str]]) -> List[Clause]:
 		"""
-		Given the string description from a list of input Clauses (often context),
+		Given the string description from a list of input Clauses (intent),
 		assign the appropriate clause.attribute, clause.filter_op, and clause.value.
 		
 		Parameters
 		----------
-		query : List[Clause]
+		intent : List[Clause]
 			Underspecified list of lux.Clause objects.
 
 		Returns
@@ -23,50 +23,50 @@ class Parser:
 			Parsed list of lux.Clause objects.
 		"""		
 		import re
-		# query = ldf.get_context()
+		# intent = ldf.get_context()
 		new_context = []
 		#checks for and converts users' string inputs into lux specifications
-		for s in query:
+		for clause in intent:
 			valid_values = []
-			if type(s) is list:
+			if isinstance(clause,list):
 				valid_values = []
-				for v in s:
+				for v in clause:
 					if type(v) is str: # and v in list(ldf.columns): #TODO: Move validation check to Validator
 						valid_values.append(v)
 				temp_spec = Clause(attribute = valid_values)
 				new_context.append(temp_spec)
-			elif type(s) is str:
+			elif isinstance(clause,str):
 				#case where user specifies a filter
-				if "=" in s:
-					eqInd = s.index("=")
-					var = s[0:eqInd]
-					if "|" in s:
-						values = s[eqInd+1:].split("|")
+				if "=" in clause:
+					eqInd = clause.index("=")
+					var = clause[0:eqInd]
+					if "|" in clause:
+						values = clause[eqInd+1:].split("|")
 						for v in values:
 							# if v in ldf.unique_values[var]: #TODO: Move validation check to Validator
 							valid_values.append(v)
 					else:
-						valid_values = s[eqInd+1:]
+						valid_values = clause[eqInd+1:]
 					# if var in list(ldf.columns): #TODO: Move validation check to Validator
 					temp_spec = Clause(attribute = var, filter_op = "=", value = valid_values)
 					new_context.append(temp_spec)
 				#case where user specifies a variable
 				else:
-					if "|" in s:
-						values = s.split("|")
+					if "|" in clause:
+						values = clause.split("|")
 						for v in values:
 							# if v in list(ldf.columns): #TODO: Move validation check to Validator
 							valid_values.append(v)
 					else:
-						valid_values = s
+						valid_values = clause
 					temp_spec = Clause(attribute = valid_values)
 					new_context.append(temp_spec)
-			elif type(s) is Clause:
-				new_context.append(s)
-		query = new_context
-		# ldf.context = new_context
+			elif type(clause) is Clause:
+				new_context.append(clause)
+		intent = new_context
+		# ldf.intent = new_context
 
-		for clause in query:
+		for clause in intent:
 			if (clause.description):
 				#TODO: Move validation check to Validator
 				#if ((clause.description in list(ldf.columns)) or clause.description == "?"):# if clause.description in the list of attributes
@@ -84,5 +84,5 @@ class Parser:
 					clause.attribute = clause.description
 				# else: # then it is probably a value 
 				# 	clause.values = clause.description
-		return query
-		# ldf.context = query
+		return intent
+		# ldf.intent = intent

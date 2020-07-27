@@ -18,39 +18,43 @@ def filter(ldf):
 	Parameters
 	----------
 	ldf : lux.luxDataFrame.LuxDataFrame
-		LuxDataFrame with underspecified context.
+		LuxDataFrame with underspecified intent.
 
 	Returns
 	-------
 	recommendations : Dict[str,obj]
 		object with a collection of visualizations that result from the Filter action.
 	'''
-	recommendation = {"action":"Filter",
-						   "description":"Shows possible visualizations when filtered by categorical variables in the dataset."}
-	filters = utils.get_filter_specs(ldf.context)
+	
+	filters = utils.get_filter_specs(ldf.intent)
 	filter_values = []
 	output = []
-	#if Row is specified, create visualizations where data is filtered by all values of the Row's categorical variable
-	column_spec = utils.get_attrs_specs(ldf.current_context[0]._inferred_query)
+	#if fltr is specified, create visualizations where data is filtered by all values of the fltr's categorical variable
+	column_spec = utils.get_attrs_specs(ldf.current_vis[0]._inferred_intent)
 	column_spec_attr = map(lambda x: x.attribute,column_spec)
-	if len(filters) > 0:
+	if len(filters) == 1:
 		#get unique values for all categorical values specified and creates corresponding filters
-		for row in filters:
-			unique_values = ldf.unique_values[row.attribute]
-			filter_values.append(row.value)
-			#creates views with new filters
-			for val in unique_values:
-				if val not in filter_values:
-					new_spec = column_spec.copy()
-					new_filter = lux.Clause(attribute = row.attribute, value = val)
-					new_spec.append(new_filter)
-					temp_view = Vis(new_spec)
-					output.append(temp_view)
+		fltr = filters[0]
+		unique_values = ldf.unique_values[fltr.attribute]
+		filter_values.append(fltr.value)
+		#creates views with new filters
+		for val in unique_values:
+			if val not in filter_values:
+				new_spec = column_spec.copy()
+				new_filter = lux.Clause(attribute = fltr.attribute, value = val)
+				new_spec.append(new_filter)
+				temp_view = Vis(new_spec)
+				output.append(temp_view)
+		recommendation = {"action":"Filter",
+					 	  "description":f"Modify filter to alternative values of <p class='highlight-text'>{fltr.attribute}</p>."}
 	else:	#if no existing filters, create filters using unique values from all categorical variables in the dataset
+		intended_attrs = '<b>'+', '.join([clause.attribute for clause in ldf.intent if clause.value=='' and clause.attribute!="Record"])+'</b>'
+		recommendation = {"action":"Filter",
+					 "description":f"Add a filter to <p class='highlight-text'>{intended_attrs}</p> for possible data subsets."}
 		categorical_vars = []
 		for col in list(ldf.columns):
 			# if cardinality is not too high, and attribute is not one of the X,Y (specified) column
-			if ldf.cardinality[col]<40 and col not in column_spec_attr:
+			if ldf.cardinality[col]<30 and col not in column_spec_attr:
 				categorical_vars.append(col)
 		for cat in categorical_vars:
 			unique_values = ldf.unique_values[cat]

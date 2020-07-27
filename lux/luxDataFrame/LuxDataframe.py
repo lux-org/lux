@@ -12,17 +12,16 @@ class LuxDataFrame(pd.DataFrame):
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
     '''
     # MUST register here for new properties!!
-    _metadata = ['context','data_type_lookup','data_type','filter_specs',
+    _metadata = ['intent','data_type_lookup','data_type','filter_specs',
                  'data_model_lookup','data_model','unique_values','cardinality',
-                 'x_min_max', 'y_min_max','plot_config',
-                 'current_context','widget', '_rec_info', 'recommendation']
+                'min_max','plot_config', 'current_vis','widget', '_rec_info', 'recommendation']
 
     def __init__(self,*args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
-        self.context = []
+        self.intent = []
         self._rec_info=[]
         self.recommendation = {}
-        self.current_context = []
+        self.current_vis = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.compute_stats()
@@ -59,13 +58,13 @@ class LuxDataFrame(pd.DataFrame):
         else: 
             warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.",stacklevel=2)
     # @property
-    # def context(self):
-    #     return self.context
+    # def intent(self):
+    #     return self.intent
     def infer_structure(self):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels !=1
         not_int_index_flag = self.index.dtype !='int64'
-        small_df_flag = len(self)<10
+        small_df_flag = len(self)<100
         self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag 
     def set_executor_type(self, exe):
         if (exe =="SQL"):
@@ -114,7 +113,7 @@ class LuxDataFrame(pd.DataFrame):
         self.plot_config = config_func
     def clear_plot_config(self):
         self.plot_config = None
-    def _refresh_context(self):
+    def _refresh_intent(self):
         from lux.compiler.Validator import Validator
         from lux.compiler.Compiler import Compiler
         from lux.compiler.Parser import Parser
@@ -122,53 +121,60 @@ class LuxDataFrame(pd.DataFrame):
         if self.SQLconnection == "":
             self.compute_stats()
             self.compute_dataset_metadata()
-        self.context = Parser.parse(self.get_context())
-        Validator.validate_spec(self.context,self)
-        self.current_context = Compiler.compile(self, self.context, self.current_context)
+        self.intent = Parser.parse(self.get_intent())
+        Validator.validate_spec(self.intent,self)
+        self.current_vis = Compiler.compile(self, self.intent, self.current_vis)
 
-    def set_context(self, context:typing.List[typing.Union[str, Clause]]):
+    def set_intent(self, intent:typing.List[typing.Union[str, Clause]]):
         """
-        Main function to set the context of the dataframe.
-        The context input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
+        Main function to set the intent of the dataframe.
+        The intent input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
 
         Parameters
         ----------
-        context : typing.List[str,Clause]
-            Context list, can be a mix of string shorthand or a lux.Clause object
+        intent : typing.List[str,Clause]
+            intent list, can be a mix of string shorthand or a lux.Clause object
 
         Notes
         -----
             :doc:`../guide/clause`
         """        
-        if type(context)!=list:
-            raise TypeError("Input context must be a list consisting of string descriptions or lux.Clause objects."
+        if type(intent)!=list:
+            raise TypeError("Input intent must be a list consisting of string descriptions or lux.Clause objects."
                     "\nSee more at: https://lux-api.readthedocs.io/en/dfapi/source/guide/clause.html"
                     )
-        self.context = context
-        self._refresh_context()
-    def set_context_as_vis(self,vis:Vis):
+        self.intent = intent
+        self._refresh_intent()
+    def copy_intent(self):
+        #creates a true copy of the dataframe's intent
+        output = []
+        for clause in self.intent:
+            temp_clause = clause.copy_clause()
+            output.append(temp_clause)
+        return(output)
+
+    def set_intent_as_vis(self,vis:Vis):
         """
-        Set context of the dataframe as the Vis
+        Set intent of the dataframe as the Vis
 
         Parameters
         ----------
-        view : Vis
-            [description]
+        vis : Vis
         """        
-        self.context = vis._inferred_query
-        self._refresh_context()
-    def clear_context(self):
-        self.context = []
-        self.current_context = []
+        self.intent = vis._inferred_intent
+        self._refresh_intent()
+    def clear_intent(self):
+        self.intent = []
+        self.current_vis = []
     def clear_filter(self):
         self.filter_specs = []  # reset filters
     def to_pandas(self):
         import lux.luxDataFrame
         return lux.luxDataFrame.originalDF(self,copy=False)
-    def add_to_context(self,context): 
-        self.context.extend(context)
-    def get_context(self):
-        return self.context
+    def add_to_intent(self,intent): 
+        self.intent.extend(intent)
+    def get_intent(self):
+        return self.intent
     def __repr__(self):
         # TODO: _repr_ gets called from _repr_html, need to get rid of this call
         return ""
@@ -234,16 +240,14 @@ class LuxDataFrame(pd.DataFrame):
     def compute_stats(self):
         # precompute statistics
         self.unique_values = {}
-        self.x_min_max = {}
-        self.y_min_max = {}
+        self.min_max = {}
         self.cardinality = {}
 
         for attribute in self.columns:
             self.unique_values[attribute] = list(self[attribute].unique())
             self.cardinality[attribute] = len(self.unique_values[attribute])
             if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
-                self.x_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
-                self.y_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
+                self.min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
         if (self.index.dtype !='int64'):
             index_column_name = self.index.name
             self.unique_values[index_column_name] = list(self.index)
@@ -281,15 +285,13 @@ class LuxDataFrame(pd.DataFrame):
     def compute_SQL_stats(self):
         # precompute statistics
         self.unique_values = {}
-        self.x_min_max = {}
-        self.y_min_max = {}
+        self.min_max = {}
 
         self.get_SQL_unique_values()
         #self.get_SQL_cardinality()
         for attribute in self.columns:
             if self.data_type_lookup[attribute] == 'quantitative':
-                self.x_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
-                self.y_min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
+                self.min_max[attribute] = (min(self.unique_values[attribute]), max(self.unique_values[attribute]))
 
     def get_SQL_attributes(self):
         if "." in self.table_name:
@@ -359,32 +361,36 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.enhance import enhance
         from lux.action.filter import filter
         from lux.action.generalize import generalize
-        from lux.action.indexgroup import indexgroup
+        from lux.action.row_group import row_group
+        from lux.action.column_group import column_group
 
         self._rec_info = []
         if (self.pre_aggregated):
-            self._append_recInfo(indexgroup(self))
-
-        if (self.current_context is None):
-            no_vis = True
-            one_current_vis = False
-            multiple_current_vis = False
+            if (self.columns.name is not None):
+                self._append_recInfo(row_group(self))
+            if (self.index.name is not None):
+                self._append_recInfo(column_group(self))
         else:
-            no_vis = len(self.current_context) == 0
-            one_current_vis = len(self.current_context) == 1
-            multiple_current_vis = len(self.current_context) > 1
+            if (self.current_vis is None):
+                no_vis = True
+                one_current_vis = False
+                multiple_current_vis = False
+            else:
+                no_vis = len(self.current_vis) == 0
+                one_current_vis = len(self.current_vis) == 1
+                multiple_current_vis = len(self.current_vis) > 1
 
-        if (no_vis):
-            self._append_recInfo(correlation(self))
-            self._append_recInfo(univariate(self,"quantitative"))
-            self._append_recInfo(univariate(self,"nominal"))
-            self._append_recInfo(univariate(self,"temporal"))
-        elif (one_current_vis):
-            self._append_recInfo(enhance(self))
-            self._append_recInfo(filter(self))
-            self._append_recInfo(generalize(self))
-        elif (multiple_current_vis):
-            self._append_recInfo(custom(self))
+            if (no_vis):
+                self._append_recInfo(correlation(self))
+                self._append_recInfo(univariate(self,"quantitative"))
+                self._append_recInfo(univariate(self,"nominal"))
+                self._append_recInfo(univariate(self,"temporal"))
+            elif (one_current_vis):
+                self._append_recInfo(enhance(self))
+                self._append_recInfo(filter(self))
+                self._append_recInfo(generalize(self))
+            elif (multiple_current_vis):
+                self._append_recInfo(custom(self))
             
         # Store _rec_info into a more user-friendly dictionary form
         self.recommendation = {}
@@ -392,6 +398,7 @@ class LuxDataFrame(pd.DataFrame):
             action_type = rec_info["action"]
             vc = rec_info["collection"]
             if (self.plot_config):
+                for vis in self.current_vis: vis.plot_config = self.plot_config
                 for vis in vc: vis.plot_config = self.plot_config
             if (len(vc)>0):
                 self.recommendation[action_type]  = vc
@@ -440,11 +447,11 @@ class LuxDataFrame(pd.DataFrame):
 				,stacklevel=2)
             return []
         if len(exported_vis_lst) == 1 and "currentVis" in exported_vis_lst:
-            return self.current_context
+            return self.current_vis
         elif len(exported_vis_lst) > 1: 
             exported_vis  = {}
             if ("currentVis" in exported_vis_lst):
-                exported_vis["Current Vis"] = self.current_context
+                exported_vis["Current Vis"] = self.current_vis
             for export_action in exported_vis_lst:
                 if (export_action != "currentVis"):
                     exported_vis[export_action] = VisList(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
@@ -466,18 +473,18 @@ class LuxDataFrame(pd.DataFrame):
         import ipywidgets as widgets
         
         try: 
-            # if (type(self.index) != pd.core.indexes.range.RangeIndex):# if multi-index, then default to pandas output
-            #     warnings.warn(
-            #                 "Lux does not currently support dataframes"
-            #                 "with hierarchical indexes.\n"
-            #                 "Please convert the dataframe into a flat"
-            #                 "table via `pandas.DataFrame.reset_index`.\n",
-            #                 stacklevel=2,
-            #             )
-            #     display(self.display_pandas())
-            #     return
+            if(self.index.nlevels>=2):
+                warnings.warn(
+                                "\nLux does not currently support dataframes "
+                                "with hierarchical indexes.\n"
+                                "Please convert the dataframe into a flat "
+                                "table via `pandas.DataFrame.reset_index`.\n",
+                                stacklevel=2,
+                            )
+                display(self.display_pandas())
+                return
             self.toggle_pandas_display = self.default_pandas_display # Reset to Pandas Vis everytime
-            # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_context)
+            # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_intent)
             if self.executor_type == "Pandas":
                 self.compute_stats()
                 self.compute_dataset_metadata()
@@ -514,13 +521,13 @@ class LuxDataFrame(pd.DataFrame):
             on_button_clicked(None)
         except(KeyboardInterrupt,SystemExit):
             raise
-        except:
-            warnings.warn(
-                    "\nUnexpected error in rendering Lux widget and recommendations. "
-                    "Falling back to Pandas display.\n\n" 
-                    "Please report this issue on Github: https://github.com/lux-org/lux/issues "
-                ,stacklevel=2)
-            display(self.display_pandas())
+        # except:
+        #     warnings.warn(
+        #             "\nUnexpected error in rendering Lux widget and recommendations. "
+        #             "Falling back to Pandas display.\n\n" 
+        #             "Please report this issue on Github: https://github.com/lux-org/lux/issues "
+        #         ,stacklevel=2)
+        #     display(self.display_pandas())
     def display_pandas(self):
         return self.to_pandas()
     @staticmethod
@@ -533,7 +540,7 @@ class LuxDataFrame(pd.DataFrame):
         renderer : str, optional
             Choice of visualization rendering library, by default "altair"
         input_current_view : lux.LuxDataFrame, optional
-            User-specified current view to override default Current Vis, by default 
+            User-specified current vis to override default Current Vis, by default 
         """       
         check_import_lux_widget()
         import luxWidget
@@ -541,25 +548,25 @@ class LuxDataFrame(pd.DataFrame):
         return luxWidget.LuxWidget(
             currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
-            context=LuxDataFrame.context_to_JSON(ldf.context)
+            intent=LuxDataFrame.intent_to_JSON(ldf.intent)
         )
     @staticmethod
-    def context_to_JSON(context):
+    def intent_to_JSON(intent):
         from lux.utils import utils
 
-        filter_specs = utils.get_filter_specs(context)
-        attrs_specs = utils.get_attrs_specs(context)
+        filter_specs = utils.get_filter_specs(intent)
+        attrs_specs = utils.get_attrs_specs(intent)
         
-        query = {}
-        query['attributes'] = [clause.attribute for clause in attrs_specs]
-        query['filters'] = [clause.attribute for clause in filter_specs]
-        return query
+        intent = {}
+        intent['attributes'] = [clause.attribute for clause in attrs_specs]
+        intent['filters'] = [clause.attribute for clause in filter_specs]
+        return intent
 
     def to_JSON(self, input_current_view=""):
         widget_spec = {}
-        if (self.current_context): 
-            self.executor.execute(self.current_context, self)
-            widget_spec["current_vis"] = LuxDataFrame.current_view_to_JSON(self.current_context, input_current_view)
+        if (self.current_vis): 
+            self.executor.execute(self.current_vis, self)
+            widget_spec["current_vis"] = LuxDataFrame.current_view_to_JSON(self.current_vis, input_current_view)
         else:
             widget_spec["current_vis"] = {}
         widget_spec["recommendation"] = []

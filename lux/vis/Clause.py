@@ -57,6 +57,11 @@ class Clause:
 		self.sort = sort
 		self.exclude = exclude
 		
+	def copy_clause(self):
+		copied_clause = Clause()
+		copied_clause.__dict__ = self.__dict__.copy()    # just a shallow copy
+		return(copied_clause)
+
 	def set_aggregation(self,aggregation:typing.Union[str,callable]):
 		"""
 		Sets the aggregation function of Clause, 

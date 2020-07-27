@@ -14,12 +14,12 @@ def generalize(ldf):
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
 	'''
-	Generates all possible visualizations when one attribute or filter from the current view is removed.
+	Generates all possible visualizations when one attribute or filter from the current vis is removed.
 
 	Parameters
 	----------
 	ldf : lux.luxDataFrame.LuxDataFrame
-		LuxDataFrame with underspecified context.
+		LuxDataFrame with underspecified intent.
 
 	Returns
 	-------
@@ -29,39 +29,45 @@ def generalize(ldf):
 	# takes in a dataObject and generates a list of new dataObjects, each with a single measure from the original object removed
 	# -->  return list of dataObjects with corresponding interestingness scores
 
-	recommendation = {"action":"Generalize",
-						   "description":"Remove one attribute or filter to observe a more general trend."}
 	output = []
 	excluded_columns = []
-	column_spec = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.context))
-	filter_specs = utils.get_filter_specs(ldf.context)
+	attributes = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.intent))
+	filters = utils.get_filter_specs(ldf.intent)
+
+	fltr_str = [fltr.attribute+fltr.filter_op+str(fltr.value) for fltr in filters]
+	attr_str = [clause.attribute for clause in attributes]
+	intended_attrs = '<p class="highlight-text">'+', '.join(attr_str+fltr_str)+'</p>'
+
+	recommendation = {"action":"Generalize",
+						   "description":f"Remove an attribute or filter from {intended_attrs}."}
+						    # to observe a more general trend
 	# if we do no have enough column attributes or too many, return no views.
-	if(len(column_spec)<2 or len(column_spec)>4):
+	if(len(attributes)<2 or len(attributes)>4):
 		recommendation["collection"] = []
 		return recommendation
 	#for each column specification, create a copy of the ldf's view and remove the column specification
 	#then append the view to the output
-	for clause in column_spec:
+	for clause in attributes:
 		columns = clause.attribute
 		if type(columns) == list:
 			for column in columns:
 				if column not in excluded_columns:
-					temp_view = Vis(ldf.context.copy(),score=1)
-					temp_view.remove_column_from_spec(column, remove_first = False)
+					temp_view = Vis(ldf.copy_intent(),score=1)
+					temp_view.remove_column_from_spec(column, remove_first = True)
 					excluded_columns.append(column)
 					output.append(temp_view)
 		elif type(columns) == str:
 			if columns not in excluded_columns:
-				temp_view = Vis(ldf.context.copy(),score=1)
-				temp_view.remove_column_from_spec(columns, remove_first = False)
+				temp_view = Vis(ldf.copy_intent(),score=1)
+				temp_view.remove_column_from_spec(columns, remove_first = True)
 				excluded_columns.append(columns)
 		output.append(temp_view)
-	#for each filter specification, create a copy of the ldf's current view and remove the filter specification,
+	#for each filter specification, create a copy of the ldf's current vis and remove the filter specification,
 	#then append the view to the output
-	for clause in filter_specs:
-		#new_spec = ldf.context.copy()
+	for clause in filters:
+		#new_spec = ldf.intent.copy()
 		#new_spec.remove_column_from_spec(new_spec.attribute)
-		temp_view = Vis(ldf.current_context[0]._inferred_query.copy(),source = ldf,title="Overall",score=0)
+		temp_view = Vis(ldf.current_vis[0]._inferred_intent.copy(),source = ldf,title="Overall",score=0)
 		temp_view.remove_filter_from_spec(clause.value)
 		output.append(temp_view)
 	

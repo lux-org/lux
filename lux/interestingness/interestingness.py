@@ -30,9 +30,11 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	n_dim = 0
 	n_msr = 0
 	
-	filter_specs = utils.get_filter_specs(vis._inferred_query)
-	vis_attrs_specs = utils.get_attrs_specs(vis._inferred_query)
+	filter_specs = utils.get_filter_specs(vis._inferred_intent)
+	vis_attrs_specs = utils.get_attrs_specs(vis._inferred_intent)
 
+	record_attrs = list(filter(lambda x: x.attribute=="Record" and x.data_model=="measure", vis_attrs_specs))
+	n_record = len(record_attrs)
 	for clause in vis_attrs_specs:
 		if (clause.attribute!="Record"):
 			if (clause.data_model == 'dimension'):
@@ -45,7 +47,8 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	measure_lst = vis.get_attr_by_data_model("measure")
 	v_size = len(vis.data)
 	# Line/Bar Chart
-	if (n_dim == 1 and (n_msr == 0 or n_msr==1)):
+	#print("r:", n_record, "m:", n_msr, "d:",n_dim)
+	if (n_dim == 1 and (n_msr==0 or n_msr==1)):
 		if (v_size<2): return -1 
 		if (n_filter == 0):
 			return unevenness(vis, ldf, measure_lst, dimension_lst)
@@ -83,7 +86,10 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 		return 0.2
 	# Scatterplot colored by measure
 	elif (n_msr == 3):
-		return 0.1
+		return 0.1	
+	# colored line and barchart cases
+	elif ((vis.mark == "line" or vis.mark == "bar") and n_dim == 2):
+		return 0.2
 	# Default
 	else:
 		return -1
@@ -119,10 +125,10 @@ def deviation_from_overall(vis:Vis, ldf:LuxDataFrame, filter_specs:list, msr_att
 	v_filter = vis.data[msr_attribute]
 	v_filter = v_filter/v_filter.sum() # normalize by total to get ratio
 
-	# Generate an "Overall" Vis (TODO: This is computed multiple times for every vis, alternative is to directly access df.current_context but we do not have guaruntee that will always be unfiltered vis (in the non-Filter action scenario))
+	# Generate an "Overall" Vis (TODO: This is computed multiple times for every vis, alternative is to directly access df.current_vis but we do not have guaruntee that will always be unfiltered vis (in the non-Filter action scenario))
 	import copy
 	unfiltered_vis = copy.copy(vis)
-	unfiltered_vis._inferred_query = utils.get_attrs_specs(vis._inferred_query) # Remove filters, keep only attribute query
+	unfiltered_vis._inferred_intent = utils.get_attrs_specs(vis._inferred_intent) # Remove filters, keep only attribute intent
 	ldf.executor.execute([unfiltered_vis],ldf)
 	
 	v = unfiltered_vis.data[msr_attribute]
