@@ -4,6 +4,14 @@ lux.vis package
 Submodules
 ----------
 
+lux.vis.Clause module
+---------------------
+
+.. automodule:: lux.vis.Clause
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 lux.vis.Vis module
 ------------------
 
@@ -13,17 +21,9 @@ lux.vis.Vis module
    :show-inheritance:
 
 lux.vis.VisList module
-----------------------------
-
-.. automodule:: lux.vis.VisList
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-lux.vis.Clause module
 ----------------------
 
-.. automodule:: lux.vis.Clause
+.. automodule:: lux.vis.VisList
    :members:
    :undoc-members:
    :show-inheritance:

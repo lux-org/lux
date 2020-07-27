@@ -13,7 +13,8 @@ Subpackages
    lux.interestingness
    lux.luxDataFrame
    lux.utils
-   lux.visLib
+   lux.vis
+   lux.vislib
 
 Module contents
 ---------------

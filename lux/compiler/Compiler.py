@@ -126,11 +126,12 @@ class Compiler:
 					# if (clause.data_model == ""):
 					clause.data_model = ldf.data_model_lookup[clause.attribute]
 				if (clause.value!=""):
-					if(isinstance(clause.value,np.datetime64)):
-						chart_title = date_utils.date_formatter(clause.value,ldf)
-					else:
-						chart_title = clause.value
-					vis.title = f"{clause.attribute} {clause.filter_op} {chart_title}"
+					if (vis.title == ""): #If user provided title for Vis, then don't override.
+						if(isinstance(clause.value,np.datetime64)):
+							chart_title = date_utils.date_formatter(clause.value,ldf)
+						else:
+							chart_title = clause.value
+						vis.title = f"{clause.attribute} {clause.filter_op} {chart_title}"
 		return vc
 
 	@staticmethod
@@ -244,8 +245,7 @@ class Compiler:
 				color_attr = d1
 			else:
 				if (d1.attribute == d2.attribute):
-					vis._inferred_intent.pop(
-						0)  # if same attribute then remove_column_from_spec will remove both dims, we only want to remove one
+					vis._inferred_intent.pop(0)  # if same attribute then remove_column_from_spec will remove both dims, we only want to remove one
 				else:
 					vis.remove_column_from_spec(d2.attribute)
 				dimension = d1

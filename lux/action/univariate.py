@@ -33,19 +33,19 @@ def univariate(ldf, data_type_constraint="quantitative"):
 		intent = [lux.Clause("?",data_type="quantitative")]
 		intent.extend(filter_specs)
 		recommendation = {"action":"Distribution",
-							"description":"Show histogram distributions of different attributes in the dataframe."}
+						  "description":"Show univariate histograms of <p class='highlight-text'>quantitative</p>  attributes."}
 		if (len(ldf)<5): # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
 			ignore_rec_flag = True
 	elif (data_type_constraint == "nominal"):
 		intent = [lux.Clause("?",data_type="nominal")]
 		intent.extend(filter_specs)
 		recommendation = {"action":"Category",
-						   "description":"Show bar charts of different attributes in the dataframe."}
+						   "description":"Show value counts of <p class='highlight-text'>categorical</p> attributes."}
 	elif (data_type_constraint == "temporal"):
 		intent = [lux.Clause("?",data_type="temporal")]
 		intent.extend(filter_specs)
 		recommendation = {"action":"Temporal",
-						   "description":"Show line chart distributions of time-related attributes in the dataframe."}
+						   "description":"Show trends of counts over <p class='highlight-text'>time-related</p> attributes."}
 		if (len(ldf)<3): # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
 			ignore_rec_flag = True
 	if (ignore_rec_flag):

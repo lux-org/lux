@@ -29,19 +29,25 @@ def generalize(ldf):
 	# takes in a dataObject and generates a list of new dataObjects, each with a single measure from the original object removed
 	# -->  return list of dataObjects with corresponding interestingness scores
 
-	recommendation = {"action":"Generalize",
-						   "description":"Remove one attribute or filter to observe a more general trend."}
 	output = []
 	excluded_columns = []
-	column_spec = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.intent))
-	filter_specs = utils.get_filter_specs(ldf.intent)
+	attributes = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.intent))
+	filters = utils.get_filter_specs(ldf.intent)
+
+	fltr_str = [fltr.attribute+fltr.filter_op+fltr.value for fltr in filters]
+	attr_str = [clause.attribute for clause in attributes]
+	intended_attrs = '<p class="highlight-text">'+', '.join(attr_str+fltr_str)+'</p>'
+
+	recommendation = {"action":"Generalize",
+						   "description":f"Remove an attribute or filter from {intended_attrs}."}
+						    # to observe a more general trend
 	# if we do no have enough column attributes or too many, return no views.
-	if(len(column_spec)<2 or len(column_spec)>4):
+	if(len(attributes)<2 or len(attributes)>4):
 		recommendation["collection"] = []
 		return recommendation
 	#for each column specification, create a copy of the ldf's view and remove the column specification
 	#then append the view to the output
-	for clause in column_spec:
+	for clause in attributes:
 		columns = clause.attribute
 		if type(columns) == list:
 			for column in columns:
@@ -58,7 +64,7 @@ def generalize(ldf):
 		output.append(temp_view)
 	#for each filter specification, create a copy of the ldf's current vis and remove the filter specification,
 	#then append the view to the output
-	for clause in filter_specs:
+	for clause in filters:
 		#new_spec = ldf.intent.copy()
 		#new_spec.remove_column_from_spec(new_spec.attribute)
 		temp_view = Vis(ldf.current_vis[0]._inferred_intent.copy(),source = ldf,title="Overall",score=0)

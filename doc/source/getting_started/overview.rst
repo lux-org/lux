@@ -31,11 +31,17 @@ When you print out the dataframe in the notebook, you should see the default Pan
 
     df
 
-.. TODO: insert GIFs (click on toggle, scroll on Correlation)
+.. image:: ../img/overview-1.gif
+  :width: 700
+  :align: center
+  :alt: click on toggle, scroll on Correlation
 
 By clicking on the Toggle button, you can now explore the data visually through Lux. You should see three tabs of visualizations recommended to you. 
 
-.. TODO: insert GIF (click on Distribution and Category tabs)
+.. image:: ../img/overview-2.gif
+  :width: 700
+  :align: center
+  :alt: click on Distribution and Category tabs
 
 Voila! You have generated your first set of recommendations through Lux! Next, we will describe the details of how these recommendations are generated.
 
@@ -49,21 +55,21 @@ As shown in the example above, by default, we display three types of actions sho
 - **Correlation** displays relationships between two quantitative variables, ranked by the most to least correlated scatterplots.
 
 .. image:: ../img/correlation.png
-  :width: 400
+  :width: 700
   :align: center
   :alt: Example of high/low correlation visualizations
 
 - **Distribution** displays histogram distributions of different quantitative attributes in the dataframe, ranked by the most to least skewed distributions.
 
 .. image:: ../img/distribution.png
-  :width: 400
+  :width: 700
   :align: center
   :alt: Example of high/low skew distributions
 
 - **Category** displays bar chart distributions of different categorical attributes in the dataframe, ranked by the most to least uneven bar charts.
 
 .. image:: ../img/category.png
-  :width: 400
+  :width: 700
   :align: center
   :alt: Example of even and uneven category distributions
   
@@ -88,7 +94,11 @@ When you print out the dataframe again, you should see three different tabs of v
 
     df
 
-.. TODO: insert GIF (scroll through Enhance, click on Filter tab)
+.. image:: ../img/overview-3.gif
+  :width: 700
+  :align: center
+  :alt: scroll through Enhance, click on Filter tab
+
 
 In the displayed widget, the visualization on the left represent the visualization that you have expressed as your intent. 
 On the right, you see the gallery of visualizations recommended based on the specified intent.
@@ -117,8 +127,11 @@ Given the updated intent, additional actions (Enhance and Filter) are generated.
     - {MedianEarnings, **Expenditure**}
     - {MedianEarnings, **AverageCost**}
     - {MedianEarnings, **AverageFacultySalary**}.
-
-.. TODO: insert screenshot of Enhance
+ 
+.. image:: ../img/overview-4.png
+  :width: 700
+  :align: center
+  :alt: screenshot of Enhance
 
 - **Filter** adds an additional filter to the intended visualization. Filter lets users browse through what the intended visualization looks like for different subsets of data. For example, Filter displays visualizations involving C' = {MedianEarnings, *added filter*}, including: 
 
@@ -126,6 +139,10 @@ Given the updated intent, additional actions (Enhance and Filter) are generated.
     - {MedianEarnings, **Region=Southeast**}
     - {MedianEarnings, **Region=Great Lakes**}.
 
-.. TODO: insert screenshot of Filter
+.. image:: ../img/overview-5.png
+  :width: 700
+  :align: center
+  :alt: screenshot of Filter
+
 
 .. Lux is built on the principle that users should always be able to visualize and explore anything they specify, without having to think about how the visualization should look like. 
