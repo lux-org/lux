@@ -52,13 +52,13 @@ def generalize(ldf):
 		if type(columns) == list:
 			for column in columns:
 				if column not in excluded_columns:
-					temp_view = Vis(ldf.intent.copy(),score=1)
+					temp_view = Vis(ldf.copy_intent(),score=1)
 					temp_view.remove_column_from_spec(column, remove_first = True)
 					excluded_columns.append(column)
 					output.append(temp_view)
 		elif type(columns) == str:
 			if columns not in excluded_columns:
-				temp_view = Vis(ldf.intent.copy(),score=1)
+				temp_view = Vis(ldf.copy_intent(),score=1)
 				temp_view.remove_column_from_spec(columns, remove_first = True)
 				excluded_columns.append(columns)
 		output.append(temp_view)
