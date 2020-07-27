@@ -68,6 +68,9 @@ class PandasExecutor(Executor):
         None
         '''
         import numpy as np
+        import pandas as pd
+        import time
+
         x_attr = view.get_attr_by_channel("x")[0]
         y_attr = view.get_attr_by_channel("y")[0]
         groupby_attr =""
@@ -94,10 +97,73 @@ class PandasExecutor(Executor):
                 view.data = groupby_result.agg(agg_func).reset_index()
             result_vals = list(view.data[groupby_attr.attribute])
             if (len(result_vals) != len(all_attr_vals)):
+                ####### ORIGINAL
                 # For filtered aggregation that have missing groupby-attribute values, set these aggregated value as 0, since no datapoints
-                for vals in all_attr_vals:
-                    if (vals not in result_vals):
-                        view.data.loc[len(view.data)] = [vals]+[0]*(len(view.data.columns)-1)
+                # for vals in all_attr_vals:
+                #     if (vals not in result_vals):
+                #         view.data.loc[len(view.data)] = [vals]+[0]*(len(view.data.columns)-1)
+
+
+
+                ####### SOLUTION 1 - INCOMPLETE SOLUTION, FAILS ON NONETYPE
+                # start = time.time()
+                # list_diff = np.setdiff1d(all_attr_vals, result_vals)
+                # print(time.time() - start, 's')
+                # df = pd.DataFrame({view.data.columns[1]: list_diff})
+
+                # for col in view.data.columns[1:]:
+                #     df[col] = 0
+
+                # view.data = view.data.append(df)
+
+
+
+                ####### SOLUTION 2
+                # columns = view.data.columns
+
+                # df = pd.DataFrame({columns[0]: all_attr_vals})
+                # for col in columns[1:]:
+                #     df[col] = 0
+                
+                # view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['_left', '_right'])
+
+                # for col in columns[1:]:
+                #     view.data[col + '_left'] = view.data[col + '_left'].fillna(0)
+                #     view.data[col + '_right'] = view.data[col + '_right'].fillna(0)
+
+                #     view.data[col] = view.data[col + '_left'] + view.data[col + '_right']
+
+                #     del view.data[col + '_left']
+                #     del view.data[col + '_right']
+
+
+
+                ####### SOLUTION 3
+                # columns = view.data.columns
+
+                # df = pd.DataFrame({columns[0]: all_attr_vals})
+                # for col in columns[1:]:
+                #     df[col] = 0
+                
+                # view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['', '_right'])
+
+                # for col in columns[1:]:
+                #     view.data[col] = view.data[col].fillna(0)
+                #     del view.data[col + '_right']
+
+                
+                ####### SOLUTION 4
+                columns = view.data.columns
+
+                df = pd.DataFrame({columns[0]: all_attr_vals})
+                
+                view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['', '_right'])
+
+                for col in columns[1:]:
+                    view.data[col] = view.data[col].fillna(0)
+
+
+
             assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
             view.data = view.data.sort_values(by=groupby_attr.attribute, ascending=True)
             view.data = view.data.reset_index()
