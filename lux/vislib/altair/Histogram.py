@@ -18,8 +18,8 @@ class Histogram(AltairChart):
 		self.tooltip = False
 		measure = self.view.get_attr_by_data_model("measure",exclude_record=True)[0]
 		msr_attr = self.view.get_attr_by_channel(measure.channel)[0]
-		x_min = self.view.x_min_max[msr_attr.attribute][0]
-		x_max = self.view.x_min_max[msr_attr.attribute][1]
+		x_min = self.view.min_max[msr_attr.attribute][0]
+		x_max = self.view.min_max[msr_attr.attribute][1]
 
 		x_range = abs(max(self.view.data[msr_attr.attribute]) - 
 			min(self.view.data[msr_attr.attribute]))
