@@ -81,7 +81,7 @@ Note that since there are three different visualizations that is generated based
         
         df[df["Region"]=="New England"]
     
-.. TODO: Add Screenshot
+    [TODO: Add Screenshot]
 
     Specifying the values through `set_intent` tells Lux that you are interested in colleges in New England. In the resulting Filter action, we see that Lux suggests visualizations in other `Region`s as recommendations.
     
@@ -90,7 +90,7 @@ Note that since there are three different visualizations that is generated based
         df.set_intent(["Region=New England"])
         df
         
-.. TODO: Add Screenshot
+    [TODO: Add Screenshot]
 
     So while both approaches applies the filter on the specified visualization, the subtle difference between *applying* a filter and *indicating* a filter intent leads to different sets of resulting recommendations. In general, we encourage using Pandas for filtering if you are certain about applying the filter (e.g., a cleaning operation deleting a specific data subset), and specify the intent through Lux if you might want to experiment and change aspects related to the filter in your analysis. 
 

@@ -16,8 +16,8 @@ In this tutorial, we look at the `Happy Planet Index <http://happyplanetindex.or
 
 Note that for the convienience of this tutorial, we have set Lux as the default display so we don't have to Toggle from the Pandas table display everytime we print the dataframe.
 
-Exporting one or more visualizations from recommendation widget
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Exporting one or more visualizations from recommendations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In Lux, you can click on visualizations of interest and export them into a separate widget for further processing.
 
@@ -61,10 +61,10 @@ From the dataframe recommendations, the visualization showing the relationship b
   :align: center
   :alt: add screenshot of exported vis
 
-Setting Visualizations as Context
-~~~~~~~~~~~~~~~~~~~~~~~~
+Setting Vis as the Updated Intent
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now that we have exported the vis, we can set the new intent of the dataframe to be the vis to get more recommendations related to this visualization.
+Often, we might be interested in other visualizations that is related to a visualization of interest and want to learn more. With the exported Vis, we can update the intent associated with dataframe to be based on the selected Vis to get more recommendations related to this visualization.
 
 .. code-block:: python
 
