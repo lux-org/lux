@@ -35,7 +35,7 @@ class PandasExecutor(Executor):
         '''
         for view in view_collection:
             view.data = ldf # The view data starts off being the same as the content of the original dataframe
-            PandasExecutor.execute_filter(view)
+            filter_executed = PandasExecutor.execute_filter(view)
             # Select relevant data based on attribute information
             attributes = set([])
             for clause in view._inferred_intent:
@@ -47,12 +47,12 @@ class PandasExecutor(Executor):
             else:
                 view.data = view.data[list(attributes)]
             if (view.mark =="bar" or view.mark =="line"):
-                PandasExecutor.execute_aggregate(view)
+                PandasExecutor.execute_aggregate(view,isFiltered = filter_executed)
             elif (view.mark =="histogram"):
                 PandasExecutor.execute_binning(view)
 
     @staticmethod
-    def execute_aggregate(view: Vis):
+    def execute_aggregate(view: Vis,isFiltered = True):
         '''
         Aggregate data points on an axis for bar or line charts
 
@@ -68,6 +68,9 @@ class PandasExecutor(Executor):
         None
         '''
         import numpy as np
+        import pandas as pd
+        import time
+
         x_attr = view.get_attr_by_channel("x")[0]
         y_attr = view.get_attr_by_channel("y")[0]
         has_color = False
@@ -113,28 +116,71 @@ class PandasExecutor(Executor):
                     groupby_result = view.data.groupby(groupby_attr.attribute)
                 view.data = groupby_result.agg(agg_func).reset_index()
             result_vals = list(view.data[groupby_attr.attribute])
-            #create existing group by attribute combinations if color is specified
-            #this is needed to check what combinations of group_by_attr and color_attr values have a non-zero number of elements in them
-            if has_color:
-                res_color_combi_vals = []
-                result_color_vals = list(view.data[color_attr.attribute])
-                for i in range(0, len(result_vals)):
-                    res_color_combi_vals.append([result_vals[i], result_color_vals[i]])
-            if (len(result_vals) != len(all_attr_vals)*color_cardinality):
+            if (len(result_vals) != len(all_attr_vals) and isFiltered):
+                ####### ORIGINAL
                 # For filtered aggregation that have missing groupby-attribute values, set these aggregated value as 0, since no datapoints
-                if has_color:
-                    for vals in all_attr_vals:
-                        for cvals in color_attr_vals:
-                            temp_combi = [vals, cvals]
-                            if (temp_combi not in res_color_combi_vals):
-                                view.data.loc[len(view.data)] = [vals]+[cvals]+[0]*(len(view.data.columns)-2)
-                else:
-                    for vals in all_attr_vals:
-                        if (vals not in result_vals):
-                            view.data.loc[len(view.data)] = [vals]+[0]*(len(view.data.columns)-1)
-            if has_color:
-                assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals)*color_cardinality, f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
-            else:
+                # for vals in all_attr_vals:
+                #     if (vals not in result_vals):
+                #         view.data.loc[len(view.data)] = [vals]+[0]*(len(view.data.columns)-1)
+
+
+
+                ####### SOLUTION 1 - INCOMPLETE SOLUTION, FAILS ON NONETYPE
+                # start = time.time()
+                # list_diff = np.setdiff1d(all_attr_vals, result_vals)
+                # print(time.time() - start, 's')
+                # df = pd.DataFrame({view.data.columns[1]: list_diff})
+
+                # for col in view.data.columns[1:]:
+                #     df[col] = 0
+
+                # view.data = view.data.append(df)
+
+
+
+                ####### SOLUTION 2
+                # columns = view.data.columns
+
+                # df = pd.DataFrame({columns[0]: all_attr_vals})
+                # for col in columns[1:]:
+                #     df[col] = 0
+                
+                # view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['_left', '_right'])
+
+                # for col in columns[1:]:
+                #     view.data[col + '_left'] = view.data[col + '_left'].fillna(0)
+                #     view.data[col + '_right'] = view.data[col + '_right'].fillna(0)
+
+                #     view.data[col] = view.data[col + '_left'] + view.data[col + '_right']
+
+                #     del view.data[col + '_left']
+                #     del view.data[col + '_right']
+
+
+
+                ####### SOLUTION 3
+                # columns = view.data.columns
+
+                # df = pd.DataFrame({columns[0]: all_attr_vals})
+                # for col in columns[1:]:
+                #     df[col] = 0
+                
+                # view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['', '_right'])
+
+                # for col in columns[1:]:
+                #     view.data[col] = view.data[col].fillna(0)
+                #     del view.data[col + '_right']
+
+                
+                ####### SOLUTION 4
+                columns = view.data.columns
+
+                df = pd.DataFrame({columns[0]: all_attr_vals})
+                
+                view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['', '_right'])
+
+                for col in columns[1:]:
+                    view.data[col] = view.data[col].fillna(0)
                 assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
             view.data = view.data.sort_values(by=groupby_attr.attribute, ascending=True)
             view.data = view.data.reset_index()
@@ -175,6 +221,9 @@ class PandasExecutor(Executor):
             # TODO: Need to handle OR logic
             for filter in filters:
                 view.data = PandasExecutor.apply_filter(view.data, filter.attribute, filter.filter_op, filter.value)
+            return True
+        else:
+            return False
     @staticmethod
     def apply_filter(df: pandas.DataFrame, attribute:str, op: str, val: object) -> pandas.DataFrame:
         """
