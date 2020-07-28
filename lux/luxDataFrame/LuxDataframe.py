@@ -566,7 +566,10 @@ class LuxDataFrame(pd.DataFrame):
         return intent
     @staticmethod
     def intent_to_string(intent):
-        return ", ".join([clause.to_string() for clause in intent])
+        if (intent):
+            return ", ".join([clause.to_string() for clause in intent])
+        else:
+            return ""
 
     def to_JSON(self, input_current_view=""):
         widget_spec = {}

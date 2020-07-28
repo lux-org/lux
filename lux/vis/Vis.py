@@ -88,7 +88,7 @@ class Vis:
 			widget =  luxWidget.LuxWidget(
 					currentVis= LuxDataFrame.current_view_to_JSON([self]),
 					recommendations=[],
-					intent={}
+					intent=""
 				)
 			display(widget)
 	def get_attr_by_attr_name(self,attr_name):
