@@ -77,6 +77,7 @@ class Clause:
 			self._aggregation_name = self.aggregation.__name__
 		else:
 			self._aggregation_name = self.aggregation
+
 	def __repr__(self):
 		attributes = []
 		if self.description != "":

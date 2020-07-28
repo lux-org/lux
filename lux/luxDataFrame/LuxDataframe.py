@@ -46,7 +46,6 @@ class LuxDataFrame(pd.DataFrame):
     def set_default_display(self, type:str) -> None:
         """
         Set the widget display to show Pandas by default or Lux by default
-
         Parameters
         ----------
         type : str
@@ -84,7 +83,6 @@ class LuxDataFrame(pd.DataFrame):
         """
         Modify plot aesthetic settings to all visualizations in the dataframe display
         Currently only supported for Altair visualizations
-
         Parameters
         ----------
         config_func : typing.Callable
@@ -93,7 +91,6 @@ class LuxDataFrame(pd.DataFrame):
         Example
         ----------
         Changing the color of marks and adding a title for all charts displayed for this dataframe
-
         >>> df = pd.read_csv("lux/data/car.csv")
         >>> def changeColorAddTitle(chart):
                 chart = chart.configure_mark(color="red") # change mark color to red
@@ -101,7 +98,6 @@ class LuxDataFrame(pd.DataFrame):
                 return chart
         >>> df.set_plot_config(changeColorAddTitle)
         >>> df
-
         Change the opacity of all scatterplots displayed for this dataframe
         >>> df = pd.read_csv("lux/data/olympic.csv")
         >>> def changeOpacityScatterOnly(chart):
@@ -607,5 +603,3 @@ class LuxDataFrame(pd.DataFrame):
                 # delete DataObjectCollection since not JSON serializable
                 del rec_lst[idx]["collection"]
         return rec_lst
-
-
