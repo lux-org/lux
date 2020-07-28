@@ -52,7 +52,7 @@ def test_colored_bar_chart():
     color_cardinality = len(df.unique_values['Cylinders'])
     group_by_cardinality = len(df.unique_values['Origin'])
     assert (len(new_vis.data.columns)==3)
-    assert(len(new_vis.data)==9 > group_by_cardinality < color_cardinality*group_by_cardinality) # Not color_cardinality*group_by_cardinality since some combinations have 0 values
+    assert(len(new_vis.data)==15 > group_by_cardinality < color_cardinality*group_by_cardinality) # Not color_cardinality*group_by_cardinality since some combinations have 0 values
 
     
 def test_colored_line_chart():
@@ -70,7 +70,7 @@ def test_colored_line_chart():
     color_cardinality = len(df.unique_values['Cylinders'])
     group_by_cardinality = len(df.unique_values['Year'])
     assert (len(new_vis.data.columns)==3)
-    assert(len(new_vis.data)==41 > group_by_cardinality < color_cardinality*group_by_cardinality) # Not color_cardinality*group_by_cardinality since some combinations have 0 values
+    assert(len(new_vis.data)==60 > group_by_cardinality < color_cardinality*group_by_cardinality) # Not color_cardinality*group_by_cardinality since some combinations have 0 values
     
 def test_filter():
     df = pd.read_csv("lux/data/car.csv")
