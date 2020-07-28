@@ -27,12 +27,12 @@ def test_period_selection():
 
 	ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq='A')
 
-	ldf.set_context([lux.VisSpec(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.VisSpec(attribute ="Year")])
+	ldf.set_intent([lux.Clause(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.Clause(attribute ="Year")])
 
-	PandasExecutor.execute(ldf.current_view, ldf)
+	PandasExecutor.execute(ldf.current_vis, ldf)
 
-	assert all([type(vc.data) == lux.luxDataFrame.LuxDataframe.LuxDataFrame for vc in ldf.current_view])
-	assert all(ldf.current_view[2].data.columns == ["Year", 'Acceleration'])
+	assert all([type(vc.data) == lux.luxDataFrame.LuxDataframe.LuxDataFrame for vc in ldf.current_vis])
+	assert all(ldf.current_vis[2].data.columns == ["Year", 'Acceleration'])
 
 def test_period_filter():
 	ldf = pd.read_csv("lux/data/car.csv")
@@ -40,12 +40,12 @@ def test_period_filter():
 
 	ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq='A')
 
-	ldf.set_context([lux.VisSpec(attribute ="Acceleration"), lux.VisSpec(attribute ="Horsepower")])
+	ldf.set_intent([lux.Clause(attribute ="Acceleration"), lux.Clause(attribute ="Horsepower")])
 
-	PandasExecutor.execute(ldf.current_view, ldf)
+	PandasExecutor.execute(ldf.current_vis, ldf)
 	ldf.show_more()
 
-	assert isinstance(ldf.recommendation['Filter'][2].spec_lst[2].value, pd.Period)
+	assert isinstance(ldf.recommendation['Filter'][2]._inferred_intent[2].value, pd.Period)
 
 def test_period_to_altair():
 	chart = None
@@ -54,9 +54,9 @@ def test_period_to_altair():
 
 	df["Year"] = pd.DatetimeIndex(df["Year"]).to_period(freq='A')
 
-	df.set_context([lux.VisSpec(attribute ="Acceleration"), lux.VisSpec(attribute ="Horsepower")])
+	df.set_intent([lux.Clause(attribute ="Acceleration"), lux.Clause(attribute ="Horsepower")])
 
-	PandasExecutor.execute(df.current_view, df)
+	PandasExecutor.execute(df.current_vis, df)
 	df.show_more()
 
 	exported_code = df.recommendation['Filter'][2].to_Altair()
@@ -69,8 +69,13 @@ def test_refresh_inplace():
 	assert df.data_type['nominal'][0] == 'date'
 
 	from lux.vis.Vis import Vis
-	view = Vis(["date","value"],df)
+	vis = Vis(["date","value"],df)
 
 	df['date'] = pd.to_datetime(df['date'],format="%Y-%m-%d")
 
 	assert df.data_type['temporal'][0] == 'date'
+
+	vis.refresh_source(df)
+	assert vis.mark == "line"
+	assert vis.get_attr_by_channel("x")[0].attribute == "date"
+	assert vis.get_attr_by_channel("y")[0].attribute == "value"

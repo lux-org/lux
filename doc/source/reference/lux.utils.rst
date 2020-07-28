@@ -4,6 +4,14 @@ lux.utils package
 Submodules
 ----------
 
+lux.utils.date\_utils module
+----------------------------
+
+.. automodule:: lux.utils.date_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 lux.utils.renderjson module
 ---------------------------
 

@@ -2,7 +2,7 @@ import lux
 from lux.interestingness.interestingness import interestingness
 from lux.compiler.Compiler import Compiler
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-from lux.vis.VisCollection import VisCollection
+from lux.vis.VisList import VisList
 # for benchmarking
 import time
 from lux.utils import utils
@@ -16,7 +16,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	Parameters
 	----------
 	ldf : LuxDataFrame
-		LuxDataFrame with underspecified context.
+		LuxDataFrame with underspecified intent.
 
 	ignore_transpose: bool
 		Boolean flag to ignore pairs of attributes whose transpose are already computed (i.e., {X,Y} will be ignored if {Y,X} is already computed)
@@ -31,13 +31,16 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	# for benchmarking
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
-	filter_specs = utils.get_filter_specs(ldf.context)
-	query = [lux.VisSpec("?", data_model="measure"), lux.VisSpec("?", data_model="measure")]
-	query.extend(filter_specs)
-	vc = VisCollection(query,ldf)
+	filter_specs = utils.get_filter_specs(ldf.intent)
+	intent = [lux.Clause("?", data_model="measure"), lux.Clause("?", data_model="measure")]
+	intent.extend(filter_specs)
+	vc = VisList(intent,ldf)
 	recommendation = {"action": "Correlation",
-					  "description": "Show relationships between two quantitative attributes."}
-	# Then use the data populated in the view collection to compute score
+					  "description": "Show relationships between two <p class='highlight-text'>quantitative</p> attributes."}
+	ignore_rec_flag = False
+	if (len(ldf)<5): # Doesn't make sense to compute correlation if less than 4 data values
+		ignore_rec_flag = True
+	# Then use the data populated in the vis list to compute score
 	for view in vc:
 		measures = view.get_attr_by_data_model("measure")
 		if len(measures) < 2: raise ValueError(
@@ -53,9 +56,12 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 			view.score = interestingness(view, ldf)
 		else:
 			view.score = -1
+	if (ignore_rec_flag):
+		recommendation["collection"] = []
+		return recommendation
 	vc = vc.topK(15)
 	recommendation["collection"] = vc
-
+	
 	# for benchmarking
 	if ldf.toggle_benchmarking == True:
 		toc = time.perf_counter()
@@ -63,8 +69,8 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	return recommendation
 
 
-def check_transpose_not_computed(vc: VisCollection, a: str, b: str):
-	transpose_exist = list(filter(lambda x: (x.spec_lst[0].attribute == b) and (x.spec_lst[1].attribute == a), vc))
+def check_transpose_not_computed(vc: VisList, a: str, b: str):
+	transpose_exist = list(filter(lambda x: (x._inferred_intent[0].attribute == b) and (x._inferred_intent[1].attribute == a), vc))
 	if (len(transpose_exist) > 0):
 		return transpose_exist[0].score == -1
 	else:

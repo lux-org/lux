@@ -1,5 +1,5 @@
 import pandas
-from lux.vis.VisCollection import VisCollection
+from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.executor.Executor import Executor
@@ -17,10 +17,10 @@ class SQLExecutor(Executor):
         return f"<Executor>"
 
     @staticmethod
-    def execute(view_collection:VisCollection, ldf: LuxDataFrame):
+    def execute(view_collection:VisList, ldf: LuxDataFrame):
         import pandas as pd
         '''
-        Given a VisCollection, fetch the data required to render the view
+        Given a VisList, fetch the data required to render the view
         1) Apply filters
         2) Retreive relevant attribute
         3) return a DataFrame with relevant results
@@ -28,12 +28,12 @@ class SQLExecutor(Executor):
         for view in view_collection:
             # Select relevant data based on attribute information
             attributes = set([])
-            for spec in view.spec_lst:
-                if (spec.attribute):
-                    if (spec.attribute=="Record"):
-                        attributes.add(spec.attribute)
+            for clause in view._inferred_intent:
+                if (clause.attribute):
+                    if (clause.attribute=="Record"):
+                        attributes.add(clause.attribute)
                     #else:
-                    attributes.add(spec.attribute)
+                    attributes.add(clause.attribute)
             if view.mark not in ["bar", "line", "histogram"]:
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
                 required_variables = attributes | set(filterVars)
@@ -102,7 +102,7 @@ class SQLExecutor(Executor):
     def execute_binning(view:Vis, ldf:LuxDataFrame):
         import numpy as np
         import pandas as pd
-        bin_attribute = list(filter(lambda x: x.bin_size!=0,view.spec_lst))[0]
+        bin_attribute = list(filter(lambda x: x.bin_size!=0,view._inferred_intent))[0]
         num_bins = bin_attribute.bin_size
         attr_min = min(ldf.unique_values[bin_attribute.attribute])
         attr_max = max(ldf.unique_values[bin_attribute.attribute])
@@ -145,10 +145,10 @@ class SQLExecutor(Executor):
         view.data = utils.pandas_to_lux(view.data)
         
     @staticmethod
-    #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's spec_lst
+    #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's _inferred_intent
     def execute_filter(view:Vis):
         where_clause = []
-        filters = utils.get_filter_specs(view.spec_lst)
+        filters = utils.get_filter_specs(view._inferred_intent)
         filter_vars = []
         if (filters):
             for f in range(0,len(filters)):

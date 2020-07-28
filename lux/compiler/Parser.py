@@ -1,88 +1,88 @@
-from lux.vis.VisSpec import VisSpec
+from lux.vis.Clause import Clause
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-from typing import List
+from typing import List, Union
 class Parser:
 	"""
 	The parser takes in the user's input specifications (with string `description` fields),
-	then generates the Lux internal specification through lux.VisSpec.
+	then generates the Lux internal specification through lux.Clause.
 	"""	
 	@staticmethod
-	def parse(specs: List[VisSpec]) -> List[VisSpec]:
+	def parse(intent: List[Union[Clause,str]]) -> List[Clause]:
 		"""
-		Given the string description from a list of input Specs (often context),
-		assign the appropriate spec.attribute, spec.filter_op, and spec.value.
+		Given the string description from a list of input Clauses (intent),
+		assign the appropriate clause.attribute, clause.filter_op, and clause.value.
 		
 		Parameters
 		----------
-		specs : List[VisSpec]
-			Underspecified list of lux.VisSpec objects.
+		intent : List[Clause]
+			Underspecified list of lux.Clause objects.
 
 		Returns
 		-------
-		List[VisSpec]
-			Parsed list of lux.VisSpec objects.
+		List[Clause]
+			Parsed list of lux.Clause objects.
 		"""		
 		import re
-		# specs = ldf.get_context()
+		# intent = ldf.get_context()
 		new_context = []
 		#checks for and converts users' string inputs into lux specifications
-		for s in specs:
+		for clause in intent:
 			valid_values = []
-			if type(s) is list:
+			if isinstance(clause,list):
 				valid_values = []
-				for v in s:
+				for v in clause:
 					if type(v) is str: # and v in list(ldf.columns): #TODO: Move validation check to Validator
 						valid_values.append(v)
-				temp_spec = VisSpec(attribute = valid_values)
+				temp_spec = Clause(attribute = valid_values)
 				new_context.append(temp_spec)
-			elif type(s) is str:
+			elif isinstance(clause,str):
 				#case where user specifies a filter
-				if "=" in s:
-					eqInd = s.index("=")
-					var = s[0:eqInd]
-					if "|" in s:
-						values = s[eqInd+1:].split("|")
+				if "=" in clause:
+					eqInd = clause.index("=")
+					var = clause[0:eqInd]
+					if "|" in clause:
+						values = clause[eqInd+1:].split("|")
 						for v in values:
 							# if v in ldf.unique_values[var]: #TODO: Move validation check to Validator
 							valid_values.append(v)
 					else:
-						valid_values = s[eqInd+1:]
+						valid_values = clause[eqInd+1:]
 					# if var in list(ldf.columns): #TODO: Move validation check to Validator
-					temp_spec = VisSpec(attribute = var, filter_op = "=", value = valid_values)
+					temp_spec = Clause(attribute = var, filter_op = "=", value = valid_values)
 					new_context.append(temp_spec)
 				#case where user specifies a variable
 				else:
-					if "|" in s:
-						values = s.split("|")
+					if "|" in clause:
+						values = clause.split("|")
 						for v in values:
 							# if v in list(ldf.columns): #TODO: Move validation check to Validator
 							valid_values.append(v)
 					else:
-						valid_values = s
-					temp_spec = VisSpec(attribute = valid_values)
+						valid_values = clause
+					temp_spec = Clause(attribute = valid_values)
 					new_context.append(temp_spec)
-			elif type(s) is VisSpec:
-				new_context.append(s)
-		specs = new_context
-		# ldf.context = new_context
+			elif type(clause) is Clause:
+				new_context.append(clause)
+		intent = new_context
+		# ldf.intent = new_context
 
-		for spec in specs:
-			if (spec.description):
+		for clause in intent:
+			if (clause.description):
 				#TODO: Move validation check to Validator
-				#if ((spec.description in list(ldf.columns)) or spec.description == "?"):# if spec.description in the list of attributes
-				if any(ext in [">","<","=","!="] for ext in spec.description): # spec.description contain ">","<". or "="
-					# then parse it and assign to spec.attribute, spec.filter_op, spec.values
-					spec.filter_op = re.findall(r'/.*/|>|=|<|>=|<=|!=', spec.description)[0]
-					split_description = spec.description.split(spec.filter_op)
-					spec.attribute = split_description[0]
-					spec.value = split_description[1]
-					if re.match(r'^-?\d+(?:\.\d+)?$', spec.value):
-						spec.value = float(spec.value)
-				elif (type(spec.description) == str):
-					spec.attribute = spec.description
-				elif (type(spec.description)==list):
-					spec.attribute = spec.description
+				#if ((clause.description in list(ldf.columns)) or clause.description == "?"):# if clause.description in the list of attributes
+				if any(ext in [">","<","=","!="] for ext in clause.description): # clause.description contain ">","<". or "="
+					# then parse it and assign to clause.attribute, clause.filter_op, clause.values
+					clause.filter_op = re.findall(r'/.*/|>|=|<|>=|<=|!=', clause.description)[0]
+					split_description = clause.description.split(clause.filter_op)
+					clause.attribute = split_description[0]
+					clause.value = split_description[1]
+					if re.match(r'^-?\d+(?:\.\d+)?$', clause.value):
+						clause.value = float(clause.value)
+				elif (type(clause.description) == str):
+					clause.attribute = clause.description
+				elif (type(clause.description)==list):
+					clause.attribute = clause.description
 				# else: # then it is probably a value 
-				# 	spec.values = spec.description
-		return specs
-		# ldf.context = specs
+				# 	clause.values = clause.description
+		return intent
+		# ldf.intent = intent

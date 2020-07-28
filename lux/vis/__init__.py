@@ -1,1 +1,1 @@
-from .VisSpec import VisSpec
+from .Clause import Clause

@@ -9,12 +9,12 @@ Subpackages
 
    lux.action
    lux.compiler
-   lux.context
    lux.executor
    lux.interestingness
    lux.luxDataFrame
    lux.utils
-   lux.vizLib
+   lux.vis
+   lux.vislib
 
 Module contents
 ---------------
