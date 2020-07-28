@@ -18,7 +18,10 @@ You can indicate that you are interested in an attribute, let's say `AverageCost
 
     df.set_intent(['AverageCost'])
 
-.. TODO: Add Screenshot
+.. image:: ../img/intent-1.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
 
 You might be interested in multiple attributes, for instance you might want to look at both `AverageCost` and `FundingModel`. When multiple clauses are specified, Lux applies all the clauses in the intent and searches for visualizations that are relevant to `AverageCost` **and** `FundingModel`.
 
@@ -27,7 +30,10 @@ You might be interested in multiple attributes, for instance you might want to l
     df.set_intent(['AverageCost','FundingModel'])
     df 
 
-.. TODO: Add Screenshot
+.. image:: ../img/intent-2.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
 
 Let's say that in addition to `AverageCost`, you are interested in the looking at a list of attributes that are related to different financial measures, such as `Expenditure` or `MedianDebt`, and how they breakdown with respect to `FundingModel`. 
 
@@ -39,7 +45,10 @@ You can specify a list of desired attributes separated by the `|` symbol, which 
     df.set_intent([possible_attributes,"FundingModel"])
     df
 
-.. TODO: Add Screenshot
+.. image:: ../img/intent-3.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
 
 Alternatively, you could also provide the specification as a list: 
 
@@ -49,7 +58,10 @@ Alternatively, you could also provide the specification as a list:
     df.set_intent([possible_attributes,"FundingModel"])
     df
 
-.. TODO: Add Screenshot
+.. image:: ../img/intent-4.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
 
 Specifying values of interest
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,7 +73,10 @@ In Lux, you can also specify particular values corresponding to subsets of the d
     df.set_intent(["Region=New England"])
     df
 
-.. TODO: Add Screenshot
+.. image:: ../img/intent-5.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
 
 You can also specify multiple values of interest using the same `|` notation that we saw earlier. For example, you might be comparing colleges in New England, Southeast, and Far West.
 
@@ -69,7 +84,10 @@ You can also specify multiple values of interest using the same `|` notation tha
 
     df.set_intent(["MedianDebt","Region=New England|Southeast|Far West"])
 
-.. TODO: Add Screenshot
+.. image:: ../img/intent-6.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
 
 Note that since there are three different visualizations that is generated based on the intent, we only display these possible visualization, rather than the recommendations
 
