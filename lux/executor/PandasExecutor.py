@@ -116,7 +116,14 @@ class PandasExecutor(Executor):
                     groupby_result = view.data.groupby(groupby_attr.attribute)
                 view.data = groupby_result.agg(agg_func).reset_index()
             result_vals = list(view.data[groupby_attr.attribute])
-            if (len(result_vals) != len(all_attr_vals) and isFiltered):
+            #create existing group by attribute combinations if color is specified
+            #this is needed to check what combinations of group_by_attr and color_attr values have a non-zero number of elements in them
+            if has_color:
+                res_color_combi_vals = []
+                result_color_vals = list(view.data[color_attr.attribute])
+                for i in range(0, len(result_vals)):
+                    res_color_combi_vals.append([result_vals[i], result_color_vals[i]])
+            if (len(result_vals) != len(all_attr_vals)*color_cardinality and (isFiltered or has_color)):
                 ####### ORIGINAL
                 # For filtered aggregation that have missing groupby-attribute values, set these aggregated value as 0, since no datapoints
                 # for vals in all_attr_vals:
@@ -174,14 +181,25 @@ class PandasExecutor(Executor):
                 
                 ####### SOLUTION 4
                 columns = view.data.columns
+                if has_color:
+                    df = pd.DataFrame({columns[0]: all_attr_vals*color_cardinality, columns[1]: pd.Series(color_attr_vals).repeat(len(all_attr_vals))})
+                    view.data = view.data.merge(df, on=[columns[0],columns[1]], how='right', suffixes=['', '_right'])
+                    for col in columns[2:]:
+                        view.data[col] = view.data[col].fillna(0)
+                    assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals)*len(color_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
+                    # for vals in all_attr_vals:
+                    #     for cvals in color_attr_vals:
+                    #         temp_combi = [vals, cvals]
+                    #         if (temp_combi not in res_color_combi_vals):
+                    #             view.data.loc[len(view.data)] = [vals]+[cvals]+[0]*(len(view.data.columns)-2)
+                else:
+                    df = pd.DataFrame({columns[0]: all_attr_vals})
+                    
+                    view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['', '_right'])
 
-                df = pd.DataFrame({columns[0]: all_attr_vals})
-                
-                view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['', '_right'])
-
-                for col in columns[1:]:
-                    view.data[col] = view.data[col].fillna(0)
-                assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
+                    for col in columns[1:]:
+                        view.data[col] = view.data[col].fillna(0)
+                    assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
             view.data = view.data.sort_values(by=groupby_attr.attribute, ascending=True)
             view.data = view.data.reset_index()
             view.data = view.data.drop(columns="index")
