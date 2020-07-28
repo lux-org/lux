@@ -77,7 +77,12 @@ class Clause:
 			self._aggregation_name = self.aggregation.__name__
 		else:
 			self._aggregation_name = self.aggregation
-
+	def to_string(self):
+		if (self.value==""):
+			clauseStr = self.attribute
+		else:
+			clauseStr = f"{self.attribute}{self.filter_op}{self.value}"
+		return clauseStr
 	def __repr__(self):
 		attributes = []
 		if self.description != "":
