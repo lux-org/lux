@@ -258,6 +258,8 @@ class Compiler:
 		elif (ndim == 0 and nmsr == 2):
 			# Scatterplot
 			vis.mark = "scatter"
+			vis._inferred_intent[0].set_aggregation(None)
+			vis._inferred_intent[1].set_aggregation(None)
 			auto_channel = {"x": vis._inferred_intent[0],
 						   "y": vis._inferred_intent[1]}
 		elif (ndim == 1 and nmsr == 2):
@@ -265,6 +267,9 @@ class Compiler:
 			measure = vis.get_attr_by_data_model("measure")
 			m1 = measure[0]
 			m2 = measure[1]
+			
+			vis._inferred_intent[0].set_aggregation(None)
+			vis._inferred_intent[1].set_aggregation(None)
 
 			color_attr = vis.get_attr_by_data_model("dimension")[0]
 			vis.remove_column_from_spec(color_attr)
