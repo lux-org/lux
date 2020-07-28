@@ -551,7 +551,7 @@ class LuxDataFrame(pd.DataFrame):
         return luxWidget.LuxWidget(
             currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
-            intent=LuxDataFrame.intent_to_JSON(ldf.intent)
+            intent=LuxDataFrame.intent_to_string(ldf.intent)
         )
     @staticmethod
     def intent_to_JSON(intent):
@@ -564,6 +564,9 @@ class LuxDataFrame(pd.DataFrame):
         intent['attributes'] = [clause.attribute for clause in attrs_specs]
         intent['filters'] = [clause.attribute for clause in filter_specs]
         return intent
+    @staticmethod
+    def intent_to_string(intent):
+        return ", ".join([clause.to_string() for clause in intent])
 
     def to_JSON(self, input_current_view=""):
         widget_spec = {}
