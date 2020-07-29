@@ -418,8 +418,8 @@ class LuxDataFrame(pd.DataFrame):
         -----
         Convert the _exportedVisIdxs dictionary into a programmable VisList
         Example _exportedVisIdxs : 
-            {'Correlation': [0, 2], 'Occurence': [1]}
-        indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Occurence` tab is selected.
+            {'Correlation': [0, 2], 'Occurrence': [1]}
+        indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Occurrence` tab is selected.
         
         Returns
         -------

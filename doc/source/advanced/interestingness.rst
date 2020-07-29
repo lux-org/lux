@@ -39,7 +39,7 @@ The difference is captured via the Euclidean distance (L2 norm).
     L_2[V, V_{flat}]
 
 .. Add illustration 
-.. Example: "Occurence" recommendation
+.. Example: "Occurrence" recommendation
 
 .. _barWithFilter:
 Bar charts with filters: Deviation from Overall

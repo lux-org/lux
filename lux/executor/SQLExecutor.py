@@ -141,7 +141,7 @@ class SQLExecutor(Executor):
                 if i not in bucket_lables:
                     bin_count_data = bin_count_data.append(pd.DataFrame([[i,0]], columns = bin_count_data.columns))
 
-        view.data = pd.DataFrame(np.array([bin_centers,list(bin_count_data['count'])]).T,columns=[bin_attribute.attribute, "Count of Records"])
+        view.data = pd.DataFrame(np.array([bin_centers,list(bin_count_data['count'])]).T,columns=[bin_attribute.attribute, "Number of Records"])
         view.data = utils.pandas_to_lux(view.data)
         
     @staticmethod

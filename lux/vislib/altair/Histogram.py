@@ -29,11 +29,11 @@ class Histogram(AltairChart):
 		if (measure.channel=="x"):	
 			chart = alt.Chart(self.data).mark_bar(size=markbar).encode(
 				alt.X(msr_attr.attribute, title=f'{msr_attr.attribute} (binned)',bin=alt.Bin(binned=True), type=msr_attr.data_type, axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=(x_min, x_max))),
-				alt.Y("Count of Records", type="quantitative")
+				alt.Y("Number of Records", type="quantitative")
 			)
 		elif (measure.channel=="y"):
 			chart = alt.Chart(self.data).mark_bar(size=markbar).encode(
-				x = alt.X("Count of Records", type="quantitative"),
+				x = alt.X("Number of Records", type="quantitative"),
 				y = alt.Y(msr_attr.attribute, title=f'{msr_attr.attribute} (binned)', bin=alt.Bin(binned=True), axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=(x_min, x_max)))
 			)
 		#####################################
@@ -47,14 +47,14 @@ class Histogram(AltairChart):
 			self.code += f'''
 		chart = alt.Chart(visData).mark_bar(size={markbar}).encode(
 		    alt.X('{msr_attr.attribute}', title='{msr_attr.attribute} (binned)',bin=alt.Bin(binned=True), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=({x_min}, {x_max}))),
-		    alt.Y("Count of Records", type="quantitative")
+		    alt.Y("Number of Records", type="quantitative")
 		)
 		'''
 		elif (measure.channel=="y"):
 			self.code += f'''
 		chart = alt.Chart(visData).mark_bar(size={markbar}).encode(
 		    alt.Y('{msr_attr.attribute}', title='{msr_attr.attribute} (binned)',bin=alt.Bin(binned=True), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True), scale=alt.Scale(domain=({x_min}, {x_max}))),
-		    alt.X("Count of Records", type="quantitative")
+		    alt.X("Number of Records", type="quantitative")
 		)
 		'''
 		return chart 

@@ -32,5 +32,7 @@ def check_import_lux_widget():
 def get_agg_title(clause):
 	if (clause.aggregation is None):
 		return f'{clause.attribute}'
+	elif (clause.attribute=="Record"):
+		return f'Number of Records'
 	else:
 		return f'{clause._aggregation_name.capitalize()} of {clause.attribute}'
