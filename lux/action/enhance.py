@@ -31,10 +31,10 @@ def enhance(ldf):
 	intended_attrs = '<p class="highlight-intent">'+', '.join(attr_str+fltr_str)+'</p>'
 	if (len(attr_specs)==1):
 		recommendation = {"action":"Enhance",
-						"description":f"Incorporating an additional attribute to {intended_attrs}."}
+						"description":f"Augmenting current {intended_attrs} intent with additional attribute."}
 	elif(len(attr_specs)==2):
 		recommendation = {"action":"Enhance",
-						"description":f"Further breaking down {intended_attrs} by additional attribute."}
+						"description":f"Further breaking down current {intended_attrs} intent by additional attribute."}
 	elif(len(attr_specs)>2): # if there are too many column attributes, return don't generate Enhance recommendations
 		recommendation = {"action":"Enhance"}
 		recommendation["collection"] = []
