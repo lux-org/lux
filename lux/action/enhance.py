@@ -28,7 +28,7 @@ def enhance(ldf):
 	attr_specs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.intent))
 	fltr_str = [fltr.attribute+fltr.filter_op+str(fltr.value) for fltr in filters]
 	attr_str = [clause.attribute for clause in attr_specs]
-	intended_attrs = '<p class="highlight-text">'+', '.join(attr_str+fltr_str)+'</p>'
+	intended_attrs = '<p class="highlight-intent">'+', '.join(attr_str+fltr_str)+'</p>'
 	if (len(attr_specs)==1):
 		recommendation = {"action":"Enhance",
 						"description":f"Incorporating an additional attribute to {intended_attrs}."}

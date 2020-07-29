@@ -36,7 +36,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	intent.extend(filter_specs)
 	vc = VisList(intent,ldf)
 	recommendation = {"action": "Correlation",
-					  "description": "Show relationships between two <p class='highlight-text'>quantitative</p> attributes."}
+					  "description": "Show relationships between two <p class='highlight-descriptor'>quantitative</p> attributes."}
 	ignore_rec_flag = False
 	if (len(ldf)<5): # Doesn't make sense to compute correlation if less than 4 data values
 		ignore_rec_flag = True

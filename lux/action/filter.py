@@ -46,11 +46,11 @@ def filter(ldf):
 				temp_view = Vis(new_spec)
 				output.append(temp_view)
 		recommendation = {"action":"Filter",
-					 	  "description":f"Changing filter to alternative values of <p class='highlight-text'>{fltr.attribute}</p>."}
+					 	  "description":f"Changing filter to alternative values of <p class='highlight-intent'>{fltr.attribute}</p>."}
 	else:	#if no existing filters, create filters using unique values from all categorical variables in the dataset
 		intended_attrs = '<b>'+', '.join([clause.attribute for clause in ldf.intent if clause.value=='' and clause.attribute!="Record"])+'</b>'
 		recommendation = {"action":"Filter",
-					 "description":f"Including a filter to <p class='highlight-text'>{intended_attrs}</p>."}
+					 "description":f"Including a filter to <p class='highlight-intent'>{intended_attrs}</p>."}
 		categorical_vars = []
 		for col in list(ldf.columns):
 			# if cardinality is not too high, and attribute is not one of the X,Y (specified) column
