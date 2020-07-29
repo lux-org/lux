@@ -36,7 +36,7 @@ General Information
 - How do I override the default values in the Clause? For example, how do I change the aggregation function to be something that is not average? how do I set an attribute to display on the x-axis instead of y-axis? 
   - To override automatically inferred properties, you can specify additional arguements inside `lux.Clause` to set the value of the Clause properties. See the tutorial on `"Adding constraints" <https://lux-api.readthedocs.io/en/latest/source/guide/intent.html#adding-constraints>`_.
 
-- I want to look at the default recommendations that were recommended to me (e.g., Correlation, Distribution, Category, Temporal), how can I get the dataframe to display those?
+- I want to look at the default recommendations that were recommended to me (e.g., Correlation, Distribution, Occurence, Temporal), how can I get the dataframe to display those?
     - To avoid information overload, Lux only displays the most relevant visualization to the user's intent at that point. To get to the default recommendation, you should first clear the intent attached to the dataframe
 
     .. code-block:: python

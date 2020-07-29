@@ -36,7 +36,7 @@ def generalize(ldf):
 
 	fltr_str = [fltr.attribute+fltr.filter_op+str(fltr.value) for fltr in filters]
 	attr_str = [clause.attribute for clause in attributes]
-	intended_attrs = '<p class="highlight-text">'+', '.join(attr_str+fltr_str)+'</p>'
+	intended_attrs = '<p class="highlight-intent">'+', '.join(attr_str+fltr_str)+'</p>'
 
 	recommendation = {"action":"Generalize",
 						   "description":f"Remove an attribute or filter from {intended_attrs}."}
