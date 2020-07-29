@@ -125,12 +125,12 @@ Let's revist our earlier recommendations by clearing the specified intent.
 .. image:: ../img/export-9.gif
   :width: 700
   :align: center
-  :alt: 1) click on `Occurence` tab, then 2) hover around the SubRegion v.s. Count of Records chart
+  :alt: 1) click on `Occurrence` tab, then 2) hover around the SubRegion v.s. Number of Records chart
 
-Looking at the Occurence tab, we are interested in the bar chart distribution of country `SubRegion`.
+Looking at the Occurrence tab, we are interested in the bar chart distribution of country `SubRegion`.
 
 .. code-block:: python
-    vis = df.recommendation["Occurence"][0]
+    vis = df.recommendation["Occurrence"][0]
     vis
 
 .. image:: ../img/export-10.png

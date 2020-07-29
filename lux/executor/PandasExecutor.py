@@ -228,7 +228,7 @@ class PandasExecutor(Executor):
         #bin_edges of size N+1, so need to compute bin_center as the bin location
         bin_center = np.mean(np.vstack([bin_edges[0:-1],bin_edges[1:]]), axis=0)
         # TODO: Should view.data be a LuxDataFrame or a Pandas DataFrame?
-        view.data = pd.DataFrame(np.array([bin_center,counts]).T,columns=[bin_attribute.attribute, "Count of Records"])
+        view.data = pd.DataFrame(np.array([bin_center,counts]).T,columns=[bin_attribute.attribute, "Number of Records"])
         
     @staticmethod
     def execute_filter(view: Vis):
