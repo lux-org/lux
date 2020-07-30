@@ -136,10 +136,6 @@ class LuxDataFrame(pd.DataFrame):
         -----
             :doc:`../guide/clause`
         """        
-        if type(intent)!=list:
-            raise TypeError("Input intent must be a list consisting of string descriptions or lux.Clause objects."
-                    "\nSee more at: https://lux-api.readthedocs.io/en/dfapi/source/guide/clause.html"
-                    )
         self.intent = intent
         self._refresh_intent()
     def copy_intent(self):

@@ -78,7 +78,9 @@ class Clause:
 		else:
 			self._aggregation_name = self.aggregation
 	def to_string(self):
-		if (self.value==""):
+		if isinstance(self.attribute,list):
+			clauseStr = '|'.join(self.attribute)
+		elif (self.value==""):
 			clauseStr = self.attribute
 		else:
 			clauseStr = f"{self.attribute}{self.filter_op}{self.value}"
