@@ -38,8 +38,9 @@ To install the Python Lux API:
 
 .. code-block:: bash
 
-    pip install --user -r requirements.txt
+    git clone https://github.com/lux-org/lux.git
     cd lux/
+    pip install --user -r requirements.txt
     python setup.py install
 
 To install the widget, we need to install webpack:  
