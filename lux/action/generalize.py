@@ -36,32 +36,33 @@ def generalize(ldf):
 
 	fltr_str = [fltr.attribute+fltr.filter_op+str(fltr.value) for fltr in filters]
 	attr_str = [clause.attribute for clause in attributes]
-	intended_attrs = '<p class="highlight-text">'+', '.join(attr_str+fltr_str)+'</p>'
+	intended_attrs = '<p class="highlight-intent">'+', '.join(attr_str+fltr_str)+'</p>'
 
 	recommendation = {"action":"Generalize",
 						   "description":f"Remove an attribute or filter from {intended_attrs}."}
 						    # to observe a more general trend
 	# if we do no have enough column attributes or too many, return no views.
-	if(len(attributes)<2 or len(attributes)>4):
+	if(len(attributes)<1 or len(attributes)>4):
 		recommendation["collection"] = []
 		return recommendation
 	#for each column specification, create a copy of the ldf's view and remove the column specification
 	#then append the view to the output
-	for clause in attributes:
-		columns = clause.attribute
-		if type(columns) == list:
-			for column in columns:
-				if column not in excluded_columns:
+	if (len(attributes)>1):
+		for clause in attributes:
+			columns = clause.attribute
+			if type(columns) == list:
+				for column in columns:
+					if column not in excluded_columns:
+						temp_view = Vis(ldf.copy_intent(),score=1)
+						temp_view.remove_column_from_spec(column, remove_first = True)
+						excluded_columns.append(column)
+						output.append(temp_view)
+			elif type(columns) == str:
+				if columns not in excluded_columns:
 					temp_view = Vis(ldf.copy_intent(),score=1)
-					temp_view.remove_column_from_spec(column, remove_first = True)
-					excluded_columns.append(column)
-					output.append(temp_view)
-		elif type(columns) == str:
-			if columns not in excluded_columns:
-				temp_view = Vis(ldf.copy_intent(),score=1)
-				temp_view.remove_column_from_spec(columns, remove_first = True)
-				excluded_columns.append(columns)
-		output.append(temp_view)
+					temp_view.remove_column_from_spec(columns, remove_first = True)
+					excluded_columns.append(columns)
+			output.append(temp_view)
 	#for each filter specification, create a copy of the ldf's current vis and remove the filter specification,
 	#then append the view to the output
 	for clause in filters:

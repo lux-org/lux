@@ -98,7 +98,7 @@ class VisList():
 					filter_spec = clause
 
 				if (clause.aggregation != "" and clause.aggregation is not None):
-					attribute = clause.aggregation.upper() + "(" + clause.attribute + ")"
+					attribute = clause._aggregation_name.upper() + "(" + clause.attribute + ")"
 				elif clause.bin_size > 0:
 					attribute = "BIN(" + clause.attribute + ")"
 				else:
@@ -124,8 +124,8 @@ class VisList():
 				if clause.value != "":
 					filter_spec = clause
 
-				if (clause.aggregation != "" and clause.aggregation is not None):
-					attribute = clause.aggregation.upper() + "(" + clause.attribute + ")"
+				if (clause.aggregation != "" and clause.aggregation is not None and vis.mark!='scatter'):
+					attribute = clause._aggregation_name.upper() + "(" + clause.attribute + ")"
 				elif clause.bin_size > 0:
 					attribute = "BIN(" + clause.attribute + ")"
 				else:
@@ -220,7 +220,7 @@ class VisList():
 		self.widget =  luxWidget.LuxWidget(
 				currentVis={},
 				recommendations=recJSON,
-				intent={}
+				intent=""
 			)
 		display(self.widget)	
 	

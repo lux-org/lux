@@ -418,8 +418,8 @@ class LuxDataFrame(pd.DataFrame):
         -----
         Convert the _exportedVisIdxs dictionary into a programmable VisList
         Example _exportedVisIdxs : 
-            {'Correlation': [0, 2], 'Category': [1]}
-        indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Category` tab is selected.
+            {'Correlation': [0, 2], 'Occurrence': [1]}
+        indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Occurrence` tab is selected.
         
         Returns
         -------
@@ -551,7 +551,7 @@ class LuxDataFrame(pd.DataFrame):
         return luxWidget.LuxWidget(
             currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
-            intent=LuxDataFrame.intent_to_JSON(ldf.intent)
+            intent=LuxDataFrame.intent_to_string(ldf.intent)
         )
     @staticmethod
     def intent_to_JSON(intent):
@@ -564,6 +564,12 @@ class LuxDataFrame(pd.DataFrame):
         intent['attributes'] = [clause.attribute for clause in attrs_specs]
         intent['filters'] = [clause.attribute for clause in filter_specs]
         return intent
+    @staticmethod
+    def intent_to_string(intent):
+        if (intent):
+            return ", ".join([clause.to_string() for clause in intent])
+        else:
+            return ""
 
     def to_JSON(self, input_current_view=""):
         widget_spec = {}

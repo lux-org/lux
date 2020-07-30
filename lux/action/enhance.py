@@ -28,10 +28,15 @@ def enhance(ldf):
 	attr_specs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.intent))
 	fltr_str = [fltr.attribute+fltr.filter_op+str(fltr.value) for fltr in filters]
 	attr_str = [clause.attribute for clause in attr_specs]
-	intended_attrs = '<p class="highlight-text">'+', '.join(attr_str+fltr_str)+'</p>'
-	recommendation = {"action":"Enhance",
-					"description":f"Add an attribute to {intended_attrs}."}
-	if(len(attr_specs)>2): # if there are too many column attributes, return don't generate Enhance recommendations
+	intended_attrs = '<p class="highlight-intent">'+', '.join(attr_str+fltr_str)+'</p>'
+	if (len(attr_specs)==1):
+		recommendation = {"action":"Enhance",
+						"description":f"Augmenting current {intended_attrs} intent with additional attribute."}
+	elif(len(attr_specs)==2):
+		recommendation = {"action":"Enhance",
+						"description":f"Further breaking down current {intended_attrs} intent by additional attribute."}
+	elif(len(attr_specs)>2): # if there are too many column attributes, return don't generate Enhance recommendations
+		recommendation = {"action":"Enhance"}
 		recommendation["collection"] = []
 		return recommendation
 	intent = ldf.intent.copy()

@@ -24,7 +24,7 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	"""	
 	
 
-	if vis.data is None:
+	if vis.data is None or len(vis.data)==0:
 		raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
 
 	n_dim = 0
@@ -58,10 +58,10 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	elif (n_dim == 0 and n_msr == 1):
 		if (v_size<2): return -1 
 		if (n_filter == 0):
-			v = vis.data["Count of Records"]
+			v = vis.data["Number of Records"]
 			return skewness(v)
 		elif (n_filter == 1):
-			return deviation_from_overall(vis, ldf, filter_specs, "Count of Records")
+			return deviation_from_overall(vis, ldf, filter_specs, "Number of Records")
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
 		if (v_size<2): return -1 
@@ -123,8 +123,9 @@ def deviation_from_overall(vis:Vis, ldf:LuxDataFrame, filter_specs:list, msr_att
 	v_filter_size = get_filtered_size(filter_specs, ldf)
 	v_size = len(vis.data)
 	v_filter = vis.data[msr_attribute]
-	v_filter = v_filter/v_filter.sum() # normalize by total to get ratio
-
+	total = v_filter.sum()
+	v_filter = v_filter/total  # normalize by total to get ratio
+	if (total==0 or v_size ==0): return 0
 	# Generate an "Overall" Vis (TODO: This is computed multiple times for every vis, alternative is to directly access df.current_vis but we do not have guaruntee that will always be unfiltered vis (in the non-Filter action scenario))
 	import copy
 	unfiltered_vis = copy.copy(vis)
@@ -143,8 +144,8 @@ def deviation_from_overall(vis:Vis, ldf:LuxDataFrame, filter_specs:list, msr_att
 		dimList = vis.get_attr_by_data_model("dimension")
 
 		#use Pandas rank function to calculate rank positions for each category
-		v_rank = unfiltered_vis.data.rank().to_pandas()
-		v_filter_rank = vis.data.rank().to_pandas()
+		v_rank = unfiltered_vis.data.rank()
+		v_filter_rank = vis.data.rank()
 		#go through and count the number of ranking changes between the filtered and unfiltered data
 		numCategories = ldf.cardinality[dimList[0].attribute]
 		for r in range(0, numCategories-1):

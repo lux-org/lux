@@ -41,7 +41,7 @@ By clicking on the Toggle button, you can now explore the data visually through 
 .. image:: ../img/overview-2.gif
   :width: 700
   :align: center
-  :alt: click on Distribution and Category tabs
+  :alt: click on Distribution and Occurrence tabs
 
 Voila! You have generated your first set of recommendations through Lux! Next, we will describe the details of how these recommendations are generated.
 
@@ -66,7 +66,7 @@ As shown in the example above, by default, we display three types of actions sho
   :align: center
   :alt: Example of high/low skew distributions
 
-- **Category** displays bar chart distributions of different categorical attributes in the dataframe, ranked by the most to least uneven bar charts.
+- **Occurrence** displays bar chart distributions of different categorical attributes in the dataframe, ranked by the most to least uneven bar charts.
 
 .. image:: ../img/category.png
   :width: 700

@@ -64,3 +64,10 @@ def test_crosstab():
 	result = pd.crosstab([df.Exam],df.Result)
 	result._repr_html_()
 	assert list(result.recommendation.keys() ) == ['Row Groups','Column Groups']
+
+def test_custom_aggregation():
+	import numpy as np
+	df = pd.read_csv("lux/data/college.csv")
+	df.set_intent(["HighestDegree",lux.Clause("AverageCost",aggregation=np.ptp)])
+	df._repr_html_()
+	assert list(df.recommendation.keys()) ==['Enhance', 'Filter', 'Generalize']
