@@ -112,21 +112,49 @@ For example, we might be interested in looking at how the `AverageCost` distribu
 
 To find out more about other features in Lux, see the complete documentation on [ReadTheDocs](https://lux-api.readthedocs.io/).
 
-## Quick Installation
+<!-- ## Quick Installation-->
 
-Install the Python Lux API through [PyPI](https://pypi.org/project/lux-api/): 
+<!--Install the Python Lux API through [PyPI](https://pypi.org/project/lux-api/):--> 
 
-```bash
+<!--```bash
 pip install lux-api
-```
+```-->
 
-Install the Lux Jupyter widget through [npm](https://www.npmjs.com/package/lux-widget): 
+<!--Install the Lux Jupyter widget through [npm](https://www.npmjs.com/package/lux-widget): --> 
+
+<!--```bash
+npm i lux-widget
+```--> 
+
+# Installation 
+
+To setup Lux manually for development purposes, you should clone the two Github repos for Lux: 1) the core Python [Lux API](https://github.com/lux-org/lux)  and 2) the [Jupyter widget frontend](https://github.com/lux-org/lux-widget). 
+
+To install the Python Lux API: 
 
 ```bash
-npm i lux-widget
+    git clone https://github.com/lux-org/lux.git
+    cd lux/
+    pip install --user -r requirements.txt
+    python setup.py install
 ```
 
-See the [installation page](https://lux-api.readthedocs.io/en/latest/source/getting_started/installation.html) for more information.
+To install the widget, we need to install webpack:  
+
+```bash
+    npm install --save-dev webpack webpack-cli
+```
+
+Then, we can install the [Lux Jupyter widget](https://github.com/lux-org/lux-widget) using the custom installation script: 
+
+```bash
+    git clone https://github.com/lux-org/lux-widget.git
+    cd lux-widget/
+    npm install
+    bash install.sh
+```
+
+<!-- See the [installation page](https://lux-api.readthedocs.io/en/latest/source/getting_started/installation.html) for more information. -->
 
 <!-- For more detailed examples of how to use Lux, check out this demo [notebook](https://github.com/lux-org/lux/blob/master/examples/demo.ipynb).  -->
 
