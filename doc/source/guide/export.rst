@@ -57,7 +57,7 @@ From the dataframe recommendations, the visualization showing the relationship b
     vis
 
 .. image:: ../img/export-4.png
-  :width: 700
+  :width: 600
   :align: center
   :alt: add screenshot of exported vis
 
@@ -134,7 +134,7 @@ Looking at the Occurrence tab, we are interested in the bar chart distribution o
     vis
 
 .. image:: ../img/export-10.png
-  :width: 700
+  :width: 500
   :align: center
   :alt: add screenshot
 
@@ -170,7 +170,7 @@ This can be copy-and-pasted back into a new notebook cell for further editing.
     chart
 
 .. image:: ../img/export-12.png
-  :width: 700
+  :width: 300
   :align: center
   :alt: add screenshot 
 
