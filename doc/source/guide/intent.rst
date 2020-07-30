@@ -99,7 +99,10 @@ Note that since there are three different visualizations that is generated based
         
         df[df["Region"]=="New England"]
     
-    [TODO: Add Screenshot]
+    .. image:: ../img/intent-7.png
+      :width: 700
+      :align: center
+      :alt: add screenshot
 
     Specifying the values through `set_intent` tells Lux that you are interested in colleges in New England. In the resulting Filter action, we see that Lux suggests visualizations in other `Region`s as recommendations.
     
@@ -108,7 +111,10 @@ Note that since there are three different visualizations that is generated based
         df.set_intent(["Region=New England"])
         df
         
-    [TODO: Add Screenshot]
+    .. image:: ../img/intent-8.png
+      :width: 700
+      :align: center
+      :alt: add screenshot
 
     So while both approaches applies the filter on the specified visualization, the subtle difference between *applying* a filter and *indicating* a filter intent leads to different sets of resulting recommendations. In general, we encourage using Pandas for filtering if you are certain about applying the filter (e.g., a cleaning operation deleting a specific data subset), and specify the intent through Lux if you might want to experiment and change aspects related to the filter in your analysis. 
 
@@ -152,7 +158,10 @@ While this is unconventional, let's say that instead we want to set `AverageCost
     df.set_intent([lux.Clause(attribute='AverageCost', channel='y')])
     df
 
-.. TODO: Add Screenshot
+.. image:: ../img/intent-9.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
 
 Changing aggregation function applied
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -164,7 +173,10 @@ We can also set constraints on the type of aggregation that is used. For example
     df.set_intent(["HighestDegree","AverageCost"])
     df
 
-.. TODO: Add Screenshot
+.. image:: ../img/intent-10.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
 
 We can override the aggregation function to be `sum` instead. 
 
@@ -172,7 +184,11 @@ We can override the aggregation function to be `sum` instead.
 
     df.set_intent(["HighestDegree",lux.Clause("AverageCost",aggregation="sum")])
     df 
-.. TODO: Add Screenshot
+
+.. image:: ../img/intent-11.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
 
 The possible aggregation values are the same as the ones supported in Pandas's `agg <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.agg.html>`_ function, which can either be a string shorthand (e.g., "sum", "count", "min", "max", "median") or as a numpy aggregation function.
 
@@ -182,7 +198,11 @@ For example, we can change the aggregation function to be the point-to-point val
 
     df.set_intent(["HighestDegree",lux.Clause("AverageCost",aggregation=np.ptp)])
     df
-.. TODO: Add Screenshot
+
+.. image:: ../img/intent-12.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
 
 Specifying wildcards
 ~~~~~~~~~~~~~~~~~~~~~
@@ -194,7 +214,10 @@ Let's say that you are interested in *any* attribute with respect to `AverageCos
     df.set_intent(['AverageCost',lux.Clause('?')])
     df
 
-.. TODO: Add Screenshot
+.. image:: ../img/intent-13.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
 
 The space of enumeration can be narrowed based on constraints. For example, you might only be interested in looking at scatterplots of `AverageCost` with respect to quantitative attributes. This narrows the 15 visualizations that we had earlier to only 9 visualizations now, involving only quantitative attributes.
 
@@ -202,7 +225,11 @@ The space of enumeration can be narrowed based on constraints. For example, you 
     
     df.set_intent(['AverageCost',lux.Clause('?',data_type='quantitative')])
     df
-.. TODO: Add Screenshot
+
+.. image:: ../img/intent-14.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
 
 The enumeration specifier can also be placed on the value field. For example, you might be interested in looking at how the distribution of `AverageCost` varies for all possible values of `Geography`.
 
@@ -217,4 +244,7 @@ or
     df.set_intent(['AverageCost',lux.Clause(attribute='Geography',filter_op='=',value='?')])
     df
 
-.. TODO: Add Screenshot
+.. image:: ../img/intent-15.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
