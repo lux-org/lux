@@ -22,6 +22,10 @@ class Parser:
 		List[Clause]
 			Parsed list of lux.Clause objects.
 		"""		
+		if type(intent)!=list:
+			raise TypeError("Input intent must be a list consisting of string descriptions or lux.Clause objects."
+					"\nSee more at: https://lux-api.readthedocs.io/en/dfapi/source/guide/clause.html"
+					)
 		import re
 		# intent = ldf.get_context()
 		new_context = []
