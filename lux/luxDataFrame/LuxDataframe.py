@@ -12,13 +12,13 @@ class LuxDataFrame(pd.DataFrame):
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
     '''
     # MUST register here for new properties!!
-    _metadata = ['intent','data_type_lookup','data_type','filter_specs',
+    _metadata = ['_intent','data_type_lookup','data_type',
                  'data_model_lookup','data_model','unique_values','cardinality',
-                'min_max','plot_config', 'current_vis','widget', '_rec_info', 'recommendation']
+                'min_max','plot_config', 'current_vis','_widget', '_rec_info', 'recommendation']
 
     def __init__(self,*args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
-        self.intent = []
+        self._intent = []
         self._rec_info=[]
         self.recommendation = {}
         self.current_vis = []
@@ -33,7 +33,6 @@ class LuxDataFrame(pd.DataFrame):
         self.executor = PandasExecutor
         self.SQLconnection = ""
         self.table_name = ""
-        self.filter_specs = []
         self.default_pandas_display = True
         self.toggle_pandas_display = True
         self.toggle_benchmarking = False
@@ -57,9 +56,6 @@ class LuxDataFrame(pd.DataFrame):
             self.default_pandas_display = True
         else: 
             warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.",stacklevel=2)
-    # @property
-    # def intent(self):
-    #     return self.intent
     def infer_structure(self):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels !=1
@@ -118,10 +114,11 @@ class LuxDataFrame(pd.DataFrame):
         if self.SQLconnection == "":
             self.compute_stats()
             self.compute_dataset_metadata()
-        self.intent = Parser.parse(self.get_intent())
-        Validator.validate_spec(self.intent,self)
-        self.current_vis = Compiler.compile(self, self.intent, self.current_vis)
-
+        self._intent = Parser.parse(self.get_intent())
+        Validator.validate_spec(self._intent,self)
+        self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
+    def get_intent(self):
+        return self._intent
     def set_intent(self, intent:typing.List[typing.Union[str, Clause]]):
         """
         Main function to set the intent of the dataframe.
@@ -136,12 +133,12 @@ class LuxDataFrame(pd.DataFrame):
         -----
             :doc:`../guide/clause`
         """        
-        self.intent = intent
+        self._intent = intent
         self._refresh_intent()
     def copy_intent(self):
         #creates a true copy of the dataframe's intent
         output = []
-        for clause in self.intent:
+        for clause in self._intent:
             temp_clause = clause.copy_clause()
             output.append(temp_clause)
         return(output)
@@ -154,20 +151,18 @@ class LuxDataFrame(pd.DataFrame):
         ----------
         vis : Vis
         """        
-        self.intent = vis._inferred_intent
+        self._intent = vis._inferred_intent
         self._refresh_intent()
     def clear_intent(self):
-        self.intent = []
+        self._intent = []
         self.current_vis = []
-    def clear_filter(self):
-        self.filter_specs = []  # reset filters
     def to_pandas(self):
         import lux.luxDataFrame
         return lux.luxDataFrame.originalDF(self,copy=False)
     def add_to_intent(self,intent): 
-        self.intent.extend(intent)
+        self._intent.extend(intent)
     def get_intent(self):
-        return self.intent
+        return self._intent
     def __repr__(self):
         # TODO: _repr_ gets called from _repr_html, need to get rid of this call
         return ""
@@ -396,15 +391,13 @@ class LuxDataFrame(pd.DataFrame):
             if (len(vc)>0):
                 self.recommendation[action_type]  = vc
 
-        self.clear_filter()
-
 
 
     #######################################################
     ############## LuxWidget Result Display ###############
     #######################################################
     def get_widget(self):
-        return self.widget
+        return self._widget
 
     def get_exported(self) -> typing.Union[typing.Dict[str,VisList], VisList]:
         """
@@ -431,7 +424,7 @@ class LuxDataFrame(pd.DataFrame):
 						"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
 						, stacklevel=2)
             return []
-        exported_vis_lst =self.widget._exportedVisIdxs
+        exported_vis_lst =self._widget._exportedVisIdxs
         exported_vis = [] 
         if (exported_vis_lst=={}):
             warnings.warn(
@@ -491,12 +484,12 @@ class LuxDataFrame(pd.DataFrame):
             #for benchmarking
             if self.toggle_benchmarking == True:
                 tic = time.perf_counter()
-            self.show_more() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self.widget)
+            self.show_more() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
             if self.toggle_benchmarking == True:
                 toc = time.perf_counter()
                 print(f"Computed recommendations in {toc - tic:0.4f} seconds")
 
-            self.widget = LuxDataFrame.render_widget(self)
+            self._widget = LuxDataFrame.render_widget(self)
 
             # box = widgets.Box(layout=widgets.Layout(display='inline'))
             button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
@@ -514,7 +507,7 @@ class LuxDataFrame(pd.DataFrame):
                         display(self.display_pandas())
                     else:
                         # b.layout.display = "none"
-                        display(self.widget)
+                        display(self._widget)
                         # b.layout.display = "inline-block"
             button.on_click(on_button_clicked)
             on_button_clicked(None)
@@ -547,7 +540,7 @@ class LuxDataFrame(pd.DataFrame):
         return luxWidget.LuxWidget(
             currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
-            intent=LuxDataFrame.intent_to_string(ldf.intent)
+            intent=LuxDataFrame.intent_to_string(ldf._intent)
         )
     @staticmethod
     def intent_to_JSON(intent):
