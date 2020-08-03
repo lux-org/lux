@@ -15,13 +15,13 @@ class VisList():
 		self._input_lst = input_lst
 		if len(input_lst)>0:
 			if (self._is_vis_input()):
-				self.collection = input_lst
+				self._collection = input_lst
 				self._intent = []
 			else:
 				self._intent = input_lst
-				self.collection = []
+				self._collection = []
 		else:
-			self.collection = []
+			self._collection = []
 			self._intent = []
 		self._widget = None
 		if (source is not None): self.refresh_source(source)
@@ -72,26 +72,26 @@ class VisList():
 		"""
 		Removes duplicate visualizations in Vis List
 		"""		
-		self.collection = list(set(self.collection))
+		self._collection = list(set(self._collection))
 	def _is_vis_input(self):
 		if (type(self._input_lst[0])==Vis):
 			return True
 		elif (type(self._input_lst[0])==Clause):
 			return False
 	def __getitem__(self, key):
-		return self.collection[key]
+		return self._collection[key]
 	def __setitem__(self, key, value):
-		self.collection[key] = value
+		self._collection[key] = value
 	def __len__(self):
-		return len(self.collection)
+		return len(self._collection)
 	def __repr__(self):
-		if len(self.collection) == 0:
+		if len(self._collection) == 0:
 			return str(self._input_lst)
 		x_channel = ""
 		y_channel = ""
 		largest_mark = 0
 		largest_filter = 0
-		for vis in self.collection: #finds longest x attribute among all visualizations
+		for vis in self._collection: #finds longest x attribute among all visualizations
 			filter_intents = None
 			for clause in vis._inferred_intent:
 				if clause.value != "":
@@ -115,7 +115,7 @@ class VisList():
 		vis_repr = []
 		largest_x_length = len(x_channel)
 		largest_y_length = len(y_channel)
-		for vis in self.collection: #pads the shorter visualizations with spaces before the y attribute
+		for vis in self._collection: #pads the shorter visualizations with spaces before the y attribute
 			filter_intents = None
 			x_channel = ""
 			y_channel = ""
@@ -160,7 +160,7 @@ class VisList():
 		return '['+',\n'.join(vis_repr)[1:]+']'
 	def map(self,function):
 		# generalized way of applying a function to each element
-		return map(function, self.collection)
+		return map(function, self._collection)
 	
 	def get(self,field_name):
 		# Get the value of the field for all objects in the collection
@@ -182,28 +182,28 @@ class VisList():
 		config_func : typing.Callable
 			A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
 		"""
-		for vis in self.collection:
+		for vis in self._collection:
 			vis.plot_config = config_func
 	def clear_plot_config(self):
-		for vis in self.collection:
+		for vis in self._collection:
 			vis.plot_config = None
 	def sort(self, remove_invalid=True, descending = True):
 		# remove the items that have invalid (-1) score
-		if (remove_invalid): self.collection = list(filter(lambda x: x.score!=-1,self.collection))
+		if (remove_invalid): self._collection = list(filter(lambda x: x.score!=-1,self._collection))
 		# sort in-place by “score” by default if available, otherwise user-specified field to sort by
-		self.collection.sort(key=lambda x: x.score, reverse=descending)
+		self._collection.sort(key=lambda x: x.score, reverse=descending)
 
 	def topK(self,k):
 		#sort and truncate list to first K items
 		self.sort(remove_invalid=True)
-		return VisList(self.collection[:k])
+		return VisList(self._collection[:k])
 	def bottomK(self,k):
 		#sort and truncate list to first K items
 		self.sort(descending=False,remove_invalid=True)
-		return VisList(self.collection[:k])
+		return VisList(self._collection[:k])
 	def normalize_score(self, invert_order = False):
 		max_score = max(list(self.get("score")))
-		for dobj in self.collection:
+		for dobj in self._collection:
 			dobj.score = dobj.score/max_score
 			if (invert_order): dobj.score = 1 - dobj.score
 	def _repr_html_(self):
@@ -212,7 +212,7 @@ class VisList():
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 		recommendation = {"action": "Vis List",
 					  "description": "Shows a vis list defined by the intent"}
-		recommendation["collection"] = self.collection
+		recommendation["collection"] = self._collection
 
 		check_import_lux_widget()
 		import luxWidget
@@ -254,12 +254,12 @@ class VisList():
 		self._source = ldf
 		if len(self._input_lst)>0:
 			if (self._is_vis_input()):
-				for vis in self.collection:
+				for vis in self._collection:
 					vis._inferred_intent = Parser.parse(vis._intent)
 					Validator.validate_spec(vis._inferred_intent,ldf)
-				self.collection = Compiler.compile(ldf,ldf._intent,self,enumerate_collection=False)
+				self._collection = Compiler.compile(ldf,ldf._intent,self,enumerate_collection=False)
 			else:
 				self._inferred_intent = Parser.parse(self._intent)
 				Validator.validate_spec(self._inferred_intent,ldf)
-				self.collection = Compiler.compile(ldf,self._inferred_intent,self)
-			ldf.executor.execute(self.collection,ldf)
+				self._collection = Compiler.compile(ldf,self._inferred_intent,self)
+			ldf.executor.execute(self._collection,ldf)
