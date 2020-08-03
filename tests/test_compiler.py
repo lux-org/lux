@@ -113,7 +113,7 @@ def test_specified_vis_collection():
 	assert len(df.current_vis) == 4
 
 # 	# test if z axis has been filtered correctly
-	chart_titles = [view.title for view in df.current_vis.collection]
+	chart_titles = [view.title for view in df.current_vis._collection]
 	assert "Origin = USA" and "Origin = Japan" in chart_titles
 	assert "Origin = Europe" not in chart_titles
 
