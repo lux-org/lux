@@ -94,8 +94,8 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	else:
 		return -1
 def get_filtered_size(filter_specs, ldf):
-	filter_spec = filter_specs[0]
-	result = PandasExecutor.apply_filter(ldf, filter_spec.attribute, filter_spec.filter_op, filter_spec.value)
+	filter_intents = filter_specs[0]
+	result = PandasExecutor.apply_filter(ldf, filter_intents.attribute, filter_intents.filter_op, filter_intents.value)
 	return len(result)
 def skewness(v):
 	from scipy.stats import skew

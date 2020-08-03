@@ -71,7 +71,6 @@ class Compiler:
 		attributes = intent['attributes']
 		filters = intent['filters']
 		if len(attributes) == 0 and len(filters) > 0:
-			ldf.filter_specs = filters
 			return []
 
 		collection = []

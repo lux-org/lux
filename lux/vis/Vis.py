@@ -8,9 +8,9 @@ class Vis:
 	'''
 
 	def __init__(self, intent, source =None , mark="", title="", score=0.0):
-		self.intent = intent # This is the user's original intent to Vis
+		self._intent = intent # This is the user's original intent to Vis
 		self._inferred_intent = intent # This is the re-written, expanded version of user's original intent (include inferred vis info)
-		self.source = source # This is the original data that is attached to the Vis
+		self._source = source # This is the original data that is attached to the Vis
 		self.data = None # This is the data that represents the Vis (e.g., selected, aggregated, binned)
 		self.title = title
 		self.mark = mark
@@ -20,15 +20,15 @@ class Vis:
 		self.min_max = {}
 		if (source is not None): self.refresh_source(source)
 	def __repr__(self):
-		if self.source is None:
-			return f"<Vis  ({str(self.intent)}) mark: {self.mark}, score: {self.score} >"
-		filter_spec = None
+		if self._source is None:
+			return f"<Vis  ({str(self._intent)}) mark: {self.mark}, score: {self.score} >"
+		filter_intents = None
 		channels, additional_channels = [], []
 		for clause in self._inferred_intent:
 
 			if hasattr(clause,"value"):
 				if clause.value != "":
-					filter_spec = clause
+					filter_intents = clause
 			if hasattr(clause,"attribute"):
 				if clause.attribute != "":
 					if clause.aggregation != "" and clause.aggregation is not None:
@@ -49,10 +49,12 @@ class Vis:
 		for channel in channels:
 			str_channels += channel[0] + ": " + channel[1] + ", "
 
-		if filter_spec:
-			return f"<Vis  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filter_op}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
+		if filter_intents:
+			return f"<Vis  ({str_channels[:-2]} -- [{filter_intents.attribute}{filter_intents.filter_op}{filter_intents.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
 			return f"<Vis  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
+	def get_intent(self):
+		return self._intent
 	def set_intent(self, intent:List[Clause]) -> None:
 		"""
 		Sets the intent of the Vis and refresh the source based on the new intent
@@ -62,8 +64,8 @@ class Vis:
 		intent : List[Clause]
 			Query specifying the desired VisList
 		"""		
-		self.intent = intent
-		self.refresh_source(self.source)
+		self._intent = intent
+		self.refresh_source(self._source)
 	def set_plot_config(self,config_func:Callable):
 		"""
 		Modify plot aesthetic settings to the Vis
@@ -125,7 +127,7 @@ class Vis:
 		if (not remove_first):
 			new_inferred = list(filter(lambda x: x.attribute != attribute, self._inferred_intent))
 			self._inferred_intent = new_inferred
-			self.intent = new_inferred
+			self._intent = new_inferred
 		elif (remove_first):
 			new_inferred = []
 			skip_check = False
@@ -149,7 +151,7 @@ class Vis:
 							skip_check = True
 				else:
 					new_inferred.append(self._inferred_intent[i])
-			self.intent = new_inferred
+			self._intent = new_inferred
 			self._inferred_intent = new_inferred
 
 	def to_Altair(self) -> str:
@@ -215,9 +217,9 @@ class Vis:
 		from lux.compiler.Validator import Validator
 		from lux.compiler.Compiler import Compiler
 		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
-		self.source = ldf
+		self._source = ldf
 		#TODO: handle case when user input vanilla Pandas dataframe
-		self._inferred_intent = Parser.parse(self.intent)
+		self._inferred_intent = Parser.parse(self._intent)
 		Validator.validate_spec(self._inferred_intent,ldf)
 		vc = Compiler.compile(ldf,self._inferred_intent,[self],enumerate_collection=False)
 		ldf.executor.execute(vc,ldf)
