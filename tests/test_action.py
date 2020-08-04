@@ -9,7 +9,18 @@ def test_vary_filter_val():
 	df.set_intent_as_vis(vis)
 	df._repr_html_()
 	assert len(df.recommendation["Filter"]) == len(df["SportType"].unique())-1
+def test_filter_inequality():
+	df = pd.read_csv("lux/data/car.csv")
+	df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
+	df.set_intent([lux.Clause(attribute = "Horsepower"),lux.Clause(attribute = "Acceleration"),lux.Clause(attribute = "Acceleration", filter_op=">",value = 10)])
+	df._repr_html_()
+
+	from lux.utils.utils import get_filter_specs
+	complement_vis = df.recommendation["Filter"][0]
+	fltr_clause = get_filter_specs(complement_vis._intent)[0]
+	assert fltr_clause.filter_op =="<=" 
+	assert fltr_clause.value ==10
 def test_generalize_action():
 	#test that generalize action creates all unique visualizations
 	df = pd.read_csv("lux/data/car.csv")
