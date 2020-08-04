@@ -23,9 +23,9 @@ def enhance(ldf):
 		object with a collection of visualizations that result from the Enhance action.
 	'''
 	
-	filters = utils.get_filter_specs(ldf.intent)
+	filters = utils.get_filter_specs(ldf._intent)
 	# Collect variables that already exist in the intent
-	attr_specs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.intent))
+	attr_specs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf._intent))
 	fltr_str = [fltr.attribute+fltr.filter_op+str(fltr.value) for fltr in filters]
 	attr_str = [clause.attribute for clause in attr_specs]
 	intended_attrs = '<p class="highlight-intent">'+', '.join(attr_str+fltr_str)+'</p>'
@@ -39,7 +39,7 @@ def enhance(ldf):
 		recommendation = {"action":"Enhance"}
 		recommendation["collection"] = []
 		return recommendation
-	intent = ldf.intent.copy()
+	intent = ldf._intent.copy()
 	intent = filters + attr_specs
 	intent.append("?")
 	vc = lux.vis.VisList.VisList(intent,ldf)

@@ -31,8 +31,8 @@ def generalize(ldf):
 
 	output = []
 	excluded_columns = []
-	attributes = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf.intent))
-	filters = utils.get_filter_specs(ldf.intent)
+	attributes = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf._intent))
+	filters = utils.get_filter_specs(ldf._intent)
 
 	fltr_str = [fltr.attribute+fltr.filter_op+str(fltr.value) for fltr in filters]
 	attr_str = [clause.attribute for clause in attributes]
@@ -66,7 +66,7 @@ def generalize(ldf):
 	#for each filter specification, create a copy of the ldf's current vis and remove the filter specification,
 	#then append the view to the output
 	for clause in filters:
-		#new_spec = ldf.intent.copy()
+		#new_spec = ldf._intent.copy()
 		#new_spec.remove_column_from_spec(new_spec.attribute)
 		temp_view = Vis(ldf.current_vis[0]._inferred_intent.copy(),source = ldf,title="Overall",score=0)
 		temp_view.remove_filter_from_spec(clause.value)

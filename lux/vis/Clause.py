@@ -95,7 +95,7 @@ class Clause:
 			attributes.append("         attribute: " + str(self.attribute))
 		if self.filter_op != "=":
 			attributes.append(f"         filter_op: {str(self.filter_op)}" )
-		if self.aggregation != "":
+		if self.aggregation != "" and self.aggregation is not None:
 			attributes.append("         aggregation: " + self._aggregation_name)
 		if self.value!="" or  len(self.value) != 0 :
 			attributes.append("         value: " + str(self.value))
