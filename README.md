@@ -141,9 +141,9 @@ To install the Python Lux API:
 To install the [Lux Jupyter Widget](https://github.com/lux-org/lux-widget): 
 
 ```bash
-pip install git+https://github.com/lux-org/lux-widget
-jupyter nbextension install --py luxWidget
-jupyter nbextension enable --py luxWidget
+    pip install git+https://github.com/lux-org/lux-widget
+    jupyter nbextension install --py luxWidget
+    jupyter nbextension enable --py luxWidget
 ```
 
 
