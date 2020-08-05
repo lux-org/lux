@@ -53,6 +53,11 @@ class Vis:
 			return f"<Vis  ({str_channels[:-2]} -- [{filter_spec.attribute}{filter_spec.filter_op}{filter_spec.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
 			return f"<Vis  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
+
+	@property
+	def get_data(self):
+		return self.data.to_pandas()
+
 	def set_intent(self, intent:List[Clause]) -> None:
 		"""
 		Sets the intent of the Vis and refresh the source based on the new intent
