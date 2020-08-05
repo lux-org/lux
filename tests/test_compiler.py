@@ -113,7 +113,7 @@ def test_specified_vis_collection():
 	assert len(df.current_vis) == 4
 
 # 	# test if z axis has been filtered correctly
-	chart_titles = [view.title for view in df.current_vis.collection]
+	chart_titles = [view.title for view in df.current_vis._collection]
 	assert "Origin = USA" and "Origin = Japan" in chart_titles
 	assert "Origin = Europe" not in chart_titles
 
@@ -216,14 +216,14 @@ def test_populate_options():
 	df = pd.read_csv("lux/data/cars.csv")
 	df.set_intent([lux.Clause(attribute="?"), lux.Clause(attribute="MilesPerGal")])
 	col_set = set()
-	for specOptions in Compiler.populate_wildcard_options(df.intent, df)["attributes"]:
+	for specOptions in Compiler.populate_wildcard_options(df._intent, df)["attributes"]:
 		for clause in specOptions:
 			col_set.add(clause.attribute)
 	assert list_equal(list(col_set), list(df.columns))
 
 	df.set_intent([lux.Clause(attribute="?", data_model="measure"), lux.Clause(attribute="MilesPerGal")])
 	col_set = set()
-	for specOptions in Compiler.populate_wildcard_options(df.intent, df)["attributes"]:
+	for specOptions in Compiler.populate_wildcard_options(df._intent, df)["attributes"]:
 		for clause in specOptions:
 			col_set.add(clause.attribute)
 	assert list_equal(list(col_set), ['Acceleration', 'Weight', 'Horsepower', 'MilesPerGal', 'Displacement'])

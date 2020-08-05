@@ -68,7 +68,7 @@ class Parser:
 			elif type(clause) is Clause:
 				new_context.append(clause)
 		intent = new_context
-		# ldf.intent = new_context
+		# ldf._intent = new_context
 
 		for clause in intent:
 			if (clause.description):
@@ -89,4 +89,4 @@ class Parser:
 				# else: # then it is probably a value 
 				# 	clause.values = clause.description
 		return intent
-		# ldf.intent = intent
+		# ldf._intent = intent

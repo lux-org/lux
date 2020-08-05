@@ -31,7 +31,7 @@ def test_vis_collection_set_intent():
     from lux.vis.VisList import VisList
     vc = VisList(["Height","SportType=Ice","?"],df)
     vc.set_intent(["Height","SportType=Boat","?"])
-    for v in vc.collection: 
+    for v in vc._collection: 
         filter_vspec = list(filter(lambda x: x.channel=="",v._inferred_intent))[0]
         assert filter_vspec.value =="Boat"
 def test_custom_plot_setting():

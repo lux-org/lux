@@ -8,7 +8,7 @@ This tutorial provides an overview of how you can use Lux in your data explorati
 Note: This tutorial assumes that you have already installed Lux and the associate Jupyter widget, if you have not done so already, please check out :doc:`this page <../getting_started/installation>`.
 
 
-Lux Overview
+Quick Start Example
 ---------------------
 
 Lux is designed to be tightly integrated with `Pandas <https://pandas.pydata.org/>`_ and can be used as-is, without modifying your existing Pandas code. To enable Lux, simply add `import lux` along with your Pandas import statement.
