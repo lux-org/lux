@@ -135,31 +135,24 @@ To install the Python Lux API:
 ```bash
     git clone https://github.com/lux-org/lux.git
     cd lux/
-    pip install --user -r requirements.txt
     python setup.py install
 ```
 
-To install the widget, we need to install webpack:  
+To install the [Lux Jupyter Widget](https://github.com/lux-org/lux-widget): 
 
 ```bash
-    npm install --save-dev webpack webpack-cli
+pip install git+https://github.com/lux-org/lux-widget
+jupyter nbextension install --py luxWidget
+jupyter nbextension enable --py luxWidget
 ```
 
-Then, we can install the [Lux Jupyter widget](https://github.com/lux-org/lux-widget) using the custom installation script: 
-
-```bash
-    git clone https://github.com/lux-org/lux-widget.git
-    cd lux-widget/
-    npm install
-    bash install.sh
-```
 
 <!-- See the [installation page](https://lux-api.readthedocs.io/en/latest/source/getting_started/installation.html) for more information. -->
 
 <!-- For more detailed examples of how to use Lux, check out this demo [notebook](https://github.com/lux-org/lux/blob/master/examples/demo.ipynb).  -->
 
 # Dev Support 
-Lux is undergoing active development. Please report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues) or post on the #help channel in the <a href="http://lux-project.slack.com/">Lux Slack org</a>.
+Lux is undergoing active development. Please report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues) or post on the [#help](https://lux-project.slack.com/archives/C0174H16CK0) channel in the <a href="http://lux-project.slack.com/">Lux Slack org</a>.
 
-If you are interested in participating in a user study on Lux, please contact Doris Lee (<a href="mailto:dorislee@berkeley.edu">dorislee@berkeley.edu</a>) for more detail.
+If you are interested in participating in a user study on Lux, please contact <a href="mailto:dorisjunglinlee@gmail.com">Doris Lee</a>) for more detail.
 
