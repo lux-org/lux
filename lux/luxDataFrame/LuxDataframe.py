@@ -237,8 +237,7 @@ class LuxDataFrame(pd.DataFrame):
             else:
                 self.cardinality[attribute] = 999 # special value for non-numeric attribute
             if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
-                if (self[attribute].min() != 0 and self[attribute].max() != 0):
-                    self.min_max[attribute] = (self[attribute].min(), self[attribute].max())
+                self.min_max[attribute] = (self[attribute].min(), self[attribute].max())
         if (self.index.dtype !='int64'):
             index_column_name = self.index.name
             self.unique_values[index_column_name] = list(self.index)
