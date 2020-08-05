@@ -7,6 +7,8 @@ HERE = path.abspath(path.dirname(__file__))
 with open(path.join(HERE, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+with open(path.join(HERE, 'requirements.txt')) as fp:
+    install_requires = fp.read()
 # Arguments marked as "Required" below must be included for upload to PyPI.
 # Fields marked as "Optional" may be commented out.
 
@@ -33,7 +35,7 @@ setup(
     include_data_package=True,
     packages=find_packages(),  # Required
     python_requires='>=3.5',
-    install_requires=['pandas','altair'],  # Optional
+    install_requires=install_requires,
     extras_require={  # Optional
         'test': ['pytest']
     }
