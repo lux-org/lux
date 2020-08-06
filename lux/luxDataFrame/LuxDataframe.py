@@ -419,7 +419,7 @@ class LuxDataFrame(pd.DataFrame):
             When all the exported vis is from the same tab, return a VisList of selected visualizations. -> VisList(v1, v2...)
             When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisList. -> {"Enhance": VisList(v1, v2...), "Filter": VisList(v5, v7...), ..}
         """
-        if not hasattr(self,"widget"):
+        if not hasattr(self,"_widget"):
             warnings.warn(
 						"\nNo widget attached to the dataframe."
 						"Please assign dataframe to an output variable.\n"
