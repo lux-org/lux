@@ -8,7 +8,6 @@ def test_vary_filter_val():
 	vis = Vis(["Height","SportType=Ball"],df)
 	df.set_intent_as_vis(vis)
 	df._repr_html_()
-	print(df.recommendation)
 	assert len(df.recommendation["Filter"]) == len(df["SportType"].unique())-1
 def test_filter_inequality():
 	df = pd.read_csv("lux/data/car.csv")

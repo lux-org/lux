@@ -8,7 +8,6 @@ from lux.vis.VisList import VisList
 import pandas as pd
 import time
 def column_group(ldf):
-	import math
 	#for benchmarking
 	if ldf.toggle_benchmarking == True:
 		tic = time.perf_counter()
