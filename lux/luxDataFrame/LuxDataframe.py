@@ -33,6 +33,7 @@ class LuxDataFrame(pd.DataFrame):
         self.executor = PandasExecutor
         self.SQLconnection = ""
         self.table_name = ""
+
         self.default_pandas_display = True
         self.toggle_pandas_display = True
         self.toggle_benchmarking = False
@@ -161,8 +162,6 @@ class LuxDataFrame(pd.DataFrame):
         return lux.luxDataFrame.originalDF(self,copy=False)
     def add_to_intent(self,intent): 
         self._intent.extend(intent)
-    def get_intent(self):
-        return self._intent
     def __repr__(self):
         # TODO: _repr_ gets called from _repr_html, need to get rid of this call
         return ""
@@ -232,8 +231,11 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = {}
 
         for attribute in self.columns:
-            self.unique_values[attribute] = list(self[attribute].unique())
-            self.cardinality[attribute] = len(self.unique_values[attribute])
+            if self.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
+                self.unique_values[attribute] = list(self[attribute].unique())
+                self.cardinality[attribute] = len(self.unique_values[attribute])
+            else:
+                self.cardinality[attribute] = 999 # special value for non-numeric attribute
             if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
                 self.min_max[attribute] = (self[attribute].min(), self[attribute].max())
         if (self.index.dtype !='int64'):
@@ -417,7 +419,7 @@ class LuxDataFrame(pd.DataFrame):
             When all the exported vis is from the same tab, return a VisList of selected visualizations. -> VisList(v1, v2...)
             When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisList. -> {"Enhance": VisList(v1, v2...), "Filter": VisList(v5, v7...), ..}
         """
-        if not hasattr(self,"widget"):
+        if not hasattr(self,"_widget"):
             warnings.warn(
 						"\nNo widget attached to the dataframe."
 						"Please assign dataframe to an output variable.\n"
