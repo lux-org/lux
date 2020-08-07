@@ -4,9 +4,8 @@ from lux.vis.Clause import Clause
 from lux.utils.utils import check_import_lux_widget
 class Vis:
 	'''
-	Vis Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
+    Vis Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
 	'''
-
 	def __init__(self, intent, source =None , mark="", title="", score=0.0):
 		self._intent = intent # This is the user's original intent to Vis
 		self._inferred_intent = intent # This is the re-written, expanded version of user's original intent (include inferred vis info)
