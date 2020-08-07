@@ -25,7 +25,6 @@ def filter(ldf):
 	recommendations : Dict[str,obj]
 		object with a collection of visualizations that result from the Filter action.
 	'''
-	
 	filters = utils.get_filter_specs(ldf._intent)
 	filter_values = []
 	output = []
