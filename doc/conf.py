@@ -42,12 +42,15 @@ extensions = [
 	'sphinx.ext.intersphinx',
 	'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
-	'sphinx.ext.mathjax'
+	'sphinx.ext.mathjax',
+	'sphinx_automodapi.automodapi', 
+	'sphinx_automodapi.automodsumm'
 ]
 
 autodoc_default_flags = ['members', "inherited-members"]
 autodoc_member_order = "groupwise"
 autosummary_generate = True
+numpydoc_show_class_members = False
 
 
 # Add any paths that contain templates here, relative to this directory.
