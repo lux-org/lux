@@ -37,7 +37,7 @@ Welcome to Lux's documentation!
    source/advanced/architecture
    source/advanced/interestingness
    source/advanced/executor
-   source/advanced/API
+   source/reference/API
 
 Indices and tables
 ==================

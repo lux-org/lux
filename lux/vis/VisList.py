@@ -6,9 +6,8 @@ from lux.vis.Vis import Vis
 from lux.vis.Clause import Clause
 import warnings
 class VisList():
-	'''
-	VisList is a list of Vis objects. 
-	'''
+	"""VisList is a list of Vis objects. 
+	"""
 	def __init__(self,input_lst:Union[List[Vis],List[Clause]],source=None):
 		# Overloaded Constructor
 		self._source = source 

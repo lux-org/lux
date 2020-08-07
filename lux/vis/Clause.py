@@ -1,10 +1,13 @@
 import typing
 class Clause:
+	"""
+	Clause is the object representation of a single unit of the specification.
+	"""
+
 	def __init__(self, description:typing.Union[str,list] ="",attribute: typing.Union[str,list] ="",value: typing.Union[str,list]="",
 				 filter_op:str ="=", channel:str ="", data_type:str="",data_model:str="",
 				 aggregation:typing.Union[str,callable] = "", bin_size:int=0, weight:float=1,sort:str="", exclude: typing.Union[str,list] =""):
 		"""
-		Clause is the object representation of a single unit of the specification.
 
 		Parameters
 		----------
