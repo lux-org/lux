@@ -57,11 +57,13 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	# Histogram
 	elif (n_dim == 0 and n_msr == 1):
 		if (v_size<2): return -1 
-		if (n_filter == 0):
-			v = vis.data["Number of Records"]
-			return skewness(v)
-		elif (n_filter == 1):
+		if (n_filter == 0 and "Number of Records" in vis.data):
+			if "Number of Records" in vis.data:
+				v = vis.data["Number of Records"]
+				return skewness(v)
+		elif (n_filter == 1 and "Number of Records" in vis.data):
 			return deviation_from_overall(vis, ldf, filter_specs, "Number of Records")
+		return -1
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
 		if (v_size<2): return -1 

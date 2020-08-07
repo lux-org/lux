@@ -103,46 +103,46 @@ class SQLExecutor(Executor):
         import numpy as np
         import pandas as pd
         bin_attribute = list(filter(lambda x: x.bin_size!=0,view._inferred_intent))[0]
-        num_bins = bin_attribute.bin_size
-        attr_min = min(ldf.unique_values[bin_attribute.attribute])
-        attr_max = max(ldf.unique_values[bin_attribute.attribute])
-        attr_type = type(ldf.unique_values[bin_attribute.attribute][0])
+        if not math.isnan(view.data.min_max[bin_attribute.attribute][0]) and math.isnan(view.data.min_max[bin_attribute.attribute][1]):
+            num_bins = bin_attribute.bin_size
+            attr_min = min(ldf.unique_values[bin_attribute.attribute])
+            attr_max = max(ldf.unique_values[bin_attribute.attribute])
+            attr_type = type(ldf.unique_values[bin_attribute.attribute][0])
 
-        #need to calculate the bin edges before querying for the relevant data
-        bin_width = (attr_max-attr_min)/num_bins
-        upper_edges = []
-        for e in range(1, num_bins):
-            curr_edge = attr_min + e*bin_width
+            #need to calculate the bin edges before querying for the relevant data
+            bin_width = (attr_max-attr_min)/num_bins
+            upper_edges = []
+            for e in range(1, num_bins):
+                curr_edge = attr_min + e*bin_width
+                if attr_type == int:
+                    upper_edges.append(str(math.ceil(curr_edge)))
+                else:
+                    upper_edges.append(str(curr_edge))
+            upper_edges = ",".join(upper_edges)
+            view_filter, filter_vars = SQLExecutor.execute_filter(view)
+            bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket({}, '{}') FROM {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(bin_attribute.attribute, '{'+upper_edges+'}', ldf.table_name)
+            bin_count_data = pd.read_sql(bin_count_query, ldf.SQLconnection)
+
+            #counts,binEdges = np.histogram(ldf[bin_attribute.attribute],bins=bin_attribute.bin_size)
+            #binEdges of size N+1, so need to compute binCenter as the bin location
+            upper_edges = [float(i) for i in upper_edges.split(",")]
             if attr_type == int:
-                upper_edges.append(str(math.ceil(curr_edge)))
+                bin_centers = np.array([math.ceil((attr_min+attr_min+bin_width)/2)])
             else:
-                upper_edges.append(str(curr_edge))
-        upper_edges = ",".join(upper_edges)
-        view_filter, filter_vars = SQLExecutor.execute_filter(view)
-        bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket({}, '{}') FROM {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(bin_attribute.attribute, '{'+upper_edges+'}', ldf.table_name)
-        bin_count_data = pd.read_sql(bin_count_query, ldf.SQLconnection)
+                bin_centers = np.array([(attr_min+attr_min+bin_width)/2])
+            bin_centers = np.append(bin_centers, np.mean(np.vstack([upper_edges[0:-1],upper_edges[1:]]), axis=0))
+            if attr_type == int:
+                bin_centers = np.append(bin_centers, math.ceil((upper_edges[len(upper_edges)-1]+attr_max)/2))
+            else:
+                bin_centers = np.append(bin_centers, (upper_edges[len(upper_edges)-1]+attr_max)/2)
 
-        #counts,binEdges = np.histogram(ldf[bin_attribute.attribute],bins=bin_attribute.bin_size)
-        #binEdges of size N+1, so need to compute binCenter as the bin location
-        upper_edges = [float(i) for i in upper_edges.split(",")]
-        if attr_type == int:
-            bin_centers = np.array([math.ceil((attr_min+attr_min+bin_width)/2)])
-        else:
-            bin_centers = np.array([(attr_min+attr_min+bin_width)/2])
-        bin_centers = np.append(bin_centers, np.mean(np.vstack([upper_edges[0:-1],upper_edges[1:]]), axis=0))
-        if attr_type == int:
-            bin_centers = np.append(bin_centers, math.ceil((upper_edges[len(upper_edges)-1]+attr_max)/2))
-        else:
-            bin_centers = np.append(bin_centers, (upper_edges[len(upper_edges)-1]+attr_max)/2)
-
-        if len(bin_centers) > len(bin_count_data):
-            bucket_lables = bin_count_data['width_bucket'].unique()
-            for i in range(0,len(bin_centers)):
-                if i not in bucket_lables:
-                    bin_count_data = bin_count_data.append(pd.DataFrame([[i,0]], columns = bin_count_data.columns))
-
-        view.data = pd.DataFrame(np.array([bin_centers,list(bin_count_data['count'])]).T,columns=[bin_attribute.attribute, "Number of Records"])
-        view.data = utils.pandas_to_lux(view.data)
+            if len(bin_centers) > len(bin_count_data):
+                bucket_lables = bin_count_data['width_bucket'].unique()
+                for i in range(0,len(bin_centers)):
+                    if i not in bucket_lables:
+                        bin_count_data = bin_count_data.append(pd.DataFrame([[i,0]], columns = bin_count_data.columns))
+            view.data = pd.DataFrame(np.array([bin_centers,list(bin_count_data['count'])]).T,columns=[bin_attribute.attribute, "Number of Records"])
+            view.data = utils.pandas_to_lux(view.data)
         
     @staticmethod
     #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's _inferred_intent
