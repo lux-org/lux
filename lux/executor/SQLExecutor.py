@@ -7,6 +7,9 @@ from lux.utils import utils
 import math
 
 class SQLExecutor(Executor):
+    """
+    Given a Vis objects with complete specifications, fetch and process data using SQL operations.
+    """
     def __init__(self):
         self.name = "Executor"
         self.selection = []
