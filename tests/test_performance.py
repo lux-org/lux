@@ -10,4 +10,4 @@ def test_q1_performance_census():
 	toc = time.perf_counter()
 	delta = toc - tic
 	print(f"Overall Performance: {delta:0.4f} seconds")
-	assert delta < 8, "The recommendations on Census dataset took a total of {delta:0.4f} seconds, longer than expected."
+	assert delta < 10, "The recommendations on Census dataset took a total of {delta:0.4f} seconds, longer than expected."

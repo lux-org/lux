@@ -105,11 +105,11 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 		groupby_unique_vals = vis.data.unique_values[groupby_column]
 		for c in range(0, groupby_cardinality):
 			contingency_table.append(vis.data[vis.data[groupby_column] == groupby_unique_vals[c]][measure_column])
-		score = 1.2
+		score = 0.12
 		#ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in
 		#a category having no counts
 		try:
-			score = min(0.15, chi2_contingency(contingency_table)[0])
+			score = min(0.13, chi2_contingency(contingency_table)[0])
 		except ValueError:
 			pass
 		return(score)
