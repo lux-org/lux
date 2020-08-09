@@ -90,8 +90,29 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	elif (n_msr == 3):
 		return 0.1	
 	# colored line and barchart cases
-	elif ((vis.mark == "line" or vis.mark == "bar") and n_dim == 2):
-		return 0.2
+	elif (vis.mark == "line" and n_dim == 2):
+		return 0.15
+	elif (vis.mark == "bar" and n_dim == 2):
+		from scipy.stats import chi2_contingency
+		measure_column = vis.get_attr_by_data_model("measure")[0].attribute
+		dimension_columns = vis.get_attr_by_data_model("dimension")
+
+		groupby_column = dimension_columns[0].attribute
+		color_column = dimension_columns[1].attribute
+
+		contingency_table = []
+		groupby_cardinality = vis.data.cardinality[groupby_column]
+		groupby_unique_vals = vis.data.unique_values[groupby_column]
+		for c in range(0, groupby_cardinality):
+			contingency_table.append(vis.data[vis.data[groupby_column] == groupby_unique_vals[c]][measure_column])
+		score = 1.2
+		#ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in
+		#a category having no counts
+		try:
+			score = min(0.15, chi2_contingency(contingency_table)[0])
+		except ValueError:
+			pass
+		return(score)
 	# Default
 	else:
 		return -1
