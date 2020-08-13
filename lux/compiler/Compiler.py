@@ -115,13 +115,15 @@ class Compiler:
 			vis list with compiled lux.Vis objects.
 		"""		
 		# TODO: copy might not be neccesary
+		from lux.utils.date_utils import is_datetime_string
 		import copy
 		vc = copy.deepcopy(vis_collection)  # Preserve the original dobj
 		for vis in vc:
 			for clause in vis._inferred_intent:
 				if (clause.description == "?"):
 					clause.description = ""
-				if (clause.attribute!="" and clause.attribute!="Record"):
+				# TODO: Note that "and not is_datetime_string(clause.attribute))" is a temporary hack and breaks the `test_row_column_group` example
+				if (clause.attribute!="" and clause.attribute!="Record") and not is_datetime_string(clause.attribute):
 					# if (clause.data_type == ""):
 					clause.data_type = ldf.data_type_lookup[clause.attribute]
 					# if (clause.data_model == ""):
