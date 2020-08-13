@@ -154,5 +154,5 @@ To install the [Lux Jupyter Widget](https://github.com/lux-org/lux-widget):
 # Dev Support 
 Lux is undergoing active development. Please report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues) or post on the [#help](https://lux-project.slack.com/archives/C0174H16CK0) channel in the <a href="http://lux-project.slack.com/">Lux Slack org</a>.
 
-If you are interested in participating in a user study on Lux, please contact <a href="mailto:dorisjunglinlee@gmail.com">Doris Lee</a>) for more detail.
+If you are interested in participating in a user study on Lux, please contact <a href="mailto:dorisjunglinlee@gmail.com">Doris Lee</a> for more detail.
 
