@@ -66,7 +66,7 @@ def test_period_to_altair():
 def test_refresh_inplace():
 	df = pd.DataFrame({'date': ['2020-01-01', '2020-02-01', '2020-03-01', '2020-04-01'], 'value': [10.5,15.2,20.3,25.2]})
 	df._repr_html_()
-	assert df.data_type['nominal'][0] == 'date'
+	assert df.data_type_lookup["date"]=="temporal"
 
 	from lux.vis.Vis import Vis
 	vis = Vis(["date","value"],df)

@@ -1,4 +1,4 @@
-symbol,date,price
+symbol,monthdate,price
 MSFT,2000-01-01,39.81
 MSFT,2000-02-01,36.35
 MSFT,2000-03-01,43.22
