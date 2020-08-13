@@ -26,7 +26,7 @@ def test_generalize_action():
 	df = pd.read_csv("lux/data/car.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
 	df.set_intent(["Acceleration", "MilesPerGal", "Cylinders", "Origin=USA"])
-	df.show_more()
+	df._repr_html_()
 	assert(len(df.recommendation['Generalize']) == 4)
 	v1 = df.recommendation['Generalize'][0]
 	v2 = df.recommendation['Generalize'][1]
