@@ -82,7 +82,6 @@ class Vis:
 		from IPython.display import display
 		check_import_lux_widget()
 		import luxWidget
-		self.refresh_source(self._source)
 		if (self.data is None):
 			raise Exception("No data is populated in Vis. In order to generate data required for the vis, use the 'refresh_source' function to populate the Vis with a data source (e.g., vis.refresh_source(df)).")
 		else:
@@ -218,8 +217,8 @@ class Vis:
 			from lux.compiler.Validator import Validator
 			from lux.compiler.Compiler import Compiler
 			from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
+			ldf.maintain_metadata()
 			self._source = ldf
-			self._source.maintain_metadata()
 			#TODO: handle case when user input vanilla Pandas dataframe
 			self._inferred_intent = Parser.parse(self._intent)
 			Validator.validate_intent(self._inferred_intent,ldf)
