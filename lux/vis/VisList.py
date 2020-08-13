@@ -209,7 +209,6 @@ class VisList():
 		self._widget =  None
 		from IPython.display import display
 		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
-		self.refresh_source(self._source)
 		recommendation = {"action": "Vis List",
 					  "description": "Shows a vis list defined by the intent"}
 		recommendation["collection"] = self._collection
