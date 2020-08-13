@@ -43,7 +43,7 @@ def test_period_filter():
 	ldf.set_intent([lux.Clause(attribute ="Acceleration"), lux.Clause(attribute ="Horsepower")])
 
 	PandasExecutor.execute(ldf.current_vis, ldf)
-	ldf.show_more()
+	ldf._repr_html_()
 
 	assert isinstance(ldf.recommendation['Filter'][2]._inferred_intent[2].value, pd.Period)
 
@@ -57,7 +57,7 @@ def test_period_to_altair():
 	df.set_intent([lux.Clause(attribute ="Acceleration"), lux.Clause(attribute ="Horsepower")])
 
 	PandasExecutor.execute(df.current_vis, df)
-	df.show_more()
+	df._repr_html_()
 
 	exported_code = df.recommendation['Filter'][2].to_Altair()
 	
@@ -65,7 +65,7 @@ def test_period_to_altair():
 
 def test_refresh_inplace():
 	df = pd.DataFrame({'date': ['2020-01-01', '2020-02-01', '2020-03-01', '2020-04-01'], 'value': [10.5,15.2,20.3,25.2]})
-	
+	df._repr_html_()
 	assert df.data_type['nominal'][0] == 'date'
 
 	from lux.vis.Vis import Vis

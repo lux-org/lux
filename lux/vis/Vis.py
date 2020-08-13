@@ -17,7 +17,7 @@ class Vis:
 		self.code = None
 		self.plot_config = None
 		self.min_max = {}
-		if (source is not None): self.refresh_source(source)
+		self.refresh_source(self._source)
 	def __repr__(self):
 		if self._source is None:
 			return f"<Vis  ({str(self._intent)}) mark: {self.mark}, score: {self.score} >"
@@ -82,6 +82,7 @@ class Vis:
 		from IPython.display import display
 		check_import_lux_widget()
 		import luxWidget
+		self.refresh_source(self._source)
 		if (self.data is None):
 			raise Exception("No data is populated in Vis. In order to generate data required for the vis, use the 'refresh_source' function to populate the Vis with a data source (e.g., vis.refresh_source(df)).")
 		else:
@@ -212,20 +213,22 @@ class Vis:
 		----
 		Function derives a new _inferred_intent by instantiating the intent specification on the new data
 		"""		
-		from lux.compiler.Parser import Parser
-		from lux.compiler.Validator import Validator
-		from lux.compiler.Compiler import Compiler
-		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
-		self._source = ldf
-		#TODO: handle case when user input vanilla Pandas dataframe
-		self._inferred_intent = Parser.parse(self._intent)
-		Validator.validate_spec(self._inferred_intent,ldf)
-		vc = Compiler.compile(ldf,self._inferred_intent,[self],enumerate_collection=False)
-		ldf.executor.execute(vc,ldf)
-		# Copying properties over since we can not redefine `self` within class function
-		vis = vc[0]
-		self.title = vis.title
-		self.mark = vis.mark
-		self._inferred_intent = vis._inferred_intent
-		self.data = vis.data
-		self.min_max = vis.min_max
+		if (ldf is not None):
+			from lux.compiler.Parser import Parser
+			from lux.compiler.Validator import Validator
+			from lux.compiler.Compiler import Compiler
+			from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
+			self._source = ldf
+			self._source.maintain_metadata()
+			#TODO: handle case when user input vanilla Pandas dataframe
+			self._inferred_intent = Parser.parse(self._intent)
+			Validator.validate_intent(self._inferred_intent,ldf)
+			vc = Compiler.compile(ldf,self._inferred_intent,[self],enumerate_collection=False)
+			ldf.executor.execute(vc,ldf)
+			# Copying properties over since we can not redefine `self` within class function
+			vis = vc[0]
+			self.title = vis.title
+			self.mark = vis.mark
+			self._inferred_intent = vis._inferred_intent
+			self.data = vis.data
+			self.min_max = vis.min_max
