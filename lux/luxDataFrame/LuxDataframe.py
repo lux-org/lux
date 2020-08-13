@@ -3,6 +3,7 @@ from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 from lux.utils.utils import check_import_lux_widget
+from lux.utils.date_utils import check_is_datetime
 #import for benchmarking
 import time
 import typing
@@ -225,13 +226,15 @@ class LuxDataFrame(pd.DataFrame):
 
     def compute_data_type(self):
         for attr in list(self.columns):
-            #TODO: Think about dropping NaN values
-            if str(attr).lower() in ["month", "year"]:
+            if str(attr).lower() in ["month", "year","day","date","time"]:
                 self.data_type_lookup[attr] = "temporal"
             elif self.dtypes[attr] == "float64":
                 self.data_type_lookup[attr] = "quantitative"
             elif self.dtypes[attr] == "int64":
                 # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
+                if (self.pre_aggregated):
+                    if (self.cardinality[attr]==len(self)):
+                        self.data_type_lookup[attr] = "nominal"
                 if self.cardinality[attr]/len(self) < 0.4 and self.cardinality[attr]<10: 
                     self.data_type_lookup[attr] = "nominal"
                 else:
@@ -239,7 +242,7 @@ class LuxDataFrame(pd.DataFrame):
             # Eliminate this clause because a single NaN value can cause the dtype to be object
             elif self.dtypes[attr] == "object":
                 self.data_type_lookup[attr] = "nominal"
-            elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]) or pd.api.types.is_period_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
+            elif check_is_datetime(self.dtypes[attr]): #check if attribute is any type of datetime dtype
                 self.data_type_lookup[attr] = "temporal"
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         # 	if self.cardinality[attr]>50:
