@@ -2,7 +2,7 @@
 from lux.luxDataFrame.LuxDataframe import LuxDataFrame
 from lux.vis.Clause import Clause
 from typing import List
-from lux.utils.date_utils import check_is_datetime
+from lux.utils.date_utils import is_datetime_series,is_datetime_string
 
 class Validator:
 	'''
@@ -41,19 +41,21 @@ class Validator:
 						if attr not in list(ldf.columns):
 							raise ValueError(f"The input attribute {attr} does not exist in the DataFrame.")
 				else:
-					if (clause.attribute and clause.attribute!="Record"):
-						if not clause.attribute in list(ldf.columns):
-							raise ValueError(f"The input attribute {clause.attribute} does not exist in the DataFrame.")
-					if (clause.value and clause.attribute and clause.filter_op=="="):
-						series = ldf[clause.attribute]
-						if (not check_is_datetime(series)): #we don't value check datetime since datetime can take filter values that don't exactly match the exact TimeStamp representation
-							if isinstance(clause.value, list):
-								vals = clause.value
-							else:
-								vals = [clause.value]
-							for val in vals:
-								if (val not in series.values):#(not series.str.contains(val).any()):
-									raise ValueError(f"The input value {val} does not exist for the attribute {clause.attribute} for the DataFrame.")
+					if (clause.attribute!="Record"):
+						#we don't value check datetime since datetime can take filter values that don't exactly match the exact TimeStamp representation
+						if (clause.attribute and not is_datetime_string(clause.attribute)):
+							if not clause.attribute in list(ldf.columns):
+								raise ValueError(f"The input attribute {clause.attribute} does not exist in the DataFrame.")
+						if (clause.value and clause.attribute and clause.filter_op=="="):
+							series = ldf[clause.attribute]
+							if (not is_datetime_series(series)): 
+								if isinstance(clause.value, list):
+									vals = clause.value
+								else:
+									vals = [clause.value]
+								for val in vals:
+									if (val not in series.values):#(not series.str.contains(val).any()):
+										raise ValueError(f"The input value {val} does not exist for the attribute {clause.attribute} for the DataFrame.")
 
 		for clause in intent:
 			if type(clause) is list:

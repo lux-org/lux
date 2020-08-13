@@ -14,16 +14,16 @@ def column_group(ldf):
 	recommendation = {"action":"Column Groups",
 					"description":"Shows charts of possible visualizations with respect to the column-wise index."}
 	collection = []
-	data = ldf.copy()
+	ldf_flat = ldf.reset_index() #use a single shared ldf_flat so that metadata doesn't need to be computed for every vis
 	if (ldf.index.nlevels==1):
 		index_column_name = ldf.index.name
 		if isinstance(ldf.columns,pd.DatetimeIndex):
-			data.columns = ldf.columns.to_native_types()
-		for attribute in data.columns:
-			vis = Vis([index_column_name,lux.Clause(str(attribute),aggregation=None)],data[attribute].reset_index())
+			ldf.columns = ldf.columns.to_native_types()
+		for attribute in ldf.columns:
+			vis = Vis([index_column_name,lux.Clause(str(attribute),aggregation=None)],ldf_flat)
 			collection.append(vis)
 	vlst = VisList(collection)
-	# Note that we are not computing interestingness score here because we want to preserve the arrangement of the aggregated data
+	# Note that we are not computing interestingness score here because we want to preserve the arrangement of the aggregated ldf
 	
 	recommendation["collection"] = vlst
 	#for benchmarking

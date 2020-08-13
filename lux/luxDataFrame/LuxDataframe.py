@@ -3,7 +3,7 @@ from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 from lux.utils.utils import check_import_lux_widget
-from lux.utils.date_utils import check_is_datetime
+from lux.utils.date_utils import is_datetime_series
 #import for benchmarking
 import time
 import typing
@@ -44,10 +44,8 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = None
         self.min_max = None
         self.pre_aggregated = None
-        self._compiled=False
-        self._metadata_fresh=False
     def maintain_metadata(self):
-        if (not self._metadata_fresh): # Check that metadata has not yet been computed
+        if (not hasattr(self,"_metadata_fresh") or not self._metadata_fresh ): # Check that metadata has not yet been computed
             if (len(self)>0): #only compute metadata information if the dataframe is non-empty
                 self.compute_stats()
                 self.compute_dataset_metadata()
@@ -74,7 +72,6 @@ class LuxDataFrame(pd.DataFrame):
     #     self.expire_metadata()
 
     def _update_inplace(self,*args,**kwargs):
-        print ("update inplace")
         # super(LuxDataFrame, self)._update_inplace(*args,**kwargs)
         self.expire_metadata()
 
@@ -242,7 +239,7 @@ class LuxDataFrame(pd.DataFrame):
             # Eliminate this clause because a single NaN value can cause the dtype to be object
             elif self.dtypes[attr] == "object":
                 self.data_type_lookup[attr] = "nominal"
-            elif check_is_datetime(self.dtypes[attr]): #check if attribute is any type of datetime dtype
+            elif is_datetime_series(self.dtypes[attr]): #check if attribute is any type of datetime dtype
                 self.data_type_lookup[attr] = "temporal"
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         # 	if self.cardinality[attr]>50:

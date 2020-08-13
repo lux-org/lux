@@ -67,5 +67,36 @@ def compute_date_granularity(date_column:pd.core.series.Series):
 		if hasattr(date_index,field) and len(getattr(date_index, field).unique()) != 1 : #can be changed to sum(getattr(date_index, field)) != 0
 			return field
 	return "year" #if none, then return year by default
-def check_is_datetime(series):
+def is_datetime_series(series:pd.Series) -> bool:
+	
+	"""
+	Check if the Series object is of datetime type
+
+	Parameters
+	----------
+	series : pd.Series
+
+	Returns
+	-------
+	is_date: bool
+	"""	
 	return pd.api.types.is_datetime64_any_dtype(series) or pd.api.types.is_period_dtype(series)
+def is_datetime_string(string:str)-> bool:
+	"""
+	Check if the string is date-like.
+
+	Parameters
+	----------
+	string : str
+
+	Returns
+	-------
+	is_date: bool
+	"""	
+	from dateutil.parser import parse
+	try: 
+		parse(string)
+		return True
+
+	except ValueError:
+		return False
