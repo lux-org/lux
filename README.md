@@ -21,7 +21,7 @@
 
 Lux is a Python library that makes data science easier by automating certain aspects of the data exploration process. Lux is designed to facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Lux is integrated with [an interactive Jupyter widget](https://github.com/lux-org/lux-widget) that allows users to quickly browse through large collections of data directly within their Jupyter notebooks.
 
-Here are some [slides](http://dorisjunglinlee.com/files/RISE_Winter_Retreat_Slides.pdf) from a talk on Lux.
+Here are some [slides](http://dorisjunglinlee.com/files/Zillow_07_2020_Slide.pdf) from a talk on Lux.
 
 Click [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master) to try out Lux on your own in a live notebook! 
 # Getting Started
