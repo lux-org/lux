@@ -140,6 +140,22 @@ def test_interestingness_1_1_1():
     #check for top recommended Filter graph score is not none
     assert interestingness(df.recommendation['Filter'][0],df) != None
 
+def test_interestingness_1_2_0():
+    from lux.vis.Vis import Vis
+    from lux.vis.Vis import Clause
+    from lux.interestingness.interestingness import interestingness
+
+    df = pd.read_csv("lux/data/car.csv")
+    y_clause = Clause(attribute = "Name", channel = "y")
+    color_clause = Clause(attribute = 'Cylinders', channel = "color")
+
+    new_vis = Vis([y_clause, color_clause])
+    new_vis.refresh_source(df)
+    new_vis
+    #assert(len(new_vis.data)==color_cardinality*group_by_cardinality)
+
+    assert(interestingness(new_vis, df)==0.13)
+
 def test_interestingness_0_2_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
