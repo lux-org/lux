@@ -223,7 +223,11 @@ class LuxDataFrame(pd.DataFrame):
 
     def compute_data_type(self):
         for attr in list(self.columns):
-            if str(attr).lower() in ["month", "year","day","date","time"]:
+            if (isinstance(attr,pd._libs.tslibs.timestamps.Timestamp)): 
+                # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+                attr = attr._date_repr
+                self.data_type_lookup[attr] = "temporal"
+            elif str(attr).lower() in ["month", "year","day","date","time"]:
                 self.data_type_lookup[attr] = "temporal"
             elif self.dtypes[attr] == "float64":
                 self.data_type_lookup[attr] = "quantitative"
@@ -274,13 +278,19 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = {}
 
         for attribute in self.columns:
-            if self.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
-                self.unique_values[attribute] = list(self[attribute].unique())
-                self.cardinality[attribute] = len(self.unique_values[attribute])
+            
+            if (isinstance(attribute,pd._libs.tslibs.timestamps.Timestamp)): 
+                # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+                attribute_repr = str(attribute._date_repr)
             else:
-                self.cardinality[attribute] = 999 # special value for non-numeric attribute
+                attribute_repr = attribute
+            if self.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
+                self.unique_values[attribute_repr] = list(self[attribute].unique())
+                self.cardinality[attribute_repr] = len(self.unique_values[attribute])
+            else:   
+                self.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
             if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
-                self.min_max[attribute] = (self[attribute].min(), self[attribute].max())
+                self.min_max[attribute_repr] = (self[attribute].min(), self[attribute].max())
         if (self.index.dtype !='int64'):
             index_column_name = self.index.name
             self.unique_values[index_column_name] = list(self.index)

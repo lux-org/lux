@@ -123,7 +123,7 @@ class Compiler:
 				if (clause.description == "?"):
 					clause.description = ""
 				# TODO: Note that "and not is_datetime_string(clause.attribute))" is a temporary hack and breaks the `test_row_column_group` example
-				if (clause.attribute!="" and clause.attribute!="Record") and not is_datetime_string(clause.attribute):
+				if (clause.attribute!="" and clause.attribute!="Record"):# and not is_datetime_string(clause.attribute):
 					# if (clause.data_type == ""):
 					clause.data_type = ldf.data_type_lookup[clause.attribute]
 					# if (clause.data_model == ""):
