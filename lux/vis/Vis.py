@@ -52,6 +52,11 @@ class Vis:
 			return f"<Vis  ({str_channels[:-2]} -- [{filter_intents.attribute}{filter_intents.filter_op}{filter_intents.value}]) mark: {self.mark}, score: {self.score} >"
 		else:
 			return f"<Vis  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
+
+	@property
+	def get_data(self):
+		return self.data.to_pandas()
+
 	def get_intent(self):
 		return self._intent
 	def set_intent(self, intent:List[Clause]) -> None:
