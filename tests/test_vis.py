@@ -41,7 +41,7 @@ def test_custom_plot_setting():
         return chart
     df = pd.read_csv("lux/data/car.csv")
     df.set_plot_config(change_color_make_transparent_add_title)
-    df.show_more()
+    df._repr_html_()
     config_mark_addition = 'chart = chart.configure_mark(color="green",opacity=0.2)'
     title_addition ='chart.title = "Test Title"'
     exported_code_str = df.recommendation["Correlation"][0].to_Altair()
@@ -68,8 +68,9 @@ def test_remove_identity():
     assert (vis._inferred_intent[0].attribute=="Horsepower"),"Remove only 1 instances of Horsepower"
 def test_refresh_collection():
     df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
     df.set_intent([lux.Clause(attribute = "Acceleration"),lux.Clause(attribute = "Horsepower")])
-    df.show_more()
+    df._repr_html_()
     enhanceCollection = df.recommendation["Enhance"]
     enhanceCollection.refresh_source(df[df["Origin"]=="USA"])
 

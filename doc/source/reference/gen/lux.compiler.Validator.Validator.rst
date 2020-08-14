@@ -14,7 +14,7 @@ lux.compiler.Validator.Validator
    .. autosummary::
    
       ~Validator.__init__
-      ~Validator.validate_spec
+      ~Validator.validate_intent
    
    
 

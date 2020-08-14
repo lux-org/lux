@@ -3,9 +3,11 @@ from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 from lux.utils.utils import check_import_lux_widget
+from lux.utils.date_utils import is_datetime_series
 #import for benchmarking
 import time
 import typing
+from typing import Optional
 import warnings
 class LuxDataFrame(pd.DataFrame):
     '''
@@ -24,11 +26,6 @@ class LuxDataFrame(pd.DataFrame):
         self.current_vis = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
-        if (len(self)>0): #only compute metadata information if the dataframe is non-empty
-            self.compute_stats()
-            self.compute_dataset_metadata()
-            self.infer_structure()
-
         self.executor_type = "Pandas"
         self.executor = PandasExecutor
         self.SQLconnection = ""
@@ -38,10 +35,55 @@ class LuxDataFrame(pd.DataFrame):
         self.toggle_pandas_display = True
         self.toggle_benchmarking = False
         self.plot_config = None
+        # Metadata
+        self.data_type_lookup = None
+        self.data_type = None
+        self.data_model_lookup = None
+        self.data_model = None
+        self.unique_values = None
+        self.cardinality = None
+        self.min_max = None
+        self.pre_aggregated = None
+    def maintain_metadata(self):
+        if (not hasattr(self,"_metadata_fresh") or not self._metadata_fresh ): # Check that metadata has not yet been computed
+            if (len(self)>0): #only compute metadata information if the dataframe is non-empty
+                self.compute_stats()
+                self.compute_dataset_metadata()
+                self.infer_structure()
+                self._metadata_fresh = True
+    def expire_recs(self):
+        self._recs_fresh = False
+        self.recommendation = None
+        self.current_vis = None
+        self._widget = None
+        self._rec_info= None
+    def expire_metadata(self):
+        # Set metadata as null
+        self._metadata_fresh = False
+        self.data_type_lookup = None
+        self.data_type = None
+        self.data_model_lookup = None
+        self.data_model = None
+        self.unique_values = None
+        self.cardinality = None
+        self.min_max = None
+        self.pre_aggregated = None
 
-    @property
-    def _constructor(self):
-        return LuxDataFrame
+    #####################
+    ## Override Pandas ##
+    #####################
+    # def __finalize__(self,other, method: Optional[str] = None, **kwargs):
+    #     print ("lux finalize")
+    #     super(LuxDataFrame, self).__finalize__(other,method,**kwargs)
+    #     self.expire_metadata()
+
+    def _update_inplace(self,*args,**kwargs):
+        super(LuxDataFrame, self)._update_inplace(*args,**kwargs)
+        self.expire_metadata()
+        self.expire_recs()
+    # @property
+    # def _constructor(self):
+    #     return LuxDataFrame
     
     def set_default_display(self, type:str) -> None:
         """
@@ -63,6 +105,11 @@ class LuxDataFrame(pd.DataFrame):
         not_int_index_flag = self.index.dtype !='int64'
         small_df_flag = len(self)<100
         self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag 
+        if ("Number of Records" in self.columns):
+            self.pre_aggregated = True
+        very_small_df_flag =  len(self)<=10
+        if (very_small_df_flag):
+            self.pre_aggregated = True
     def set_executor_type(self, exe):
         if (exe =="SQL"):
             import pkgutil
@@ -107,17 +154,6 @@ class LuxDataFrame(pd.DataFrame):
         self.plot_config = config_func
     def clear_plot_config(self):
         self.plot_config = None
-    def _refresh_intent(self):
-        from lux.compiler.Validator import Validator
-        from lux.compiler.Compiler import Compiler
-        from lux.compiler.Parser import Parser
-
-        if self.SQLconnection == "":
-            self.compute_stats()
-            self.compute_dataset_metadata()
-        self._intent = Parser.parse(self.get_intent())
-        Validator.validate_spec(self._intent,self)
-        self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
     def get_intent(self):
         return self._intent
     def set_intent(self, intent:typing.List[typing.Union[str, Clause]]):
@@ -134,8 +170,18 @@ class LuxDataFrame(pd.DataFrame):
         -----
             :doc:`../guide/clause`
         """        
+        self.expire_recs()
         self._intent = intent
-        self._refresh_intent()
+        self._parse_validate_compile_intent()
+    def _parse_validate_compile_intent(self):
+        from lux.compiler.Parser import Parser
+        from lux.compiler.Validator import Validator
+        self._intent = Parser.parse(self.get_intent())
+        Validator.validate_intent(self._intent,self)
+        self.maintain_metadata()
+        from lux.compiler.Compiler import Compiler
+        self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
+        
     def copy_intent(self):
         #creates a true copy of the dataframe's intent
         output = []
@@ -153,7 +199,9 @@ class LuxDataFrame(pd.DataFrame):
         vis : Vis
         """        
         self._intent = vis._inferred_intent
-        self._refresh_intent()
+        self._parse_validate_compile_intent()
+        from lux.compiler.Compiler import Compiler
+        self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
     def clear_intent(self):
         self._intent = []
         self.current_vis = []
@@ -182,13 +230,19 @@ class LuxDataFrame(pd.DataFrame):
 
     def compute_data_type(self):
         for attr in list(self.columns):
-            #TODO: Think about dropping NaN values
-            if str(attr).lower() in ["month", "year"]:
+            if (isinstance(attr,pd._libs.tslibs.timestamps.Timestamp)): 
+                # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+                attr = attr._date_repr
+                self.data_type_lookup[attr] = "temporal"
+            elif str(attr).lower() in ["month", "year","day","date","time"]:
                 self.data_type_lookup[attr] = "temporal"
             elif self.dtypes[attr] == "float64":
                 self.data_type_lookup[attr] = "quantitative"
             elif self.dtypes[attr] == "int64":
                 # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
+                if (self.pre_aggregated):
+                    if (self.cardinality[attr]==len(self)):
+                        self.data_type_lookup[attr] = "nominal"
                 if self.cardinality[attr]/len(self) < 0.4 and self.cardinality[attr]<10: 
                     self.data_type_lookup[attr] = "nominal"
                 else:
@@ -196,7 +250,7 @@ class LuxDataFrame(pd.DataFrame):
             # Eliminate this clause because a single NaN value can cause the dtype to be object
             elif self.dtypes[attr] == "object":
                 self.data_type_lookup[attr] = "nominal"
-            elif pd.api.types.is_datetime64_any_dtype(self.dtypes[attr]) or pd.api.types.is_period_dtype(self.dtypes[attr]): #check if attribute is any type of datetime dtype
+            elif is_datetime_series(self.dtypes[attr]): #check if attribute is any type of datetime dtype
                 self.data_type_lookup[attr] = "temporal"
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         # 	if self.cardinality[attr]>50:
@@ -231,13 +285,19 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = {}
 
         for attribute in self.columns:
-            if self.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
-                self.unique_values[attribute] = list(self[attribute].unique())
-                self.cardinality[attribute] = len(self.unique_values[attribute])
+            
+            if (isinstance(attribute,pd._libs.tslibs.timestamps.Timestamp)): 
+                # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+                attribute_repr = str(attribute._date_repr)
             else:
-                self.cardinality[attribute] = 999 # special value for non-numeric attribute
+                attribute_repr = attribute
+            if self.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
+                self.unique_values[attribute_repr] = list(self[attribute].unique())
+                self.cardinality[attribute_repr] = len(self.unique_values[attribute])
+            else:   
+                self.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
             if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
-                self.min_max[attribute] = (self[attribute].min(), self[attribute].max())
+                self.min_max[attribute_repr] = (self[attribute].min(), self[attribute].max())
         if (self.index.dtype !='int64'):
             index_column_name = self.index.name
             self.unique_values[index_column_name] = list(self.index)
@@ -344,55 +404,56 @@ class LuxDataFrame(pd.DataFrame):
     def _append_recInfo(self,recommendations:typing.Dict):
         if (recommendations["collection"] is not None and len(recommendations["collection"])>0):
             self._rec_info.append(recommendations)
-    def show_more(self):
-        from lux.action.custom import custom
-        from lux.action.correlation import correlation
-        from lux.action.univariate import univariate
-        from lux.action.enhance import enhance
-        from lux.action.filter import filter
-        from lux.action.generalize import generalize
-        from lux.action.row_group import row_group
-        from lux.action.column_group import column_group
+    def maintain_recs(self):
+        if (not hasattr(self,"_recs_fresh") or not self._recs_fresh ): # Check that metadata has not yet been computed
+            from lux.action.custom import custom
+            from lux.action.correlation import correlation
+            from lux.action.univariate import univariate
+            from lux.action.enhance import enhance
+            from lux.action.filter import filter
+            from lux.action.generalize import generalize
+            from lux.action.row_group import row_group
+            from lux.action.column_group import column_group
 
-        self._rec_info = []
-        if (self.pre_aggregated):
-            if (self.columns.name is not None):
-                self._append_recInfo(row_group(self))
-            if (self.index.name is not None):
-                self._append_recInfo(column_group(self))
-        else:
-            if (self.current_vis is None):
-                no_vis = True
-                one_current_vis = False
-                multiple_current_vis = False
+            self._rec_info = []
+            if (self.pre_aggregated):
+                if (self.columns.name is not None):
+                    self._append_recInfo(row_group(self))
+                if (self.index.name is not None):
+                    self._append_recInfo(column_group(self))
             else:
-                no_vis = len(self.current_vis) == 0
-                one_current_vis = len(self.current_vis) == 1
-                multiple_current_vis = len(self.current_vis) > 1
+                if (self.current_vis is None):
+                    no_vis = True
+                    one_current_vis = False
+                    multiple_current_vis = False
+                else:
+                    no_vis = len(self.current_vis) == 0
+                    one_current_vis = len(self.current_vis) == 1
+                    multiple_current_vis = len(self.current_vis) > 1
 
-            if (no_vis):
-                self._append_recInfo(correlation(self))
-                self._append_recInfo(univariate(self,"quantitative"))
-                self._append_recInfo(univariate(self,"nominal"))
-                self._append_recInfo(univariate(self,"temporal"))
-            elif (one_current_vis):
-                self._append_recInfo(enhance(self))
-                self._append_recInfo(filter(self))
-                self._append_recInfo(generalize(self))
-            elif (multiple_current_vis):
-                self._append_recInfo(custom(self))
-            
-        # Store _rec_info into a more user-friendly dictionary form
-        self.recommendation = {}
-        for rec_info in self._rec_info: 
-            action_type = rec_info["action"]
-            vc = rec_info["collection"]
-            if (self.plot_config):
-                for vis in self.current_vis: vis.plot_config = self.plot_config
-                for vis in vc: vis.plot_config = self.plot_config
-            if (len(vc)>0):
-                self.recommendation[action_type]  = vc
-
+                if (no_vis):
+                    self._append_recInfo(correlation(self))
+                    self._append_recInfo(univariate(self,"quantitative"))
+                    self._append_recInfo(univariate(self,"nominal"))
+                    self._append_recInfo(univariate(self,"temporal"))
+                elif (one_current_vis):
+                    self._append_recInfo(enhance(self))
+                    self._append_recInfo(filter(self))
+                    self._append_recInfo(generalize(self))
+                elif (multiple_current_vis):
+                    self._append_recInfo(custom(self))
+                
+            # Store _rec_info into a more user-friendly dictionary form
+            self.recommendation = {}
+            for rec_info in self._rec_info: 
+                action_type = rec_info["action"]
+                vc = rec_info["collection"]
+                if (self.plot_config):
+                    for vis in self.current_vis: vis.plot_config = self.plot_config
+                    for vis in vc: vis.plot_config = self.plot_config
+                if (len(vc)>0):
+                    self.recommendation[action_type]  = vc
+        self._recs_fresh = True
 
 
     #######################################################
@@ -476,17 +537,18 @@ class LuxDataFrame(pd.DataFrame):
                 warnings.warn("\nLux can not operate on an empty dataframe.\nPlease check your input again.\n",stacklevel=2)
                 display(self.display_pandas()) 
                 return
+            self.maintain_metadata()
+            
+            if (self._intent!=[] and not self._compiled):
+                from lux.compiler.Compiler import Compiler
+                self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
 
             self.toggle_pandas_display = self.default_pandas_display # Reset to Pandas Vis everytime
-            # Ensure that metadata is recomputed before plotting recs (since dataframe operations do not always go through init or _refresh_intent)
-            if self.executor_type == "Pandas":
-                self.compute_stats()
-                self.compute_dataset_metadata()
-
+            
             #for benchmarking
             if self.toggle_benchmarking == True:
                 tic = time.perf_counter()
-            self.show_more() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+            self.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
             if self.toggle_benchmarking == True:
                 toc = time.perf_counter()
                 print(f"Computed recommendations in {toc - tic:0.4f} seconds")

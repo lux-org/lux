@@ -52,6 +52,7 @@ def test_case5():
 def test_case6():
 	ldf = pd.read_csv("lux/data/car.csv")
 	ldf.set_intent(["Horsepower", "Origin=?"])
+	ldf._repr_html_()
 	assert(type(ldf._intent[0]) is lux.Clause)
 	assert(ldf._intent[0].attribute == "Horsepower")
 	assert(type(ldf._intent[1]) is lux.Clause)

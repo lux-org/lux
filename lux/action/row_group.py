@@ -27,8 +27,8 @@ def row_group(ldf):
 			# 	rowdf.data_type_lookup["index"]="nominal"
 			# 	rowdf.data_model_lookup["index"]="dimension"
 			# 	rowdf.cardinality["index"]=len(rowdf)
-			if isinstance(ldf.columns,pd.DatetimeIndex):
-				rowdf.data_type_lookup[dim_name]="temporal"
+			# if isinstance(ldf.columns,pd.DatetimeIndex):
+			# 	rowdf.data_type_lookup[dim_name]="temporal"
 			vis = Vis([dim_name,lux.Clause(row.name,aggregation=None)],rowdf)
 			collection.append(vis)
 	vlst = VisList(collection)
