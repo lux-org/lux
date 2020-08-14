@@ -41,14 +41,16 @@ class Compiler:
 		vis_collection: list[lux.Vis]
 			vis list with compiled lux.Vis objects.
 		"""
-		if (enumerate_collection):
-			vis_collection = Compiler.enumerate_collection(_inferred_intent,ldf)
-		vis_collection = Compiler.populate_data_type_model(ldf, vis_collection)  # autofill data type/model information
-		if len(vis_collection)>1: 
-			vis_collection = Compiler.remove_all_invalid(vis_collection) # remove invalid visualizations from collection
-		for vis in vis_collection:
-			Compiler.determine_encoding(ldf, vis)  # autofill viz related information
-		return vis_collection
+		if (_inferred_intent):
+			if (enumerate_collection):
+				vis_collection = Compiler.enumerate_collection(_inferred_intent,ldf)
+			vis_collection = Compiler.populate_data_type_model(ldf, vis_collection)  # autofill data type/model information
+			if len(vis_collection)>1: 
+				vis_collection = Compiler.remove_all_invalid(vis_collection) # remove invalid visualizations from collection
+			for vis in vis_collection:
+				Compiler.determine_encoding(ldf, vis)  # autofill viz related information
+			ldf._compiled=True
+			return vis_collection
 
 	@staticmethod
 	def enumerate_collection(_inferred_intent:List[Clause],ldf: LuxDataFrame) -> VisList:
@@ -113,13 +115,15 @@ class Compiler:
 			vis list with compiled lux.Vis objects.
 		"""		
 		# TODO: copy might not be neccesary
+		from lux.utils.date_utils import is_datetime_string
 		import copy
 		vc = copy.deepcopy(vis_collection)  # Preserve the original dobj
 		for vis in vc:
 			for clause in vis._inferred_intent:
 				if (clause.description == "?"):
 					clause.description = ""
-				if (clause.attribute!="" and clause.attribute!="Record"):
+				# TODO: Note that "and not is_datetime_string(clause.attribute))" is a temporary hack and breaks the `test_row_column_group` example
+				if (clause.attribute!="" and clause.attribute!="Record"):# and not is_datetime_string(clause.attribute):
 					# if (clause.data_type == ""):
 					clause.data_type = ldf.data_type_lookup[clause.attribute]
 					# if (clause.data_model == ""):

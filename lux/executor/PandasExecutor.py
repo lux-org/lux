@@ -187,11 +187,7 @@ class PandasExecutor(Executor):
                     for col in columns[2:]:
                         view.data[col] = view.data[col].fillna(0)
                     assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals)*len(color_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
-                    # for vals in all_attr_vals:
-                    #     for cvals in color_attr_vals:
-                    #         temp_combi = [vals, cvals]
-                    #         if (temp_combi not in res_color_combi_vals):
-                    #             view.data.loc[len(view.data)] = [vals]+[cvals]+[0]*(len(view.data.columns)-2)
+                    view.data = view.data.iloc[:,:3] # Keep only the three relevant columns not the *_right columns resulting from merge
                 else:
                     df = pd.DataFrame({columns[0]: all_attr_vals})
                     
@@ -233,7 +229,7 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def execute_filter(view: Vis):
-        assert view.data is not None, "execute_filter assumes input view.data is populated (if not, populate with LuxDataFrame values)"
+        assert view.data is not None, "execute_filter assumes input vis.data is populated (if not, populate with LuxDataFrame values)"
         filters = utils.get_filter_specs(view._inferred_intent)
         
         if (filters):

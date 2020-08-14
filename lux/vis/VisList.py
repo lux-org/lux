@@ -23,7 +23,7 @@ class VisList():
 			self._collection = []
 			self._intent = []
 		self._widget = None
-		if (source is not None): self.refresh_source(source)
+		self.refresh_source(self._source)
 	def set_intent(self, intent:List[Clause]) -> None:
 		"""
 		Sets the intent of the VisList and refresh the source based on the new clause
@@ -246,19 +246,21 @@ class VisList():
 		----
 		Function derives a new _inferred_intent by instantiating the intent specification on the new data
 		"""		
-		from lux.compiler.Parser import Parser
-		from lux.compiler.Validator import Validator
-		from lux.compiler.Compiler import Compiler
-		from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
-		self._source = ldf
-		if len(self._input_lst)>0:
-			if (self._is_vis_input()):
-				for vis in self._collection:
-					vis._inferred_intent = Parser.parse(vis._intent)
-					Validator.validate_spec(vis._inferred_intent,ldf)
-				self._collection = Compiler.compile(ldf,ldf._intent,self,enumerate_collection=False)
-			else:
-				self._inferred_intent = Parser.parse(self._intent)
-				Validator.validate_spec(self._inferred_intent,ldf)
-				self._collection = Compiler.compile(ldf,self._inferred_intent,self)
-			ldf.executor.execute(self._collection,ldf)
+		if (ldf is not None):
+			from lux.compiler.Parser import Parser
+			from lux.compiler.Validator import Validator
+			from lux.compiler.Compiler import Compiler
+			from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
+			self._source = ldf
+			self._source.maintain_metadata()
+			if len(self._input_lst)>0:
+				if (self._is_vis_input()):
+					for vis in self._collection:
+						vis._inferred_intent = Parser.parse(vis._intent)
+						Validator.validate_intent(vis._inferred_intent,ldf)
+					self._collection = Compiler.compile(ldf,ldf._intent,self,enumerate_collection=False)
+				else:
+					self._inferred_intent = Parser.parse(self._intent)
+					Validator.validate_intent(self._inferred_intent,ldf)
+					self._collection = Compiler.compile(ldf,self._inferred_intent,self)
+				ldf.executor.execute(self._collection,ldf)

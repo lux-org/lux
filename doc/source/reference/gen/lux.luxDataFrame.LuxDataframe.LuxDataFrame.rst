@@ -186,7 +186,7 @@ lux.luxDataFrame.LuxDataframe.LuxDataFrame
       ~LuxDataFrame.set_intent_as_vis
       ~LuxDataFrame.set_plot_config
       ~LuxDataFrame.shift
-      ~LuxDataFrame.show_more
+      ~LuxDataFrame.maintain_recs
       ~LuxDataFrame.skew
       ~LuxDataFrame.slice_shift
       ~LuxDataFrame.sort_index
