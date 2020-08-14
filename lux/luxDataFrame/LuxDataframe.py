@@ -51,6 +51,12 @@ class LuxDataFrame(pd.DataFrame):
                 self.compute_dataset_metadata()
                 self.infer_structure()
                 self._metadata_fresh = True
+    def expire_recs(self):
+        self._recs_fresh = False
+        self.recommendation = None
+        self.current_vis = None
+        self._widget = None
+        self._rec_info= None
     def expire_metadata(self):
         # Set metadata as null
         self._metadata_fresh = False
@@ -72,9 +78,9 @@ class LuxDataFrame(pd.DataFrame):
     #     self.expire_metadata()
 
     def _update_inplace(self,*args,**kwargs):
-        # super(LuxDataFrame, self)._update_inplace(*args,**kwargs)
+        super(LuxDataFrame, self)._update_inplace(*args,**kwargs)
         self.expire_metadata()
-
+        self.expire_recs()
     # @property
     # def _constructor(self):
     #     return LuxDataFrame
@@ -164,6 +170,7 @@ class LuxDataFrame(pd.DataFrame):
         -----
             :doc:`../guide/clause`
         """        
+        self.expire_recs()
         self._intent = intent
         self._parse_validate_compile_intent()
     def _parse_validate_compile_intent(self):
@@ -398,54 +405,55 @@ class LuxDataFrame(pd.DataFrame):
         if (recommendations["collection"] is not None and len(recommendations["collection"])>0):
             self._rec_info.append(recommendations)
     def maintain_recs(self):
-        from lux.action.custom import custom
-        from lux.action.correlation import correlation
-        from lux.action.univariate import univariate
-        from lux.action.enhance import enhance
-        from lux.action.filter import filter
-        from lux.action.generalize import generalize
-        from lux.action.row_group import row_group
-        from lux.action.column_group import column_group
+        if (not hasattr(self,"_recs_fresh") or not self._recs_fresh ): # Check that metadata has not yet been computed
+            from lux.action.custom import custom
+            from lux.action.correlation import correlation
+            from lux.action.univariate import univariate
+            from lux.action.enhance import enhance
+            from lux.action.filter import filter
+            from lux.action.generalize import generalize
+            from lux.action.row_group import row_group
+            from lux.action.column_group import column_group
 
-        self._rec_info = []
-        if (self.pre_aggregated):
-            if (self.columns.name is not None):
-                self._append_recInfo(row_group(self))
-            if (self.index.name is not None):
-                self._append_recInfo(column_group(self))
-        else:
-            if (self.current_vis is None):
-                no_vis = True
-                one_current_vis = False
-                multiple_current_vis = False
+            self._rec_info = []
+            if (self.pre_aggregated):
+                if (self.columns.name is not None):
+                    self._append_recInfo(row_group(self))
+                if (self.index.name is not None):
+                    self._append_recInfo(column_group(self))
             else:
-                no_vis = len(self.current_vis) == 0
-                one_current_vis = len(self.current_vis) == 1
-                multiple_current_vis = len(self.current_vis) > 1
+                if (self.current_vis is None):
+                    no_vis = True
+                    one_current_vis = False
+                    multiple_current_vis = False
+                else:
+                    no_vis = len(self.current_vis) == 0
+                    one_current_vis = len(self.current_vis) == 1
+                    multiple_current_vis = len(self.current_vis) > 1
 
-            if (no_vis):
-                self._append_recInfo(correlation(self))
-                self._append_recInfo(univariate(self,"quantitative"))
-                self._append_recInfo(univariate(self,"nominal"))
-                self._append_recInfo(univariate(self,"temporal"))
-            elif (one_current_vis):
-                self._append_recInfo(enhance(self))
-                self._append_recInfo(filter(self))
-                self._append_recInfo(generalize(self))
-            elif (multiple_current_vis):
-                self._append_recInfo(custom(self))
-            
-        # Store _rec_info into a more user-friendly dictionary form
-        self.recommendation = {}
-        for rec_info in self._rec_info: 
-            action_type = rec_info["action"]
-            vc = rec_info["collection"]
-            if (self.plot_config):
-                for vis in self.current_vis: vis.plot_config = self.plot_config
-                for vis in vc: vis.plot_config = self.plot_config
-            if (len(vc)>0):
-                self.recommendation[action_type]  = vc
-
+                if (no_vis):
+                    self._append_recInfo(correlation(self))
+                    self._append_recInfo(univariate(self,"quantitative"))
+                    self._append_recInfo(univariate(self,"nominal"))
+                    self._append_recInfo(univariate(self,"temporal"))
+                elif (one_current_vis):
+                    self._append_recInfo(enhance(self))
+                    self._append_recInfo(filter(self))
+                    self._append_recInfo(generalize(self))
+                elif (multiple_current_vis):
+                    self._append_recInfo(custom(self))
+                
+            # Store _rec_info into a more user-friendly dictionary form
+            self.recommendation = {}
+            for rec_info in self._rec_info: 
+                action_type = rec_info["action"]
+                vc = rec_info["collection"]
+                if (self.plot_config):
+                    for vis in self.current_vis: vis.plot_config = self.plot_config
+                    for vis in vc: vis.plot_config = self.plot_config
+                if (len(vc)>0):
+                    self.recommendation[action_type]  = vc
+        self._recs_fresh = True
 
 
     #######################################################
