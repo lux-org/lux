@@ -114,7 +114,9 @@ class PandasExecutor(Executor):
                     groupby_result = view.data.groupby([groupby_attr.attribute, color_attr.attribute])
                 else:
                     groupby_result = view.data.groupby(groupby_attr.attribute)
-                view.data = groupby_result.agg(agg_func).reset_index()
+                groupby_result = groupby_result.agg(agg_func)
+                intermediate = groupby_result.reset_index()
+                view.data = intermediate.__finalize__(view.data)
             result_vals = list(view.data[groupby_attr.attribute])
             #create existing group by attribute combinations if color is specified
             #this is needed to check what combinations of group_by_attr and color_attr values have a non-zero number of elements in them
@@ -196,11 +198,6 @@ class PandasExecutor(Executor):
                     for col in columns[1:]:
                         view.data[col] = view.data[col].fillna(0)
                     assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
-            #need to compute the statistics and metadata for the view's data if no new rows were added
-            else:
-                if view.data.cardinality is None and has_color:
-                    view.data.compute_stats()
-                    view.data.compute_dataset_metadata()
             view.data = view.data.sort_values(by=groupby_attr.attribute, ascending=True)
             view.data = view.data.reset_index()
             view.data = view.data.drop(columns="index")
