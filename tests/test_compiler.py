@@ -3,6 +3,7 @@ import pytest
 import pandas as pd
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
+from .utilstest import list_equal, check_attribute_on_channel
 def test_underspecified_no_vis(test_recs):
 	no_vis_actions = ["Correlation", "Distribution", "Occurrence","Temporal"]
 	df = pd.read_csv("lux/data/car.csv")
@@ -61,9 +62,9 @@ def test_underspecified_single_vis(test_recs):
 def test_recs():
 	def test_recs_function(df, actions):
 		df._repr_html_()
-		assert (len(df._rec_info) > 0)
-		for rec in df._rec_info:
-			assert (rec["action"] in actions)
+		assert (len(df.recommendation) > 0)
+		recKeys = list(df.recommendation.keys())
+		list_equal(recKeys,actions)
 	return test_recs_function
 
 def test_parse():
@@ -213,10 +214,3 @@ def test_populate_options():
 			col_set.add(clause.attribute)
 	assert list_equal(list(col_set), ['Acceleration', 'Weight', 'Horsepower', 'MilesPerGal', 'Displacement'])
 
-def list_equal(l1, l2):
-    l1.sort()
-    l2.sort()
-    return l1==l2
-
-def check_attribute_on_channel(vis, attr_name, channelName):
-	assert vis.get_attr_by_channel(channelName)[0].attribute == attr_name
