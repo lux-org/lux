@@ -420,10 +420,11 @@ class LuxDataFrame(pd.DataFrame):
 				data_type["temporal"].append(attr)
 		self.data_type_lookup = data_type_lookup
 		self.data_type = data_type
-	def _append_recInfo(self,recommendations:Dict):
+	def _append_rec(self,rec_infolist,recommendations:Dict):
 		if (recommendations["collection"] is not None and len(recommendations["collection"])>0):
-			self._rec_info.append(recommendations)
+			rec_infolist.append(recommendations)
 	def maintain_recs(self):
+		rec_infolist = []
 		if (not hasattr(self,"_recs_fresh") or not self._recs_fresh ): # Check that metadata has not yet been computed
 			from lux.action.custom import custom
 			from lux.action.correlation import correlation
@@ -434,12 +435,11 @@ class LuxDataFrame(pd.DataFrame):
 			from lux.action.row_group import row_group
 			from lux.action.column_group import column_group
 
-			self._rec_info = []
 			if (self.pre_aggregated):
 				if (self.columns.name is not None):
-					self._append_recInfo(row_group(self))
+					self._append_rec(rec_infolist, row_group(self))
 				if (self.index.name is not None):
-					self._append_recInfo(column_group(self))
+					self._append_rec(rec_infolist, column_group(self))
 			else:
 				if (self.current_vis is None):
 					no_vis = True
@@ -451,20 +451,20 @@ class LuxDataFrame(pd.DataFrame):
 					multiple_current_vis = len(self.current_vis) > 1
 
 				if (no_vis):
-					self._append_recInfo(correlation(self))
-					self._append_recInfo(univariate(self,"quantitative"))
-					self._append_recInfo(univariate(self,"nominal"))
-					self._append_recInfo(univariate(self,"temporal"))
+					self._append_rec(rec_infolist, correlation(self))
+					self._append_rec(rec_infolist, univariate(self,"quantitative"))
+					self._append_rec(rec_infolist, univariate(self,"nominal"))
+					self._append_rec(rec_infolist, univariate(self,"temporal"))
 				elif (one_current_vis):
-					self._append_recInfo(enhance(self))
-					self._append_recInfo(filter(self))
-					self._append_recInfo(generalize(self))
+					self._append_rec(rec_infolist, enhance(self))
+					self._append_rec(rec_infolist, filter(self))
+					self._append_rec(rec_infolist, generalize(self))
 				elif (multiple_current_vis):
-					self._append_recInfo(custom(self))
+					self._append_rec(rec_infolist, custom(self))
 				
 			# Store _rec_info into a more user-friendly dictionary form
 			self.recommendation = {}
-			for rec_info in self._rec_info: 
+			for rec_info in rec_infolist: 
 				action_type = rec_info["action"]
 				vc = rec_info["collection"]
 				if (self.plot_config):
@@ -473,6 +473,7 @@ class LuxDataFrame(pd.DataFrame):
 				if (len(vc)>0):
 					self.recommendation[action_type]  = vc
 		self._recs_fresh = True
+		return rec_infolist
 
 
 	#######################################################
@@ -565,8 +566,8 @@ class LuxDataFrame(pd.DataFrame):
 				self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
 
 			self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            
-			self.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-			self._widget = LuxDataFrame.render_widget(self)
+			rec_infolist = self.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+			self._widget = self.render_widget(rec_infolist)
 
 			# box = widgets.Box(layout=widgets.Layout(display='inline'))
 			button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
@@ -599,8 +600,7 @@ class LuxDataFrame(pd.DataFrame):
 		#     display(self.display_pandas())
 	def display_pandas(self):
 		return self.to_pandas()
-	@staticmethod
-	def render_widget(ldf="", renderer:str ="altair", input_current_view=""):
+	def render_widget(self,rec_infolist, renderer:str ="altair", input_current_view=""):
 		"""
 		Generate a LuxWidget based on the LuxDataFrame
 		
@@ -613,11 +613,11 @@ class LuxDataFrame(pd.DataFrame):
 		"""       
 		check_import_lux_widget()
 		import luxWidget
-		widgetJSON = ldf.to_JSON(input_current_view=input_current_view)
+		widgetJSON = self.to_JSON(rec_infolist, input_current_view=input_current_view)
 		return luxWidget.LuxWidget(
 			currentVis=widgetJSON["current_vis"],
 			recommendations=widgetJSON["recommendation"],
-			intent=LuxDataFrame.intent_to_string(ldf._intent)
+			intent=LuxDataFrame.intent_to_string(self._intent)
 		)
 	@staticmethod
 	def intent_to_JSON(intent):
@@ -637,7 +637,7 @@ class LuxDataFrame(pd.DataFrame):
 		else:
 			return ""
 
-	def to_JSON(self, input_current_view=""):
+	def to_JSON(self, rec_infolist, input_current_view=""):
 		widget_spec = {}
 		if (self.current_vis): 
 			self.executor.execute(self.current_vis, self)
@@ -647,7 +647,7 @@ class LuxDataFrame(pd.DataFrame):
 		widget_spec["recommendation"] = []
 		
 		# Recommended Collection
-		recCollection = LuxDataFrame.rec_to_JSON(self._rec_info)
+		recCollection = LuxDataFrame.rec_to_JSON(rec_infolist)
 		widget_spec["recommendation"].extend(recCollection)
 		return widget_spec
 	
