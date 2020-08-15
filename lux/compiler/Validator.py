@@ -31,7 +31,8 @@ class Validator:
 		Raises
 		------
 		ValueError
-			Ensures no input intent are consistent with DataFrame.
+			Ensures input intent are consistent with DataFrame content.
+			
 		"""
 
 		def validate_clause(clause):

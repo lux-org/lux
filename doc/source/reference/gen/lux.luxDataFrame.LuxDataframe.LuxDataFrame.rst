@@ -100,7 +100,7 @@ lux.luxDataFrame.LuxDataframe.LuxDataFrame
       ~LuxDataFrame.idxmax
       ~LuxDataFrame.idxmin
       ~LuxDataFrame.infer_objects
-      ~LuxDataFrame.infer_structure
+      ~LuxDataFrame._infer_structure
       ~LuxDataFrame.info
       ~LuxDataFrame.insert
       ~LuxDataFrame.intent_to_JSON
@@ -179,7 +179,7 @@ lux.luxDataFrame.LuxDataframe.LuxDataFrame
       ~LuxDataFrame.sem
       ~LuxDataFrame.set_SQL_connection
       ~LuxDataFrame.set_axis
-      ~LuxDataFrame.set_default_display
+      ~LuxDataFrame.default_display
       ~LuxDataFrame.set_executor_type
       ~LuxDataFrame.set_index
       ~LuxDataFrame.set_intent

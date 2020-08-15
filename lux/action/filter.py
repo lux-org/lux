@@ -9,9 +9,6 @@ from lux.utils import utils
 import time
 
 def filter(ldf):
-	#for benchmarking
-	if ldf.toggle_benchmarking == True:
-		tic = time.perf_counter()
 	'''
 	Iterates over all possible values of a categorical variable and generates visualizations where each categorical value filters the data.
 
@@ -90,8 +87,4 @@ def filter(ldf):
 		view.score = interestingness(view,ldf)
 	vc = vc.topK(15)
 	recommendation["collection"] = vc
-	#for benchmarking
-	if ldf.toggle_benchmarking == True:
-		toc = time.perf_counter()
-		print(f"Performed filter action in {toc - tic:0.4f} seconds")
 	return recommendation

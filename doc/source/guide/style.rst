@@ -92,7 +92,7 @@ Here, we load in the `Olympics dataset <https://www.kaggle.com/heesoo37/120-year
 	
 	df = pd.read_csv("../../lux/data/olympic.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
-	df.set_default_display("lux")
+	df.default_display = "lux"
 	df
 
 .. image:: ../img/style-5.png

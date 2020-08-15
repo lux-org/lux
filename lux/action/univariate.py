@@ -24,9 +24,6 @@ def univariate(ldf, data_type_constraint="quantitative"):
 	import scipy.stats
 	import numpy as np
 
-	#for benchmarking
-	if ldf.toggle_benchmarking == True:
-		tic = time.perf_counter()
 	filter_specs = utils.get_filter_specs(ldf._intent)
 	ignore_rec_flag = False
 	if (data_type_constraint== "quantitative"):
@@ -56,8 +53,4 @@ def univariate(ldf, data_type_constraint="quantitative"):
 		view.score = interestingness(view,ldf)
 	vc = vc.topK(15)
 	recommendation["collection"] = vc
-	#for benchmarking
-	if ldf.toggle_benchmarking == True:
-		toc = time.perf_counter()
-		print(f"Performed distribution action in {toc - tic:0.4f} seconds")
 	return recommendation
