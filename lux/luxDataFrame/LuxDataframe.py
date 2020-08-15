@@ -6,8 +6,7 @@ from lux.utils.utils import check_import_lux_widget
 from lux.utils.date_utils import is_datetime_series
 #import for benchmarking
 import time
-import typing
-from typing import Optional
+from typing import Optional, Dict, Union, List, Callable
 import warnings
 class LuxDataFrame(pd.DataFrame):
     '''
@@ -16,14 +15,13 @@ class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = ['_intent','data_type_lookup','data_type',
                  'data_model_lookup','data_model','unique_values','cardinality',
-                'min_max','plot_config', 'current_vis','_widget', '_rec_info', 'recommendation']
+                'min_max','plot_config', '_current_vis','_widget', '_recommendation']
 
     def __init__(self,*args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
         self._intent = []
-        self._rec_info=[]
-        self.recommendation = {}
-        self.current_vis = []
+        self._recommendation = {}
+        self._current_vis = []
         super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.executor_type = "Pandas"
@@ -31,8 +29,8 @@ class LuxDataFrame(pd.DataFrame):
         self.SQLconnection = ""
         self.table_name = ""
 
-        self.default_pandas_display = True
-        self.toggle_pandas_display = True
+        self._default_pandas_display = True
+        self._toggle_pandas_display = True
         self.toggle_benchmarking = False
         self.plot_config = None
         # Metadata
@@ -49,7 +47,7 @@ class LuxDataFrame(pd.DataFrame):
             if (len(self)>0): #only compute metadata information if the dataframe is non-empty
                 self.compute_stats()
                 self.compute_dataset_metadata()
-                self.infer_structure()
+                self._infer_structure()
                 self._metadata_fresh = True
     def expire_recs(self):
         self._recs_fresh = False
@@ -81,11 +79,14 @@ class LuxDataFrame(pd.DataFrame):
         super(LuxDataFrame, self)._update_inplace(*args,**kwargs)
         self.expire_metadata()
         self.expire_recs()
-    # @property
-    # def _constructor(self):
-    #     return LuxDataFrame
-    
-    def set_default_display(self, type:str) -> None:
+    @property
+    def default_display(self):
+        if (self._default_pandas_display):
+            return "pandas"
+        else:
+            return "lux"
+    @default_display.setter
+    def default_display(self, type:str) -> None:
         """
         Set the widget display to show Pandas by default or Lux by default
         Parameters
@@ -94,12 +95,12 @@ class LuxDataFrame(pd.DataFrame):
             Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
         """        
         if (type.lower()=="lux"):
-            self.default_pandas_display = False
+            self._default_pandas_display = False
         elif (type.lower()=="pandas"):
-            self.default_pandas_display = True
+            self._default_pandas_display = True
         else: 
             warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.",stacklevel=2)
-    def infer_structure(self):
+    def _infer_structure(self):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels !=1
         not_int_index_flag = self.index.dtype !='int64'
@@ -123,13 +124,13 @@ class LuxDataFrame(pd.DataFrame):
             from lux.executor.PandasExecutor import PandasExecutor
             self.executor = PandasExecutor
         self.executor_type = exe
-    def set_plot_config(self,config_func:typing.Callable):
+    def set_plot_config(self,config_func:Callable):
         """
         Modify plot aesthetic settings to all visualizations in the dataframe display
         Currently only supported for Altair visualizations
         Parameters
         ----------
-        config_func : typing.Callable
+        config_func : Callable
             A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
         
         Example
@@ -154,16 +155,27 @@ class LuxDataFrame(pd.DataFrame):
         self.plot_config = config_func
     def clear_plot_config(self):
         self.plot_config = None
-    def get_intent(self):
+    
+    @property
+    def intent(self):
         return self._intent
-    def set_intent(self, intent:typing.List[typing.Union[str, Clause]]):
+    @intent.setter
+    def intent(self, intent_input:Union[List[Union[str, Clause]],Vis]):
+        if (isinstance(intent_input,list)):
+            self.set_intent(intent_input)
+        elif (isinstance(intent_input,Vis)):
+            self.set_intent_as_vis(intent_input)
+    @intent.deleter
+    def clear_intent(self):
+        self.intent = []
+    def set_intent(self, intent:List[Union[str, Clause]]):
         """
         Main function to set the intent of the dataframe.
         The intent input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
 
         Parameters
         ----------
-        intent : typing.List[str,Clause]
+        intent : List[str,Clause]
             intent list, can be a mix of string shorthand or a lux.Clause object
 
         Notes
@@ -176,7 +188,7 @@ class LuxDataFrame(pd.DataFrame):
     def _parse_validate_compile_intent(self):
         from lux.compiler.Parser import Parser
         from lux.compiler.Validator import Validator
-        self._intent = Parser.parse(self.get_intent())
+        self._intent = Parser.parse(self._intent)
         Validator.validate_intent(self._intent,self)
         self.maintain_metadata()
         from lux.compiler.Compiler import Compiler
@@ -202,14 +214,23 @@ class LuxDataFrame(pd.DataFrame):
         self._parse_validate_compile_intent()
         from lux.compiler.Compiler import Compiler
         self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
-    def clear_intent(self):
-        self._intent = []
-        self.current_vis = []
+
     def to_pandas(self):
         import lux.luxDataFrame
         return lux.luxDataFrame.originalDF(self,copy=False)
-    def add_to_intent(self,intent): 
-        self._intent.extend(intent)
+    
+    @property
+    def recommendation(self):
+        return self._recommendation
+    @recommendation.setter
+    def recommendation(self,recommendation:Dict):
+        self._recommendation = recommendation
+    @property
+    def current_vis(self):
+        return self._current_vis
+    @current_vis.setter
+    def current_vis(self,current_vis:Dict):
+        self._current_vis = current_vis
     def __repr__(self):
         # TODO: _repr_ gets called from _repr_html, need to get rid of this call
         return ""
@@ -307,15 +328,9 @@ class LuxDataFrame(pd.DataFrame):
     #######################################################
 
     def set_SQL_connection(self, connection, t_name):
-        #for benchmarking
-        if self.toggle_benchmarking == True:
-            tic = time.perf_counter()
         self.SQLconnection = connection
         self.table_name = t_name
         self.compute_SQL_dataset_metadata()
-        if self.toggle_benchmarking == True:
-            toc = time.perf_counter()
-            print(f"Extracted Metadata from SQL Database in {toc - tic:0.4f} seconds")
         self.set_executor_type("SQL")
 
     def compute_SQL_dataset_metadata(self):
@@ -401,7 +416,7 @@ class LuxDataFrame(pd.DataFrame):
                 data_type["temporal"].append(attr)
         self.data_type_lookup = data_type_lookup
         self.data_type = data_type
-    def _append_recInfo(self,recommendations:typing.Dict):
+    def _append_recInfo(self,recommendations:Dict):
         if (recommendations["collection"] is not None and len(recommendations["collection"])>0):
             self._rec_info.append(recommendations)
     def maintain_recs(self):
@@ -459,10 +474,12 @@ class LuxDataFrame(pd.DataFrame):
     #######################################################
     ############## LuxWidget Result Display ###############
     #######################################################
-    def get_widget(self):
-        return self._widget
+    @property
+    def widget(self):
+        if(self._widget):
+            return self._widget
 
-    def get_exported(self) -> typing.Union[typing.Dict[str,VisList], VisList]:
+    def get_exported(self) -> Union[Dict[str,VisList], VisList]:
         """
         Get selected visualizations as exported Vis List
 
@@ -475,7 +492,7 @@ class LuxDataFrame(pd.DataFrame):
         
         Returns
         -------
-        typing.Union[typing.Dict[str,VisList], VisList]
+        Union[Dict[str,VisList], VisList]
             When there are no exported vis, return empty list -> []
             When all the exported vis is from the same tab, return a VisList of selected visualizations. -> VisList(v1, v2...)
             When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisList. -> {"Enhance": VisList(v1, v2...), "Filter": VisList(v5, v7...), ..}
@@ -543,7 +560,7 @@ class LuxDataFrame(pd.DataFrame):
                 from lux.compiler.Compiler import Compiler
                 self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
 
-            self.toggle_pandas_display = self.default_pandas_display # Reset to Pandas Vis everytime
+            self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime
             
             #for benchmarking
             if self.toggle_benchmarking == True:
@@ -565,9 +582,9 @@ class LuxDataFrame(pd.DataFrame):
             def on_button_clicked(b):
                 with output:
                     if (b):
-                        self.toggle_pandas_display = not self.toggle_pandas_display
+                        self._toggle_pandas_display = not self._toggle_pandas_display
                     clear_output()
-                    if (self.toggle_pandas_display):
+                    if (self._toggle_pandas_display):
                         display(self.display_pandas())
                     else:
                         # b.layout.display = "none"

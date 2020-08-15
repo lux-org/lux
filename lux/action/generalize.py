@@ -10,9 +10,6 @@ from lux.interestingness.interestingness import interestingness
 import time
 # from compiler.Compiler import Compiler
 def generalize(ldf):
-	#for benchmarking
-	if ldf.toggle_benchmarking == True:
-		tic = time.perf_counter()
 	'''
 	Generates all possible visualizations when one attribute or filter from the current vis is removed.
 
@@ -80,8 +77,4 @@ def generalize(ldf):
 	vc.remove_duplicates()
 	vc.sort(remove_invalid=True)
 	recommendation["collection"] = vc
-	#for benchmarking
-	if ldf.toggle_benchmarking == True:
-		toc = time.perf_counter()
-		print(f"Performed generalize action in {toc - tic:0.4f} seconds")
 	return recommendation

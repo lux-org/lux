@@ -17,13 +17,13 @@ General Information
 
     .. code-block:: python
     
-        df.set_default_display("lux")
+        df.default_display = "lux"
     
     To switch back to Pandas as the default display: 
 
     .. code-block:: python
     
-        df.set_default_display("pandas")
+        df.default_display = "pandas"
 
 - How do I turn off Lux?
     - To tempora

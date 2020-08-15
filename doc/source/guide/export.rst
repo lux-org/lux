@@ -12,7 +12,7 @@ In this tutorial, we look at the `Happy Planet Index <http://happyplanetindex.or
 .. code-block:: python
 
     df = pd.read_csv("lux/data/hpi.csv")
-    df.set_default_display("lux") # Set Lux as default display
+    df.default_display = "lux" # Set Lux as default display
 
 Note that for the convienience of this tutorial, we have set Lux as the default display so we don't have to Toggle from the Pandas table display everytime we print the dataframe.
 

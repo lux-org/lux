@@ -8,9 +8,6 @@ from lux.vis.VisList import VisList
 import pandas as pd
 import time
 def row_group(ldf):
-	#for benchmarking
-	if ldf.toggle_benchmarking == True:
-		tic = time.perf_counter()
 	recommendation = {"action":"Row Groups",
 					"description":"Shows charts of possible visualizations with respect to the row-wise index."}
 	collection = []
@@ -35,8 +32,4 @@ def row_group(ldf):
 	# Note that we are not computing interestingness score here because we want to preserve the arrangement of the aggregated data
 	
 	recommendation["collection"] = vlst
-	#for benchmarking
-	if ldf.toggle_benchmarking == True:
-		toc = time.perf_counter()
-		print(f"Performed enhance action in {toc - tic:0.4f} seconds")
 	return recommendation
