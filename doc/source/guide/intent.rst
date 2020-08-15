@@ -4,7 +4,7 @@ Specifying Intent in Lux
 
 Lux provides a flexible language for communicating your analysis intent to the system, so that Lux can provide better and more relevant recommendations to you. In this tutorial, we will see different ways of specifying the intent, including the attributes and values that you are interested or not interested in, enumeration specifiers, as well as any constraints on the visualization encoding.
 
-The primary way to set the current intent associated with a dataframe is by calling :func:`lux.luxDataFrame.LuxDataframe.set_intent`, and providing a list of specification as input. We will first describe how intent can be specified through convenient shorthand descriptions as string inputs, then we will describe advance usage via the :mod:`lux.Clause <lux.vis.Clause>` object.
+The primary way to set the current intent associated with a dataframe is by setting the `intent` property of the dataframe, and providing a list of specification as input. We will first describe how intent can be specified through convenient shorthand descriptions as string inputs, then we will describe advance usage via the :mod:`lux.Clause <lux.vis.Clause>` object.
 
 Basic descriptions
 ------------------
@@ -16,7 +16,7 @@ You can indicate that you are interested in an attribute, let's say `AverageCost
 
 .. code-block:: python
 
-    df.set_intent(['AverageCost'])
+    df.intent = ['AverageCost']
 
 .. image:: ../img/intent-1.png
   :width: 700
@@ -27,7 +27,7 @@ You might be interested in multiple attributes, for instance you might want to l
 
 .. code-block:: python
 
-    df.set_intent(['AverageCost','FundingModel'])
+    df.intent = ['AverageCost','FundingModel']
     df 
 
 .. image:: ../img/intent-2.png
@@ -42,7 +42,7 @@ You can specify a list of desired attributes separated by the `|` symbol, which 
 .. code-block:: python
 
     possible_attributes = "AverageCost|Expenditure|MedianDebt|MedianEarnings"
-    df.set_intent([possible_attributes,"FundingModel"])
+    df.intent = [possible_attributes,"FundingModel"]
     df
 
 .. image:: ../img/intent-3.png
@@ -55,7 +55,7 @@ Alternatively, you could also provide the specification as a list:
 .. code-block:: python
 
     possible_attributes = ['AverageCost','Expenditure','MedianDebt','MedianEarnings']
-    df.set_intent([possible_attributes,"FundingModel"])
+    df.intent = [possible_attributes,"FundingModel"]
     df
 
 .. image:: ../img/intent-4.png
@@ -70,7 +70,7 @@ In Lux, you can also specify particular values corresponding to subsets of the d
 
 .. code-block:: python
 
-    df.set_intent(["Region=New England"])
+    df.intent = ["Region=New England"]
     df
 
 .. image:: ../img/intent-5.png
@@ -82,7 +82,7 @@ You can also specify multiple values of interest using the same `|` notation tha
 
 .. code-block:: python
 
-    df.set_intent(["MedianDebt","Region=New England|Southeast|Far West"])
+    df.intent = ["MedianDebt","Region=New England|Southeast|Far West"]
 
 .. image:: ../img/intent-6.png
   :width: 700
@@ -104,11 +104,12 @@ Note that since there are three different visualizations that is generated based
       :align: center
       :alt: add screenshot
 
-    Specifying the values through `set_intent` tells Lux that you are interested in colleges in New England. In the resulting Filter action, we see that Lux suggests visualizations in other `Region`s as recommendations.
+    You can specify to Lux that you are interested in learning more about colleges in New England. 
+    In the resulting Filter action, we see that Lux suggests visualizations in other `Region`s as recommendations.
     
     .. code-block:: python
         
-        df.set_intent(["Region=New England"])
+        df.intent = ["Region=New England"]
         df
         
     .. image:: ../img/intent-8.png
@@ -130,15 +131,14 @@ To see an example of how lux.Clause is used, we rewrite our earlier example of e
 
 .. code-block:: python
     
-    df.set_intent([lux.Clause(attribute='AverageCost')])
+    df.intent = [lux.Clause(attribute='AverageCost')]
 
 Similarly, we can use :mod:`lux.Clause <lux.vis.Clause>` to specify values of interest:
 
 .. code-block:: python 
 
-    df.set_intent(['MedianDebt',
-                lux.Clause(attribute='Region',filter_op='=', value=['New England','Southeast','Far West'])
-              ])
+    df.intent = ['MedianDebt',
+                lux.Clause(attribute='Region',filter_op='=', value=['New England','Southeast','Far West'])]
 
 Both the `attribute` and `value` fields can take in either a single string or a list of attributes to specify items of interest. This example also demonstrates how we can intermix the `lux.Clause` specification alongside the basic string-based specification for convenience.
 
@@ -155,7 +155,7 @@ While this is unconventional, let's say that instead we want to set `AverageCost
     
 .. code-block:: python
     
-    df.set_intent([lux.Clause(attribute='AverageCost', channel='y')])
+    df.intent = [lux.Clause(attribute='AverageCost', channel='y')]
     df
 
 .. image:: ../img/intent-9.png
@@ -170,7 +170,7 @@ We can also set constraints on the type of aggregation that is used. For example
 
 .. code-block:: python
 
-    df.set_intent(["HighestDegree","AverageCost"])
+    df.intent = ["HighestDegree","AverageCost"]
     df
 
 .. image:: ../img/intent-10.png
@@ -182,7 +182,7 @@ We can override the aggregation function to be `sum` instead.
 
 .. code-block:: python
 
-    df.set_intent(["HighestDegree",lux.Clause("AverageCost",aggregation="sum")])
+    df.intent = ["HighestDegree",lux.Clause("AverageCost",aggregation="sum")]
     df 
 
 .. image:: ../img/intent-11.png
@@ -196,7 +196,7 @@ For example, we can change the aggregation function to be the point-to-point val
 
 .. code-block:: python
 
-    df.set_intent(["HighestDegree",lux.Clause("AverageCost",aggregation=np.ptp)])
+    df.intent = ["HighestDegree",lux.Clause("AverageCost",aggregation=np.ptp)]
     df
 
 .. image:: ../img/intent-12.png
@@ -211,7 +211,7 @@ Let's say that you are interested in *any* attribute with respect to `AverageCos
 
 .. code-block:: python
     
-    df.set_intent(['AverageCost',lux.Clause('?')])
+    df.intent = ['AverageCost',lux.Clause('?')]
     df
 
 .. image:: ../img/intent-13.png
@@ -223,7 +223,7 @@ The space of enumeration can be narrowed based on constraints. For example, you 
 
 .. code-block:: python
     
-    df.set_intent(['AverageCost',lux.Clause('?',data_type='quantitative')])
+    df.intent = ['AverageCost',lux.Clause('?',data_type='quantitative')]
     df
 
 .. image:: ../img/intent-14.png
@@ -235,13 +235,13 @@ The enumeration specifier can also be placed on the value field. For example, yo
 
 .. code-block:: python
     
-    df.set_intent(['AverageCost','Geography=?'])
+    df.intent = ['AverageCost','Geography=?']
 
 or 
 
 .. code-block:: python
 
-    df.set_intent(['AverageCost',lux.Clause(attribute='Geography',filter_op='=',value='?')])
+    df.intent = ['AverageCost',lux.Clause(attribute='Geography',filter_op='=',value='?')]
     df
 
 .. image:: ../img/intent-15.png

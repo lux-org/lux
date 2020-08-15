@@ -24,7 +24,7 @@ class Parser:
 		"""		
 		if type(intent)!=list:
 			raise TypeError("Input intent must be a list consisting of string descriptions or lux.Clause objects."
-					"\nSee more at: https://lux-api.readthedocs.io/en/dfapi/source/guide/clause.html"
+					"\nSee more at: https://lux-api.readthedocs.io/en/latest/source/guide/intent.html"
 					)
 		import re
 		# intent = ldf.get_context()

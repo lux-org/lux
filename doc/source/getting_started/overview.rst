@@ -86,7 +86,7 @@ For example, let's say that you are interested in learning more about the median
 
 .. code-block:: python
 
-    df.set_intent(["MedianEarnings"])
+    df.intent = ["MedianEarnings"]
 
 When you print out the dataframe again, you should see three different tabs of visualizations recommended to you. 
 
@@ -107,7 +107,7 @@ You can specify a variety of things that you might be interested in, for example
 
 .. code-block:: python
 
-    df.set_intent(["MedianEarnings", "FundingModel=Public"])
+    df.intent = ["MedianEarnings", "FundingModel=Public"]
     df
 
 For more advance use of intent, refer to :doc:`this page <../getting_started/intent>` on how to specify the intent.
@@ -118,7 +118,7 @@ In the earlier example, when `MedianEarning` is expressed as the intent, the cur
 
 .. code-block:: python
 
-    df.set_intent(["MedianEarnings"])
+    df.intent = ["MedianEarnings"]
 
 Given the updated intent, additional actions (Enhance and Filter) are generated. 
 

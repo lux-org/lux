@@ -68,7 +68,7 @@ Often, we might be interested in other visualizations that is related to a visua
 
 .. code-block:: python
 
-    df.set_intent_as_vis(vis)
+    df.intent = vis
     df
 
 .. image:: ../img/export-5.png
