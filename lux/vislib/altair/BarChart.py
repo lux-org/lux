@@ -21,9 +21,9 @@ class BarChart(AltairChart):
 		x_attr = self.view.get_attr_by_channel("x")[0]
 		y_attr = self.view.get_attr_by_channel("y")[0]
 
-		self.code += "import altair as alt\n"
-		# self.code += f"visData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
-		self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
+		self.source_code += "import altair as alt\n"
+		# self.source_code += f"visData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
+		self.source_code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
 		
 		if (x_attr.data_model == "measure"):
 			agg_title = get_agg_title(x_attr)
@@ -53,8 +53,14 @@ class BarChart(AltairChart):
 		# Can not do interactive whenever you have default count measure otherwise output strange error (Javascript Error: Cannot read property 'length' of undefined)
 		#chart = chart.interactive() # If you want to enable Zooming and Panning
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
-
-		self.code += f'''
+		def code(df):
+			import altair as alt
+			visData = pd.DataFrame(str(self.data.to_dict()))
+			chart = alt.Chart(visData).mark_bar().encode(y = y_attr_field, x = x_attr_field)
+			chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
+			return chart
+		self.code = code
+		self.source_code += f'''
 		chart = alt.Chart(visData).mark_bar().encode(
 		    y = {y_attr_field_code},
 		    x = {x_attr_field_code},

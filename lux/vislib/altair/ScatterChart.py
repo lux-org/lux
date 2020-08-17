@@ -33,10 +33,19 @@ class ScatterChart(AltairChart):
 		#####################################
 		## Constructing Altair Code String ##
 		#####################################
-		
-		self.code += "import altair as alt\n"
-		dfname = "df" # TODO: Placeholder (need to read dynamically via locals())
-		self.code += f'''
+		def code(df):
+			import altair as alt
+			chart = alt.Chart(df).mark_circle().encode(
+				x=alt.X(x_attr.attribute, scale=alt.Scale(domain=(x_min, x_max)), type=x_attr.data_type),
+				y=alt.Y(y_attr.attribute, scale=alt.Scale(domain=(y_min, y_max)),type=y_attr.data_type)
+			)
+			chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
+			chart = chart.interactive() # Enable Zooming and Panning
+			return chart
+		self.code = code
+		self.source_code += "import altair as alt\n"
+		dfname = f'''pd.DataFrame({str(self.data.to_dict())})''' # TODO: Placeholder (need to read dynamically via locals())
+		self.source_code += f'''
 		chart = alt.Chart({dfname}).mark_circle().encode(
 		    x=alt.X('{x_attr.attribute}',scale=alt.Scale(domain=({x_min}, {x_max})),type='{x_attr.data_type}'),
 		    y=alt.Y('{y_attr.attribute}',scale=alt.Scale(domain=({y_min}, {y_max})),type='{y_attr.data_type}')
@@ -44,4 +53,5 @@ class ScatterChart(AltairChart):
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		chart = chart.interactive() # Enable Zooming and Panning
 		'''
+
 		return chart 
