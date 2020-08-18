@@ -1,7 +1,7 @@
 import pandas
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
-from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
 class PandasExecutor(Executor):
@@ -26,7 +26,7 @@ class PandasExecutor(Executor):
         ----------
         view_collection: list[lux.Vis]
             vis list that contains lux.Vis objects for visualization.
-        ldf : lux.luxDataFrame.LuxDataFrame
+        ldf : lux.core.frame
             LuxDataFrame with specified intent.
 
         Returns
@@ -60,7 +60,7 @@ class PandasExecutor(Executor):
         ----------
         view: lux.Vis
             lux.Vis object that represents a visualization
-        ldf : lux.luxDataFrame.LuxDataFrame
+        ldf : lux.core.frame
             LuxDataFrame with specified intent.
 
         Returns
@@ -211,7 +211,7 @@ class PandasExecutor(Executor):
         ----------
         view: lux.Vis
             lux.Vis object that represents a visualization
-        ldf : lux.luxDataFrame.LuxDataFrame
+        ldf : lux.core.frame
             LuxDataFrame with specified intent.
 
         Returns

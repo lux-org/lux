@@ -10,7 +10,7 @@ def univariate(ldf, data_type_constraint="quantitative"):
 
 	Parameters
 	----------
-	ldf : lux.luxDataFrame.LuxDataFrame
+	ldf : lux.core.frame
 		LuxDataFrame with underspecified intent.
 
 	data_type_constraint: str

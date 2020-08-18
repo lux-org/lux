@@ -11,14 +11,14 @@ def test_lazy_execution():
     # Check data field in vis is empty before calling executor
     assert vis.data is None
     PandasExecutor.execute([vis], df)
-    assert type(vis.data) == lux.luxDataFrame.LuxDataframe.LuxDataFrame
+    assert type(vis.data) == lux.core.frame.LuxDataFrame
     
 def test_selection():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
     intent = [lux.Clause(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.Clause(attribute ="Year")]
     vislist = VisList(intent,df)
-    assert all([type(vis.data) == lux.luxDataFrame.LuxDataframe.LuxDataFrame for vis in vislist])
+    assert all([type(vis.data) == lux.core.frame.LuxDataFrame for vis in vislist])
     assert all(vislist[2].data.columns == ["Year", 'Acceleration'])
 
 def test_aggregation():

@@ -10,7 +10,7 @@ def similar_pattern(ldf, intent, topK=-1):
 
     Parameters
     ----------
-    ldf : lux.luxDataFrame.LuxDataFrame
+    ldf : lux.core.frame
     	LuxDataFrame with underspecified intent.
 
     intent: list[lux.Clause]

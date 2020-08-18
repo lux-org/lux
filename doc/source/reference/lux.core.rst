@@ -1,11 +1,11 @@
-lux.luxDataFrame package
-========================
+lux.core package
+================
 
 Submodules
 ----------
 
 lux.core.frame module
-------------------------------------
+---------------------
 
 .. automodule:: lux.core.frame
    :members:
@@ -16,7 +16,7 @@ lux.core.frame module
 Module contents
 ---------------
 
-.. automodule:: lux.luxDataFrame
+.. automodule:: lux.core
    :members:
    :undoc-members:
    :show-inheritance:

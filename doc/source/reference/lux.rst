@@ -8,7 +8,7 @@ Subpackages
    :maxdepth: 4
 
    lux.action
-   lux.compiler
+   lux.processor
    lux.executor
    lux.interestingness
    lux.luxDataFrame

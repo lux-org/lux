@@ -1,11 +1,11 @@
 lux.processor package
-====================
+=====================
 
 Submodules
 ----------
 
 lux.processor.Compiler module
-----------------------------
+-----------------------------
 
 .. automodule:: lux.processor.Compiler
    :members:
@@ -13,7 +13,7 @@ lux.processor.Compiler module
    :show-inheritance:
 
 lux.processor.Parser module
---------------------------
+---------------------------
 
 .. automodule:: lux.processor.Parser
    :members:
@@ -21,7 +21,7 @@ lux.processor.Parser module
    :show-inheritance:
 
 lux.processor.Validator module
------------------------------
+------------------------------
 
 .. automodule:: lux.processor.Validator
    :members:

@@ -1,5 +1,5 @@
 lux.processor.Validator.Validator
-================================
+=================================
 
 .. currentmodule:: lux.processor.Validator
 

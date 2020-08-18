@@ -1,7 +1,7 @@
 import lux
 from lux.interestingness.interestingness import interestingness
-from lux.compiler.Compiler import Compiler
-from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+from lux.processor.Compiler import Compiler
+from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 # for benchmarking
 import time

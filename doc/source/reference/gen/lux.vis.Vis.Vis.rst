@@ -33,4 +33,10 @@ lux.vis.Vis.Vis
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Vis.get_data
+   
    

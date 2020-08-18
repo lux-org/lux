@@ -1,7 +1,7 @@
 from lux.vis import Clause
 from typing import List, Dict, Union
 from lux.vis.Vis import Vis
-from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 from lux.utils import date_utils
 import pandas as pd
@@ -29,7 +29,7 @@ class Compiler:
 
 		Parameters
 		----------
-		ldf : lux.luxDataFrame.LuxDataFrame
+		ldf : lux.core.frame
 			LuxDataFrame with underspecified intent.
 		vis_collection : list[lux.vis.Vis]
 			empty list that will be populated with specified lux.Vis objects.
@@ -60,7 +60,7 @@ class Compiler:
 
 		Parameters
 		----------
-		ldf : lux.luxDataFrame.LuxDataFrame
+		ldf : lux.core.frame
 			LuxDataFrame with underspecified intent.
 
 		Returns
@@ -104,7 +104,7 @@ class Compiler:
 
 		Parameters
 		----------
-		ldf : lux.luxDataFrame.LuxDataFrame
+		ldf : lux.core.frame
 			LuxDataFrame with underspecified intent
 
 		vis_collection : list[lux.vis.Vis]
@@ -173,7 +173,7 @@ class Compiler:
 		
 		Parameters
 		----------
-		ldf : lux.luxDataFrame.LuxDataFrame
+		ldf : lux.core.frame
 			LuxDataFrame with underspecified intent
 		vis : lux.vis.Vis
 

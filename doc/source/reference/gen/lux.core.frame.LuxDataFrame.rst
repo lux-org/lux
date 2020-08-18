@@ -1,5 +1,5 @@
 lux.core.frame.LuxDataFrame
-==========================================
+===========================
 
 .. currentmodule:: lux.core.frame
 
@@ -18,7 +18,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.add
       ~LuxDataFrame.add_prefix
       ~LuxDataFrame.add_suffix
-      ~LuxDataFrame.add_to_intent
       ~LuxDataFrame.agg
       ~LuxDataFrame.aggregate
       ~LuxDataFrame.align
@@ -32,6 +31,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.assign
       ~LuxDataFrame.astype
       ~LuxDataFrame.at_time
+      ~LuxDataFrame.backfill
       ~LuxDataFrame.between_time
       ~LuxDataFrame.bfill
       ~LuxDataFrame.bool
@@ -41,6 +41,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.clip
       ~LuxDataFrame.combine
       ~LuxDataFrame.combine_first
+      ~LuxDataFrame.compare
       ~LuxDataFrame.compute_SQL_data_type
       ~LuxDataFrame.compute_SQL_dataset_metadata
       ~LuxDataFrame.compute_SQL_stats
@@ -76,6 +77,8 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.eval
       ~LuxDataFrame.ewm
       ~LuxDataFrame.expanding
+      ~LuxDataFrame.expire_metadata
+      ~LuxDataFrame.expire_recs
       ~LuxDataFrame.explode
       ~LuxDataFrame.ffill
       ~LuxDataFrame.fillna
@@ -91,8 +94,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.get_SQL_cardinality
       ~LuxDataFrame.get_SQL_unique_values
       ~LuxDataFrame.get_exported
-      ~LuxDataFrame.get_intent
-      ~LuxDataFrame.get_widget
       ~LuxDataFrame.groupby
       ~LuxDataFrame.gt
       ~LuxDataFrame.head
@@ -100,7 +101,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.idxmax
       ~LuxDataFrame.idxmin
       ~LuxDataFrame.infer_objects
-      ~LuxDataFrame._infer_structure
       ~LuxDataFrame.info
       ~LuxDataFrame.insert
       ~LuxDataFrame.intent_to_JSON
@@ -123,6 +123,8 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.lookup
       ~LuxDataFrame.lt
       ~LuxDataFrame.mad
+      ~LuxDataFrame.maintain_metadata
+      ~LuxDataFrame.maintain_recs
       ~LuxDataFrame.mapping
       ~LuxDataFrame.mask
       ~LuxDataFrame.max
@@ -142,6 +144,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.notnull
       ~LuxDataFrame.nsmallest
       ~LuxDataFrame.nunique
+      ~LuxDataFrame.pad
       ~LuxDataFrame.pct_change
       ~LuxDataFrame.pipe
       ~LuxDataFrame.pivot
@@ -179,14 +182,12 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.sem
       ~LuxDataFrame.set_SQL_connection
       ~LuxDataFrame.set_axis
-      ~LuxDataFrame.default_display
       ~LuxDataFrame.set_executor_type
       ~LuxDataFrame.set_index
       ~LuxDataFrame.set_intent
       ~LuxDataFrame.set_intent_as_vis
       ~LuxDataFrame.set_plot_config
       ~LuxDataFrame.shift
-      ~LuxDataFrame.maintain_recs
       ~LuxDataFrame.skew
       ~LuxDataFrame.slice_shift
       ~LuxDataFrame.sort_index
@@ -233,6 +234,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.tz_localize
       ~LuxDataFrame.unstack
       ~LuxDataFrame.update
+      ~LuxDataFrame.value_counts
       ~LuxDataFrame.var
       ~LuxDataFrame.where
       ~LuxDataFrame.xs
@@ -250,16 +252,21 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.attrs
       ~LuxDataFrame.axes
       ~LuxDataFrame.columns
+      ~LuxDataFrame.current_vis
+      ~LuxDataFrame.default_display
       ~LuxDataFrame.dtypes
       ~LuxDataFrame.empty
       ~LuxDataFrame.iat
       ~LuxDataFrame.iloc
       ~LuxDataFrame.index
+      ~LuxDataFrame.intent
       ~LuxDataFrame.loc
       ~LuxDataFrame.ndim
+      ~LuxDataFrame.recommendation
       ~LuxDataFrame.shape
       ~LuxDataFrame.size
       ~LuxDataFrame.style
       ~LuxDataFrame.values
+      ~LuxDataFrame.widget
    
    

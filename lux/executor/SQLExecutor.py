@@ -1,7 +1,7 @@
 import pandas
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
-from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
 import math

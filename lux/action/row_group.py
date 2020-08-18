@@ -1,6 +1,6 @@
 import lux
 from lux.interestingness.interestingness import interestingness
-from lux.compiler.Compiler import Compiler
+from lux.processor.Compiler import Compiler
 from lux.utils import utils
 
 from lux.vis.Vis import Vis

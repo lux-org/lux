@@ -208,7 +208,7 @@ class VisList():
 	def _repr_html_(self):
 		self._widget =  None
 		from IPython.display import display
-		from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+		from lux.core.frame import LuxDataFrame
 		recommendation = {"action": "Vis List",
 					  "description": "Shows a vis list defined by the intent"}
 		recommendation["collection"] = self._collection
@@ -247,9 +247,9 @@ class VisList():
 		Function derives a new _inferred_intent by instantiating the intent specification on the new data
 		"""		
 		if (ldf is not None):
-			from lux.compiler.Parser import Parser
-			from lux.compiler.Validator import Validator
-			from lux.compiler.Compiler import Compiler
+			from lux.processor.Parser import Parser
+			from lux.processor.Validator import Validator
+			from lux.processor.Compiler import Compiler
 			from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
 			self._source = ldf
 			self._source.maintain_metadata()

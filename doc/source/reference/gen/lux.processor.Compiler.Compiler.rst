@@ -1,5 +1,5 @@
 lux.processor.Compiler.Compiler
-==============================
+===============================
 
 .. currentmodule:: lux.processor.Compiler
 

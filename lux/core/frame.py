@@ -190,12 +190,12 @@ class LuxDataFrame(pd.DataFrame):
 		self._intent = intent
 		self._parse_validate_compile_intent()
 	def _parse_validate_compile_intent(self):
-		from lux.compiler.Parser import Parser
-		from lux.compiler.Validator import Validator
+		from lux.processor.Parser import Parser
+		from lux.processor.Validator import Validator
 		self._intent = Parser.parse(self._intent)
 		Validator.validate_intent(self._intent,self)
 		self.maintain_metadata()
-		from lux.compiler.Compiler import Compiler
+		from lux.processor.Compiler import Compiler
 		self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
 		
 	def copy_intent(self):
@@ -219,8 +219,8 @@ class LuxDataFrame(pd.DataFrame):
 		self._parse_validate_compile_intent()
 
 	def to_pandas(self):
-		import lux.luxDataFrame
-		return lux.luxDataFrame.originalDF(self,copy=False)
+		import lux.core
+		return lux.core.originalDF(self,copy=False)
 	
 	@property
 	def recommendation(self):
@@ -561,7 +561,7 @@ class LuxDataFrame(pd.DataFrame):
 			self.maintain_metadata()
 			
 			if (self._intent!=[] and not self._compiled):
-				from lux.compiler.Compiler import Compiler
+				from lux.processor.Compiler import Compiler
 				self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
 
 			self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            

@@ -90,7 +90,7 @@ class Vis:
 		if (self.data is None):
 			raise Exception("No data is populated in Vis. In order to generate data required for the vis, use the 'refresh_source' function to populate the Vis with a data source (e.g., vis.refresh_source(df)).")
 		else:
-			from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+			from lux.core.frame import LuxDataFrame
 			widget =  luxWidget.LuxWidget(
 					currentVis= LuxDataFrame.current_view_to_JSON([self]),
 					recommendations=[],
@@ -218,9 +218,9 @@ class Vis:
 		Function derives a new _inferred_intent by instantiating the intent specification on the new data
 		"""		
 		if (ldf is not None):
-			from lux.compiler.Parser import Parser
-			from lux.compiler.Validator import Validator
-			from lux.compiler.Compiler import Compiler
+			from lux.processor.Parser import Parser
+			from lux.processor.Validator import Validator
+			from lux.processor.Compiler import Compiler
 			from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
 			ldf.maintain_metadata()
 			self._source = ldf
