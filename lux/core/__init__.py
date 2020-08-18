@@ -1,5 +1,5 @@
 import pandas as pd
-from .LuxDataframe import LuxDataFrame
+from .frame import LuxDataFrame
 global originalDF;
 # Keep variable scope of original pandas df
 originalDF = pd.core.frame.DataFrame

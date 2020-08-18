@@ -1,5 +1,5 @@
 from lux.vis.Clause import Clause
-from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+from lux.core.frame import LuxDataFrame
 from typing import List, Union
 class Parser:
 	"""

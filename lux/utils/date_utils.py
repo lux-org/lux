@@ -15,7 +15,7 @@ def date_formatter(time_stamp,ldf):
 	----------
 	time_stamp: np.datetime64 
 		timestamp object holding the date information
-	ldf : lux.luxDataFrame.LuxDataFrame
+	ldf : lux.core.frame
 		LuxDataFrame with a temporal field
 
 	Returns

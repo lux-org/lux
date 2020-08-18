@@ -31,7 +31,7 @@ def test_period_selection():
 
 	PandasExecutor.execute(ldf.current_vis, ldf)
 
-	assert all([type(vc.data) == lux.luxDataFrame.LuxDataframe.LuxDataFrame for vc in ldf.current_vis])
+	assert all([type(vc.data) == lux.core.frame.LuxDataFrame for vc in ldf.current_vis])
 	assert all(ldf.current_vis[2].data.columns == ["Year", 'Acceleration'])
 
 def test_period_filter():

@@ -1,5 +1,5 @@
 lux.processor.Parser.Parser
-==========================
+===========================
 
 .. currentmodule:: lux.processor.Parser
 

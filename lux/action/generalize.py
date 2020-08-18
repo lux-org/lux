@@ -2,7 +2,7 @@ import lux
 import scipy.stats
 import numpy as np
 from lux.vis.Vis import Vis
-from lux.compiler.Compiler import Compiler
+from lux.processor.Compiler import Compiler
 from lux.utils import utils
 from lux.interestingness.interestingness import interestingness
 
@@ -15,7 +15,7 @@ def generalize(ldf):
 
 	Parameters
 	----------
-	ldf : lux.luxDataFrame.LuxDataFrame
+	ldf : lux.core.frame
 		LuxDataFrame with underspecified intent.
 
 	Returns

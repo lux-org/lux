@@ -1,5 +1,5 @@
 # from ..luxDataFrame.LuxDataframe import LuxDataFrame
-from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+from lux.core.frame import LuxDataFrame
 from lux.vis.Clause import Clause
 from typing import List
 from lux.utils.date_utils import is_datetime_series,is_datetime_string
@@ -21,7 +21,7 @@ class Validator:
 
 		Parameters
 		----------
-		ldf : lux.luxDataFrame.LuxDataFrame
+		ldf : lux.core.frame
 			LuxDataFrame with underspecified intent.
 
 		Returns

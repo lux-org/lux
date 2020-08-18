@@ -9,7 +9,7 @@ def convert_to_list(x):
 		return x
 
 def pandas_to_lux(df):
-	from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+	from lux.core.frame import LuxDataFrame
 	values = df.values.tolist()
 	ldf = LuxDataFrame(values, columns = df.columns)
 	return(ldf)

@@ -11,7 +11,7 @@ def custom(ldf):
 
     Parameters
     ----------
-    ldf : lux.luxDataFrame.LuxDataFrame
+    ldf : lux.core.frame
         LuxDataFrame with underspecified intent.
 
     Returns

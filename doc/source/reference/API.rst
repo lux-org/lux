@@ -14,7 +14,7 @@ User Facing Objects
 	lux.vis.Vis.Vis
 	lux.vis.VisList.VisList
 	lux.vis.Vis.Clause
-	lux.luxDataFrame.LuxDataframe.LuxDataFrame
+	lux.core.frame.LuxDataFrame
 
 Internal Objects
 ----------------
@@ -23,9 +23,9 @@ Internal Objects
 	:toctree: gen
 	:nosignatures: 
 	
-	lux.compiler.Compiler.Compiler
-	lux.compiler.Parser.Parser
-	lux.compiler.Validator.Validator
+	lux.processor.Compiler.Compiler
+	lux.processor.Parser.Parser
+	lux.processor.Validator.Validator
 	lux.executor.Executor.Executor
 	lux.executor.PandasExecutor.PandasExecutor
 	lux.executor.SQLExecutor.SQLExecutor

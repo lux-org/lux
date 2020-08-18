@@ -1,4 +1,4 @@
-from lux.luxDataFrame.LuxDataframe import LuxDataFrame
+from lux.core.frame import LuxDataFrame
 from lux.vis.Vis import Vis
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.utils import utils

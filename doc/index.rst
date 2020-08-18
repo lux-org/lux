@@ -1,7 +1,7 @@
 Welcome to Lux's documentation!
 ===============================
 
-.. automodule:: lux.compiler
+.. automodule:: lux.processor
    :members:
    :imported-members:
    :undoc-members:

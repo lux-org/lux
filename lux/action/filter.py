@@ -2,7 +2,7 @@ import lux
 from lux.interestingness.interestingness import interestingness
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
-from lux.compiler.Compiler import Compiler
+from lux.processor.Compiler import Compiler
 from lux.utils import utils
 
 #for benchmarking
@@ -14,7 +14,7 @@ def filter(ldf):
 
 	Parameters
 	----------
-	ldf : lux.luxDataFrame.LuxDataFrame
+	ldf : lux.core.frame
 		LuxDataFrame with underspecified intent.
 
 	Returns

@@ -94,7 +94,7 @@ def test_underspecified_vis_collection_zval():
 	# assert len(vlst) == 8
 
 def test_sort_bar():
-	from lux.compiler.Compiler import Compiler
+	from lux.processor.Compiler import Compiler
 	from lux.vis.Vis import Vis
 	df = pd.read_csv("lux/data/car.csv")
 	vis = Vis([lux.Clause(attribute="Acceleration",data_model="measure",data_type="quantitative"),
@@ -204,7 +204,7 @@ def test_autoencoding_color_scatter_chart():
 	check_attribute_on_channel(vis, "Acceleration", "color")
 
 def test_populate_options():
-	from lux.compiler.Compiler import Compiler
+	from lux.processor.Compiler import Compiler
 	df = pd.read_csv("lux/data/cars.csv")
 	df.set_intent([lux.Clause(attribute="?"), lux.Clause(attribute="MilesPerGal")])
 	col_set = set()

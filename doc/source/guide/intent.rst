@@ -122,7 +122,7 @@ Note that since there are three different visualizations that is generated based
 Advanced intent specification through :mod:`lux.Clause <lux.vis.Clause>`
 ---------------------------------------------------------------------------
 
-The basic string-based description provides a convenient way of specifying the intent. However, not all specification can be expressed through the string-based descriptions, more complex specification can be expressed through the :mod:`lux.Clause <lux.vis.Clause>` object. The two modes of specification is essentially equivalent, with the :mod:`lux.compiler.Parser` parsing the `description` field in the :mod:`lux.Clause <lux.vis.Clause>` object.
+The basic string-based description provides a convenient way of specifying the intent. However, not all specification can be expressed through the string-based descriptions, more complex specification can be expressed through the :mod:`lux.Clause <lux.vis.Clause>` object. The two modes of specification is essentially equivalent, with the :mod:`lux.processor.Parser` parsing the `description` field in the :mod:`lux.Clause <lux.vis.Clause>` object.
 
 Specifying attributes or values of interest
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
