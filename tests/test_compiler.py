@@ -57,6 +57,13 @@ def test_underspecified_single_vis(test_recs):
 # 	df.set_intent([lux.Clause(attribute ="?", data_model="measure"), lux.Clause(attribute ="?", data_model="measure")])
 # 	assert len(df.current_vis) == len([vis.get_attr_by_data_model("measure") for vis in df.current_vis]) #should be 25
 # 	test_recs(df, multiple_vis_actions)
+def test_set_intent_as_vis(test_recs):
+	df = pd.read_csv("lux/data/car.csv")
+	df._repr_html_()
+	vis = df.recommendation["Correlation"][0]
+	df.intent = vis
+	df._repr_html_()
+	test_recs(df,["Enhance","Filter","Generalize"])
 
 @pytest.fixture
 def test_recs():

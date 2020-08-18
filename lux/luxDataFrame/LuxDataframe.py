@@ -214,10 +214,9 @@ class LuxDataFrame(pd.DataFrame):
 		----------
 		vis : Vis
 		"""        
+		self.expire_recs()
 		self._intent = vis._inferred_intent
 		self._parse_validate_compile_intent()
-		from lux.compiler.Compiler import Compiler
-		self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
 
 	def to_pandas(self):
 		import lux.luxDataFrame
