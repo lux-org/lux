@@ -55,21 +55,25 @@ def test_colored_bar_chart():
     assert(len(new_vis.data)==15 > group_by_cardinality < color_cardinality*group_by_cardinality) # Not color_cardinality*group_by_cardinality since some combinations have 0 values
 
     
+
 def test_colored_line_chart():
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
+
     x_clause = Clause(attribute = "Year", channel = "x")
     y_clause = Clause(attribute = "MilesPerGal", channel = "y")
     color_clause = Clause(attribute = 'Cylinders', channel = "color")
 
     new_vis = Vis([x_clause, y_clause, color_clause],df)
+
     #make sure dimention of the data is correct
     color_cardinality = len(df.unique_values['Cylinders'])
     group_by_cardinality = len(df.unique_values['Year'])
     assert (len(new_vis.data.columns)==3)
     assert(len(new_vis.data)==60 > group_by_cardinality < color_cardinality*group_by_cardinality) # Not color_cardinality*group_by_cardinality since some combinations have 0 values
+
     
 def test_filter():
     df = pd.read_csv("lux/data/car.csv")
