@@ -1,4 +1,5 @@
 import pandas as pd
+from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
@@ -41,6 +42,18 @@ class LuxDataFrame(pd.DataFrame):
 		self.cardinality = None
 		self.min_max = None
 		self.pre_aggregated = None
+
+	@property
+	def _constructor(self):
+		return LuxDataFrame
+
+	# @property
+	# def _constructor_sliced(self):
+	# 	def f(*args, **kwargs):
+	# 		# adapted from https://github.com/pandas-dev/pandas/issues/13208#issuecomment-326556232
+	# 		return LuxSeries(*args, **kwargs).__finalize__(self, method='inherit')
+	# 	return f
+
 	def maintain_metadata(self):
 		if (not hasattr(self,"_metadata_fresh") or not self._metadata_fresh ): # Check that metadata has not yet been computed
 			if (len(self)>0): #only compute metadata information if the dataframe is non-empty
@@ -556,6 +569,10 @@ class LuxDataFrame(pd.DataFrame):
 
 			if (len(self)<=0):
 				warnings.warn("\nLux can not operate on an empty dataframe.\nPlease check your input again.\n",stacklevel=2)
+				display(self.display_pandas()) 
+				return
+			if (len(self.columns)<=1):
+				warnings.warn("\nLux defaults to Pandas when there is only a single column.",stacklevel=2)
 				display(self.display_pandas()) 
 				return
 			self.maintain_metadata()
