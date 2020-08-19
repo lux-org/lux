@@ -57,13 +57,7 @@ class AltairRenderer:
 				return chart_dict
 			elif (self.output_type=="Altair"):
 				import inspect
-				if (view.plot_config): chart.source_code +='\n'.join(inspect.getsource(view.plot_config).split('\n    ')[1:-1])
-				chart.source_code +="\nchart"
-				chart.source_code = chart.source_code.replace('\n\t\t','\n')
-				original_code = chart.code
-				def additional_code(df):
-					chart = original_code(df)
-					chart = view.plot_config(chart)
-					return chart
-				chart.code = additional_code
-				return chart.code, chart.source_code
+				if (view.plot_config): chart.code +='\n'.join(inspect.getsource(view.plot_config).split('\n    ')[1:-1])
+				chart.code +="\nchart"
+				chart.code = chart.code.replace('\n\t\t','\n')
+				return chart.code
