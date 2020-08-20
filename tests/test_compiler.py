@@ -224,7 +224,7 @@ def test_populate_options():
 def test_remove_all_invalid():
 	df = pd.read_csv("lux/data/car.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')
-	with pytest.warns(UserWarning,match="duplicate attribute specified in the intent"):
-		df.set_intent([lux.Clause(attribute = "Origin", filter_op="=",value="USA"),lux.Clause(attribute = "Origin")])
+	# with pytest.warns(UserWarning,match="duplicate attribute specified in the intent"):
+	df.set_intent([lux.Clause(attribute = "Origin", filter_op="=",value="USA"),lux.Clause(attribute = "Origin")])
 	df._repr_html_()
 	assert len(df.current_vis)==0

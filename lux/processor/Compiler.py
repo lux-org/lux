@@ -171,8 +171,8 @@ class Compiler:
 			all_distinct_specs = 0 == len(vis._inferred_intent) - len(attribute_set)
 			if num_temporal_specs < 2 and all_distinct_specs:
 				new_vc.append(vis)
-			else:
-				warnings.warn("\nThere is more than one duplicate attribute specified in the intent.\nPlease check your intent specification again.")
+			# else:
+			# 	warnings.warn("\nThere is more than one duplicate attribute specified in the intent.\nPlease check your intent specification again.")
 
 		return VisList(new_vc)
 
