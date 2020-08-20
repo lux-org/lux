@@ -14,7 +14,7 @@ class AltairRenderer:
 		self.output_type = output_type
 	def __repr__(self):
 		return f"AltairRenderer"
-	def create_vis(self,view):
+	def create_vis(self,view, standalone=True):
 		"""
 		Input DataObject and return a visualization specification
 		
@@ -22,6 +22,8 @@ class AltairRenderer:
 		----------
 		view: lux.vis.Vis
 			Input Vis (with data)
+		standalone: bool
+			Flag to determine if outputted code uses user-defined variable names or can be run independently
 		
 		Returns
 		-------
@@ -60,4 +62,8 @@ class AltairRenderer:
 				if (view.plot_config): chart.code +='\n'.join(inspect.getsource(view.plot_config).split('\n    ')[1:-1])
 				chart.code +="\nchart"
 				chart.code = chart.code.replace('\n\t\t','\n')
+				if standalone:
+					chart.code = chart.code.replace("placeholder_variable", f"pd.DataFrame({str(view.data.to_dict())})")
+				else:
+					chart.code = chart.code.replace("placeholder_variable", "df") # TODO: Placeholder (need to read dynamically via locals())
 				return chart.code

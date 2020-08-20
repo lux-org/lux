@@ -158,9 +158,14 @@ class Vis:
 			self._intent = new_inferred
 			self._inferred_intent = new_inferred
 
-	def to_Altair(self) -> str:
+	def to_Altair(self, standalone = True) -> str:
 		"""
 		Generate minimal Altair code to visualize the Vis
+
+		Parameters
+		----------
+		standalone : bool
+			Flag to determine if outputted code uses user-defined variable names or can be run independently
 
 		Returns
 		-------
@@ -169,7 +174,7 @@ class Vis:
 		"""		
 		from lux.vislib.altair.AltairRenderer import AltairRenderer
 		renderer = AltairRenderer(output_type="Altair")
-		self.code= renderer.create_vis(self)
+		self.code= renderer.create_vis(self, standalone)
 		return self.code
 
 	def to_VegaLite(self, prettyOutput = True) -> Union[dict,str]:
@@ -236,3 +241,15 @@ class Vis:
 			self._inferred_intent = vis._inferred_intent
 			self.data = vis.data
 			self.min_max = vis.min_max
+
+	def get_user_symbols(self):
+		# Attention: this does not work, when the code is called from a thread
+	    import inspect
+	    for index, item in enumerate(inspect.stack()):
+	        try:
+	            name = item[0].f_globals["__name__"]
+	            if name == "__main__":
+	                return item[0].f_globals
+	        except:  # __name__ attribute does not exist
+	            pass
+	    return {}
