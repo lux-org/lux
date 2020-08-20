@@ -209,7 +209,7 @@ class LuxDataFrame(pd.DataFrame):
 		Validator.validate_intent(self._intent,self)
 		self.maintain_metadata()
 		from lux.processor.Compiler import Compiler
-		self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
+		self.current_vis = Compiler.compile_intent(self, self._intent)
 		
 	def copy_intent(self):
 		#creates a true copy of the dataframe's intent
@@ -579,7 +579,7 @@ class LuxDataFrame(pd.DataFrame):
 			
 			if (self._intent!=[] and not self._compiled):
 				from lux.processor.Compiler import Compiler
-				self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
+				self.current_vis = Compiler.compile_intent(self, self._intent)
 
 			self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            
 			rec_infolist = self.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
@@ -608,13 +608,13 @@ class LuxDataFrame(pd.DataFrame):
 			
 		except(KeyboardInterrupt,SystemExit):
 			raise
-		except:
-		    warnings.warn(
-		            "\nUnexpected error in rendering Lux widget and recommendations. "
-		            "Falling back to Pandas display.\n\n" 
-		            "Please report this issue on Github: https://github.com/lux-org/lux/issues "
-		        ,stacklevel=2)
-		    display(self.display_pandas())
+		# except:
+		#     warnings.warn(
+		#             "\nUnexpected error in rendering Lux widget and recommendations. "
+		#             "Falling back to Pandas display.\n\n" 
+		#             "Please report this issue on Github: https://github.com/lux-org/lux/issues "
+		#         ,stacklevel=2)
+		#     display(self.display_pandas())
 	def display_pandas(self):
 		return self.to_pandas()
 	def render_widget(self,rec_infolist, renderer:str ="altair", input_current_view=""):

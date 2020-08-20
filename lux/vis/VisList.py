@@ -259,12 +259,14 @@ class VisList():
 					for vis in self._collection:
 						vis._inferred_intent = Parser.parse(vis._intent)
 						Validator.validate_intent(vis._inferred_intent,ldf)
-						vis = Compiler.compile(ldf,vis._inferred_intent,self,enumerate_collection=True)[0]
-						compiled_collection.append(vis)
+						vislist = Compiler.compile_vis(ldf,vis)
+						if (len(vislist)>0):
+							vis = vislist[0]
+							compiled_collection.append(vis)
 					self._collection = compiled_collection
 					# self._collection = Compiler.compile(ldf,ldf._intent,self,enumerate_collection=False)
 				else:
 					self._inferred_intent = Parser.parse(self._intent)
 					Validator.validate_intent(self._inferred_intent,ldf)
-					self._collection = Compiler.compile(ldf,self._inferred_intent,self)
+					self._collection = Compiler.compile_intent(ldf,self._inferred_intent)
 				ldf.executor.execute(self._collection,ldf)

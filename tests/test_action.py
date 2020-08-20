@@ -13,7 +13,7 @@ def test_filter_inequality():
 	df = pd.read_csv("lux/data/car.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-	df.set_intent([lux.Clause(attribute = "Horsepower"),lux.Clause(attribute = "Acceleration"),lux.Clause(attribute = "Acceleration", filter_op=">",value = 10)])
+	df.set_intent([lux.Clause(attribute = "Horsepower"),lux.Clause(attribute = "MilesPerGal"),lux.Clause(attribute = "Acceleration", filter_op=">",value = 10)])
 	df._repr_html_()
 
 	from lux.utils.utils import get_filter_specs
