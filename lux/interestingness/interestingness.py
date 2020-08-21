@@ -109,7 +109,10 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 		#ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in
 		#a category having no counts
 		try:
-			score = min(0.13, chi2_contingency(contingency_table)[0])
+			color_cardinality = ldf.cardinality[color_column]
+			chi2_score = chi2_contingency(contingency_table)[0]*0.9**(color_cardinality+groupby_cardinality)
+			print(chi2_score)
+			score = min(0.10, chi2_score)
 		except ValueError:
 			pass
 		return(score)
@@ -203,7 +206,7 @@ def unevenness(vis:Vis, ldf:LuxDataFrame, measure_lst:list, dimension_lst:list) 
 	v = vis.data[measure_lst[0].attribute]
 	v = v/v.sum() # normalize by total to get ratio
 	C = ldf.cardinality[dimension_lst[0].attribute]
-	D = (0.5) ** C # cardinality-based discounting factor
+	D = (0.9) ** C # cardinality-based discounting factor
 	v_flat = pd.Series([1 / C] * len(v))
 	if (is_datetime(v)):
 		v = v.astype('int')
