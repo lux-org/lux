@@ -17,11 +17,12 @@ def test_interestingness_1_0_0():
     rank2 = -1
     rank3 = -1
     for f in range(0, len(df.recommendation['Enhance'])):
-        if df.recommendation['Enhance'][f]._inferred_intent[0].attribute == 'Displacement':
+        vis = df.recommendation['Enhance'][f]
+        if vis.get_attr_by_channel("x")[0].attribute == 'Displacement':
             rank1 = f
-        if df.recommendation['Enhance'][f]._inferred_intent[0].attribute == 'Weight':
+        if vis.get_attr_by_channel("x")[0].attribute == 'Weight':
             rank2 = f
-        if df.recommendation['Enhance'][f]._inferred_intent[0].attribute == 'Acceleration':
+        if vis.get_attr_by_channel("x")[0].attribute == 'Acceleration':
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
@@ -31,21 +32,22 @@ def test_interestingness_1_0_0():
     rank2 = -1
     rank3 = -1
     for f in range(0, len(df.recommendation['Filter'])):
-        if int(df.recommendation['Filter'][f]._inferred_intent[2].value) == 8:
-            rank1 = f
-        if int(df.recommendation['Filter'][f]._inferred_intent[2].value) == 6:
-            rank2 = f
+        vis = df.recommendation['Filter'][f]
+        if len(vis.get_attr_by_attr_name("Cylinders"))>0:
+            if int(vis._inferred_intent[2].value) == 8:
+                rank1 = f
+            if int(vis._inferred_intent[2].value) == 6:
+                rank2 = f
         if '1972' in str(df.recommendation['Filter'][f]._inferred_intent[2].value):
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
-
 def test_interestingness_1_0_1():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
-    
-    df.set_intent([lux.Clause(attribute = "Origin", filter_op="=",value="USA"),lux.Clause(attribute = "Origin")])
+
+    df.set_intent([lux.Clause(attribute = "Origin", filter_op="=",value="USA"),lux.Clause(attribute = "Cylinders")])
     df._repr_html_()
-    assert df.current_vis[0].score ==0
+    assert df.current_vis[0].score == 0
 
 def test_interestingness_0_1_0():
     df = pd.read_csv("lux/data/car.csv")
@@ -106,12 +108,15 @@ def test_interestingness_1_1_0():
     rank2 = -1
     rank3 = -1
     for f in range(0, len(df.recommendation['Filter'])):
-        if df.recommendation['Filter'][f]._inferred_intent[2].value == 6:
-            rank1 = f
-        if str(df.recommendation['Filter'][f]._inferred_intent[2].value) == "Europe":
-            rank2 = f
-        if df.recommendation['Filter'][f]._inferred_intent[2].value == 5:
-            rank3 = f
+        vis = df.recommendation['Filter'][f]
+        if len(vis.get_attr_by_attr_name("Cylinders"))>0:
+            if int(vis._inferred_intent[2].value) == 6:
+                rank1 = f
+            if int(vis._inferred_intent[2].value) == 5:
+                rank3 = f
+        if len(vis.get_attr_by_attr_name("Origin"))>0:
+            if str(vis._inferred_intent[2].value) == "Europe":
+                rank2 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
     #check that top recommended generalize graph score is not none
@@ -198,7 +203,7 @@ def test_interestingness_0_2_1():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 
-    df.set_intent([lux.Clause(attribute = "Horsepower"),lux.Clause(attribute = "Acceleration"),lux.Clause(attribute = "Acceleration", filter_op=">",value = 10)])
+    df.set_intent([lux.Clause(attribute = "Horsepower"),lux.Clause(attribute = "MilesPerGal"),lux.Clause(attribute = "Acceleration", filter_op=">",value = 10)])
     df._repr_html_()
     #check that top recommended Generalize graph score is not none
     assert interestingness(df.recommendation['Generalize'][0],df) != None

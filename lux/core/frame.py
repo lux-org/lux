@@ -209,7 +209,7 @@ class LuxDataFrame(pd.DataFrame):
 		Validator.validate_intent(self._intent,self)
 		self.maintain_metadata()
 		from lux.processor.Compiler import Compiler
-		self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
+		self.current_vis = Compiler.compile_intent(self, self._intent)
 		
 	def copy_intent(self):
 		#creates a true copy of the dataframe's intent
@@ -484,8 +484,8 @@ class LuxDataFrame(pd.DataFrame):
 					for vis in vc: vis.plot_config = self.plot_config
 				if (len(vc)>0):
 					self.recommendation[action_type]  = vc
+			self._widget = self.render_widget(rec_infolist)
 		self._recs_fresh = True
-		return rec_infolist
 
 
 	#######################################################
@@ -577,14 +577,14 @@ class LuxDataFrame(pd.DataFrame):
 				return
 			self.maintain_metadata()
 			
-			if (self._intent!=[] and not self._compiled):
+			if (self._intent!=[] and (not hasattr(self,"_compiled") or not self._compiled)):
 				from lux.processor.Compiler import Compiler
-				self.current_vis = Compiler.compile(self, self._intent, self.current_vis)
+				self.current_vis = Compiler.compile_intent(self, self._intent)
 
 			self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            
-			rec_infolist = self.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-			self._widget = self.render_widget(rec_infolist)
-
+			
+			self.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+			
 			# box = widgets.Box(layout=widgets.Layout(display='inline'))
 			button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
 			output = widgets.Output()
