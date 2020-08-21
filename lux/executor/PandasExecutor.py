@@ -222,8 +222,9 @@ class PandasExecutor(Executor):
         import pandas as pd # is this import going to be conflicting with LuxDf? 
         bin_attribute = list(filter(lambda x: x.bin_size!=0,view._inferred_intent))[0]
         if not np.isnan(view.data[bin_attribute.attribute]).all():
+            series = view.data[bin_attribute.attribute].dropna() # np.histogram breaks if array contain NaN
             #TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
-            counts,bin_edges = np.histogram(view.data[bin_attribute.attribute],bins=bin_attribute.bin_size)
+            counts,bin_edges = np.histogram(series,bins=bin_attribute.bin_size)
             #bin_edges of size N+1, so need to compute bin_center as the bin location
             bin_center = np.mean(np.vstack([bin_edges[0:-1],bin_edges[1:]]), axis=0)
             # TODO: Should view.data be a LuxDataFrame or a Pandas DataFrame?
