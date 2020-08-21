@@ -484,8 +484,8 @@ class LuxDataFrame(pd.DataFrame):
 					for vis in vc: vis.plot_config = self.plot_config
 				if (len(vc)>0):
 					self.recommendation[action_type]  = vc
+			self._widget = self.render_widget(rec_infolist)
 		self._recs_fresh = True
-		return rec_infolist
 
 
 	#######################################################
@@ -582,9 +582,9 @@ class LuxDataFrame(pd.DataFrame):
 				self.current_vis = Compiler.compile_intent(self, self._intent)
 
 			self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            
-			rec_infolist = self.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-			self._widget = self.render_widget(rec_infolist)
-
+			
+			self.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+			
 			# box = widgets.Box(layout=widgets.Layout(display='inline'))
 			button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
 			output = widgets.Output()
@@ -608,13 +608,13 @@ class LuxDataFrame(pd.DataFrame):
 			
 		except(KeyboardInterrupt,SystemExit):
 			raise
-		# except:
-		#     warnings.warn(
-		#             "\nUnexpected error in rendering Lux widget and recommendations. "
-		#             "Falling back to Pandas display.\n\n" 
-		#             "Please report this issue on Github: https://github.com/lux-org/lux/issues "
-		#         ,stacklevel=2)
-		#     display(self.display_pandas())
+		except:
+		    warnings.warn(
+		            "\nUnexpected error in rendering Lux widget and recommendations. "
+		            "Falling back to Pandas display.\n\n" 
+		            "Please report this issue on Github: https://github.com/lux-org/lux/issues "
+		        ,stacklevel=2)
+		    display(self.display_pandas())
 	def display_pandas(self):
 		return self.to_pandas()
 	def render_widget(self,rec_infolist, renderer:str ="altair", input_current_view=""):
