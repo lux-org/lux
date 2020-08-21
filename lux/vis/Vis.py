@@ -232,15 +232,16 @@ class Vis:
 			#TODO: handle case when user input vanilla Pandas dataframe
 			self._inferred_intent = Parser.parse(self._intent)
 			Validator.validate_intent(self._inferred_intent,ldf)
-			vc = Compiler.compile(ldf,self._inferred_intent,[self],enumerate_collection=False)
+			vc = Compiler.compile_vis(ldf,self)
 			ldf.executor.execute(vc,ldf)
 			# Copying properties over since we can not redefine `self` within class function
-			vis = vc[0]
-			self.title = vis.title
-			self.mark = vis.mark
-			self._inferred_intent = vis._inferred_intent
-			self.data = vis.data
-			self.min_max = vis.min_max
+			if (len(vc)>0):
+				vis = vc[0]
+				self.title = vis.title
+				self.mark = vis.mark
+				self._inferred_intent = vis._inferred_intent
+				self.data = vis.data
+				self.min_max = vis.min_max
 
 	def get_user_symbols(self):
 		# Attention: this does not work, when the code is called from a thread

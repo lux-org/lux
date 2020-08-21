@@ -89,3 +89,14 @@ def test_vis_custom_aggregation_as_numpy_func():
     vis = Vis(["HighestDegree",lux.Clause("AverageCost",aggregation=np.ptp)],df)
     assert vis.get_attr_by_data_model("measure")[0].aggregation == np.ptp
     assert vis.get_attr_by_data_model("measure")[0]._aggregation_name =='ptp'
+def test_vis_collection_via_list_of_vis():
+    df = pd.read_csv("lux/data/olympic.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
+    from lux.vis.VisList import VisList
+    from lux.vis.Vis import Vis
+    vcLst = []
+    for attribute in ['Sport','Year','Height','HostRegion','SportType']: 
+        vis = Vis([lux.Clause("Weight"), lux.Clause(attribute)])
+        vcLst.append(vis)
+    vc = VisList(vcLst,df)
+    assert len(vc) == 5
