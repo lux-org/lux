@@ -6,9 +6,6 @@ from lux.processor.Compiler import Compiler
 from lux.utils import utils
 from lux.interestingness.interestingness import interestingness
 
-#for benchmarking
-import time
-# from compiler.Compiler import Compiler
 def generalize(ldf):
 	'''
 	Generates all possible visualizations when one attribute or filter from the current vis is removed.

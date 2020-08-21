@@ -6,7 +6,7 @@ from lux.vis.VisList import VisList
 from lux.utils import date_utils
 import pandas as pd
 import numpy as np
-
+import warnings
 
 class Compiler:
 	'''
@@ -20,7 +20,17 @@ class Compiler:
 		return f"<Compiler>"
 
 	@staticmethod
-	def compile(ldf: LuxDataFrame,_inferred_intent:List[Clause], vis_collection: VisList, enumerate_collection=True) -> VisList:
+	def compile_vis(ldf: LuxDataFrame,vis:Vis) -> VisList:
+		if (vis):
+			vis_collection = Compiler.enumerate_collection(vis._inferred_intent,ldf)
+			vis_collection = Compiler.populate_data_type_model(ldf, vis_collection)  # autofill data type/model information
+			vis_collection = Compiler.remove_all_invalid(vis_collection) # remove invalid visualizations from collection
+			for vis in vis_collection:
+				Compiler.determine_encoding(ldf, vis)  # autofill viz related information
+			ldf._compiled=True
+			return vis_collection
+	@staticmethod
+	def compile_intent(ldf: LuxDataFrame,_inferred_intent:List[Clause]) -> VisList:
 		"""
 		Compiles input specifications in the intent of the ldf into a collection of lux.vis objects for visualization.
 		1) Enumerate a collection of visualizations interested by the user to generate a vis list
@@ -42,10 +52,9 @@ class Compiler:
 			vis list with compiled lux.Vis objects.
 		"""
 		if (_inferred_intent):
-			if (enumerate_collection):
-				vis_collection = Compiler.enumerate_collection(_inferred_intent,ldf)
+			vis_collection = Compiler.enumerate_collection(_inferred_intent,ldf)
 			vis_collection = Compiler.populate_data_type_model(ldf, vis_collection)  # autofill data type/model information
-			if len(vis_collection)>1: 
+			if len(vis_collection)>=1: 
 				vis_collection = Compiler.remove_all_invalid(vis_collection) # remove invalid visualizations from collection
 			for vis in vis_collection:
 				Compiler.determine_encoding(ldf, vis)  # autofill viz related information
@@ -162,6 +171,8 @@ class Compiler:
 			all_distinct_specs = 0 == len(vis._inferred_intent) - len(attribute_set)
 			if num_temporal_specs < 2 and all_distinct_specs:
 				new_vc.append(vis)
+			# else:
+			# 	warnings.warn("\nThere is more than one duplicate attribute specified in the intent.\nPlease check your intent specification again.")
 
 		return VisList(new_vc)
 
