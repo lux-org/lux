@@ -154,7 +154,7 @@ def test_interestingness_1_2_0():
     new_vis
     #assert(len(new_vis.data)==color_cardinality*group_by_cardinality)
 
-    assert(interestingness(new_vis, df)==0.13)
+    assert(interestingness(new_vis, df)<0.01)
 
 def test_interestingness_0_2_0():
     df = pd.read_csv("lux/data/car.csv")
