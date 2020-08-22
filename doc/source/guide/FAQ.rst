@@ -55,6 +55,7 @@ Troubleshooting Tips
 - The Lux Jupyter widget does not show up when I print a dataframe.
     - Output message "A Jupyter widget could not be displayed because the widget state could not be found. This could happen if the kernel storing the widget is no longer available, or if the widget state was not saved in the notebook. You may be able to create the widget by running the appropriate cells."
     - Output message "LuxWidget(...)"
+    - It's possible your browser is not compatible. Lux has not been tested on Safari or Firefox, and works well on Google Chrome.
 
 - I'm not able to export my visualizations via `.get_exported()`
     - First, make sure that after selecting the visualization, you have clicked on the export button (attach screenshot)

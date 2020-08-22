@@ -35,7 +35,7 @@ class ScatterChart(AltairChart):
 		#####################################
 		
 		self.code += "import altair as alt\n"
-		dfname = "df" # TODO: Placeholder (need to read dynamically via locals())
+		dfname = "placeholder_variable" 
 		self.code += f'''
 		chart = alt.Chart({dfname}).mark_circle().encode(
 		    x=alt.X('{x_attr.attribute}',scale=alt.Scale(domain=({x_min}, {x_max})),type='{x_attr.data_type}'),
