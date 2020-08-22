@@ -621,6 +621,22 @@ class LuxDataFrame(pd.DataFrame):
 		"""
 		Generate a LuxWidget based on the LuxDataFrame
 		
+		Structure of widgetJSON: 
+		{
+			'current_vis': {}, 
+			'recommendation': [
+				{
+					'action': 'Correlation', 
+					'description': "some description",
+					'vspec': [
+						{Vega-Lite spec for vis 1},
+						{Vega-Lite spec for vis 2},
+						...
+					]
+				},
+				... repeat for other actions
+			]
+		}
 		Parameters
 		----------
 		renderer : str, optional
