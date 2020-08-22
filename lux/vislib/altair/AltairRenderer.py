@@ -24,7 +24,6 @@ class AltairRenderer:
 			Input Vis (with data)
 		standalone: bool
 			Flag to determine if outputted code uses user-defined variable names or can be run independently
-		
 		Returns
 		-------
 		chart : altair.Chart
@@ -64,15 +63,17 @@ class AltairRenderer:
 				chart.code = chart.code.replace('\n\t\t','\n')
 
 				var = view._source
-				all_vars = []
-				for f_info in inspect.getouterframes(inspect.currentframe()):
-					local_vars = f_info.frame.f_back
-					if local_vars:
-						callers_local_vars = local_vars.f_locals.items()
-						possible_vars =  [var_name for var_name, var_val in callers_local_vars if var_val is var]
-						all_vars.extend(possible_vars)
-				found_variable = [possible_var for possible_var in all_vars if possible_var[0] != '_'][0]
-
+				if var:
+					all_vars = []
+					for f_info in inspect.getouterframes(inspect.currentframe()):
+						local_vars = f_info.frame.f_back
+						if local_vars:
+							callers_local_vars = local_vars.f_locals.items()
+							possible_vars =  [var_name for var_name, var_val in callers_local_vars if var_val is var]
+							all_vars.extend(possible_vars)
+					found_variable = [possible_var for possible_var in all_vars if possible_var[0] != '_'][0]
+				else: # if vis._source was not set when the Vis was created
+					found_variable = "df"
 				if standalone:
 					chart.code = chart.code.replace("placeholder_variable", f"pd.DataFrame({str(view.data.to_dict())})")
 				else:
