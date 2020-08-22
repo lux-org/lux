@@ -86,6 +86,8 @@ class PandasExecutor(Executor):
             groupby_attr = y_attr
             measure_attr = x_attr
             agg_func = x_attr.aggregation
+        if (groupby_attr.attribute in view.data.unique_values.keys()):
+            attr_unique_vals = view.data.unique_values[groupby_attr.attribute]
         #checks if color is specified in the Vis
         if len(view.get_attr_by_channel("color")) == 1:
             color_attr = view.get_attr_by_channel("color")[0]
@@ -95,7 +97,7 @@ class PandasExecutor(Executor):
             has_color = True
         else:
             color_cardinality = 1
-        all_attr_vals = view.data.unique_values[groupby_attr.attribute]
+        
         if (measure_attr!=""):
             if (measure_attr.attribute=="Record"):
                 view.data = view.data.reset_index()
@@ -125,79 +127,26 @@ class PandasExecutor(Executor):
                 result_color_vals = list(view.data[color_attr.attribute])
                 for i in range(0, len(result_vals)):
                     res_color_combi_vals.append([result_vals[i], result_color_vals[i]])
-            if (len(result_vals) != len(all_attr_vals)*color_cardinality and (isFiltered or has_color)):
-                ####### ORIGINAL
-                # For filtered aggregation that have missing groupby-attribute values, set these aggregated value as 0, since no datapoints
-                # for vals in all_attr_vals:
-                #     if (vals not in result_vals):
-                #         view.data.loc[len(view.data)] = [vals]+[0]*(len(view.data.columns)-1)
+            # For filtered aggregation that have missing groupby-attribute values, set these aggregated value as 0, since no datapoints
+            if (isFiltered or has_color and attr_unique_vals):
+                N_unique_vals = len(attr_unique_vals)
+                if (len(result_vals) != N_unique_vals*color_cardinality):    
+                    columns = view.data.columns
+                    if has_color:
+                        df = pd.DataFrame({columns[0]: attr_unique_vals*color_cardinality, columns[1]: pd.Series(color_attr_vals).repeat(N_unique_vals)})
+                        view.data = view.data.merge(df, on=[columns[0],columns[1]], how='right', suffixes=['', '_right'])
+                        for col in columns[2:]:
+                            view.data[col] = view.data[col].fillna(0)
+                        assert len(list(view.data[groupby_attr.attribute])) == N_unique_vals*len(color_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
+                        view.data = view.data.iloc[:,:3] # Keep only the three relevant columns not the *_right columns resulting from merge
+                    else:
+                        df = pd.DataFrame({columns[0]: attr_unique_vals})
+                        
+                        view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['', '_right'])
 
-
-
-                ####### SOLUTION 1 - INCOMPLETE SOLUTION, FAILS ON NONETYPE
-                # start = time.time()
-                # list_diff = np.setdiff1d(all_attr_vals, result_vals)
-                # print(time.time() - start, 's')
-                # df = pd.DataFrame({view.data.columns[1]: list_diff})
-
-                # for col in view.data.columns[1:]:
-                #     df[col] = 0
-
-                # view.data = view.data.append(df)
-
-
-
-                ####### SOLUTION 2
-                # columns = view.data.columns
-
-                # df = pd.DataFrame({columns[0]: all_attr_vals})
-                # for col in columns[1:]:
-                #     df[col] = 0
-                
-                # view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['_left', '_right'])
-
-                # for col in columns[1:]:
-                #     view.data[col + '_left'] = view.data[col + '_left'].fillna(0)
-                #     view.data[col + '_right'] = view.data[col + '_right'].fillna(0)
-
-                #     view.data[col] = view.data[col + '_left'] + view.data[col + '_right']
-
-                #     del view.data[col + '_left']
-                #     del view.data[col + '_right']
-
-
-
-                ####### SOLUTION 3
-                # columns = view.data.columns
-
-                # df = pd.DataFrame({columns[0]: all_attr_vals})
-                # for col in columns[1:]:
-                #     df[col] = 0
-                
-                # view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['', '_right'])
-
-                # for col in columns[1:]:
-                #     view.data[col] = view.data[col].fillna(0)
-                #     del view.data[col + '_right']
-
-                
-                ####### SOLUTION 4
-                columns = view.data.columns
-                if has_color:
-                    df = pd.DataFrame({columns[0]: all_attr_vals*color_cardinality, columns[1]: pd.Series(color_attr_vals).repeat(len(all_attr_vals))})
-                    view.data = view.data.merge(df, on=[columns[0],columns[1]], how='right', suffixes=['', '_right'])
-                    for col in columns[2:]:
-                        view.data[col] = view.data[col].fillna(0)
-                    assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals)*len(color_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
-                    view.data = view.data.iloc[:,:3] # Keep only the three relevant columns not the *_right columns resulting from merge
-                else:
-                    df = pd.DataFrame({columns[0]: all_attr_vals})
-                    
-                    view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['', '_right'])
-
-                    for col in columns[1:]:
-                        view.data[col] = view.data[col].fillna(0)
-                    assert len(list(view.data[groupby_attr.attribute])) == len(all_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
+                        for col in columns[1:]:
+                            view.data[col] = view.data[col].fillna(0)
+                        assert len(list(view.data[groupby_attr.attribute])) == N_unique_vals, f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
             view.data = view.data.sort_values(by=groupby_attr.attribute, ascending=True)
             view.data = view.data.reset_index()
             view.data = view.data.drop(columns="index")
