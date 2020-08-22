@@ -89,8 +89,8 @@ We've seen how `Vis`s are automatically generated as part of the recommendations
 
 ```python    
     from lux.vis.Vis import Vis
-    newEnglandCost = Vis(["Region=New England","MedianEarnings"])
-    newEnglandCost.load(df)
+    newEnglandCost = Vis(["Region=New England","MedianEarnings"],df)
+    newEnglandCost
 ```    
 
 <img src="https://github.com/lux-org/lux/blob/master/examples/img/view.png?raw=true"
@@ -105,8 +105,8 @@ For example, we might be interested in looking at how the `AverageCost` distribu
 
 ```python    
     from lux.vis.VisList import VisList
-    differentRegions = VisList(["Region=?","AverageCost"])
-    differentRegions.load(df)
+    differentRegions = VisList(["Region=?","AverageCost"],df)
+    differentRegions
 ```    
 
 <img src="https://github.com/lux-org/lux/blob/master/examples/img/viewCollection.gif?raw=true"
