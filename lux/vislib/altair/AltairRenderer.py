@@ -63,7 +63,7 @@ class AltairRenderer:
 				chart.code = chart.code.replace('\n\t\t','\n')
 
 				var = view._source
-				if var:
+				if var is not None:
 					all_vars = []
 					for f_info in inspect.getouterframes(inspect.currentframe()):
 						local_vars = f_info.frame.f_back

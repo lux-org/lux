@@ -1,7 +1,7 @@
 from .context import lux
 import pytest
 import pandas as pd
-
+from lux.vis.Vis import Vis
 def test_vis():
     df = pd.read_csv("lux/data/olympic.csv")
     from lux.vis.Vis import Vis
@@ -100,3 +100,19 @@ def test_vis_collection_via_list_of_vis():
         vcLst.append(vis)
     vc = VisList(vcLst,df)
     assert len(vc) == 5
+def test_vis_to_Altair_basic_df():
+    df = pd.read_csv("lux/data/car.csv")
+    vis = Vis(['Weight','Horsepower'],df)
+    code = vis.to_Altair()
+    assert "alt.Chart(df)" in code , "Unable to export to Altair"
+def test_vis_to_Altair_custom_named_df():
+    df = pd.read_csv("lux/data/car.csv")
+    some_weirdly_named_df = df.dropna()
+    vis = Vis(['Weight','Horsepower'],some_weirdly_named_df)
+    code = vis.to_Altair()
+    assert "alt.Chart(some_weirdly_named_df)" in code , "Unable to export to Altair and detect custom df name"
+def test_vis_to_Altair_standalone():
+    df = pd.read_csv("lux/data/car.csv")
+    vis = Vis(['Weight','Horsepower'],df)
+    code = vis.to_Altair(standalone=True)
+    assert "chart = alt.Chart(pd.DataFrame({'Weight': {0: 3504, 1: 3693, 2: 3436, 3: 3433, 4: 3449, 5: 43" in code or "alt.Chart(pd.DataFrame({'Horsepower': {0: 130, 1: 165, 2: 150, 3: 150, 4: 140," in code

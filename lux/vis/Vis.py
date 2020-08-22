@@ -158,14 +158,14 @@ class Vis:
 			self._intent = new_inferred
 			self._inferred_intent = new_inferred
 
-	def to_Altair(self, standalone = True) -> str:
+	def to_Altair(self, standalone = False) -> str:
 		"""
 		Generate minimal Altair code to visualize the Vis
 
 		Parameters
 		----------
-		standalone : bool
-			Flag to determine if outputted code uses user-defined variable names or can be run independently
+		standalone : bool, optional
+			Flag to determine if outputted code uses user-defined variable names or can be run independently, by default False
 
 		Returns
 		-------
