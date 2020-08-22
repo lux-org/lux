@@ -158,9 +158,14 @@ class Vis:
 			self._intent = new_inferred
 			self._inferred_intent = new_inferred
 
-	def to_Altair(self) -> str:
+	def to_Altair(self, standalone = False) -> str:
 		"""
 		Generate minimal Altair code to visualize the Vis
+
+		Parameters
+		----------
+		standalone : bool, optional
+			Flag to determine if outputted code uses user-defined variable names or can be run independently, by default False
 
 		Returns
 		-------
@@ -169,7 +174,7 @@ class Vis:
 		"""		
 		from lux.vislib.altair.AltairRenderer import AltairRenderer
 		renderer = AltairRenderer(output_type="Altair")
-		self.code= renderer.create_vis(self)
+		self.code= renderer.create_vis(self, standalone)
 		return self.code
 
 	def to_VegaLite(self, prettyOutput = True) -> Union[dict,str]:

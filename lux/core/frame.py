@@ -165,6 +165,7 @@ class LuxDataFrame(pd.DataFrame):
 		>>> df
 		"""        
 		self.plot_config = config_func
+		self._recs_fresh=False
 	def clear_plot_config(self):
 		self.plot_config = None
 	
