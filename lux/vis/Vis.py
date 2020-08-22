@@ -242,15 +242,3 @@ class Vis:
 				self._inferred_intent = vis._inferred_intent
 				self.data = vis.data
 				self.min_max = vis.min_max
-
-	def get_user_symbols(self):
-		# Attention: this does not work, when the code is called from a thread
-	    import inspect
-	    for index, item in enumerate(inspect.stack()):
-	        try:
-	            name = item[0].f_globals["__name__"]
-	            if name == "__main__":
-	                return item[0].f_globals
-	        except:  # __name__ attribute does not exist
-	            pass
-	    return {}

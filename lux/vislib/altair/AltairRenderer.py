@@ -62,8 +62,19 @@ class AltairRenderer:
 				if (view.plot_config): chart.code +='\n'.join(inspect.getsource(view.plot_config).split('\n    ')[1:-1])
 				chart.code +="\nchart"
 				chart.code = chart.code.replace('\n\t\t','\n')
+
+				var = view._source
+				all_vars = []
+				for f_info in inspect.getouterframes(inspect.currentframe()):
+					local_vars = f_info.frame.f_back
+					if local_vars:
+						callers_local_vars = local_vars.f_locals.items()
+						possible_vars =  [var_name for var_name, var_val in callers_local_vars if var_val is var]
+						all_vars.extend(possible_vars)
+				found_variable = [possible_var for possible_var in all_vars if possible_var[0] != '_'][0]
+
 				if standalone:
 					chart.code = chart.code.replace("placeholder_variable", f"pd.DataFrame({str(view.data.to_dict())})")
 				else:
-					chart.code = chart.code.replace("placeholder_variable", "df") # TODO: Placeholder (need to read dynamically via locals())
+					chart.code = chart.code.replace("placeholder_variable", found_variable) # TODO: Placeholder (need to read dynamically via locals())
 				return chart.code
