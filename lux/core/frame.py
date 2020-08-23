@@ -584,7 +584,7 @@ class LuxDataFrame(pd.DataFrame):
 
 			self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            
 			
-			if hasattr(self,"_prev"):
+			if hasattr(self,"_prev") and self._prev is not None:
 				df_to_display = self._prev
 			else:
 				df_to_display = self
