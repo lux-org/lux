@@ -32,7 +32,7 @@ In Lux, you can click on visualizations of interest and export them into a separ
 
 .. code-block:: python
 
-    bookmarked_charts = df.get_exported()
+    bookmarked_charts = df.exported
     bookmarked_charts
 
 .. image:: ../img/export-2.png
@@ -53,7 +53,7 @@ From the dataframe recommendations, the visualization showing the relationship b
 
 .. code-block:: python
 
-    vis = df.get_exported()[0]
+    vis = df.exported[0]
     vis
 
 .. image:: ../img/export-4.png
