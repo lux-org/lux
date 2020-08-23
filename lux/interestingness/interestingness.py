@@ -92,6 +92,8 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	# colored line and barchart cases
 	elif (vis.mark == "line" and n_dim == 2):
 		return 0.15
+	#for colored bar chart, scoring based on Chi-square test for independence score.
+	#gives higher scores to colored bar charts with fewer total categories as these charts are easier to read and thus more useful for users
 	elif (vis.mark == "bar" and n_dim == 2):
 		from scipy.stats import chi2_contingency
 		measure_column = vis.get_attr_by_data_model("measure")[0].attribute
@@ -108,8 +110,12 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 		score = 0.12
 		#ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in
 		#a category having no counts
+
 		try:
-			score = min(0.13, chi2_contingency(contingency_table)[0])
+			color_cardinality = ldf.cardinality[color_column]
+			#scale down score based on number of categories
+			chi2_score = chi2_contingency(contingency_table)[0]*0.9**(color_cardinality+groupby_cardinality)
+			score = min(0.10, chi2_score)
 		except ValueError:
 			pass
 		return(score)
@@ -203,7 +209,7 @@ def unevenness(vis:Vis, ldf:LuxDataFrame, measure_lst:list, dimension_lst:list) 
 	v = vis.data[measure_lst[0].attribute]
 	v = v/v.sum() # normalize by total to get ratio
 	C = ldf.cardinality[dimension_lst[0].attribute]
-	D = (0.5) ** C # cardinality-based discounting factor
+	D = (0.9) ** C # cardinality-based discounting factor
 	v_flat = pd.Series([1 / C] * len(v))
 	if (is_datetime(v)):
 		v = v.astype('int')
