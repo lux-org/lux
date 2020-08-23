@@ -16,7 +16,7 @@ class LuxDataFrame(pd.DataFrame):
 	# MUST register here for new properties!!
 	_metadata = ['_intent','data_type_lookup','data_type',
 				 'data_model_lookup','data_model','unique_values','cardinality',
-				'min_max','plot_config', '_current_vis','_widget', '_recommendation']
+				'min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev']
 
 	def __init__(self,*args, **kw):
 		from lux.executor.PandasExecutor import PandasExecutor
@@ -584,7 +584,11 @@ class LuxDataFrame(pd.DataFrame):
 
 			self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            
 			
-			self.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+			if hasattr(self,"_prev"):
+				df_to_display = self._prev
+			else:
+				df_to_display = self
+			df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
 			
 			# box = widgets.Box(layout=widgets.Layout(display='inline'))
 			button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
@@ -602,20 +606,20 @@ class LuxDataFrame(pd.DataFrame):
 						display(self.display_pandas())
 					else:
 						# b.layout.display = "none"
-						display(self._widget)
+						display(df_to_display._widget)
 						# b.layout.display = "inline-block"
 			button.on_click(on_button_clicked)
 			on_button_clicked(None)
 			
 		except(KeyboardInterrupt,SystemExit):
 			raise
-		except:
-		    warnings.warn(
-		            "\nUnexpected error in rendering Lux widget and recommendations. "
-		            "Falling back to Pandas display.\n\n" 
-		            "Please report this issue on Github: https://github.com/lux-org/lux/issues "
-		        ,stacklevel=2)
-		    display(self.display_pandas())
+		# except:
+		# 	warnings.warn(
+		# 			"\nUnexpected error in rendering Lux widget and recommendations. "
+		# 			"Falling back to Pandas display.\n\n" 
+		# 			"Please report this issue on Github: https://github.com/lux-org/lux/issues "
+		# 		,stacklevel=2)
+		# 	display(self.display_pandas())
 	def display_pandas(self):
 		return self.to_pandas()
 	def render_widget(self,rec_infolist, renderer:str ="altair", input_current_view=""):
@@ -709,3 +713,9 @@ class LuxDataFrame(pd.DataFrame):
 				# delete DataObjectCollection since not JSON serializable
 				del rec_lst[idx]["collection"]
 		return rec_lst
+	
+	# Overridden Pandas Functions
+	def head(self, n: int = 5):# -> FrameOrSeries:
+		self._prev = self
+		return super(LuxDataFrame, self).head(n)
+		
