@@ -57,7 +57,7 @@ Troubleshooting Tips
     - Output message "LuxWidget(...)"
     - It's possible your browser is not compatible. Lux has not been tested on Safari or Firefox, and works well on Google Chrome.
 
-- I'm not able to export my visualizations via `.get_exported()`
+- I'm not able to export my visualizations via the `exported` property
     - First, make sure that after selecting the visualization, you have clicked on the export button (attach screenshot)
     - If you are recieving a warning message "No widget attached to the dataframe/VisList. Please assign dataframe/VisList to an output variable." This means that the output widget that you exported your visualization on have not been stored to the variable that you are calling `get_exported` on. For example, you might have interacted with a widget directly by printing the results out.
     .. code-block:: python
@@ -75,7 +75,7 @@ Troubleshooting Tips
 
     .. code-block:: python
 
-        myOutput.get_exported()
+        myOutput.exported
 
 - When I print out the dataframe, the cell is taking a long time to run.
 - I have a question or bug that is not addressed by any of the FAQs.

@@ -35,7 +35,8 @@ class VisList():
 		"""		
 		self._intent = intent
 		self.refresh_source(self._source)
-	def get_exported(self) -> VisList:
+	@property
+	def exported(self) -> VisList:
 		"""
 		Get selected visualizations as exported Vis List
 

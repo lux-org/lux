@@ -496,8 +496,8 @@ class LuxDataFrame(pd.DataFrame):
 	def widget(self):
 		if(self._widget):
 			return self._widget
-
-	def get_exported(self) -> Union[Dict[str,VisList], VisList]:
+	@property
+	def exported(self) -> Union[Dict[str,VisList], VisList]:
 		"""
 		Get selected visualizations as exported Vis List
 
