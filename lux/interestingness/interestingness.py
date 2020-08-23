@@ -92,6 +92,8 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	# colored line and barchart cases
 	elif (vis.mark == "line" and n_dim == 2):
 		return 0.15
+	#for colored bar chart, scoring based on Chi-square test for independence score.
+	#gives higher scores to colored bar charts with fewer total categories as these charts are easier to read and thus more useful for users
 	elif (vis.mark == "bar" and n_dim == 2):
 		from scipy.stats import chi2_contingency
 		measure_column = vis.get_attr_by_data_model("measure")[0].attribute
@@ -108,10 +110,11 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 		score = 0.12
 		#ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in
 		#a category having no counts
+
 		try:
 			color_cardinality = ldf.cardinality[color_column]
+			#scale down score based on number of categories
 			chi2_score = chi2_contingency(contingency_table)[0]*0.9**(color_cardinality+groupby_cardinality)
-			print(chi2_score)
 			score = min(0.10, chi2_score)
 		except ValueError:
 			pass
