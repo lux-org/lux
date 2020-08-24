@@ -3,7 +3,7 @@ from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
-from lux.utils.utils import check_import_lux_widget
+from lux.utils.utils import check_import_lux_widget, check_if_id_like
 from lux.utils.date_utils import is_datetime_series
 #import for benchmarking
 import time
@@ -288,6 +288,8 @@ class LuxDataFrame(pd.DataFrame):
 						self.data_type_lookup[attr] = "nominal"
 				if self.cardinality[attr]/len(self) < 0.4 and self.cardinality[attr]<10: 
 					self.data_type_lookup[attr] = "nominal"
+				elif check_if_id_like(self,attr): 
+					self.data_type_lookup[attr] = "id"
 				else:
 					self.data_type_lookup[attr] = "quantitative"
 			# Eliminate this clause because a single NaN value can cause the dtype to be object
