@@ -3,6 +3,7 @@ from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
+from lux.history.history import History
 from lux.utils.utils import check_import_lux_widget
 from lux.utils.date_utils import is_datetime_series
 #import for benchmarking
@@ -16,10 +17,11 @@ class LuxDataFrame(pd.DataFrame):
 	# MUST register here for new properties!!
 	_metadata = ['_intent','data_type_lookup','data_type',
 				 'data_model_lookup','data_model','unique_values','cardinality',
-				'min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev']
+				'min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev','_history']
 
 	def __init__(self,*args, **kw):
 		from lux.executor.PandasExecutor import PandasExecutor
+		self._history = History()
 		self._intent = []
 		self._recommendation = {}
 		self._current_vis = []
@@ -53,7 +55,9 @@ class LuxDataFrame(pd.DataFrame):
 	# 		# adapted from https://github.com/pandas-dev/pandas/issues/13208#issuecomment-326556232
 	# 		return LuxSeries(*args, **kwargs).__finalize__(self, method='inherit')
 	# 	return f
-
+	@property
+	def history(self):
+		return self._history
 	def maintain_metadata(self):
 		if (not hasattr(self,"_metadata_fresh") or not self._metadata_fresh ): # Check that metadata has not yet been computed
 			if (len(self)>0): #only compute metadata information if the dataframe is non-empty
@@ -586,6 +590,7 @@ class LuxDataFrame(pd.DataFrame):
 			
 			if hasattr(self,"_prev") and self._prev is not None:
 				df_to_display = self._prev
+				self._prev = None #reset so that other future df display don't use previous dataframe
 			else:
 				df_to_display = self
 			df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
@@ -717,5 +722,20 @@ class LuxDataFrame(pd.DataFrame):
 	# Overridden Pandas Functions
 	def head(self, n: int = 5):# -> FrameOrSeries:
 		self._prev = self
+		self._history.append_event("head", n=5)
 		return super(LuxDataFrame, self).head(n)
-		
+	
+	def tail(self, n: int = 5):# -> FrameOrSeries:
+		self._prev = self
+		self._history.append_event("tail", n=5)
+		return super(LuxDataFrame, self).tail(n)
+	
+	def info(self, *args, **kwargs):
+		self._prev = self
+		self._history.append_event("info",*args, **kwargs)
+		return super(LuxDataFrame, self).info(*args, **kwargs)
+
+	def describe(self, *args, **kwargs):
+		self._prev = self
+		self._history.append_event("describe",*args, **kwargs)
+		return super(LuxDataFrame, self).describe(*args, **kwargs)
