@@ -14,7 +14,8 @@ lux.processor.Compiler.Compiler
    .. autosummary::
    
       ~Compiler.__init__
-      ~Compiler.compile
+      ~Compiler.compile_intent
+      ~Compiler.compile_vis
       ~Compiler.determine_encoding
       ~Compiler.enforce_specified_channel
       ~Compiler.enumerate_collection

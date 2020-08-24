@@ -26,7 +26,7 @@ Welcome to Lux's documentation!
    source/guide/export
    source/guide/style
    source/guide/FAQ
-   source/guide/example
+.. source/guide/example
 
 .. toctree::
    :maxdepth: 1

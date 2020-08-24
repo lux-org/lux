@@ -168,6 +168,7 @@ class LuxDataFrame(pd.DataFrame):
 		self._recs_fresh=False
 	def clear_plot_config(self):
 		self.plot_config = None
+		self._recs_fresh=False
 	
 	@property
 	def intent(self):
