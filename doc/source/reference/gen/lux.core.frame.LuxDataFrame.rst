@@ -93,7 +93,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.get_SQL_attributes
       ~LuxDataFrame.get_SQL_cardinality
       ~LuxDataFrame.get_SQL_unique_values
-      ~LuxDataFrame.get_exported
       ~LuxDataFrame.groupby
       ~LuxDataFrame.gt
       ~LuxDataFrame.head
@@ -256,6 +255,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.default_display
       ~LuxDataFrame.dtypes
       ~LuxDataFrame.empty
+      ~LuxDataFrame.exported
       ~LuxDataFrame.iat
       ~LuxDataFrame.iloc
       ~LuxDataFrame.index

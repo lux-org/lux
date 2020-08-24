@@ -4,7 +4,7 @@
 API
 ****
 
-User Facing Objects
+Basic API Interface
 -------------------
 
 .. autosummary::
@@ -16,8 +16,8 @@ User Facing Objects
 	lux.vis.Vis.Clause
 	lux.core.frame.LuxDataFrame
 
-Internal Objects
-----------------
+Advanced Internals (Dev)
+-------------------------
 
 .. autosummary::
 	:toctree: gen

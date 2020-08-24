@@ -17,7 +17,6 @@ lux.vis.VisList.VisList
       ~VisList.bottomK
       ~VisList.clear_plot_config
       ~VisList.get
-      ~VisList.get_exported
       ~VisList.map
       ~VisList.normalize_score
       ~VisList.refresh_source
@@ -31,5 +30,11 @@ lux.vis.VisList.VisList
    
 
    
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VisList.exported
    
    
