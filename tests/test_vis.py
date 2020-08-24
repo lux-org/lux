@@ -40,7 +40,7 @@ def test_custom_plot_setting():
         chart.title = "Test Title"
         return chart
     df = pd.read_csv("lux/data/car.csv")
-    df.set_plot_config(change_color_make_transparent_add_title)
+    df.plot_config = change_color_make_transparent_add_title
     df._repr_html_()
     config_mark_addition = 'chart = chart.configure_mark(color="green",opacity=0.2)'
     title_addition ='chart.title = "Test Title"'

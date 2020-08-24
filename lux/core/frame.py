@@ -32,7 +32,7 @@ class LuxDataFrame(pd.DataFrame):
 
 		self._default_pandas_display = True
 		self._toggle_pandas_display = True
-		self.plot_config = None
+		self._plot_config = None
 		# Metadata
 		self.data_type_lookup = None
 		self.data_type = None
@@ -136,7 +136,11 @@ class LuxDataFrame(pd.DataFrame):
 			from lux.executor.PandasExecutor import PandasExecutor
 			self.executor = PandasExecutor
 		self.executor_type = exe
-	def set_plot_config(self,config_func:Callable):
+	@property 
+	def plot_config(self):
+		return self._plot_config
+	@plot_config.setter
+	def plot_config(self,config_func:Callable):
 		"""
 		Modify plot aesthetic settings to all visualizations in the dataframe display
 		Currently only supported for Altair visualizations
@@ -153,7 +157,7 @@ class LuxDataFrame(pd.DataFrame):
 				chart = chart.configure_mark(color="red") # change mark color to red
 				chart.title = "Custom Title" # add title to chart
 				return chart
-		>>> df.set_plot_config(changeColorAddTitle)
+		>>> df.plot_config = changeColorAddTitle
 		>>> df
 		Change the opacity of all scatterplots displayed for this dataframe
 		>>> df = pd.read_csv("lux/data/olympic.csv")
@@ -161,13 +165,13 @@ class LuxDataFrame(pd.DataFrame):
 				if chart.mark=='circle':
 					chart = chart.configure_mark(opacity=0.1) # lower opacity
 				return chart
-		>>> df.set_plot_config(changeOpacityScatterOnly)
+		>>> df.plot_config = changeOpacityScatterOnly
 		>>> df
 		"""        
-		self.plot_config = config_func
+		self._plot_config = config_func
 		self._recs_fresh=False
 	def clear_plot_config(self):
-		self.plot_config = None
+		self._plot_config = None
 		self._recs_fresh=False
 	
 	@property
@@ -481,9 +485,9 @@ class LuxDataFrame(pd.DataFrame):
 			for rec_info in rec_infolist: 
 				action_type = rec_info["action"]
 				vc = rec_info["collection"]
-				if (self.plot_config):
-					for vis in self.current_vis: vis.plot_config = self.plot_config
-					for vis in vc: vis.plot_config = self.plot_config
+				if (self._plot_config):
+					for vis in self.current_vis: vis._plot_config = self.plot_config
+					for vis in vc: vis._plot_config = self.plot_config
 				if (len(vc)>0):
 					self.recommendation[action_type]  = vc
 			self._widget = self.render_widget(rec_infolist)

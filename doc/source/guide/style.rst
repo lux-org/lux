@@ -2,7 +2,7 @@
 Styling Custom Plot Settings 
 ********************************
 
-In the last tutorial, we saw how `Vis` objects could be exported into visualization code for further editing. What if we want to change the chart settings for *all* the visualizations displayed in the widget. In Lux, we can change the chart settings and aesthetics by inputting custom plot settings as a function input to the `set_plot_config` function.
+In the last tutorial, we saw how :code:`Vis` objects could be exported into visualization code for further editing. What if we want to change the chart settings for *all* the visualizations displayed in the widget. In Lux, we can change the chart settings and aesthetics by inputting custom plot settings the :code:`plot_config` property of the dataframe.
 
 Example #1 : Changing Color and Title of all charts
 ---------------------------------------------------
@@ -15,8 +15,7 @@ Here, we've loaded in the `Cars dataset <http://lib.stat.cmu.edu/datasets/>`_ an
 
 .. image:: ../img/style-1.png
   :width: 700
-  :align: center
-  :alt: add screenshot
+  :align: center 
 
 By default, visualizations in Lux are rendered using the `Altair <https://altair-viz.github.io/index.html>`_ library.
 To change the plot configuration in Altair, we need to specify a function that takes an `AltairChart <https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html?highlight=chart>`_ as input, performs some chart configurations in Altair, and returns the chart object as an output.
@@ -30,18 +29,17 @@ Let's say that we want to change all the graphical marks of the charts to green 
 	    chart.title = "Custom Title" # add title to chart
 	    return chart
 
-We then set the plot configuration of the dataframe by inputting this function in `set_plot_config`. With the added plot_config, Lux runs this user-defined function after every `Vis` is rendered to a chart, allow the user-defined function to override any existing default chart settings.
+We then set the plot configuration of the dataframe by changing the :code:`plot_config` property. With the added plot_config, Lux runs this user-defined function after every `Vis` is rendered to a chart, allow the user-defined function to override any existing default chart settings.
 
 .. code-block:: python
 	
-	df.set_plot_config(change_color_add_title)
+	df.plot_config = change_color_add_title
 
 We now see that the displayed visualizations adopt these new imported settings.
 
 .. image:: ../img/style-2.png
   :width: 700
-  :align: center
-  :alt: add screenshot
+  :align: center 
 
 If we click on the visualization for `Displacement` v.s. `Weight` and export it. We see that the exported chart now contains code with these additional plot settings at the every end.
 
@@ -53,8 +51,7 @@ If we click on the visualization for `Displacement` v.s. `Weight` and export it.
 
 .. image:: ../img/style-3.png
   :width: 700
-  :align: center
-  :alt: add screenshot
+  :align: center 
 
 .. code-block:: python
 	
@@ -78,8 +75,7 @@ If we click on the visualization for `Displacement` v.s. `Weight` and export it.
 
 .. image:: ../img/style-4.png
   :width: 200
-  :align: center
-  :alt: add screenshot
+  :align: center 
 
 Example #2: Changing Selected Chart Setting
 -------------------------------------------
@@ -98,7 +94,6 @@ Here, we load in the `Olympics dataset <https://www.kaggle.com/heesoo37/120-year
 .. image:: ../img/style-5.png
   :width: 700
   :align: center
-  :alt: add screenshot
 
 We want to decrease the opacity of scatterplots, but keep the opacity for the other types of visualization as default.
 
@@ -111,12 +106,11 @@ We want to decrease the opacity of scatterplots, but keep the opacity for the ot
 
 .. code-block:: python
 	
-	df.set_plot_config(changeOpacityScatterOnly)
+	df.plot_config = changeOpacityScatterOnly
 	df
 
 .. image:: ../img/style-6.png
   :width: 700
-  :align: center
-  :alt: add screenshot
+  :align: center 
 
 We can modify the scatterplot setting, without changing the settings for the other chart types.

@@ -15,7 +15,7 @@ class Vis:
 		self.mark = mark
 		self.score = score
 		self.code = None
-		self.plot_config = None
+		self._plot_config = None
 		self.min_max = {}
 		self.refresh_source(self._source)
 	def __repr__(self):
@@ -70,7 +70,11 @@ class Vis:
 		"""		
 		self._intent = intent
 		self.refresh_source(self._source)
-	def set_plot_config(self,config_func:Callable):
+	@property 
+	def plot_config(self):
+		return self._plot_config
+	@plot_config.setter
+	def plot_config(self,config_func:Callable):
 		"""
 		Modify plot aesthetic settings to the Vis
 		Currently only supported for Altair visualizations
@@ -80,9 +84,9 @@ class Vis:
 		config_func : typing.Callable
 			A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
 		"""
-		self.plot_config = config_func
+		self._plot_config = config_func
 	def clear_plot_config(self):
-		self.plot_config = None
+		self._plot_config = None
 	def _repr_html_(self):
 		from IPython.display import display
 		check_import_lux_widget()
