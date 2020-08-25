@@ -25,7 +25,6 @@ lux.vis.Vis.Vis
       ~Vis.remove_filter_from_spec
       ~Vis.render_VSpec
       ~Vis.set_intent
-      ~Vis.plot_config
       ~Vis.to_Altair
       ~Vis.to_VegaLite
    
@@ -38,5 +37,6 @@ lux.vis.Vis.Vis
    .. autosummary::
    
       ~Vis.get_data
+      ~Vis.plot_config
    
    

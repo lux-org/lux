@@ -31,14 +31,14 @@ When you print out the dataframe in the notebook, you should see the default Pan
 
     df
 
-.. image:: ../img/overview-1.gif
+.. image:: ../../../../lux-resources/doc_img/overview-1.gif
   :width: 700
   :align: center
   :alt: click on toggle, scroll on Correlation
 
 By clicking on the Toggle button, you can now explore the data visually through Lux. You should see three tabs of visualizations recommended to you. 
 
-.. image:: ../img/overview-2.gif
+.. image:: ../../../../lux-resources/doc_img/overview-2.gif
   :width: 700
   :align: center
   :alt: click on Distribution and Occurrence tabs
@@ -94,7 +94,7 @@ When you print out the dataframe again, you should see three different tabs of v
 
     df
 
-.. image:: ../img/overview-3.gif
+.. image:: ../../../../lux-resources/doc_img/overview-3.gif
   :width: 700
   :align: center
   :alt: scroll through Enhance, click on Filter tab
