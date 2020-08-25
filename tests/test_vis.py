@@ -1,24 +1,22 @@
 from .context import lux
 import pytest
 import pandas as pd
+from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 def test_vis():
     df = pd.read_csv("lux/data/olympic.csv")
-    from lux.vis.Vis import Vis
     vis = Vis(["Height","SportType=Ball"],df)
     assert vis.get_attr_by_attr_name("Height")[0].bin_size!=0
     assert vis.get_attr_by_attr_name("Record")[0].aggregation == 'count'
     
 def test_vis_set_specs():
     df = pd.read_csv("lux/data/olympic.csv")
-    from lux.vis.Vis import Vis
     vis = Vis(["Height","SportType=Ball"],df)
     vis.set_intent(["Height","SportType=Ice"])
     assert vis.get_attr_by_attr_name("SportType")[0].value =="Ice"
 
 def test_vis_collection():
     df = pd.read_csv("lux/data/olympic.csv")
-    from lux.vis.VisList import VisList
     vc = VisList(["Height","SportType=Ball","?"],df)
     vis_with_year = list(filter(lambda x: x.get_attr_by_attr_name("Year")!=[],vc))[0]
     assert vis_with_year.get_attr_by_channel("x")[0].attribute=="Year"
@@ -28,7 +26,6 @@ def test_vis_collection():
 
 def test_vis_collection_set_intent():
     df = pd.read_csv("lux/data/olympic.csv")
-    from lux.vis.VisList import VisList
     vc = VisList(["Height","SportType=Ice","?"],df)
     vc.set_intent(["Height","SportType=Boat","?"])
     for v in vc._collection: 
@@ -49,13 +46,11 @@ def test_custom_plot_setting():
     assert title_addition in exported_code_str
 
 def test_remove():
-    from lux.vis.Vis import Vis
     df = pd.read_csv("lux/data/car.csv")
     vis = Vis([lux.Clause("Horsepower"),lux.Clause("Acceleration")],df)
     vis.remove_column_from_spec("Horsepower",remove_first=False)
     assert vis._inferred_intent[0].attribute == "Acceleration"
 def test_remove_identity():
-    from lux.vis.Vis import Vis
     df = pd.read_csv("lux/data/car.csv")
     vis = Vis(["Horsepower","Horsepower"],df)
     vis.remove_column_from_spec("Horsepower")
@@ -76,7 +71,6 @@ def test_refresh_collection():
 
 def test_vis_custom_aggregation_as_str():
     df = pd.read_csv("lux/data/college.csv")
-    from lux.vis.Vis import Vis
     import numpy as np
     vis = Vis(["HighestDegree",lux.Clause("AverageCost",aggregation="max")],df)
     assert vis.get_attr_by_data_model("measure")[0].aggregation == "max"
@@ -116,3 +110,14 @@ def test_vis_to_Altair_standalone():
     vis = Vis(['Weight','Horsepower'],df)
     code = vis.to_Altair(standalone=True)
     assert "chart = alt.Chart(pd.DataFrame({'Weight': {0: 3504, 1: 3693, 2: 3436, 3: 3433, 4: 3449, 5: 43" in code or "alt.Chart(pd.DataFrame({'Horsepower': {0: 130, 1: 165, 2: 150, 3: 150, 4: 140," in code
+def vis_list_custom_title_override():
+    df = pd.read_csv("lux/data/olympic.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
+    
+    vcLst = []
+    for attribute in ['Sport','Year','Height','HostRegion','SportType']: 
+        vis = Vis([lux.Clause("Weight"), lux.Clause(attribute)],title="overriding dummy title")
+        vcLst.append(vis)
+    vc = VisList(vcLst,df)
+    for v in vc: 
+        assert v.title=="overriding dummy title" 
