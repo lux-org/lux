@@ -40,7 +40,7 @@ class LuxDataFrame(pd.DataFrame):
 		self.data_model = None
 		self.unique_values = None
 		self.cardinality = None
-		self.min_max = None
+		self._min_max = None
 		self.pre_aggregated = None
 
 	@property
@@ -76,7 +76,7 @@ class LuxDataFrame(pd.DataFrame):
 		self.data_model = None
 		self.unique_values = None
 		self.cardinality = None
-		self.min_max = None
+		self._min_max = None
 		self.pre_aggregated = None
 
 	#####################
@@ -326,7 +326,7 @@ class LuxDataFrame(pd.DataFrame):
 	def compute_stats(self):
 		# precompute statistics
 		self.unique_values = {}
-		self.min_max = {}
+		self._min_max = {}
 		self.cardinality = {}
 
 		for attribute in self.columns:
@@ -342,7 +342,7 @@ class LuxDataFrame(pd.DataFrame):
 			else:   
 				self.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
 			if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
-				self.min_max[attribute_repr] = (self[attribute].min(), self[attribute].max())
+				self._min_max[attribute_repr] = (self[attribute].min(), self[attribute].max())
 		if (self.index.dtype !='int64'):
 			index_column_name = self.index.name
 			self.unique_values[index_column_name] = list(self.index)
@@ -374,13 +374,13 @@ class LuxDataFrame(pd.DataFrame):
 	def compute_SQL_stats(self):
 		# precompute statistics
 		self.unique_values = {}
-		self.min_max = {}
+		self._min_max = {}
 
 		self.get_SQL_unique_values()
 		#self.get_SQL_cardinality()
 		for attribute in self.columns:
 			if self.data_type_lookup[attribute] == 'quantitative':
-				self.min_max[attribute] = (self[attribute].min(), self[attribute].max())
+				self._min_max[attribute] = (self[attribute].min(), self[attribute].max())
 
 	def get_SQL_attributes(self):
 		if "." in self.table_name:
