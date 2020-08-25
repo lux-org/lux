@@ -235,14 +235,14 @@ class Compiler:
 			if (measure.bin_size == 0):
 				measure.bin_size = 10
 			auto_channel = {"x": measure, "y": count_col}
-			vis.mark = "histogram"
+			vis._mark = "histogram"
 		elif (ndim == 1 and (nmsr == 0 or nmsr == 1)):
 			# Line or Bar Chart
 			if (nmsr == 0):
 				vis._inferred_intent.append(count_col)
 			dimension = vis.get_attr_by_data_model("dimension")[0]
 			measure = vis.get_attr_by_data_model("measure")[0]
-			vis.mark, auto_channel = line_or_bar(ldf, dimension, measure)
+			vis._mark, auto_channel = line_or_bar(ldf, dimension, measure)
 		elif (ndim == 2 and (nmsr == 0 or nmsr == 1)):
 			# Line or Bar chart broken down by the dimension
 			dimensions = vis.get_attr_by_data_model("dimension")
@@ -264,11 +264,11 @@ class Compiler:
 			if (nmsr == 0):
 				vis._inferred_intent.append(count_col)
 			measure = vis.get_attr_by_data_model("measure")[0]
-			vis.mark, auto_channel = line_or_bar(ldf, dimension, measure)
+			vis._mark, auto_channel = line_or_bar(ldf, dimension, measure)
 			auto_channel["color"] = color_attr
 		elif (ndim == 0 and nmsr == 2):
 			# Scatterplot
-			vis.mark = "scatter"
+			vis._mark = "scatter"
 			vis._inferred_intent[0].set_aggregation(None)
 			vis._inferred_intent[1].set_aggregation(None)
 			auto_channel = {"x": vis._inferred_intent[0],
@@ -284,19 +284,19 @@ class Compiler:
 
 			color_attr = vis.get_attr_by_data_model("dimension")[0]
 			vis.remove_column_from_spec(color_attr)
-			vis.mark = "scatter"
+			vis._mark = "scatter"
 			auto_channel = {"x": m1,
 						   "y": m2,
 						   "color": color_attr}
 		elif (ndim == 0 and nmsr == 3):
 			# Scatterplot with color
-			vis.mark = "scatter"
+			vis._mark = "scatter"
 			auto_channel = {"x": vis._inferred_intent[0],
 						   "y": vis._inferred_intent[1],
 						   "color": vis._inferred_intent[2]}
 		relevant_attributes = [auto_channel[channel].attribute for channel in auto_channel]
-		relevant_min_max = dict((attr, ldf.min_max[attr]) for attr in relevant_attributes if attr != "Record" and attr in ldf.min_max)
-		vis.min_max = relevant_min_max
+		relevant_min_max = dict((attr, ldf._min_max[attr]) for attr in relevant_attributes if attr != "Record" and attr in ldf._min_max)
+		vis._min_max = relevant_min_max
 		if (auto_channel!={}):
 			vis = Compiler.enforce_specified_channel(vis, auto_channel)
 			vis._inferred_intent.extend(filters)  # add back the preserved filters

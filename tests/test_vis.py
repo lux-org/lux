@@ -110,7 +110,7 @@ def test_vis_to_Altair_standalone():
     vis = Vis(['Weight','Horsepower'],df)
     code = vis.to_Altair(standalone=True)
     assert "chart = alt.Chart(pd.DataFrame({'Weight': {0: 3504, 1: 3693, 2: 3436, 3: 3433, 4: 3449, 5: 43" in code or "alt.Chart(pd.DataFrame({'Horsepower': {0: 130, 1: 165, 2: 150, 3: 150, 4: 140," in code
-def vis_list_custom_title_override():
+def test_vis_list_custom_title_override():
     df = pd.read_csv("lux/data/olympic.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
     
@@ -121,3 +121,21 @@ def vis_list_custom_title_override():
     vc = VisList(vcLst,df)
     for v in vc: 
         assert v.title=="overriding dummy title" 
+def test_vis_set_intent():
+    from lux.vis.Vis import Vis
+    df = pd.read_csv("lux/data/car.csv")
+    vis = Vis(["Weight","Horsepower"],df)
+    vis._repr_html_()
+    assert "Horsepower" in str(vis.code)
+    vis.intent = ["Weight","MilesPerGal"]
+    vis._repr_html_()
+    assert "MilesPerGal" in str(vis.code)
+def test_vis_list_set_intent():
+    from lux.vis.VisList import VisList
+    df = pd.read_csv("lux/data/car.csv")
+    vislist = VisList(["Horsepower","?"],df)
+    vislist._repr_html_()
+    for vis in vislist: assert vis.get_attr_by_attr_name("Horsepower")!=[]
+    vislist.intent = ["Weight","?"]
+    vislist._repr_html_()
+    for vis in vislist: assert vis.get_attr_by_attr_name("Weight")!=[]

@@ -6,21 +6,21 @@ class Vis:
 	'''
     Vis Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
 	'''
-	def __init__(self, intent, source =None , mark="", title="", score=0.0):
+	def __init__(self, intent, source =None , title="", score=0.0):
 		self._intent = intent # This is the user's original intent to Vis
 		self._inferred_intent = intent # This is the re-written, expanded version of user's original intent (include inferred vis info)
 		self._source = source # This is the original data that is attached to the Vis
 		self.data = None # This is the data that represents the Vis (e.g., selected, aggregated, binned)
 		self.title = title
-		self.mark = mark
 		self.score = score
 		self.code = None
+		self._mark = ""
 		self._plot_config = None
-		self.min_max = {}
+		self._min_max = {}
 		self.refresh_source(self._source)
 	def __repr__(self):
 		if self._source is None:
-			return f"<Vis  ({str(self._intent)}) mark: {self.mark}, score: {self.score} >"
+			return f"<Vis  ({str(self._intent)}) mark: {self._mark}, score: {self.score} >"
 		filter_intents = None
 		channels, additional_channels = [], []
 		for clause in self._inferred_intent:
@@ -49,16 +49,24 @@ class Vis:
 			str_channels += channel[0] + ": " + channel[1] + ", "
 
 		if filter_intents:
-			return f"<Vis  ({str_channels[:-2]} -- [{filter_intents.attribute}{filter_intents.filter_op}{filter_intents.value}]) mark: {self.mark}, score: {self.score} >"
+			return f"<Vis  ({str_channels[:-2]} -- [{filter_intents.attribute}{filter_intents.filter_op}{filter_intents.value}]) mark: {self._mark}, score: {self.score} >"
 		else:
-			return f"<Vis  ({str_channels[:-2]}) mark: {self.mark}, score: {self.score} >"
-
+			return f"<Vis  ({str_channels[:-2]}) mark: {self._mark}, score: {self.score} >"
+	@property
+	def mark(self):
+		return self._mark
+	@property
+	def min_max(self):
+		return self._min_max
 	@property
 	def get_data(self):
 		return self.data.to_pandas()
-
-	def get_intent(self):
+	@property
+	def intent(self):
 		return self._intent
+	@intent.setter
+	def intent(self, intent:List[Clause]) -> None:
+		self.set_intent(intent)
 	def set_intent(self, intent:List[Clause]) -> None:
 		"""
 		Sets the intent of the Vis and refresh the source based on the new intent
@@ -241,7 +249,7 @@ class Vis:
 			if (len(vc)>0):
 				vis = vc[0]
 				self.title = vis.title
-				self.mark = vis.mark
+				self._mark = vis._mark
 				self._inferred_intent = vis._inferred_intent
 				self.data = vis.data
-				self.min_max = vis.min_max
+				self._min_max = vis._min_max
