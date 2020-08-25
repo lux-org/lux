@@ -23,7 +23,7 @@ lux.vis.VisList.VisList
       ~VisList.remove_duplicates
       ~VisList.set
       ~VisList.set_intent
-      ~VisList.plot_config
+      ~VisList.set_plot_config
       ~VisList.sort
       ~VisList.topK
    
