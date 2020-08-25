@@ -83,3 +83,11 @@ def test_custom_aggregation():
 	df.set_intent(["HighestDegree",lux.Clause("AverageCost",aggregation=np.ptp)])
 	df._repr_html_()
 	assert list(df.recommendation.keys()) ==['Enhance', 'Filter', 'Generalize']
+def test_year_filter_value():
+	df = pd.read_csv("lux/data/car.csv")
+	df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+	df.set_intent(["Acceleration","Horsepower"])
+	df._repr_html_()
+	list_of_vis_with_year_filter = list(filter(lambda vis: len(list(filter(lambda clause: clause.value!='' and clause.attribute=="Year",vis._intent)))!=0, df.recommendation["Filter"]))
+	vis = list_of_vis_with_year_filter[0]
+	assert "T00:00:00.000000000" not in vis.to_Altair(), "Year filter title contains extraneous string, not displayed as summarized string"

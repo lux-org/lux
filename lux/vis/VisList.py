@@ -251,7 +251,6 @@ class VisList():
 			from lux.processor.Parser import Parser
 			from lux.processor.Validator import Validator
 			from lux.processor.Compiler import Compiler
-			from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
 			self._source = ldf
 			self._source.maintain_metadata()
 			if len(self._input_lst)>0:

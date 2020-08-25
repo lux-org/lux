@@ -37,7 +37,7 @@ class AltairChart:
 		self.chart = self.chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont="Helvetica Neue",
 									labelFontWeight=400,labelFontSize=9,labelFont="Helvetica Neue")
 		self.chart = self.chart.properties(width=160,height=150)
-		self.code+= "chart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
+		self.code+= "\nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
 		self.code+= "chart = chart.configure_axis(titleFontWeight=500,titleFontSize=11,titleFont='Helvetica Neue',\n"
 		self.code+= "					labelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue',labelColor='#505050')\n"
 		self.code+= "chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',\n"
