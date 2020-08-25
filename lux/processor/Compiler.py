@@ -96,7 +96,7 @@ class Compiler:
 					if len(filters) > 0:  # if we have filters, generate combinations for each row.
 						for row in filters:
 							_inferred_intent = copy.deepcopy(column_list + [row])
-							vis = Vis(_inferred_intent, title=f"{row.attribute} {row.filter_op} {row.value}")
+							vis = Vis(_inferred_intent)
 							collection.append(vis)
 					else:
 						vis = Vis(column_list)
