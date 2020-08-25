@@ -25,8 +25,7 @@ class Compiler:
 			vis_collection = Compiler.populate_data_type_model(ldf, [vis])  # autofill data type/model information
 			vis_collection = Compiler.remove_all_invalid(vis_collection) # remove invalid visualizations from collection
 			for vis in vis_collection:
-				if (vis.mark==""): #if no prespecified mark type
-					Compiler.determine_encoding(ldf, vis)  # autofill viz related information
+				Compiler.determine_encoding(ldf, vis)  # autofill viz related information
 			ldf._compiled=True
 			return vis_collection
 	@staticmethod

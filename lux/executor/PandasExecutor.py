@@ -69,7 +69,6 @@ class PandasExecutor(Executor):
         '''
         import numpy as np
         import pandas as pd
-        import time
 
         x_attr = view.get_attr_by_channel("x")[0]
         y_attr = view.get_attr_by_channel("y")[0]
