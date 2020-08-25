@@ -22,11 +22,11 @@ class Compiler:
 	@staticmethod
 	def compile_vis(ldf: LuxDataFrame,vis:Vis) -> VisList:
 		if (vis):
-			vis_collection = Compiler.enumerate_collection(vis._inferred_intent,ldf)
-			vis_collection = Compiler.populate_data_type_model(ldf, vis_collection)  # autofill data type/model information
+			vis_collection = Compiler.populate_data_type_model(ldf, [vis])  # autofill data type/model information
 			vis_collection = Compiler.remove_all_invalid(vis_collection) # remove invalid visualizations from collection
 			for vis in vis_collection:
-				Compiler.determine_encoding(ldf, vis)  # autofill viz related information
+				if (vis.mark==""): #if no prespecified mark type
+					Compiler.determine_encoding(ldf, vis)  # autofill viz related information
 			ldf._compiled=True
 			return vis_collection
 	@staticmethod
@@ -43,8 +43,6 @@ class Compiler:
 			LuxDataFrame with underspecified intent.
 		vis_collection : list[lux.vis.Vis]
 			empty list that will be populated with specified lux.Vis objects.
-		enumerate_collection : boolean
-			A boolean value that signals when to generate a collection of visualizations.
 
 		Returns
 		-------

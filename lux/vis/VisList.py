@@ -264,7 +264,6 @@ class VisList():
 							vis = vislist[0]
 							compiled_collection.append(vis)
 					self._collection = compiled_collection
-					# self._collection = Compiler.compile(ldf,ldf._intent,self,enumerate_collection=False)
 				else:
 					self._inferred_intent = Parser.parse(self._intent)
 					Validator.validate_intent(self._inferred_intent,ldf)
