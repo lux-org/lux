@@ -233,7 +233,6 @@ class Vis:
 			from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
 			ldf.maintain_metadata()
 			self._source = ldf
-			#TODO: handle case when user input vanilla Pandas dataframe
 			self._inferred_intent = Parser.parse(self._intent)
 			Validator.validate_intent(self._inferred_intent,ldf)
 			vc = Compiler.compile_vis(ldf,self)
