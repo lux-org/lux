@@ -9,7 +9,7 @@ architecture can be described in layers: the user interface layer, the user inpu
 and parsing layer, the intent processing layer, the data execution layer, and finally the
 analytics layer. The principle behind this design is to take advantage of the extensibility of loosely coupled modules.
 
-.. image:: ../lux/doc/source/guide/Lux_Architecture.PNG
+.. image:: Lux_Architecture.PNG
    :width: 400
    :align: center
 
