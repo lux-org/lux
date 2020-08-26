@@ -10,13 +10,13 @@ class Vis:
 		self._intent = intent # This is the user's original intent to Vis
 		self._inferred_intent = intent # This is the re-written, expanded version of user's original intent (include inferred vis info)
 		self._source = source # This is the original data that is attached to the Vis
-		self.data = None # This is the data that represents the Vis (e.g., selected, aggregated, binned)
+		self._vis_data = None # This is the data that represents the Vis (e.g., selected, aggregated, binned)
+		self._code = None
+		self._mark = ""
+		self._min_max = {}
+		self._plot_config = None
 		self.title = title
 		self.score = score
-		self.code = None
-		self._mark = ""
-		self._plot_config = None
-		self._min_max = {}
 		self.refresh_source(self._source)
 	def __repr__(self):
 		if self._source is None:
@@ -53,14 +53,17 @@ class Vis:
 		else:
 			return f"<Vis  ({str_channels[:-2]}) mark: {self._mark}, score: {self.score} >"
 	@property
+	def data(self):
+		return self._vis_data
+	@property
+	def code(self):
+		return self._code
+	@property
 	def mark(self):
 		return self._mark
 	@property
 	def min_max(self):
 		return self._min_max
-	@property
-	def get_data(self):
-		return self.data.to_pandas()
 	@property
 	def intent(self):
 		return self._intent
@@ -186,8 +189,8 @@ class Vis:
 		"""		
 		from lux.vislib.altair.AltairRenderer import AltairRenderer
 		renderer = AltairRenderer(output_type="Altair")
-		self.code= renderer.create_vis(self, standalone)
-		return self.code
+		self._code= renderer.create_vis(self, standalone)
+		return self._code
 
 	def to_VegaLite(self, prettyOutput = True) -> Union[dict,str]:
 		"""
@@ -201,11 +204,11 @@ class Vis:
 		import json
 		from lux.vislib.altair.AltairRenderer import AltairRenderer
 		renderer = AltairRenderer(output_type="VegaLite")
-		self.code = renderer.create_vis(self)
+		self._code = renderer.create_vis(self)
 		if (prettyOutput):
-			return "** Remove this comment -- Copy Text Below to Vega Editor(vega.github.io/editor) to visualize and edit **\n"+json.dumps(self.code, indent=2)
+			return "** Remove this comment -- Copy Text Below to Vega Editor(vega.github.io/editor) to visualize and edit **\n"+json.dumps(self._code, indent=2)
 		else:
-			return self.code
+			return self._code
 		
 	def render_VSpec(self, renderer="altair"):
 		if (renderer == "altair"):
@@ -251,5 +254,5 @@ class Vis:
 				self.title = vis.title
 				self._mark = vis._mark
 				self._inferred_intent = vis._inferred_intent
-				self.data = vis.data
+				self._vis_data = vis.data
 				self._min_max = vis._min_max

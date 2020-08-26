@@ -126,10 +126,10 @@ def test_vis_set_intent():
     df = pd.read_csv("lux/data/car.csv")
     vis = Vis(["Weight","Horsepower"],df)
     vis._repr_html_()
-    assert "Horsepower" in str(vis.code)
+    assert "Horsepower" in str(vis._code)
     vis.intent = ["Weight","MilesPerGal"]
     vis._repr_html_()
-    assert "MilesPerGal" in str(vis.code)
+    assert "MilesPerGal" in str(vis._code)
 def test_vis_list_set_intent():
     from lux.vis.VisList import VisList
     df = pd.read_csv("lux/data/car.csv")
