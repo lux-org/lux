@@ -47,7 +47,7 @@ class SQLExecutor(Executor):
                 else:
                     query = "SELECT {} FROM {} {}".format(required_variables, ldf.table_name, where_clause)
                 data = pd.read_sql(query, ldf.SQLconnection)
-                view.data = utils.pandas_to_lux(data)
+                view._vis_data = utils.pandas_to_lux(data)
             if (view.mark =="bar" or view.mark =="line"):
                 SQLExecutor.execute_aggregate(view, ldf)
             elif (view.mark =="histogram"):
@@ -74,24 +74,24 @@ class SQLExecutor(Executor):
             if (measure_attr.attribute=="Record"):
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
                 count_query = "SELECT {}, COUNT({}) FROM {} {} GROUP BY {}".format(groupby_attr.attribute, groupby_attr.attribute, ldf.table_name, where_clause, groupby_attr.attribute)
-                view.data = pd.read_sql(count_query, ldf.SQLconnection)
-                view.data = view.data.rename(columns={"count":"Record"})
-                view.data = utils.pandas_to_lux(view.data)
+                view._vis_data = pd.read_sql(count_query, ldf.SQLconnection)
+                view._vis_data = view.data.rename(columns={"count":"Record"})
+                view._vis_data = utils.pandas_to_lux(view.data)
 
             else:
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
                 if agg_func == "mean":
                     mean_query = "SELECT {}, AVG({}) as {} FROM {} {} GROUP BY {}".format(groupby_attr.attribute, measure_attr.attribute, measure_attr.attribute, ldf.table_name, where_clause, groupby_attr.attribute)
-                    view.data = pd.read_sql(mean_query, ldf.SQLconnection)
-                    view.data = utils.pandas_to_lux(view.data)
+                    view._vis_data = pd.read_sql(mean_query, ldf.SQLconnection)
+                    view._vis_data = utils.pandas_to_lux(view.data)
                 if agg_func == "sum":
                     mean_query = "SELECT {}, SUM({}) as {} FROM {} {} GROUP BY {}".format(groupby_attr.attribute, measure_attr.attribute, measure_attr.attribute, ldf.table_name, where_clause, groupby_attr.attribute)
-                    view.data = pd.read_sql(mean_query, ldf.SQLconnection)
-                    view.data = utils.pandas_to_lux(view.data)
+                    view._vis_data = pd.read_sql(mean_query, ldf.SQLconnection)
+                    view._vis_data = utils.pandas_to_lux(view.data)
                 if agg_func == "max":
                     mean_query = "SELECT {}, MAX({}) as {} FROM {} {} GROUP BY {}".format(groupby_attr.attribute, measure_attr.attribute, measure_attr.attribute, ldf.table_name, where_clause, groupby_attr.attribute)
-                    view.data = pd.read_sql(mean_query, ldf.SQLconnection)
-                    view.data = utils.pandas_to_lux(view.data)
+                    view._vis_data = pd.read_sql(mean_query, ldf.SQLconnection)
+                    view._vis_data = utils.pandas_to_lux(view.data)
 
             #pad empty categories with 0 counts after filter is applied
             all_attr_vals = ldf.unique_values[groupby_attr.attribute]
@@ -144,8 +144,8 @@ class SQLExecutor(Executor):
                 for i in range(0,len(bin_centers)):
                     if i not in bucket_lables:
                         bin_count_data = bin_count_data.append(pd.DataFrame([[i,0]], columns = bin_count_data.columns))
-            view.data = pd.DataFrame(np.array([bin_centers,list(bin_count_data['count'])]).T,columns=[bin_attribute.attribute, "Number of Records"])
-            view.data = utils.pandas_to_lux(view.data)
+            view._vis_data = pd.DataFrame(np.array([bin_centers,list(bin_count_data['count'])]).T,columns=[bin_attribute.attribute, "Number of Records"])
+            view._vis_data = utils.pandas_to_lux(view.data)
         
     @staticmethod
     #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's _inferred_intent

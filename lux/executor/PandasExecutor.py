@@ -34,7 +34,7 @@ class PandasExecutor(Executor):
         None
         '''
         for view in view_collection:
-            view.data = ldf # The view data starts off being the same as the content of the original dataframe
+            view._vis_data = ldf # The view data starts off being the same as the content of the original dataframe
             filter_executed = PandasExecutor.execute_filter(view)
             # Select relevant data based on attribute information
             attributes = set([])
@@ -43,9 +43,9 @@ class PandasExecutor(Executor):
                     if (clause.attribute!="Record"):
                         attributes.add(clause.attribute)
             if len(view.data) > 10000:
-                view.data = view.data[list(attributes)].sample(n = 10000, random_state = 1)
+                view._vis_data = view.data[list(attributes)].sample(n = 10000, random_state = 1)
             else:
-                view.data = view.data[list(attributes)]
+                view._vis_data = view.data[list(attributes)]
             if (view.mark =="bar" or view.mark =="line"):
                 PandasExecutor.execute_aggregate(view,isFiltered = filter_executed)
             elif (view.mark =="histogram"):
@@ -99,16 +99,16 @@ class PandasExecutor(Executor):
         
         if (measure_attr!=""):
             if (measure_attr.attribute=="Record"):
-                view.data = view.data.reset_index()
+                view._vis_data = view.data.reset_index()
                 #if color is specified, need to group by groupby_attr and color_attr
                 if has_color:
-                    view.data = view.data.groupby([groupby_attr.attribute, color_attr.attribute]).count().reset_index()
-                    view.data = view.data.rename(columns={"index":"Record"})
-                    view.data = view.data[[groupby_attr.attribute,color_attr.attribute,"Record"]]
+                    view._vis_data = view.data.groupby([groupby_attr.attribute, color_attr.attribute]).count().reset_index()
+                    view._vis_data = view.data.rename(columns={"index":"Record"})
+                    view._vis_data = view.data[[groupby_attr.attribute,color_attr.attribute,"Record"]]
                 else:
-                    view.data = view.data.groupby(groupby_attr.attribute).count().reset_index()
-                    view.data = view.data.rename(columns={"index":"Record"})
-                    view.data = view.data[[groupby_attr.attribute,"Record"]]
+                    view._vis_data = view.data.groupby(groupby_attr.attribute).count().reset_index()
+                    view._vis_data = view.data.rename(columns={"index":"Record"})
+                    view._vis_data = view.data[[groupby_attr.attribute,"Record"]]
             else:
                 #if color is specified, need to group by groupby_attr and color_attr
                 if has_color:
@@ -117,7 +117,7 @@ class PandasExecutor(Executor):
                     groupby_result = view.data.groupby(groupby_attr.attribute)
                 groupby_result = groupby_result.agg(agg_func)
                 intermediate = groupby_result.reset_index()
-                view.data = intermediate.__finalize__(view.data)
+                view._vis_data = intermediate.__finalize__(view.data)
             result_vals = list(view.data[groupby_attr.attribute])
             #create existing group by attribute combinations if color is specified
             #this is needed to check what combinations of group_by_attr and color_attr values have a non-zero number of elements in them
@@ -133,22 +133,22 @@ class PandasExecutor(Executor):
                     columns = view.data.columns
                     if has_color:
                         df = pd.DataFrame({columns[0]: attr_unique_vals*color_cardinality, columns[1]: pd.Series(color_attr_vals).repeat(N_unique_vals)})
-                        view.data = view.data.merge(df, on=[columns[0],columns[1]], how='right', suffixes=['', '_right'])
+                        view._vis_data = view.data.merge(df, on=[columns[0],columns[1]], how='right', suffixes=['', '_right'])
                         for col in columns[2:]:
                             view.data[col] = view.data[col].fillna(0)
                         assert len(list(view.data[groupby_attr.attribute])) == N_unique_vals*len(color_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
-                        view.data = view.data.iloc[:,:3] # Keep only the three relevant columns not the *_right columns resulting from merge
+                        view._vis_data = view.data.iloc[:,:3] # Keep only the three relevant columns not the *_right columns resulting from merge
                     else:
                         df = pd.DataFrame({columns[0]: attr_unique_vals})
                         
-                        view.data = view.data.merge(df, on=columns[0], how='right', suffixes=['', '_right'])
+                        view._vis_data = view.data.merge(df, on=columns[0], how='right', suffixes=['', '_right'])
 
                         for col in columns[1:]:
                             view.data[col] = view.data[col].fillna(0)
                         assert len(list(view.data[groupby_attr.attribute])) == N_unique_vals, f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
-            view.data = view.data.sort_values(by=groupby_attr.attribute, ascending=True)
-            view.data = view.data.reset_index()
-            view.data = view.data.drop(columns="index")
+            view._vis_data = view.data.sort_values(by=groupby_attr.attribute, ascending=True)
+            view._vis_data = view.data.reset_index()
+            view._vis_data = view.data.drop(columns="index")
 
     @staticmethod
     def execute_binning(view: Vis):
@@ -176,7 +176,7 @@ class PandasExecutor(Executor):
             #bin_edges of size N+1, so need to compute bin_center as the bin location
             bin_center = np.mean(np.vstack([bin_edges[0:-1],bin_edges[1:]]), axis=0)
             # TODO: Should view.data be a LuxDataFrame or a Pandas DataFrame?
-            view.data = pd.DataFrame(np.array([bin_center,counts]).T,columns=[bin_attribute.attribute, "Number of Records"])
+            view._vis_data = pd.DataFrame(np.array([bin_center,counts]).T,columns=[bin_attribute.attribute, "Number of Records"])
 
     @staticmethod
     def execute_filter(view: Vis):
@@ -186,7 +186,7 @@ class PandasExecutor(Executor):
         if (filters):
             # TODO: Need to handle OR logic
             for filter in filters:
-                view.data = PandasExecutor.apply_filter(view.data, filter.attribute, filter.filter_op, filter.value)
+                view._vis_data = PandasExecutor.apply_filter(view.data, filter.attribute, filter.filter_op, filter.value)
             return True
         else:
             return False
