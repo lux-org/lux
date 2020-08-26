@@ -80,20 +80,20 @@ def test_filter():
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
     intent = [lux.Clause(attribute ="Horsepower"), lux.Clause(attribute ="Year"), lux.Clause(attribute ="Origin", filter_op="=", value ="USA")]
     vis = Vis(intent,df)
-    vis.data = df
+    vis._vis_data = df
     PandasExecutor.execute_filter(vis)
     assert len(vis.data) == len(df[df["Origin"]=="USA"])
 def test_inequalityfilter():
     df = pd.read_csv("lux/data/car.csv")
     vis = Vis([lux.Clause(attribute ="Horsepower", filter_op=">", value=50), lux.Clause(attribute ="MilesPerGal")])
-    vis.data = df
+    vis._vis_data = df
     PandasExecutor.execute_filter(vis)
     assert len(df) > len(vis.data)
     assert len(vis.data) == 386 
     
     intent = [lux.Clause(attribute ="Horsepower", filter_op="<=", value=100), lux.Clause(attribute ="MilesPerGal")]
     vis = Vis(intent,df)
-    vis.data = df
+    vis._vis_data = df
     PandasExecutor.execute_filter(vis)
     assert len(vis.data) == len(df[df["Horsepower"]<=100]) == 242
 

@@ -24,6 +24,12 @@ class VisList():
 			self._intent = []
 		self._widget = None
 		self.refresh_source(self._source)
+	@property
+	def intent(self):
+		return self._intent
+	@intent.setter
+	def intent(self, intent:List[Clause]) -> None:
+		self.set_intent(intent)
 	def set_intent(self, intent:List[Clause]) -> None:
 		"""
 		Sets the intent of the VisList and refresh the source based on the new clause
@@ -264,7 +270,6 @@ class VisList():
 							vis = vislist[0]
 							compiled_collection.append(vis)
 					self._collection = compiled_collection
-					# self._collection = Compiler.compile(ldf,ldf._intent,self,enumerate_collection=False)
 				else:
 					self._inferred_intent = Parser.parse(self._intent)
 					Validator.validate_intent(self._inferred_intent,ldf)
