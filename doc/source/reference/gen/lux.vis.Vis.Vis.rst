@@ -19,13 +19,11 @@ lux.vis.Vis.Vis
       ~Vis.get_attr_by_channel
       ~Vis.get_attr_by_data_model
       ~Vis.get_attr_by_data_type
-      ~Vis.get_intent
       ~Vis.refresh_source
       ~Vis.remove_column_from_spec
       ~Vis.remove_filter_from_spec
       ~Vis.render_VSpec
       ~Vis.set_intent
-      ~Vis.set_plot_config
       ~Vis.to_Altair
       ~Vis.to_VegaLite
    
@@ -37,6 +35,11 @@ lux.vis.Vis.Vis
 
    .. autosummary::
    
-      ~Vis.get_data
+      ~Vis.code
+      ~Vis.data
+      ~Vis.intent
+      ~Vis.mark
+      ~Vis.min_max
+      ~Vis.plot_config
    
    

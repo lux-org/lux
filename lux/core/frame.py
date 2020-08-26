@@ -4,7 +4,7 @@ from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 from lux.history.history import History
-from lux.utils.utils import check_import_lux_widget
+from lux.utils.utils import check_import_lux_widget, check_if_id_like
 from lux.utils.date_utils import is_datetime_series
 #import for benchmarking
 import time
@@ -34,7 +34,7 @@ class LuxDataFrame(pd.DataFrame):
 
 		self._default_pandas_display = True
 		self._toggle_pandas_display = True
-		self.plot_config = None
+		self._plot_config = None
 		# Metadata
 		self.data_type_lookup = None
 		self.data_type = None
@@ -42,7 +42,7 @@ class LuxDataFrame(pd.DataFrame):
 		self.data_model = None
 		self.unique_values = None
 		self.cardinality = None
-		self.min_max = None
+		self._min_max = None
 		self.pre_aggregated = None
 
 	@property
@@ -80,7 +80,7 @@ class LuxDataFrame(pd.DataFrame):
 		self.data_model = None
 		self.unique_values = None
 		self.cardinality = None
-		self.min_max = None
+		self._min_max = None
 		self.pre_aggregated = None
 
 	#####################
@@ -140,7 +140,11 @@ class LuxDataFrame(pd.DataFrame):
 			from lux.executor.PandasExecutor import PandasExecutor
 			self.executor = PandasExecutor
 		self.executor_type = exe
-	def set_plot_config(self,config_func:Callable):
+	@property 
+	def plot_config(self):
+		return self._plot_config
+	@plot_config.setter
+	def plot_config(self,config_func:Callable):
 		"""
 		Modify plot aesthetic settings to all visualizations in the dataframe display
 		Currently only supported for Altair visualizations
@@ -157,7 +161,7 @@ class LuxDataFrame(pd.DataFrame):
 				chart = chart.configure_mark(color="red") # change mark color to red
 				chart.title = "Custom Title" # add title to chart
 				return chart
-		>>> df.set_plot_config(changeColorAddTitle)
+		>>> df.plot_config = changeColorAddTitle
 		>>> df
 		Change the opacity of all scatterplots displayed for this dataframe
 		>>> df = pd.read_csv("lux/data/olympic.csv")
@@ -165,13 +169,14 @@ class LuxDataFrame(pd.DataFrame):
 				if chart.mark=='circle':
 					chart = chart.configure_mark(opacity=0.1) # lower opacity
 				return chart
-		>>> df.set_plot_config(changeOpacityScatterOnly)
+		>>> df.plot_config = changeOpacityScatterOnly
 		>>> df
 		"""        
-		self.plot_config = config_func
+		self._plot_config = config_func
 		self._recs_fresh=False
 	def clear_plot_config(self):
-		self.plot_config = None
+		self._plot_config = None
+		self._recs_fresh=False
 	
 	@property
 	def intent(self):
@@ -287,6 +292,8 @@ class LuxDataFrame(pd.DataFrame):
 						self.data_type_lookup[attr] = "nominal"
 				if self.cardinality[attr]/len(self) < 0.4 and self.cardinality[attr]<10: 
 					self.data_type_lookup[attr] = "nominal"
+				elif check_if_id_like(self,attr): 
+					self.data_type_lookup[attr] = "id"
 				else:
 					self.data_type_lookup[attr] = "quantitative"
 			# Eliminate this clause because a single NaN value can cause the dtype to be object
@@ -323,7 +330,7 @@ class LuxDataFrame(pd.DataFrame):
 	def compute_stats(self):
 		# precompute statistics
 		self.unique_values = {}
-		self.min_max = {}
+		self._min_max = {}
 		self.cardinality = {}
 
 		for attribute in self.columns:
@@ -339,7 +346,7 @@ class LuxDataFrame(pd.DataFrame):
 			else:   
 				self.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
 			if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
-				self.min_max[attribute_repr] = (self[attribute].min(), self[attribute].max())
+				self._min_max[attribute_repr] = (self[attribute].min(), self[attribute].max())
 		if (self.index.dtype !='int64'):
 			index_column_name = self.index.name
 			self.unique_values[index_column_name] = list(self.index)
@@ -371,13 +378,13 @@ class LuxDataFrame(pd.DataFrame):
 	def compute_SQL_stats(self):
 		# precompute statistics
 		self.unique_values = {}
-		self.min_max = {}
+		self._min_max = {}
 
 		self.get_SQL_unique_values()
 		#self.get_SQL_cardinality()
 		for attribute in self.columns:
 			if self.data_type_lookup[attribute] == 'quantitative':
-				self.min_max[attribute] = (self[attribute].min(), self[attribute].max())
+				self._min_max[attribute] = (self[attribute].min(), self[attribute].max())
 
 	def get_SQL_attributes(self):
 		if "." in self.table_name:
@@ -484,9 +491,9 @@ class LuxDataFrame(pd.DataFrame):
 			for rec_info in rec_infolist: 
 				action_type = rec_info["action"]
 				vc = rec_info["collection"]
-				if (self.plot_config):
-					for vis in self.current_vis: vis.plot_config = self.plot_config
-					for vis in vc: vis.plot_config = self.plot_config
+				if (self._plot_config):
+					for vis in self.current_vis: vis._plot_config = self.plot_config
+					for vis in vc: vis._plot_config = self.plot_config
 				if (len(vc)>0):
 					self.recommendation[action_type]  = vc
 			self._widget = self.render_widget(rec_infolist)
@@ -500,8 +507,8 @@ class LuxDataFrame(pd.DataFrame):
 	def widget(self):
 		if(self._widget):
 			return self._widget
-
-	def get_exported(self) -> Union[Dict[str,VisList], VisList]:
+	@property
+	def exported(self) -> Union[Dict[str,VisList], VisList]:
 		"""
 		Get selected visualizations as exported Vis List
 

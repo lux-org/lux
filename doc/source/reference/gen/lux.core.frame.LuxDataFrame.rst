@@ -93,7 +93,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.get_SQL_attributes
       ~LuxDataFrame.get_SQL_cardinality
       ~LuxDataFrame.get_SQL_unique_values
-      ~LuxDataFrame.get_exported
       ~LuxDataFrame.groupby
       ~LuxDataFrame.gt
       ~LuxDataFrame.head
@@ -186,7 +185,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.set_index
       ~LuxDataFrame.set_intent
       ~LuxDataFrame.set_intent_as_vis
-      ~LuxDataFrame.set_plot_config
       ~LuxDataFrame.shift
       ~LuxDataFrame.skew
       ~LuxDataFrame.slice_shift
@@ -256,12 +254,14 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.default_display
       ~LuxDataFrame.dtypes
       ~LuxDataFrame.empty
+      ~LuxDataFrame.exported
       ~LuxDataFrame.iat
       ~LuxDataFrame.iloc
       ~LuxDataFrame.index
       ~LuxDataFrame.intent
       ~LuxDataFrame.loc
       ~LuxDataFrame.ndim
+      ~LuxDataFrame.plot_config
       ~LuxDataFrame.recommendation
       ~LuxDataFrame.shape
       ~LuxDataFrame.size

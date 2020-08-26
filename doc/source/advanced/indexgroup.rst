@@ -95,14 +95,14 @@ Lux displays the Row Groups action where each row is plotted as a time series. T
 	
 	tseries
 
-.. image:: ../img/indexgroup-4.gif
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/indexgroup-4.gif?raw=true
   :width: 700
   :align: center
   :alt: show dataframe and briefly show row and column visualizations
 
 Column Group action is less interesting in this case, nevertheless, we can still see that starting from Febrary, Oregon had the leading values compared to other states. As we move towards March and April, California and Florida becomes one of the states with the highest values.
 
-.. image:: ../img/indexgroup-5.gif
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/indexgroup-5.gif?raw=true
   :width: 700
   :align: center
   :alt: show column group visualizations (specifically California and Florida being at the top)
@@ -143,7 +143,7 @@ The Column Group shows visualizations comparing the exam results from different 
 	result = pd.crosstab([df.Exam],df.Result)
 	result
 
-.. image:: ../img/indexgroup-7.gif
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/indexgroup-7.gif?raw=true
   :width: 700
   :align: center
   :alt: show both column and row group visualizations
@@ -153,7 +153,7 @@ The Column Group shows visualizations comparing the exam results from different 
 	result = pd.crosstab([df.Subject],df.Result)
 	result
 
-.. image:: ../img/indexgroup-8.gif
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/indexgroup-8.gif?raw=true
   :width: 700
   :align: center
   :alt: show both column and row group visualizations
