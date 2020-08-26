@@ -1,4 +1,4 @@
-<p align="center"><a href="#"><img width=70% alt="" src="https://github.com/lux-org/lux/blob/master/examples/img/logo.png?raw=true"></a></p>
+<p align="center"><a href="#"><img width=77% alt="" src="https://github.com/lux-org/lux-resources/blob/master/readme_img/logo.png?raw=true"></a></p>
 <h2 align="center">A Python API for Intelligent Visual Discovery</h2>
 
 <p align="center">
@@ -44,7 +44,7 @@ Then, Lux can be used as-is, without modifying any of your existing Pandas code.
     df
 ```
 
-<img src="https://github.com/lux-org/lux/blob/master/examples/img/basicDemo.gif?raw=true"
+<img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/basicDemo.gif?raw=true"
      alt="Basic recommendations in Lux"
      style="width:900px" />
 
@@ -64,7 +64,7 @@ For example, we might be interested in the attributes `AverageCost` and `SATAver
     df.intent = ["AverageCost","SATAverage"]
     df
 ```
-<img src="https://github.com/lux-org/lux/blob/master/examples/img/contextRec.gif?raw=true"
+<img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/contextRec.gif?raw=true"
      alt="Next-step Recommendations Based on User Context"
      style="width:600px" />
  
@@ -80,7 +80,7 @@ For example, we might be interested in the attributes `AverageCost` and `SATAver
 
 Now that we have found some interesting visualizations through Lux, we might be interested in digging into these visualizations a bit more. We can click on one or more visualizations to be exported, so we can programmatically access these visualizations further in Jupyter. Visualizations are represented as `Vis` objects in Lux. These `Vis` objects can be translated into Altair or VegaLite code, so that we can further edit these visualizations.
 
-<img src="https://github.com/lux-org/lux/blob/master/examples/img/export.gif?raw=true"
+<img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/export.gif?raw=true"
      alt="Easily exportable visualization object"
      style="width:600px" />
 
@@ -93,7 +93,7 @@ We've seen how `Vis`s are automatically generated as part of the recommendations
     newEnglandCost
 ```    
 
-<img src="https://github.com/lux-org/lux/blob/master/examples/img/view.png?raw=true"
+<img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/view.png?raw=true"
      alt="Specified Visualization"
      width="200px" />
 
@@ -109,7 +109,7 @@ For example, we might be interested in looking at how the `AverageCost` distribu
     differentRegions
 ```    
 
-<img src="https://github.com/lux-org/lux/blob/master/examples/img/viewCollection.gif?raw=true"
+<img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/viewCollection.gif?raw=true"
      alt="Example Vis List"
      style="width:600px" />
 
@@ -159,3 +159,4 @@ To install the [Lux Jupyter Widget](https://github.com/lux-org/lux-widget):
 Lux is undergoing active development. Please report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues) or post on the [#help](https://lux-project.slack.com/archives/C0174H16CK0) channel in the <a href="http://lux-project.slack.com/">Lux Slack org</a>.
 
 If you are interested in participating in a user study on Lux, please contact <a href="mailto:dorisjunglinlee@gmail.com">Doris Lee</a> for more detail.
+
