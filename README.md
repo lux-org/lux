@@ -5,9 +5,9 @@
     <a href="https://travis-ci.com/lux-org/lux">
         <img alt="Build Status" src="https://travis-ci.com/lux-org/lux.svg?branch=master" align="center">
     </a>
-    <a href="https://badge.fury.io/py/lux-api">
+    <!--     <a href="https://badge.fury.io/py/lux-api">
         <img src="https://badge.fury.io/py/lux-api.svg" alt="PyPI version" height="18" align="center">
-    </a>
+    </a> -->
     <a href='https://lux-api.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/lux-api/badge/?version=latest' alt='Documentation Status'  align="center"/>
     </a>
