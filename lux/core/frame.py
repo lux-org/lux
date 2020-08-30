@@ -46,7 +46,10 @@ class LuxDataFrame(pd.DataFrame):
 	@property
 	def _constructor(self):
 		return LuxDataFrame
-
+	def __setitem__(self,key,value):
+		super(LuxDataFrame, self).__setitem__(key, value)
+		self.expire_metadata()
+		self.expire_recs()
 	# @property
 	# def _constructor_sliced(self):
 	# 	def f(*args, **kwargs):
