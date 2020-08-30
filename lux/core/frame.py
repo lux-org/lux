@@ -275,7 +275,6 @@ class LuxDataFrame(pd.DataFrame):
 		for attr in list(self.columns):
 			if (isinstance(attr,pd._libs.tslibs.timestamps.Timestamp)): 
 				# If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
-				attr = attr._date_repr
 				self.data_type_lookup[attr] = "temporal"
 			elif str(attr).lower() in ["month", "year","day","date","time"]:
 				self.data_type_lookup[attr] = "temporal"
@@ -302,6 +301,28 @@ class LuxDataFrame(pd.DataFrame):
 		if (self.index.dtype !='int64' and self.index.name):
 			self.data_type_lookup[self.index.name] = "nominal"
 		self.data_type = self.mapping(self.data_type_lookup)
+
+		from pandas.api.types import is_datetime64_any_dtype as is_datetime
+		non_datetime_attrs = []
+		for attr in self.columns:
+			if self.data_type_lookup[attr] == 'temporal' and not is_datetime(self[attr]):
+				non_datetime_attrs.append(attr)
+		if len(non_datetime_attrs) == 1:
+			warnings.warn(
+		            f"\nLux detects that attribute {non_datetime_attrs} may be temporal.\n" 
+		            "In order to display visualizations for this attribute accurately, temporal attributes should be converted to Pandas Datetime objects.\n"
+		            "Please consider converting this attribute using the pd.to_datetime function and providing a 'format' parameter to specify datetime format of the attribute.\n"
+		            "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format=%m)\n\n"
+		            "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n"
+		        	,stacklevel=2)
+		elif len(non_datetime_attrs) > 1:
+			warnings.warn(
+		            f"\nLux detects that attributes {non_datetime_attrs} may be temporal.\n" 
+		            "In order to display visualizations for these attributes accurately, temporal attributes should be converted to Pandas Datetime objects.\n"
+		            "Please consider converting these attributes using the pd.to_datetime function and providing a 'format' parameter to specify datetime format of the attribute.\n"
+		            "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format=%m)\n\n"
+		            "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n"
+		        	,stacklevel=2)
 	def compute_data_model(self):
 		self.data_model = {
 			"measure": self.data_type["quantitative"],
@@ -592,7 +613,7 @@ class LuxDataFrame(pd.DataFrame):
 			self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            
 			
 			self.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-			
+
 			# box = widgets.Box(layout=widgets.Layout(display='inline'))
 			button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
 			output = widgets.Output()
