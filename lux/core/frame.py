@@ -258,6 +258,8 @@ class LuxDataFrame(pd.DataFrame):
 		return ""
 	def __setitem__(self, key, value):
 		super(LuxDataFrame, self).__setitem__(key, value)
+		self.compute_stats()
+		self.compute_dataset_metadata()
 	#######################################################
 	############ Metadata: data type, model #############
 	#######################################################
@@ -273,7 +275,6 @@ class LuxDataFrame(pd.DataFrame):
 		for attr in list(self.columns):
 			if (isinstance(attr,pd._libs.tslibs.timestamps.Timestamp)): 
 				# If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
-				attr = attr._date_repr
 				self.data_type_lookup[attr] = "temporal"
 			elif str(attr).lower() in ["month", "year","day","date","time"]:
 				self.data_type_lookup[attr] = "temporal"
