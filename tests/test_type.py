@@ -6,6 +6,7 @@ import pandas as pd
 def test_check_cars():
     df = pd.read_csv("lux/data/cars.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
+    df.maintain_metadata()
     assert df.data_type_lookup["Name"] == "nominal"
     assert df.data_type_lookup['MilesPerGal'] == 'quantitative'
     assert df.data_type_lookup['Cylinders'] == 'nominal'
