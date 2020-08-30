@@ -256,10 +256,6 @@ class LuxDataFrame(pd.DataFrame):
 	def __repr__(self):
 		# TODO: _repr_ gets called from _repr_html, need to get rid of this call
 		return ""
-	def __setitem__(self, key, value):
-		super(LuxDataFrame, self).__setitem__(key, value)
-		self.compute_stats()
-		self.compute_dataset_metadata()
 	#######################################################
 	############ Metadata: data type, model #############
 	#######################################################
@@ -309,8 +305,8 @@ class LuxDataFrame(pd.DataFrame):
 				non_datetime_attrs.append(attr)
 		if len(non_datetime_attrs) == 1:
 			warnings.warn(
-		            f"\nLux detects that attribute {non_datetime_attrs} may be temporal.\n" 
-		            "In order to display visualizations for this attribute accurately, temporal attributes should be converted to Pandas Datetime objects.\n"
+		            f"\nLux detects that the attribute '{non_datetime_attrs[0]}' may be temporal.\n" 
+		            "In order to display visualizations for this attribute accurately, temporal attributes should be converted to Pandas Datetime objects.\n\n"
 		            "Please consider converting this attribute using the pd.to_datetime function and providing a 'format' parameter to specify datetime format of the attribute.\n"
 		            "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format=%m)\n\n"
 		            "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n"
@@ -318,7 +314,7 @@ class LuxDataFrame(pd.DataFrame):
 		elif len(non_datetime_attrs) > 1:
 			warnings.warn(
 		            f"\nLux detects that attributes {non_datetime_attrs} may be temporal.\n" 
-		            "In order to display visualizations for these attributes accurately, temporal attributes should be converted to Pandas Datetime objects.\n"
+		            "In order to display visualizations for these attributes accurately, temporal attributes should be converted to Pandas Datetime objects.\n\n"
 		            "Please consider converting these attributes using the pd.to_datetime function and providing a 'format' parameter to specify datetime format of the attribute.\n"
 		            "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format=%m)\n\n"
 		            "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n"

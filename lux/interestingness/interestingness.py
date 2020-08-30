@@ -103,8 +103,8 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 		color_column = dimension_columns[1].attribute
 
 		contingency_table = []
-		groupby_cardinality = vis.data.cardinality[groupby_column]
-		groupby_unique_vals = vis.data.unique_values[groupby_column]
+		groupby_cardinality = ldf.cardinality[groupby_column]
+		groupby_unique_vals = ldf.unique_values[groupby_column]
 		for c in range(0, groupby_cardinality):
 			contingency_table.append(vis.data[vis.data[groupby_column] == groupby_unique_vals[c]][measure_column])
 		score = 0.12
