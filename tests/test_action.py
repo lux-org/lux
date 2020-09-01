@@ -4,7 +4,7 @@ import pandas as pd
 
 from lux.vis.Vis import Vis
 def test_vary_filter_val():
-	url = 'https://github.com/thyneb19/lux-datasets/blob/master/data/olympic.csv?raw=true'
+	url = 'https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true'
 	df = pd.read_csv(url)
 	vis = Vis(["Height","SportType=Ball"],df)
 	df.set_intent_as_vis(vis)
@@ -44,7 +44,7 @@ def test_generalize_action():
 	assert(check1 and check2 and check3)
 
 def test_row_column_group():
-	url = 'https://github.com/thyneb19/lux-datasets/blob/master/data/state_timeseries.csv?raw=true'
+	url = 'https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true'
 	df = pd.read_csv(url)
 	df["Date"] = pd.to_datetime(df["Date"])
 	tseries = df.pivot(index="State",columns="Date",values="Value")

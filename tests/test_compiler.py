@@ -109,7 +109,7 @@ def test_sort_bar():
 	assert vis._inferred_intent[1].sort == 'ascending'
 
 def test_specified_vis_collection():
-	url = 'https://github.com/thyneb19/lux-datasets/blob/master/data/cars.csv?raw=true'
+	url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
 	df = pd.read_csv(url)
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 

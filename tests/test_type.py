@@ -4,7 +4,7 @@ import pandas as pd
 
 # Suite of test that checks if data_type inferred correctly by Lux
 def test_check_cars():
-    url = 'https://github.com/thyneb19/lux-datasets/blob/master/data/cars.csv?raw=true'
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
     df = pd.read_csv(url)
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
     df.maintain_metadata()

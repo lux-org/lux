@@ -4,21 +4,21 @@ import pandas as pd
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 def test_vis():
-    url = 'https://github.com/thyneb19/lux-datasets/blob/master/data/olympic.csv?raw=true'
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true'
     df = pd.read_csv(url)
     vis = Vis(["Height","SportType=Ball"],df)
     assert vis.get_attr_by_attr_name("Height")[0].bin_size!=0
     assert vis.get_attr_by_attr_name("Record")[0].aggregation == 'count'
     
 def test_vis_set_specs():
-    url = 'https://github.com/thyneb19/lux-datasets/blob/master/data/olympic.csv?raw=true'
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true'
     df = pd.read_csv(url)
     vis = Vis(["Height","SportType=Ball"],df)
     vis.set_intent(["Height","SportType=Ice"])
     assert vis.get_attr_by_attr_name("SportType")[0].value =="Ice"
 
 def test_vis_collection():
-    url = 'https://github.com/thyneb19/lux-datasets/blob/master/data/olympic.csv?raw=true'
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true'
     df = pd.read_csv(url)
     vc = VisList(["Height","SportType=Ball","?"],df)
     vis_with_year = list(filter(lambda x: x.get_attr_by_attr_name("Year")!=[],vc))[0]
@@ -28,7 +28,7 @@ def test_vis_collection():
     assert len(vc) == len(df.columns) -1 #remove 1 for vis with for same attribute
 
 def test_vis_collection_set_intent():
-    url = 'https://github.com/thyneb19/lux-datasets/blob/master/data/olympic.csv?raw=true'
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true'
     df = pd.read_csv(url)
     vc = VisList(["Height","SportType=Ice","?"],df)
     vc.set_intent(["Height","SportType=Boat","?"])
@@ -88,7 +88,7 @@ def test_vis_custom_aggregation_as_numpy_func():
     assert vis.get_attr_by_data_model("measure")[0].aggregation == np.ptp
     assert vis.get_attr_by_data_model("measure")[0]._aggregation_name =='ptp'
 def test_vis_collection_via_list_of_vis():
-    url = 'https://github.com/thyneb19/lux-datasets/blob/master/data/olympic.csv?raw=true'
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true'
     df = pd.read_csv(url)
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
     from lux.vis.VisList import VisList
@@ -116,7 +116,7 @@ def test_vis_to_Altair_standalone():
     code = vis.to_Altair(standalone=True)
     assert "chart = alt.Chart(pd.DataFrame({'Weight': {0: 3504, 1: 3693, 2: 3436, 3: 3433, 4: 3449, 5: 43" in code or "alt.Chart(pd.DataFrame({'Horsepower': {0: 130, 1: 165, 2: 150, 3: 150, 4: 140," in code
 def test_vis_list_custom_title_override():
-    url = 'https://github.com/thyneb19/lux-datasets/blob/master/data/olympic.csv?raw=true'
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true'
     df = pd.read_csv(url)
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
     
