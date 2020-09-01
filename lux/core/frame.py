@@ -25,8 +25,9 @@ class LuxDataFrame(pd.DataFrame):
 		self._intent = []
 		self._recommendation = {}
 		self._current_vis = []
+		self._prev = None
 		super(LuxDataFrame, self).__init__(*args, **kw)
-
+	
 		self.executor_type = "Pandas"
 		self.executor = PandasExecutor
 		self.SQLconnection = ""
@@ -315,7 +316,7 @@ class LuxDataFrame(pd.DataFrame):
 		            f"\nLux detects that the attribute '{non_datetime_attrs[0]}' may be temporal.\n" 
 		            "In order to display visualizations for this attribute accurately, temporal attributes should be converted to Pandas Datetime objects.\n\n"
 		            "Please consider converting this attribute using the pd.to_datetime function and providing a 'format' parameter to specify datetime format of the attribute.\n"
-		            "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format=%m)\n\n"
+		            "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format='%m')\n\n"
 		            "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n"
 		        	,stacklevel=2)
 		elif len(non_datetime_attrs) > 1:
@@ -323,7 +324,7 @@ class LuxDataFrame(pd.DataFrame):
 		            f"\nLux detects that attributes {non_datetime_attrs} may be temporal.\n" 
 		            "In order to display visualizations for these attributes accurately, temporal attributes should be converted to Pandas Datetime objects.\n\n"
 		            "Please consider converting these attributes using the pd.to_datetime function and providing a 'format' parameter to specify datetime format of the attribute.\n"
-		            "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format=%m)\n\n"
+		            "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format='%m')\n\n"
 		            "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n"
 		        	,stacklevel=2)
 	def compute_data_model(self):
@@ -468,8 +469,18 @@ class LuxDataFrame(pd.DataFrame):
 		if (recommendations["collection"] is not None and len(recommendations["collection"])>0):
 			rec_infolist.append(recommendations)
 	def maintain_recs(self):
+		self._message = ""	
+		# rec_df is the dataframe to generate the recommendations on
+		if self._prev is not None:
+			rec_df = self._prev
+			last_event = self.history._events[-1].name
+			rec_df._message = f"Lux is showing visualizations of the dataframe before you applied `{last_event}`."
+		else:
+			rec_df = self
+		rec_df._prev = None # reset _prev
+
 		rec_infolist = []
-		if (not hasattr(self,"_recs_fresh") or not self._recs_fresh ): # Check that metadata has not yet been computed
+		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that metadata has not yet been computed
 			from lux.action.custom import custom
 			from lux.action.correlation import correlation
 			from lux.action.univariate import univariate
@@ -479,44 +490,44 @@ class LuxDataFrame(pd.DataFrame):
 			from lux.action.row_group import row_group
 			from lux.action.column_group import column_group
 
-			if (self.pre_aggregated):
-				if (self.columns.name is not None):
-					self._append_rec(rec_infolist, row_group(self))
-				if (self.index.name is not None):
-					self._append_rec(rec_infolist, column_group(self))
+			if (rec_df.pre_aggregated):
+				if (rec_df.columns.name is not None):
+					rec_df._append_rec(rec_infolist, row_group(rec_df))
+				if (rec_df.index.name is not None):
+					rec_df._append_rec(rec_infolist, column_group(rec_df))
 			else:
-				if (self.current_vis is None):
+				if (rec_df.current_vis is None):
 					no_vis = True
 					one_current_vis = False
 					multiple_current_vis = False
 				else:
-					no_vis = len(self.current_vis) == 0
-					one_current_vis = len(self.current_vis) == 1
-					multiple_current_vis = len(self.current_vis) > 1
+					no_vis = len(rec_df.current_vis) == 0
+					one_current_vis = len(rec_df.current_vis) == 1
+					multiple_current_vis = len(rec_df.current_vis) > 1
 
 				if (no_vis):
-					self._append_rec(rec_infolist, correlation(self))
-					self._append_rec(rec_infolist, univariate(self,"quantitative"))
-					self._append_rec(rec_infolist, univariate(self,"nominal"))
-					self._append_rec(rec_infolist, univariate(self,"temporal"))
+					rec_df._append_rec(rec_infolist, correlation(rec_df))
+					rec_df._append_rec(rec_infolist, univariate(rec_df,"quantitative"))
+					rec_df._append_rec(rec_infolist, univariate(rec_df,"nominal"))
+					rec_df._append_rec(rec_infolist, univariate(rec_df,"temporal"))
 				elif (one_current_vis):
-					self._append_rec(rec_infolist, enhance(self))
-					self._append_rec(rec_infolist, filter(self))
-					self._append_rec(rec_infolist, generalize(self))
+					rec_df._append_rec(rec_infolist, enhance(rec_df))
+					rec_df._append_rec(rec_infolist, filter(rec_df))
+					rec_df._append_rec(rec_infolist, generalize(rec_df))
 				elif (multiple_current_vis):
-					self._append_rec(rec_infolist, custom(self))
+					rec_df._append_rec(rec_infolist, custom(rec_df))
 				
 			# Store _rec_info into a more user-friendly dictionary form
-			self.recommendation = {}
+			rec_df.recommendation = {}
 			for rec_info in rec_infolist: 
 				action_type = rec_info["action"]
 				vc = rec_info["collection"]
-				if (self._plot_config):
-					for vis in self.current_vis: vis._plot_config = self.plot_config
-					for vis in vc: vis._plot_config = self.plot_config
+				if (rec_df._plot_config):
+					for vis in rec_df.current_vis: vis._plot_config = rec_df.plot_config
+					for vis in vc: vis._plot_config = rec_df.plot_config
 				if (len(vc)>0):
-					self.recommendation[action_type]  = vc
-			self._widget = self.render_widget(rec_infolist)
+					rec_df.recommendation[action_type]  = vc
+			self._widget = rec_df.render_widget(rec_infolist)
 		self._recs_fresh = True
 
 
@@ -615,12 +626,8 @@ class LuxDataFrame(pd.DataFrame):
 
 			self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            
 			
-			if hasattr(self,"_prev") and self._prev is not None:
-				df_to_display = self._prev
-				self._prev = None #reset so that other future df display don't use previous dataframe
-			else:
-				df_to_display = self
-			df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+			# df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+			self.maintain_recs()
 			
 			# box = widgets.Box(layout=widgets.Layout(display='inline'))
 			button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
@@ -638,11 +645,10 @@ class LuxDataFrame(pd.DataFrame):
 						display(self.display_pandas())
 					else:
 						# b.layout.display = "none"
-						display(df_to_display._widget)
+						display(self._widget)
 						# b.layout.display = "inline-block"
 			button.on_click(on_button_clicked)
 			on_button_clicked(None)
-			
 		except(KeyboardInterrupt,SystemExit):
 			raise
 		# except:
@@ -687,7 +693,8 @@ class LuxDataFrame(pd.DataFrame):
 		return luxWidget.LuxWidget(
 			currentVis=widgetJSON["current_vis"],
 			recommendations=widgetJSON["recommendation"],
-			intent=LuxDataFrame.intent_to_string(self._intent)
+			intent=LuxDataFrame.intent_to_string(self._intent),
+			message = self._message
 		)
 	@staticmethod
 	def intent_to_JSON(intent):

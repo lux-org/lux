@@ -226,7 +226,8 @@ class VisList():
 		self._widget =  luxWidget.LuxWidget(
 				currentVis={},
 				recommendations=recJSON,
-				intent=""
+				intent="",
+				message = ""
 			)
 		display(self._widget)	
 	
