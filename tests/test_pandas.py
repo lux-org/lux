@@ -12,3 +12,14 @@ import pandas as pd
 #     assert df["Weight"]._metadata == ['name','_intent', 'data_type_lookup', 'data_type', 'data_model_lookup', 'data_model', 'unique_values', 'cardinality', 'min_max', 'plot_config', '_current_vis', '_widget', '_recommendation'], "Metadata is lost when going from Dataframe to Series."
 #     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
 #     assert series.name == "Weight", "Pandas Series original `name` property not retained."
+
+def test_head_tail():
+    df = pd.read_csv("lux/data/car.csv")
+    df._repr_html_()
+    assert df._message==""
+    df.head()._repr_html_()
+    assert df._message == 'Lux is showing visualizations of the dataframe before you applied `head`.'
+    df._repr_html_()
+    assert df._message==""
+    df.tail()._repr_html_()
+    assert df._message == 'Lux is showing visualizations of the dataframe before you applied `tail`.'
