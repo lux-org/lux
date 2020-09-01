@@ -5,7 +5,8 @@ import time
 # To run the script and see the printed result, run:
 # python -m pytest -s tests/test_performance.py
 def test_q1_performance_census():
-	df = pd.read_csv("lux/data/census.csv")
+	url = 'https://github.com/lux-org/lux-datasets/blob/master/data/census.csv?raw=true'
+	df = pd.read_csv(url)
 	tic = time.perf_counter()
 	df.set_intent(["education","age"])
 	df._repr_html_()

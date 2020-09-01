@@ -89,7 +89,7 @@ def test_underspecified_vis_collection_zval():
 	assert len(vlst) == 3
 
 	#does not work
-	# df = pd.read_csv("lux/data/cars.csv")
+	# df = pd.read_csv("lux/data/car.csv")
 	# vlst = VisList([lux.Clause(attribute = ["Origin","Cylinders"], filter_op="=",value="?"),lux.Clause(attribute = ["Horsepower"]),lux.Clause(attribute = "Weight")],df)
 	# assert len(vlst) == 8
 
@@ -109,7 +109,8 @@ def test_sort_bar():
 	assert vis._inferred_intent[1].sort == 'ascending'
 
 def test_specified_vis_collection():
-	df = pd.read_csv("lux/data/cars.csv")
+	url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+	df = pd.read_csv(url)
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 
 	vlst = VisList([lux.Clause(attribute="Horsepower"),lux.Clause(attribute="Brand"), lux.Clause(attribute = "Origin",value=["Japan","USA"])],df)
@@ -125,7 +126,7 @@ def test_specified_vis_collection():
 
 
 def test_specified_channel_enforced_vis_collection():
-	df = pd.read_csv("lux/data/cars.csv")
+	df = pd.read_csv("lux/data/car.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 	visList = VisList([lux.Clause(attribute="?"),lux.Clause(attribute="MilesPerGal",channel="x")],df)
 	for vis in visList:
@@ -133,7 +134,7 @@ def test_specified_channel_enforced_vis_collection():
 
 def test_autoencoding_scatter():
 	# No channel specified
-	df = pd.read_csv("lux/data/cars.csv")
+	df = pd.read_csv("lux/data/car.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 	vis = Vis([lux.Clause(attribute="MilesPerGal"), lux.Clause(attribute="Weight")],df)
 	check_attribute_on_channel(vis, "MilesPerGal", "x")
@@ -155,7 +156,7 @@ def test_autoencoding_scatter():
 	
 def test_autoencoding_histogram():
 	# No channel specified
-	df = pd.read_csv("lux/data/cars.csv")
+	df = pd.read_csv("lux/data/car.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 	vis = Vis([lux.Clause(attribute="MilesPerGal", channel="y")],df)
 	check_attribute_on_channel(vis, "MilesPerGal", "y")
@@ -165,7 +166,7 @@ def test_autoencoding_histogram():
 	assert vis.get_attr_by_channel("y")[0].attribute == "Record"
 
 def test_autoencoding_line_chart():
-	df = pd.read_csv("lux/data/cars.csv")
+	df = pd.read_csv("lux/data/car.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 	vis = Vis([lux.Clause(attribute="Year"), lux.Clause(attribute="Acceleration")],df)
 	check_attribute_on_channel(vis, "Year", "x")
@@ -186,7 +187,7 @@ def test_autoencoding_line_chart():
 		df.set_intent([lux.Clause(attribute="Year", channel="x"), lux.Clause(attribute="Acceleration", channel="x")])
 
 def test_autoencoding_color_line_chart():
-	df = pd.read_csv("lux/data/cars.csv")
+	df = pd.read_csv("lux/data/car.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 	intent = [lux.Clause(attribute="Year"), lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Origin")]
 	vis = Vis(intent,df)
@@ -195,7 +196,7 @@ def test_autoencoding_color_line_chart():
 	check_attribute_on_channel(vis, "Origin", "color")
 
 def test_autoencoding_color_scatter_chart():
-	df = pd.read_csv("lux/data/cars.csv")
+	df = pd.read_csv("lux/data/car.csv")
 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
 	vis = Vis([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Origin")],df)
 	check_attribute_on_channel(vis, "Origin", "color")
@@ -205,7 +206,7 @@ def test_autoencoding_color_scatter_chart():
 
 def test_populate_options():
 	from lux.processor.Compiler import Compiler
-	df = pd.read_csv("lux/data/cars.csv")
+	df = pd.read_csv("lux/data/car.csv")
 	df.set_intent([lux.Clause(attribute="?"), lux.Clause(attribute="MilesPerGal")])
 	col_set = set()
 	for specOptions in Compiler.populate_wildcard_options(df._intent, df)["attributes"]:
