@@ -4,7 +4,8 @@ import pandas as pd
 
 # Suite of test that checks if data_type inferred correctly by Lux
 def test_check_cars():
-    df = pd.read_csv("lux/data/cars.csv")
+    url = 'https://github.com/thyneb19/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
     df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
     df.maintain_metadata()
     assert df.data_type_lookup["Name"] == "nominal"
