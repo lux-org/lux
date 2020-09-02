@@ -45,6 +45,7 @@ class LuxDataFrame(pd.DataFrame):
 		self.cardinality = None
 		self._min_max = None
 		self.pre_aggregated = None
+		self.local_var
 
 	@property
 	def _constructor(self):
@@ -69,6 +70,7 @@ class LuxDataFrame(pd.DataFrame):
 				self.compute_dataset_metadata()
 				self._infer_structure()
 				self._metadata_fresh = True
+		self.compute_local_var()
 	def expire_recs(self):
 		self._recs_fresh = False
 		self.recommendation = None
@@ -372,6 +374,16 @@ class LuxDataFrame(pd.DataFrame):
 			index_column_name = self.index.name
 			self.unique_values[index_column_name] = list(self.index)
 			self.cardinality[index_column_name] = len(self.index)
+	def compute_local_var(self):
+		import inspect
+		all_vars = []
+		for f_info in inspect.getouterframes(inspect.currentframe()):
+			local_vars = f_info.frame
+			if local_vars and "ipython-input" in local_vars.f_code.co_filename:
+				callers_local_vars = local_vars.f_locals.items()
+				possible_vars =  [var_name for var_name, var_val in callers_local_vars if var_val is self]
+				all_vars.extend(possible_vars)
+		self.local_var = [possible_var for possible_var in all_vars if possible_var[0] != '_'][0]
 	#######################################################
 	########## SQL Metadata, type, model schema ###########
 	#######################################################
