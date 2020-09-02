@@ -45,7 +45,7 @@ class LuxDataFrame(pd.DataFrame):
 		self.cardinality = None
 		self._min_max = None
 		self.pre_aggregated = None
-		self.local_var
+		self.local_var = None
 
 	@property
 	def _constructor(self):

@@ -62,16 +62,9 @@ class AltairRenderer:
 				chart.code +="\nchart"
 				chart.code = chart.code.replace('\n\t\t','\n')
 
-				var = view._source
-				if var is not None:
-					all_vars = []
-					for f_info in inspect.getouterframes(inspect.currentframe()):
-						local_vars = f_info.frame.f_back
-						if local_vars:
-							callers_local_vars = local_vars.f_locals.items()
-							possible_vars =  [var_name for var_name, var_val in callers_local_vars if var_val is var]
-							all_vars.extend(possible_vars)
-					found_variable = [possible_var for possible_var in all_vars if possible_var[0] != '_'][0]
+				source_df = view._source
+				if source_df is not None:
+					found_variable = source_df.local_var
 				else: # if vis._source was not set when the Vis was created
 					found_variable = "df"
 				if standalone:
