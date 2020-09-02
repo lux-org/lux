@@ -25,7 +25,7 @@ In Lux, you can click on visualizations of interest and export them into a separ
 
     df
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/export-1.gif?raw=true
+.. image:: ../../../../lux-resources/doc_img/export-1.gif
   :width: 700
   :align: center
   :alt: 1) scroll through Correlation, then 2) click on any 3 visualization (let's say 2nd, 5th and something towards the end), then 3) click on the export button and make sure the blue message box show up
@@ -46,7 +46,7 @@ From the dataframe recommendations, the visualization showing the relationship b
 
     df
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/export-3.gif?raw=true
+.. image:: ../../../../lux-resources/doc_img/export-3.gif
   :width: 700
   :align: center
   :alt: 1) scroll and find the vis for GDPPerCapita and Footprint 2) select and export this vis
@@ -122,7 +122,7 @@ Let's revist our earlier recommendations by clearing the specified intent.
     df.clear_intent()
     df
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/export-9.gif?raw=true
+.. image:: ../../../../lux-resources/doc_img/export-9.gif
   :width: 700
   :align: center
   :alt: 1) click on `Occurrence` tab, then 2) hover around the SubRegion v.s. Number of Records chart
