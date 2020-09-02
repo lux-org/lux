@@ -255,6 +255,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.dtypes
       ~LuxDataFrame.empty
       ~LuxDataFrame.exported
+      ~LuxDataFrame.history
       ~LuxDataFrame.iat
       ~LuxDataFrame.iloc
       ~LuxDataFrame.index
