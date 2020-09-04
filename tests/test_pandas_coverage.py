@@ -1,0 +1,99 @@
+from .context import lux
+import pytest
+import pandas as pd
+
+
+def test_deepcopy():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
+    df._repr_html_();
+    saved_df = df.copy(deep=True)
+    saved_df._repr_html_();
+    check_metadata_equal(df, saved_df)
+
+def test_rename():
+    for i in range(2):
+        url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+        df = pd.read_csv(url)
+        df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
+        df._repr_html_();
+        if i == 0:
+            new_df = df.copy(deep=True)
+            df.rename(columns={"Name": "Car Name"}, inplace = True)
+            df._repr_html_();
+            new_df, df = df, new_df
+        else:
+            new_df = df.rename(columns={"Name": "Car Name"}, inplace = False)
+        new_df._repr_html_();
+        assert df.data_type_lookup != new_df.data_type_lookup
+
+        assert df.data_type_lookup["Name"] == new_df.data_type_lookup["Car Name"]
+
+        assert df.data_type != new_df.data_type
+
+        assert df.data_type["nominal"][0] == "Name"
+        assert new_df.data_type["nominal"][0] == "Car Name"
+
+        assert df.data_model_lookup != new_df.data_model_lookup
+
+        assert df.data_model_lookup["Name"] == new_df.data_model_lookup["Car Name"]
+
+        assert df.data_model != new_df.data_model
+
+        assert df.data_model["dimension"][0] == "Name"
+        assert new_df.data_model["dimension"][0] == "Car Name"
+
+        assert list(df.unique_values.values()) == list(new_df.unique_values.values())
+        assert list(df.cardinality.values()) == list(new_df.cardinality.values())
+        assert df._min_max == new_df._min_max
+        assert df.pre_aggregated == new_df.pre_aggregated
+
+
+def check_metadata_equal(df1, df2):
+    # Checks to make sure metadata for df1 and df2 are equal.
+    for attr in df1._metadata:
+        if attr == "_recommendation":
+            x = df1._recommendation
+            y = df2._recommendation
+            for key in x:
+                if key in y:
+                    assert len(x[key]) == len(y[key])
+                    for i in range(len(x[key])):
+                        vis1 = x[key][i]
+                        vis2 = y[key][i]
+                        compare_vis(vis1, vis2)
+
+        elif attr != "_widget":
+            print(attr)
+            assert getattr(df1, attr) == getattr(df2, attr)
+
+
+def compare_clauses(clause1, clause2):
+    assert clause1.description == clause2.description
+    assert clause1.attribute == clause2.attribute
+    assert clause1.value == clause2.value
+    assert clause1.filter_op == clause2.filter_op
+    assert clause1.channel == clause2.channel
+    assert clause1.data_type == clause2.data_type
+    assert clause1.data_model == clause2.data_model
+    assert clause1.bin_size == clause2.bin_size
+    assert clause1.weight == clause2.weight
+    assert clause1.sort == clause2.sort
+    assert clause1.exclude == clause2.exclude
+
+def compare_vis(vis1, vis2):
+    assert len(vis1._intent) == len(vis2._intent)
+    for j in range(len(vis1._intent)):
+        compare_clauses(vis1._intent[j], vis2._intent[j])
+    assert len(vis1._inferred_intent) == len(vis2._inferred_intent)
+    for j in range(len(vis1._inferred_intent)):
+        compare_clauses(vis1._inferred_intent[j], vis2._inferred_intent[j])
+    assert vis1._source == vis2._source 
+    assert vis1._code == vis2._code
+    assert vis1._mark == vis2._mark
+    assert vis1._min_max == vis2._min_max
+    assert vis1._plot_config == vis2._plot_config
+    assert vis1.title == vis2.title
+    assert vis1.score == vis2.score
+
