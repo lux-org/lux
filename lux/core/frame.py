@@ -6,6 +6,7 @@ from lux.vis.VisList import VisList
 from lux.history.history import History
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
 from lux.utils.date_utils import is_datetime_series
+from lux.utils.message import Message
 #import for benchmarking
 import time
 from typing import Optional, Dict, Union, List, Callable
@@ -16,7 +17,7 @@ class LuxDataFrame(pd.DataFrame):
 	'''
 	# MUST register here for new properties!!
 	_metadata = ['_intent','data_type_lookup','data_type',
-				 'data_model_lookup','data_model','unique_values','cardinality',
+				 'data_model_lookup','data_model','unique_values','cardinality','_rec_info', '_pandas_only'
 				'min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev','_history']
 
 	def __init__(self,*args, **kw):
@@ -36,6 +37,8 @@ class LuxDataFrame(pd.DataFrame):
 		self._default_pandas_display = True
 		self._toggle_pandas_display = True
 		self._plot_config = None
+		self._message = Message()
+		self._pandas_only=False
 		# Metadata
 		self.data_type_lookup = None
 		self.data_type = None
@@ -336,7 +339,7 @@ class LuxDataFrame(pd.DataFrame):
 
 	def mapping(self, rmap):
 		group_map = {}
-		for val in ["quantitative", "ordinal", "nominal", "temporal"]:
+		for val in ["quantitative","id", "ordinal", "nominal", "temporal"]:
 			group_map[val] = list(filter(lambda x: rmap[x] == val, rmap))
 		return group_map
 
@@ -469,18 +472,25 @@ class LuxDataFrame(pd.DataFrame):
 		if (recommendations["collection"] is not None and len(recommendations["collection"])>0):
 			rec_infolist.append(recommendations)
 	def maintain_recs(self):
-		self._message = ""	
-		# rec_df is the dataframe to generate the recommendations on
+		# `rec_df` is the dataframe to generate the recommendations on
+		show_prev = False # flag indicating whether rec_df is showing previous df or current self
 		if self._prev is not None:
 			rec_df = self._prev
+			rec_df._message = Message()	
+			rec_df.maintain_metadata() # the prev dataframe may not have been printed before
 			last_event = self.history._events[-1].name
-			rec_df._message = f"Lux is showing visualizations of the dataframe before you applied `{last_event}`."
+			rec_df._message.append(f"Lux is visualizing the previous version of the dataframe before you applied <code>{last_event}</code>.")
+			show_prev = True
 		else:
 			rec_df = self
+			rec_df._message = Message()	
+		# Add warning message if there exist ID fields
+		for id_field in rec_df.data_type["id"]:
+			rec_df._message.append(f"<code>{id_field}</code> is not visualized since it resembles an ID field.")
 		rec_df._prev = None # reset _prev
-
-		rec_infolist = []
-		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that metadata has not yet been computed
+		
+		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that recs has not yet been computed
+			rec_infolist = []
 			from lux.action.custom import custom
 			from lux.action.correlation import correlation
 			from lux.action.univariate import univariate
@@ -527,7 +537,10 @@ class LuxDataFrame(pd.DataFrame):
 					for vis in vc: vis._plot_config = rec_df.plot_config
 				if (len(vc)>0):
 					rec_df.recommendation[action_type]  = vc
-			self._widget = rec_df.render_widget(rec_infolist)
+			rec_df._rec_info = rec_infolist
+			self._widget = rec_df.render_widget()
+		elif (show_prev): # re-render widget for the current dataframe if previous rec is not recomputed
+			self._widget = rec_df.render_widget()
 		self._recs_fresh = True
 
 
@@ -599,56 +612,60 @@ class LuxDataFrame(pd.DataFrame):
 		import ipywidgets as widgets
 		
 		try: 
-			if(self.index.nlevels>=2):
-				warnings.warn(
-								"\nLux does not currently support dataframes "
-								"with hierarchical indexes.\n"
-								"Please convert the dataframe into a flat "
-								"table via `pandas.DataFrame.reset_index`.\n",
-								stacklevel=2,
-							)
+			if (self._pandas_only):
 				display(self.display_pandas())
-				return
+				self._pandas_only=False
+			else:
+				if(self.index.nlevels>=2):
+					warnings.warn(
+									"\nLux does not currently support dataframes "
+									"with hierarchical indexes.\n"
+									"Please convert the dataframe into a flat "
+									"table via `pandas.DataFrame.reset_index`.\n",
+									stacklevel=2,
+								)
+					display(self.display_pandas())
+					return
 
-			if (len(self)<=0):
-				warnings.warn("\nLux can not operate on an empty dataframe.\nPlease check your input again.\n",stacklevel=2)
-				display(self.display_pandas()) 
-				return
-			if (len(self.columns)<=1):
-				warnings.warn("\nLux defaults to Pandas when there is only a single column.",stacklevel=2)
-				display(self.display_pandas()) 
-				return
-			self.maintain_metadata()
-			
-			if (self._intent!=[] and (not hasattr(self,"_compiled") or not self._compiled)):
-				from lux.processor.Compiler import Compiler
-				self.current_vis = Compiler.compile_intent(self, self._intent)
+				if (len(self)<=0):
+					warnings.warn("\nLux can not operate on an empty dataframe.\nPlease check your input again.\n",stacklevel=2)
+					display(self.display_pandas()) 
+					return
+				if (len(self.columns)<=1):
+					warnings.warn("\nLux defaults to Pandas when there is only a single column.",stacklevel=2)
+					display(self.display_pandas()) 
+					return
+				self.maintain_metadata()
+				
+				if (self._intent!=[] and (not hasattr(self,"_compiled") or not self._compiled)):
+					from lux.processor.Compiler import Compiler
+					self.current_vis = Compiler.compile_intent(self, self._intent)
 
-			self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            
+				self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            
+				
+				# df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+				self.maintain_recs()
 			
-			# df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-			self.maintain_recs()
-			
-			# box = widgets.Box(layout=widgets.Layout(display='inline'))
-			button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
-			output = widgets.Output()
-			# box.children = [button,output]
-			# output.children = [button]
-			# display(box)
-			display(button,output)
-			def on_button_clicked(b):
-				with output:
-					if (b):
-						self._toggle_pandas_display = not self._toggle_pandas_display
-					clear_output()
-					if (self._toggle_pandas_display):
-						display(self.display_pandas())
-					else:
-						# b.layout.display = "none"
-						display(self._widget)
-						# b.layout.display = "inline-block"
-			button.on_click(on_button_clicked)
-			on_button_clicked(None)
+				# box = widgets.Box(layout=widgets.Layout(display='inline'))
+				button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
+				output = widgets.Output()
+				# box.children = [button,output]
+				# output.children = [button]
+				# display(box)
+				display(button,output)
+				def on_button_clicked(b):
+					with output:
+						if (b):
+							self._toggle_pandas_display = not self._toggle_pandas_display
+						clear_output()
+						if (self._toggle_pandas_display):
+							display(self.display_pandas())
+						else:
+							# b.layout.display = "none"
+							display(self._widget)
+							# b.layout.display = "inline-block"
+				button.on_click(on_button_clicked)
+				on_button_clicked(None)
 		except(KeyboardInterrupt,SystemExit):
 			raise
 		except:
@@ -660,7 +677,7 @@ class LuxDataFrame(pd.DataFrame):
 			display(self.display_pandas())
 	def display_pandas(self):
 		return self.to_pandas()
-	def render_widget(self,rec_infolist, renderer:str ="altair", input_current_view=""):
+	def render_widget(self, renderer:str ="altair", input_current_view=""):
 		"""
 		Generate a LuxWidget based on the LuxDataFrame
 		
@@ -689,12 +706,12 @@ class LuxDataFrame(pd.DataFrame):
 		"""       
 		check_import_lux_widget()
 		import luxWidget
-		widgetJSON = self.to_JSON(rec_infolist, input_current_view=input_current_view)
+		widgetJSON = self.to_JSON(self._rec_info, input_current_view=input_current_view)
 		return luxWidget.LuxWidget(
 			currentVis=widgetJSON["current_vis"],
 			recommendations=widgetJSON["recommendation"],
 			intent=LuxDataFrame.intent_to_string(self._intent),
-			message = self._message
+			message = self._message.to_html()
 		)
 	@staticmethod
 	def intent_to_JSON(intent):
@@ -765,11 +782,11 @@ class LuxDataFrame(pd.DataFrame):
 		return super(LuxDataFrame, self).tail(n)
 	
 	def info(self, *args, **kwargs):
-		self._prev = self
+		self._pandas_only=True
 		self._history.append_event("info",*args, **kwargs)
 		return super(LuxDataFrame, self).info(*args, **kwargs)
 
 	def describe(self, *args, **kwargs):
-		self._prev = self
+		self._pandas_only=True
 		self._history.append_event("describe",*args, **kwargs)
 		return super(LuxDataFrame, self).describe(*args, **kwargs)
