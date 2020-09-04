@@ -651,13 +651,13 @@ class LuxDataFrame(pd.DataFrame):
 			on_button_clicked(None)
 		except(KeyboardInterrupt,SystemExit):
 			raise
-		# except:
-		# 	warnings.warn(
-		# 			"\nUnexpected error in rendering Lux widget and recommendations. "
-		# 			"Falling back to Pandas display.\n\n" 
-		# 			"Please report this issue on Github: https://github.com/lux-org/lux/issues "
-		# 		,stacklevel=2)
-		# 	display(self.display_pandas())
+		except:
+			warnings.warn(
+					"\nUnexpected error in rendering Lux widget and recommendations. "
+					"Falling back to Pandas display.\n\n" 
+					"Please report this issue on Github: https://github.com/lux-org/lux/issues "
+				,stacklevel=2)
+			display(self.display_pandas())
 	def display_pandas(self):
 		return self.to_pandas()
 	def render_widget(self,rec_infolist, renderer:str ="altair", input_current_view=""):
