@@ -14,11 +14,11 @@ class LineChart(AltairChart):
 	def __init__(self,dobj):
 		super().__init__(dobj)
 	def __repr__(self):
-		return f"Line Chart <{str(self.view)}>"
+		return f"Line Chart <{str(self.vis)}>"
 	def initialize_chart(self):
 		self.tooltip = False # tooltip looks weird for line chart
-		x_attr = self.view.get_attr_by_channel("x")[0]
-		y_attr = self.view.get_attr_by_channel("y")[0]
+		x_attr = self.vis.get_attr_by_channel("x")[0]
+		y_attr = self.vis.get_attr_by_channel("y")[0]
 
 
 		self.code += "import altair as alt\n"

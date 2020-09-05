@@ -7,7 +7,7 @@ import time
 
 def custom(ldf):
     '''
-    Generates user-defined views based on the intent.
+    Generates user-defined vis based on the intent.
 
     Parameters
     ----------
@@ -24,10 +24,10 @@ def custom(ldf):
 
     recommendation["collection"] = ldf.current_vis
 
-    vc = ldf.current_vis
-    PandasExecutor.execute(vc, ldf)
-    for view in vc: 
-        view.score = interestingness(view,ldf)
+    vlist = ldf.current_vis
+    PandasExecutor.execute(vlist, ldf)
+    for vis in vlist: 
+        vis.score = interestingness(vis,ldf)
     # ldf.clear_intent()
-    vc.sort(remove_invalid=True)
+    vlist.sort(remove_invalid=True)
     return recommendation

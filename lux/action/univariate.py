@@ -48,9 +48,9 @@ def univariate(ldf, data_type_constraint="quantitative"):
 	if (ignore_rec_flag):
 		recommendation["collection"] = []
 		return recommendation
-	vc = VisList(intent,ldf)
-	for view in vc:
-		view.score = interestingness(view,ldf)
-	vc = vc.topK(15)
-	recommendation["collection"] = vc
+	vlist = VisList(intent,ldf)
+	for vis in vlist:
+		vis.score = interestingness(vis,ldf)
+	vlist = vlist.topK(15)
+	recommendation["collection"] = vlist
 	return recommendation

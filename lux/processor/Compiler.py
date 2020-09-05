@@ -117,14 +117,14 @@ class Compiler:
 			List of lux.Vis objects that will have their underspecified Clause details filled out.
 		Returns
 		-------
-		vc: VisList
+		vlist: VisList
 			vis list with compiled lux.Vis objects.
 		"""		
 		# TODO: copy might not be neccesary
 		from lux.utils.date_utils import is_datetime_string
 		import copy
-		vc = copy.deepcopy(vis_collection)  # Preserve the original dobj
-		for vis in vc:
+		vlist = copy.deepcopy(vis_collection)  # Preserve the original dobj
+		for vis in vlist:
 			for clause in vis._inferred_intent:
 				if (clause.description == "?"):
 					clause.description = ""
@@ -141,7 +141,7 @@ class Compiler:
 						else:
 							chart_title = clause.value
 						vis.title = f"{clause.attribute} {clause.filter_op} {chart_title}"
-		return vc
+		return vlist
 
 	@staticmethod
 	def remove_all_invalid(vis_collection:VisList) -> VisList:

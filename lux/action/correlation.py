@@ -31,38 +31,38 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	filter_specs = utils.get_filter_specs(ldf._intent)
 	intent = [lux.Clause("?", data_model="measure"), lux.Clause("?", data_model="measure")]
 	intent.extend(filter_specs)
-	vc = VisList(intent,ldf)
+	vlist = VisList(intent,ldf)
 	recommendation = {"action": "Correlation",
 					  "description": "Show relationships between two <p class='highlight-descriptor'>quantitative</p> attributes."}
 	ignore_rec_flag = False
 	if (len(ldf)<5): # Doesn't make sense to compute correlation if less than 4 data values
 		ignore_rec_flag = True
 	# Then use the data populated in the vis list to compute score
-	for view in vc:
-		measures = view.get_attr_by_data_model("measure")
+	for vis in vlist:
+		measures = vis.get_attr_by_data_model("measure")
 		if len(measures) < 2: raise ValueError(
 			f"Can not compute correlation between {[x.attribute for x in ldf.columns]} since less than 2 measure values present.")
 		msr1 = measures[0].attribute
 		msr2 = measures[1].attribute
 
 		if (ignore_transpose):
-			check_transpose = check_transpose_not_computed(vc, msr1, msr2)
+			check_transpose = check_transpose_not_computed(vlist, msr1, msr2)
 		else:
 			check_transpose = True
 		if (check_transpose):
-			view.score = interestingness(view, ldf)
+			vis.score = interestingness(vis, ldf)
 		else:
-			view.score = -1
+			vis.score = -1
 	if (ignore_rec_flag):
 		recommendation["collection"] = []
 		return recommendation
-	vc = vc.topK(15)
-	recommendation["collection"] = vc
+	vlist = vlist.topK(15)
+	recommendation["collection"] = vlist
 	return recommendation
 
 
-def check_transpose_not_computed(vc: VisList, a: str, b: str):
-	transpose_exist = list(filter(lambda x: (x._inferred_intent[0].attribute == b) and (x._inferred_intent[1].attribute == a), vc))
+def check_transpose_not_computed(vlist: VisList, a: str, b: str):
+	transpose_exist = list(filter(lambda x: (x._inferred_intent[0].attribute == b) and (x._inferred_intent[1].attribute == a), vlist))
 	if (len(transpose_exist) > 0):
 		return transpose_exist[0].score == -1
 	else:

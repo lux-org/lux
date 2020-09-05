@@ -14,13 +14,13 @@ class AltairRenderer:
 		self.output_type = output_type
 	def __repr__(self):
 		return f"AltairRenderer"
-	def create_vis(self,view, standalone=True):
+	def create_vis(self,vis, standalone=True):
 		"""
 		Input DataObject and return a visualization specification
 		
 		Parameters
 		----------
-		view: lux.vis.Vis
+		vis: lux.vis.Vis
 			Input Vis (with data)
 		standalone: bool
 			Flag to determine if outputted code uses user-defined variable names or can be run independently
@@ -30,39 +30,39 @@ class AltairRenderer:
 			Output Altair Chart Object
 		"""	
 		# If a column has a Period dtype, or contains Period objects, convert it back to Datetime
-		if view.data is not None:
-			for attr in list(view.data.columns):
-				if pd.api.types.is_period_dtype(view.data.dtypes[attr]) or isinstance(view.data[attr].iloc[0], pd.Period):
-					dateColumn = view.data[attr]
-					view.data[attr] = pd.PeriodIndex(dateColumn.values).to_timestamp()
+		if vis.data is not None:
+			for attr in list(vis.data.columns):
+				if pd.api.types.is_period_dtype(vis.data.dtypes[attr]) or isinstance(vis.data[attr].iloc[0], pd.Period):
+					dateColumn = vis.data[attr]
+					vis.data[attr] = pd.PeriodIndex(dateColumn.values).to_timestamp()
 		
-		if (view.mark =="histogram"):
-			chart = Histogram(view)
-		elif (view.mark =="bar"):
-			chart = BarChart(view)
-		elif (view.mark =="scatter"):
-			chart = ScatterChart(view)
-		elif (view.mark =="line"):
-			chart = LineChart(view)
+		if (vis.mark =="histogram"):
+			chart = Histogram(vis)
+		elif (vis.mark =="bar"):
+			chart = BarChart(vis)
+		elif (vis.mark =="scatter"):
+			chart = ScatterChart(vis)
+		elif (vis.mark =="line"):
+			chart = LineChart(vis)
 		else:
 			chart = None
 
 		if (chart):
 			if (self.output_type=="VegaLite"):
-				if (view.plot_config): chart.chart = view.plot_config(chart.chart)
+				if (vis.plot_config): chart.chart = vis.plot_config(chart.chart)
 				chart_dict = chart.chart.to_dict()
 				# this is a bit of a work around because altair must take a pandas dataframe and we can only generate a luxDataFrame
-				# chart["data"] =  { "values": view.data.to_dict(orient='records') }
+				# chart["data"] =  { "values": vis.data.to_dict(orient='records') }
 				# chart_dict["width"] = 160
 				# chart_dict["height"] = 150
 				return chart_dict
 			elif (self.output_type=="Altair"):
 				import inspect
-				if (view.plot_config): chart.code +='\n'.join(inspect.getsource(view.plot_config).split('\n    ')[1:-1])
+				if (vis.plot_config): chart.code +='\n'.join(inspect.getsource(vis.plot_config).split('\n    ')[1:-1])
 				chart.code +="\nchart"
 				chart.code = chart.code.replace('\n\t\t','\n')
 
-				var = view._source
+				var = vis._source
 				if var is not None:
 					all_vars = []
 					for f_info in inspect.getouterframes(inspect.currentframe()):
@@ -75,7 +75,7 @@ class AltairRenderer:
 				else: # if vis._source was not set when the Vis was created
 					found_variable = "df"
 				if standalone:
-					chart.code = chart.code.replace("placeholder_variable", f"pd.DataFrame({str(view.data.to_dict())})")
+					chart.code = chart.code.replace("placeholder_variable", f"pd.DataFrame({str(vis.data.to_dict())})")
 				else:
 					chart.code = chart.code.replace("placeholder_variable", found_variable) # TODO: Placeholder (need to read dynamically via locals())
 				return chart.code

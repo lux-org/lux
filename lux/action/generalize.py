@@ -35,43 +35,43 @@ def generalize(ldf):
 	recommendation = {"action":"Generalize",
 						   "description":f"Remove an attribute or filter from {intended_attrs}."}
 						    # to observe a more general trend
-	# if we do no have enough column attributes or too many, return no views.
+	# if we do no have enough column attributes or too many, return no vis.
 	if(len(attributes)<1 or len(attributes)>4):
 		recommendation["collection"] = []
 		return recommendation
-	#for each column specification, create a copy of the ldf's view and remove the column specification
-	#then append the view to the output
+	#for each column specification, create a copy of the ldf's vis and remove the column specification
+	#then append the vis to the output
 	if (len(attributes)>1):
 		for clause in attributes:
 			columns = clause.attribute
 			if type(columns) == list:
 				for column in columns:
 					if column not in excluded_columns:
-						temp_view = Vis(ldf.copy_intent(),score=1)
-						temp_view.remove_column_from_spec(column, remove_first = True)
+						temp_vis = Vis(ldf.copy_intent(),score=1)
+						temp_vis.remove_column_from_spec(column, remove_first = True)
 						excluded_columns.append(column)
-						output.append(temp_view)
+						output.append(temp_vis)
 			elif type(columns) == str:
 				if columns not in excluded_columns:
-					temp_view = Vis(ldf.copy_intent(),score=1)
-					temp_view.remove_column_from_spec(columns, remove_first = True)
+					temp_vis = Vis(ldf.copy_intent(),score=1)
+					temp_vis.remove_column_from_spec(columns, remove_first = True)
 					excluded_columns.append(columns)
-			output.append(temp_view)
+			output.append(temp_vis)
 	#for each filter specification, create a copy of the ldf's current vis and remove the filter specification,
-	#then append the view to the output
+	#then append the vis to the output
 	for clause in filters:
 		#new_spec = ldf._intent.copy()
 		#new_spec.remove_column_from_spec(new_spec.attribute)
-		temp_view = Vis(ldf.current_vis[0]._inferred_intent.copy(),source = ldf,title="Overall",score=0)
-		temp_view.remove_filter_from_spec(clause.value)
-		output.append(temp_view)
+		temp_vis = Vis(ldf.current_vis[0]._inferred_intent.copy(),source = ldf,title="Overall",score=0)
+		temp_vis.remove_filter_from_spec(clause.value)
+		output.append(temp_vis)
 	
-	vc = lux.vis.VisList.VisList(output,source=ldf)
+	vlist = lux.vis.VisList.VisList(output,source=ldf)
 	# Ignore interestingness sorting since Generalize yields very few vis (preserve order of remove attribute, then remove filters)
-	# for view in vc:
-	# 	view.score = interestingness(view,ldf)
+	# for vis in vlist:
+	# 	vis.score = interestingness(vis,ldf)
 
-	vc.remove_duplicates()
-	vc.sort(remove_invalid=True)
-	recommendation["collection"] = vc
+	vlist.remove_duplicates()
+	vlist.sort(remove_invalid=True)
+	recommendation["collection"] = vlist
 	return recommendation

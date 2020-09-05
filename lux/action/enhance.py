@@ -7,7 +7,7 @@ from lux.utils import utils
 import time
 def enhance(ldf):
 	'''
-	Given a set of views, generates possible visualizations when an additional attribute is added to the current vis.
+	Given a set of vis, generates possible visualizations when an additional attribute is added to the current vis.
 
 	Parameters
 	----------
@@ -39,11 +39,11 @@ def enhance(ldf):
 	intent = ldf._intent.copy()
 	intent = filters + attr_specs
 	intent.append("?")
-	vc = lux.vis.VisList.VisList(intent,ldf)
+	vlist = lux.vis.VisList.VisList(intent,ldf)
 		
 	# Then use the data populated in the vis list to compute score
-	for view in vc: view.score = interestingness(view,ldf)
+	for vis in vlist: vis.score = interestingness(vis,ldf)
 	
-	vc = vc.topK(15)
-	recommendation["collection"] = vc
+	vlist = vlist.topK(15)
+	recommendation["collection"] = vlist
 	return recommendation

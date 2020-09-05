@@ -531,12 +531,12 @@ class LuxDataFrame(pd.DataFrame):
 			rec_df.recommendation = {}
 			for rec_info in rec_infolist: 
 				action_type = rec_info["action"]
-				vc = rec_info["collection"]
+				vlist = rec_info["collection"]
 				if (rec_df._plot_config):
 					for vis in rec_df.current_vis: vis._plot_config = rec_df.plot_config
-					for vis in vc: vis._plot_config = rec_df.plot_config
-				if (len(vc)>0):
-					rec_df.recommendation[action_type]  = vc
+					for vis in vlist: vis._plot_config = rec_df.plot_config
+				if (len(vlist)>0):
+					rec_df.recommendation[action_type]  = vlist
 			rec_df._rec_info = rec_infolist
 			self._widget = rec_df.render_widget()
 		elif (show_prev): # re-render widget for the current dataframe if previous rec is not recomputed
@@ -668,16 +668,16 @@ class LuxDataFrame(pd.DataFrame):
 				on_button_clicked(None)
 		except(KeyboardInterrupt,SystemExit):
 			raise
-		except:
-			warnings.warn(
-					"\nUnexpected error in rendering Lux widget and recommendations. "
-					"Falling back to Pandas display.\n\n" 
-					"Please report this issue on Github: https://github.com/lux-org/lux/issues "
-				,stacklevel=2)
-			display(self.display_pandas())
+		# except:
+		# 	warnings.warn(
+		# 			"\nUnexpected error in rendering Lux widget and recommendations. "
+		# 			"Falling back to Pandas display.\n\n" 
+		# 			"Please report this issue on Github: https://github.com/lux-org/lux/issues "
+		# 		,stacklevel=2)
+		# 	display(self.display_pandas())
 	def display_pandas(self):
 		return self.to_pandas()
-	def render_widget(self, renderer:str ="altair", input_current_view=""):
+	def render_widget(self, renderer:str ="altair", input_current_vis=""):
 		"""
 		Generate a LuxWidget based on the LuxDataFrame
 		
@@ -701,12 +701,12 @@ class LuxDataFrame(pd.DataFrame):
 		----------
 		renderer : str, optional
 			Choice of visualization rendering library, by default "altair"
-		input_current_view : lux.LuxDataFrame, optional
+		input_current_vis : lux.LuxDataFrame, optional
 			User-specified current vis to override default Current Vis, by default 
 		"""       
 		check_import_lux_widget()
 		import luxWidget
-		widgetJSON = self.to_JSON(self._rec_info, input_current_view=input_current_view)
+		widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
 		return luxWidget.LuxWidget(
 			currentVis=widgetJSON["current_vis"],
 			recommendations=widgetJSON["recommendation"],
@@ -731,11 +731,11 @@ class LuxDataFrame(pd.DataFrame):
 		else:
 			return ""
 
-	def to_JSON(self, rec_infolist, input_current_view=""):
+	def to_JSON(self, rec_infolist, input_current_vis=""):
 		widget_spec = {}
 		if (self.current_vis): 
 			self.executor.execute(self.current_vis, self)
-			widget_spec["current_vis"] = LuxDataFrame.current_view_to_JSON(self.current_vis, input_current_view)
+			widget_spec["current_vis"] = LuxDataFrame.current_vis_to_JSON(self.current_vis, input_current_vis)
 		else:
 			widget_spec["current_vis"] = {}
 		widget_spec["recommendation"] = []
@@ -746,14 +746,14 @@ class LuxDataFrame(pd.DataFrame):
 		return widget_spec
 	
 	@staticmethod
-	def current_view_to_JSON(vc, input_current_view=""):
-		current_view_spec = {}
-		numVC = len(vc) #number of visualizations in the vis list
+	def current_vis_to_JSON(vlist, input_current_vis=""):
+		current_vis_spec = {}
+		numVC = len(vlist) #number of visualizations in the vis list
 		if (numVC==1):
-			current_view_spec = vc[0].render_VSpec()
+			current_vis_spec = vlist[0].render_VSpec()
 		elif (numVC>1):
 			pass
-		return current_view_spec
+		return current_vis_spec
 	@staticmethod
 	def rec_to_JSON(recs):
 		rec_lst = []

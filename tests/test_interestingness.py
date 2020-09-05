@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from lux.interestingness.interestingness import interestingness
 
-# The following test cases are labelled for views with <Ndim, Nmsr, Nfilter>
+# The following test cases are labelled for vis with <Ndim, Nmsr, Nfilter>
 def test_interestingness_1_0_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')

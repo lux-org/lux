@@ -35,14 +35,14 @@ def test_underspecified_single_vis(test_recs):
 # 	df.set_intent([lux.Clause(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.Clause(attribute ="Year", channel="x")])
 # 	assert len(df.current_vis) == 3
 # 	assert df.current_vis[0].mark == "line"
-# 	for vc in df.current_vis:
-# 		assert (vc.get_attr_by_channel("x")[0].attribute == "Year")
+# 	for vlist in df.current_vis:
+# 		assert (vlist.get_attr_by_channel("x")[0].attribute == "Year")
 # 	test_recs(df, multiple_vis_actions)
 
 # 	df.set_intent([lux.Clause(attribute ="?"), lux.Clause(attribute ="Year", channel="x")])
 # 	assert len(df.current_vis) == len(list(df.columns)) - 1 # we remove year by year so its 8 vis instead of 9
-# 	for vc in df.current_vis:
-# 		assert (vc.get_attr_by_channel("x")[0].attribute == "Year")
+# 	for vlist in df.current_vis:
+# 		assert (vlist.get_attr_by_channel("x")[0].attribute == "Year")
 # 	test_recs(df, multiple_vis_actions)
 
 # 	df.set_intent([lux.Clause(attribute ="?", data_type="quantitative"), lux.Clause(attribute ="Year")])
@@ -50,8 +50,8 @@ def test_underspecified_single_vis(test_recs):
 # 	test_recs(df, multiple_vis_actions)
 
 # 	df.set_intent([lux.Clause(attribute ="?", data_model="measure"), lux.Clause(attribute="MilesPerGal", channel="y")])
-# 	for vc in df.current_vis:
-# 		print (vc.get_attr_by_channel("y")[0].attribute == "MilesPerGal")
+# 	for vlist in df.current_vis:
+# 		print (vlist.get_attr_by_channel("y")[0].attribute == "MilesPerGal")
 # 	test_recs(df, multiple_vis_actions)
 
 # 	df.set_intent([lux.Clause(attribute ="?", data_model="measure"), lux.Clause(attribute ="?", data_model="measure")])

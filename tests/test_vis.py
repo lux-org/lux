@@ -20,19 +20,19 @@ def test_vis_set_specs():
 def test_vis_collection():
     url = 'https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true'
     df = pd.read_csv(url)
-    vc = VisList(["Height","SportType=Ball","?"],df)
-    vis_with_year = list(filter(lambda x: x.get_attr_by_attr_name("Year")!=[],vc))[0]
+    vlist = VisList(["Height","SportType=Ball","?"],df)
+    vis_with_year = list(filter(lambda x: x.get_attr_by_attr_name("Year")!=[],vlist))[0]
     assert vis_with_year.get_attr_by_channel("x")[0].attribute=="Year"
-    assert len(vc) == len(df.columns) -1 -1 #remove 1 for vis with same filter attribute and remove 1 vis with for same attribute
-    vc = VisList(["Height","?"],df)
-    assert len(vc) == len(df.columns) -1 #remove 1 for vis with for same attribute
+    assert len(vlist) == len(df.columns) -1 -1 #remove 1 for vis with same filter attribute and remove 1 vis with for same attribute
+    vlist = VisList(["Height","?"],df)
+    assert len(vlist) == len(df.columns) -1 #remove 1 for vis with for same attribute
 
 def test_vis_collection_set_intent():
     url = 'https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true'
     df = pd.read_csv(url)
-    vc = VisList(["Height","SportType=Ice","?"],df)
-    vc.set_intent(["Height","SportType=Boat","?"])
-    for v in vc._collection: 
+    vlist = VisList(["Height","SportType=Ice","?"],df)
+    vlist.set_intent(["Height","SportType=Boat","?"])
+    for v in vlist._collection: 
         filter_vspec = list(filter(lambda x: x.channel=="",v._inferred_intent))[0]
         assert filter_vspec.value =="Boat"
 def test_custom_plot_setting():
@@ -97,8 +97,8 @@ def test_vis_collection_via_list_of_vis():
     for attribute in ['Sport','Year','Height','HostRegion','SportType']: 
         vis = Vis([lux.Clause("Weight"), lux.Clause(attribute)])
         vcLst.append(vis)
-    vc = VisList(vcLst,df)
-    assert len(vc) == 5
+    vlist = VisList(vcLst,df)
+    assert len(vlist) == 5
 def test_vis_to_Altair_basic_df():
     df = pd.read_csv("lux/data/car.csv")
     vis = Vis(['Weight','Horsepower'],df)
@@ -124,8 +124,8 @@ def test_vis_list_custom_title_override():
     for attribute in ['Sport','Year','Height','HostRegion','SportType']: 
         vis = Vis([lux.Clause("Weight"), lux.Clause(attribute)],title="overriding dummy title")
         vcLst.append(vis)
-    vc = VisList(vcLst,df)
-    for v in vc: 
+    vlist = VisList(vcLst,df)
+    for v in vlist: 
         assert v.title=="overriding dummy title" 
 def test_vis_set_intent():
     from lux.vis.Vis import Vis
