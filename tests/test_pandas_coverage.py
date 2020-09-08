@@ -49,6 +49,99 @@ def test_rename():
         assert df._min_max == new_df._min_max
         assert df.pre_aggregated == new_df.pre_aggregated
 
+def test_concat():
+
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = pd.concat([df.loc[:, "Car Name":"Cylinders"], df.loc[:, "Year":"Origin"]], axis = "columns")
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Distribution', 'Occurrence', 'Temporal'] 
+    assert len(new_df.cardinality) == 5
+
+def test_groupby_agg():
+
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = df.groupby("Year").agg(sum)
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Column Groups']
+    assert len(new_df.cardinality) == 7
+
+def test_groupby_multi_index():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = df.groupby(["Year", "Cylinders"]).agg(sum).stack().reset_index()
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Column Groups'] # TODO
+    assert len(new_df.cardinality) == 7 # TODO
+
+def test_query():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = df.query("Weight > 3000")
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']
+    assert len(new_df.cardinality) == 10
+
+def test_pop():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    df.pop("Weight")
+    df._repr_html_()
+    assert list(df.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']
+    assert len(df.cardinality) == 9
+
+def test_transform():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = df.iloc[:,1:].groupby("Origin").transform(sum)
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence']
+    assert len(new_df.cardinality) == 7
+
+def test_get_group():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    gbobj = df.groupby("Origin")
+    new_df = gbobj.get_group("Japan")
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']
+    assert len(new_df.cardinality) == 10
+
+def test_applymap():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    mapping = {"USA": 0, "Europe": 1, "Japan":2}
+    df["Origin"] = df[["Origin"]].applymap(mapping.get)
+    df._repr_html_()
+    assert list(df.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']
+    assert len(df.cardinality) == 10
+
+def test_strcat():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    df["combined"] = df["Origin"].str.cat(df["Brand"], sep = ", ")
+    df._repr_html_()
+    assert list(df.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']
+    assert len(df.cardinality) == 11
+
+def test_named_agg():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = df.groupby("Brand").agg(avg_weight = ("Weight", "mean"), max_weight = ("Weight", "max"), mean_displacement = ("Displacement", "mean"))
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Column Groups']
+    assert len(new_df.cardinality) == 4
 
 def check_metadata_equal(df1, df2):
     # Checks to make sure metadata for df1 and df2 are equal.
