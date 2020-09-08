@@ -2,6 +2,8 @@
 Visualizing Dataframe Index
 ********************************
 
+.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux/blob/master/examples/tutorial/6-index-group.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/tutorial/6-index-group.ipynb>`_]
+
 An index is a convenient way for users to access and manipulate the values of a dataframe. Often, indices are created as part of dataframe operations, such as `groupby`, `pivot`, or `crosstab`.
 
 Lux allows users to visualize dataframe with indices. In pandas, there are two types of indices: 
