@@ -2,6 +2,9 @@ from .context import lux
 import pytest
 import pandas as pd
 
+###################
+# DataFrame Tests #
+###################
 
 def test_deepcopy():
     url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
@@ -48,6 +51,15 @@ def test_rename():
         assert list(df.cardinality.values()) == list(new_df.cardinality.values())
         assert df._min_max == new_df._min_max
         assert df.pre_aggregated == new_df.pre_aggregated
+def test_rename2():
+
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    df.columns = ["col1", "col2", "col3", "col4","col5", "col6", "col7", "col8", "col9", "col10"]
+    assert list(df.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal'] 
+    assert len(df.cardinality) == 10
+    assert "col2" in list(df.cardinality.keys())
 
 def test_concat():
 
@@ -143,6 +155,54 @@ def test_named_agg():
     assert list(new_df.recommendation.keys() ) == ['Column Groups']
     assert len(new_df.cardinality) == 4
 
+def test_change_dtype():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    df["Cylinders"] = pd.Series(df["Cylinders"], dtype = "Int64")
+    df._repr_html_()
+    assert list(df.recommendation.keys() ) == ['Column Groups'] # TODO once bug is fixed
+    assert len(df.cardinality) == 4 # TODO once bug is fixed
+
+def test_get_dummies():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = pd.get_dummies(df)
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Column Groups'] # TODO once bug is fixed
+    assert len(new_df.cardinality) == 4 # TODO once bug is fixed
+
+def test_drop():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = df.drop([0, 1, 2], axis = "rows")
+    new_df2 = new_df.drop(["Name", "MilesPerGal", "Cylinders"], axis = "columns")
+    new_df2._repr_html_()
+    assert list(new_df2.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']
+    assert len(new_df2.cardinality) == 7
+
+def test_merge():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = df.drop([0, 1, 2], axis = "rows")
+    new_df2 = pd.merge(df, new_df, how = "left", indicator = True)
+    new_df2._repr_html_()
+    assert list(new_df2.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']  # TODO once bug is fixed
+    assert len(new_df2.cardinality) == 7 # TODO once bug is fixed
+
+def test_prefix():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = df.add_prefix("1_")
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']
+    assert len(new_df.cardinality) == 10
+    assert new_df.cardinality["1_Name"] == 300
+
 def check_metadata_equal(df1, df2):
     # Checks to make sure metadata for df1 and df2 are equal.
     for attr in df1._metadata:
@@ -189,4 +249,44 @@ def compare_vis(vis1, vis2):
     assert vis1._plot_config == vis2._plot_config
     assert vis1.title == vis2.title
     assert vis1.score == vis2.score
+
+################
+# Series Tests #
+################
+
+# TODO: These will all fail right now since LuxSeries isn't implemented yet
+def test_df_to_series():
+    # Ensure metadata is kept when going from df to series
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df._repr_html_() # compute metadata
+    assert df.cardinality is not None
+    series = df["Weight"]
+    assert isinstance(series,lux.core.series.LuxSeries), "Derived series is type LuxSeries."
+    assert df["Weight"]._metadata == ['name','_intent', 'data_type_lookup', 'data_type', 'data_model_lookup', 'data_model', 'unique_values', 'cardinality', 'min_max', 'plot_config', '_current_vis', '_widget', '_recommendation'], "Metadata is lost when going from Dataframe to Series."
+    assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
+    assert series.name == "Weight", "Pandas Series original `name` property not retained."
+
+def test_value_counts():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df._repr_html_() # compute metadata
+    assert df.cardinality is not None
+    series = df["Weight"]
+    series.value_counts()
+    assert isinstance(series,lux.core.series.LuxSeries), "Derived series is type LuxSeries."
+    assert df["Weight"]._metadata == ['name','_intent', 'data_type_lookup', 'data_type', 'data_model_lookup', 'data_model', 'unique_values', 'cardinality', 'min_max', 'plot_config', '_current_vis', '_widget', '_recommendation'], "Metadata is lost when going from Dataframe to Series."
+    assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
+    assert series.name == "Weight", "Pandas Series original `name` property not retained."
+
+def test_str_replace():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df._repr_html_() # compute metadata
+    assert df.cardinality is not None
+    series = df["Brand"].str.replace("chevrolet", "chevy")
+    assert isinstance(series,lux.core.series.LuxSeries), "Derived series is type LuxSeries."
+    assert df["Brand"]._metadata == ['name','_intent', 'data_type_lookup', 'data_type', 'data_model_lookup', 'data_model', 'unique_values', 'cardinality', 'min_max', 'plot_config', '_current_vis', '_widget', '_recommendation'], "Metadata is lost when going from Dataframe to Series."
+    assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
+    assert series.name == "Brand", "Pandas Series original `name` property not retained."
 
