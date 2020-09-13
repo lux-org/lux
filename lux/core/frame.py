@@ -17,8 +17,8 @@ class LuxDataFrame(pd.DataFrame):
 	'''
 	# MUST register here for new properties!!
 	_metadata = ['_intent','data_type_lookup','data_type',
-				 'data_model_lookup','data_model','unique_values','cardinality','_rec_info', '_pandas_only'
-				'min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev','_history']
+				 'data_model_lookup','data_model','unique_values','cardinality','_rec_info', '_pandas_only',
+				'_min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev','_history']
 
 	def __init__(self,*args, **kw):
 		from lux.executor.PandasExecutor import PandasExecutor
@@ -616,7 +616,7 @@ class LuxDataFrame(pd.DataFrame):
 				display(self.display_pandas())
 				self._pandas_only=False
 			else:
-				if(self.index.nlevels>=2):
+				if(self.index.nlevels>=2 or self.columns.nlevels >= 2):
 					warnings.warn(
 									"\nLux does not currently support dataframes "
 									"with hierarchical indexes.\n"
@@ -668,13 +668,13 @@ class LuxDataFrame(pd.DataFrame):
 				on_button_clicked(None)
 		except(KeyboardInterrupt,SystemExit):
 			raise
-		# except:
-		# 	warnings.warn(
-		# 			"\nUnexpected error in rendering Lux widget and recommendations. "
-		# 			"Falling back to Pandas display.\n\n" 
-		# 			"Please report this issue on Github: https://github.com/lux-org/lux/issues "
-		# 		,stacklevel=2)
-		# 	display(self.display_pandas())
+		except:
+			warnings.warn(
+					"\nUnexpected error in rendering Lux widget and recommendations. "
+					"Falling back to Pandas display.\n\n" 
+					"Please report this issue on Github: https://github.com/lux-org/lux/issues "
+				,stacklevel=2)
+			display(self.display_pandas())
 	def display_pandas(self):
 		return self.to_pandas()
 	def render_widget(self, renderer:str ="altair", input_current_vis=""):
