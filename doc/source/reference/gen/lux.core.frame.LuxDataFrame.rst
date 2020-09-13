@@ -60,7 +60,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.cummin
       ~LuxDataFrame.cumprod
       ~LuxDataFrame.cumsum
-      ~LuxDataFrame.current_view_to_JSON
+      ~LuxDataFrame.current_vis_to_JSON
       ~LuxDataFrame.describe
       ~LuxDataFrame.diff
       ~LuxDataFrame.display_pandas

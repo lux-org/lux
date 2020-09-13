@@ -15,11 +15,11 @@ class BarChart(AltairChart):
 	def __init__(self,dobj):
 		super().__init__(dobj)
 	def __repr__(self):
-		return f"Bar Chart <{str(self.view)}>"
+		return f"Bar Chart <{str(self.vis)}>"
 	def initialize_chart(self):
 		self.tooltip = False
-		x_attr = self.view.get_attr_by_channel("x")[0]
-		y_attr = self.view.get_attr_by_channel("y")[0]
+		x_attr = self.vis.get_attr_by_channel("x")[0]
+		y_attr = self.vis.get_attr_by_channel("y")[0]
 
 		self.code += "import altair as alt\n"
 		# self.code += f"visData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"

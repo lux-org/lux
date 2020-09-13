@@ -107,7 +107,7 @@ class Vis:
 		else:
 			from lux.core.frame import LuxDataFrame
 			widget =  luxWidget.LuxWidget(
-					currentVis= LuxDataFrame.current_view_to_JSON([self]),
+					currentVis= LuxDataFrame.current_vis_to_JSON([self]),
 					recommendations=[],
 					intent="",
 					message = ""
@@ -247,11 +247,11 @@ class Vis:
 			self._source = ldf
 			self._inferred_intent = Parser.parse(self._intent)
 			Validator.validate_intent(self._inferred_intent,ldf)
-			vc = Compiler.compile_vis(ldf,self)
-			ldf.executor.execute(vc,ldf)
+			vlist = Compiler.compile_vis(ldf,self)
+			ldf.executor.execute(vlist,ldf)
 			# Copying properties over since we can not redefine `self` within class function
-			if (len(vc)>0):
-				vis = vc[0]
+			if (len(vlist)>0):
+				vis = vlist[0]
 				self.title = vis.title
 				self._mark = vis._mark
 				self._inferred_intent = vis._inferred_intent

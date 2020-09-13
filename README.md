@@ -22,11 +22,11 @@
     </a>
 </p>
 
-Lux is a Python library that makes data science easier by automating certain aspects of the data exploration process. Lux is designed to facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Lux is integrated with [an interactive Jupyter widget](https://github.com/lux-org/lux-widget) that allows users to quickly browse through large collections of data directly within their Jupyter notebooks.
+Lux is a Python library that makes data science easier by automating aspects of the data exploration process. Lux is designed to facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Visualizations are diplayed via [an interactive Jupyter widget](https://github.com/lux-org/lux-widget) to allow users to quickly browse through large collections of data directly within their Jupyter notebooks.
 
 Here are some [slides](http://dorisjunglinlee.com/files/Zillow_07_2020_Slide.pdf) from a recent talk on Lux.
 
-Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master)! 
+Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/demo)! 
 
 # Getting Started
 
@@ -56,7 +56,7 @@ Lux provides a suite of capabilities that enables users to effortlessly discover
 <!-- Lux guides users to potential next-steps in their exploration. -->
 ### Next-step recommendations based on user intent: 
 
-In addition to dataframe visualizations at every step in the exploration, you can specify in Lux the attributes and values you're interested in. Based on this intent information, Lux guides users towards potential next-steps in their exploration.
+In addition to dataframe visualizations at every step in the exploration, you can specify in Lux the attributes and values you're interested in. Based on this intent, Lux guides users towards potential next-steps in their exploration.
 
 For example, we might be interested in the attributes `AverageCost` and `SATAverage`.
 
@@ -68,11 +68,20 @@ For example, we might be interested in the attributes `AverageCost` and `SATAver
      alt="Next-step Recommendations Based on User Context"
      style="width:600px" />
  
- The left-hand side of the widget shows the Current Vis, which corresponds to the visualization based on what the user is interested in. On the right, Lux generates three sets of recommendations, organized as separate tabs on the widget:
+ The left-hand side of the widget shows the current visualization, i.e. the current visualization generated based on what the user is interested in. On the right, Lux generates three sets of recommendations, organized as separate tabs on the widget:
 
  - `Enhance` adds an additional attribute to the current selection, essentially highlighting how additional variables affect the relationship of `AverageCost` and `SATAverage`. We see that if we breakdown the relationship by `FundingModel`, there is a clear separation between public colleges (shown in red) and private colleges (in blue), with public colleges being cheaper to attend and with SAT average of lower than 1400.
+    <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/enhance.png?raw=true"
+     alt="Enhance Recommendations"
+     style="width:600px" />
  - `Filter` adds a filter to the current selection, while keeping attributes (on the X and Y axes) fixed. These visualizations shows how the relationship of  `AverageCost` and `SATAverage` changes for different subsets of data. For instance, we see that colleges that offer Bachelor's degree as its highest degree offered shows a roughly linear trend between the two variables.
+    <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/filter.png?raw=true"
+     alt="Filter Recommendations"
+     style="width:600px" />
  - `Generalize` removes an attribute to display a more general trend, showing the distributions of `AverageCost` and `SATAverage` on its own. From the `AverageCost` histogram, we see that there are many colleges with average cost of around $20000 per year, corresponding to the bulge we see in the scatterplot view.
+    <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/generalize.png?raw=true"
+     alt="Generalize Recommendations"
+     style="width:600px" />
 
  See [this page](https://lux-api.readthedocs.io/en/latest/source/guide/intent.html) more information on additional ways for specifying the intent.
 
@@ -109,7 +118,7 @@ For example, we might be interested in looking at how the `AverageCost` distribu
     differentRegions
 ```    
 
-<img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/viewCollection.gif?raw=true"
+<img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/visList.gif?raw=true"
      alt="Example Vis List"
      style="width:600px" />
 

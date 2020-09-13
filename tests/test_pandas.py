@@ -16,10 +16,10 @@ import pandas as pd
 def test_head_tail():
     df = pd.read_csv("lux/data/car.csv")
     df._repr_html_()
-    assert df._message==""
+    assert df._message.to_html()==""
     df.head()._repr_html_()
-    assert df._message == 'Lux is showing visualizations of the dataframe before you applied `head`.'
+    assert "Lux is visualizing the previous version of the dataframe before you applied <code>head</code>."in df._message.to_html()
     df._repr_html_()
-    assert df._message==""
+    assert df._message.to_html()==""
     df.tail()._repr_html_()
-    assert df._message == 'Lux is showing visualizations of the dataframe before you applied `tail`.'
+    assert "Lux is visualizing the previous version of the dataframe before you applied <code>tail</code>." in df._message.to_html()

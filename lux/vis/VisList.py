@@ -72,8 +72,8 @@ class VisList():
 				,stacklevel=2)
 			return []
 		else:
-			exported_views = VisList(list(map(self.__getitem__, exported_vis_lst["Vis List"])))
-			return exported_views
+			exported_vis = VisList(list(map(self.__getitem__, exported_vis_lst["Vis List"])))
+			return exported_vis
 	def remove_duplicates(self) -> None:
 		"""
 		Removes duplicate visualizations in Vis List

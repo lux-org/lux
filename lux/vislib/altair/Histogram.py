@@ -10,19 +10,19 @@ class Histogram(AltairChart):
 	--------
 	altair-viz.github.io
 	"""
-	def __init__(self,view):
-		super().__init__(view)
+	def __init__(self,vis):
+		super().__init__(vis)
 	def __repr__(self):
-		return f"Histogram <{str(self.view)}>"
+		return f"Histogram <{str(self.vis)}>"
 	def initialize_chart(self):
 		self.tooltip = False
-		measure = self.view.get_attr_by_data_model("measure",exclude_record=True)[0]
-		msr_attr = self.view.get_attr_by_channel(measure.channel)[0]
-		x_min = self.view.min_max[msr_attr.attribute][0]
-		x_max = self.view.min_max[msr_attr.attribute][1]
+		measure = self.vis.get_attr_by_data_model("measure",exclude_record=True)[0]
+		msr_attr = self.vis.get_attr_by_channel(measure.channel)[0]
+		x_min = self.vis.min_max[msr_attr.attribute][0]
+		x_max = self.vis.min_max[msr_attr.attribute][1]
 
-		x_range = abs(max(self.view.data[msr_attr.attribute]) - 
-			min(self.view.data[msr_attr.attribute]))
+		x_range = abs(max(self.vis.data[msr_attr.attribute]) - 
+			min(self.vis.data[msr_attr.attribute]))
 		plot_range = abs(x_max - x_min)
 		markbar = x_range / plot_range * 12
 

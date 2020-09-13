@@ -11,9 +11,9 @@ class AltairChart:
 	altair-viz.github.io
 
 	"""			
-	def __init__(self, view):
-		self.view = view
-		self.data = view.data
+	def __init__(self, vis):
+		self.vis = vis
+		self.data = vis.data
 		self.tooltip = True
 		# ----- START self.code modification -----
 		self.code = "" 
@@ -25,10 +25,10 @@ class AltairChart:
 
 		# ----- END self.code modification -----
 	def __repr__(self):
-		return f"AltairChart <{str(self.view)}>"
+		return f"AltairChart <{str(self.vis)}>"
 	def add_tooltip(self):
 		if (self.tooltip): 
-			self.chart = self.chart.encode(tooltip=list(self.view.data.columns))
+			self.chart = self.chart.encode(tooltip=list(self.vis.data.columns))
 
 	def apply_default_config(self):
 		self.chart = self.chart.configure_title(fontWeight=500,fontSize=13,font="Helvetica Neue")
@@ -45,12 +45,12 @@ class AltairChart:
 		self.code+= "chart = chart.properties(width=160,height=150)\n"
 
 	def encode_color(self):
-		color_attr = self.view.get_attr_by_channel("color")
+		color_attr = self.vis.get_attr_by_channel("color")
 		if (len(color_attr)==1):
 			color_attr_name = color_attr[0].attribute
 			color_attr_type = color_attr[0].data_type
 			if (color_attr_type=="temporal"):
-				timeUnit = compute_date_granularity(self.view.data[color_attr_name])
+				timeUnit = compute_date_granularity(self.vis.data[color_attr_name])
 				self.chart = self.chart.encode(color=alt.Color(color_attr_name,type=color_attr_type,timeUnit=timeUnit,title=color_attr_name))	
 				self.code+=f"chart = chart.encode(color=alt.Color('{color_attr_name}',type='{color_attr_type}',timeUnit='{timeUnit}',title='{color_attr_name}'))"
 			else:
@@ -60,7 +60,7 @@ class AltairChart:
 			raise ValueError("There should not be more than one attribute specified in the same channel.")
 		
 	def add_title(self):
-		chart_title = self.view.title
+		chart_title = self.vis.title
 		if chart_title:
 			self.chart = self.chart.encode().properties(
 				title = chart_title

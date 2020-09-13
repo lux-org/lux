@@ -2,6 +2,8 @@
 Specifying Intent in Lux
 ********************************
 
+.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux/blob/master/examples/tutorial/1-specifying-intent.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/tutorial/1-specifying-intent.ipynb>`_]
+
 Lux provides a flexible language for communicating your analysis intent to the system, so that Lux can provide better and more relevant recommendations to you. In this tutorial, we will see different ways of specifying the intent, including the attributes and values that you are interested or not interested in, enumeration specifiers, as well as any constraints on the visualization encoding.
 
 The primary way to set the current intent associated with a dataframe is by setting the `intent` property of the dataframe, and providing a list of specification as input. We will first describe how intent can be specified through convenient shorthand descriptions as string inputs, then we will describe advance usage via the :mod:`lux.Clause <lux.vis.Clause>` object.

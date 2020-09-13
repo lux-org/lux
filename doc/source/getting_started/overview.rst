@@ -2,8 +2,9 @@
 Overview
 ********
 
+.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux/blob/master/examples/tutorial/0-overview.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/tutorial/0-overview.ipynb>`_]
+
 This tutorial provides an overview of how you can use Lux in your data exploration workflow. 
-.. You can follow along the tutorial using this Jupyter notebook. 
 
 Note: This tutorial assumes that you have already installed Lux and the associate Jupyter widget, if you have not done so already, please check out :doc:`this page <../getting_started/installation>`.
 
