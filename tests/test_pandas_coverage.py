@@ -216,6 +216,21 @@ def check_metadata_equal(df1, df2):
                         vis1 = x[key][i]
                         vis2 = y[key][i]
                         compare_vis(vis1, vis2)
+        elif attr == "_rec_info":
+            x = df1._rec_info
+            y = df2._rec_info
+            assert len(x) == len(y)
+            for i in range(len(x)):
+                x_info, y_info = x[i], y[i]
+                for key in x_info:
+                    if key in y_info and key == "collection":
+                        assert len(x_info[key]) == len(y_info[key])
+                        for i in range(len(x_info[key])):
+                            vis1 = x_info[key][i]
+                            vis2 = y_info[key][i]
+                            compare_vis(vis1, vis2)
+                    elif key in y_info:
+                        assert x_info[key] == y_info[key]
 
         elif attr != "_widget":
             print(attr)

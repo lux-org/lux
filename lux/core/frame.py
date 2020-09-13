@@ -17,7 +17,7 @@ class LuxDataFrame(pd.DataFrame):
 	'''
 	# MUST register here for new properties!!
 	_metadata = ['_intent','data_type_lookup','data_type',
-				 'data_model_lookup','data_model','unique_values','cardinality','_rec_info', '_pandas_only'
+				 'data_model_lookup','data_model','unique_values','cardinality','_rec_info', '_pandas_only',
 				'_min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev','_history']
 
 	def __init__(self,*args, **kw):
