@@ -186,3 +186,31 @@ You can also export this as Vega-Lite specification and vis/edit the specificati
   :width: 700
   :align: center
   :alt: add screenshot of what this looks like in Vega Editor
+
+Let's say now we are interested in the scatter plot of the `HPIRank` and `HappyPlanetIndex`.
+
+.. code-block:: python
+
+    vis = df.recommendation["Correlation"][0]
+
+Since the dataset used to create the scatterplot is large, Lux infers the variable name used locally for the data, and uses that as the data in the printed code block.
+
+.. code-block:: python
+
+    print (vis.to_Altair())
+
+.. image:: ../img/export-14.png
+  :width: 700
+  :align: center
+  :alt: screenshot of code with df
+
+If we wanted to include the actual data in the returned codeblock, we would use `to_Altair(standalone=True)`
+
+.. code-block:: python
+
+    print (vis.to_Altair(standalone=True))
+
+.. image:: ../img/export-15.png
+  :width: 700
+  :align: center
+  :alt: screenshot of code with embedded data
