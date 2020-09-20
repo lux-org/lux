@@ -6,7 +6,7 @@ from lux.vis.VisList import VisList
 from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
-from lux.utils.utils import check_import_lux_widget, check_if_id_like
+from lux.utils.utils import check_import_lux_widget
 #import for benchmarking
 import time
 from typing import Optional, Dict, Union, List, Callable
@@ -561,11 +561,11 @@ class LuxDataFrame(pd.DataFrame):
 		except(KeyboardInterrupt,SystemExit):
 			raise
 		except:
-			# warnings.warn(
-			# 		"\nUnexpected error in rendering Lux widget and recommendations. "
-			# 		"Falling back to Pandas display.\n\n" 
-			# 		"Please report this issue on Github: https://github.com/lux-org/lux/issues "
-			# 	,stacklevel=2)
+			warnings.warn(
+					"\nUnexpected error in rendering Lux widget and recommendations. "
+					"Falling back to Pandas display.\n\n" 
+					"Please report this issue on Github: https://github.com/lux-org/lux/issues "
+				,stacklevel=2)
 			display(self.display_pandas())
 	def display_pandas(self):
 		return self.to_pandas()
