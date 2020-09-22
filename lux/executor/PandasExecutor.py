@@ -1,9 +1,13 @@
-import pandas
+import pandas as pd
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
+from lux.utils.utils import check_import_lux_widget, check_if_id_like
+import warnings
+
+
 class PandasExecutor(Executor):
     '''
     Given a Vis objects with complete specifications, fetch and process data using Pandas dataframe operations.
@@ -68,7 +72,6 @@ class PandasExecutor(Executor):
         None
         '''
         import numpy as np
-        import pandas as pd
 
         x_attr = vis.get_attr_by_channel("x")[0]
         y_attr = vis.get_attr_by_channel("y")[0]
@@ -167,7 +170,6 @@ class PandasExecutor(Executor):
         None
         '''
         import numpy as np
-        import pandas as pd # is this import going to be conflicting with LuxDf? 
         bin_attribute = list(filter(lambda x: x.bin_size!=0,vis._inferred_intent))[0]
         if not np.isnan(vis.data[bin_attribute.attribute]).all():
             series = vis.data[bin_attribute.attribute].dropna() # np.histogram breaks if array contain NaN
@@ -191,7 +193,7 @@ class PandasExecutor(Executor):
         else:
             return False
     @staticmethod
-    def apply_filter(df: pandas.DataFrame, attribute:str, op: str, val: object) -> pandas.DataFrame:
+    def apply_filter(df: pd.DataFrame, attribute:str, op: str, val: object) -> pd.DataFrame:
         """
         Helper function for applying filter to a dataframe
         
@@ -224,3 +226,100 @@ class PandasExecutor(Executor):
         elif (op == '!='):
             return df[df[attribute] != val]
         return df
+
+#######################################################
+    ############ Metadata: data type, model #############
+    #######################################################
+    def compute_dataset_metadata(self, ldf:LuxDataFrame):
+        ldf.data_type_lookup = {}
+        ldf.data_type = {}
+        self.compute_data_type(ldf)
+        ldf.data_model_lookup = {}
+        ldf.data_model = {}
+        self.compute_data_model(ldf)
+
+    def compute_data_type(self, ldf:LuxDataFrame):
+        for attr in list(ldf.columns):
+            temporal_var_list = ["month", "year","day","date","time"]
+            if (isinstance(attr,pd._libs.tslibs.timestamps.Timestamp)): 
+                # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+                ldf.data_type_lookup[attr] = "temporal"
+            elif any(var in str(attr).lower() for var in temporal_var_list):
+                ldf.data_type_lookup[attr] = "temporal"
+            elif ldf.dtypes[attr] == "float64":
+                ldf.data_type_lookup[attr] = "quantitative"
+            elif ldf.dtypes[attr] == "int64":
+                # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
+                if (ldf.pre_aggregated):
+                    if (ldf.cardinality[attr]==len(ldf)):
+                        ldf.data_type_lookup[attr] = "nominal"
+                if ldf.cardinality[attr]/len(ldf) < 0.4 and ldf.cardinality[attr]<10: 
+                    ldf.data_type_lookup[attr] = "nominal"
+                elif check_if_id_like(ldf,attr): 
+                    ldf.data_type_lookup[attr] = "id"
+                else:
+                    ldf.data_type_lookup[attr] = "quantitative"
+            # Eliminate this clause because a single NaN value can cause the dtype to be object
+            elif ldf.dtypes[attr] == "object":
+                ldf.data_type_lookup[attr] = "nominal"
+            elif is_datetime_series(ldf.dtypes[attr]): #check if attribute is any type of datetime dtype
+                ldf.data_type_lookup[attr] = "temporal"
+        # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
+        #   if self.cardinality[attr]>50:
+        if (ldf.index.dtype !='int64' and ldf.index.name):
+            ldf.data_type_lookup[ldf.index.name] = "nominal"
+        ldf.data_type = self.mapping(ldf.data_type_lookup)
+
+        from pandas.api.types import is_datetime64_any_dtype as is_datetime
+        non_datetime_attrs = []
+        for attr in ldf.columns:
+            if ldf.data_type_lookup[attr] == 'temporal' and not is_datetime(ldf[attr]):
+                non_datetime_attrs.append(attr)
+        if len(non_datetime_attrs) == 1:
+            warnings.warn(
+                    f"\nLux detects that the attribute '{non_datetime_attrs[0]}' may be temporal.\n" 
+                    "In order to display visualizations for this attribute accurately, temporal attributes should be converted to Pandas Datetime objects.\n\n"
+                    "Please consider converting this attribute using the pd.to_datetime function and providing a 'format' parameter to specify datetime format of the attribute.\n"
+                    "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format='%m')\n\n"
+                    "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n"
+                    ,stacklevel=2)
+        elif len(non_datetime_attrs) > 1:
+            warnings.warn(
+                    f"\nLux detects that attributes {non_datetime_attrs} may be temporal.\n" 
+                    "In order to display visualizations for these attributes accurately, temporal attributes should be converted to Pandas Datetime objects.\n\n"
+                    "Please consider converting these attributes using the pd.to_datetime function and providing a 'format' parameter to specify datetime format of the attribute.\n"
+                    "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format='%m')\n\n"
+                    "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n"
+                    ,stacklevel=2)
+    def compute_data_model(self, ldf:LuxDataFrame):
+        ldf.data_model = {
+            "measure": ldf.data_type["quantitative"],
+            "dimension": ldf.data_type["ordinal"] + ldf.data_type["nominal"] + ldf.data_type["temporal"]
+        }
+        ldf.data_model_lookup = self.reverseMapping(ldf.data_model)
+
+
+    def compute_stats(self, ldf:LuxDataFrame):
+        # precompute statistics
+        ldf.unique_values = {}
+        ldf._min_max = {}
+        ldf.cardinality = {}
+
+        for attribute in ldf.columns:
+            
+            if (isinstance(attribute,pd._libs.tslibs.timestamps.Timestamp)): 
+                # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+                attribute_repr = str(attribute._date_repr)
+            else:
+                attribute_repr = attribute
+            if ldf.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
+                ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+                ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
+            else:   
+                ldf.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
+            if ldf.dtypes[attribute] == "float64" or ldf.dtypes[attribute] == "int64":
+                ldf._min_max[attribute_repr] = (ldf[attribute].min(), ldf[attribute].max())
+        if (ldf.index.dtype !='int64'):
+            index_column_name = ldf.index.name
+            ldf.unique_values[index_column_name] = list(ldf.index)
+            ldf.cardinality[index_column_name] = len(ldf.index)
