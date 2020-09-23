@@ -2,34 +2,37 @@ import papermill as pm
 import pandas as pd
 import numpy as np
 import json
-# trial_range = np.geomspace(10, 1e3, num=3)
-trial_range = np.geomspace(10, 1e8, num=8)
-trial = [] #[cell count, duration]
-for nPts in trial_range:
-	# output_filename = f"uncolored_single_scatter_output_{nPts}.ipynb"
-	output_filename = "output.ipynb"
-	pm.execute_notebook(
-		'uncolored_single_scatter.ipynb',
-		output_filename,
-		parameters = dict(numPoints=nPts)
-	)
-	count = 0 
-	with open(output_filename) as json_file:
-		data = json.load(json_file)
-		for cell in data['cells']:
-			if "outputs" in cell and len(cell["outputs"]) > 0:
-				if cell["outputs"][0]["output_type"] == "display_data":
-					count += 1
-					duration = cell["metadata"]["papermill"]["duration"]
-					trial.append([nPts,duration])
-					print (nPts,duration)
 
-trial_df = pd.DataFrame(trial,columns=["nPts","duration"])
-trial_df.to_csv("experiment_result_metadata_precomputed.csv",index=None)
-# print (trial_df)
-# import matplotlib.pyplot as plt
-# plt.xlabel('cell execution count')
-# plt.ylabel('time (s)')
-# plt.plot(trial_df["cell_count"], trial_df["duration"])
-# plt.show()
+# experiment_name = "sampled_scatter"
+for experiment_name in ["sampled_scatter","basic_scatter","heatmap","manual_heatmap"]:
+# for experiment_name in ["manual_binned_scatter"]:
+	trial_range = np.geomspace(10, 1e5, num=9)
+	trial = [] #[cell count, duration]
+	for nPts in trial_range:
+		# output_filename = f"uncolored_single_scatter_output_{nPts}.ipynb"
+		output_filename = "output.ipynb"
+		# papermill basic_scatter.ipynb output.ipynb -p numPoints 1000000 --execute-timeout 1000 
+		pm.execute_notebook(
+			f'{experiment_name}.ipynb',
+			output_filename,
+			parameters = dict(numPoints=nPts)
+		)
+		count = 0 
+		with open(output_filename) as json_file:
+			data = json.load(json_file)
+			for cell in data['cells']:
+				# For testing out Lux Performance
+				# if "outputs" in cell and len(cell["outputs"]) > 0:
+				# 	if cell["outputs"][0]["output_type"] == "display_data":
+				# 		count += 1
+				# For testing Pandas Performance
+				if cell["execution_count"]==5:
+					duration1 = cell["metadata"]["papermill"]["duration"]
+				# For testing Altair Output Performance
+				if cell["execution_count"]==6:
+					duration2 = cell["metadata"]["papermill"]["duration"]
+			trial.append([nPts,duration1,duration2])
+			print (nPts,duration1,duration2)
 
+	trial_df = pd.DataFrame(trial,columns=["nPts","pandas cost","altair cost"])
+	trial_df.to_csv(f"{experiment_name}.csv",index=None)
