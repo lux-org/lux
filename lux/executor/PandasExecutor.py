@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.core.frame import LuxDataFrame
