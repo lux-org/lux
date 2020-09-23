@@ -52,10 +52,6 @@ class LuxDataFrame(pd.DataFrame):
 	@property
 	def _constructor(self):
 		return LuxDataFrame
-	def __setitem__(self,key,value):
-		super(LuxDataFrame, self).__setitem__(key, value)
-		self.expire_metadata()
-		self.expire_recs()
 	# @property
 	# def _constructor_sliced(self):
 	# 	def f(*args, **kwargs):
@@ -97,7 +93,14 @@ class LuxDataFrame(pd.DataFrame):
 	#     print ("lux finalize")
 	#     super(LuxDataFrame, self).__finalize__(other,method,**kwargs)
 	#     self.expire_metadata()
-
+	def __getattr__(self, name):
+		super(LuxDataFrame, self).__getattr__(name)
+		self.expire_metadata()
+		self.expire_recs()
+	def _set_axis(self, axis, labels):
+		super(LuxDataFrame, self)._set_axis(axis, labels)
+		self.expire_metadata()
+		self.expire_recs()
 	def _update_inplace(self,*args,**kwargs):
 		super(LuxDataFrame, self)._update_inplace(*args,**kwargs)
 		self.expire_metadata()

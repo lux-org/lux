@@ -5,6 +5,7 @@ from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
+from lux.utils.date_utils import is_datetime_series
 import warnings
 
 
@@ -248,7 +249,7 @@ class PandasExecutor(Executor):
                 ldf.data_type_lookup[attr] = "temporal"
             elif ldf.dtypes[attr] == "float64":
                 ldf.data_type_lookup[attr] = "quantitative"
-            elif ldf.dtypes[attr] == "int64":
+            elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]): 
                 # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                 if (ldf.pre_aggregated):
                     if (ldf.cardinality[attr]==len(ldf)):
