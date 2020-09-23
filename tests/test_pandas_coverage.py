@@ -15,44 +15,69 @@ def test_deepcopy():
     saved_df._repr_html_();
     check_metadata_equal(df, saved_df)
 
+def test_rename_inplace():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
+    df._repr_html_();
+    new_df = df.copy(deep=True)
+    df.rename(columns={"Name": "Car Name"}, inplace = True)
+    df._repr_html_();
+    new_df._repr_html_();
+    new_df, df = df, new_df # new_df is the old dataframe (df) with the new column name changed inplace
+    
+    assert df.data_type_lookup != new_df.data_type_lookup
+
+    assert df.data_type_lookup["Name"] == new_df.data_type_lookup["Car Name"]
+
+    assert df.data_type != new_df.data_type
+
+    assert df.data_type["nominal"][0] == "Name"
+    assert new_df.data_type["nominal"][0] == "Car Name"
+
+    assert df.data_model_lookup != new_df.data_model_lookup
+
+    assert df.data_model_lookup["Name"] == new_df.data_model_lookup["Car Name"]
+
+    assert df.data_model != new_df.data_model
+
+    assert df.data_model["dimension"][0] == "Name"
+    assert new_df.data_model["dimension"][0] == "Car Name"
+
+    assert list(df.unique_values.values()) == list(new_df.unique_values.values())
+    assert list(df.cardinality.values()) == list(new_df.cardinality.values())
+    assert df._min_max == new_df._min_max
+    assert df.pre_aggregated == new_df.pre_aggregated
 def test_rename():
-    for i in range(2):
-        url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
-        df = pd.read_csv(url)
-        df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
-        df._repr_html_();
-        if i == 0:
-            new_df = df.copy(deep=True)
-            df.rename(columns={"Name": "Car Name"}, inplace = True)
-            df._repr_html_();
-            new_df, df = df, new_df
-            df._repr_html_()
-        else:
-            new_df = df.rename(columns={"Name": "Car Name"}, inplace = False)
-        new_df._repr_html_();
-        assert df.data_type_lookup != new_df.data_type_lookup
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
+    df._repr_html_();
+    new_df = df.rename(columns={"Name": "Car Name"}, inplace = False)
+    new_df._repr_html_();
+    assert df.data_type_lookup != new_df.data_type_lookup
 
-        assert df.data_type_lookup["Name"] == new_df.data_type_lookup["Car Name"]
+    assert df.data_type_lookup["Name"] == new_df.data_type_lookup["Car Name"]
 
-        assert df.data_type != new_df.data_type
+    assert df.data_type != new_df.data_type
 
-        assert df.data_type["nominal"][0] == "Name"
-        assert new_df.data_type["nominal"][0] == "Car Name"
+    assert df.data_type["nominal"][0] == "Name"
+    assert new_df.data_type["nominal"][0] == "Car Name"
 
-        assert df.data_model_lookup != new_df.data_model_lookup
+    assert df.data_model_lookup != new_df.data_model_lookup
 
-        assert df.data_model_lookup["Name"] == new_df.data_model_lookup["Car Name"]
+    assert df.data_model_lookup["Name"] == new_df.data_model_lookup["Car Name"]
 
-        assert df.data_model != new_df.data_model
+    assert df.data_model != new_df.data_model
 
-        assert df.data_model["dimension"][0] == "Name"
-        assert new_df.data_model["dimension"][0] == "Car Name"
+    assert df.data_model["dimension"][0] == "Name"
+    assert new_df.data_model["dimension"][0] == "Car Name"
 
-        assert list(df.unique_values.values()) == list(new_df.unique_values.values())
-        assert list(df.cardinality.values()) == list(new_df.cardinality.values())
-        assert df._min_max == new_df._min_max
-        assert df.pre_aggregated == new_df.pre_aggregated
-def test_rename2():
+    assert list(df.unique_values.values()) == list(new_df.unique_values.values())
+    assert list(df.cardinality.values()) == list(new_df.cardinality.values())
+    assert df._min_max == new_df._min_max
+    assert df.pre_aggregated == new_df.pre_aggregated
+def test_rename3():
 
     url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
     df = pd.read_csv(url)
