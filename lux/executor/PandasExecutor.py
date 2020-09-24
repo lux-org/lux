@@ -46,6 +46,7 @@ class PandasExecutor(Executor):
                 if (clause.attribute):
                     if (clause.attribute!="Record"):
                         attributes.add(clause.attribute)
+            # General Sampling
             if len(vis.data) > 10000:
                 vis._vis_data = vis.data[list(attributes)].sample(n = 10000, random_state = 1)
             else:
@@ -54,6 +55,11 @@ class PandasExecutor(Executor):
                 PandasExecutor.execute_aggregate(vis,isFiltered = filter_executed)
             elif (vis.mark =="histogram"):
                 PandasExecutor.execute_binning(vis)
+            elif (vis.mark =="scatter"):
+                if (len(vis.data)>=3000):
+                    vis._mark = "heatmap"
+                    PandasExecutor.execute_2D_binning(vis)
+
 
     @staticmethod
     def execute_aggregate(vis: Vis,isFiltered = True):
@@ -226,7 +232,27 @@ class PandasExecutor(Executor):
         elif (op == '!='):
             return df[df[attribute] != val]
         return df
+    @staticmethod
+    def execute_2D_binning(vis: Vis):
+        x_attr = vis.get_attr_by_channel("x")[0]
+        y_attr = vis.get_attr_by_channel("y")[0]
+        df = vis._vis_data
+        df["xBin"] = pd.cut(df[x_attr.attribute], bins=30)
+        df["yBin"] = pd.cut(df[y_attr.attribute], bins=30)
 
+        groups = df.groupby(['xBin','yBin'])[x_attr.attribute]
+        result = groups.agg("count").reset_index()
+        result = result.rename(columns={x_attr.attribute:"z"})
+        result = result[result["z"]!=0]
+
+        result["xBinStart"] = result["xBin"].apply(lambda x: x.left)
+        result["xBinEnd"] = result["xBin"].apply(lambda x: x.right)
+
+
+        result["yBinStart"] = result["yBin"].apply(lambda x: x.left)
+        result["yBinEnd"] = result["yBin"].apply(lambda x: x.right)
+
+        vis._vis_data = result.drop(columns=["xBin","yBin"])
 #######################################################
     ############ Metadata: data type, model #############
     #######################################################
