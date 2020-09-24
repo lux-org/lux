@@ -3,7 +3,7 @@ def generate_scatter_data(numPoints):
     import pandas as pd
     import numpy as np
     from collections import OrderedDict as odict
-    numPoints = int(numPoints)
+    numPoints = int(numPoints/5)
     np.random.seed(1)
 
     dists = {cat: pd.DataFrame(odict([('x',np.random.normal(x,s,numPoints)), 

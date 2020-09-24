@@ -4,9 +4,12 @@ import numpy as np
 import json
 
 # experiment_name = "sampled_scatter"
-for experiment_name in ["sampled_scatter","basic_scatter","heatmap","manual_heatmap"]:
+# ["sampled_scatter","basic_scatter","heatmap","manual_heatmap","manual_heatmap_2x_coarse"]
+for experiment_name in ["sampled_scatter_20000"]:
 # for experiment_name in ["manual_binned_scatter"]:
-	trial_range = np.geomspace(10, 1e5, num=9)
+	# trial_range = np.geomspace(10, 1e5, num=9)
+	# trial_range = np.geomspace(10, 1e5, num=9)
+	trial_range = np.geomspace(10, 1e5, num=17)
 	trial = [] #[cell count, duration]
 	for nPts in trial_range:
 		# output_filename = f"uncolored_single_scatter_output_{nPts}.ipynb"
