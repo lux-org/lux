@@ -51,12 +51,14 @@ class PandasExecutor(Executor):
                 vis._vis_data = vis.data[list(attributes)].sample(n = 10000, random_state = 1)
             else:
                 vis._vis_data = vis.data[list(attributes)]
+            # vis._vis_data = vis.data[list(attributes)]
+            
             if (vis.mark =="bar" or vis.mark =="line"):
                 PandasExecutor.execute_aggregate(vis,isFiltered = filter_executed)
             elif (vis.mark =="histogram"):
                 PandasExecutor.execute_binning(vis)
             elif (vis.mark =="scatter"):
-                if (len(vis.data)>=3000):
+                if (len(vis.data)>=50000):
                     vis._mark = "heatmap"
                     PandasExecutor.execute_2D_binning(vis)
 

@@ -43,11 +43,14 @@ class Heatmap(AltairChart):
 		# self.code += f"visData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
 		self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
 		self.code += f'''
-		chart = alt.Chart(visData).mark_bar().encode(
-		    y = {y_attr_field_code},
-		    x = {x_attr_field_code},
+		chart = alt.Chart(self.data).mark_rect().encode(
+			x=alt.X('xBinStart', type='quantitative', axis=alt.Axis(title=x_attr.attribute), bin = alt.BinParams(binned=True)),
+			x2=alt.X2('xBinEnd'),
+			y=alt.Y('yBinStart', type='quantitative', axis=alt.Axis(title=y_attr.attribute), bin = alt.BinParams(binned=True)),
+			y2=alt.Y2('yBinEnd'),
+			#opacity = alt.Opacity('z',type='quantitative',scale=alt.Scale(type="log"))
+			color = alt.Color('z',type='quantitative', scale=alt.Scale(scheme='blues',type="log"),legend=None)
 		)
-		{topK_code}
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		'''
 		return chart 
