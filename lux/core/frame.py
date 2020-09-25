@@ -33,6 +33,7 @@ class LuxDataFrame(pd.DataFrame):
 		self.SQLconnection = ""
 		self.table_name = ""
 
+		self._sampled = None
 		self._default_pandas_display = True
 		self._toggle_pandas_display = True
 		self._plot_config = None
@@ -72,7 +73,8 @@ class LuxDataFrame(pd.DataFrame):
 		self.recommendation = None
 		self.current_vis = None
 		self._widget = None
-		self._rec_info= None
+		self._rec_info = None
+		self._sampled = None
 	def expire_metadata(self):
 		# Set metadata as null
 		self._metadata_fresh = False

@@ -50,12 +50,14 @@ class PandasExecutor(Executor):
                         attributes.add(clause.attribute)
             # General Sampling
             if len(vis.data) > 10000:
-                n_samples = int(len(vis.data)*0.75)
-                vis._vis_data = vis.data[list(attributes)].sample(n = n_samples , random_state = 1)
-            else:
-                vis._vis_data = vis.data[list(attributes)]
-            # vis._vis_data = vis.data[list(attributes)]
-            
+                if (filter_executed):
+                    vis._vis_data = vis.data.sample(frac=0.75 , random_state = 1)
+                else:
+                    if (ldf._sampled is None): # memoize unfiltered sample df 
+                        ldf._sampled = vis.data.sample(frac=0.75 , random_state = 1)
+                    vis._vis_data = ldf._sampled
+            # TODO: Add some type of cap size on Nrows ?
+            vis._vis_data = vis.data[list(attributes)]
             if (vis.mark =="bar" or vis.mark =="line"):
                 PandasExecutor.execute_aggregate(vis,isFiltered = filter_executed)
             elif (vis.mark =="histogram"):
