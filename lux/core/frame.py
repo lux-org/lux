@@ -344,7 +344,7 @@ class LuxDataFrame(pd.DataFrame):
 			datatype = list(pd.read_sql(datatype_query, self.SQLconnection)['data_type'])[0]
 			sql_dtypes[attr] = datatype
 
-		data_type = {"quantitative":[], "ordinal":[], "nominal":[], "temporal":[]}
+		data_type = {"quantitative":[], "nominal":[], "temporal":[]}
 		for attr in list(self.columns):
 			if str(attr).lower() in ["month", "year"]:
 				data_type_lookup[attr] = "temporal"

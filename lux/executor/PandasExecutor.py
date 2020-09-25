@@ -297,7 +297,7 @@ class PandasExecutor(Executor):
     def compute_data_model(self, ldf:LuxDataFrame):
         ldf.data_model = {
             "measure": ldf.data_type["quantitative"],
-            "dimension": ldf.data_type["ordinal"] + ldf.data_type["nominal"] + ldf.data_type["temporal"]
+            "dimension": ldf.data_type["nominal"] + ldf.data_type["temporal"]
         }
         ldf.data_model_lookup = self.reverseMapping(ldf.data_model)
 

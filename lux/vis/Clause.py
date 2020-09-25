@@ -27,7 +27,7 @@ class Clause:
 			Possible values: 'x','y','color', by default ""
 		data_type : str, optional
 			Data type for the specified attribute.
-			Possible values: 'nominal', 'quantitative', 'ordinal','temporal', by default ""
+			Possible values: 'nominal', 'quantitative','temporal', by default ""
 		data_model : str, optional
 			Data model for the specified attribute
 			Possible values: 'dimension', 'measure', by default ""
