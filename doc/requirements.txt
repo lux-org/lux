@@ -2,4 +2,4 @@ sphinx-automodapi==0.12
 sphinx-rtd-theme==0.4.3
 sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-serializinghtml==1.1.4
--e git://github.com/lux-org/lux.git#egg=lux
+-e git://github.com/lux-org/lux.git#egg=lux-api
