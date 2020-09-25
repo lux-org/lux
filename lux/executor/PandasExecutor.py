@@ -48,7 +48,7 @@ class PandasExecutor(Executor):
                     if (clause.attribute!="Record"):
                         attributes.add(clause.attribute)
             # General Sampling
-            if len(vis.data) > 1e5:
+            if len(vis.data) > 50000:
                 vis._vis_data = vis.data[list(attributes)].sample(n = 50000 , random_state = 1)
             else:
                 vis._vis_data = vis.data[list(attributes)]
