@@ -48,8 +48,8 @@ class PandasExecutor(Executor):
                     if (clause.attribute!="Record"):
                         attributes.add(clause.attribute)
             # General Sampling
-            if len(vis.data) > 10000:
-                vis._vis_data = vis.data[list(attributes)].sample(n = 10000, random_state = 1)
+            if len(vis.data) > 1e5:
+                vis._vis_data = vis.data[list(attributes)].sample(n = 50000 , random_state = 1)
             else:
                 vis._vis_data = vis.data[list(attributes)]
             # vis._vis_data = vis.data[list(attributes)]
@@ -59,7 +59,7 @@ class PandasExecutor(Executor):
             elif (vis.mark =="histogram"):
                 PandasExecutor.execute_binning(vis)
             elif (vis.mark =="scatter"):
-                if (len(vis.data)>10000):
+                if (len(vis.data)>1e4):
                     vis._mark = "heatmap"
                     PandasExecutor.execute_2D_binning(vis)
 
@@ -237,25 +237,25 @@ class PandasExecutor(Executor):
         return df
     @staticmethod
     def execute_2D_binning(vis: Vis):
-        x_attr = vis.get_attr_by_channel("x")[0]
-        y_attr = vis.get_attr_by_channel("y")[0]
-        df = vis._vis_data
-        df["xBin"] = pd.cut(df[x_attr.attribute], bins=30)
-        df["yBin"] = pd.cut(df[y_attr.attribute], bins=30)
+        pd.reset_option('mode.chained_assignment')
+        with pd.option_context('mode.chained_assignment', None):
+            x_attr = vis.get_attr_by_channel("x")[0]
+            y_attr = vis.get_attr_by_channel("y")[0]
 
-        groups = df.groupby(['xBin','yBin'])[x_attr.attribute]
-        result = groups.agg("count").reset_index()
-        result = result.rename(columns={x_attr.attribute:"z"})
-        result = result[result["z"]!=0]
+            vis._vis_data.loc[:,"xBin"] = pd.cut(vis._vis_data[x_attr.attribute], bins=30)
+            vis._vis_data.loc[:,"yBin"] = pd.cut(vis._vis_data[y_attr.attribute], bins=30)
+            groups = vis._vis_data.groupby(['xBin','yBin'])[x_attr.attribute]
+            result = groups.agg("count").reset_index() # .agg in this line throws SettingWithCopyWarning 
+            result = result.rename(columns={x_attr.attribute:"z"})
+            result = result[result["z"]!=0]
 
-        result["xBinStart"] = result["xBin"].apply(lambda x: x.left)
-        result["xBinEnd"] = result["xBin"].apply(lambda x: x.right)
+            result.loc[:,"xBinStart"] = result["xBin"].apply(lambda x: x.left)
+            result.loc[:,"xBinEnd"] = result["xBin"].apply(lambda x: x.right)
 
+            result.loc[:,"yBinStart"] = result["yBin"].apply(lambda x: x.left)
+            result.loc[:,"yBinEnd"] = result["yBin"].apply(lambda x: x.right)
 
-        result["yBinStart"] = result["yBin"].apply(lambda x: x.left)
-        result["yBinEnd"] = result["yBin"].apply(lambda x: x.right)
-
-        vis._vis_data = result.drop(columns=["xBin","yBin"])
+            vis._vis_data = result.drop(columns=["xBin","yBin"])
     #######################################################
     ############ Metadata: data type, model #############
     #######################################################
