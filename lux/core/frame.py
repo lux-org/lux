@@ -382,8 +382,11 @@ class LuxDataFrame(pd.DataFrame):
 			rec_df = self
 			rec_df._message = Message()	
 		# Add warning message if there exist ID fields
-		for id_field in rec_df.data_type["id"]:
-			rec_df._message.append(f"<code>{id_field}</code> is not visualized since it resembles an ID field.")
+		id_fields_str = ""
+		if (len(rec_df.data_type["id"])>0):
+			for id_field in rec_df.data_type["id"]: id_fields_str += f"<code>{id_field}</code>, "
+			id_fields_str = id_fields_str[:-2]
+			rec_df._message.append(f"{id_fields_str} is not visualized since it resembles an ID field.")
 		rec_df._prev = None # reset _prev
 		
 		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that recs has not yet been computed
