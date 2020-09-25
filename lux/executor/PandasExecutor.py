@@ -4,6 +4,7 @@ from lux.vis.Vis import Vis
 from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
+from lux.utils.date_utils import is_datetime_series
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
 import warnings
 
@@ -58,7 +59,7 @@ class PandasExecutor(Executor):
             elif (vis.mark =="histogram"):
                 PandasExecutor.execute_binning(vis)
             elif (vis.mark =="scatter"):
-                if (len(vis.data)>=50000):
+                if (len(vis.data)>10000):
                     vis._mark = "heatmap"
                     PandasExecutor.execute_2D_binning(vis)
 
@@ -255,7 +256,7 @@ class PandasExecutor(Executor):
         result["yBinEnd"] = result["yBin"].apply(lambda x: x.right)
 
         vis._vis_data = result.drop(columns=["xBin","yBin"])
-#######################################################
+    #######################################################
     ############ Metadata: data type, model #############
     #######################################################
     def compute_dataset_metadata(self, ldf:LuxDataFrame):

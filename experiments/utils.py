@@ -27,3 +27,14 @@ def generate_airbnb_copies(ncopies):
        'minimum_nights', 'number_of_reviews']]
     df_copies = pd.concat([df for _x in range(ncopies)])
     return df_copies
+def downsample_airbnb(numPoints):
+    df = pd.read_csv("experiments/airbnb_10x.csv")
+    df = df[['id', 'name', 'host_id', 'host_name', 'neighbourhood_group',
+       'neighbourhood', 'latitude', 'longitude', 'room_type', 'price',
+       'minimum_nights', 'number_of_reviews']]
+    df_sampled = df.sample(n=int(numPoints))
+    return df_sampled
+def downsample_realestate(numPoints):
+    df = pd.read_csv("experiments/real_estate_3x.csv")
+    df_sampled = df.sample(n=int(numPoints))
+    return df_sampled

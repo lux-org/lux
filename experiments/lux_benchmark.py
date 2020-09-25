@@ -9,7 +9,10 @@ experiment_name = "execute_lux"
 # for experiment_name in ["manual_binned_scatter"]:
 # trial_range = np.geomspace(10, 1e5, num=9)
 # trial_range = np.geomspace(10, 1e5, num=9)
-trial_range = [1,3,5,7]
+# trial_range = [1,3,5,7]
+# trial_range = np.geomspace(10, 4e5, num=10) # airbnb
+trial_range = np.geomspace(10, 7e5, num=12) # real estate (total 739818)
+# trial_range = [10,100, 1000, 10000]
 trial = [] #[cell count, duration]
 for nCopies in trial_range:
 	# output_filename = f"uncolored_single_scatter_output_{nPts}.ipynb"
@@ -31,4 +34,4 @@ for nCopies in trial_range:
 		print (nCopies,duration)
 
 trial_df = pd.DataFrame(trial,columns=["nCopies","time"])
-trial_df.to_csv(f"{experiment_name}.csv",index=None)
+trial_df.to_csv(f"realestate_heatmap_unsampled.csv",index=None)
