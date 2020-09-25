@@ -4,7 +4,6 @@ from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 from lux.history.history import History
-from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 #import for benchmarking
