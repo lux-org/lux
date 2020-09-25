@@ -368,6 +368,8 @@ class LuxDataFrame(pd.DataFrame):
 			rec_infolist.append(recommendations)
 	def maintain_recs(self):
 		# `rec_df` is the dataframe to generate the recommendations on
+		if (actions.__len__() > 0):
+			self.expire_recs()
 		show_prev = False # flag indicating whether rec_df is showing previous df or current self
 		if self._prev is not None:
 			rec_df = self._prev
@@ -388,7 +390,6 @@ class LuxDataFrame(pd.DataFrame):
 			rec_infolist = []
 			from lux.action.custom import custom
 			from lux.action.custom_action import custom_action
-			print("here")
 			from lux.action.correlation import correlation
 			from lux.action.univariate import univariate
 			from lux.action.enhance import enhance
@@ -410,11 +411,10 @@ class LuxDataFrame(pd.DataFrame):
 					no_vis = len(rec_df.current_vis) == 0
 					one_current_vis = len(rec_df.current_vis) == 1
 					multiple_current_vis = len(rec_df.current_vis) > 1
-				print("hello maam")
 				if (actions.__len__() > 0):
-					print("o")
-					rec_df._append_rec(rec_infolist, custom_action(rec_df))
-				print("oi")
+					custom_action_collection = custom_action(rec_df)
+					if custom_action_collection is not None:
+						rec_df._append_rec(rec_infolist, custom_action(rec_df))
 				if (no_vis):
 					rec_df._append_rec(rec_infolist, correlation(rec_df))
 					rec_df._append_rec(rec_infolist, univariate(rec_df,"quantitative"))

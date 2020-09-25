@@ -71,38 +71,6 @@ def register_action(
 	_registered_actions[key] = RegisteredOption(
         key=key, function=function, validator=validator
     )
-    # if key in _reserved_keys:
-    #     raise OptionError(f"Option '{key}' is a reserved key")
-
-    # the default value should be legal
-    # if validator:
-    #     validator(defval)
-
-    # walk the nested dict, creating dicts as needed along the path
-    # path = key.split(".")
-
-    # for k in path:
-    #     if not re.match("^" + tokenize.Name + "$", k):
-    #         raise ValueError(f"{k} is not a valid identifier")
-    #     if keyword.iskeyword(k):
-    #         raise ValueError(f"{k} is a python keyword")
-
-    # cursor = _global_config
-    # msg = "Path prefix to option '{option}' is already an option"
-
-    # for i, p in enumerate(path[:-1]):
-    #     if not isinstance(cursor, dict):
-    #         raise OptionError(msg.format(option=".".join(path[:i])))
-    #     if p not in cursor:
-    #         cursor[p] = {}
-    #     cursor = cursor[p]
-
-    # if not isinstance(cursor, dict):
-    #     raise OptionError(msg.format(option=".".join(path[:-1])))
-
-    # cursor[path[-1]] = defval  # initialize
-
-    # save the option metadata
 
 def is_callable(obj) -> bool:
 	"""
