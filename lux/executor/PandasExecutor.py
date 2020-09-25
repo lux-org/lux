@@ -48,9 +48,9 @@ class PandasExecutor(Executor):
                     if (clause.attribute!="Record"):
                         attributes.add(clause.attribute)
             if len(vis.data) > 10000:
-                vis._vis_data = vis.data[list(attributes)].sample(n = 10000, random_state = 1)
+                vis._vis_data = vis.data.loc[:,list(attributes)].sample(n = 10000, random_state = 1)
             else:
-                vis._vis_data = vis.data[list(attributes)]
+                vis._vis_data = vis.data.loc[:,list(attributes)]
             if (vis.mark =="bar" or vis.mark =="line"):
                 PandasExecutor.execute_aggregate(vis,isFiltered = filter_executed)
             elif (vis.mark =="histogram"):
@@ -265,6 +265,8 @@ class PandasExecutor(Executor):
                 ldf.data_type_lookup[attr] = "nominal"
             elif is_datetime_series(ldf.dtypes[attr]): #check if attribute is any type of datetime dtype
                 ldf.data_type_lookup[attr] = "temporal"
+            else:
+                ldf.data_type_lookup[attr] = "nominal" 
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         #   if self.cardinality[attr]>50:
         if (ldf.index.dtype !='int64' and ldf.index.name):

@@ -210,15 +210,15 @@ def test_drop():
     assert list(new_df2.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']
     assert len(new_df2.cardinality) == 7
 
-# def test_merge():
-#     url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
-#     df = pd.read_csv(url)
-#     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
-#     new_df = df.drop([0, 1, 2], axis = "rows")
-#     new_df2 = pd.merge(df, new_df, how = "left", indicator = True)
-#     new_df2._repr_html_()
-#     assert list(new_df2.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']  # TODO once bug is fixed
-#     assert len(new_df2.cardinality) == 7 # TODO once bug is fixed
+def test_merge():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = df.drop([0, 1, 2], axis = "rows")
+    new_df2 = pd.merge(df, new_df, how = "left", indicator = True)
+    new_df2._repr_html_()
+    assert list(new_df2.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']  # TODO once bug is fixed
+    assert len(new_df2.cardinality) == 11 # TODO once bug is fixed
 
 def test_prefix():
     url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
