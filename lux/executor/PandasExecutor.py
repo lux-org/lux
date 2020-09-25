@@ -48,8 +48,9 @@ class PandasExecutor(Executor):
                     if (clause.attribute!="Record"):
                         attributes.add(clause.attribute)
             # General Sampling
-            if len(vis.data) > 50000:
-                vis._vis_data = vis.data[list(attributes)].sample(n = 50000 , random_state = 1)
+            if len(vis.data) > 10000:
+                n_samples = int(len(vis.data)*0.75)
+                vis._vis_data = vis.data[list(attributes)].sample(n = n_samples , random_state = 1)
             else:
                 vis._vis_data = vis.data[list(attributes)]
             # vis._vis_data = vis.data[list(attributes)]
@@ -59,7 +60,7 @@ class PandasExecutor(Executor):
             elif (vis.mark =="histogram"):
                 PandasExecutor.execute_binning(vis)
             elif (vis.mark =="scatter"):
-                if (len(vis.data)>1e4):
+                if (len(vis.data)>10000):
                     vis._mark = "heatmap"
                     PandasExecutor.execute_2D_binning(vis)
 
