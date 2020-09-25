@@ -20,6 +20,4 @@ def test_check_id():
 	df = pd.read_csv('https://github.com/lux-org/lux-datasets/blob/master/data/instacart_sample.csv?raw=true')
 	df._repr_html_()
 	assert len(df.data_type["id"])==3
-	assert "<code>order_id</code> is not visualized since it resembles an ID field." in df._message.to_html()
-	assert "<code>product_id</code> is not visualized since it resembles an ID field." in df._message.to_html()
-	assert "<code>user_id</code> is not visualized since it resembles an ID field." in df._message.to_html()
+	assert "<code>order_id</code>, <code>product_id</code>, <code>user_id</code> is not visualized since it resembles an ID field." in df._message.to_html()
