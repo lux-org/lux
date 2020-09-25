@@ -7,6 +7,8 @@ from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
+from lux._config.config import actions
+
 #import for benchmarking
 import time
 from typing import Optional, Dict, Union, List, Callable
@@ -385,6 +387,8 @@ class LuxDataFrame(pd.DataFrame):
 		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that recs has not yet been computed
 			rec_infolist = []
 			from lux.action.custom import custom
+			from lux.action.custom_action import custom_action
+			print("here")
 			from lux.action.correlation import correlation
 			from lux.action.univariate import univariate
 			from lux.action.enhance import enhance
@@ -406,7 +410,11 @@ class LuxDataFrame(pd.DataFrame):
 					no_vis = len(rec_df.current_vis) == 0
 					one_current_vis = len(rec_df.current_vis) == 1
 					multiple_current_vis = len(rec_df.current_vis) > 1
-
+				print("hello maam")
+				if (actions.__len__() > 0):
+					print("o")
+					rec_df._append_rec(rec_infolist, custom_action(rec_df))
+				print("oi")
 				if (no_vis):
 					rec_df._append_rec(rec_infolist, correlation(rec_df))
 					rec_df._append_rec(rec_infolist, univariate(rec_df,"quantitative"))

@@ -40,6 +40,8 @@ class DictWrapper:
 			return DictWrapper(v, prefix)
 		else:
 			return _get_action(prefix)
+	def __len__(self):
+		return len(list(self.d.keys()))
 
 	def __dir__(self) -> Iterable[str]:
 		return list(self.d.keys())
