@@ -66,6 +66,8 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 		return -1
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
+		if (vis.mark=="heatmap"):
+			return 0.3 #TODO: Need better interestingness metric for binned scatterplots (heatmaps)
 		if (v_size<2): return -1 
 		if (n_filter==1):
 			v_filter_size = get_filtered_size(filter_specs, vis.data)

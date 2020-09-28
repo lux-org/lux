@@ -4,6 +4,7 @@ from lux.vis.Vis import Vis
 from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
+from lux.utils.date_utils import is_datetime_series
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
 from lux.utils.date_utils import is_datetime_series
 import warnings
@@ -47,14 +48,25 @@ class PandasExecutor(Executor):
                 if (clause.attribute):
                     if (clause.attribute!="Record"):
                         attributes.add(clause.attribute)
+            # General Sampling
             if len(vis.data) > 10000:
-                vis._vis_data = vis.data.loc[:,list(attributes)].sample(n = 10000, random_state = 1)
-            else:
-                vis._vis_data = vis.data.loc[:,list(attributes)]
+                if (filter_executed):
+                    vis._vis_data = vis.data.sample(frac=0.75 , random_state = 1)
+                else:
+                    if (ldf._sampled is None): # memoize unfiltered sample df 
+                        ldf._sampled = vis.data.sample(frac=0.75 , random_state = 1)
+                    vis._vis_data = ldf._sampled
+            # TODO: Add some type of cap size on Nrows ?
+            vis._vis_data = vis.data[list(attributes)]
             if (vis.mark =="bar" or vis.mark =="line"):
                 PandasExecutor.execute_aggregate(vis,isFiltered = filter_executed)
             elif (vis.mark =="histogram"):
                 PandasExecutor.execute_binning(vis)
+            elif (vis.mark =="scatter"):
+                if (len(vis.data)>10000):
+                    vis._mark = "heatmap"
+                    PandasExecutor.execute_2D_binning(vis)
+
 
     @staticmethod
     def execute_aggregate(vis: Vis,isFiltered = True):
@@ -227,8 +239,28 @@ class PandasExecutor(Executor):
         elif (op == '!='):
             return df[df[attribute] != val]
         return df
+    @staticmethod
+    def execute_2D_binning(vis: Vis):
+        pd.reset_option('mode.chained_assignment')
+        with pd.option_context('mode.chained_assignment', None):
+            x_attr = vis.get_attr_by_channel("x")[0]
+            y_attr = vis.get_attr_by_channel("y")[0]
 
-#######################################################
+            vis._vis_data.loc[:,"xBin"] = pd.cut(vis._vis_data[x_attr.attribute], bins=30)
+            vis._vis_data.loc[:,"yBin"] = pd.cut(vis._vis_data[y_attr.attribute], bins=30)
+            groups = vis._vis_data.groupby(['xBin','yBin'])[x_attr.attribute]
+            result = groups.agg("count").reset_index() # .agg in this line throws SettingWithCopyWarning 
+            result = result.rename(columns={x_attr.attribute:"z"})
+            result = result[result["z"]!=0]
+
+            result.loc[:,"xBinStart"] = result["xBin"].apply(lambda x: x.left)
+            result.loc[:,"xBinEnd"] = result["xBin"].apply(lambda x: x.right)
+
+            result.loc[:,"yBinStart"] = result["yBin"].apply(lambda x: x.left)
+            result.loc[:,"yBinEnd"] = result["yBin"].apply(lambda x: x.right)
+
+            vis._vis_data = result.drop(columns=["xBin","yBin"])
+    #######################################################
     ############ Metadata: data type, model #############
     #######################################################
     def compute_dataset_metadata(self, ldf:LuxDataFrame):
