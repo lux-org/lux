@@ -389,7 +389,7 @@ class LuxDataFrame(pd.DataFrame):
 		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that recs has not yet been computed
 			rec_infolist = []
 			from lux.action.custom import custom
-			from lux.action.custom_action import custom_action
+			from lux.action.custom import custom_action
 			from lux.action.correlation import correlation
 			from lux.action.univariate import univariate
 			from lux.action.enhance import enhance
@@ -414,7 +414,7 @@ class LuxDataFrame(pd.DataFrame):
 				if (actions.__len__() > 0):
 					custom_action_collection = custom_action(rec_df)
 					if custom_action_collection is not None:
-						rec_df._append_rec(rec_infolist, custom_action(rec_df))
+						rec_df._append_rec(rec_infolist, custom_action_collection)
 				if (no_vis):
 					rec_df._append_rec(rec_infolist, correlation(rec_df))
 					rec_df._append_rec(rec_infolist, univariate(rec_df,"quantitative"))

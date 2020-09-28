@@ -1,3 +1,7 @@
+'''
+This config file was largely borrowed from Pandas config.py set_action functionality.
+For more resources, see https://github.com/pandas-dev/pandas/blob/master/pandas/_config
+'''
 from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
