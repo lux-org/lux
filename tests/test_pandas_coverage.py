@@ -240,6 +240,52 @@ def test_prefix():
     assert len(new_df.cardinality) == 10
     assert new_df.cardinality["1_Name"] == 300
 
+def test_loc():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = df.loc[:,"Displacement":"Origin"]
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']
+    assert len(new_df.cardinality) == 6
+    new_df = df.loc[0:10,"Displacement":"Origin"]
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Correlation', 'Distribution']
+    assert len(new_df.cardinality) == 6
+    new_df = df.loc[0:10,"Displacement":"Horsepower"]
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Correlation', 'Distribution']
+    assert len(new_df.cardinality) == 2
+    import numpy as np
+    inter_df = df.groupby("Brand")[["Acceleration", "Weight", "Horsepower"]].agg(np.mean)
+    new_df = inter_df.loc["chevrolet":"fiat", "Acceleration":"Weight"]
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Column Groups']
+    assert len(new_df.cardinality) == 3
+
+def test_iloc():
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+    df = pd.read_csv(url)
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    new_df = df.iloc[:,3:9]
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']
+    assert len(new_df.cardinality) == 6
+    new_df = df.iloc[0:11,3:9]
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Correlation', 'Distribution']
+    assert len(new_df.cardinality) == 6
+    new_df = df.iloc[0:11,3:5]
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Correlation', 'Distribution']
+    assert len(new_df.cardinality) == 2
+    import numpy as np
+    inter_df = df.groupby("Brand")[["Acceleration", "Weight", "Horsepower"]].agg(np.mean)
+    new_df = inter_df.iloc[5:10, 0:2]
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys() ) == ['Column Groups']
+    assert len(new_df.cardinality) == 3
+
 def check_metadata_equal(df1, df2):
     # Checks to make sure metadata for df1 and df2 are equal.
     for attr in df1._metadata:
