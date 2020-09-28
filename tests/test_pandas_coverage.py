@@ -108,6 +108,16 @@ def test_groupby_agg():
     assert list(new_df.recommendation.keys() ) == ['Column Groups']
     assert len(new_df.cardinality) == 7
 
+# def test_groupby_agg_very_small():
+
+#     url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
+#     df = pd.read_csv(url)
+#     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+#     new_df = df.groupby("Origin").agg(sum).reset_index()
+#     new_df._repr_html_()
+#     assert list(new_df.recommendation.keys() ) == ['Column Groups']
+#     assert len(new_df.cardinality) == 7
+
 # def test_groupby_multi_index():
 #     url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
 #     df = pd.read_csv(url)
