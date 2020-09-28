@@ -95,9 +95,10 @@ class LuxDataFrame(pd.DataFrame):
 	#     super(LuxDataFrame, self).__finalize__(other,method,**kwargs)
 	#     self.expire_metadata()
 	def __getattr__(self, name):
-		super(LuxDataFrame, self).__getattr__(name)
+		ret_val = super(LuxDataFrame, self).__getattr__(name)
 		self.expire_metadata()
 		self.expire_recs()
+		return ret_val
 	def _set_axis(self, axis, labels):
 		super(LuxDataFrame, self)._set_axis(axis, labels)
 		self.expire_metadata()
