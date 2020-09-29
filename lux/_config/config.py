@@ -44,6 +44,13 @@ class DictWrapper:
 			return DictWrapper(v, prefix)
 		else:
 			return _get_action(prefix)
+
+	def __getactions__(self):
+		l = []
+		for key in self.__dir__():
+			l.append(self.__getattr__(key))
+		return l
+
 	def __len__(self):
 		return len(list(self.d.keys()))
 
@@ -76,6 +83,16 @@ def register_action(
         key=key, function=function, validator=validator
     )
 
+def remove_action(
+    key: str = "",
+) -> None:
+
+	key = key.lower()
+	if key not in _registered_actions:
+		raise ValueError(f"Option '{key}' has not been registered")
+
+	del _registered_actions[key]
+
 def is_callable(obj) -> bool:
 	"""
     Parameters
@@ -89,3 +106,4 @@ def is_callable(obj) -> bool:
 	if not callable(obj):
 		raise ValueError("Value must be a callable")
 	return True
+
