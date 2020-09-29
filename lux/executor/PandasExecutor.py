@@ -253,10 +253,11 @@ class PandasExecutor(Executor):
             result = result.rename(columns={x_attr.attribute:"z"})
             result = result[result["z"]!=0]
 
-            result.loc[:,"xBinStart"] = result["xBin"].apply(lambda x: x.left)
+            # convert type to facilitate weighted correlation interestingess calculation
+            result.loc[:,"xBinStart"] = result["xBin"].apply(lambda x: x.left).astype('float') 
             result.loc[:,"xBinEnd"] = result["xBin"].apply(lambda x: x.right)
 
-            result.loc[:,"yBinStart"] = result["yBin"].apply(lambda x: x.left)
+            result.loc[:,"yBinStart"] = result["yBin"].apply(lambda x: x.left).astype('float')
             result.loc[:,"yBinEnd"] = result["yBin"].apply(lambda x: x.right)
 
             vis._vis_data = result.drop(columns=["xBin","yBin"])
