@@ -32,7 +32,7 @@ def filter(ldf):
 		#get unique values for all categorical values specified and creates corresponding filters
 		fltr = filters[0]
 		
-		if (ldf.data_type_lookup[fltr.attribute]=="ordinal" or ldf.data_type_lookup[fltr.attribute]=="nominal"):
+		if (ldf.data_type_lookup[fltr.attribute]=="nominal"):
 			recommendation = {"action":"Filter",
 							"description":f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative value."}
 			unique_values = ldf.unique_values[fltr.attribute]
@@ -66,7 +66,7 @@ def filter(ldf):
 			output.append(temp_vis)
 
 	else:	#if no existing filters, create filters using unique values from all categorical variables in the dataset
-		intended_attrs = '<b>'+', '.join([clause.attribute for clause in ldf._intent if clause.value=='' and clause.attribute!="Record"])+'</b>'
+		intended_attrs = ', '.join([clause.attribute for clause in ldf._intent if clause.value=='' and clause.attribute!="Record"])
 		recommendation = {"action":"Filter",
 					 "description":f"Applying filters to the <p class='highlight-intent'>{intended_attrs}</p> intent."}
 		categorical_vars = []

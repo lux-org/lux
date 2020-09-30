@@ -66,6 +66,8 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 		return -1
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
+		if (vis.mark=="heatmap"):
+			return weighted_correlation(vis.data["xBinStart"],vis.data["yBinStart"],vis.data["z"])
 		if (v_size<2): return -1 
 		if (n_filter==1):
 			v_filter_size = get_filtered_size(filter_specs, vis.data)
@@ -130,6 +132,16 @@ def skewness(v):
 	from scipy.stats import skew
 	return skew(v)
 
+def weighted_avg(x, w):
+    return np.average(x,weights=w)
+
+def weighted_cov(x, y, w):
+    return np.sum(w * (x - weighted_avg(x, w)) * (y - weighted_avg(y, w))) / np.sum(w)
+
+def weighted_correlation(x, y, w):
+    # Based on https://en.wikipedia.org/wiki/Pearson_correlation_coefficient#Weighted_correlation_coefficient
+    return weighted_cov(x, y, w) / np.sqrt(weighted_cov(x, x, w) * weighted_cov(y, y, w))
+	
 def deviation_from_overall(vis:Vis, ldf:LuxDataFrame, filter_specs:list, msr_attribute:str) -> int:
 	"""
 	Difference in bar chart/histogram shape from overall chart

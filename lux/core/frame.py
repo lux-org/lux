@@ -4,9 +4,8 @@ from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 from lux.history.history import History
-from lux.utils.utils import check_import_lux_widget, check_if_id_like
-from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
+from lux.utils.utils import check_import_lux_widget
 #import for benchmarking
 import time
 from typing import Optional, Dict, Union, List, Callable
@@ -30,10 +29,11 @@ class LuxDataFrame(pd.DataFrame):
 		super(LuxDataFrame, self).__init__(*args, **kw)
 	
 		self.executor_type = "Pandas"
-		self.executor = PandasExecutor
+		self.executor = PandasExecutor()
 		self.SQLconnection = ""
 		self.table_name = ""
 
+		self._sampled = None
 		self._default_pandas_display = True
 		self._toggle_pandas_display = True
 		self._plot_config = None
@@ -52,10 +52,6 @@ class LuxDataFrame(pd.DataFrame):
 	@property
 	def _constructor(self):
 		return LuxDataFrame
-	def __setitem__(self,key,value):
-		super(LuxDataFrame, self).__setitem__(key, value)
-		self.expire_metadata()
-		self.expire_recs()
 	# @property
 	# def _constructor_sliced(self):
 	# 	def f(*args, **kwargs):
@@ -68,8 +64,8 @@ class LuxDataFrame(pd.DataFrame):
 	def maintain_metadata(self):
 		if (not hasattr(self,"_metadata_fresh") or not self._metadata_fresh ): # Check that metadata has not yet been computed
 			if (len(self)>0): #only compute metadata information if the dataframe is non-empty
-				self.compute_stats()
-				self.compute_dataset_metadata()
+				self.executor.compute_stats(self)
+				self.executor.compute_dataset_metadata(self)
 				self._infer_structure()
 				self._metadata_fresh = True
 	def expire_recs(self):
@@ -77,7 +73,8 @@ class LuxDataFrame(pd.DataFrame):
 		self.recommendation = None
 		self.current_vis = None
 		self._widget = None
-		self._rec_info= None
+		self._rec_info = None
+		self._sampled = None
 	def expire_metadata(self):
 		# Set metadata as null
 		self._metadata_fresh = False
@@ -97,7 +94,15 @@ class LuxDataFrame(pd.DataFrame):
 	#     print ("lux finalize")
 	#     super(LuxDataFrame, self).__finalize__(other,method,**kwargs)
 	#     self.expire_metadata()
-
+	def __getattr__(self, name):
+		ret_value = super(LuxDataFrame, self).__getattr__(name)
+		self.expire_metadata()
+		self.expire_recs()
+		return ret_value
+	def _set_axis(self, axis, labels):
+		super(LuxDataFrame, self)._set_axis(axis, labels)
+		self.expire_metadata()
+		self.expire_recs()
 	def _update_inplace(self,*args,**kwargs):
 		super(LuxDataFrame, self)._update_inplace(*args,**kwargs)
 		self.expire_metadata()
@@ -145,7 +150,7 @@ class LuxDataFrame(pd.DataFrame):
 			self.executor = SQLExecutor
 		else:
 			from lux.executor.PandasExecutor import PandasExecutor
-			self.executor = PandasExecutor
+			self.executor = PandasExecutor()
 		self.executor_type = exe
 	@property 
 	def plot_config(self):
@@ -267,114 +272,7 @@ class LuxDataFrame(pd.DataFrame):
 	def __repr__(self):
 		# TODO: _repr_ gets called from _repr_html, need to get rid of this call
 		return ""
-	#######################################################
-	############ Metadata: data type, model #############
-	#######################################################
-	def compute_dataset_metadata(self):
-		self.data_type_lookup = {}
-		self.data_type = {}
-		self.compute_data_type()
-		self.data_model_lookup = {}
-		self.data_model = {}
-		self.compute_data_model()
-
-	def compute_data_type(self):
-		for attr in list(self.columns):
-			if (isinstance(attr,pd._libs.tslibs.timestamps.Timestamp)): 
-				# If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
-				self.data_type_lookup[attr] = "temporal"
-			elif str(attr).lower() in ["month", "year","day","date","time"]:
-				self.data_type_lookup[attr] = "temporal"
-			elif self.dtypes[attr] == "float64":
-				self.data_type_lookup[attr] = "quantitative"
-			elif self.dtypes[attr] == "int64":
-				# See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
-				if (self.pre_aggregated):
-					if (self.cardinality[attr]==len(self)):
-						self.data_type_lookup[attr] = "nominal"
-				if self.cardinality[attr]/len(self) < 0.4 and self.cardinality[attr]<10: 
-					self.data_type_lookup[attr] = "nominal"
-				elif check_if_id_like(self,attr): 
-					self.data_type_lookup[attr] = "id"
-				else:
-					self.data_type_lookup[attr] = "quantitative"
-			# Eliminate this clause because a single NaN value can cause the dtype to be object
-			elif self.dtypes[attr] == "object":
-				self.data_type_lookup[attr] = "nominal"
-			elif is_datetime_series(self.dtypes[attr]): #check if attribute is any type of datetime dtype
-				self.data_type_lookup[attr] = "temporal"
-		# for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
-		# 	if self.cardinality[attr]>50:
-		if (self.index.dtype !='int64' and self.index.name):
-			self.data_type_lookup[self.index.name] = "nominal"
-		self.data_type = self.mapping(self.data_type_lookup)
-
-		from pandas.api.types import is_datetime64_any_dtype as is_datetime
-		non_datetime_attrs = []
-		for attr in self.columns:
-			if self.data_type_lookup[attr] == 'temporal' and not is_datetime(self[attr]):
-				non_datetime_attrs.append(attr)
-		if len(non_datetime_attrs) == 1:
-			warnings.warn(
-		            f"\nLux detects that the attribute '{non_datetime_attrs[0]}' may be temporal.\n" 
-		            "In order to display visualizations for this attribute accurately, temporal attributes should be converted to Pandas Datetime objects.\n\n"
-		            "Please consider converting this attribute using the pd.to_datetime function and providing a 'format' parameter to specify datetime format of the attribute.\n"
-		            "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format='%m')\n\n"
-		            "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n"
-		        	,stacklevel=2)
-		elif len(non_datetime_attrs) > 1:
-			warnings.warn(
-		            f"\nLux detects that attributes {non_datetime_attrs} may be temporal.\n" 
-		            "In order to display visualizations for these attributes accurately, temporal attributes should be converted to Pandas Datetime objects.\n\n"
-		            "Please consider converting these attributes using the pd.to_datetime function and providing a 'format' parameter to specify datetime format of the attribute.\n"
-		            "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format='%m')\n\n"
-		            "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n"
-		        	,stacklevel=2)
-	def compute_data_model(self):
-		self.data_model = {
-			"measure": self.data_type["quantitative"],
-			"dimension": self.data_type["ordinal"] + self.data_type["nominal"] + self.data_type["temporal"]
-		}
-		self.data_model_lookup = self.reverseMapping(self.data_model)
-
-	def mapping(self, rmap):
-		group_map = {}
-		for val in ["quantitative","id", "ordinal", "nominal", "temporal"]:
-			group_map[val] = list(filter(lambda x: rmap[x] == val, rmap))
-		return group_map
-
-
-	def reverseMapping(self, map):
-		reverse_map = {}
-		for valKey in map:
-			for val in map[valKey]:
-				reverse_map[val] = valKey
-		return reverse_map
-
-	def compute_stats(self):
-		# precompute statistics
-		self.unique_values = {}
-		self._min_max = {}
-		self.cardinality = {}
-
-		for attribute in self.columns:
-			
-			if (isinstance(attribute,pd._libs.tslibs.timestamps.Timestamp)): 
-				# If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
-				attribute_repr = str(attribute._date_repr)
-			else:
-				attribute_repr = attribute
-			if self.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
-				self.unique_values[attribute_repr] = list(self[attribute].unique())
-				self.cardinality[attribute_repr] = len(self.unique_values[attribute])
-			else:   
-				self.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
-			if self.dtypes[attribute] == "float64" or self.dtypes[attribute] == "int64":
-				self._min_max[attribute_repr] = (self[attribute].min(), self[attribute].max())
-		if (self.index.dtype !='int64'):
-			index_column_name = self.index.name
-			self.unique_values[index_column_name] = list(self.index)
-			self.cardinality[index_column_name] = len(self.index)
+	
 	#######################################################
 	########## SQL Metadata, type, model schema ###########
 	#######################################################
@@ -448,7 +346,7 @@ class LuxDataFrame(pd.DataFrame):
 			datatype = list(pd.read_sql(datatype_query, self.SQLconnection)['data_type'])[0]
 			sql_dtypes[attr] = datatype
 
-		data_type = {"quantitative":[], "ordinal":[], "nominal":[], "temporal":[]}
+		data_type = {"quantitative":[], "nominal":[], "temporal":[]}
 		for attr in list(self.columns):
 			if str(attr).lower() in ["month", "year"]:
 				data_type_lookup[attr] = "temporal"
@@ -485,8 +383,11 @@ class LuxDataFrame(pd.DataFrame):
 			rec_df = self
 			rec_df._message = Message()	
 		# Add warning message if there exist ID fields
-		for id_field in rec_df.data_type["id"]:
-			rec_df._message.append(f"<code>{id_field}</code> is not visualized since it resembles an ID field.")
+		id_fields_str = ""
+		if (len(rec_df.data_type["id"])>0):
+			for id_field in rec_df.data_type["id"]: id_fields_str += f"<code>{id_field}</code>, "
+			id_fields_str = id_fields_str[:-2]
+			rec_df._message.append(f"{id_fields_str} is not visualized since it resembles an ID field.")
 		rec_df._prev = None # reset _prev
 		
 		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that recs has not yet been computed
@@ -499,7 +400,6 @@ class LuxDataFrame(pd.DataFrame):
 			from lux.action.generalize import generalize
 			from lux.action.row_group import row_group
 			from lux.action.column_group import column_group
-
 			if (rec_df.pre_aggregated):
 				if (rec_df.columns.name is not None):
 					rec_df._append_rec(rec_infolist, row_group(rec_df))
@@ -645,7 +545,7 @@ class LuxDataFrame(pd.DataFrame):
 				
 				# df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
 				self.maintain_recs()
-			
+
 				# box = widgets.Box(layout=widgets.Layout(display='inline'))
 				button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
 				output = widgets.Output()
