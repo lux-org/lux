@@ -1,3 +1,17 @@
+#  Copyright 2019-2020 The Lux Authors.
+# 
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 import pandas as pd
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
@@ -6,9 +20,7 @@ from lux.vis.VisList import VisList
 from lux.history.history import History
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
-#import for benchmarking
-import time
-from typing import Optional, Dict, Union, List, Callable
+from typing import Dict, Union, List, Callable
 import warnings
 class LuxDataFrame(pd.DataFrame):
 	'''
@@ -90,10 +102,6 @@ class LuxDataFrame(pd.DataFrame):
 	#####################
 	## Override Pandas ##
 	#####################
-	# def __finalize__(self,other, method: Optional[str] = None, **kwargs):
-	#     print ("lux finalize")
-	#     super(LuxDataFrame, self).__finalize__(other,method,**kwargs)
-	#     self.expire_metadata()
 	def __getattr__(self, name):
 		super(LuxDataFrame, self).__getattr__(name)
 		self.expire_metadata()

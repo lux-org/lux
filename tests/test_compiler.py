@@ -1,9 +1,23 @@
+#  Copyright 2019-2020 The Lux Authors.
+# 
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 from .context import lux
 import pytest
 import pandas as pd
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
-from .utilstest import list_equal, check_attribute_on_channel
+
 def test_underspecified_no_vis(test_recs):
 	no_vis_actions = ["Correlation", "Distribution", "Occurrence","Temporal"]
 	df = pd.read_csv("lux/data/car.csv")
@@ -229,3 +243,11 @@ def test_remove_all_invalid():
 	df.set_intent([lux.Clause(attribute = "Origin", filter_op="=",value="USA"),lux.Clause(attribute = "Origin")])
 	df._repr_html_()
 	assert len(df.current_vis)==0
+
+def list_equal(l1, l2):
+    l1.sort()
+    l2.sort()
+    return l1==l2
+
+def check_attribute_on_channel(vis, attr_name, channelName):
+	assert vis.get_attr_by_channel(channelName)[0].attribute == attr_name

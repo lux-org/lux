@@ -1,3 +1,17 @@
+#  Copyright 2019-2020 The Lux Authors.
+# 
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 import pandas as pd
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
@@ -281,22 +295,25 @@ class PandasExecutor(Executor):
             # elif any(var in str(attr).lower() for var in temporal_var_list):
             elif str(attr).lower() in temporal_var_list:
                 ldf.data_type_lookup[attr] = "temporal"
-            elif ldf.dtypes[attr] == "float64":
+            elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                 ldf.data_type_lookup[attr] = "quantitative"
             elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]): 
                 # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                 if (ldf.pre_aggregated):
                     if (ldf.cardinality[attr]==len(ldf)):
                         ldf.data_type_lookup[attr] = "nominal"
-                if ldf.cardinality[attr]/len(ldf) < 0.4 and ldf.cardinality[attr]<10: 
+                if ldf.cardinality[attr]/len(ldf) < 0.4 and ldf.cardinality[attr]<30: 
                     ldf.data_type_lookup[attr] = "nominal"
-                elif check_if_id_like(ldf,attr): 
-                    ldf.data_type_lookup[attr] = "id"
                 else:
                     ldf.data_type_lookup[attr] = "quantitative"
+                if check_if_id_like(ldf,attr): 
+                    ldf.data_type_lookup[attr] = "id"
             # Eliminate this clause because a single NaN value can cause the dtype to be object
-            elif ldf.dtypes[attr] == "object":
-                ldf.data_type_lookup[attr] = "nominal"
+            elif pd.api.types.is_object_dtype(ldf.dtypes[attr]):
+                if check_if_id_like(ldf,attr): 
+                    ldf.data_type_lookup[attr] = "id"
+                else:
+                    ldf.data_type_lookup[attr] = "nominal"
             elif is_datetime_series(ldf.dtypes[attr]): #check if attribute is any type of datetime dtype
                 ldf.data_type_lookup[attr] = "temporal"
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
@@ -329,7 +346,7 @@ class PandasExecutor(Executor):
     def compute_data_model(self, ldf:LuxDataFrame):
         ldf.data_model = {
             "measure": ldf.data_type["quantitative"],
-            "dimension": ldf.data_type["ordinal"] + ldf.data_type["nominal"] + ldf.data_type["temporal"]
+            "dimension": ldf.data_type["ordinal"] + ldf.data_type["nominal"] + ldf.data_type["temporal"]  + ldf.data_type["id"]
         }
         ldf.data_model_lookup = self.reverseMapping(ldf.data_model)
 
