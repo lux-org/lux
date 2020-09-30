@@ -476,7 +476,8 @@ class LuxDataFrame(pd.DataFrame):
 						"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
 						, stacklevel=2)
 			return []
-		exported_vis_lst =self._widget._exportedVisIdxs
+		self.removeDeletedRecs()
+		exported_vis_lst = self._widget._exportedVisIdxs
 		exported_vis = [] 
 		if (exported_vis_lst=={}):
 			warnings.warn(
@@ -504,6 +505,12 @@ class LuxDataFrame(pd.DataFrame):
 				"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
 				,stacklevel=2)
 			return []
+
+	def removeDeletedRecs(self):
+		for action in self._widget.deletedIndices:
+			for index in self._widget.deletedIndices[action]:
+				self.recommendation[action].remove_index(index)
+		self._widget.deletedIndices = {}
 
 	def _repr_html_(self):
 		from IPython.display import display
@@ -668,7 +675,7 @@ class LuxDataFrame(pd.DataFrame):
 				# delete DataObjectCollection since not JSON serializable
 				del rec_lst[idx]["collection"]
 		return rec_lst
-	
+
 	# Overridden Pandas Functions
 	def head(self, n: int = 5):
 		self._prev = self

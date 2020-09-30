@@ -79,6 +79,10 @@ class VisList():
 		Removes duplicate visualizations in Vis List
 		"""		
 		self._collection = list(set(self._collection))
+
+	def remove_index(self, index):
+		self._collection.pop(index)
+	
 	def _is_vis_input(self):
 		if (type(self._input_lst[0])==Vis):
 			return True
