@@ -51,6 +51,7 @@ def univariate(ldf, data_type_constraint="quantitative"):
 	vlist = VisList(intent,ldf)
 	for vis in vlist:
 		vis.score = interestingness(vis,ldf)
-	vlist = vlist.topK(15)
+	# vlist = vlist.topK(15) # Basic visualizations should not be capped
+	vlist.sort()
 	recommendation["collection"] = vlist
 	return recommendation
