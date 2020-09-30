@@ -95,10 +95,10 @@ class LuxDataFrame(pd.DataFrame):
 	#     super(LuxDataFrame, self).__finalize__(other,method,**kwargs)
 	#     self.expire_metadata()
 	def __getattr__(self, name):
-		ret_val = super(LuxDataFrame, self).__getattr__(name)
+		ret_value = super(LuxDataFrame, self).__getattr__(name)
 		self.expire_metadata()
 		self.expire_recs()
-		return ret_val
+		return ret_value
 	def _set_axis(self, axis, labels):
 		super(LuxDataFrame, self)._set_axis(axis, labels)
 		self.expire_metadata()
@@ -569,7 +569,6 @@ class LuxDataFrame(pd.DataFrame):
 		except(KeyboardInterrupt,SystemExit):
 			raise
 		except:
-			raise
 			warnings.warn(
 					"\nUnexpected error in rendering Lux widget and recommendations. "
 					"Falling back to Pandas display.\n\n" 
