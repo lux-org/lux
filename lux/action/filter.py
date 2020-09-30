@@ -66,7 +66,7 @@ def filter(ldf):
 			output.append(temp_vis)
 
 	else:	#if no existing filters, create filters using unique values from all categorical variables in the dataset
-		intended_attrs = '<b>'+', '.join([clause.attribute for clause in ldf._intent if clause.value=='' and clause.attribute!="Record"])+'</b>'
+		intended_attrs = ', '.join([clause.attribute for clause in ldf._intent if clause.value=='' and clause.attribute!="Record"])
 		recommendation = {"action":"Filter",
 					 "description":f"Applying filters to the <p class='highlight-intent'>{intended_attrs}</p> intent."}
 		categorical_vars = []

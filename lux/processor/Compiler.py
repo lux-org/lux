@@ -132,6 +132,8 @@ class Compiler:
 				if (clause.attribute!="" and clause.attribute!="Record"):# and not is_datetime_string(clause.attribute):
 					# if (clause.data_type == ""):
 					clause.data_type = ldf.data_type_lookup[clause.attribute]
+					if (clause.data_type=="id"):
+						clause.data_type = "nominal"
 					# if (clause.data_model == ""):
 					clause.data_model = ldf.data_model_lookup[clause.attribute]
 				if (clause.value!=""):

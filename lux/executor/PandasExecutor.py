@@ -253,10 +253,11 @@ class PandasExecutor(Executor):
             result = result.rename(columns={x_attr.attribute:"z"})
             result = result[result["z"]!=0]
 
-            result.loc[:,"xBinStart"] = result["xBin"].apply(lambda x: x.left)
+            # convert type to facilitate weighted correlation interestingess calculation
+            result.loc[:,"xBinStart"] = result["xBin"].apply(lambda x: x.left).astype('float') 
             result.loc[:,"xBinEnd"] = result["xBin"].apply(lambda x: x.right)
 
-            result.loc[:,"yBinStart"] = result["yBin"].apply(lambda x: x.left)
+            result.loc[:,"yBinStart"] = result["yBin"].apply(lambda x: x.left).astype('float')
             result.loc[:,"yBinEnd"] = result["yBin"].apply(lambda x: x.right)
 
             vis._vis_data = result.drop(columns=["xBin","yBin"])
@@ -277,24 +278,28 @@ class PandasExecutor(Executor):
             if (isinstance(attr,pd._libs.tslibs.timestamps.Timestamp)): 
                 # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
                 ldf.data_type_lookup[attr] = "temporal"
-            elif any(var in str(attr).lower() for var in temporal_var_list):
+            # elif any(var in str(attr).lower() for var in temporal_var_list):
+            elif str(attr).lower() in temporal_var_list:
                 ldf.data_type_lookup[attr] = "temporal"
-            elif ldf.dtypes[attr] == "float64":
+            elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                 ldf.data_type_lookup[attr] = "quantitative"
             elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]): 
                 # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                 if (ldf.pre_aggregated):
                     if (ldf.cardinality[attr]==len(ldf)):
                         ldf.data_type_lookup[attr] = "nominal"
-                if ldf.cardinality[attr]/len(ldf) < 0.4 and ldf.cardinality[attr]<10: 
+                if ldf.cardinality[attr]/len(ldf) < 0.4 and ldf.cardinality[attr]<30: 
                     ldf.data_type_lookup[attr] = "nominal"
-                elif check_if_id_like(ldf,attr): 
-                    ldf.data_type_lookup[attr] = "id"
                 else:
                     ldf.data_type_lookup[attr] = "quantitative"
+                if check_if_id_like(ldf,attr): 
+                    ldf.data_type_lookup[attr] = "id"
             # Eliminate this clause because a single NaN value can cause the dtype to be object
-            elif ldf.dtypes[attr] == "object":
-                ldf.data_type_lookup[attr] = "nominal"
+            elif pd.api.types.is_object_dtype(ldf.dtypes[attr]):
+                if check_if_id_like(ldf,attr): 
+                    ldf.data_type_lookup[attr] = "id"
+                else:
+                    ldf.data_type_lookup[attr] = "nominal"
             elif is_datetime_series(ldf.dtypes[attr]): #check if attribute is any type of datetime dtype
                 ldf.data_type_lookup[attr] = "temporal"
             else:
@@ -329,7 +334,7 @@ class PandasExecutor(Executor):
     def compute_data_model(self, ldf:LuxDataFrame):
         ldf.data_model = {
             "measure": ldf.data_type["quantitative"],
-            "dimension": ldf.data_type["nominal"] + ldf.data_type["temporal"]
+            "dimension": ldf.data_type["nominal"] + ldf.data_type["temporal"]  + ldf.data_type["id"]
         }
         ldf.data_model_lookup = self.reverseMapping(ldf.data_model)
 
