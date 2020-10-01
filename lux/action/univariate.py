@@ -27,7 +27,7 @@ def univariate(ldf, data_type_constraint="quantitative"):
 	filter_specs = utils.get_filter_specs(ldf._intent)
 	ignore_rec_flag = False
 	if (data_type_constraint== "quantitative"):
-		intent = [lux.Clause("?",data_type="quantitative",exclude="Number of Records")]
+		intent = [lux.Clause("?",data_type="quantitative", exclude=[c for c in ldf.columns if ldf[c].nunique() < 5] + ["Number of Records"])]
 		intent.extend(filter_specs)
 		recommendation = {"action":"Distribution",
 						  "description":"Show univariate histograms of <p class='highlight-descriptor'>quantitative</p>  attributes."}
