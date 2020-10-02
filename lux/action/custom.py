@@ -33,7 +33,7 @@ def custom(ldf):
     vlist.sort(remove_invalid=True)
     return recommendation
 
-def custom_action(ldf):
+def custom_actions(ldf):
     if (actions.__len__() > 0):
         recommendations = []
         for action_name in actions.__dir__():

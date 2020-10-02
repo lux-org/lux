@@ -420,7 +420,7 @@ class LuxDataFrame(pd.DataFrame):
 				lux.register_action("custom", custom, multiple_current_vis)
 
 				if (actions.__len__() > 0):
-					custom_action_collection = custom_action(rec_df)
+					custom_action_collection = custom_actions(rec_df)
 					for rec in custom_action_collection:
 						rec_df._append_rec(rec_infolist, rec)
 				

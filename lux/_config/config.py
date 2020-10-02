@@ -104,4 +104,3 @@ def is_callable(obj) -> bool:
 	if not callable(obj):
 		raise ValueError("Value must be a callable")
 	return True
-
