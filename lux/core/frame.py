@@ -107,6 +107,10 @@ class LuxDataFrame(pd.DataFrame):
 		super(LuxDataFrame, self)._update_inplace(*args,**kwargs)
 		self.expire_metadata()
 		self.expire_recs()
+	def _set_item(self, key, value):
+		super(LuxDataFrame, self)._set_item(key, value)
+		self.expire_metadata()
+		self.expire_recs()
 	@property
 	def default_display(self):
 		if (self._default_pandas_display):
