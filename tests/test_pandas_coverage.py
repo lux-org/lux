@@ -106,13 +106,14 @@ def test_groupby_agg():
     assert list(new_df.recommendation.keys() ) == ['Column Groups']
     assert len(new_df.cardinality) == 7
 
-def test_cut():
+def test_qcut():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
-    # TypeError: Object of type Interval is not JSON serializable
-    # df["Weight"] = pd.qcut(df["Weight"], q = 3)
-    # df._repr_html_()
+    df["Weight"] = pd.qcut(df["Weight"], q = 3)
+    df._repr_html_()
 
+def test_cut():
+    df = pd.read_csv("lux/data/car.csv")
     df["Weight"] = pd.cut(df["Weight"], bins = [0, 2500, 7500, 10000], labels = ["small", "medium", "large"])
     df._repr_html_()
 # def test_groupby_agg_very_small():
