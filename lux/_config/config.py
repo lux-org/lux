@@ -5,7 +5,7 @@ For more resources, see https://github.com/pandas-dev/pandas/blob/master/pandas/
 from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
-RegisteredOption = namedtuple("RegisteredOption", "key function validator")
+RegisteredOption = namedtuple("RegisteredOption", "key function validator args")
 
 # holds registered option metadata
 _registered_actions: Dict[str, RegisteredOption] = {}
@@ -64,11 +64,10 @@ def register_action(
     key: str = "",
     function: Optional[Callable[[Any], Any]] = None,
     validator: Optional[Callable[[Any], Any]] = None,
+    *args,
 ) -> None:
 
 	key = key.lower()
-	if key in _registered_actions:
-		raise ValueError(f"Option '{key}' has already been registered")
 	if function:
 		if not is_callable(function):
 			raise ValueError(f"{k} is a python keyword")
@@ -78,10 +77,9 @@ def register_action(
 	if validator:
 		if not is_callable(validator):
 			raise ValueError(f"{k} is a python keyword")
-
 	_registered_actions[key] = RegisteredOption(
-        key=key, function=function, validator=validator
-    )
+		key=key, function=function, validator=validator, args=args
+	)
 
 def remove_action(
     key: str = "",

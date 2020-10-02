@@ -35,14 +35,18 @@ def custom(ldf):
 
 def custom_action(ldf):
     if (actions.__len__() > 0):
+        recommendations = []
         for action_name in actions.__dir__():
-            validator = actions.__getattr__(action_name).validator(ldf)
-            if validator:
-                function = actions.__getattr__(action_name).function(ldf)
+            validator = actions.__getattr__(action_name).validator 
+            if validator is None or (validator is not None and validator(ldf)):
+                args = actions.__getattr__(action_name).args
+                if args:
+                    function = actions.__getattr__(action_name).function(ldf, args)
+                else:
+                    function = actions.__getattr__(action_name).function(ldf)
                 recommendation = {"action":function["action"], "description":function["description"]}
                 recommendation["collection"] = function["collection"]
-                return recommendation
-            else:
-                return None
+                recommendations.append(recommendation)
+        return recommendations
     else:
-        return None
+        return []

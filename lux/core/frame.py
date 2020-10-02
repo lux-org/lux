@@ -369,7 +369,7 @@ class LuxDataFrame(pd.DataFrame):
 	def maintain_recs(self):
 		# `rec_df` is the dataframe to generate the recommendations on
 		if (actions.__len__() > 0):
-			self.expire_recs()
+			self._recs_fresh = False
 		show_prev = False # flag indicating whether rec_df is showing previous df or current self
 		if self._prev is not None:
 			rec_df = self._prev
@@ -388,6 +388,7 @@ class LuxDataFrame(pd.DataFrame):
 		
 		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that recs has not yet been computed
 			rec_infolist = []
+			import lux
 			from lux.action.custom import custom
 			from lux.action.custom import custom_action
 			from lux.action.correlation import correlation
@@ -403,29 +404,25 @@ class LuxDataFrame(pd.DataFrame):
 				if (rec_df.index.name is not None):
 					rec_df._append_rec(rec_infolist, column_group(rec_df))
 			else:
-				if (rec_df.current_vis is None):
-					no_vis = True
-					one_current_vis = False
-					multiple_current_vis = False
-				else:
-					no_vis = len(rec_df.current_vis) == 0
-					one_current_vis = len(rec_df.current_vis) == 1
-					multiple_current_vis = len(rec_df.current_vis) > 1
+				no_vis = lambda ldf: (ldf.current_vis is None and ldf.intent is None) or (ldf.current_vis is not None and len(ldf.current_vis) == 0)
+				one_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
+				multiple_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
+
+				lux.register_action("correlation", correlation, no_vis)
+				lux.register_action("distribution", univariate, no_vis, "quantitative")
+				lux.register_action("occurrence", univariate, no_vis, "nominal")
+				lux.register_action("temporal", univariate, no_vis, "temporal")
+
+				lux.register_action("enhance", enhance, one_current_vis)
+				lux.register_action("filter", filter, one_current_vis)
+				lux.register_action("generalize", generalize, one_current_vis)
+
+				lux.register_action("custom", custom, multiple_current_vis)
+
 				if (actions.__len__() > 0):
 					custom_action_collection = custom_action(rec_df)
-					if custom_action_collection is not None:
-						rec_df._append_rec(rec_infolist, custom_action_collection)
-				if (no_vis):
-					rec_df._append_rec(rec_infolist, correlation(rec_df))
-					rec_df._append_rec(rec_infolist, univariate(rec_df,"quantitative"))
-					rec_df._append_rec(rec_infolist, univariate(rec_df,"nominal"))
-					rec_df._append_rec(rec_infolist, univariate(rec_df,"temporal"))
-				elif (one_current_vis):
-					rec_df._append_rec(rec_infolist, enhance(rec_df))
-					rec_df._append_rec(rec_infolist, filter(rec_df))
-					rec_df._append_rec(rec_infolist, generalize(rec_df))
-				elif (multiple_current_vis):
-					rec_df._append_rec(rec_infolist, custom(rec_df))
+					for rec in custom_action_collection:
+						rec_df._append_rec(rec_infolist, rec)
 				
 			# Store _rec_info into a more user-friendly dictionary form
 			rec_df.recommendation = {}
@@ -568,13 +565,13 @@ class LuxDataFrame(pd.DataFrame):
 				on_button_clicked(None)
 		except(KeyboardInterrupt,SystemExit):
 			raise
-		except:
-			warnings.warn(
-					"\nUnexpected error in rendering Lux widget and recommendations. "
-					"Falling back to Pandas display.\n\n" 
-					"Please report this issue on Github: https://github.com/lux-org/lux/issues "
-				,stacklevel=2)
-			display(self.display_pandas())
+		# except:
+			# warnings.warn(
+			# 		"\nUnexpected error in rendering Lux widget and recommendations. "
+			# 		"Falling back to Pandas display.\n\n" 
+			# 		"Please report this issue on Github: https://github.com/lux-org/lux/issues "
+			# 	,stacklevel=2)
+			# display(self.display_pandas())
 	def display_pandas(self):
 		return self.to_pandas()
 	def render_widget(self, renderer:str ="altair", input_current_vis=""):
