@@ -390,7 +390,7 @@ class LuxDataFrame(pd.DataFrame):
 			rec_infolist = []
 			import lux
 			from lux.action.custom import custom
-			from lux.action.custom import custom_action
+			from lux.action.custom import custom_actions
 			from lux.action.correlation import correlation
 			from lux.action.univariate import univariate
 			from lux.action.enhance import enhance
