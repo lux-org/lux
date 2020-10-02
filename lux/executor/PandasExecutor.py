@@ -316,6 +316,8 @@ class PandasExecutor(Executor):
                     ldf.data_type_lookup[attr] = "nominal"
             elif is_datetime_series(ldf.dtypes[attr]): #check if attribute is any type of datetime dtype
                 ldf.data_type_lookup[attr] = "temporal"
+            else:
+                ldf.data_type_lookup[attr] = "nominal" 
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         #   if self.cardinality[attr]>50:
         if (ldf.index.dtype !='int64' and ldf.index.name):
@@ -346,7 +348,7 @@ class PandasExecutor(Executor):
     def compute_data_model(self, ldf:LuxDataFrame):
         ldf.data_model = {
             "measure": ldf.data_type["quantitative"],
-            "dimension": ldf.data_type["ordinal"] + ldf.data_type["nominal"] + ldf.data_type["temporal"]  + ldf.data_type["id"]
+            "dimension": ldf.data_type["nominal"] + ldf.data_type["temporal"]  + ldf.data_type["id"]
         }
         ldf.data_model_lookup = self.reverseMapping(ldf.data_model)
 

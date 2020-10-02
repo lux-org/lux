@@ -52,7 +52,7 @@ class Executor:
 
     def mapping(self, rmap):
         group_map = {}
-        for val in ["quantitative", "id", "ordinal", "nominal", "temporal"]:
+        for val in ["quantitative", "id", "nominal", "temporal"]:
             group_map[val] = list(filter(lambda x: rmap[x] == val, rmap))
         return group_map
 

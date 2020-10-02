@@ -43,7 +43,7 @@ def filter(ldf):
 		#get unique values for all categorical values specified and creates corresponding filters
 		fltr = filters[0]
 		
-		if (ldf.data_type_lookup[fltr.attribute]=="ordinal" or ldf.data_type_lookup[fltr.attribute]=="nominal"):
+		if (ldf.data_type_lookup[fltr.attribute]=="nominal"):
 			recommendation = {"action":"Filter",
 							"description":f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative value."}
 			unique_values = ldf.unique_values[fltr.attribute]

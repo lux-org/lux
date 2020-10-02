@@ -50,7 +50,8 @@ class AltairRenderer:
 				if pd.api.types.is_period_dtype(vis.data.dtypes[attr]) or isinstance(vis.data[attr].iloc[0], pd.Period):
 					dateColumn = vis.data[attr]
 					vis.data[attr] = pd.PeriodIndex(dateColumn.values).to_timestamp()
-		
+				if pd.api.types.is_interval_dtype(vis.data.dtypes[attr]) or isinstance(vis.data[attr].iloc[0], pd.Interval):
+					vis.data[attr] = vis.data[attr].astype(str)
 		if (vis.mark =="histogram"):
 			chart = Histogram(vis)
 		elif (vis.mark =="bar"):
