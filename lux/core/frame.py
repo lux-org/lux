@@ -7,7 +7,7 @@ from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
-from typing import Optional, Dict, Union, List, Callable
+from typing import Dict, Union, List, Callable
 import warnings
 import lux
 class LuxDataFrame(pd.DataFrame):
