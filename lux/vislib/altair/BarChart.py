@@ -49,14 +49,22 @@ class BarChart(AltairChart):
 		else:
 			agg_title = get_agg_title(y_attr)
 			measure_attr = y_attr.attribute
-			x_attr_field = alt.X(x_attr.attribute, type = x_attr.data_type,axis=alt.Axis(labelOverlap=True))
-			y_attr_field = alt.Y(y_attr.attribute,type=y_attr.data_type,title=agg_title)
+			x_attr_field = alt.X(x_attr.attribute, type=x_attr.data_type, axis=alt.Axis(labelOverlap=True))
+			y_attr_field = alt.Y(y_attr.attribute, type=y_attr.data_type, title=agg_title)
 			x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
 			y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', title='{agg_title}')"
 			if (x_attr.sort=="ascending"):
 				x_attr_field.sort="-y"
 				x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True),sort='-y')"
-		
+
+		# uses y_attr if no color_attr is set
+		color_attr = y_attr
+		color_attrs = self.vis.get_attr_by_channel("color")
+		if len(color_attrs) > 0:
+			color_attr = color_attrs[0]
+		color_attr_field = alt.Color(color_attr.attribute, type=color_attr.data_type)
+		color_attr_field_code = f"alt.Color('{color_attr.attribute}', type= '{color_attr.data_type}')"
+
 		k=10
 		topK_code = ""
 		if len(self.data)>k: # Truncating to only top k
@@ -84,7 +92,8 @@ class BarChart(AltairChart):
 		
 		chart = alt.Chart(self.data).mark_bar().encode(
 			    y = y_attr_field,
-			    x = x_attr_field
+			    x = x_attr_field,
+					color = color_attr_field
 			)
 		if (topK_code!=""):
 			chart = chart + text
@@ -100,6 +109,7 @@ class BarChart(AltairChart):
 		chart = alt.Chart(visData).mark_bar().encode(
 		    y = {y_attr_field_code},
 		    x = {x_attr_field_code},
+				color = {color_attr_field_code}
 		)
 		{topK_code}
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
