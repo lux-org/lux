@@ -93,7 +93,7 @@ class BarChart(AltairChart):
 		chart = alt.Chart(self.data).mark_bar().encode(
 			    y = y_attr_field,
 			    x = x_attr_field,
-					color = color_attr_field
+			    color = color_attr_field
 			)
 		if (topK_code!=""):
 			chart = chart + text
@@ -109,7 +109,7 @@ class BarChart(AltairChart):
 		chart = alt.Chart(visData).mark_bar().encode(
 		    y = {y_attr_field_code},
 		    x = {x_attr_field_code},
-				color = {color_attr_field_code}
+		    color = {color_attr_field_code}
 		)
 		{topK_code}
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
