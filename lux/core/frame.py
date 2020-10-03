@@ -7,12 +7,9 @@ from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
-from lux._config.config import actions
-
-#import for benchmarking
-import time
 from typing import Optional, Dict, Union, List, Callable
 import warnings
+import lux
 class LuxDataFrame(pd.DataFrame):
 	'''
 	A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
@@ -368,7 +365,7 @@ class LuxDataFrame(pd.DataFrame):
 			rec_infolist.append(recommendations)
 	def maintain_recs(self):
 		# `rec_df` is the dataframe to generate the recommendations on
-		if (actions.__len__() > 0):
+		if (lux.actions.__len__() > 0):
 			self._recs_fresh = False
 		show_prev = False # flag indicating whether rec_df is showing previous df or current self
 		if self._prev is not None:
@@ -388,7 +385,6 @@ class LuxDataFrame(pd.DataFrame):
 		
 		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that recs has not yet been computed
 			rec_infolist = []
-			import lux
 			from lux.action.custom import custom
 			from lux.action.custom import custom_actions
 			from lux.action.correlation import correlation
@@ -419,7 +415,7 @@ class LuxDataFrame(pd.DataFrame):
 
 				lux.register_action("custom", custom, multiple_current_vis)
 
-				if (actions.__len__() > 0):
+				if (lux.actions.__len__() > 0):
 					custom_action_collection = custom_actions(rec_df)
 					for rec in custom_action_collection:
 						rec_df._append_rec(rec_infolist, rec)

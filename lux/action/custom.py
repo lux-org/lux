@@ -2,9 +2,6 @@ from lux.interestingness.interestingness import interestingness
 import lux
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.executor.SQLExecutor import SQLExecutor
-from lux._config.config import actions
-#for benchmarking
-import time
 
 def custom(ldf):
     '''
@@ -34,16 +31,16 @@ def custom(ldf):
     return recommendation
 
 def custom_actions(ldf):
-    if (actions.__len__() > 0):
+    if (lux.actions.__len__() > 0):
         recommendations = []
-        for action_name in actions.__dir__():
-            validator = actions.__getattr__(action_name).validator 
+        for action_name in lux.actions.__dir__():
+            validator = lux.actions.__getattr__(action_name).validator 
             if validator is None or (validator is not None and validator(ldf)):
-                args = actions.__getattr__(action_name).args
+                args = lux.actions.__getattr__(action_name).args
                 if args:
-                    function = actions.__getattr__(action_name).function(ldf, args)
+                    function = lux.actions.__getattr__(action_name).function(ldf, args)
                 else:
-                    function = actions.__getattr__(action_name).function(ldf)
+                    function = lux.actions.__getattr__(action_name).function(ldf)
                 recommendation = {"action":function["action"], "description":function["description"]}
                 recommendation["collection"] = function["collection"]
                 recommendations.append(recommendation)
