@@ -516,8 +516,10 @@ class LuxDataFrame(pd.DataFrame):
 
 	def removeDeletedRecs(self):
 		for action in self._widget.deletedIndices:
+			deletedSoFar = 0
 			for index in self._widget.deletedIndices[action]:
-				self.recommendation[action].remove_index(index)
+				self.recommendation[action].remove_index(index - deletedSoFar)
+				deletedSoFar += 1
 		self._widget.deletedIndices = {}
 
 	def _repr_html_(self):
