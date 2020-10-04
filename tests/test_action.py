@@ -88,7 +88,7 @@ def test_crosstab():
 	'Result':['Pass','Pass','Fail','Pass','Fail','Pass','Pass','Fail','Fail','Pass','Pass','Fail']}
 	
 	df = pd.DataFrame(d,columns=['Name','Exam','Subject','Result'])
-	result = pd.crosstab([df["Exam"]],df["Result"])
+	result = pd.crosstab([df.Exam],df.Result)
 	result._repr_html_()
 	assert list(result.recommendation.keys() ) == ['Row Groups','Column Groups']
 

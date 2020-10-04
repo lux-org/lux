@@ -103,15 +103,20 @@ class LuxDataFrame(pd.DataFrame):
 	## Override Pandas ##
 	#####################
 	def __getattr__(self, name):
-		super(LuxDataFrame, self).__getattr__(name)
+		ret_value = super(LuxDataFrame, self).__getattr__(name)
 		self.expire_metadata()
 		self.expire_recs()
+		return ret_value
 	def _set_axis(self, axis, labels):
 		super(LuxDataFrame, self)._set_axis(axis, labels)
 		self.expire_metadata()
 		self.expire_recs()
 	def _update_inplace(self,*args,**kwargs):
 		super(LuxDataFrame, self)._update_inplace(*args,**kwargs)
+		self.expire_metadata()
+		self.expire_recs()
+	def _set_item(self, key, value):
+		super(LuxDataFrame, self)._set_item(key, value)
 		self.expire_metadata()
 		self.expire_recs()
 	@property
@@ -353,7 +358,7 @@ class LuxDataFrame(pd.DataFrame):
 			datatype = list(pd.read_sql(datatype_query, self.SQLconnection)['data_type'])[0]
 			sql_dtypes[attr] = datatype
 
-		data_type = {"quantitative":[], "ordinal":[], "nominal":[], "temporal":[]}
+		data_type = {"quantitative":[], "nominal":[], "temporal":[]}
 		for attr in list(self.columns):
 			if str(attr).lower() in ["month", "year"]:
 				data_type_lookup[attr] = "temporal"
