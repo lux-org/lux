@@ -29,13 +29,14 @@ class LuxDataFrame(pd.DataFrame):
 	# MUST register here for new properties!!
 	_metadata = ['_intent','data_type_lookup','data_type',
 				 'data_model_lookup','data_model','unique_values','cardinality','_rec_info', '_pandas_only',
-				'_min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev','_history']
+				'_min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev','_history', '_saved_export']
 
 	def __init__(self,*args, **kw):
 		from lux.executor.PandasExecutor import PandasExecutor
 		self._history = History()
 		self._intent = []
 		self._recommendation = {}
+		self._saved_export = None
 		self._current_vis = []
 		self._prev = None
 		super(LuxDataFrame, self).__init__(*args, **kw)
@@ -489,10 +490,11 @@ class LuxDataFrame(pd.DataFrame):
 						"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
 						, stacklevel=2)
 			return []
-		self.removeDeletedRecs()
 		exported_vis_lst = self._widget._exportedVisIdxs
 		exported_vis = [] 
 		if (exported_vis_lst=={}):
+			if self._saved_export:
+				return self._saved_export
 			warnings.warn(
 				"\nNo visualization selected to export.\n"
 				"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
@@ -511,6 +513,7 @@ class LuxDataFrame(pd.DataFrame):
 		elif len(exported_vis_lst) == 1 and ("currentVis" not in exported_vis_lst): 
 			export_action = list(exported_vis_lst.keys())[0]
 			exported_vis = VisList(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
+			self._saved_export = exported_vis
 			return exported_vis
 		else:
 			warnings.warn(
@@ -519,13 +522,12 @@ class LuxDataFrame(pd.DataFrame):
 				,stacklevel=2)
 			return []
 
-	def removeDeletedRecs(self):
+	def removeDeletedRecs(self, change):
 		for action in self._widget.deletedIndices:
 			deletedSoFar = 0
 			for index in self._widget.deletedIndices[action]:
 				self.recommendation[action].remove_index(index - deletedSoFar)
 				deletedSoFar += 1
-		self._widget.deletedIndices = {}
 
 	def _repr_html_(self):
 		from IPython.display import display
@@ -566,6 +568,9 @@ class LuxDataFrame(pd.DataFrame):
 				
 				# df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
 				self.maintain_recs()
+
+				#Observers(callback_function, listen_to_this_variable)
+				self._widget.observe(self.removeDeletedRecs, names='deletedIndices')
 
 				# box = widgets.Box(layout=widgets.Layout(display='inline'))
 				button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
