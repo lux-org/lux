@@ -346,11 +346,18 @@ class PandasExecutor(Executor):
                 attribute_repr = str(attribute._date_repr)
             else:
                 attribute_repr = attribute
-            if ldf.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
-                ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
-                ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
-            else:   
-                ldf.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
+            
+            ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+            ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
+            
+            # commenting this optimization out to make sure I can filter by cardinality when showing recommended vis
+
+            # if ldf.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
+            #     ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+            #     ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
+            # else:   
+            #     ldf.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
+            
             if ldf.dtypes[attribute] == "float64" or ldf.dtypes[attribute] == "int64":
                 ldf._min_max[attribute_repr] = (ldf[attribute].min(), ldf[attribute].max())
         if (ldf.index.dtype !='int64'):

@@ -23,7 +23,7 @@ class Histogram(AltairChart):
 
 		x_range = abs(max(self.vis.data[msr_attr.attribute]) - 
 			min(self.vis.data[msr_attr.attribute]))
-		plot_range = abs(x_max - x_min)
+		plot_range = x_max - x_min
 		markbar = x_range / plot_range * 12
 
 		if (measure.channel=="x"):	

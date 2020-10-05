@@ -272,6 +272,7 @@ class VisList():
 							compiled_collection.append(vis)
 					self._collection = compiled_collection
 				else:
+					
 					self._inferred_intent = Parser.parse(self._intent)
 					Validator.validate_intent(self._inferred_intent,ldf)
 					self._collection = Compiler.compile_intent(ldf,self._inferred_intent)
