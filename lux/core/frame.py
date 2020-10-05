@@ -389,7 +389,7 @@ class LuxDataFrame(pd.DataFrame):
 			rec_df._message = Message()	
 			rec_df.maintain_metadata() # the prev dataframe may not have been printed before
 			last_event = self.history._events[-1].name
-			rec_df._message.append(f"Lux is visualizing the previous version of the dataframe before you applied <code>{last_event}</code>.")
+			rec_df._message.add(f"Lux is visualizing the previous version of the dataframe before you applied <code>{last_event}</code>.")
 			show_prev = True
 		else:
 			rec_df = self
@@ -399,7 +399,7 @@ class LuxDataFrame(pd.DataFrame):
 		if (len(rec_df.data_type["id"])>0):
 			for id_field in rec_df.data_type["id"]: id_fields_str += f"<code>{id_field}</code>, "
 			id_fields_str = id_fields_str[:-2]
-			rec_df._message.append(f"{id_fields_str} is not visualized since it resembles an ID field.")
+			rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
 		rec_df._prev = None # reset _prev
 		
 		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that recs has not yet been computed

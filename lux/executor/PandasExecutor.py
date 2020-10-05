@@ -70,6 +70,7 @@ class PandasExecutor(Executor):
                     if (ldf._sampled is None): # memoize unfiltered sample df 
                         ldf._sampled = vis.data.sample(frac=0.75 , random_state = 1)
                     vis._vis_data = ldf._sampled
+                ldf._message.add_unique(f"Large dataframe detected: Lux is only visualizing a random sample of {len(vis._vis_data)} rows.", priority=99)
             # TODO: Add some type of cap size on Nrows ?
             vis._vis_data = vis.data[list(attributes)]
             if (vis.mark =="bar" or vis.mark =="line"):
