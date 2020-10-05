@@ -62,8 +62,12 @@ class BarChart(AltairChart):
 		color_attrs = self.vis.get_attr_by_channel("color")
 		if len(color_attrs) > 0:
 			color_attr = color_attrs[0]
-		color_attr_field = alt.Color(color_attr.attribute, type=color_attr.data_type)
-		color_attr_field_code = f"alt.Color('{color_attr.attribute}', type= '{color_attr.data_type}')"
+			color_attr_field = alt.Color(color_attr.attribute, type=color_attr.data_type, legend=None)
+			color_attr_field_code = f"alt.Color('{color_attr.attribute}', type= '{color_attr.data_type}', legend=None)"
+		else:
+			color_attr_field = alt.Color(color_attr.attribute, type=color_attr.data_type)
+			color_attr_field_code = f"alt.Color('{color_attr.attribute}', type= '{color_attr.data_type}')"
+
 
 		k=10
 		topK_code = ""
