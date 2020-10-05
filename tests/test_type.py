@@ -79,3 +79,23 @@ def test_check_airbnb():
 								'reviews_per_month': 'quantitative',
 								'calculated_host_listings_count': 'quantitative',
 								'availability_365': 'quantitative'}
+
+def test_check_college():
+	df = pd.read_csv('lux/data/college.csv')
+	df.maintain_metadata()
+	assert df.data_type_lookup == {'Name': 'nominal',
+									'PredominantDegree': 'nominal',
+									'HighestDegree': 'nominal',
+									'FundingModel': 'nominal',
+									'Region': 'nominal',
+									'Geography': 'nominal',
+									'AdmissionRate': 'quantitative',
+									'ACTMedian': 'quantitative',
+									'SATAverage': 'quantitative',
+									'AverageCost': 'quantitative',
+									'Expenditure': 'quantitative',
+									'AverageFacultySalary': 'quantitative',
+									'MedianDebt': 'quantitative',
+									'AverageAgeofEntry': 'quantitative',
+									'MedianFamilyIncome': 'quantitative',
+									'MedianEarnings': 'quantitative'}

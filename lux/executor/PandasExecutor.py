@@ -302,14 +302,14 @@ class PandasExecutor(Executor):
                 if (ldf.pre_aggregated):
                     if (ldf.cardinality[attr]==len(ldf)):
                         ldf.data_type_lookup[attr] = "nominal"
-                if ldf.cardinality[attr]/len(ldf) < 0.4 and ldf.cardinality[attr]<30: 
+                if ldf.cardinality[attr]/len(ldf) < 0.4 and ldf.cardinality[attr]<20: 
                     ldf.data_type_lookup[attr] = "nominal"
                 else:
                     ldf.data_type_lookup[attr] = "quantitative"
                 if check_if_id_like(ldf,attr): 
                     ldf.data_type_lookup[attr] = "id"
             # Eliminate this clause because a single NaN value can cause the dtype to be object
-            elif pd.api.types.is_object_dtype(ldf.dtypes[attr]):
+            elif pd.api.types.is_string_dtype(ldf.dtypes[attr]):
                 if check_if_id_like(ldf,attr): 
                     ldf.data_type_lookup[attr] = "id"
                 else:

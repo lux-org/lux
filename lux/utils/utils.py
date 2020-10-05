@@ -11,7 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+import pandas as pd
 def convert_to_list(x):
 	'''
 	"a" --> ["a"]
@@ -56,5 +56,15 @@ def check_if_id_like(df,attribute):
 	high_cardinality = df.cardinality[attribute]>500 # so that aggregated reset_index fields don't get misclassified
 	attribute_contain_id = re.search(r'id',attribute) is not None
 	almost_all_vals_unique = df.cardinality[attribute] >=0.98* len(df)
-	# TODO: Could probably add some type of entropy measure (since the binned id fields are usually very even)
-	return high_cardinality and (attribute_contain_id or almost_all_vals_unique)
+	is_string = pd.api.types.is_string_dtype(df[attribute])
+	if (is_string):
+		# For string IDs, usually serial numbers or codes with alphanumerics have a consistent length (eg., CG-39405) with little deviation. For a high cardinality string field but not ID field (like Name or Brand), there is less uniformity across the string lengths.
+		if (len(df)>10):
+			sampled = df[attribute].sample(10)
+		else: 
+			sampled = df[attribute]
+		str_length_uniformity = sampled.apply(lambda x: type(x)==str and len(x)).std() < 5
+		return high_cardinality and (attribute_contain_id or almost_all_vals_unique) and str_length_uniformity
+	else:
+		# TODO: Could probably add some type of entropy measure (since the binned id fields are usually very even)
+		return high_cardinality and (attribute_contain_id or almost_all_vals_unique)
