@@ -32,20 +32,15 @@ class Heatmap(AltairChart):
 		# return NotImplemented
 		x_attr = self.vis.get_attr_by_channel("x")[0]
 		y_attr = self.vis.get_attr_by_channel("y")[0]
-		# x_min = self.vis.min_max[x_attr.attribute][0]
-		# x_max = self.vis.min_max[x_attr.attribute][1]
-
-		# y_min = self.vis.min_max[y_attr.attribute][0]
-		# y_max = self.vis.min_max[y_attr.attribute][1]
 
 		chart = alt.Chart(self.data).mark_rect().encode(
 			x=alt.X('xBinStart', type='quantitative', axis=alt.Axis(title=x_attr.attribute), bin = alt.BinParams(binned=True)),
 			x2=alt.X2('xBinEnd'),
 			y=alt.Y('yBinStart', type='quantitative', axis=alt.Axis(title=y_attr.attribute), bin = alt.BinParams(binned=True)),
 			y2=alt.Y2('yBinEnd'),
-			#opacity = alt.Opacity('z',type='quantitative',scale=alt.Scale(type="log"))
-			color = alt.Color('z',type='quantitative', scale=alt.Scale(scheme='blues',type="log"),legend=None)
+			opacity = alt.Opacity('count',type='quantitative',scale=alt.Scale(type="log"),legend=None)
 		)
+		chart = chart.configure_scale(minOpacity=0.1,maxOpacity=1) 
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		chart = chart.interactive() # Enable Zooming and Panning
 
@@ -62,8 +57,7 @@ class Heatmap(AltairChart):
 			x2=alt.X2('xBinEnd'),
 			y=alt.Y('yBinStart', type='quantitative', axis=alt.Axis(title='{y_attr.attribute}'), bin = alt.BinParams(binned=True)),
 			y2=alt.Y2('yBinEnd'),
-			#opacity = alt.Opacity('z',type='quantitative',scale=alt.Scale(type="log"))
-			color = alt.Color('z',type='quantitative', scale=alt.Scale(scheme='blues',type="log"),legend=None)
+			opacity = alt.Opacity('count',type='quantitative',scale=alt.Scale(type="log"),legend=None)
 		)
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		'''

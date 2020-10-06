@@ -260,13 +260,30 @@ class PandasExecutor(Executor):
         with pd.option_context('mode.chained_assignment', None):
             x_attr = vis.get_attr_by_channel("x")[0]
             y_attr = vis.get_attr_by_channel("y")[0]
+            
+            vis._vis_data.loc[:,"xBin"] = pd.cut(vis._vis_data[x_attr.attribute], bins=50)
+            vis._vis_data.loc[:,"yBin"] = pd.cut(vis._vis_data[y_attr.attribute], bins=50)
 
-            vis._vis_data.loc[:,"xBin"] = pd.cut(vis._vis_data[x_attr.attribute], bins=30)
-            vis._vis_data.loc[:,"yBin"] = pd.cut(vis._vis_data[y_attr.attribute], bins=30)
-            groups = vis._vis_data.groupby(['xBin','yBin'])[x_attr.attribute]
-            result = groups.agg("count").reset_index() # .agg in this line throws SettingWithCopyWarning 
-            result = result.rename(columns={x_attr.attribute:"z"})
-            result = result[result["z"]!=0]
+            color_attr = vis.get_attr_by_channel("color")
+            if (len(color_attr)>0):
+                color_attr = color_attr[0]
+                groups = vis._vis_data.groupby(['xBin','yBin'])[color_attr.attribute]
+                if (color_attr.data_type == "nominal"):
+                    # Compute mode and count. Mode aggregates each cell by taking the majority vote for the category variable. In cases where there is ties across categories, pick the first item (.iat[0])
+                    result =  groups.agg([("count","count"),
+                                        (color_attr.attribute,lambda x: pd.Series.mode(x).iat[0])
+                                        ]).reset_index() 
+                elif (color_attr.data_type == "quantitative"):
+                    # Compute the average of all values in the bin
+                    result =  groups.agg([("count","count"),
+                                          (color_attr.attribute,"mean")
+                                        ]).reset_index() 
+                result = result.dropna()
+            else:
+                groups = vis._vis_data.groupby(['xBin','yBin'])[x_attr.attribute]
+                result = groups.agg("count").reset_index() # .agg in this line throws SettingWithCopyWarning 
+                result = result.rename(columns={x_attr.attribute:"count"})
+                result = result[result["count"]!=0]
 
             # convert type to facilitate weighted correlation interestingess calculation
             result.loc[:,"xBinStart"] = result["xBin"].apply(lambda x: x.left).astype('float') 

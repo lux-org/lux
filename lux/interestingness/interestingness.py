@@ -81,7 +81,7 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
 		if (vis.mark=="heatmap"):
-			return weighted_correlation(vis.data["xBinStart"],vis.data["yBinStart"],vis.data["z"])
+			return weighted_correlation(vis.data["xBinStart"],vis.data["yBinStart"],vis.data["count"])
 		if (v_size<2): return -1 
 		if (n_filter==1):
 			v_filter_size = get_filtered_size(filter_specs, vis.data)
