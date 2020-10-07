@@ -34,6 +34,22 @@ class PandasExecutor(Executor):
     def __repr__(self):
         return f"<PandasExecutor>"
     @staticmethod
+    def execute_sampling(ldf:LuxDataFrame):
+        # General Sampling for entire dataframe
+        SAMPLE_START = 10000
+        SAMPLE_CAP = 30000
+        SAMPLE_FRAC = 0.75
+        if len(ldf) > SAMPLE_CAP:
+            if (ldf._sampled is None): # memoize unfiltered sample df 
+                ldf._sampled = ldf.sample(n = SAMPLE_CAP , random_state = 1)
+            ldf._message.add_unique(f"Large dataframe detected: Lux is only visualizing a random sample capped at {SAMPLE_CAP} rows.", priority=99)
+        elif len(ldf) > SAMPLE_START:
+            if (ldf._sampled is None): # memoize unfiltered sample df 
+                ldf._sampled = ldf.sample(frac= SAMPLE_FRAC, random_state = 1)
+            ldf._message.add_unique(f"Large dataframe detected: Lux is only visualizing a random sample of {len(ldf._sampled)} rows.", priority=99)
+        else:
+            ldf._sampled = ldf
+    @staticmethod
     def execute(vislist:VisList, ldf:LuxDataFrame):
         '''
         Given a VisList, fetch the data required to render the vis.
@@ -53,8 +69,9 @@ class PandasExecutor(Executor):
         -------
         None
         '''
+        PandasExecutor.execute_sampling(ldf)
         for vis in vislist:
-            vis._vis_data = ldf # The vis data starts off being the same as the content of the original dataframe
+            vis._vis_data = ldf._sampled # The vis data starts off being original or sampled dataframe
             filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
             attributes = set([])
@@ -62,15 +79,6 @@ class PandasExecutor(Executor):
                 if (clause.attribute):
                     if (clause.attribute!="Record"):
                         attributes.add(clause.attribute)
-            # General Sampling
-            if len(vis.data) > 10000:
-                if (filter_executed):
-                    vis._vis_data = vis.data.sample(frac=0.75 , random_state = 1)
-                else:
-                    if (ldf._sampled is None): # memoize unfiltered sample df 
-                        ldf._sampled = vis.data.sample(frac=0.75 , random_state = 1)
-                    vis._vis_data = ldf._sampled
-                ldf._message.add_unique(f"Large dataframe detected: Lux is only visualizing a random sample of {len(vis._vis_data)} rows.", priority=99)
             # TODO: Add some type of cap size on Nrows ?
             vis._vis_data = vis.data[list(attributes)]
             if (vis.mark =="bar" or vis.mark =="line"):
@@ -78,9 +86,13 @@ class PandasExecutor(Executor):
             elif (vis.mark =="histogram"):
                 PandasExecutor.execute_binning(vis)
             elif (vis.mark =="scatter"):
-                if (len(vis.data)>10000):
-                    vis._mark = "heatmap"
-                    PandasExecutor.execute_2D_binning(vis)
+                HBIN_START = 5000
+                if (len(ldf)>HBIN_START):
+                    vis._postbin = True
+                    ldf._message.add_unique(f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.", priority=98)
+                    # vis._mark = "heatmap"
+                    # PandasExecutor.execute_2D_binning(vis) # Lazy Evaluation (Early pruning based on interestingness)  
+                
 
 
     @staticmethod
@@ -261,8 +273,8 @@ class PandasExecutor(Executor):
             x_attr = vis.get_attr_by_channel("x")[0]
             y_attr = vis.get_attr_by_channel("y")[0]
             
-            vis._vis_data.loc[:,"xBin"] = pd.cut(vis._vis_data[x_attr.attribute], bins=50)
-            vis._vis_data.loc[:,"yBin"] = pd.cut(vis._vis_data[y_attr.attribute], bins=50)
+            vis._vis_data.loc[:,"xBin"] = pd.cut(vis._vis_data[x_attr.attribute], bins=40)
+            vis._vis_data.loc[:,"yBin"] = pd.cut(vis._vis_data[y_attr.attribute], bins=40)
 
             color_attr = vis.get_attr_by_channel("color")
             if (len(color_attr)>0):

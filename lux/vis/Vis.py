@@ -29,6 +29,7 @@ class Vis:
 		self._mark = ""
 		self._min_max = {}
 		self._plot_config = None
+		self._postbin = None
 		self.title = title
 		self.score = score
 		self.refresh_source(self._source)
