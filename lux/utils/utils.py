@@ -59,11 +59,11 @@ def check_if_id_like(df,attribute):
 	is_string = pd.api.types.is_string_dtype(df[attribute])
 	if (is_string):
 		# For string IDs, usually serial numbers or codes with alphanumerics have a consistent length (eg., CG-39405) with little deviation. For a high cardinality string field but not ID field (like Name or Brand), there is less uniformity across the string lengths.
-		if (len(df)>10):
-			sampled = df[attribute].sample(10)
+		if (len(df)>50):
+			sampled = df[attribute].sample(50,random_state=99)
 		else: 
 			sampled = df[attribute]
-		str_length_uniformity = sampled.apply(lambda x: type(x)==str and len(x)).std() < 5
+		str_length_uniformity = sampled.apply(lambda x: type(x)==str and len(x)).std() < 3
 		return high_cardinality and (attribute_contain_id or almost_all_vals_unique) and str_length_uniformity
 	else:
 		# TODO: Could probably add some type of entropy measure (since the binned id fields are usually very even)

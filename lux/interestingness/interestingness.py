@@ -39,7 +39,8 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	
 
 	if vis.data is None or len(vis.data)==0:
-		raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
+		return -1
+		# raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
 
 	n_dim = 0
 	n_msr = 0
