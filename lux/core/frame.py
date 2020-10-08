@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 import pandas as pd
+from pandas._libs.lib import no_default
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
@@ -415,8 +416,8 @@ class LuxDataFrame(pd.DataFrame):
 			if (rec_df.pre_aggregated):
 				if (rec_df.columns.name is not None):
 					rec_df._append_rec(rec_infolist, row_group(rec_df))
-				if (rec_df.index.name is not None):
-					rec_df._append_rec(rec_infolist, column_group(rec_df))
+				# if (rec_df.index.name is not None):
+				rec_df._append_rec(rec_infolist, column_group(rec_df))
 			else:
 				if (rec_df.current_vis is None):
 					no_vis = True
@@ -581,6 +582,7 @@ class LuxDataFrame(pd.DataFrame):
 		except(KeyboardInterrupt,SystemExit):
 			raise
 		except:
+			raise
 			warnings.warn(
 					"\nUnexpected error in rendering Lux widget and recommendations. "
 					"Falling back to Pandas display.\n\n" 
@@ -702,3 +704,9 @@ class LuxDataFrame(pd.DataFrame):
 		self._pandas_only=True
 		self._history.append_event("describe",*args, **kwargs)
 		return super(LuxDataFrame, self).describe(*args, **kwargs)
+
+	def groupby(self, *args, **kwargs):
+		print("wtf")
+		self._prev = self
+		self._history.append_event("groupby", *args, **kwargs)
+		return super(LuxDataFrame, self).groupby(*args, **kwargs)

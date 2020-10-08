@@ -30,7 +30,11 @@ def column_group(ldf):
 		ldf_flat.columns = ldf_flat.columns.format()
 	ldf_flat = ldf_flat.reset_index() #use a single shared ldf_flat so that metadata doesn't need to be computed for every vis
 	if (ldf.index.nlevels==1):
-		index_column_name = ldf.index.name
+		if ldf.index.name:
+			index_column_name = ldf.index.name
+		else:
+			index_column_name = "index"
+		print(ldf.history)
 		if isinstance(ldf.columns,pd.DatetimeIndex):
 			ldf.columns = ldf.columns.to_native_types()
 		for attribute in ldf.columns:

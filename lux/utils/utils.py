@@ -54,7 +54,7 @@ def check_if_id_like(df,attribute):
 	import re
 	# Strong signals
 	high_cardinality = df.cardinality[attribute]>500 # so that aggregated reset_index fields don't get misclassified
-	attribute_contain_id = re.search(r'id',attribute) is not None
+	attribute_contain_id = re.search(r'id',str(attribute)) is not None
 	almost_all_vals_unique = df.cardinality[attribute] >=0.98* len(df)
 	# TODO: Could probably add some type of entropy measure (since the binned id fields are usually very even)
 	return high_cardinality and (attribute_contain_id or almost_all_vals_unique)

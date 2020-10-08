@@ -257,6 +257,7 @@ class Vis:
 			from lux.processor.Validator import Validator
 			from lux.processor.Compiler import Compiler
 			from lux.executor.PandasExecutor import PandasExecutor #TODO: temporary (generalize to executor)
+			print(ldf)
 			ldf.maintain_metadata()
 			self._source = ldf
 			self._inferred_intent = Parser.parse(self._intent)
