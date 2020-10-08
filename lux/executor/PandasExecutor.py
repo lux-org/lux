@@ -346,9 +346,9 @@ class PandasExecutor(Executor):
                 attribute_repr = str(attribute._date_repr)
             else:
                 attribute_repr = attribute
-            
-            ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
-            ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
+
+            ldf.unique_values[attribute_repr] = list(ldf[attribute_repr].unique())
+            ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
             
             # commenting this optimization out to make sure I can filter by cardinality when showing recommended vis
 
@@ -360,6 +360,7 @@ class PandasExecutor(Executor):
             
             if ldf.dtypes[attribute] == "float64" or ldf.dtypes[attribute] == "int64":
                 ldf._min_max[attribute_repr] = (ldf[attribute].min(), ldf[attribute].max())
+
         if (ldf.index.dtype !='int64'):
             index_column_name = ldf.index.name
             ldf.unique_values[index_column_name] = list(ldf.index)
