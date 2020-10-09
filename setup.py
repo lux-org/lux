@@ -10,9 +10,14 @@ with open(path.join(HERE, 'README.md'), encoding='utf-8') as f:
 with open(path.join(HERE, 'requirements.txt')) as fp:
     install_requires = fp.read()
 
+version_dict = {}
+with open(path.join(HERE, 'lux/_version.py')) as fp:
+    exec(fp.read(), {}, version_dict)
+version = version_dict["__version__"]
+
 setup(
     name='lux-api',  # PyPI Name (pip install [name])
-    version='0.2.0',  # Required
+    version=version,  # Required
     description='A Python API for Intelligent Data Discovery', 
     long_description=long_description,  
     long_description_content_type='text/markdown',  
@@ -30,7 +35,7 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 3'
     ],
-    keywords='visualization analytics data-science insight discovery', 
+    keywords= ['Visualization','Analytics','Data Science','Data Analysis'],
     include_data_package=True,
     packages=find_packages(),  # Required
     python_requires='>=3.5',
