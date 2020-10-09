@@ -136,7 +136,7 @@ def test_transform():
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
     new_df = df.iloc[:,1:].groupby("Origin").transform(sum)
     new_df._repr_html_()
-    assert list(new_df.recommendation.keys() ) == ['Correlation', 'Distribution', 'Occurrence']
+    assert list(new_df.recommendation.keys() ) == ['Correlation', 'Occurrence']
     assert len(new_df.cardinality) == 6
 
 def test_get_group():
