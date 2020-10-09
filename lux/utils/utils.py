@@ -40,8 +40,8 @@ def get_filter_specs(intent):
 
 def check_import_lux_widget():
 	import pkgutil
-	if (pkgutil.find_loader("luxWidget") is None):
-		raise Exception("luxWidget is not installed. Run `npm i lux-widget' to install the Jupyter widget.\nSee more at: https://github.com/lux-org/lux-widget")
+	if (pkgutil.find_loader("luxwidget") is None):
+		raise Exception("luxwidget is not installed. Run `pip install luxwidget' to install the Jupyter widget.\nSee more at: https://github.com/lux-org/lux-widget")
 
 def get_agg_title(clause):
 	if (clause.aggregation is None):

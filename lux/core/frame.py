@@ -631,9 +631,9 @@ class LuxDataFrame(pd.DataFrame):
 			User-specified current vis to override default Current Vis, by default 
 		"""       
 		check_import_lux_widget()
-		import luxWidget
+		import luxwidget
 		widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
-		return luxWidget.LuxWidget(
+		return luxwidget.LuxWidget(
 			currentVis=widgetJSON["current_vis"],
 			recommendations=widgetJSON["recommendation"],
 			intent=LuxDataFrame.intent_to_string(self._intent),
