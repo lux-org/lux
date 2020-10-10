@@ -5,9 +5,9 @@
     <a href="https://travis-ci.com/lux-org/lux">
         <img alt="Build Status" src="https://travis-ci.com/lux-org/lux.svg?branch=master" align="center">
     </a>
-    <!--     <a href="https://badge.fury.io/py/lux-api">
+    <a href="https://badge.fury.io/py/lux-api">
         <img src="https://badge.fury.io/py/lux-api.svg" alt="PyPI version" height="18" align="center">
-    </a> -->
+    </a>
     <a href='https://lux-api.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/lux-api/badge/?version=latest' alt='Documentation Status'  align="center"/>
     </a>
@@ -24,9 +24,9 @@
 
 Lux is a Python library that makes data science easier by automating aspects of the data exploration process. Lux facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Visualizations are displayed via [an interactive Jupyter widget](https://github.com/lux-org/lux-widget) to allow users to quickly browse through large collections of data directly within their Jupyter notebooks.
 
-Here are some [slides](http://dorisjunglinlee.com/files/Zillow_07_2020_Slide.pdf) from a recent talk on Lux.
+Here is a [1-min video](https://www.youtube.com/watch?v=qmnYP-LmbNU) introducing Lux, and [slides](http://dorisjunglinlee.com/files/Zillow_07_2020_Slide.pdf) from a more extended talk.
 
-Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/demo)! 
+Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/demo/cars_demo.ipynb)! 
 
 # Getting Started
 
