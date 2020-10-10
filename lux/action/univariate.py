@@ -16,7 +16,7 @@ from lux.interestingness.interestingness import interestingness
 from lux.vis.VisList import VisList
 import lux
 from lux.utils import utils
-def univariate(ldf, data_type_constraint="quantitative"):
+def univariate(ldf, *args):
 	'''
 	Generates bar chart distributions of different attributes in the dataframe.
 
@@ -34,6 +34,10 @@ def univariate(ldf, data_type_constraint="quantitative"):
 		object with a collection of visualizations that result from the Distribution action.
 	'''
 	import numpy as np
+	if len(args) == 0:
+		data_type_constraint = "quantitative"
+	else:
+		data_type_constraint = args[0][0]
 
 	filter_specs = utils.get_filter_specs(ldf._intent)
 	ignore_rec_flag = False

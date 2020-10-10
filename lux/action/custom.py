@@ -16,6 +16,7 @@ from lux.interestingness.interestingness import interestingness
 import lux
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.executor.SQLExecutor import SQLExecutor
+import lux
 
 def custom(ldf):
     '''
@@ -43,3 +44,19 @@ def custom(ldf):
     # ldf.clear_intent()
     vlist.sort(remove_invalid=True)
     return recommendation
+
+def custom_actions(ldf):
+    if (lux.actions.__len__() > 0):
+        recommendations = []
+        for action_name in lux.actions.__dir__():
+            validator = lux.actions.__getattr__(action_name).validator 
+            if validator is None or (validator is not None and validator(ldf)):
+                args = lux.actions.__getattr__(action_name).args
+                if args:
+                    recommendation = lux.actions.__getattr__(action_name).function(ldf, args)
+                else:
+                    recommendation = lux.actions.__getattr__(action_name).function(ldf)
+                recommendations.append(recommendation)
+        return recommendations
+    else:
+        return []
