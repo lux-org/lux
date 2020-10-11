@@ -30,13 +30,14 @@ class LuxDataFrame(pd.DataFrame):
 	# MUST register here for new properties!!
 	_metadata = ['_intent','data_type_lookup','data_type',
 				 'data_model_lookup','data_model','unique_values','cardinality','_rec_info', '_pandas_only',
-				'_min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev','_history']
+				'_min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev','_history', '_saved_export']
 
 	def __init__(self,*args, **kw):
 		from lux.executor.PandasExecutor import PandasExecutor
 		self._history = History()
 		self._intent = []
 		self._recommendation = {}
+		self._saved_export = None
 		self._current_vis = []
 		self._prev = None
 		super(LuxDataFrame, self).__init__(*args, **kw)
@@ -224,12 +225,10 @@ class LuxDataFrame(pd.DataFrame):
 		"""
 		Main function to set the intent of the dataframe.
 		The intent input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
-
 		Parameters
 		----------
 		intent : List[str,Clause]
 			intent list, can be a mix of string shorthand or a lux.Clause object
-
 		Notes
 		-----
 			:doc:`../guide/clause`
@@ -257,7 +256,6 @@ class LuxDataFrame(pd.DataFrame):
 	def set_intent_as_vis(self,vis:Vis):
 		"""
 		Set intent of the dataframe as the Vis
-
 		Parameters
 		----------
 		vis : Vis
@@ -392,7 +390,7 @@ class LuxDataFrame(pd.DataFrame):
 			rec_df._message = Message()	
 			rec_df.maintain_metadata() # the prev dataframe may not have been printed before
 			last_event = self.history._events[-1].name
-			rec_df._message.append(f"Lux is visualizing the previous version of the dataframe before you applied <code>{last_event}</code>.")
+			rec_df._message.add(f"Lux is visualizing the previous version of the dataframe before you applied <code>{last_event}</code>.")
 			show_prev = True
 		else:
 			rec_df = self
@@ -402,7 +400,7 @@ class LuxDataFrame(pd.DataFrame):
 		if (len(rec_df.data_type["id"])>0):
 			for id_field in rec_df.data_type["id"]: id_fields_str += f"<code>{id_field}</code>, "
 			id_fields_str = id_fields_str[:-2]
-			rec_df._message.append(f"{id_fields_str} is not visualized since it resembles an ID field.")
+			rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
 		rec_df._prev = None # reset _prev
 		
 		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that recs has not yet been computed
@@ -470,7 +468,6 @@ class LuxDataFrame(pd.DataFrame):
 	def exported(self) -> Union[Dict[str,VisList], VisList]:
 		"""
 		Get selected visualizations as exported Vis List
-
 		Notes
 		-----
 		Convert the _exportedVisIdxs dictionary into a programmable VisList
@@ -492,9 +489,11 @@ class LuxDataFrame(pd.DataFrame):
 						"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
 						, stacklevel=2)
 			return []
-		exported_vis_lst =self._widget._exportedVisIdxs
+		exported_vis_lst = self._widget._exportedVisIdxs
 		exported_vis = [] 
 		if (exported_vis_lst=={}):
+			if self._saved_export:
+				return self._saved_export
 			warnings.warn(
 				"\nNo visualization selected to export.\n"
 				"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
@@ -513,6 +512,7 @@ class LuxDataFrame(pd.DataFrame):
 		elif len(exported_vis_lst) == 1 and ("currentVis" not in exported_vis_lst): 
 			export_action = list(exported_vis_lst.keys())[0]
 			exported_vis = VisList(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
+			self._saved_export = exported_vis
 			return exported_vis
 		else:
 			warnings.warn(
@@ -520,6 +520,13 @@ class LuxDataFrame(pd.DataFrame):
 				"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
 				,stacklevel=2)
 			return []
+
+	def removeDeletedRecs(self, change):
+		for action in self._widget.deletedIndices:
+			deletedSoFar = 0
+			for index in self._widget.deletedIndices[action]:
+				self.recommendation[action].remove_index(index - deletedSoFar)
+				deletedSoFar += 1
 
 	def _repr_html_(self):
 		from IPython.display import display
@@ -560,6 +567,9 @@ class LuxDataFrame(pd.DataFrame):
 				
 				# df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
 				self.maintain_recs()
+
+				#Observers(callback_function, listen_to_this_variable)
+				self._widget.observe(self.removeDeletedRecs, names='deletedIndices')
 
 				if len(self.recommendation) > 0:
 					# box = widgets.Box(layout=widgets.Layout(display='inline'))
@@ -624,9 +634,9 @@ class LuxDataFrame(pd.DataFrame):
 			User-specified current vis to override default Current Vis, by default 
 		"""       
 		check_import_lux_widget()
-		import luxWidget
+		import luxwidget
 		widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
-		return luxWidget.LuxWidget(
+		return luxwidget.LuxWidget(
 			currentVis=widgetJSON["current_vis"],
 			recommendations=widgetJSON["recommendation"],
 			intent=LuxDataFrame.intent_to_string(self._intent),
@@ -673,6 +683,7 @@ class LuxDataFrame(pd.DataFrame):
 		elif (numVC>1):
 			pass
 		return current_vis_spec
+
 	@staticmethod
 	def rec_to_JSON(recs):
 		rec_lst = []
