@@ -46,16 +46,29 @@ def custom(ldf):
     return recommendation
 
 def custom_actions(ldf):
+    '''
+    Generates user-defined vis based on globally defined actions.
+
+    Parameters
+    ----------
+    ldf : lux.core.frame
+        LuxDataFrame with underspecified intent.
+
+    Returns
+    -------
+    recommendations : Dict[str,obj]
+        object with a collection of visualizations that were previously registered.
+    '''
     if (lux.actions.__len__() > 0):
         recommendations = []
         for action_name in lux.actions.__dir__():
-            validator = lux.actions.__getattr__(action_name).validator 
-            if validator is None or (validator is not None and validator(ldf)):
+            display_condition = lux.actions.__getattr__(action_name).display_condition 
+            if display_condition is None or (display_condition is not None and display_condition(ldf)):
                 args = lux.actions.__getattr__(action_name).args
                 if args:
-                    recommendation = lux.actions.__getattr__(action_name).function(ldf, args)
+                    recommendation = lux.actions.__getattr__(action_name).action(ldf, args)
                 else:
-                    recommendation = lux.actions.__getattr__(action_name).function(ldf)
+                    recommendation = lux.actions.__getattr__(action_name).action(ldf)
                 recommendations.append(recommendation)
         return recommendations
     else:

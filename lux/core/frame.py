@@ -382,6 +382,7 @@ class LuxDataFrame(pd.DataFrame):
 			rec_infolist.append(recommendations)
 	def maintain_recs(self):
 		# `rec_df` is the dataframe to generate the recommendations on
+		# check to see if globally defined actions have been registered/removed
 		if (lux.update_actions["flag"] == True):
 			self._recs_fresh = False
 		show_prev = False # flag indicating whether rec_df is showing previous df or current self
@@ -421,9 +422,12 @@ class LuxDataFrame(pd.DataFrame):
 					rec_df._append_rec(rec_infolist, column_group(rec_df))
 			else:
 				if self.recommendation == None:
+					# display conditions for default actions
 					no_vis = lambda ldf: (ldf.current_vis is None) or (ldf.current_vis is not None and len(ldf.current_vis) == 0)
 					one_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
 					multiple_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
+
+					# globally register default actions
 					lux.register_action("correlation", correlation, no_vis)
 					lux.register_action("distribution", univariate, no_vis, "quantitative")
 					lux.register_action("occurrence", univariate, no_vis, "nominal")
@@ -435,6 +439,7 @@ class LuxDataFrame(pd.DataFrame):
 
 					lux.register_action("custom", custom, multiple_current_vis)
 
+				# generate vis from globally registered actions and append to dataframe
 				custom_action_collection = custom_actions(rec_df)
 				for rec in custom_action_collection:
 					rec_df._append_rec(rec_infolist, rec)
@@ -699,7 +704,7 @@ class LuxDataFrame(pd.DataFrame):
 				# delete DataObjectCollection since not JSON serializable
 				del rec_lst[idx]["collection"]
 		return rec_lst
-	
+
 	# Overridden Pandas Functions
 	def head(self, n: int = 5):
 		self._prev = self

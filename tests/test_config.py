@@ -19,8 +19,27 @@ import time
 from lux.vis.VisList import VisList
 import lux
 
-# To run the script and see the printed result, run:
-def test_q0_default_actions_registered():
+def register_new_action(validator: bool=True):
+	df = pd.read_csv("lux/data/car.csv")
+	def random_categorical(ldf):
+		intent = [lux.Clause("?",data_type="nominal")]
+		vlist = VisList(intent,ldf)
+		for vis in vlist:
+			vis.score = 10
+		vlist = vlist.topK(15)
+		return {"action":"bars", "description": "Random list of Bar charts", "collection": vlist}
+	def contain_horsepower(df):
+		for clause in df.intent:
+			if clause.get_attr() == "Horsepower":
+				return True
+		return False
+	if validator:
+		lux.register_action("bars", random_categorical, contain_horsepower)
+	else:
+		lux.register_action("bars", random_categorical)
+	return df
+
+def test_default_actions_registered():
 	df = pd.read_csv("lux/data/car.csv")
 	df._repr_html_()
 	assert("Distribution" in df.recommendation)
@@ -35,69 +54,32 @@ def test_q0_default_actions_registered():
 	assert("Correlation" in df.recommendation)
 	assert(len(df.recommendation["Correlation"]) > 0)
 
-def test_q1_fail_validator():
-	df = pd.read_csv("lux/data/car.csv")
-	def random_categorical(ldf):
-		intent = [lux.Clause("?",data_type="nominal")]
-		vlist = VisList(intent,ldf)
-		for vis in vlist:
-			vis.score = 10
-		vlist = vlist.topK(15)
-		return {"action":"bars", "description": "Random list of Bar charts", "collection": vlist}
-	def contain_horsepower(df):
-		for clause in df.intent:
-			if clause.get_attr() == "Horsepower":
-				return True
-		return False
-	lux.register_action("bars", random_categorical, contain_horsepower)
+def test_fail_validator():
+	df = register_new_action()
 	df._repr_html_()
-	assert("bars" not in df.recommendation)
+	assert("bars" not in df.recommendation, 
+		"Bars should not be rendered when there is no intent 'horsepower' specified.")
 
-def test_q2_pass_validator():
-	def random_categorical(ldf):
-		intent = [lux.Clause("?",data_type="nominal")]
-		vlist = VisList(intent,ldf)
-		for vis in vlist:
-			vis.score = 10
-		vlist = vlist.topK(15)
-		return {"action":"bars", "description": "Random list of Bar charts", "collection": vlist}
-	def contain_horsepower(df):
-		for clause in df.intent:
-			if clause.get_attr() == "Horsepower":
-				return True
-		return False
-	df = pd.read_csv("lux/data/car.csv")
-	lux.register_action("bars", random_categorical, contain_horsepower)
+def test_pass_validator():
+	df = register_new_action()
 	df.set_intent(["Acceleration", "Horsepower"])
 	df._repr_html_()
 	assert(len(df.recommendation["bars"]) > 0)
-	assert("bars" in df.recommendation)
+	assert("bars" in df.recommendation,
+		"Bars should be rendered when intent 'horsepower' is specified.")
 
-def test_q3_no_validator():
-	df = pd.read_csv("lux/data/car.csv")
-	def random_categorical(ldf):
-		intent = [lux.Clause("?",data_type="nominal")]
-		vlist = VisList(intent,ldf)
-		for vis in vlist:
-			vis.score = 10
-		vlist = vlist.topK(15)
-		return {"action":"bars", "description": "Random list of Bar charts", "collection": vlist}
-	lux.register_action("bars", random_categorical)
+def test_no_validator():
+	df = register_new_action(False)
 	df._repr_html_()
 	assert(len(df.recommendation["bars"]) > 0)
 	assert("bars" in df.recommendation)
 
-def test_q4_no_function():
-	df = pd.read_csv("lux/data/car.csv")
-	with pytest.raises(ValueError,match="No parameter function found"):
-		lux.register_action("bars")
-
-def test_q5_invalid_function():
+def test_invalid_function():
 	df = pd.read_csv("lux/data/car.csv")
 	with pytest.raises(ValueError,match="Value must be a callable"):
 		lux.register_action("bars", "not a Callable")
 
-def test_q6_invalid_validator():
+def test_invalid_validator():
 	df = pd.read_csv("lux/data/car.csv")
 	def random_categorical(ldf):
 		intent = [lux.Clause("?",data_type="nominal")]
@@ -109,35 +91,25 @@ def test_q6_invalid_validator():
 	with pytest.raises(ValueError,match="Value must be a callable"):
 		lux.register_action("bars", random_categorical, "not a Callable")
 
-def test_q7_remove_action():
-	def random_categorical(ldf):
-		intent = [lux.Clause("?",data_type="nominal")]
-		vlist = VisList(intent,ldf)
-		for vis in vlist:
-			vis.score = 10
-		vlist = vlist.topK(15)
-		return {"action":"bars", "description": "Random list of Bar charts", "collection": vlist}
-	def contain_horsepower(df):
-		for clause in df.intent:
-			if clause.get_attr() == "Horsepower":
-				return True
-		return False
-	df = pd.read_csv("lux/data/car.csv")
-	lux.register_action("bars", random_categorical, contain_horsepower)
+def test_remove_action():
+	df = register_new_action()
 	df.set_intent(["Acceleration", "Horsepower"])
 	df._repr_html_()
-	assert("bars" in df.recommendation)
-	assert(len(df.recommendation["bars"]) > 0)
+	assert("bars" in df.recommendation, 
+		"Bars should be rendered after it has been registered with correct intent.")
+	assert(len(df.recommendation["bars"]) > 0, 
+		"Bars should be rendered after it has been registered with correct intent.")
 	lux.remove_action("bars")
 	df._repr_html_()
-	assert("bars" not in df.recommendation)
+	assert("bars" not in df.recommendation,
+		"Bars should not be rendered after it has been removed.")
 
-def test_q8_remove_invalid_action():
+def test_remove_invalid_action():
 	df = pd.read_csv("lux/data/car.csv")
 	with pytest.raises(ValueError,match="Option 'bars' has not been registered"):
 		lux.remove_action("bars")
 
-def test_q9_remove_default_actions():
+def test_remove_default_actions():
 	df = pd.read_csv("lux/data/car.csv")
 	df._repr_html_()
 
@@ -157,23 +129,12 @@ def test_q9_remove_default_actions():
 	df._repr_html_()
 	assert("Correlation" not in df.recommendation)
 
-	assert(len(df.recommendation) == 0)
+	assert(len(df.recommendation) == 0,
+		"Default actions should not be rendered after it has been removed.")
 
-	def random_categorical(ldf):
-		intent = [lux.Clause("?",data_type="nominal")]
-		vlist = VisList(intent,ldf)
-		for vis in vlist:
-			vis.score = 10
-		vlist = vlist.topK(15)
-		return {"action":"bars", "description": "Random list of Bar charts", "collection": vlist}
-	def contain_horsepower(df):
-		for clause in df.intent:
-			if clause.get_attr() == "Horsepower":
-				return True
-		return False
-	df = pd.read_csv("lux/data/car.csv")
-	lux.register_action("bars", random_categorical, contain_horsepower)
+	df = register_new_action()
 	df.set_intent(["Acceleration", "Horsepower"])
 	df._repr_html_()
-	assert("bars" in df.recommendation)
+	assert("bars" in df.recommendation,
+		"Bars should be rendered after it has been registered with correct intent.")
 	assert(len(df.recommendation["bars"]) > 0)

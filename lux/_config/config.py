@@ -5,7 +5,7 @@ For more resources, see https://github.com/pandas-dev/pandas/blob/master/pandas/
 from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
-RegisteredOption = namedtuple("RegisteredOption", "key function validator args")
+RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
 # holds registered option metadata
 _registered_actions: Dict[str, RegisteredOption] = {}
@@ -23,23 +23,22 @@ class DictWrapper:
 		object.__setattr__(self, "d", d)
 		object.__setattr__(self, "prefix", prefix)
 
-	def __setattr__(self, key: str, val: Any) -> None:
+	def __getattr__(self, name: str):
+		"""
+    	Gets a specific registered action by id
+    	Parameters
+    	----------
+    	`name` - the id for the actions
+    	Return
+    	-------
+    	DictWrapper object for the action
+    	"""
 		prefix = object.__getattribute__(self, "prefix")
 		if prefix:
 			prefix += "."
-		prefix += key
-		if key in self.d and not isinstance(self.d[key], dict):
-			_set_option(prefix, val)
-		else:
-			raise OptionError("You can only set the value of existing options")
-
-	def __getattr__(self, key: str):
-		prefix = object.__getattribute__(self, "prefix")
-		if prefix:
-			prefix += "."
-		prefix += key
+		prefix += name
 		try:
-			v = object.__getattribute__(self, "d")[key]
+			v = object.__getattribute__(self, "d")[name]
 		except KeyError as err:
 			raise OptionError("No such option") from err
 		if isinstance(v, dict):
@@ -48,9 +47,15 @@ class DictWrapper:
 			return _get_action(prefix)
 
 	def __getactions__(self):
+		"""
+    	Gathers all currently registered actions in a list of DictWrapper
+    	Return
+    	-------
+    	a list of DictWrapper objects that are registered
+    	"""
 		l = []
-		for key in self.__dir__():
-			l.append(self.__getattr__(key))
+		for name in self.__dir__():
+			l.append(self.__getattr__(name))
 		return l
 
 	def __len__(self):
@@ -63,34 +68,49 @@ actions = DictWrapper(_registered_actions)
 
 
 def register_action(
-    key: str = "",
-    function: Optional[Callable[[Any], Any]] = None,
-    validator: Optional[Callable[[Any], Any]] = None,
+	name: str = "",
+    action: Callable[[Any], Any] = None,
+    display_condition: Optional[Callable[[Any], Any]] = None,
     *args,
 ) -> None:
+	"""
+    Parameters
+    ----------
+    `name` - the id for the actions
+    `action` - the function to be applied to the dataframe
+    `display_condition` - the function to check whether or not the function should be applied
+    `args` - any additional arguments the function may require
+    Description
+    -------
+    Registers the provided action globally in lux
+    """
+	name = name.lower()
+	if action:
+		is_callable(action)
 
-	key = key.lower()
-	if function:
-		is_callable(function)
-	if not function:
-		raise ValueError("No parameter function found")
-
-	if validator:
-		is_callable(validator)
-	_registered_actions[key] = RegisteredOption(
-		key=key, function=function, validator=validator, args=args
+	if display_condition:
+		is_callable(display_condition)
+	_registered_actions[name] = RegisteredOption(
+		name=name, action=action, display_condition=display_condition, args=args
 	)
 	update_actions["flag"] = True
 
 def remove_action(
-    key: str = "",
+	name: str = "",
 ) -> None:
+	"""
+    Parameters
+    ----------
+    `name` - the id for the action to remove
+    Description
+    -------
+    Removes the provided action globally in lux
+    """
+	name = name.lower()
+	if name not in _registered_actions:
+		raise ValueError(f"Option '{name}' has not been registered")
 
-	key = key.lower()
-	if key not in _registered_actions:
-		raise ValueError(f"Option '{key}' has not been registered")
-
-	del _registered_actions[key]
+	del _registered_actions[name]
 	update_actions["flag"] = True
 
 def is_callable(obj) -> bool:
