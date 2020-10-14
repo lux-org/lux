@@ -239,9 +239,9 @@ class VisList():
 		recommendation["collection"] = self._collection
 
 		check_import_lux_widget()
-		import luxWidget
+		import luxwidget
 		recJSON = LuxDataFrame.rec_to_JSON([recommendation])
-		self._widget =  luxWidget.LuxWidget(
+		self._widget =  luxwidget.LuxWidget(
 				currentVis={},
 				recommendations=recJSON,
 				intent="",

@@ -17,7 +17,7 @@ from lux.core.frame import LuxDataFrame
 from lux.vis.Clause import Clause
 from typing import List
 from lux.utils.date_utils import is_datetime_series,is_datetime_string
-
+import warnings
 class Validator:
 	'''
 	Contains methods for validating lux.Clause objects in the intent.
@@ -54,13 +54,13 @@ class Validator:
 				if isinstance(clause.attribute,list):
 					for attr in clause.attribute:
 						if attr not in list(ldf.columns):
-							raise ValueError(f"The input attribute {attr} does not exist in the DataFrame.")
+							warnings.warn(f"The input attribute '{attr}' does not exist in the DataFrame.")
 				else:
 					if (clause.attribute!="Record"):
 						#we don't value check datetime since datetime can take filter values that don't exactly match the exact TimeStamp representation
 						if (clause.attribute and not is_datetime_string(clause.attribute)):
 							if not clause.attribute in list(ldf.columns):
-								raise ValueError(f"The input attribute {clause.attribute} does not exist in the DataFrame.")
+								warnings.warn(f"The input attribute '{clause.attribute}' does not exist in the DataFrame.")
 						if (clause.value and clause.attribute and clause.filter_op=="="):
 							series = ldf[clause.attribute]
 							if (not is_datetime_series(series)): 
@@ -70,7 +70,7 @@ class Validator:
 									vals = [clause.value]
 								for val in vals:
 									if (val not in series.values):#(not series.str.contains(val).any()):
-										raise ValueError(f"The input value {val} does not exist for the attribute {clause.attribute} for the DataFrame.")
+										warnings.warn(f"The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame.")
 
 		for clause in intent:
 			if type(clause) is list:

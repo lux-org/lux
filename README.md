@@ -5,9 +5,9 @@
     <a href="https://travis-ci.com/lux-org/lux">
         <img alt="Build Status" src="https://travis-ci.com/lux-org/lux.svg?branch=master" align="center">
     </a>
-    <!--     <a href="https://badge.fury.io/py/lux-api">
+    <a href="https://badge.fury.io/py/lux-api">
         <img src="https://badge.fury.io/py/lux-api.svg" alt="PyPI version" height="18" align="center">
-    </a> -->
+    </a>
     <a href='https://lux-api.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/lux-api/badge/?version=latest' alt='Documentation Status'  align="center"/>
     </a>
@@ -22,15 +22,15 @@
     </a>
 </p>
 
-Lux is a Python library that makes data science easier by automating aspects of the data exploration process. Lux is designed to facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Visualizations are diplayed via [an interactive Jupyter widget](https://github.com/lux-org/lux-widget) to allow users to quickly browse through large collections of data directly within their Jupyter notebooks.
+Lux is a Python library that makes data science easier by automating aspects of the data exploration process. Lux facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Visualizations are displayed via [an interactive Jupyter widget](https://github.com/lux-org/lux-widget) to allow users to quickly browse through large collections of data directly within their Jupyter notebooks.
 
-Here are some [slides](http://dorisjunglinlee.com/files/Zillow_07_2020_Slide.pdf) from a recent talk on Lux.
+Here is a [1-min video](https://www.youtube.com/watch?v=qmnYP-LmbNU) introducing Lux, and [slides](http://dorisjunglinlee.com/files/Zillow_07_2020_Slide.pdf) from a more extended talk.
 
-Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/demo)! 
+Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/demo/cars_demo.ipynb)! 
 
 # Getting Started
 
-To start using Lux, simply add an additional import statement alongside your Pandas import.
+To start using Lux, simply add an extra import statement along with your Pandas import.
 
 ```python    
 import lux
@@ -68,22 +68,22 @@ For example, we might be interested in the attributes `AverageCost` and `SATAver
      alt="Next-step Recommendations Based on User Context"
      style="width:600px" />
  
- The left-hand side of the widget shows the current visualization, i.e. the current visualization generated based on what the user is interested in. On the right, Lux generates three sets of recommendations, organized as separate tabs on the widget:
+ The left-hand side of the widget shows the current visualization, i.e., the current visualization generated based on what the user is interested in. On the right, Lux generates three sets of recommendations, organized as separate tabs on the widget:
 
  - `Enhance` adds an additional attribute to the current selection, essentially highlighting how additional variables affect the relationship of `AverageCost` and `SATAverage`. We see that if we breakdown the relationship by `FundingModel`, there is a clear separation between public colleges (shown in red) and private colleges (in blue), with public colleges being cheaper to attend and with SAT average of lower than 1400.
     <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/enhance.png?raw=true"
      alt="Enhance Recommendations"
      style="width:600px" />
- - `Filter` adds a filter to the current selection, while keeping attributes (on the X and Y axes) fixed. These visualizations shows how the relationship of  `AverageCost` and `SATAverage` changes for different subsets of data. For instance, we see that colleges that offer Bachelor's degree as its highest degree offered shows a roughly linear trend between the two variables.
+ - `Filter` adds a filter to the current selection, while keeping attributes (on the X and Y axes) fixed. These visualizations show how the relationship of  `AverageCost` and `SATAverage` changes for different subsets of data. For instance, we see that colleges that offer Bachelor's degree as its highest degree show a roughly linear trend between the two variables.
     <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/filter.png?raw=true"
      alt="Filter Recommendations"
      style="width:600px" />
- - `Generalize` removes an attribute to display a more general trend, showing the distributions of `AverageCost` and `SATAverage` on its own. From the `AverageCost` histogram, we see that there are many colleges with average cost of around $20000 per year, corresponding to the bulge we see in the scatterplot view.
+ - `Generalize` removes an attribute to display a more general trend, showing the distributions of `AverageCost` and `SATAverage` on its own. From the `AverageCost` histogram, we see that many colleges with average cost of around $20000 per year, corresponding to the bulge we see in the scatterplot view.
     <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/generalize.png?raw=true"
      alt="Generalize Recommendations"
      style="width:600px" />
 
- See [this page](https://lux-api.readthedocs.io/en/latest/source/guide/intent.html) more information on additional ways for specifying the intent.
+ See [this page](https://lux-api.readthedocs.io/en/latest/source/guide/intent.html) for more information on additional ways for specifying the intent.
 
 ### Easy programmatic access of exported visualization objects: 
 
@@ -94,7 +94,7 @@ Now that we have found some interesting visualizations through Lux, we might be 
      style="width:600px" />
 
 ### Quick, on-demand visualizations with the help of automatic encoding: 
-We've seen how `Vis`s are automatically generated as part of the recommendations, users can also create their own Vis via the same syntax as specifying the intent. Lux is built on the philosophy that users should always be able to visualize anything they want, without having to think about *how* the visualization should look like. Lux automatically determines the mark and channel mappings based on a set of [best practices](http://hosteddocs.ittoolbox.com/fourshowmeautomaticpresentations.pdf) from [Tableau](https://www.tableau.com). The visualizations are rendered via [Altair](https://github.com/altair-viz/altair/tree/master/altair) into [Vega-Lite](https://github.com/vega/vega-lite) specifications.
+We've seen how `Vis`s are automatically generated as part of the recommendations. Users can also create their own Vis via the same syntax as specifying the intent. Lux is built on the philosophy that users should always be able to visualize anything they want, without having to think about *how* the visualization should look like. Lux automatically determines the mark and channel mappings based on a set of [best practices](http://hosteddocs.ittoolbox.com/fourshowmeautomaticpresentations.pdf) from [Tableau](https://www.tableau.com). The visualizations are rendered via [Altair](https://github.com/altair-viz/altair/tree/master/altair) into [Vega-Lite](https://github.com/vega/vega-lite) specifications.
 
 ```python    
     from lux.vis.Vis import Vis
@@ -125,23 +125,27 @@ For example, we might be interested in looking at how the `AverageCost` distribu
 
 To find out more about other features in Lux, see the complete documentation on [ReadTheDocs](https://lux-api.readthedocs.io/).
 
-<!-- ## Quick Installation-->
+# Quick Installation 
 
-<!--Install the Python Lux API through [PyPI](https://pypi.org/project/lux-api/):--> 
+To get started, Lux can be installed through [PyPI](https://pypi.org/project/lux-api/). This installs both the lux-api (this repo) and [lux-widget](https://pypi.org/project/lux-widget/) (the Lux Jupyter widget frontend).
 
-<!--```bash
-pip install lux-api
-```-->
+```bash
+    pip install lux-api
+```
 
-<!--Install the Lux Jupyter widget through [npm](https://www.npmjs.com/package/lux-widget): --> 
+To install and activate the Jupyter notebook extension: 
 
-<!--```bash
-npm i lux-widget
-```--> 
+```bash
+    jupyter nbextension install --py luxwidget
+    jupyter nbextension enable --py luxwidget
+```
 
-# Installation 
+If the installation happens correctly, you should see two `- Validating: OK` after executing the two lines above.
+If you encounter issues with the installation, please refer to [this page](https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips) to troubleshoot the installation.
 
-To setup Lux manually for development purposes, you should clone the two Github repos for Lux: 1) the core Python [Lux API](https://github.com/lux-org/lux)  and 2) the [Jupyter widget frontend](https://github.com/lux-org/lux-widget). 
+# Dev Installation 
+
+To set up Lux manually for development purposes, you should clone the two Github repos for Lux: 1) the core Python [Lux API](https://github.com/lux-org/lux)  and 2) the [Jupyter widget frontend](https://github.com/lux-org/lux-widget). 
 
 To install the Python Lux API: 
 
@@ -155,17 +159,17 @@ To install the [Lux Jupyter Widget](https://github.com/lux-org/lux-widget):
 
 ```bash
     pip install git+https://github.com/lux-org/lux-widget
-    jupyter nbextension install --py luxWidget
-    jupyter nbextension enable --py luxWidget
+    jupyter nbextension install --sys-prefix --symlink --overwrite --py luxwidget
+    jupyter nbextension enable --sys-prefix --py luxwidget
 ```
 
+# Support and Resources
 
-<!-- See the [installation page](https://lux-api.readthedocs.io/en/latest/source/getting_started/installation.html) for more information. -->
+Lux is undergoing active development. If you are interested in using Lux, we would love to hear from you. Any feedback, suggestions, and contributions for improving Lux are welcome.
 
-<!-- For more detailed examples of how to use Lux, check out this demo [notebook](https://github.com/lux-org/lux/blob/master/examples/demo.ipynb).  -->
+Other additional resources:
 
-# Dev Support 
-Lux is undergoing active development. Please report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues) or post on the [#help](https://lux-project.slack.com/archives/C0174H16CK0) channel in the <a href="http://lux-project.slack.com/">Lux Slack org</a>.
-
-If you are interested in participating in a user study on Lux, please contact <a href="mailto:dorisjunglinlee@gmail.com">Doris Lee</a> for more detail.
-
+- Visit [ReadTheDoc](https://lux-api.readthedocs.io/en/latest/) for more detailed documentation.
+- Check out this [notebook tutorial series](https://github.com/lux-org/lux/tree/master/examples/tutorial) on how to use Lux.
+- Join the [Lux Slack channel](http://lux-project.slack.com/) for support and discussion.
+- Report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues). 
