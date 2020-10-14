@@ -545,6 +545,9 @@ class LuxDataFrame(pd.DataFrame):
 			clear_output()
 			display(self._widget)
 		
+		self._widget.observe(self.removeDeletedRecs, names='deletedIndices')
+		self._widget.observe(self.setIntentOnButtonClick, names='intentIndex')
+		
 	def _repr_html_(self):
 		from IPython.display import display
 		from IPython.display import clear_output
