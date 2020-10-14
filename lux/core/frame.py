@@ -529,6 +529,22 @@ class LuxDataFrame(pd.DataFrame):
 				self.recommendation[action].remove_index(index - deletedSoFar)
 				deletedSoFar += 1
 
+	def setIntentOnButtonClick(self, change):
+		from IPython.display import display, clear_output
+		from lux.processor.Compiler import Compiler
+
+		intent_action = list(self._widget.intentIndex.keys())[0]
+		vis = self.recommendation[intent_action][self._widget.intentIndex[intent_action][0]]
+		self.set_intent_as_vis(vis)
+
+		self.maintain_metadata()
+		self.current_vis = Compiler.compile_intent(self, self._intent)
+		self.maintain_recs()
+
+		with self.output:
+			clear_output()
+			display(self._widget)
+		
 	def _repr_html_(self):
 		from IPython.display import display
 		from IPython.display import clear_output
@@ -571,16 +587,17 @@ class LuxDataFrame(pd.DataFrame):
 
 				#Observers(callback_function, listen_to_this_variable)
 				self._widget.observe(self.removeDeletedRecs, names='deletedIndices')
+				self._widget.observe(self.setIntentOnButtonClick, names='intentIndex')
 
 				# box = widgets.Box(layout=widgets.Layout(display='inline'))
 				button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
-				output = widgets.Output()
+				self.output = widgets.Output()
 				# box.children = [button,output]
 				# output.children = [button]
 				# display(box)
-				display(button,output)
+				display(button,self.output)
 				def on_button_clicked(b):
-					with output:
+					with self.output:
 						if (b):
 							self._toggle_pandas_display = not self._toggle_pandas_display
 						clear_output()
