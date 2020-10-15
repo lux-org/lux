@@ -32,16 +32,13 @@ class Validator:
 	def validate_intent(intent: List[Clause], ldf:LuxDataFrame) -> None:
 		"""
 		Validates input specifications from the user to find inconsistencies and errors.
-
 		Parameters
 		----------
 		ldf : lux.core.frame
 			LuxDataFrame with underspecified intent.
-
 		Returns
 		-------
 		None
-
 		Raises
 		------
 		ValueError

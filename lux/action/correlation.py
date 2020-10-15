@@ -1,22 +1,10 @@
-#  Copyright 2019-2020 The Lux Authors.
-# 
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
 import lux
 from lux.interestingness.interestingness import interestingness
 from lux.processor.Compiler import Compiler
 from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
+# for benchmarking
+import time
 from lux.utils import utils
 
 
@@ -24,15 +12,12 @@ from lux.utils import utils
 def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	'''
 	Generates bivariate visualizations that represent all pairwise relationships in the data.
-
 	Parameters
 	----------
 	ldf : LuxDataFrame
 		LuxDataFrame with underspecified intent.
-
 	ignore_transpose: bool
 		Boolean flag to ignore pairs of attributes whose transpose are already computed (i.e., {X,Y} will be ignored if {Y,X} is already computed)
-
 	Returns
 	-------
 	recommendations : Dict[str,obj]
@@ -47,7 +32,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	recommendation = {"action": "Correlation",
 					  "description": "Show relationships between two <p class='highlight-descriptor'>quantitative</p> attributes."}
 	ignore_rec_flag = False
-	if (len(ldf)<5): # Doesn't make sense to compute correlation if less than 4 data values
+	if (len(ldf)<5 and ldf.executor_type == "Pandas"): # Doesn't make sense to compute correlation if less than 4 data values
 		ignore_rec_flag = True
 	# Then use the data populated in the vis list to compute score
 	for vis in vlist:

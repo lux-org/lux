@@ -19,15 +19,12 @@ from lux.utils import utils
 def univariate(ldf, data_type_constraint="quantitative"):
 	'''
 	Generates bar chart distributions of different attributes in the dataframe.
-
 	Parameters
 	----------
 	ldf : lux.core.frame
 		LuxDataFrame with underspecified intent.
-
 	data_type_constraint: str
 		Controls the type of distribution chart that will be rendered.
-
 	Returns
 	-------
 	recommendations : Dict[str,obj]
