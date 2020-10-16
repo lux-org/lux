@@ -9,6 +9,7 @@ RegisteredOption = namedtuple("RegisteredOption", "name action display_condition
 
 # holds registered option metadata
 _registered_actions: Dict[str, RegisteredOption] = {}
+# flags whether or not an action has been registered or removed and should be re-rendered by frame.py
 update_actions: Dict[str, bool] = {}
 update_actions["flag"] = False
 
@@ -25,14 +26,16 @@ class DictWrapper:
 
 	def __getattr__(self, name: str):
 		"""
-    	Gets a specific registered action by id
-    	Parameters
-    	----------
-    	`name` - the id for the actions
-    	Return
-    	-------
-    	DictWrapper object for the action
-    	"""
+		Gets a specific registered action by id
+		
+		Parameters
+		----------
+		name : str
+			the name of the action
+		Return
+		-------
+		DictWrapper object for the action
+		"""
 		prefix = object.__getattribute__(self, "prefix")
 		if prefix:
 			prefix += "."
@@ -48,10 +51,11 @@ class DictWrapper:
 
 	def __getactions__(self):
 		"""
-    	Gathers all currently registered actions in a list of DictWrapper
-    	Return
-    	-------
-    	a list of DictWrapper objects that are registered
+		Gathers all currently registered actions in a list of DictWrapper
+
+		Return
+		-------
+		List of DictWrapper objects that are registered
     	"""
 		l = []
 		for name in self.__dir__():
@@ -74,16 +78,19 @@ def register_action(
     *args,
 ) -> None:
 	"""
-    Parameters
-    ----------
-    `name` - the id for the actions
-    `action` - the function to be applied to the dataframe
-    `display_condition` - the function to check whether or not the function should be applied
-    `args` - any additional arguments the function may require
-    Description
-    -------
-    Registers the provided action globally in lux
-    """
+	Registers the provided action globally in lux
+
+	Parameters
+	----------
+	name : str
+		the name of the action
+	action : Callable[[Any], Any]
+		the function used to generate the recommendations
+	display_condition : Callable[[Any], Any]
+		the function to check whether or not the function should be applied
+	args: Any
+		any additional arguments the function may require
+	"""
 	name = name.lower()
 	if action:
 		is_callable(action)
@@ -99,13 +106,13 @@ def remove_action(
 	name: str = "",
 ) -> None:
 	"""
-    Parameters
-    ----------
-    `name` - the id for the action to remove
-    Description
-    -------
-    Removes the provided action globally in lux
-    """
+	Removes the provided action globally in lux
+
+	Parameters
+	----------
+	name : str
+		the name of the action to remove
+	"""
 	name = name.lower()
 	if name not in _registered_actions:
 		raise ValueError(f"Option '{name}' has not been registered")
@@ -115,14 +122,17 @@ def remove_action(
 
 def is_callable(obj) -> bool:
 	"""
-    Parameters
-    ----------
-    `obj` - the object to be checked
-    Returns
-    -------
-    validator - returns True if object is callable
-        raises ValueError otherwise.
-    """
+	Parameters
+	----------
+	obj: Any
+		the object to be checked
+
+	Returns
+	-------
+	validator : bool
+		returns True if object is callable
+		raises ValueError otherwise.
+	"""
 	if not callable(obj):
 		raise ValueError("Value must be a callable")
 	return True

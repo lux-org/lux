@@ -225,10 +225,12 @@ class LuxDataFrame(pd.DataFrame):
 		"""
 		Main function to set the intent of the dataframe.
 		The intent input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
+
 		Parameters
 		----------
 		intent : List[str,Clause]
 			intent list, can be a mix of string shorthand or a lux.Clause object
+
 		Notes
 		-----
 			:doc:`../guide/clause`
@@ -256,6 +258,7 @@ class LuxDataFrame(pd.DataFrame):
 	def set_intent_as_vis(self,vis:Vis):
 		"""
 		Set intent of the dataframe as the Vis
+		
 		Parameters
 		----------
 		vis : Vis
