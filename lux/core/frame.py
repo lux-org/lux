@@ -258,7 +258,7 @@ class LuxDataFrame(pd.DataFrame):
 	def set_intent_as_vis(self,vis:Vis):
 		"""
 		Set intent of the dataframe as the Vis
-		
+
 		Parameters
 		----------
 		vis : Vis
@@ -476,6 +476,7 @@ class LuxDataFrame(pd.DataFrame):
 	def exported(self) -> Union[Dict[str,VisList], VisList]:
 		"""
 		Get selected visualizations as exported Vis List
+		
 		Notes
 		-----
 		Convert the _exportedVisIdxs dictionary into a programmable VisList
