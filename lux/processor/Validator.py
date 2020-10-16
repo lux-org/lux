@@ -18,6 +18,7 @@ from lux.vis.Clause import Clause
 from typing import List
 from lux.utils.date_utils import is_datetime_series,is_datetime_string
 import warnings
+import pandas as pd
 class Validator:
 	'''
 	Contains methods for validating lux.Clause objects in the intent.
@@ -59,7 +60,7 @@ class Validator:
 							if not clause.attribute in list(ldf.columns):
 								warnings.warn(f"The input attribute '{clause.attribute}' does not exist in the DataFrame.")
 						if (clause.value and clause.attribute and clause.filter_op=="="):
-							series = ldf[clause.attribute]
+							series = pd.Series(ldf.unique_values[clause.attribute])
 							if (not is_datetime_series(series)): 
 								if isinstance(clause.value, list):
 									vals = clause.value
