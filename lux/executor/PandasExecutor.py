@@ -1,3 +1,17 @@
+#  Copyright 2019-2020 The Lux Authors.
+# 
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 import pandas as pd
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
@@ -20,6 +34,22 @@ class PandasExecutor(Executor):
     def __repr__(self):
         return f"<PandasExecutor>"
     @staticmethod
+    def execute_sampling(ldf:LuxDataFrame):
+        # General Sampling for entire dataframe
+        SAMPLE_START = 10000
+        SAMPLE_CAP = 30000
+        SAMPLE_FRAC = 0.75
+        if len(ldf) > SAMPLE_CAP:
+            if (ldf._sampled is None): # memoize unfiltered sample df 
+                ldf._sampled = ldf.sample(n = SAMPLE_CAP , random_state = 1)
+            ldf._message.add_unique(f"Large dataframe detected: Lux is only visualizing a random sample capped at {SAMPLE_CAP} rows.", priority=99)
+        elif len(ldf) > SAMPLE_START:
+            if (ldf._sampled is None): # memoize unfiltered sample df 
+                ldf._sampled = ldf.sample(frac= SAMPLE_FRAC, random_state = 1)
+            ldf._message.add_unique(f"Large dataframe detected: Lux is only visualizing a random sample of {len(ldf._sampled)} rows.", priority=99)
+        else:
+            ldf._sampled = ldf
+    @staticmethod
     def execute(vislist:VisList, ldf:LuxDataFrame):
         '''
         Given a VisList, fetch the data required to render the vis.
@@ -39,8 +69,9 @@ class PandasExecutor(Executor):
         -------
         None
         '''
+        PandasExecutor.execute_sampling(ldf)
         for vis in vislist:
-            vis._vis_data = ldf # The vis data starts off being the same as the content of the original dataframe
+            vis._vis_data = ldf._sampled # The vis data starts off being original or sampled dataframe
             filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
             attributes = set([])
@@ -48,22 +79,20 @@ class PandasExecutor(Executor):
                 if (clause.attribute):
                     if (clause.attribute!="Record"):
                         attributes.add(clause.attribute)
-            # General Sampling
-            if len(vis.data) > 10000:
-                n_samples = int(len(vis.data)*0.75)
-                vis._vis_data = vis.data[list(attributes)].sample(n = n_samples , random_state = 1)
-            else:
-                vis._vis_data = vis.data[list(attributes)]
-            # vis._vis_data = vis.data[list(attributes)]
-            
+            # TODO: Add some type of cap size on Nrows ?
+            vis._vis_data = vis.data[list(attributes)]
             if (vis.mark =="bar" or vis.mark =="line"):
                 PandasExecutor.execute_aggregate(vis,isFiltered = filter_executed)
             elif (vis.mark =="histogram"):
                 PandasExecutor.execute_binning(vis)
             elif (vis.mark =="scatter"):
-                if (len(vis.data)>10000):
-                    vis._mark = "heatmap"
-                    PandasExecutor.execute_2D_binning(vis)
+                HBIN_START = 5000
+                if (len(ldf)>HBIN_START):
+                    vis._postbin = True
+                    ldf._message.add_unique(f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.", priority=98)
+                    # vis._mark = "heatmap"
+                    # PandasExecutor.execute_2D_binning(vis) # Lazy Evaluation (Early pruning based on interestingness)  
+                
 
 
     @staticmethod
@@ -243,18 +272,36 @@ class PandasExecutor(Executor):
         with pd.option_context('mode.chained_assignment', None):
             x_attr = vis.get_attr_by_channel("x")[0]
             y_attr = vis.get_attr_by_channel("y")[0]
+            
+            vis._vis_data.loc[:,"xBin"] = pd.cut(vis._vis_data[x_attr.attribute], bins=40)
+            vis._vis_data.loc[:,"yBin"] = pd.cut(vis._vis_data[y_attr.attribute], bins=40)
 
-            vis._vis_data.loc[:,"xBin"] = pd.cut(vis._vis_data[x_attr.attribute], bins=30)
-            vis._vis_data.loc[:,"yBin"] = pd.cut(vis._vis_data[y_attr.attribute], bins=30)
-            groups = vis._vis_data.groupby(['xBin','yBin'])[x_attr.attribute]
-            result = groups.agg("count").reset_index() # .agg in this line throws SettingWithCopyWarning 
-            result = result.rename(columns={x_attr.attribute:"z"})
-            result = result[result["z"]!=0]
+            color_attr = vis.get_attr_by_channel("color")
+            if (len(color_attr)>0):
+                color_attr = color_attr[0]
+                groups = vis._vis_data.groupby(['xBin','yBin'])[color_attr.attribute]
+                if (color_attr.data_type == "nominal"):
+                    # Compute mode and count. Mode aggregates each cell by taking the majority vote for the category variable. In cases where there is ties across categories, pick the first item (.iat[0])
+                    result =  groups.agg([("count","count"),
+                                        (color_attr.attribute,lambda x: pd.Series.mode(x).iat[0])
+                                        ]).reset_index() 
+                elif (color_attr.data_type == "quantitative"):
+                    # Compute the average of all values in the bin
+                    result =  groups.agg([("count","count"),
+                                          (color_attr.attribute,"mean")
+                                        ]).reset_index() 
+                result = result.dropna()
+            else:
+                groups = vis._vis_data.groupby(['xBin','yBin'])[x_attr.attribute]
+                result = groups.agg("count").reset_index() # .agg in this line throws SettingWithCopyWarning 
+                result = result.rename(columns={x_attr.attribute:"count"})
+                result = result[result["count"]!=0]
 
-            result.loc[:,"xBinStart"] = result["xBin"].apply(lambda x: x.left)
+            # convert type to facilitate weighted correlation interestingess calculation
+            result.loc[:,"xBinStart"] = result["xBin"].apply(lambda x: x.left).astype('float') 
             result.loc[:,"xBinEnd"] = result["xBin"].apply(lambda x: x.right)
 
-            result.loc[:,"yBinStart"] = result["yBin"].apply(lambda x: x.left)
+            result.loc[:,"yBinStart"] = result["yBin"].apply(lambda x: x.left).astype('float')
             result.loc[:,"yBinEnd"] = result["yBin"].apply(lambda x: x.right)
 
             vis._vis_data = result.drop(columns=["xBin","yBin"])
@@ -275,26 +322,32 @@ class PandasExecutor(Executor):
             if (isinstance(attr,pd._libs.tslibs.timestamps.Timestamp)): 
                 # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
                 ldf.data_type_lookup[attr] = "temporal"
-            elif any(var in str(attr).lower() for var in temporal_var_list):
+            # elif any(var in str(attr).lower() for var in temporal_var_list):
+            elif str(attr).lower() in temporal_var_list:
                 ldf.data_type_lookup[attr] = "temporal"
-            elif ldf.dtypes[attr] == "float64":
+            elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                 ldf.data_type_lookup[attr] = "quantitative"
             elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]): 
                 # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                 if (ldf.pre_aggregated):
                     if (ldf.cardinality[attr]==len(ldf)):
                         ldf.data_type_lookup[attr] = "nominal"
-                if ldf.cardinality[attr]/len(ldf) < 0.4 and ldf.cardinality[attr]<10: 
+                if ldf.cardinality[attr]/len(ldf) < 0.4 and ldf.cardinality[attr]<20: 
                     ldf.data_type_lookup[attr] = "nominal"
-                elif check_if_id_like(ldf,attr): 
-                    ldf.data_type_lookup[attr] = "id"
                 else:
                     ldf.data_type_lookup[attr] = "quantitative"
+                if check_if_id_like(ldf,attr): 
+                    ldf.data_type_lookup[attr] = "id"
             # Eliminate this clause because a single NaN value can cause the dtype to be object
-            elif ldf.dtypes[attr] == "object":
-                ldf.data_type_lookup[attr] = "nominal"
+            elif pd.api.types.is_string_dtype(ldf.dtypes[attr]):
+                if check_if_id_like(ldf,attr): 
+                    ldf.data_type_lookup[attr] = "id"
+                else:
+                    ldf.data_type_lookup[attr] = "nominal"
             elif is_datetime_series(ldf.dtypes[attr]): #check if attribute is any type of datetime dtype
                 ldf.data_type_lookup[attr] = "temporal"
+            else:
+                ldf.data_type_lookup[attr] = "nominal" 
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         #   if self.cardinality[attr]>50:
         if (ldf.index.dtype !='int64' and ldf.index.name):
@@ -325,7 +378,7 @@ class PandasExecutor(Executor):
     def compute_data_model(self, ldf:LuxDataFrame):
         ldf.data_model = {
             "measure": ldf.data_type["quantitative"],
-            "dimension": ldf.data_type["ordinal"] + ldf.data_type["nominal"] + ldf.data_type["temporal"]
+            "dimension": ldf.data_type["nominal"] + ldf.data_type["temporal"]  + ldf.data_type["id"]
         }
         ldf.data_model_lookup = self.reverseMapping(ldf.data_model)
 
@@ -343,13 +396,21 @@ class PandasExecutor(Executor):
                 attribute_repr = str(attribute._date_repr)
             else:
                 attribute_repr = attribute
-            if ldf.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
-                ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
-                ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
-            else:   
-                ldf.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
+
+            ldf.unique_values[attribute_repr] = list(ldf[attribute_repr].unique())
+            ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
+            
+            # commenting this optimization out to make sure I can filter by cardinality when showing recommended vis
+
+            # if ldf.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
+            #     ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+            #     ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
+            # else:   
+            #     ldf.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
+            
             if ldf.dtypes[attribute] == "float64" or ldf.dtypes[attribute] == "int64":
                 ldf._min_max[attribute_repr] = (ldf[attribute].min(), ldf[attribute].max())
+
         if (ldf.index.dtype !='int64'):
             index_column_name = ldf.index.name
             ldf.unique_values[index_column_name] = list(ldf.index)

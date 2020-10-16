@@ -9,19 +9,23 @@ with open(path.join(HERE, 'README.md'), encoding='utf-8') as f:
 
 with open(path.join(HERE, 'requirements.txt')) as fp:
     install_requires = fp.read()
-# Arguments marked as "Required" below must be included for upload to PyPI.
-# Fields marked as "Optional" may be commented out.
+
+version_dict = {}
+with open(path.join(HERE, 'lux/_version.py')) as fp:
+    exec(fp.read(), {}, version_dict)
+version = version_dict["__version__"]
 
 setup(
     name='lux-api',  # PyPI Name (pip install [name])
-    version='0.1.2',  # Required
-    description='A Python API for Intelligent Data Discovery',  # Project description (Optional)
-    long_description=long_description,  # Optional
-    long_description_content_type='text/markdown',  # Optional (see note above)
-    url='https://github.com/lux-org/lux',  # Optional
-    maintainer='Doris Jung-Lin Lee',  # Optional
-    maintainer_email='dorisjunglinlee@gmail.com',  # Optional
-    classifiers=[  # Optional
+    version=version,  # Required
+    description='A Python API for Intelligent Data Discovery', 
+    long_description=long_description,  
+    long_description_content_type='text/markdown',  
+    url='https://github.com/lux-org/lux',  
+    author='Doris Jung-Lin Lee',  
+    author_email='dorisjunglinlee@gmail.com', 
+    license         = 'Apache-2.0 License',
+    classifiers=[  
         'Development Status :: 1 - Planning',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
@@ -31,12 +35,12 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 3'
     ],
-    keywords='visualization analytics data-science insight discovery',  # Optional
+    keywords= ['Visualization','Analytics','Data Science','Data Analysis'],
     include_data_package=True,
     packages=find_packages(),  # Required
     python_requires='>=3.5',
     install_requires=install_requires,
-    extras_require={  # Optional
+    extras_require={  
         'test': ['pytest']
     }
 )

@@ -1,3 +1,17 @@
+#  Copyright 2019-2020 The Lux Authors.
+# 
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 from __future__ import annotations
 from lux.vislib.altair.AltairRenderer import AltairRenderer
 from lux.utils.utils import check_import_lux_widget
@@ -79,6 +93,10 @@ class VisList():
 		Removes duplicate visualizations in Vis List
 		"""		
 		self._collection = list(set(self._collection))
+
+	def remove_index(self, index):
+		self._collection.pop(index)
+	
 	def _is_vis_input(self):
 		if (type(self._input_lst[0])==Vis):
 			return True
@@ -221,9 +239,9 @@ class VisList():
 		recommendation["collection"] = self._collection
 
 		check_import_lux_widget()
-		import luxWidget
+		import luxwidget
 		recJSON = LuxDataFrame.rec_to_JSON([recommendation])
-		self._widget =  luxWidget.LuxWidget(
+		self._widget =  luxwidget.LuxWidget(
 				currentVis={},
 				recommendations=recJSON,
 				intent="",

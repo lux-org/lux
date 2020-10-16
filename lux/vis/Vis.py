@@ -1,3 +1,17 @@
+#  Copyright 2019-2020 The Lux Authors.
+# 
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 from __future__ import annotations
 from typing import List, Callable, Union
 from lux.vis.Clause import Clause
@@ -15,6 +29,7 @@ class Vis:
 		self._mark = ""
 		self._min_max = {}
 		self._plot_config = None
+		self._postbin = None
 		self.title = title
 		self.score = score
 		self.refresh_source(self._source)
@@ -101,12 +116,12 @@ class Vis:
 	def _repr_html_(self):
 		from IPython.display import display
 		check_import_lux_widget()
-		import luxWidget
+		import luxwidget
 		if (self.data is None):
 			raise Exception("No data is populated in Vis. In order to generate data required for the vis, use the 'refresh_source' function to populate the Vis with a data source (e.g., vis.refresh_source(df)).")
 		else:
 			from lux.core.frame import LuxDataFrame
-			widget =  luxWidget.LuxWidget(
+			widget =  luxwidget.LuxWidget(
 					currentVis= LuxDataFrame.current_vis_to_JSON([self]),
 					recommendations=[],
 					intent="",

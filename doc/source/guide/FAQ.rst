@@ -24,7 +24,7 @@ How do I access all of the current recommendations shown in my widget?
 
 How do I set the Lux widgets to show up on default? 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""
-  By default, we show the Pandas display and users can use the toggle button to switch to the Lux display. The `set_default_display` function allows users to change the setting so that the Lux widget is set as the default view for future operations on the specified dataframe: 
+  By default, we show the Pandas display and users can use the toggle button to switch to the Lux display. The `default_display` property allows users to change the setting so that the Lux widget is set as the default view for future operations on the specified dataframe: 
 
     .. code-block:: python
     

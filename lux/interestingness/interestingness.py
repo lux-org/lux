@@ -1,3 +1,17 @@
+#  Copyright 2019-2020 The Lux Authors.
+# 
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 from lux.core.frame import LuxDataFrame
 from lux.vis.Vis import Vis
 from lux.executor.PandasExecutor import PandasExecutor
@@ -25,7 +39,8 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	
 
 	if vis.data is None or len(vis.data)==0:
-		raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
+		return -1
+		# raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
 
 	n_dim = 0
 	n_msr = 0
@@ -66,9 +81,9 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 		return -1
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
+		if (v_size<10): return -1 
 		if (vis.mark=="heatmap"):
-			return 0.3 #TODO: Need better interestingness metric for binned scatterplots (heatmaps)
-		if (v_size<2): return -1 
+			return weighted_correlation(vis.data["xBinStart"],vis.data["yBinStart"],vis.data["count"])
 		if (n_filter==1):
 			v_filter_size = get_filtered_size(filter_specs, vis.data)
 			sig = v_filter_size/v_size
@@ -77,7 +92,7 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 		return sig * monotonicity(vis,attr_specs)
 	# Scatterplot colored by Dimension
 	elif (n_dim == 1 and n_msr == 2):
-		if (v_size<5): return -1 
+		if (v_size<10): return -1 
 		color_attr = vis.get_attr_by_channel("color")[0].attribute
 		
 		C = ldf.cardinality[color_attr]
@@ -132,6 +147,16 @@ def skewness(v):
 	from scipy.stats import skew
 	return skew(v)
 
+def weighted_avg(x, w):
+    return np.average(x,weights=w)
+
+def weighted_cov(x, y, w):
+    return np.sum(w * (x - weighted_avg(x, w)) * (y - weighted_avg(y, w))) / np.sum(w)
+
+def weighted_correlation(x, y, w):
+    # Based on https://en.wikipedia.org/wiki/Pearson_correlation_coefficient#Weighted_correlation_coefficient
+    return weighted_cov(x, y, w) / np.sqrt(weighted_cov(x, x, w) * weighted_cov(y, y, w))
+	
 def deviation_from_overall(vis:Vis, ldf:LuxDataFrame, filter_specs:list, msr_attribute:str) -> int:
 	"""
 	Difference in bar chart/histogram shape from overall chart
@@ -156,7 +181,7 @@ def deviation_from_overall(vis:Vis, ldf:LuxDataFrame, filter_specs:list, msr_att
 	v_filter = vis.data[msr_attribute]
 	total = v_filter.sum()
 	v_filter = v_filter/total  # normalize by total to get ratio
-	if (total==0 or v_size ==0): return 0
+	if (total==0): return 0
 	# Generate an "Overall" Vis (TODO: This is computed multiple times for every vis, alternative is to directly access df.current_vis but we do not have guaruntee that will always be unfiltered vis (in the non-Filter action scenario))
 	import copy
 	unfiltered_vis = copy.copy(vis)
@@ -250,7 +275,16 @@ def monotonicity(vis:Vis, attr_specs:list, ignore_identity:bool=True) ->int:
 		return -1
 	v_x = vis.data[msr1]
 	v_y = vis.data[msr2]
-	score = (spearmanr(v_x, v_y)[0]) ** 2
+	
+	import warnings
+	with warnings.catch_warnings():
+		warnings.filterwarnings('error')
+		try: 
+			score = (spearmanr(v_x, v_y)[0]) ** 2
+		except(RuntimeWarning): 
+			# RuntimeWarning: invalid value encountered in true_divide (occurs when v_x and v_y are uniform, stdev in denominator is zero, leading to spearman's correlation as nan), ignore these cases.
+			score = -1
+	
 	if pd.isnull(score):
 		return -1
 	else:
