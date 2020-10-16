@@ -141,27 +141,7 @@ To install and activate the Jupyter notebook extension:
 ```
 
 If the installation happens correctly, you should see two `- Validating: OK` after executing the two lines above.
-If you encounter issues with the installation, please refer to [this page](https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips) to troubleshoot the installation.
-
-# Dev Installation 
-
-To set up Lux manually for development purposes, you should clone the two Github repos for Lux: 1) the core Python [Lux API](https://github.com/lux-org/lux)  and 2) the [Jupyter widget frontend](https://github.com/lux-org/lux-widget). 
-
-To install the Python Lux API: 
-
-```bash
-    git clone https://github.com/lux-org/lux.git
-    cd lux/
-    python setup.py install
-```
-
-To install the [Lux Jupyter Widget](https://github.com/lux-org/lux-widget): 
-
-```bash
-    pip install git+https://github.com/lux-org/lux-widget
-    jupyter nbextension install --sys-prefix --symlink --overwrite --py luxwidget
-    jupyter nbextension enable --sys-prefix --py luxwidget
-```
+If you encounter issues with the installation, please refer to [this page](https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips) to troubleshoot the installation. Follow [these instructions](https://lux-api.readthedocs.io/en/latest/source/getting_started/installation.html#manual-installation-dev-setup) to set up Lux for development purposes.
 
 # Support and Resources
 
