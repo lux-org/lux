@@ -84,7 +84,7 @@ class LuxDataFrame(pd.DataFrame):
 				self._metadata_fresh = True
 	def expire_recs(self):
 		self._recs_fresh = False
-		self.recommendation = None
+		self.recommendation = {}
 		self.current_vis = None
 		self._widget = None
 		self._rec_info = None
@@ -424,7 +424,7 @@ class LuxDataFrame(pd.DataFrame):
 				if (rec_df.index.name is not None):
 					rec_df._append_rec(rec_infolist, column_group(rec_df))
 			else:
-				if self.recommendation == None:
+				if self.recommendation == {}:
 					# display conditions for default actions
 					no_vis = lambda ldf: (ldf.current_vis is None) or (ldf.current_vis is not None and len(ldf.current_vis) == 0)
 					one_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
