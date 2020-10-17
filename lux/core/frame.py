@@ -323,7 +323,6 @@ class LuxDataFrame(pd.DataFrame):
 					no_vis = len(rec_df.current_vis) == 0
 					one_current_vis = len(rec_df.current_vis) == 1
 					multiple_current_vis = len(rec_df.current_vis) > 1
-
 				if (no_vis):
 					rec_df._append_rec(rec_infolist, correlation(rec_df))
 					rec_df._append_rec(rec_infolist, univariate(rec_df,"quantitative"))
@@ -418,7 +417,6 @@ class LuxDataFrame(pd.DataFrame):
 		from IPython.display import display
 		from IPython.display import clear_output
 		import ipywidgets as widgets
-		
 		try: 
 			if (self._pandas_only):
 				display(self.display_pandas())
@@ -434,7 +432,6 @@ class LuxDataFrame(pd.DataFrame):
 								)
 					display(self.display_pandas())
 					return
-
 				if (len(self)<=0 and self.executor_type == "Pandas"):
 					warnings.warn("\nLux can not operate on an empty dataframe.\nPlease check your input again.\n",stacklevel=2)
 					display(self.display_pandas()) 
@@ -444,7 +441,6 @@ class LuxDataFrame(pd.DataFrame):
 					display(self.display_pandas()) 
 					return
 				self.maintain_metadata()
-				
 				if (self._intent!=[] and (not hasattr(self,"_compiled") or not self._compiled)):
 					from lux.processor.Compiler import Compiler
 					self.current_vis = Compiler.compile_intent(self, self._intent)
@@ -513,9 +509,9 @@ class LuxDataFrame(pd.DataFrame):
 			User-specified current vis to override default Current Vis, by default 
 		"""       
 		check_import_lux_widget()
-		import luxWidget
+		import luxwidget
 		widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
-		return luxWidget.LuxWidget(
+		return luxwidget.LuxWidget(
 			currentVis=widgetJSON["current_vis"],
 			recommendations=widgetJSON["recommendation"],
 			intent=LuxDataFrame.intent_to_string(self._intent),
