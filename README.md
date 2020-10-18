@@ -22,7 +22,7 @@
     </a>
 </p>
 
-Lux is a Python library that makes data science easier by automating aspects of the data exploration process. Lux facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Visualizations are displayed via [an interactive Jupyter widget](https://github.com/lux-org/lux-widget) to allow users to quickly browse through large collections of data directly within their Jupyter notebooks.
+Lux is a Python library that makes data science easier by automating aspects of the data exploration process. Lux facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Visualizations are displayed via [an interactive widget](https://github.com/lux-org/lux-widget) that allow users to quickly browse through large collections of visualizations directly within their Jupyter notebooks.
 
 Here is a [1-min video](https://www.youtube.com/watch?v=qmnYP-LmbNU) introducing Lux, and [slides](http://dorisjunglinlee.com/files/Zillow_07_2020_Slide.pdf) from a more extended talk.
 
@@ -94,7 +94,7 @@ Now that we have found some interesting visualizations through Lux, we might be 
      style="width:600px" />
 
 ### Quick, on-demand visualizations with the help of automatic encoding: 
-We've seen how `Vis`s are automatically generated as part of the recommendations. Users can also create their own Vis via the same syntax as specifying the intent. Lux is built on the philosophy that users should always be able to visualize anything they want, without having to think about *how* the visualization should look like. Lux automatically determines the mark and channel mappings based on a set of [best practices](http://hosteddocs.ittoolbox.com/fourshowmeautomaticpresentations.pdf) from [Tableau](https://www.tableau.com). The visualizations are rendered via [Altair](https://github.com/altair-viz/altair/tree/master/altair) into [Vega-Lite](https://github.com/vega/vega-lite) specifications.
+We've seen how `Vis`s are automatically generated as part of the recommendations. Users can also create their own Vis via the same syntax as specifying the intent. Lux is built on the philosophy that users should always be able to visualize anything they want, without having to think about *how* the visualization should look like. Lux automatically determines the mark and channel mappings based on a set of [best practices](http://hosteddocs.ittoolbox.com/fourshowmeautomaticpresentations.pdf). The visualizations are rendered via [Altair](https://github.com/altair-viz/altair/tree/master/altair) into [Vega-Lite](https://github.com/vega/vega-lite) specifications.
 
 ```python    
     from lux.vis.Vis import Vis
@@ -108,7 +108,7 @@ We've seen how `Vis`s are automatically generated as part of the recommendations
 
 ### Powerful language for working with collections of visualizations:
 
-Lux provides a powerful abstraction for working with collections of visualizations based on a partially specified queries. Users can provide a list or a wildcard to iterate over combinations of filter or attribute values and quickly browse through large numbers of visualizations. The partial specification is inspired by existing work on intent languages for visualization languages, including [ZQL](https://github.com/vega/compassql) and [CompassQL](https://github.com/vega/compassql).
+Lux provides a powerful abstraction for working with collections of visualizations based on a partially specified queries. Users can provide a list or a wildcard to iterate over combinations of filter or attribute values and quickly browse through large numbers of visualizations. The partial specification is inspired by existing work on visualization query languages, including [ZQL](https://github.com/vega/compassql) and [CompassQL](https://github.com/vega/compassql).
 
 For example, we might be interested in looking at how the `AverageCost` distribution differs across different `Region`s.
 
