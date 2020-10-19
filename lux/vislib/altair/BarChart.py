@@ -37,7 +37,7 @@ class BarChart(AltairChart):
 		
 		if (x_attr.data_model == "measure"):
 			agg_title = get_agg_title(x_attr)
-			self.measure_attr = x_attr.attribute
+			measure_attr = x_attr.attribute
 			y_attr_field = alt.Y(y_attr.attribute, type= y_attr.data_type, axis=alt.Axis(labelOverlap=True))
 			x_attr_field = alt.X(x_attr.attribute, type= x_attr.data_type, title=agg_title)
 			y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
@@ -48,7 +48,7 @@ class BarChart(AltairChart):
 				y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True), sort ='-x')"
 		else:
 			agg_title = get_agg_title(y_attr)
-			self.measure_attr = y_attr.attribute
+			measure_attr = y_attr.attribute
 			x_attr_field = alt.X(x_attr.attribute, type = x_attr.data_type,axis=alt.Axis(labelOverlap=True))
 			y_attr_field = alt.Y(y_attr.attribute,type=y_attr.data_type,title=agg_title)
 			x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
@@ -61,7 +61,7 @@ class BarChart(AltairChart):
 		self.topK_code = ""
 		if len(self.data)>k: # Truncating to only top k
 			remaining_bars = len(self.data)-k
-			self.data = self.data.nlargest(k,self.measure_attr)
+			self.data = self.data.nlargest(k,measure_attr)
 			self.text = alt.Chart(self.data).mark_text(
 				x=155, 
 				y=142,
@@ -90,7 +90,7 @@ class BarChart(AltairChart):
 		# TODO: tooltip messes up the count() bar charts		
 		# Can not do interactive whenever you have default count measure otherwise output strange error (Javascript Error: Cannot read property 'length' of undefined)
 		#chart = chart.interactive() # If you want to enable Zooming and Panning
-		# chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
+		
 
 		self.code += "import altair as alt\n"
 		# self.code += f"visData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
@@ -100,7 +100,6 @@ class BarChart(AltairChart):
 		    y = {y_attr_field_code},
 		    x = {x_attr_field_code},
 		)
-		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 			'''
 		return chart 
 	
@@ -109,6 +108,11 @@ class BarChart(AltairChart):
 			self.chart = self.chart + self.text
 			self.code += self.topK_code
 	
-	def encode_color(self): # overridde encode_color so that it adds text after
+	def encode_color(self): # override encode_color so that it adds text after
 		AltairChart.encode_color(self)
 		self.add_text()
+		self.chart = self.chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
+		self.code += f'''chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null 
+		'''
+
+
