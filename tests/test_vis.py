@@ -163,6 +163,6 @@ def test_text_not_overridden():
     from lux.vis.Vis import Vis
     df = pd.read_csv("lux/data/college.csv")
     vis = Vis(["Region", "Geography"], df)
-    # vis._repr_html_()
+    vis._repr_html_()
     code = vis.to_Altair()
     assert "color = \"#ff8e04\"" in code
