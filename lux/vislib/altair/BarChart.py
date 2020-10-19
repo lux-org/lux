@@ -67,6 +67,10 @@ class BarChart(AltairChart):
 		else:
 			color_attr_field = alt.Color(color_attr.attribute, type=color_attr.data_type)
 			color_attr_field_code = f"alt.Color('{color_attr.attribute}', type= '{color_attr.data_type}')"
+<<<<<<< HEAD
+=======
+
+>>>>>>> 56e04b3991b0c59250cbe497ced6eef65c2eeb74
 
 		k=10
 		topK_code = ""
