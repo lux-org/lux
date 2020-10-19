@@ -40,6 +40,9 @@ class SQLExecutor(Executor):
                     attributes.add(clause.attribute)
             if view.mark not in ["bar", "line", "histogram"]:
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
+
+                num_obs_query = pandas.read_sql("SELECT COUNT(*) as num_obs FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
+
                 required_variables = attributes | set(filterVars)
                 required_variables = ",".join(required_variables)
                 row_count = list(pandas.read_sql("SELECT COUNT(*) FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)['count'])[0]
@@ -49,6 +52,7 @@ class SQLExecutor(Executor):
                     query = "SELECT {} FROM {} {}".format(required_variables, ldf.table_name, where_clause)
                 data = pandas.read_sql(query, ldf.SQLconnection)
                 view._vis_data = utils.pandas_to_lux(data)
+                view._vis_data.num_obs = list(num_obs_query['num_obs'])[0]
             if (view.mark =="bar" or view.mark =="line"):
                 SQLExecutor.execute_aggregate(view, ldf)
             elif (view.mark =="histogram"):
@@ -86,6 +90,8 @@ class SQLExecutor(Executor):
             #barchart case, need count data for each group
             if (measure_attr.attribute=="Record"):
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
+
+                num_obs_query = pandas.read_sql("SELECT COUNT(*) as num_obs FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
                 if has_color:
                     count_query = "SELECT {}, {}, COUNT({}) FROM {} {} GROUP BY {}, {}".format(groupby_attr.attribute, color_attr.attribute, groupby_attr.attribute, ldf.table_name, where_clause, groupby_attr.attribute, color_attr.attribute)
                     view._vis_data = pandas.read_sql(count_query, ldf.SQLconnection)
@@ -96,9 +102,12 @@ class SQLExecutor(Executor):
                     view._vis_data = pandas.read_sql(count_query, ldf.SQLconnection)
                     view._vis_data = view._vis_data.rename(columns={"count":"Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
+                view._vis_data.num_obs = list(num_obs_query['num_obs'])[0]
             #aggregate barchart case, need aggregate data for each group
             else:
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
+
+                num_obs_query = pandas.read_sql("SELECT COUNT(*) as num_obs FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
                 if has_color:
                     if agg_func == "mean":
                         mean_query = "SELECT {}, {}, AVG({}) as {} FROM {} {} GROUP BY {}, {}".format(groupby_attr.attribute, color_attr.attribute, measure_attr.attribute, measure_attr.attribute, ldf.table_name, where_clause, groupby_attr.attribute, color_attr.attribute)
@@ -156,6 +165,7 @@ class SQLExecutor(Executor):
             view._vis_data = view._vis_data.sort_values(by=groupby_attr.attribute, ascending=True)
             view._vis_data = view._vis_data.reset_index()
             view._vis_data = view._vis_data.drop(columns="index")
+            view._vis_data.num_obs = list(num_obs_query['num_obs'])[0]
 
     @staticmethod
     def execute_binning(view:Vis, ldf:LuxDataFrame):
@@ -169,6 +179,8 @@ class SQLExecutor(Executor):
 
         #get filters if available
         where_clause, filterVars = SQLExecutor.execute_filter(view)
+
+        num_obs_query = pandas.read_sql("SELECT COUNT(*) as num_obs FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
         #need to calculate the bin edges before querying for the relevant data
         bin_width = (attr_max-attr_min)/num_bins
         upper_edges = []
@@ -203,6 +215,7 @@ class SQLExecutor(Executor):
                     bin_count_data = bin_count_data.append(pandas.DataFrame([[i,0]], columns = bin_count_data.columns))
         view._vis_data = pandas.DataFrame(np.array([bin_centers,list(bin_count_data['count'])]).T,columns=[bin_attribute.attribute, "Number of Records"])
         view._vis_data = utils.pandas_to_lux(view.data)
+        view._vis_data.num_obs = list(num_obs_query['num_obs'])[0]
         
     @staticmethod
     #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's _inferred_intent
@@ -258,6 +271,8 @@ class SQLExecutor(Executor):
         # precompute statistics
         ldf.unique_values = {}
         ldf._min_max = {}
+        num_obs_query = pandas.read_sql("SELECT COUNT(*) as num_obs FROM {}".format(ldf.table_name), ldf.SQLconnection)
+        ldf.num_obs = list(num_obs_query['num_obs'])[0]
 
         self.get_unique_values(ldf)
         #ldf.get_cardinality()

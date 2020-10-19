@@ -176,8 +176,12 @@ def deviation_from_overall(vis:Vis, ldf:LuxDataFrame, filter_specs:list, msr_att
 	int
 		Score describing how different the vis is from the overall vis
 	"""
-	v_filter_size = get_filtered_size(filter_specs, ldf)
-	v_size = len(vis.data)
+	if(ldf.executor_type == "Pandas"):
+		v_filter_size = get_filtered_size(filter_specs, ldf)
+		v_size = len(vis.data)
+	else:
+		v_filter_size = vis._vis_data.num_obs
+		v_size = ldf.num_obs
 	v_filter = vis.data[msr_attribute]
 	total = v_filter.sum()
 	v_filter = v_filter/total  # normalize by total to get ratio

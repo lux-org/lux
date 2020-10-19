@@ -389,6 +389,8 @@ class PandasExecutor(Executor):
         ldf._min_max = {}
         ldf.cardinality = {}
 
+        ldf.num_obs = len(ldf)
+
         for attribute in ldf.columns:
             
             if (isinstance(attribute,pd._libs.tslibs.timestamps.Timestamp)): 
