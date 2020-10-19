@@ -15,6 +15,9 @@
 import pandas as pd
 import altair as alt
 from lux.utils.date_utils import compute_date_granularity
+from lux.vislib.altair import BarChart
+
+
 class AltairChart:
 	"""
 	AltairChart is a representation of a chart. 
@@ -33,7 +36,8 @@ class AltairChart:
 		self.code = "" 
 		self.chart = self.initialize_chart()
 		# self.add_tooltip()
-		# self.encode_color() // move this inside initialize_chart()
+		self.encode_color() # move this inside initialize_chart()
+		self.add_text()
 		self.add_title()
 		self.apply_default_config()
 
@@ -58,20 +62,20 @@ class AltairChart:
 		self.code+= "					labelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue')\n"
 		self.code+= "chart = chart.properties(width=160,height=150)\n"
 
-	# def encode_color(self):
-	# 	color_attr = self.vis.get_attr_by_channel("color")
-	# 	if (len(color_attr)==1):
-	# 		color_attr_name = color_attr[0].attribute
-	# 		color_attr_type = color_attr[0].data_type
-	# 		if (color_attr_type=="temporal"):
-	# 			timeUnit = compute_date_granularity(self.vis.data[color_attr_name])
-	# 			self.chart = self.chart.encode(color=alt.Color(color_attr_name,type=color_attr_type,timeUnit=timeUnit,title=color_attr_name))	
-	# 			self.code+=f"chart = chart.encode(color=alt.Color('{color_attr_name}',type='{color_attr_type}',timeUnit='{timeUnit}',title='{color_attr_name}'))"
-	# 		else:
-	# 			self.chart = self.chart.encode(color=alt.Color(color_attr_name,type=color_attr_type))
-	# 			self.code+=f"chart = chart.encode(color=alt.Color('{color_attr_name}',type='{color_attr_type}'))\n"
-	# 	elif (len(color_attr)>1):
-	# 		raise ValueError("There should not be more than one attribute specified in the same channel.")
+	def encode_color(self):
+		color_attr = self.vis.get_attr_by_channel("color")
+		if (len(color_attr)==1):
+			color_attr_name = color_attr[0].attribute
+			color_attr_type = color_attr[0].data_type
+			if (color_attr_type=="temporal"):
+				timeUnit = compute_date_granularity(self.vis.data[color_attr_name])
+				self.chart = self.chart.encode(color=alt.Color(color_attr_name,type=color_attr_type,timeUnit=timeUnit,title=color_attr_name))	
+				self.code+=f"chart = chart.encode(color=alt.Color('{color_attr_name}',type='{color_attr_type}',timeUnit='{timeUnit}',title='{color_attr_name}'))"
+			else:
+				self.chart = self.chart.encode(color=alt.Color(color_attr_name,type=color_attr_type))
+				self.code+=f"chart = chart.encode(color=alt.Color('{color_attr_name}',type='{color_attr_type}'))\n"
+		elif (len(color_attr)>1):
+			raise ValueError("There should not be more than one attribute specified in the same channel.")
 		
 	def add_title(self):
 		chart_title = self.vis.title
@@ -83,3 +87,7 @@ class AltairChart:
 				self.code+=f"chart = chart.encode().properties(title = '{chart_title}')"
 	def initialize_chart(self):
 		return NotImplemented
+	
+	def add_text(self):
+		return NotImplemented
+	
