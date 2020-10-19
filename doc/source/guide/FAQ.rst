@@ -65,7 +65,7 @@ How do I turn off Lux?
   To turn off Lux completely, remove the :code:`import lux` statement and restart your Jupyter notebook.
 
 Troubleshooting Tips
--------------------
+--------------------
 
 The Lux Jupyter widget does not show up when I print a dataframe.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -78,10 +78,25 @@ The Lux Jupyter widget does not show up when I print a dataframe.
 
   - If you are able to import lux successfully and you do not see the "Toggle button" when you print the dataframe, it may be possible that Lux is not compatible with your brower. Lux is compatible with Google Chrome, but have not been extensively tested on Safari or Firefox.
   - If you recieve the error message `A Jupyter widget could not be displayed because the widget state could not be found.This could happen if the kernel storing the widget is no longer available, or if the widget state was not saved in the notebook. You may be able to create the widget by running the appropriate cells.`, you may want to restart the notebook and rerun the cell.
+  - If you receive the error message `ModuleNotFoundError: No module named 'luxwidget`, it is possible that your luxwidget and lux-api are not in sync. Try running the following code:
+
+  .. code-block:: python
+      pip uninstall lux-api
+      pip uninstall lux-widget
+
+      jupyter nbextension uninstall --py luxWidget
+      jupyter nbextension disable --py luxWidget
+
+      pip install lux-api
+
+      jupyter nbextension install --py luxwidget
+      jupyter nbextension enable --py luxwidget
+
+  You can also try to create a new virtual environment and follow the `quick install instructions <https://github.com/lux-org/lux#quick-installation>`_.
   
 
 I'm not able to export my visualizations via the :code:`exported` property.
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     - First, make sure that after selecting the visualization, you have clicked on the export button (attach screenshot)
     - If you are recieving a warning message "No widget attached to the dataframe/VisList. Please assign dataframe/VisList to an output variable." This means that the output widget that you exported your visualization on have not been stored to the variable that you are calling `get_exported` on. For example, you might have interacted with a widget directly by printing the results out.
 
