@@ -57,6 +57,30 @@ class BarChart(AltairChart):
 				x_attr_field.sort="-y"
 				x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True),sort='-y')"
 	
+		k=10
+		self.topK_code = ""
+		if len(self.data)>k: # Truncating to only top k
+			remaining_bars = len(self.data)-k
+			self.data = self.data.nlargest(k,self.measure_attr)
+			self.text = alt.Chart(self.data).mark_text(
+				x=155, 
+				y=142,
+				align="right",
+				color = "#ff8e04",
+				fontSize = 11,
+				text=f"+ {remaining_bars} more ..."
+			)
+
+			self.topK_code = f'''text = alt.Chart(visData).mark_text(
+			x=155, 
+			y=142,
+			align="right",
+			color = "#ff8e04",
+			fontSize = 11,
+			text=f"+ {remaining_bars} more ..."
+		)
+		chart = chart + text
+			'''
 		
 		chart = alt.Chart(self.data).mark_bar().encode(
 			    y = y_attr_field,
@@ -77,35 +101,14 @@ class BarChart(AltairChart):
 		    x = {x_attr_field_code},
 		)
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
-		'''
+			'''
 		return chart 
 	
 	def add_text(self):
-		k=10
-		topK_code = ""
-		if len(self.data)>k: # Truncating to only top k
-			remaining_bars = len(self.data)-k
-			self.data = self.data.nlargest(k,self.measure_attr)
-			text = alt.Chart(self.data).mark_text(
-				x=155, 
-				y=142,
-				align="right",
-				color = "#ff8e04",
-				fontSize = 11,
-				text=f"+ {remaining_bars} more ..."
-			)
-
-			topK_code = f'''text = alt.Chart(visData).mark_text(
-			x=155, 
-			y=142,
-			align="right",
-			color = "#ff8e04",
-			fontSize = 11,
-			text=f"+ {remaining_bars} more ..."
-		)
-		chart = chart + text
-			'''
-		
-		if (topK_code!=""):
-			self.chart = self.chart + text
-			self.code += topK_code
+		if (self.topK_code!=""):
+			self.chart = self.chart + self.text
+			self.code += self.topK_code
+	
+	def encode_color(self): # overridde encode_color so that it adds text after
+		AltairChart.encode_color(self)
+		self.add_text()

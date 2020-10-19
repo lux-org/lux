@@ -36,8 +36,7 @@ class AltairChart:
 		self.code = "" 
 		self.chart = self.initialize_chart()
 		# self.add_tooltip()
-		self.encode_color() # move this inside initialize_chart()
-		self.add_text()
+		self.encode_color()
 		self.add_title()
 		self.apply_default_config()
 
@@ -85,9 +84,8 @@ class AltairChart:
 			)
 			if (self.code!=""):
 				self.code+=f"chart = chart.encode().properties(title = '{chart_title}')"
+
 	def initialize_chart(self):
 		return NotImplemented
 	
-	def add_text(self):
-		return NotImplemented
 	
