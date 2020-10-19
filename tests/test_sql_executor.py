@@ -37,7 +37,6 @@ def test_selection():
 	sql_df = lux.LuxDataFrame()
 	sql_df.set_SQL_connection(connection, "cars")
 
-	sql_df["year"] = pd.to_datetime(sql_df["year"], format='%Y') # change pandas dtype for the column "Year" to datetype
 	intent = [lux.Clause(attribute = ["horsepower", "weight", "acceleration"]), lux.Clause(attribute ="year")]
 	vislist = VisList(intent,sql_df)
 	assert all([type(vis.data) == lux.core.frame.LuxDataFrame for vis in vislist])
@@ -91,7 +90,6 @@ def test_colored_line_chart():
 	connection = psycopg2.connect("dbname=adventureworks user=postgres password=dbadmin")
 	sql_df = lux.LuxDataFrame()
 	sql_df.set_SQL_connection(connection, "cars")
-	sql_df["year"] = pd.to_datetime(sql_df["year"], format='%Y') # change pandas dtype for the column "Year" to datetype
 
 	x_clause = Clause(attribute = "year", channel = "x")
 	y_clause = Clause(attribute = "milespergal", channel = "y")
@@ -110,7 +108,6 @@ def test_filter():
 	connection = psycopg2.connect("dbname=adventureworks user=postgres password=dbadmin")
 	sql_df = lux.LuxDataFrame()
 	sql_df.set_SQL_connection(connection, "cars")
-	sql_df["year"] = pd.to_datetime(sql_df["year"], format='%Y') # change pandas dtype for the column "Year" to datetype
 
 	intent = [lux.Clause(attribute ="horsepower"), lux.Clause(attribute ="year"), lux.Clause(attribute ="origin", filter_op="=", value ="USA")]
 	vis = Vis(intent,sql_df)

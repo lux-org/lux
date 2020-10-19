@@ -318,8 +318,8 @@ class LuxDataFrame(pd.DataFrame):
 		else:
 			rec_df = self
 			rec_df._message = Message()	
-		# Add warning message if there exist ID fields			# Add warning message if there exist ID fields
-		id_fields_str = ""			for id_field in rec_df.data_type["id"]:
+		# Add warning message if there exist ID fields
+		id_fields_str = ""
 		if (len(rec_df.data_type["id"])>0):
 			for id_field in rec_df.data_type["id"]: id_fields_str += f"<code>{id_field}</code>, "	
 			id_fields_str = id_fields_str[:-2]	
@@ -489,7 +489,7 @@ class LuxDataFrame(pd.DataFrame):
 
 				#Observers(callback_function, listen_to_this_variable)	
 				self._widget.observe(self.removeDeletedRecs, names='deletedIndices')
-				
+
 				# box = widgets.Box(layout=widgets.Layout(display='inline'))
 				button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
 				output = widgets.Output()
