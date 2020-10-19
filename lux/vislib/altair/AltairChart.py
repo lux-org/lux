@@ -15,7 +15,6 @@
 import pandas as pd
 import altair as alt
 from lux.utils.date_utils import compute_date_granularity
-
 class AltairChart:
 	"""
 	AltairChart is a representation of a chart. 
@@ -44,7 +43,7 @@ class AltairChart:
 	def add_tooltip(self):
 		if (self.tooltip): 
 			self.chart = self.chart.encode(tooltip=list(self.vis.data.columns))
-
+			
 	def apply_default_config(self):
 		self.chart = self.chart.configure_title(fontWeight=500,fontSize=13,font="Helvetica Neue")
 		self.chart = self.chart.configure_axis(titleFontWeight=500,titleFontSize=11,titleFont="Helvetica Neue",
@@ -82,8 +81,6 @@ class AltairChart:
 			)
 			if (self.code!=""):
 				self.code+=f"chart = chart.encode().properties(title = '{chart_title}')"
-
 	def initialize_chart(self):
 		return NotImplemented
-	
 	

@@ -56,7 +56,6 @@ class BarChart(AltairChart):
 			if (x_attr.sort=="ascending"):
 				x_attr_field.sort="-y"
 				x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True),sort='-y')"
-	
 		k=10
 		self.topK_code = ""
 		if len(self.data)>k: # Truncating to only top k
@@ -86,12 +85,10 @@ class BarChart(AltairChart):
 			    y = y_attr_field,
 			    x = x_attr_field
 			)
-
 		# TODO: tooltip messes up the count() bar charts		
 		# Can not do interactive whenever you have default count measure otherwise output strange error (Javascript Error: Cannot read property 'length' of undefined)
 		#chart = chart.interactive() # If you want to enable Zooming and Panning
 		
-
 		self.code += "import altair as alt\n"
 		# self.code += f"visData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
 		self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
@@ -114,5 +111,3 @@ class BarChart(AltairChart):
 		self.chart = self.chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		self.code += f'''chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null 
 		'''
-
-
