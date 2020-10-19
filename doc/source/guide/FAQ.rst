@@ -81,17 +81,18 @@ The Lux Jupyter widget does not show up when I print a dataframe.
   - If you receive the error message `ModuleNotFoundError: No module named 'luxwidget`, it is possible that your luxwidget and lux-api are not in sync. Try running the following code:
 
   .. code-block:: python
-      pip uninstall lux-api
-      pip uninstall lux-widget
 
-      jupyter nbextension uninstall --py luxWidget
-      jupyter nbextension disable --py luxWidget
+    pip uninstall lux-api
+    pip uninstall lux-widget
 
-      pip install lux-api
+    jupyter nbextension uninstall --py luxWidget
+    jupyter nbextension disable --py luxWidget
 
-      jupyter nbextension install --py luxwidget
-      jupyter nbextension enable --py luxwidget
+    pip install lux-api
 
+    jupyter nbextension install --py luxwidget
+    jupyter nbextension enable --py luxwidget
+    
   You can also try to create a new virtual environment and follow the `quick install instructions <https://github.com/lux-org/lux#quick-installation>`_.
   
 
