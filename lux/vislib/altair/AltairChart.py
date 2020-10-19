@@ -15,8 +15,6 @@
 import pandas as pd
 import altair as alt
 from lux.utils.date_utils import compute_date_granularity
-from lux.vislib.altair import BarChart
-
 
 class AltairChart:
 	"""
