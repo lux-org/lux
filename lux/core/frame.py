@@ -603,7 +603,7 @@ class LuxDataFrame(pd.DataFrame):
 				if len(self.recommendation) > 0:
 					# box = widgets.Box(layout=widgets.Layout(display='inline'))
 					button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
-					output = widgets.Output()
+					self.output = widgets.Output()
 					# box.children = [button,output]
 					# output.children = [button]
 					# display(box)
@@ -624,6 +624,7 @@ class LuxDataFrame(pd.DataFrame):
 				else:
 					warnings.warn("\nLux defaults to Pandas when there are no valid actions defined.",stacklevel=2)
 					display(self.display_pandas()) 
+					
 		except(KeyboardInterrupt,SystemExit):
 			raise
 		except:
