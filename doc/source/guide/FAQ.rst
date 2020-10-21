@@ -96,7 +96,7 @@ The Lux Jupyter widget does not show up when I print a dataframe.
     jupyter nbextension install --py luxwidget
     jupyter nbextension enable --py luxwidget
 
-  Alternatively, you can also try creating a fresh virtual environment and follow the `quick install instructions <https://github.com/lux-org/lux#quick-installation>`_.
+  Alternatively, you can also try creating a fresh virtual environment and follow the `quick install instructions <https://github.com/lux-org/lux#installation>`_.
   
 
 I'm not able to export my visualizations via the :code:`exported` property.
