@@ -26,7 +26,7 @@ Lux is a Python library that makes data science easier by automating aspects of 
 
 Here is a [1-min video](https://www.youtube.com/watch?v=qmnYP-LmbNU) introducing Lux, and [slides](http://dorisjunglinlee.com/files/Zillow_07_2020_Slide.pdf) from a more extended talk.
 
-Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/demo/cars_demo.ipynb)! 
+Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/demo/cars_demo.ipynb)! 
 
 # Getting Started
 
@@ -150,6 +150,6 @@ Lux is undergoing active development. If you are interested in using Lux, we wou
 Other additional resources:
 
 - Visit [ReadTheDoc](https://lux-api.readthedocs.io/en/latest/) for more detailed documentation.
-- Check out this [notebook tutorial series](https://github.com/lux-org/lux/tree/master/examples/tutorial) on how to use Lux.
-- Join the [Lux Slack channel](http://lux-project.slack.com/) for support and discussion.
+- Clone the [lux-binder](https://github.com/lux-org/lux-binder) repo to try out these [hands-on exercises](https://github.com/lux-org/lux-binder/tree/master/exercise) or a more comprehensive [tutorial series](https://github.com/lux-org/lux-binder/tree/master/tutorial) on how to use Lux.
+- Join our [Slack channel](http://lux-project.slack.com/) for support and discussion.
 - Report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues). 

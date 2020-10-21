@@ -13,6 +13,12 @@ _registered_actions: Dict[str, RegisteredOption] = {}
 update_actions: Dict[str, bool] = {}
 update_actions["flag"] = False
 
+class OptionError(AttributeError, KeyError):
+    """
+    Exception for pandas.options, backwards compatible with KeyError
+    checks
+    """
+	
 def _get_action(pat: str, silent: bool = False):
 	return _registered_actions[pat]
 

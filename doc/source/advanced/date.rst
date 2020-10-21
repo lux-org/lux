@@ -2,7 +2,7 @@
 Working with Dates
 ********************************
 
-.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux/blob/master/examples/tutorial/5-datetime.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/tutorial/5-datetime.ipynb>`_]
+.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder/blob/master/tutorial/tutorial/5-datetime.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial/5-datetime.ipynb>`_]
 
 This is a tutorial on how to prepare temporal data for use with Lux. To display temporal fields in Lux, the column must be converted into Pandas's `datetime <https://docs.python.org/3/library/datetime.html>`_ objects. 
 
