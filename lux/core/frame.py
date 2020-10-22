@@ -245,8 +245,8 @@ class LuxDataFrame(pd.DataFrame):
 		from lux.processor.Parser import Parser
 		from lux.processor.Validator import Validator
 		self._intent = Parser.parse(self._intent)
-		Validator.validate_intent(self._intent,self)
 		self.maintain_metadata()
+		Validator.validate_intent(self._intent,self)
 		from lux.processor.Compiler import Compiler
 		self.current_vis = Compiler.compile_intent(self, self._intent)
 
@@ -486,7 +486,7 @@ class LuxDataFrame(pd.DataFrame):
 					display(self.display_pandas()) 
 					return
 				self.maintain_metadata()
-				
+
 				if (self._intent!=[] and (not hasattr(self,"_compiled") or not self._compiled)):
 					from lux.processor.Compiler import Compiler
 					self.current_vis = Compiler.compile_intent(self, self._intent)
