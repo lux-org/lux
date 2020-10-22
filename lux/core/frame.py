@@ -366,8 +366,6 @@ class LuxDataFrame(pd.DataFrame):
 					rec_df._append_rec(rec_infolist, rec)
 				lux.update_actions["flag"] = False
 
-				
-				
 			# Store _rec_info into a more user-friendly dictionary form
 			rec_df.recommendation = {}
 			for rec_info in rec_infolist: 
@@ -396,6 +394,7 @@ class LuxDataFrame(pd.DataFrame):
 	def exported(self) -> Union[Dict[str,VisList], VisList]:
 		"""
 		Get selected visualizations as exported Vis List
+		
 		Notes
 		-----
 		Convert the _exportedVisIdxs dictionary into a programmable VisList
