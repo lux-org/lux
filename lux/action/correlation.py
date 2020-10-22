@@ -25,12 +25,12 @@ from lux.utils import utils
 def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 	'''
 	Generates bivariate visualizations that represent all pairwise relationships in the data.
-	
+
 	Parameters
 	----------
 	ldf : LuxDataFrame
 		LuxDataFrame with underspecified intent.
-		
+
 	ignore_transpose: bool
 		Boolean flag to ignore pairs of attributes whose transpose are already computed (i.e., {X,Y} will be ignored if {Y,X} is already computed)
 

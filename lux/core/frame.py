@@ -229,12 +229,12 @@ class LuxDataFrame(pd.DataFrame):
 		"""
 		Main function to set the intent of the dataframe.
 		The intent input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
-		
+
 		Parameters
 		----------
 		intent : List[str,Clause]
 			intent list, can be a mix of string shorthand or a lux.Clause object
-		
+
 		Notes
 		-----
 			:doc:`../guide/clause`
@@ -250,7 +250,7 @@ class LuxDataFrame(pd.DataFrame):
 		self.maintain_metadata()
 		from lux.processor.Compiler import Compiler
 		self.current_vis = Compiler.compile_intent(self, self._intent)
-		
+
 	def copy_intent(self):
 		#creates a true copy of the dataframe's intent
 		output = []
@@ -262,7 +262,7 @@ class LuxDataFrame(pd.DataFrame):
 	def set_intent_as_vis(self,vis:Vis):
 		"""
 		Set intent of the dataframe as the Vis
-		
+
 		Parameters
 		----------
 		vis : Vis
@@ -323,8 +323,8 @@ class LuxDataFrame(pd.DataFrame):
 		# Add warning message if there exist ID fields
 		id_fields_str = ""
 		if (len(rec_df.data_type["id"])>0):
-			for id_field in rec_df.data_type["id"]: id_fields_str += f"<code>{id_field}</code>, "	
-			id_fields_str = id_fields_str[:-2]	
+			for id_field in rec_df.data_type["id"]: id_fields_str += f"<code>{id_field}</code>, "
+			id_fields_str = id_fields_str[:-2]
 			rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
 		rec_df._prev = None # reset _prev
 		
