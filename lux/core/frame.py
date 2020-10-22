@@ -365,7 +365,7 @@ class LuxDataFrame(pd.DataFrame):
 				for rec in custom_action_collection:
 					rec_df._append_rec(rec_infolist, rec)
 				lux.update_actions["flag"] = False
-
+				
 			# Store _rec_info into a more user-friendly dictionary form
 			rec_df.recommendation = {}
 			for rec_info in rec_infolist: 
