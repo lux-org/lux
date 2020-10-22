@@ -15,6 +15,7 @@ lux.vis.Vis.Clause
    
       ~Clause.__init__
       ~Clause.copy_clause
+      ~Clause.get_attr
       ~Clause.set_aggregation
       ~Clause.to_string
    
