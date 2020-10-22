@@ -1,17 +1,16 @@
-#  Copyright 2019-2020 The Lux Authors.	
-# 	
-#  Licensed under the Apache License, Version 2.0 (the "License");	
-#  you may not use this file except in compliance with the License.	
-#  You may obtain a copy of the License at	
-#	
-#      http://www.apache.org/licenses/LICENSE-2.0	
-#	
-#  Unless required by applicable law or agreed to in writing, software	
-#  distributed under the License is distributed on an "AS IS" BASIS,	
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.	
-#  See the License for the specific language governing permissions and	
-#  limitations under the License.	
-
+#  Copyright 2019-2020 The Lux Authors.
+# 
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
 
 import pandas as pd
 from lux.core.series import LuxSeries
@@ -23,7 +22,7 @@ from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
-from typing import Optional, Dict, Union, List, Callable
+from typing import Dict, Union, List, Callable
 import warnings
 import lux
 class LuxDataFrame(pd.DataFrame):
@@ -109,10 +108,6 @@ class LuxDataFrame(pd.DataFrame):
 	#####################
 	## Override Pandas ##
 	#####################
-	# def __finalize__(self,other, method: Optional[str] = None, **kwargs):
-	#     print ("lux finalize")
-	#     super(LuxDataFrame, self).__finalize__(other,method,**kwargs)
-	#     self.expire_metadata()
 	def __getattr__(self, name):
 		ret_value = super(LuxDataFrame, self).__getattr__(name)
 		self.expire_metadata()
@@ -234,10 +229,12 @@ class LuxDataFrame(pd.DataFrame):
 		"""
 		Main function to set the intent of the dataframe.
 		The intent input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
+		
 		Parameters
 		----------
 		intent : List[str,Clause]
 			intent list, can be a mix of string shorthand or a lux.Clause object
+		
 		Notes
 		-----
 			:doc:`../guide/clause`
@@ -249,8 +246,8 @@ class LuxDataFrame(pd.DataFrame):
 		from lux.processor.Parser import Parser
 		from lux.processor.Validator import Validator
 		self._intent = Parser.parse(self._intent)
-		self.maintain_metadata()
 		Validator.validate_intent(self._intent,self)
+		self.maintain_metadata()
 		from lux.processor.Compiler import Compiler
 		self.current_vis = Compiler.compile_intent(self, self._intent)
 		
@@ -265,6 +262,7 @@ class LuxDataFrame(pd.DataFrame):
 	def set_intent_as_vis(self,vis:Vis):
 		"""
 		Set intent of the dataframe as the Vis
+		
 		Parameters
 		----------
 		vis : Vis
@@ -424,7 +422,7 @@ class LuxDataFrame(pd.DataFrame):
 		exported_vis_lst = self._widget._exportedVisIdxs
 		exported_vis = [] 
 		if (exported_vis_lst=={}):
-			if self._saved_export:	
+			if self._saved_export:
 				return self._saved_export
 			warnings.warn(
 				"\nNo visualization selected to export.\n"
@@ -453,17 +451,18 @@ class LuxDataFrame(pd.DataFrame):
 				,stacklevel=2)
 			return []
 
-	def removeDeletedRecs(self, change):	
-		for action in self._widget.deletedIndices:	
-			deletedSoFar = 0	
-			for index in self._widget.deletedIndices[action]:	
-				self.recommendation[action].remove_index(index - deletedSoFar)	
+	def removeDeletedRecs(self, change):
+		for action in self._widget.deletedIndices:
+			deletedSoFar = 0
+			for index in self._widget.deletedIndices[action]:
+				self.recommendation[action].remove_index(index - deletedSoFar)
 				deletedSoFar += 1
 
 	def _repr_html_(self):
 		from IPython.display import display
 		from IPython.display import clear_output
 		import ipywidgets as widgets
+		
 		try: 
 			if (self._pandas_only):
 				display(self.display_pandas())
@@ -488,6 +487,7 @@ class LuxDataFrame(pd.DataFrame):
 					display(self.display_pandas()) 
 					return
 				self.maintain_metadata()
+				
 				if (self._intent!=[] and (not hasattr(self,"_compiled") or not self._compiled)):
 					from lux.processor.Compiler import Compiler
 					self.current_vis = Compiler.compile_intent(self, self._intent)
@@ -497,7 +497,7 @@ class LuxDataFrame(pd.DataFrame):
 				# df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
 				self.maintain_recs()
 
-				#Observers(callback_function, listen_to_this_variable)	
+				#Observers(callback_function, listen_to_this_variable)
 				self._widget.observe(self.removeDeletedRecs, names='deletedIndices')
 
 				if len(self.recommendation) > 0:
@@ -628,7 +628,7 @@ class LuxDataFrame(pd.DataFrame):
 				# delete DataObjectCollection since not JSON serializable
 				del rec_lst[idx]["collection"]
 		return rec_lst
-	
+
 	# Overridden Pandas Functions
 	def head(self, n: int = 5):
 		self._prev = self
