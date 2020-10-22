@@ -84,7 +84,7 @@ class LuxDataFrame(pd.DataFrame):
 				self._metadata_fresh = True
 	def expire_recs(self):
 		self._recs_fresh = False
-		self.recommendation = None
+		self.recommendation = {}
 		self.current_vis = None
 		self._widget = None
 		self._rec_info = None
@@ -121,27 +121,27 @@ class LuxDataFrame(pd.DataFrame):
 		super(LuxDataFrame, self)._set_item(key, value)
 		self.expire_metadata()
 		self.expire_recs()
-	@property
-	def default_display(self):
-		if (self._default_pandas_display):
-			return "pandas"
-		else:
-			return "lux"
-	@default_display.setter
-	def default_display(self, type:str) -> None:
-		"""
-		Set the widget display to show Pandas by default or Lux by default
-		Parameters
-		----------
-		type : str
-			Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
-		"""        
-		if (type.lower()=="lux"):
-			self._default_pandas_display = False
-		elif (type.lower()=="pandas"):
-			self._default_pandas_display = True
-		else: 
-			warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.",stacklevel=2)
+	# @property
+	# def default_display(self):
+	# 	if (lux.default_display == "pandas"):
+	# 		return "pandas"
+	# 	else:
+	# 		return "lux"
+	# @default_display.setter
+	# def default_display(self, type:str) -> None:
+	# 	"""
+	# 	Set the widget display to show Pandas by default or Lux by default
+	# 	Parameters
+	# 	----------
+	# 	type : str
+	# 		Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
+	# 	"""        
+	# 	if (type.lower()=="lux"):
+	# 		lux.default_display = "lux"
+	# 	elif (type.lower()=="pandas"):
+	# 		lux.default_display = "pandas"
+	# 	else: 
+	# 		warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.",stacklevel=2)
 	def _infer_structure(self):
 		# If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
 		is_multi_index_flag = self.index.nlevels !=1
@@ -424,7 +424,7 @@ class LuxDataFrame(pd.DataFrame):
 				if (rec_df.index.name is not None):
 					rec_df._append_rec(rec_infolist, column_group(rec_df))
 			else:
-				if self.recommendation == None:
+				if self.recommendation == {}:
 					# display conditions for default actions
 					no_vis = lambda ldf: (ldf.current_vis is None) or (ldf.current_vis is not None and len(ldf.current_vis) == 0)
 					one_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
@@ -572,7 +572,10 @@ class LuxDataFrame(pd.DataFrame):
 					from lux.processor.Compiler import Compiler
 					self.current_vis = Compiler.compile_intent(self, self._intent)
 
-				self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            
+				if (lux.default_display == "lux"):
+					self._toggle_pandas_display = False
+				else:
+					self._toggle_pandas_display = True
 				
 				# df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
 				self.maintain_recs()
@@ -606,13 +609,13 @@ class LuxDataFrame(pd.DataFrame):
 					display(self.display_pandas()) 
 		except(KeyboardInterrupt,SystemExit):
 			raise
-		except:
-			warnings.warn(
-					"\nUnexpected error in rendering Lux widget and recommendations. "
-					"Falling back to Pandas display.\n\n" 
-					"Please report this issue on Github: https://github.com/lux-org/lux/issues "
-				,stacklevel=2)
-			display(self.display_pandas())
+		# except:
+		# 	warnings.warn(
+		# 			"\nUnexpected error in rendering Lux widget and recommendations. "
+		# 			"Falling back to Pandas display.\n\n" 
+		# 			"Please report this issue on Github: https://github.com/lux-org/lux/issues "
+		# 		,stacklevel=2)
+		# 	display(self.display_pandas())
 	def display_pandas(self):
 		return self.to_pandas()
 	def render_widget(self, renderer:str ="altair", input_current_vis=""):
