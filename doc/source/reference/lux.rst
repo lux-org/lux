@@ -11,7 +11,7 @@ Subpackages
    lux.processor
    lux.executor
    lux.interestingness
-   lux.luxDataFrame
+   lux.core
    lux.utils
    lux.vis
    lux.vislib

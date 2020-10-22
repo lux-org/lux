@@ -93,6 +93,10 @@ class VisList():
 		Removes duplicate visualizations in Vis List
 		"""		
 		self._collection = list(set(self._collection))
+
+	def remove_index(self, index):
+		self._collection.pop(index)
+	
 	def _is_vis_input(self):
 		if (type(self._input_lst[0])==Vis):
 			return True
@@ -235,9 +239,9 @@ class VisList():
 		recommendation["collection"] = self._collection
 
 		check_import_lux_widget()
-		import luxWidget
+		import luxwidget
 		recJSON = LuxDataFrame.rec_to_JSON([recommendation])
-		self._widget =  luxWidget.LuxWidget(
+		self._widget =  luxwidget.LuxWidget(
 				currentVis={},
 				recommendations=recJSON,
 				intent="",

@@ -16,10 +16,10 @@ What if my data is stored in a relational database?
 
 What do I do with date-related attributes in my dataset?
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""
-  Lux supports a variety of temporal data types in Pandas. For more information on how to handle temporal data in Lux, refer to `this page <https://lux-api.readthedocs.io/en/latest/source/advanced/date.html>`_.
+  Lux supports a variety of temporal data types in Pandas. For more information on how to handle temporal data in Lux, refer to `the datetime guide <https://lux-api.readthedocs.io/en/latest/source/advanced/date.html>`_.
 
 How do I access all of the current recommendations shown in my widget?
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   The recommendations for Lux can be accessed via the :code:`recommendation` property of the dataframe (e.g., df.recommendation).
 
 How do I set the Lux widgets to show up on default? 
@@ -43,7 +43,7 @@ I want to change the opacity of my chart, add title, change chart font size, etc
 How do I change aggregation functions, binning, or axis channels to non-default values?
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   To change the aggregation function to be something that is not average or set an attribute to display on the x-axis instead of y-axis, you can override the default values in the :code:`lux.Clause` specification.
-  To override automatically inferred properties, you can specify additional arguements inside `lux.Clause` to set the value of the Clause properties. See `this tutorial <https://lux-api.readthedocs.io/en/latest/source/guide/intent.html#adding-constraints>`_ for more details.
+  To override automatically inferred properties, you can specify additional arguements inside `lux.Clause` to set the value of the Clause properties. See `this page <https://lux-api.readthedocs.io/en/latest/source/guide/intent.html#adding-constraints>`_ for more details.
 
 I want to look at the default recommendations that were recommended to me, how can I get the dataframe to display those?
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -65,23 +65,42 @@ How do I turn off Lux?
   To turn off Lux completely, remove the :code:`import lux` statement and restart your Jupyter notebook.
 
 Troubleshooting Tips
--------------------
+--------------------
+
+To troubleshoot your Lux installation, we recommend cloning `this repo <https://github.com/lux-org/lux-binder>`_ and using one of the `demo notebooks <https://github.com/lux-org/lux-binder/blob/master/demo/cars_demo.ipynb>`_ to test out Lux.
 
 The Lux Jupyter widget does not show up when I print a dataframe.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  - If you recieve the output message "LuxWidget(...)" but you do not see Lux widget show up, it is possible that the widget is not installed correctly. Run :code:`jupyter nbextension list` on the terminal, and you should see the following as one of the listed items. 
+  - If you recieve the output message :code:`LuxWidget(...)` but you do not see Lux widget show up, it is possible that the widget is not installed correctly. Run :code:`jupyter nbextension list` on the terminal, and you should see the following as one of the listed items. 
   
-  .. code-block:: python
+  .. code-block:: bash
   
     luxWidget/extension  enabled
         - Validating: OK
 
-  - If you are able to import lux successfully and you do not see the "Toggle button" when you print the dataframe, it may be possible that Lux is not compatible with your brower. Lux is compatible with Google Chrome, but have not been extensively tested on Safari or Firefox.
-  - If you recieve the error message `A Jupyter widget could not be displayed because the widget state could not be found.This could happen if the kernel storing the widget is no longer available, or if the widget state was not saved in the notebook. You may be able to create the widget by running the appropriate cells.`, you may want to restart the notebook and rerun the cell.
+  - If you are able to import lux successfully and you do not see the "Toggle button" when you print the dataframe, it may be possible that Lux is not compatible with your browser. Lux is compatible with Google Chrome, but have not been extensively tested on Safari or Firefox.
+  - If you recieve the error message :code:`A Jupyter widget could not be displayed because the widget state could not be found.` This could happen if the kernel storing the widget is no longer available, or if the widget state was not saved in the notebook. You may be able to create the widget by running the appropriate cells.`, you may want to restart the notebook and rerun the cell.
+  - If you recieve the error message :code:`Error displaying widget: model not found`, it is possible that you are using JupyterLab or other frontends (e.g., VSCode) to open up your notebook. Lux does not currently support JupyterLab (`#16 <https://github.com/lux-org/lux-widget/issues/16>`_), please try out Lux with the basic :code:`jupyter notebook`.
+  - If you receive the error message :code:`ModuleNotFoundError: No module named 'luxwidget'`, it is possible that your luxwidget and lux-api versions are not in sync. The latest version of lux-api requires luxwidget v0.1 or above. Try running the following code:
+
+  .. code-block:: bash
+
+    pip uninstall lux-api
+    pip uninstall lux-widget
+
+    jupyter nbextension uninstall --py luxWidget
+    jupyter nbextension disable --py luxWidget
+
+    pip install lux-api
+
+    jupyter nbextension install --py luxwidget
+    jupyter nbextension enable --py luxwidget
+
+  Alternatively, you can also try creating a fresh virtual environment and follow the `quick install instructions <https://github.com/lux-org/lux#installation>`_.
   
 
 I'm not able to export my visualizations via the :code:`exported` property.
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     - First, make sure that after selecting the visualization, you have clicked on the export button (attach screenshot)
     - If you are recieving a warning message "No widget attached to the dataframe/VisList. Please assign dataframe/VisList to an output variable." This means that the output widget that you exported your visualization on have not been stored to the variable that you are calling `get_exported` on. For example, you might have interacted with a widget directly by printing the results out.
 

@@ -23,6 +23,7 @@ from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
 import warnings
+import lux
 class LuxDataFrame(pd.DataFrame):
 	'''
 	A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
@@ -30,13 +31,14 @@ class LuxDataFrame(pd.DataFrame):
 	# MUST register here for new properties!!
 	_metadata = ['_intent','data_type_lookup','data_type',
 				 'data_model_lookup','data_model','unique_values','cardinality','_rec_info', '_pandas_only',
-				'_min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev','_history']
+				'_min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev','_history', '_saved_export']
 
 	def __init__(self,*args, **kw):
 		from lux.executor.PandasExecutor import PandasExecutor
 		self._history = History()
 		self._intent = []
 		self._recommendation = {}
+		self._saved_export = None
 		self._current_vis = []
 		self._prev = None
 		super(LuxDataFrame, self).__init__(*args, **kw)
@@ -83,7 +85,7 @@ class LuxDataFrame(pd.DataFrame):
 				self._metadata_fresh = True
 	def expire_recs(self):
 		self._recs_fresh = False
-		self.recommendation = None
+		self.recommendation = {}
 		self.current_vis = None
 		self._widget = None
 		self._rec_info = None
@@ -384,13 +386,16 @@ class LuxDataFrame(pd.DataFrame):
 			rec_infolist.append(recommendations)
 	def maintain_recs(self):
 		# `rec_df` is the dataframe to generate the recommendations on
+		# check to see if globally defined actions have been registered/removed
+		if (lux.update_actions["flag"] == True):
+			self._recs_fresh = False
 		show_prev = False # flag indicating whether rec_df is showing previous df or current self
 		if self._prev is not None:
 			rec_df = self._prev
 			rec_df._message = Message()	
 			rec_df.maintain_metadata() # the prev dataframe may not have been printed before
 			last_event = self.history._events[-1].name
-			rec_df._message.append(f"Lux is visualizing the previous version of the dataframe before you applied <code>{last_event}</code>.")
+			rec_df._message.add(f"Lux is visualizing the previous version of the dataframe before you applied <code>{last_event}</code>.")
 			show_prev = True
 		else:
 			rec_df = self
@@ -400,12 +405,13 @@ class LuxDataFrame(pd.DataFrame):
 		if (len(rec_df.data_type["id"])>0):
 			for id_field in rec_df.data_type["id"]: id_fields_str += f"<code>{id_field}</code>, "
 			id_fields_str = id_fields_str[:-2]
-			rec_df._message.append(f"{id_fields_str} is not visualized since it resembles an ID field.")
+			rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
 		rec_df._prev = None # reset _prev
 		
 		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that recs has not yet been computed
 			rec_infolist = []
 			from lux.action.custom import custom
+			from lux.action.custom import custom_actions
 			from lux.action.correlation import correlation
 			from lux.action.univariate import univariate
 			from lux.action.enhance import enhance
@@ -419,26 +425,29 @@ class LuxDataFrame(pd.DataFrame):
 				# if (rec_df.index.name is not None):
 				rec_df._append_rec(rec_infolist, column_group(rec_df))
 			else:
-				if (rec_df.current_vis is None):
-					no_vis = True
-					one_current_vis = False
-					multiple_current_vis = False
-				else:
-					no_vis = len(rec_df.current_vis) == 0
-					one_current_vis = len(rec_df.current_vis) == 1
-					multiple_current_vis = len(rec_df.current_vis) > 1
+				if self.recommendation == {}:
+					# display conditions for default actions
+					no_vis = lambda ldf: (ldf.current_vis is None) or (ldf.current_vis is not None and len(ldf.current_vis) == 0)
+					one_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
+					multiple_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
 
-				if (no_vis):
-					rec_df._append_rec(rec_infolist, correlation(rec_df))
-					rec_df._append_rec(rec_infolist, univariate(rec_df,"quantitative"))
-					rec_df._append_rec(rec_infolist, univariate(rec_df,"nominal"))
-					rec_df._append_rec(rec_infolist, univariate(rec_df,"temporal"))
-				elif (one_current_vis):
-					rec_df._append_rec(rec_infolist, enhance(rec_df))
-					rec_df._append_rec(rec_infolist, filter(rec_df))
-					rec_df._append_rec(rec_infolist, generalize(rec_df))
-				elif (multiple_current_vis):
-					rec_df._append_rec(rec_infolist, custom(rec_df))
+					# globally register default actions
+					lux.register_action("correlation", correlation, no_vis)
+					lux.register_action("distribution", univariate, no_vis, "quantitative")
+					lux.register_action("occurrence", univariate, no_vis, "nominal")
+					lux.register_action("temporal", univariate, no_vis, "temporal")
+
+					lux.register_action("enhance", enhance, one_current_vis)
+					lux.register_action("filter", filter, one_current_vis)
+					lux.register_action("generalize", generalize, one_current_vis)
+
+					lux.register_action("custom", custom, multiple_current_vis)
+
+				# generate vis from globally registered actions and append to dataframe
+				custom_action_collection = custom_actions(rec_df)
+				for rec in custom_action_collection:
+					rec_df._append_rec(rec_infolist, rec)
+				lux.update_actions["flag"] = False
 				
 			# Store _rec_info into a more user-friendly dictionary form
 			rec_df.recommendation = {}
@@ -468,7 +477,7 @@ class LuxDataFrame(pd.DataFrame):
 	def exported(self) -> Union[Dict[str,VisList], VisList]:
 		"""
 		Get selected visualizations as exported Vis List
-
+		
 		Notes
 		-----
 		Convert the _exportedVisIdxs dictionary into a programmable VisList
@@ -490,9 +499,11 @@ class LuxDataFrame(pd.DataFrame):
 						"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
 						, stacklevel=2)
 			return []
-		exported_vis_lst =self._widget._exportedVisIdxs
+		exported_vis_lst = self._widget._exportedVisIdxs
 		exported_vis = [] 
 		if (exported_vis_lst=={}):
+			if self._saved_export:
+				return self._saved_export
 			warnings.warn(
 				"\nNo visualization selected to export.\n"
 				"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
@@ -511,6 +522,7 @@ class LuxDataFrame(pd.DataFrame):
 		elif len(exported_vis_lst) == 1 and ("currentVis" not in exported_vis_lst): 
 			export_action = list(exported_vis_lst.keys())[0]
 			exported_vis = VisList(list(map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action])))
+			self._saved_export = exported_vis
 			return exported_vis
 		else:
 			warnings.warn(
@@ -518,6 +530,13 @@ class LuxDataFrame(pd.DataFrame):
 				"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
 				,stacklevel=2)
 			return []
+
+	def removeDeletedRecs(self, change):
+		for action in self._widget.deletedIndices:
+			deletedSoFar = 0
+			for index in self._widget.deletedIndices[action]:
+				self.recommendation[action].remove_index(index - deletedSoFar)
+				deletedSoFar += 1
 
 	def _repr_html_(self):
 		from IPython.display import display
@@ -559,26 +578,33 @@ class LuxDataFrame(pd.DataFrame):
 				# df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
 				self.maintain_recs()
 
-				# box = widgets.Box(layout=widgets.Layout(display='inline'))
-				button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
-				output = widgets.Output()
-				# box.children = [button,output]
-				# output.children = [button]
-				# display(box)
-				display(button,output)
-				def on_button_clicked(b):
-					with output:
-						if (b):
-							self._toggle_pandas_display = not self._toggle_pandas_display
-						clear_output()
-						if (self._toggle_pandas_display):
-							display(self.display_pandas())
-						else:
-							# b.layout.display = "none"
-							display(self._widget)
-							# b.layout.display = "inline-block"
-				button.on_click(on_button_clicked)
-				on_button_clicked(None)
+				#Observers(callback_function, listen_to_this_variable)
+				self._widget.observe(self.removeDeletedRecs, names='deletedIndices')
+
+				if len(self.recommendation) > 0:
+					# box = widgets.Box(layout=widgets.Layout(display='inline'))
+					button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
+					output = widgets.Output()
+					# box.children = [button,output]
+					# output.children = [button]
+					# display(box)
+					display(button,output)
+					def on_button_clicked(b):
+						with output:
+							if (b):
+								self._toggle_pandas_display = not self._toggle_pandas_display
+							clear_output()
+							if (self._toggle_pandas_display):
+								display(self.display_pandas())
+							else:
+								# b.layout.display = "none"
+								display(self._widget)
+								# b.layout.display = "inline-block"
+					button.on_click(on_button_clicked)
+					on_button_clicked(None)
+				else:
+					warnings.warn("\nLux defaults to Pandas when there are no valid actions defined.",stacklevel=2)
+					display(self.display_pandas()) 
 		except(KeyboardInterrupt,SystemExit):
 			raise
 		except:
@@ -619,9 +645,9 @@ class LuxDataFrame(pd.DataFrame):
 			User-specified current vis to override default Current Vis, by default 
 		"""       
 		check_import_lux_widget()
-		import luxWidget
+		import luxwidget
 		widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
-		return luxWidget.LuxWidget(
+		return luxwidget.LuxWidget(
 			currentVis=widgetJSON["current_vis"],
 			recommendations=widgetJSON["recommendation"],
 			intent=LuxDataFrame.intent_to_string(self._intent),
@@ -668,6 +694,7 @@ class LuxDataFrame(pd.DataFrame):
 		elif (numVC>1):
 			pass
 		return current_vis_spec
+
 	@staticmethod
 	def rec_to_JSON(recs):
 		rec_lst = []
@@ -683,7 +710,7 @@ class LuxDataFrame(pd.DataFrame):
 				# delete DataObjectCollection since not JSON serializable
 				del rec_lst[idx]["collection"]
 		return rec_lst
-	
+
 	# Overridden Pandas Functions
 	def head(self, n: int = 5):
 		self._prev = self

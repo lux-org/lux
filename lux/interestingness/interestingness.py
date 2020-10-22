@@ -39,7 +39,8 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 	
 
 	if vis.data is None or len(vis.data)==0:
-		raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
+		return -1
+		# raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
 
 	n_dim = 0
 	n_msr = 0
@@ -80,9 +81,9 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 		return -1
 	# Scatter Plot
 	elif (n_dim == 0 and n_msr == 2):
+		if (v_size<10): return -1 
 		if (vis.mark=="heatmap"):
-			return weighted_correlation(vis.data["xBinStart"],vis.data["yBinStart"],vis.data["z"])
-		if (v_size<2): return -1 
+			return weighted_correlation(vis.data["xBinStart"],vis.data["yBinStart"],vis.data["count"])
 		if (n_filter==1):
 			v_filter_size = get_filtered_size(filter_specs, vis.data)
 			sig = v_filter_size/v_size
@@ -91,7 +92,7 @@ def interestingness(vis:Vis ,ldf:LuxDataFrame) -> int:
 		return sig * monotonicity(vis,attr_specs)
 	# Scatterplot colored by Dimension
 	elif (n_dim == 1 and n_msr == 2):
-		if (v_size<5): return -1 
+		if (v_size<10): return -1 
 		color_attr = vis.get_attr_by_channel("color")[0].attribute
 		
 		C = ldf.cardinality[color_attr]
@@ -180,7 +181,7 @@ def deviation_from_overall(vis:Vis, ldf:LuxDataFrame, filter_specs:list, msr_att
 	v_filter = vis.data[msr_attribute]
 	total = v_filter.sum()
 	v_filter = v_filter/total  # normalize by total to get ratio
-	if (total==0 or v_size ==0): return 0
+	if (total==0): return 0
 	# Generate an "Overall" Vis (TODO: This is computed multiple times for every vis, alternative is to directly access df.current_vis but we do not have guaruntee that will always be unfiltered vis (in the non-Filter action scenario))
 	import copy
 	unfiltered_vis = copy.copy(vis)
@@ -274,7 +275,16 @@ def monotonicity(vis:Vis, attr_specs:list, ignore_identity:bool=True) ->int:
 		return -1
 	v_x = vis.data[msr1]
 	v_y = vis.data[msr2]
-	score = (spearmanr(v_x, v_y)[0]) ** 2
+	
+	import warnings
+	with warnings.catch_warnings():
+		warnings.filterwarnings('error')
+		try: 
+			score = (spearmanr(v_x, v_y)[0]) ** 2
+		except(RuntimeWarning): 
+			# RuntimeWarning: invalid value encountered in true_divide (occurs when v_x and v_y are uniform, stdev in denominator is zero, leading to spearman's correlation as nan), ignore these cases.
+			score = -1
+	
 	if pd.isnull(score):
 		return -1
 	else:

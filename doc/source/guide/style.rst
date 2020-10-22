@@ -2,7 +2,7 @@
 Styling Custom Plot Settings 
 ********************************
 
-.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux/blob/master/examples/tutorial/4-chart-settings.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/tutorial/4-chart-settings.ipynb>`_]
+.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder/blob/master/tutorial/tutorial/4-chart-settings.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial/4-chart-settings.ipynb>`_]
 
 In the last tutorial, we saw how :code:`Vis` objects could be exported into visualization code for further editing. What if we want to change the chart settings for *all* the visualizations displayed in the widget. In Lux, we can change the chart settings and aesthetics by inputting custom plot settings the :code:`plot_config` property of the dataframe.
 

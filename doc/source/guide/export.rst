@@ -2,7 +2,7 @@
 Exporting Vis From Widget
 ********************************
 
-.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux/blob/master/examples/tutorial/3-widget-vis-export.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/tutorial/3-widget-vis-export.ipynb>`_]
+.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder/blob/master/tutorial/tutorial/3-widget-vis-export.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial/3-widget-vis-export.ipynb>`_]
 
 In this tutorial, we look at the `Happy Planet Index <http://happyplanetindex.org/>`_ dataset, which contains metrics related to well-being for 140 countries around the world. We demonstrate how you can select visualizations of interest and export them for further analysis. 
 
@@ -132,6 +132,7 @@ Let's revist our earlier recommendations by clearing the specified intent.
 Looking at the Occurrence tab, we are interested in the bar chart distribution of country `SubRegion`.
 
 .. code-block:: python
+
     vis = df.recommendation["Occurrence"][0]
     vis
 
