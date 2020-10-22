@@ -342,25 +342,31 @@ class LuxDataFrame(pd.DataFrame):
 				if (rec_df.index.name is not None):
 					rec_df._append_rec(rec_infolist, column_group(rec_df))
 			else:
-				if (rec_df.current_vis is None):
-					no_vis = True
-					one_current_vis = False
-					multiple_current_vis = False
-				else:
-					no_vis = len(rec_df.current_vis) == 0
-					one_current_vis = len(rec_df.current_vis) == 1
-					multiple_current_vis = len(rec_df.current_vis) > 1
-				if (no_vis):
-					rec_df._append_rec(rec_infolist, correlation(rec_df))
-					rec_df._append_rec(rec_infolist, univariate(rec_df,"quantitative"))
-					rec_df._append_rec(rec_infolist, univariate(rec_df,"nominal"))
-					rec_df._append_rec(rec_infolist, univariate(rec_df,"temporal"))
-				elif (one_current_vis):
-					rec_df._append_rec(rec_infolist, enhance(rec_df))
-					rec_df._append_rec(rec_infolist, filter(rec_df))
-					rec_df._append_rec(rec_infolist, generalize(rec_df))
-				elif (multiple_current_vis):
-					rec_df._append_rec(rec_infolist, custom(rec_df))
+				if self.recommendation == {}:
+					# display conditions for default actions
+					no_vis = lambda ldf: (ldf.current_vis is None) or (ldf.current_vis is not None and len(ldf.current_vis) == 0)
+					one_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
+					multiple_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
+
+					# globally register default actions
+					lux.register_action("correlation", correlation, no_vis)
+					lux.register_action("distribution", univariate, no_vis, "quantitative")
+					lux.register_action("occurrence", univariate, no_vis, "nominal")
+					lux.register_action("temporal", univariate, no_vis, "temporal")
+
+					lux.register_action("enhance", enhance, one_current_vis)
+					lux.register_action("filter", filter, one_current_vis)
+					lux.register_action("generalize", generalize, one_current_vis)
+
+					lux.register_action("custom", custom, multiple_current_vis)
+
+				# generate vis from globally registered actions and append to dataframe
+				custom_action_collection = custom_actions(rec_df)
+				for rec in custom_action_collection:
+					rec_df._append_rec(rec_infolist, rec)
+				lux.update_actions["flag"] = False
+
+				
 				
 			# Store _rec_info into a more user-friendly dictionary form
 			rec_df.recommendation = {}
