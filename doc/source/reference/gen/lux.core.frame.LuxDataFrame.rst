@@ -45,10 +45,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.compute_SQL_data_type
       ~LuxDataFrame.compute_SQL_dataset_metadata
       ~LuxDataFrame.compute_SQL_stats
-      ~LuxDataFrame.compute_data_model
-      ~LuxDataFrame.compute_data_type
-      ~LuxDataFrame.compute_dataset_metadata
-      ~LuxDataFrame.compute_stats
       ~LuxDataFrame.convert_dtypes
       ~LuxDataFrame.copy
       ~LuxDataFrame.copy_intent
@@ -124,7 +120,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.mad
       ~LuxDataFrame.maintain_metadata
       ~LuxDataFrame.maintain_recs
-      ~LuxDataFrame.mapping
       ~LuxDataFrame.mask
       ~LuxDataFrame.max
       ~LuxDataFrame.mean
@@ -160,6 +155,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.rec_to_JSON
       ~LuxDataFrame.reindex
       ~LuxDataFrame.reindex_like
+      ~LuxDataFrame.removeDeletedRecs
       ~LuxDataFrame.rename
       ~LuxDataFrame.rename_axis
       ~LuxDataFrame.render_widget
@@ -167,7 +163,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.replace
       ~LuxDataFrame.resample
       ~LuxDataFrame.reset_index
-      ~LuxDataFrame.reverseMapping
       ~LuxDataFrame.rfloordiv
       ~LuxDataFrame.rmod
       ~LuxDataFrame.rmul

@@ -73,6 +73,9 @@ class Clause:
 		self.weight = weight
 		self.sort = sort
 		self.exclude = exclude
+
+	def get_attr(self):
+		return self.attribute
 		
 	def copy_clause(self):
 		copied_clause = Clause()
