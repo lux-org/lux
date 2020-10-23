@@ -112,8 +112,7 @@ class BarChart(AltairChart):
 		    x = {x_attr_field_code},
 		    color = {color_attr_field_code}
 		)
-		{topK_code}
-		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
+		)\n'''
 		return chart 
 	
 	def add_text(self):
