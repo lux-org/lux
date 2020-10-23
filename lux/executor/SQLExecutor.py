@@ -41,7 +41,7 @@ class SQLExecutor(Executor):
             if view.mark not in ["bar", "line", "histogram"]:
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
 
-                num_obs_query = pandas.read_sql("SELECT COUNT(*) as num_obs FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
+                length_query = pandas.read_sql("SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
 
                 required_variables = attributes | set(filterVars)
                 required_variables = ",".join(required_variables)
@@ -52,7 +52,7 @@ class SQLExecutor(Executor):
                     query = "SELECT {} FROM {} {}".format(required_variables, ldf.table_name, where_clause)
                 data = pandas.read_sql(query, ldf.SQLconnection)
                 view._vis_data = utils.pandas_to_lux(data)
-                view._vis_data.num_obs = list(num_obs_query['num_obs'])[0]
+                view._vis_data.length = list(length_query['length'])[0]
             if (view.mark =="bar" or view.mark =="line"):
                 SQLExecutor.execute_aggregate(view, ldf)
             elif (view.mark =="histogram"):
@@ -60,6 +60,22 @@ class SQLExecutor(Executor):
 
     @staticmethod
     def execute_aggregate(view:Vis, ldf:LuxDataFrame, isFiltered = True):
+        '''
+        Aggregate data points on an axis for bar or line charts
+
+        Parameters
+        ----------
+        vis: lux.Vis
+            lux.Vis object that represents a visualization
+        ldf : lux.core.frame
+            LuxDataFrame with specified intent.
+        isFiltered: boolean
+            boolean that represents whether a vis has had a filter applied
+
+        Returns
+        -------
+        None
+        '''
         x_attr = view.get_attr_by_channel("x")[0]
         y_attr = view.get_attr_by_channel("y")[0]
         has_color = False
@@ -91,7 +107,7 @@ class SQLExecutor(Executor):
             if (measure_attr.attribute=="Record"):
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
 
-                num_obs_query = pandas.read_sql("SELECT COUNT(*) as num_obs FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
+                length_query = pandas.read_sql("SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
                 if has_color:
                     count_query = "SELECT {}, {}, COUNT({}) FROM {} {} GROUP BY {}, {}".format(groupby_attr.attribute, color_attr.attribute, groupby_attr.attribute, ldf.table_name, where_clause, groupby_attr.attribute, color_attr.attribute)
                     view._vis_data = pandas.read_sql(count_query, ldf.SQLconnection)
@@ -102,12 +118,12 @@ class SQLExecutor(Executor):
                     view._vis_data = pandas.read_sql(count_query, ldf.SQLconnection)
                     view._vis_data = view._vis_data.rename(columns={"count":"Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
-                view._vis_data.num_obs = list(num_obs_query['num_obs'])[0]
+                view._vis_data.length = list(length_query['length'])[0]
             #aggregate barchart case, need aggregate data for each group
             else:
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
 
-                num_obs_query = pandas.read_sql("SELECT COUNT(*) as num_obs FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
+                length_query = pandas.read_sql("SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
                 if has_color:
                     if agg_func == "mean":
                         mean_query = "SELECT {}, {}, AVG({}) as {} FROM {} {} GROUP BY {}, {}".format(groupby_attr.attribute, color_attr.attribute, measure_attr.attribute, measure_attr.attribute, ldf.table_name, where_clause, groupby_attr.attribute, color_attr.attribute)
@@ -165,10 +181,24 @@ class SQLExecutor(Executor):
             view._vis_data = view._vis_data.sort_values(by=groupby_attr.attribute, ascending=True)
             view._vis_data = view._vis_data.reset_index()
             view._vis_data = view._vis_data.drop(columns="index")
-            view._vis_data.num_obs = list(num_obs_query['num_obs'])[0]
+            view._vis_data.length = list(length_query['length'])[0]
 
     @staticmethod
     def execute_binning(view:Vis, ldf:LuxDataFrame):
+        '''
+        Binning of data points for generating histograms
+
+        Parameters
+        ----------
+        vis: lux.Vis
+            lux.Vis object that represents a visualization
+        ldf : lux.core.frame
+            LuxDataFrame with specified intent.
+
+        Returns
+        -------
+        None
+        '''
         import numpy as np
         bin_attribute = list(filter(lambda x: x.bin_size!=0,view._inferred_intent))[0]
 
@@ -180,7 +210,7 @@ class SQLExecutor(Executor):
         #get filters if available
         where_clause, filterVars = SQLExecutor.execute_filter(view)
 
-        num_obs_query = pandas.read_sql("SELECT COUNT(*) as num_obs FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
+        length_query = pandas.read_sql("SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
         #need to calculate the bin edges before querying for the relevant data
         bin_width = (attr_max-attr_min)/num_bins
         upper_edges = []
@@ -215,11 +245,24 @@ class SQLExecutor(Executor):
                     bin_count_data = bin_count_data.append(pandas.DataFrame([[i,0]], columns = bin_count_data.columns))
         view._vis_data = pandas.DataFrame(np.array([bin_centers,list(bin_count_data['count'])]).T,columns=[bin_attribute.attribute, "Number of Records"])
         view._vis_data = utils.pandas_to_lux(view.data)
-        view._vis_data.num_obs = list(num_obs_query['num_obs'])[0]
+        view._vis_data.length = list(length_query['length'])[0]
         
     @staticmethod
     #takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's _inferred_intent
     def execute_filter(view:Vis):
+        """
+        Helper function for converting a filter specification to a SQL where clause
+        
+        Parameters
+        ----------
+        vis: lux.Vis
+            lux.Vis object that represents a visualization
+        
+        Returns
+        -------
+        list: list of lists
+            List containing the list of components to be used in the SQL where clause, and the list of variables used in this clause
+        """  
         where_clause = []
         filters = utils.get_filter_specs(view._inferred_intent)
         filter_vars = []
@@ -271,8 +314,8 @@ class SQLExecutor(Executor):
         # precompute statistics
         ldf.unique_values = {}
         ldf._min_max = {}
-        num_obs_query = pandas.read_sql("SELECT COUNT(*) as num_obs FROM {}".format(ldf.table_name), ldf.SQLconnection)
-        ldf.num_obs = list(num_obs_query['num_obs'])[0]
+        length_query = pandas.read_sql("SELECT COUNT(*) as length FROM {}".format(ldf.table_name), ldf.SQLconnection)
+        ldf.length = list(length_query['length'])[0]
 
         self.get_unique_values(ldf)
         #ldf.get_cardinality()

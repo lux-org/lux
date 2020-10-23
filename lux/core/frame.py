@@ -29,7 +29,7 @@ class LuxDataFrame(pd.DataFrame):
 	A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
 	'''
 	# MUST register here for new properties!!
-	_metadata = ['_intent','data_type_lookup','data_type', 'num_obs',
+	_metadata = ['_intent','data_type_lookup','data_type', 'length',
 				 'data_model_lookup','data_model','unique_values','cardinality','_rec_info', '_pandas_only',
 				'_min_max','plot_config', '_current_vis','_widget', '_recommendation','_prev','_history', '_saved_export']
 
@@ -55,7 +55,7 @@ class LuxDataFrame(pd.DataFrame):
 		self._message = Message()
 		self._pandas_only=False
 		# Metadata
-		self.num_obs = None
+		self.length = None
 		self.data_type_lookup = None
 		self.data_type = None
 		self.data_model_lookup = None
@@ -94,7 +94,7 @@ class LuxDataFrame(pd.DataFrame):
 	def expire_metadata(self):
 		# Set metadata as null
 		self._metadata_fresh = False
-		self.num_obs = None
+		self.length = None
 		self.data_type_lookup = None
 		self.data_type = None
 		self.data_model_lookup = None

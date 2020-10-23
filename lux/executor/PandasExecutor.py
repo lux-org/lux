@@ -387,7 +387,7 @@ class PandasExecutor(Executor):
         ldf.unique_values = {}
         ldf._min_max = {}
         ldf.cardinality = {}
-        ldf.num_obs = len(ldf)
+        ldf.length = len(ldf)
 
         for attribute in ldf.columns:
             
