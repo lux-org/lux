@@ -543,7 +543,7 @@ class LuxDataFrame(pd.DataFrame):
 					return
 				if (len(self.columns)<=1):
 					warnings.warn("\nLux defaults to Pandas when there is only a single column.",stacklevel=2)
-					display(self.display_pandas())
+					display(self.display_pandas()) 
 					return
 				self.maintain_metadata()
 				
