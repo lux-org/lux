@@ -530,13 +530,32 @@ class LuxDataFrame(pd.DataFrame):
 				,stacklevel=2)
 			return []
 
-	def removeDeletedRecs(self, change):
+	def remove_deleted_recs(self, change):
 		for action in self._widget.deletedIndices:
 			deletedSoFar = 0
 			for index in self._widget.deletedIndices[action]:
 				self.recommendation[action].remove_index(index - deletedSoFar)
 				deletedSoFar += 1
 
+	def set_intent_on_click(self, change):
+		from IPython.display import display, clear_output
+		from lux.processor.Compiler import Compiler
+
+		intent_action = list(self._widget.selectedIntentIndex.keys())[0]
+		vis = self.recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
+		self.set_intent_as_vis(vis)
+
+		self.maintain_metadata()
+		self.current_vis = Compiler.compile_intent(self, self._intent)
+		self.maintain_recs()
+
+		with self.output:
+			clear_output()
+			display(self._widget)
+		
+		self._widget.observe(self.remove_deleted_recs, names='deletedIndices')
+		self._widget.observe(self.set_intent_on_click, names='selectedIntentIndex')
+		
 	def _repr_html_(self):
 		from IPython.display import display
 		from IPython.display import clear_output
@@ -578,18 +597,19 @@ class LuxDataFrame(pd.DataFrame):
 				self.maintain_recs()
 
 				#Observers(callback_function, listen_to_this_variable)
-				self._widget.observe(self.removeDeletedRecs, names='deletedIndices')
+				self._widget.observe(self.remove_deleted_recs, names='deletedIndices')
+				self._widget.observe(self.set_intent_on_click, names='selectedIntentIndex')
 
 				if len(self.recommendation) > 0:
 					# box = widgets.Box(layout=widgets.Layout(display='inline'))
 					button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
-					output = widgets.Output()
+					self.output = widgets.Output()
 					# box.children = [button,output]
 					# output.children = [button]
 					# display(box)
-					display(button,output)
+					display(button, self.output)
 					def on_button_clicked(b):
-						with output:
+						with self.output:
 							if (b):
 								self._toggle_pandas_display = not self._toggle_pandas_display
 							clear_output()
@@ -604,6 +624,7 @@ class LuxDataFrame(pd.DataFrame):
 				else:
 					warnings.warn("\nLux defaults to Pandas when there are no valid actions defined.",stacklevel=2)
 					display(self.display_pandas()) 
+					
 		except(KeyboardInterrupt,SystemExit):
 			raise
 		except:
