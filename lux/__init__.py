@@ -22,5 +22,5 @@ from lux._config.config import (
     remove_action,
     actions,
     update_actions,
-    default_display,
+    config,
 )

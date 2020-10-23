@@ -138,29 +138,29 @@ def is_callable(obj) -> bool:
 		raise ValueError("Value must be a callable")
 	return True
 
-default_pandas_display = True
+class Config:
 
-@property
-def default_display(self):
-	if (default_pandas_display):
-		return "pandas"
-	else:
-		return "lux"
-	
-@default_display.setter
-def default_display(self, type:str) -> None:
-	"""
-	Set the widget display to show Pandas by default or Lux by default
-	Parameters
-	----------
-	type : str
-		Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
-	"""   
-	warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.",stacklevel=2)
-     
-	if (type.lower()=="lux"):
-		default_pandas_display = False
-	elif (type.lower()=="pandas"):
-		default_pandas_display = True
-	else: 
-		warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.",stacklevel=2)
+	def __init__(self):
+		self._default_display = "pandas"
+
+	@property
+	def default_display(self):
+		return self._default_display
+
+	@default_display.setter
+	def default_display(self, type:str) -> None:
+		# 	"""
+		# 	Set the widget display to show Pandas by default or Lux by default
+		# 	Parameters
+		# 	----------
+		# 	type : str
+		# 		Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
+		# 	"""
+		if (type.lower()=="lux"):
+			self._default_display = "lux"
+		elif (type.lower()=="pandas"):
+			self._default_display = "pandas"
+		else: 
+			warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.",stacklevel=2)
+
+config = Config()
