@@ -155,13 +155,13 @@ class Config:
 
 	@default_display.setter
 	def default_display(self, type:str) -> None:
-		# 	"""
-		# 	Set the widget display to show Pandas by default or Lux by default
-		# 	Parameters
-		# 	----------
-		# 	type : str
-		# 		Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
-		# 	"""
+		"""
+		Set the widget display to show Pandas by default or Lux by default
+		Parameters
+		----------
+		type : str
+			Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
+		"""
 		if (type.lower()=="lux"):
 			self._default_display = "lux"
 		elif (type.lower()=="pandas"):
