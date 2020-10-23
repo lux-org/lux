@@ -18,7 +18,6 @@ from lux.vis.Vis import Vis
 from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
-from lux.utils.date_utils import is_datetime_series
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
 from lux.utils.date_utils import is_datetime_series
 import warnings
@@ -388,6 +387,7 @@ class PandasExecutor(Executor):
         ldf.unique_values = {}
         ldf._min_max = {}
         ldf.cardinality = {}
+        ldf.length = len(ldf)
 
         for attribute in ldf.columns:
             
