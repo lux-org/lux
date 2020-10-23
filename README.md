@@ -1,4 +1,4 @@
-<p align="center"><a href="#"><img width=77% alt="" src="https://github.com/lux-org/lux-resources/blob/master/readme_img/logo.png?raw=true"></a></p>
+<p align="center"><a href="#"><img width=60% alt="" src="https://github.com/lux-org/lux-resources/blob/master/readme_img/logo.png?raw=true"></a></p>
 <h2 align="center">A Python API for Intelligent Visual Discovery</h2>
 
 <p align="center">
@@ -26,7 +26,7 @@ Lux is a Python library that makes data science easier by automating aspects of 
 
 Here is a [1-min video](https://www.youtube.com/watch?v=qmnYP-LmbNU) introducing Lux, and [slides](http://dorisjunglinlee.com/files/Zillow_07_2020_Slide.pdf) from a more extended talk.
 
-Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/examples/demo/cars_demo.ipynb)! 
+Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/demo/cars_demo.ipynb)! 
 
 # Getting Started
 
@@ -98,8 +98,7 @@ We've seen how `Vis`s are automatically generated as part of the recommendations
 
 ```python    
     from lux.vis.Vis import Vis
-    newEnglandCost = Vis(["Region=New England","MedianEarnings"],df)
-    newEnglandCost
+    Vis(["Region=New England","MedianEarnings"],df)
 ```    
 
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/view.png?raw=true"
@@ -114,8 +113,7 @@ For example, we might be interested in looking at how the `AverageCost` distribu
 
 ```python    
     from lux.vis.VisList import VisList
-    differentRegions = VisList(["Region=?","AverageCost"],df)
-    differentRegions
+    VisList(["Region=?","AverageCost"],df)
 ```    
 
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/visList.gif?raw=true"
@@ -125,15 +123,15 @@ For example, we might be interested in looking at how the `AverageCost` distribu
 
 To find out more about other features in Lux, see the complete documentation on [ReadTheDocs](https://lux-api.readthedocs.io/).
 
-# Quick Installation 
+# Installation 
 
-To get started, Lux can be installed through [PyPI](https://pypi.org/project/lux-api/). This installs both the lux-api (this repo) and [lux-widget](https://pypi.org/project/lux-widget/) (the Lux Jupyter widget frontend).
+To get started, Lux can be installed through [PyPI](https://pypi.org/project/lux-api/). 
 
 ```bash
     pip install lux-api
 ```
 
-To install and activate the Jupyter notebook extension: 
+This installation includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). To activate the Jupyter notebook extension: 
 
 ```bash
     jupyter nbextension install --py luxwidget
@@ -150,6 +148,6 @@ Lux is undergoing active development. If you are interested in using Lux, we wou
 Other additional resources:
 
 - Visit [ReadTheDoc](https://lux-api.readthedocs.io/en/latest/) for more detailed documentation.
-- Check out this [notebook tutorial series](https://github.com/lux-org/lux/tree/master/examples/tutorial) on how to use Lux.
-- Join the [Lux Slack channel](http://lux-project.slack.com/) for support and discussion.
+- Clone [lux-binder](https://github.com/lux-org/lux-binder) to try out these [hands-on exercises](https://github.com/lux-org/lux-binder/tree/master/exercise) or a more comprehensive [tutorial series](https://github.com/lux-org/lux-binder/tree/master/tutorial) on how to use Lux.
+- Join our [Slack channel](http://lux-project.slack.com/) for support and discussion.
 - Report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues). 

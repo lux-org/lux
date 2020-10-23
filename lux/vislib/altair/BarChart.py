@@ -38,6 +38,7 @@ class BarChart(AltairChart):
 		if (x_attr.data_model == "measure"):
 			agg_title = get_agg_title(x_attr)
 			measure_attr = x_attr.attribute
+			bar_attr = y_attr.attribute
 			y_attr_field = alt.Y(y_attr.attribute, type= y_attr.data_type, axis=alt.Axis(labelOverlap=True))
 			x_attr_field = alt.X(x_attr.attribute, type= x_attr.data_type, title=agg_title)
 			y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
@@ -49,6 +50,7 @@ class BarChart(AltairChart):
 		else:
 			agg_title = get_agg_title(y_attr)
 			measure_attr = y_attr.attribute
+			bar_attr = x_attr.attribute
 			x_attr_field = alt.X(x_attr.attribute, type = x_attr.data_type,axis=alt.Axis(labelOverlap=True))
 			y_attr_field = alt.Y(y_attr.attribute,type=y_attr.data_type,title=agg_title)
 			x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
@@ -56,13 +58,13 @@ class BarChart(AltairChart):
 			if (x_attr.sort=="ascending"):
 				x_attr_field.sort="-y"
 				x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True),sort='-y')"
-		
 		k=10
-		topK_code = ""
-		if len(self.data)>k: # Truncating to only top k
-			remaining_bars = len(self.data)-k
+		self._topkcode = ""
+		n_bars = len(self.data[bar_attr].unique()) 
+		if n_bars>k: # Truncating to only top k
+			remaining_bars = n_bars-k
 			self.data = self.data.nlargest(k,measure_attr)
-			text = alt.Chart(self.data).mark_text(
+			self.text = alt.Chart(self.data).mark_text(
 				x=155, 
 				y=142,
 				align="right",
@@ -71,7 +73,7 @@ class BarChart(AltairChart):
 				text=f"+ {remaining_bars} more ..."
 			)
 
-			topK_code = f'''text = alt.Chart(visData).mark_text(
+			self._topkcode = f'''text = alt.Chart(visData).mark_text(
 			x=155, 
 			y=142,
 			align="right",
@@ -79,20 +81,16 @@ class BarChart(AltairChart):
 			fontSize = 11,
 			text=f"+ {remaining_bars} more ..."
 		)
-		chart = chart + text
-			'''
+		chart = chart + text\n'''
 		
 		chart = alt.Chart(self.data).mark_bar().encode(
 			    y = y_attr_field,
 			    x = x_attr_field
 			)
-		if (topK_code!=""):
-			chart = chart + text
 		# TODO: tooltip messes up the count() bar charts		
 		# Can not do interactive whenever you have default count measure otherwise output strange error (Javascript Error: Cannot read property 'length' of undefined)
 		#chart = chart.interactive() # If you want to enable Zooming and Panning
-		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
-
+		
 		self.code += "import altair as alt\n"
 		# self.code += f"visData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
 		self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
@@ -100,8 +98,16 @@ class BarChart(AltairChart):
 		chart = alt.Chart(visData).mark_bar().encode(
 		    y = {y_attr_field_code},
 		    x = {x_attr_field_code},
-		)
-		{topK_code}
-		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
-		'''
+		)\n'''
 		return chart 
+	
+	def add_text(self):
+		if (self._topkcode!=""):
+			self.chart = self.chart + self.text
+			self.code += self._topkcode
+	
+	def encode_color(self): # override encode_color in AltairChart to enforce add_text occurs afterwards
+		AltairChart.encode_color(self)
+		self.add_text()
+		self.chart = self.chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
+		self.code += f'''chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding'))'''
