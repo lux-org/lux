@@ -29,6 +29,7 @@ class Vis:
 		self._mark = ""
 		self._min_max = {}
 		self._plot_config = None
+		self._postbin = None
 		self.title = title
 		self.score = score
 		self.refresh_source(self._source)
@@ -115,12 +116,12 @@ class Vis:
 	def _repr_html_(self):
 		from IPython.display import display
 		check_import_lux_widget()
-		import luxWidget
+		import luxwidget
 		if (self.data is None):
 			raise Exception("No data is populated in Vis. In order to generate data required for the vis, use the 'refresh_source' function to populate the Vis with a data source (e.g., vis.refresh_source(df)).")
 		else:
 			from lux.core.frame import LuxDataFrame
-			widget =  luxWidget.LuxWidget(
+			widget =  luxwidget.LuxWidget(
 					currentVis= LuxDataFrame.current_vis_to_JSON([self]),
 					recommendations=[],
 					intent="",

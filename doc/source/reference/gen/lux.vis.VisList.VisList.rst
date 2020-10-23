@@ -21,6 +21,7 @@ lux.vis.VisList.VisList
       ~VisList.normalize_score
       ~VisList.refresh_source
       ~VisList.remove_duplicates
+      ~VisList.remove_index
       ~VisList.set
       ~VisList.set_intent
       ~VisList.set_plot_config

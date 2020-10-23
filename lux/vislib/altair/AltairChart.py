@@ -43,7 +43,6 @@ class AltairChart:
 	def add_tooltip(self):
 		if (self.tooltip): 
 			self.chart = self.chart.encode(tooltip=list(self.vis.data.columns))
-
 	def apply_default_config(self):
 		self.chart = self.chart.configure_title(fontWeight=500,fontSize=13,font="Helvetica Neue")
 		self.chart = self.chart.configure_axis(titleFontWeight=500,titleFontSize=11,titleFont="Helvetica Neue",

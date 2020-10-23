@@ -14,15 +14,21 @@
 
 class Message:
     def __init__(self):
-        self.content = []
-    def append(self,item):
-        self.content.append(item)
+        self.messages = []
+    def add_unique(self,item,priority=-1):
+        msg = {"text":item,"priority":priority}
+        if (msg not in self.messages):
+            self.messages.append(msg)
+    def add(self,item,priority=-1):
+        self.messages.append({"text":item,"priority":priority})
     def to_html(self):
-        if (len(self.content)==0):
+        if (len(self.messages)==0):
             return ""
         else:
+            sorted_msgs = sorted(self.messages, key = lambda i: i['priority'],reverse=True) 
             html = "<ul>"
-            for item in self.content:
-                html+=f"<li>{item}</li>"
+            for msg in sorted_msgs:
+                msgTxt = msg["text"]
+                html+=f"<li>{msgTxt}</li>"
             html += "</ul>"
             return html
