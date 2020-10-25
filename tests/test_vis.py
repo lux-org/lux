@@ -159,3 +159,10 @@ def test_vis_list_set_intent():
     vislist.intent = ["Weight","?"]
     vislist._repr_html_()
     for vis in vislist: assert vis.get_attr_by_attr_name("Weight")!=[]
+def test_text_not_overridden():
+    from lux.vis.Vis import Vis
+    df = pd.read_csv("lux/data/college.csv")
+    vis = Vis(["Region", "Geography"], df)
+    vis._repr_html_()
+    code = vis.to_Altair()
+    assert "color = \"#ff8e04\"" in code
