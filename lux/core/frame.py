@@ -66,17 +66,11 @@ class LuxDataFrame(pd.DataFrame):
 	@property
 	def _constructor(self):
 		return LuxDataFrame
-	# @property
-	# def _constructor_sliced(self):
-	# 	def f(*args, **kwargs):
-	# 		# adapted from https://github.com/pandas-dev/pandas/issues/13208#issuecomment-326556232
-	# 		return LuxSeries(*args, **kwargs).__finalize__(self, method='inherit')
-	# 	return f
 	@property
 	def _constructor_sliced(self):
 		def f(*args, **kwargs):
 			s = LuxSeries(*args, **kwargs)
-			for attr in self._metadata:
+			for attr in self._metadata: #propagate metadata
 				s.__dict__[attr] = getattr(self, attr, None)
 			return s
 		return f
@@ -415,7 +409,6 @@ class LuxDataFrame(pd.DataFrame):
 			id_fields_str = id_fields_str[:-2]
 			rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
 		rec_df._prev = None # reset _prev
-		
 
 		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that recs has not yet been computed
 			rec_infolist = []
