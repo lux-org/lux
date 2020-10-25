@@ -16,7 +16,7 @@ before_script:
    - psql -c "CREATE schema public;" -U postgres 
 # command to run tests
 script:
-  - python lux/data/upload_car.py
+  - python lux/data/upload_car_data.py
   - python -m pytest tests/*.py
   - pytest --cov-report term --cov=lux tests/
 after_success:
