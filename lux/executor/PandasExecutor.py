@@ -12,7 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import pandas as pd
+# import pandas as pd
+import modin.pandas as pd
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.core.frame import LuxDataFrame
@@ -319,15 +320,15 @@ class PandasExecutor(Executor):
     def compute_data_type(self, ldf:LuxDataFrame):
         for attr in list(ldf.columns):
             temporal_var_list = ["month", "year","day","date","time"]
-            if (isinstance(attr,pd._libs.tslibs.timestamps.Timestamp)): 
+            if 'datetime' in str(ldf.dtypes[attr]):
                 # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
                 ldf.data_type_lookup[attr] = "temporal"
             # elif any(var in str(attr).lower() for var in temporal_var_list):
             elif str(attr).lower() in temporal_var_list:
                 ldf.data_type_lookup[attr] = "temporal"
-            elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
+            elif 'float' in str(ldf.dtypes[attr]):
                 ldf.data_type_lookup[attr] = "quantitative"
-            elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]): 
+            elif 'int' in str(ldf.dtypes[attr]):
                 # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                 if (ldf.pre_aggregated):
                     if (ldf.cardinality[attr]==len(ldf)):
@@ -339,7 +340,7 @@ class PandasExecutor(Executor):
                 if check_if_id_like(ldf,attr): 
                     ldf.data_type_lookup[attr] = "id"
             # Eliminate this clause because a single NaN value can cause the dtype to be object
-            elif pd.api.types.is_string_dtype(ldf.dtypes[attr]):
+            elif 'object' in str(ldf.dtypes[attr]):
                 if check_if_id_like(ldf,attr): 
                     ldf.data_type_lookup[attr] = "id"
                 else:
@@ -391,7 +392,8 @@ class PandasExecutor(Executor):
 
         for attribute in ldf.columns:
             
-            if (isinstance(attribute,pd._libs.tslibs.timestamps.Timestamp)): 
+            # if (pd.core.dtypes.common.is_datetime_or_timedelta_dtype(attribute)): 
+            if 'datetime' in str(ldf.dtypes[attribute]):
                 # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
                 attribute_repr = str(attribute._date_repr)
             else:
