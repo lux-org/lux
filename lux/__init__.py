@@ -21,5 +21,6 @@ from lux._config.config import (
     register_action,
     remove_action,
     actions,
-    update_actions
+    update_actions,
+    config,
 )
