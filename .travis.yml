@@ -1,13 +1,22 @@
 language: python
 python:
   - "3.7"
+services:
+  - postgresql
 install:
   - pip install codecov
   - pip install -r requirements.txt
   - pip install git+https://github.com/lux-org/lux-widget
   #- npm i lux-widget
+before_script:
+   - psql -c "ALTER USER postgres WITH PASSWORD 'lux';" -U postgres 
+   - psql -c "ALTER USER postgres WITH SUPERUSER;" -U postgres
+   - psql -c "ALTER DATABASE postgres OWNER TO travis;"
+   - psql -c "DROP schema public cascade;" -U postgres
+   - psql -c "CREATE schema public;" -U postgres 
 # command to run tests
 script:
+  - python lux/data/upload_car.py
   - python -m pytest tests/*.py
   - pytest --cov-report term --cov=lux tests/
 after_success:
