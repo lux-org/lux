@@ -3,7 +3,7 @@ import psycopg2
 import csv
 
 import psycopg2
-conn = psycopg2.connect("host=localhost dbname=public user=postgres password=lux")
+conn = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
 cur = conn.cursor()
 cur.execute("""
 	DROP TABLE IF EXISTS car
