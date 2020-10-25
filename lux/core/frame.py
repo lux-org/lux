@@ -74,6 +74,15 @@ class LuxDataFrame(pd.DataFrame):
 	# 		return LuxSeries(*args, **kwargs).__finalize__(self, method='inherit')
 	# 	return f
 	@property
+	def _constructor_sliced(self):
+		def f(*args, **kwargs):
+			s = LuxSeries(*args, **kwargs)
+			for attr in self._metadata:
+				s.__dict__[attr] = getattr(self, attr, None)
+			return s
+		return f
+
+	@property
 	def history(self):
 		return self._history
 	def maintain_metadata(self):
@@ -391,6 +400,7 @@ class LuxDataFrame(pd.DataFrame):
 			self._recs_fresh = False
 		show_prev = False # flag indicating whether rec_df is showing previous df or current self
 		if self._prev is not None:
+			print("wut am I doing here")
 			rec_df = self._prev
 			rec_df._message = Message()	
 			rec_df.maintain_metadata() # the prev dataframe may not have been printed before
@@ -408,6 +418,7 @@ class LuxDataFrame(pd.DataFrame):
 			rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
 		rec_df._prev = None # reset _prev
 		
+
 		if (not hasattr(rec_df,"_recs_fresh") or not rec_df._recs_fresh ): # Check that recs has not yet been computed
 			rec_infolist = []
 			from lux.action.custom import custom
@@ -732,8 +743,7 @@ class LuxDataFrame(pd.DataFrame):
 		self._history.append_event("describe",*args, **kwargs)
 		return super(LuxDataFrame, self).describe(*args, **kwargs)
 
-	def groupby(self, *args, **kwargs):
-		print("wtf")
-		self._prev = self
-		self._history.append_event("groupby", *args, **kwargs)
-		return super(LuxDataFrame, self).groupby(*args, **kwargs)
+	# def groupby(self, *args, **kwargs):
+	# 	self._prev = self
+	# 	self._history.append_event("groupby", *args, **kwargs)
+	# 	return super(LuxDataFrame, self).groupby(*args, **kwargs)
