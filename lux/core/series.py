@@ -32,9 +32,8 @@ class LuxSeries(pd.Series):
 	# 		for attr in self._metadata:
 	# 			df.__dict__[attr] = getattr(self, attr, None)
 	# 		return df
-	# 	# def f(*args, **kwargs):
-	# 	# 	# adapted from https://github.com/pandas-dev/pandas/issues/13208#issuecomment-326556232
-	# 	# 	return LuxDataFrame(*args, **kwargs).__finalize__(self, method='inherit')
-	# 	# return f
+	# 	def f(*args, **kwargs):
+	# 		# adapted from https://github.com/pandas-dev/pandas/issues/13208#issuecomment-326556232
+	# 		return LuxDataFrame(*args, **kwargs).__finalize__(self, method='inherit')
 	# 	return f
 		return LuxDataFrame
