@@ -24,12 +24,11 @@ cur.execute("""
 """)
 
 #open car.csv and read data into database
-with open('car.csv', 'r') as f:
+with open('lux/data/car.csv', 'r') as f:
 	reader = csv.reader(f)
 	next(reader) # Skip the header row.
 	i = 0
 	for row in reader:
-		#print(row)
 		cur.execute(
 		"INSERT INTO car VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
 		row
