@@ -22,7 +22,9 @@ from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
 import warnings
+import traceback
 import lux
+
 class LuxDataFrame(pd.DataFrame):
 	'''
 	A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
@@ -213,7 +215,7 @@ class LuxDataFrame(pd.DataFrame):
 		Notes
 		-----
 			:doc:`../guide/clause`
-		"""        
+		"""
 		self.expire_recs()
 		self._intent = intent
 		self._parse_validate_compile_intent()
@@ -609,7 +611,9 @@ class LuxDataFrame(pd.DataFrame):
 					
 		except(KeyboardInterrupt,SystemExit):
 			raise
-		except:
+		except Exception as e:
+			warnings.warn(e)
+			warnings.warn(traceback.format_exc())
 			warnings.warn(
 					"\nUnexpected error in rendering Lux widget and recommendations. "
 					"Falling back to Pandas display.\n\n" 

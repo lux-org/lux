@@ -218,6 +218,7 @@ class Compiler:
 		nmsr = 0
 		filters = []
 		for clause in vis._inferred_intent:
+			# print('clause', clause)
 			if (clause.value==""):
 				if (clause.data_model == "dimension"):
 					ndim += 1
@@ -225,6 +226,7 @@ class Compiler:
 					nmsr += 1
 			else:  # preserve to add back to _inferred_intent later
 				filters.append(clause)
+
 		# Helper function (TODO: Move this into utils)
 		def line_or_bar(ldf, dimension:Clause, measure:Clause):
 			dim_type = dimension.data_type
@@ -238,6 +240,7 @@ class Compiler:
 				if ldf.cardinality[dimension.attribute]>5:
 					dimension.sort = "ascending"
 				return "bar", {"x": measure, "y": dimension}
+
 		# ShowMe logic + additional heuristics
 		#count_col = Clause( attribute="count()", data_model="measure")
 		count_col = Clause( attribute="Record", aggregation="count", data_model="measure", data_type="quantitative")
