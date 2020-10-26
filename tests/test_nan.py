@@ -1,5 +1,5 @@
 #  Copyright 2019-2020 The Lux Authors.
-# 
+#
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
@@ -18,10 +18,12 @@ import pandas as pd
 import numpy as np
 
 from lux.vis.Vis import Vis
+
+
 def test_nan_column():
-	df = pd.read_csv("lux/data/college.csv")
-	df["Geography"] = np.nan
-	df._repr_html_()
-	for visList in df.recommendation.keys():
-		for vis in df.recommendation[visList]:
-			assert vis.get_attr_by_attr_name("Geography")==[]
+    df = pd.read_csv("lux/data/college.csv")
+    df["Geography"] = np.nan
+    df._repr_html_()
+    for visList in df.recommendation.keys():
+        for vis in df.recommendation[visList]:
+            assert vis.get_attr_by_attr_name("Geography") == []

@@ -1,5 +1,5 @@
 #  Copyright 2019-2020 The Lux Authors.
-# 
+#
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
@@ -17,20 +17,25 @@ import pytest
 import pandas as pd
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
+
+
 def test_to_pandas():
     df = pd.read_csv("lux/data/car.csv")
     df.to_pandas()
 
+
 def test_display_LuxDataframe():
     df = pd.read_csv("lux/data/car.csv")
     df._repr_html_()
-    
+
+
 def test_display_Vis():
     df = pd.read_csv("lux/data/car.csv")
-    vis = Vis(["Horsepower","Acceleration"],df)
+    vis = Vis(["Horsepower", "Acceleration"], df)
     vis._repr_html_()
-    
+
+
 def test_display_VisList():
     df = pd.read_csv("lux/data/car.csv")
-    vislist = VisList(["?","Acceleration"],df)
+    vislist = VisList(["?", "Acceleration"], df)
     vislist._repr_html_()
