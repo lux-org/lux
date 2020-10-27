@@ -8,6 +8,7 @@ install:
   #- npm i lux-widget
 # command to run tests
 script:
+  - black --check .
   - python -m pytest tests/*.py
   - pytest --cov-report term --cov=lux tests/
 after_success:
