@@ -9,6 +9,7 @@ scikit-learn>=0.22
 Sphinx>=3.0.2
 sphinx-rtd-theme>=0.4.3
 lux-widget==0.1.0
+black>=20.8b1
 # Install only to use SQLExecutor
 # psycopg2>=2.8.5
 # psycopg2-binary>=2.8.5
