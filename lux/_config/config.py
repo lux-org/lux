@@ -4,6 +4,7 @@ For more resources, see https://github.com/pandas-dev/pandas/blob/master/pandas/
 """
 from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional
+import warnings
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
@@ -13,6 +14,12 @@ _registered_actions: Dict[str, RegisteredOption] = {}
 update_actions: Dict[str, bool] = {}
 update_actions["flag"] = False
 
+
+class OptionError(AttributeError, KeyError):
+    """
+    Exception for pandas.options, backwards compatible with KeyError
+    checks
+    """
 
 def _get_action(pat: str, silent: bool = False):
     return _registered_actions[pat]
