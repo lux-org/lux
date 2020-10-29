@@ -121,27 +121,6 @@ class LuxDataFrame(pd.DataFrame):
 		super(LuxDataFrame, self)._set_item(key, value)
 		self.expire_metadata()
 		self.expire_recs()
-	@property
-	def default_display(self):
-		if (self._default_pandas_display):
-			return "pandas"
-		else:
-			return "lux"
-	@default_display.setter
-	def default_display(self, type:str) -> None:
-		"""
-		Set the widget display to show Pandas by default or Lux by default
-		Parameters
-		----------
-		type : str
-			Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
-		"""        
-		if (type.lower()=="lux"):
-			self._default_pandas_display = False
-		elif (type.lower()=="pandas"):
-			self._default_pandas_display = True
-		else: 
-			warnings.warn("Unsupported display type. Default display option should either be `lux` or `pandas`.",stacklevel=2)
 	def _infer_structure(self):
 		# If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
 		is_multi_index_flag = self.index.nlevels !=1
@@ -591,7 +570,10 @@ class LuxDataFrame(pd.DataFrame):
 					from lux.processor.Compiler import Compiler
 					self.current_vis = Compiler.compile_intent(self, self._intent)
 
-				self._toggle_pandas_display = self._default_pandas_display # Reset to Pandas Vis everytime            
+				if (lux.config.default_display == "lux"):
+					self._toggle_pandas_display = False
+				else:
+					self._toggle_pandas_display = True
 				
 				# df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
 				self.maintain_recs()
