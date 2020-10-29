@@ -47,7 +47,7 @@ python -m pytest tests/*.py
 
 # Submitting a Pull Request
 
-You can commit your code and push to your forked repo. Once all of your local changes have been tested and is working, you are ready to submit a PR. For Lux, we use the "Squash and Merge" strategy to merge in PR, which means that even if you make a lot of small commits in your PR, they will all get squashed into a single commit associated with the PR. Please make sure that comments and unnecessary file changes are not committed as part of the PR by looking at the "File Changes" diff view on the pull request page.
+Before submitting a PR, please make sure you have formatted your code using the command `black .`. You can commit your code and push to your forked repo. Once all of your local changes have been tested and is working, you are ready to submit a PR. For Lux, we use the "Squash and Merge" strategy to merge in PR, which means that even if you make a lot of small commits in your PR, they will all get squashed into a single commit associated with the PR. Please make sure that comments and unnecessary file changes are not committed as part of the PR by looking at the "File Changes" diff view on the pull request page.
     
 Once the pull request is submitted, the maintainer will get notified and review your pull request. They may ask for additional changes or comment on the PR. You can always make updates to your pull request after submitting it.
 
