@@ -23,6 +23,12 @@ from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
 import warnings
 import lux
+
+from IPython.display import display
+from IPython.display import clear_output
+from IPython.display import HTML
+import ipywidgets as widgets
+
 class LuxDataFrame(pd.DataFrame):
 	'''
 	A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
@@ -285,6 +291,8 @@ class LuxDataFrame(pd.DataFrame):
 		self._current_vis = current_vis
 	def __repr__(self):
 		# TODO: _repr_ gets called from _repr_html, need to get rid of this call
+		self.output = widgets.Output()
+		print("Hi")
 		return ""
 	
 	#######################################################
@@ -549,18 +557,16 @@ class LuxDataFrame(pd.DataFrame):
 		self.current_vis = Compiler.compile_intent(self, self._intent)
 		self.maintain_recs()
 
+		
+		self.output.clear_output()
 		with self.output:
-			clear_output()
 			display(self._widget)
+		# self.output.append_display_data(self._widget)
 		
 		self._widget.observe(self.remove_deleted_recs, names='deletedIndices')
 		self._widget.observe(self.set_intent_on_click, names='selectedIntentIndex')
 		
 	def _repr_html_(self):
-		from IPython.display import display
-		from IPython.display import clear_output
-		import ipywidgets as widgets
-		
 		try: 
 			if (self._pandas_only):
 				display(self.display_pandas())
@@ -603,21 +609,22 @@ class LuxDataFrame(pd.DataFrame):
 				if len(self.recommendation) > 0:
 					# box = widgets.Box(layout=widgets.Layout(display='inline'))
 					button = widgets.Button(description="Toggle Pandas/Lux",layout=widgets.Layout(width='140px',top='5px'))
-					self.output = widgets.Output()
 					# box.children = [button,output]
 					# output.children = [button]
 					# display(box)
 					display(button, self.output)
 					def on_button_clicked(b):
+						self.output.clear_output()
 						with self.output:
 							if (b):
 								self._toggle_pandas_display = not self._toggle_pandas_display
-							clear_output()
 							if (self._toggle_pandas_display):
 								display(self.display_pandas())
+								# self.output.append_display_data(self.display_pandas())
 							else:
 								# b.layout.display = "none"
 								display(self._widget)
+								# self.output.append_display_data(self._widget)
 								# b.layout.display = "inline-block"
 					button.on_click(on_button_clicked)
 					on_button_clicked(None)
