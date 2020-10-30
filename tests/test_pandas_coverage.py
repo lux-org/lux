@@ -127,8 +127,7 @@ def test_cut():
     df._repr_html_()
 def test_groupby_agg_very_small():
 
-    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
     new_df = df.groupby("Origin").agg(sum).reset_index()
     new_df._repr_html_()
@@ -357,8 +356,7 @@ def compare_vis(vis1, vis2):
 
 def test_df_to_series():
     # Ensure metadata is kept when going from df to series
-    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     df._repr_html_() # compute metadata
     assert df.cardinality is not None
     series = df["Weight"]
@@ -369,8 +367,7 @@ def test_df_to_series():
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
 
 def test_value_counts():
-    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     df._repr_html_() # compute metadata
     assert df.cardinality is not None
     series = df["Weight"]
