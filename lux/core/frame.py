@@ -433,7 +433,8 @@ class LuxDataFrame(pd.DataFrame):
 				action_type = rec_info["action"]
 				vlist = rec_info["collection"]
 				if (rec_df._plot_config):
-					for vis in rec_df.current_vis: vis._plot_config = rec_df.plot_config
+					if (rec_df.current_vis):
+						for vis in rec_df.current_vis: vis._plot_config = rec_df.plot_config
 					for vis in vlist: vis._plot_config = rec_df.plot_config
 				if (len(vlist)>0):
 					rec_df.recommendation[action_type]  = vlist
