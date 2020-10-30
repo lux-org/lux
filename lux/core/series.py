@@ -33,8 +33,4 @@ class LuxSeries(pd.Series):
 				df.__dict__[attr] = getattr(self, attr, None)
 			return df
 		f._get_axis_number = super(LuxSeries, self)._get_axis_number
-		# def f(*args, **kwargs):
-		# 	# adapted from https://github.com/pandas-dev/pandas/issues/13208#issuecomment-326556232
-		# 	return LuxDataFrame(*args, **kwargs).__finalize__(self, method='inherit')
 		return f
-		# return LuxDataFrame
