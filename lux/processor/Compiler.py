@@ -241,7 +241,6 @@ class Compiler:
 		# ShowMe logic + additional heuristics
 		#count_col = Clause( attribute="count()", data_model="measure")
 		count_col = Clause( attribute="Record", aggregation="count", data_model="measure", data_type="quantitative")
-		print(ndim, nmsr)
 		auto_channel={}
 		if (ndim == 0 and nmsr == 1):
 			# Histogram with Count 

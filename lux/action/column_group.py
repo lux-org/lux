@@ -37,12 +37,10 @@ def column_group(ldf):
 		if isinstance(ldf.columns,pd.DatetimeIndex):
 			ldf.columns = ldf.columns.to_native_types()
 		for attribute in ldf.columns:
-			print(attribute)
 			if ldf.index.name:
 				vis = Vis([index_column_name,lux.Clause(str(attribute), aggregation=None)],ldf_flat)
 			else:
 				vis = Vis([lux.Clause(index_column_name, data_type = "nominal", data_model = "dimension", aggregation=None), lux.Clause(str(attribute), aggregation=None)],ldf_flat)
-				# vis = Vis([index_column_name,lux.Clause(str(attribute), aggregation=None)],ldf_flat)
 			collection.append(vis)
 	vlst = VisList(collection)
 	# Note that we are not computing interestingness score here because we want to preserve the arrangement of the aggregated ldf
