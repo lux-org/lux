@@ -143,35 +143,48 @@ def test_remove_invalid_action():
 
 
 def test_remove_default_actions():
-    df = pd.read_csv("lux/data/car.csv")
-    df._repr_html_()
+	df = pd.read_csv("lux/data/car.csv")
+	df._repr_html_()
 
-    lux.remove_action("Distribution")
-    df._repr_html_()
-    assert "Distribution" not in df.recommendation
+	lux.remove_action("Distribution")
+	df._repr_html_()
+	assert("Distribution" not in df.recommendation)
 
-    lux.remove_action("Occurrence")
-    df._repr_html_()
-    assert "Occurrence" not in df.recommendation
+	lux.remove_action("Occurrence")
+	df._repr_html_()
+	assert("Occurrence" not in df.recommendation)
 
-    lux.remove_action("Temporal")
-    df._repr_html_()
-    assert "Temporal" not in df.recommendation
+	lux.remove_action("Temporal")
+	df._repr_html_()
+	assert("Temporal" not in df.recommendation)
 
-    lux.remove_action("Correlation")
-    df._repr_html_()
-    assert "Correlation" not in df.recommendation
+	lux.remove_action("Correlation")
+	df._repr_html_()
+	assert("Correlation" not in df.recommendation)
 
-    assert (
-        len(df.recommendation) == 0,
-        "Default actions should not be rendered after it has been removed.",
-    )
+	assert(len(df.recommendation) == 0,
+		"Default actions should not be rendered after it has been removed.")
 
-    df = register_new_action()
-    df.set_intent(["Acceleration", "Horsepower"])
-    df._repr_html_()
-    assert (
-        "bars" in df.recommendation,
-        "Bars should be rendered after it has been registered with correct intent.",
-    )
-    assert len(df.recommendation["bars"]) > 0
+	df = register_new_action()
+	df.set_intent(["Acceleration", "Horsepower"])
+	df._repr_html_()
+	assert("bars" in df.recommendation,
+		"Bars should be rendered after it has been registered with correct intent.")
+	assert(len(df.recommendation["bars"]) > 0)
+
+# TODO: This test does not pass in pytest but is working in Jupyter notebook. 
+# def test_plot_setting():
+# 	df = pd.read_csv("lux/data/car.csv")
+# 	df["Year"] = pd.to_datetime(df["Year"], format='%Y') 
+# 	def change_color_add_title(chart):
+# 		chart = chart.configure_mark(color="green") # change mark color to green
+# 		chart.title = "Custom Title" # add title to chart
+# 		return chart
+
+# 	df.plot_config = change_color_add_title
+
+# 	df._repr_html_()
+
+# 	vis_code = df.recommendation["Correlation"][0].to_Altair()
+# 	print (vis_code)
+# 	assert 'chart = chart.configure_mark(color="green")' in vis_code, "Exported chart does not have additional plot style setting."
