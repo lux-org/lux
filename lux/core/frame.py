@@ -433,7 +433,8 @@ class LuxDataFrame(pd.DataFrame):
 				action_type = rec_info["action"]
 				vlist = rec_info["collection"]
 				if (rec_df._plot_config):
-					for vis in rec_df.current_vis: vis._plot_config = rec_df.plot_config
+					if (rec_df.current_vis):
+						for vis in rec_df.current_vis: vis._plot_config = rec_df.plot_config
 					for vis in vlist: vis._plot_config = rec_df.plot_config
 				if (len(vlist)>0):
 					rec_df.recommendation[action_type]  = vlist
@@ -458,8 +459,8 @@ class LuxDataFrame(pd.DataFrame):
 		
 		Notes
 		-----
-		Convert the _exportedVisIdxs dictionary into a programmable VisList
-		Example _exportedVisIdxs : 
+		Convert the _selectedVisIdxs dictionary into a programmable VisList
+		Example _selectedVisIdxs : 
 			{'Correlation': [0, 2], 'Occurrence': [1]}
 		indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Occurrence` tab is selected.
 		
@@ -477,7 +478,7 @@ class LuxDataFrame(pd.DataFrame):
 						"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
 						, stacklevel=2)
 			return []
-		exported_vis_lst = self._widget._exportedVisIdxs
+		exported_vis_lst = self._widget._selectedVisIdxs
 		exported_vis = [] 
 		if (exported_vis_lst=={}):
 			if self._saved_export:

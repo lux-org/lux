@@ -62,8 +62,8 @@ class VisList():
 
 		Notes
         -----
-		Convert the _exportedVisIdxs dictionary into a programmable VisList
-		Example _exportedVisIdxs : 
+		Convert the _selectedVisIdxs dictionary into a programmable VisList
+		Example _selectedVisIdxs : 
 			{'Vis List': [0, 2]}
 		
 		Returns
@@ -78,7 +78,7 @@ class VisList():
 						"See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips"
 						, stacklevel=2)
 			return []
-		exported_vis_lst =self._widget._exportedVisIdxs
+		exported_vis_lst =self._widget._selectedVisIdxs
 		if (exported_vis_lst=={}):
 			warnings.warn(
 				"\nNo visualization selected to export.\n"
