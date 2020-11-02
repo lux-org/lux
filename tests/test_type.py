@@ -75,7 +75,7 @@ def test_check_airbnb():
 								'price': 'quantitative',
 								'minimum_nights': 'quantitative',
 								'number_of_reviews': 'quantitative',
-								'last_review': 'temporal', # Corrently detecting temporal here now
+								'last_review': 'temporal', 
 								'reviews_per_month': 'quantitative',
 								'calculated_host_listings_count': 'quantitative',
 								'availability_365': 'quantitative'}
