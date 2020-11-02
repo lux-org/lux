@@ -36,13 +36,15 @@ def column_group(ldf):
 			index_column_name = "index"
 		if isinstance(ldf.columns,pd.DatetimeIndex):
 			ldf.columns = ldf.columns.to_native_types()
-		for attribute in ldf.columns:
+		for attribute in ldf.data_type["quantitative"]:
 			if ldf.index.name:
-				vis = Vis([index_column_name,lux.Clause(str(attribute), aggregation=None)],ldf_flat)
+				vis = Vis([index_column_name,lux.Clause(str(attribute), aggregation=None)])
+				collection.append(vis)
 			else:
-				vis = Vis([lux.Clause(index_column_name, data_type = "nominal", data_model = "dimension", aggregation=None), lux.Clause(str(attribute), aggregation=None)],ldf_flat)
-			collection.append(vis)
-	vlst = VisList(collection)
+				if (attribute!="index"):
+					vis = Vis([lux.Clause(index_column_name, data_type = "nominal", data_model = "dimension", aggregation=None), lux.Clause(str(attribute), aggregation=None)])
+					collection.append(vis)
+	vlst = VisList(collection,ldf_flat)
 	# Note that we are not computing interestingness score here because we want to preserve the arrangement of the aggregated ldf
 	
 	recommendation["collection"] = vlst
