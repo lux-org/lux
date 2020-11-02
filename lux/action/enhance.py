@@ -1,5 +1,5 @@
 #  Copyright 2019-2020 The Lux Authors.
-# 
+#
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
@@ -17,45 +17,57 @@ from lux.interestingness.interestingness import interestingness
 from lux.processor.Compiler import Compiler
 from lux.utils import utils
 
+
 def enhance(ldf):
-	'''
-	Given a set of vis, generates possible visualizations when an additional attribute is added to the current vis.
+    """
+    Given a set of vis, generates possible visualizations when an additional attribute is added to the current vis.
 
-	Parameters
-	----------
-	ldf : lux.core.frame
-		LuxDataFrame with underspecified intent.
+    Parameters
+    ----------
+    ldf : lux.core.frame
+            LuxDataFrame with underspecified intent.
 
-	Returns
-	-------
-	recommendations : Dict[str,obj]
-		object with a collection of visualizations that result from the Enhance action.
-	'''
-	
-	filters = utils.get_filter_specs(ldf._intent)
-	# Collect variables that already exist in the intent
-	attr_specs = list(filter(lambda x: x.value=="" and x.attribute!="Record", ldf._intent))
-	fltr_str = [fltr.attribute+fltr.filter_op+str(fltr.value) for fltr in filters]
-	attr_str = [clause.attribute for clause in attr_specs]
-	intended_attrs = '<p class="highlight-intent">'+', '.join(attr_str+fltr_str)+'</p>'
-	if (len(attr_specs)==1):
-		recommendation = {"action":"Enhance",
-						"description":f"Augmenting current {intended_attrs} intent with additional attribute."}
-	elif(len(attr_specs)==2):
-		recommendation = {"action":"Enhance",
-						"description":f"Further breaking down current {intended_attrs} intent by additional attribute."}
-	elif(len(attr_specs)>2): # if there are too many column attributes, return don't generate Enhance recommendations
-		recommendation = {"action":"Enhance"}
-		recommendation["collection"] = []
-		return recommendation
-	intent = ldf._intent.copy()
-	intent = filters + attr_specs
-	intent.append("?")
-	vlist = lux.vis.VisList.VisList(intent,ldf)
-		
-	# Then use the data populated in the vis list to compute score
-	for vis in vlist: vis.score = interestingness(vis,ldf)
-	
-	vlist = vlist.topK(15)
-	recommendation["collection"] = vlist
-	return recommendation
+    Returns
+    -------
+    recommendations : Dict[str,obj]
+            object with a collection of visualizations that result from the Enhance action.
+    """
+
+    filters = utils.get_filter_specs(ldf._intent)
+    # Collect variables that already exist in the intent
+    attr_specs = list(
+        filter(lambda x: x.value == "" and x.attribute != "Record", ldf._intent)
+    )
+    fltr_str = [fltr.attribute + fltr.filter_op + str(fltr.value) for fltr in filters]
+    attr_str = [clause.attribute for clause in attr_specs]
+    intended_attrs = (
+        '<p class="highlight-intent">' + ", ".join(attr_str + fltr_str) + "</p>"
+    )
+    if len(attr_specs) == 1:
+        recommendation = {
+            "action": "Enhance",
+            "description": f"Augmenting current {intended_attrs} intent with additional attribute.",
+        }
+    elif len(attr_specs) == 2:
+        recommendation = {
+            "action": "Enhance",
+            "description": f"Further breaking down current {intended_attrs} intent by additional attribute.",
+        }
+    elif (
+        len(attr_specs) > 2
+    ):  # if there are too many column attributes, return don't generate Enhance recommendations
+        recommendation = {"action": "Enhance"}
+        recommendation["collection"] = []
+        return recommendation
+    intent = ldf._intent.copy()
+    intent = filters + attr_specs
+    intent.append("?")
+    vlist = lux.vis.VisList.VisList(intent, ldf)
+
+    # Then use the data populated in the vis list to compute score
+    for vis in vlist:
+        vis.score = interestingness(vis, ldf)
+
+    vlist = vlist.topK(15)
+    recommendation["collection"] = vlist
+    return recommendation

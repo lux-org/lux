@@ -1,5 +1,5 @@
 #  Copyright 2019-2020 The Lux Authors.
-# 
+#
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
@@ -17,9 +17,4 @@ from lux.vis.Clause import Clause
 from lux.core.frame import LuxDataFrame
 from ._version import __version__, version_info
 from lux._config import config
-from lux._config.config import (
-    register_action,
-    remove_action,
-    actions,
-    update_actions
-)
+from lux._config.config import register_action, remove_action, actions, update_actions
