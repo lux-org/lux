@@ -30,13 +30,17 @@ def column_group(ldf):
 		ldf_flat.columns = ldf_flat.columns.format()
 	ldf_flat = ldf_flat.reset_index() #use a single shared ldf_flat so that metadata doesn't need to be computed for every vis
 	if (ldf.index.nlevels==1):
-		index_column_name = ldf.index.name
+		if ldf.index.name:
+			index_column_name = ldf.index.name
+		else:
+			index_column_name = "index"
 		if isinstance(ldf.columns,pd.DatetimeIndex):
 			ldf.columns = ldf.columns.to_native_types()
-		for attribute in ldf.columns:
-			vis = Vis([index_column_name,lux.Clause(str(attribute),aggregation=None)],ldf_flat)
-			collection.append(vis)
-	vlst = VisList(collection)
+		for attribute in ldf.columns: 
+			if ldf[attribute].dtype!="object" and (attribute!="index"):
+					vis = Vis([lux.Clause(index_column_name, data_type = "nominal", data_model = "dimension", aggregation=None), lux.Clause(str(attribute), data_type = "quantitative", aggregation=None)])
+					collection.append(vis)
+	vlst = VisList(collection,ldf_flat)
 	# Note that we are not computing interestingness score here because we want to preserve the arrangement of the aggregated ldf
 	
 	recommendation["collection"] = vlst
