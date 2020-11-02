@@ -167,12 +167,12 @@ class Compiler:
                 if (
                     clause.attribute != "" and clause.attribute != "Record"
                 ):  # and not is_datetime_string(clause.attribute):
-                    # if (clause.data_type == ""):
-                    clause.data_type = ldf.data_type_lookup[clause.attribute]
+                    if clause.data_type == "":
+                        clause.data_type = ldf.data_type_lookup[clause.attribute]
                     if clause.data_type == "id":
                         clause.data_type = "nominal"
-                    # if (clause.data_model == ""):
-                    clause.data_model = ldf.data_model_lookup[clause.attribute]
+                    if clause.data_model == "":
+                        clause.data_model = ldf.data_model_lookup[clause.attribute]
                 if clause.value != "":
                     if (
                         vis.title == ""
@@ -312,11 +312,12 @@ class Compiler:
                 dimension = d1
                 color_attr = d2
             # Colored Bar/Line chart with Count as default measure
-            if nmsr == 0:
-                vis._inferred_intent.append(count_col)
-            measure = vis.get_attr_by_data_model("measure")[0]
-            vis._mark, auto_channel = line_or_bar(ldf, dimension, measure)
-            auto_channel["color"] = color_attr
+            if not ldf.pre_aggregated:
+                if nmsr == 0 and not ldf.pre_aggregated:
+                    vis._inferred_intent.append(count_col)
+                measure = vis.get_attr_by_data_model("measure")[0]
+                vis._mark, auto_channel = line_or_bar(ldf, dimension, measure)
+                auto_channel["color"] = color_attr
         elif ndim == 0 and nmsr == 2:
             # Scatterplot
             vis._mark = "scatter"
