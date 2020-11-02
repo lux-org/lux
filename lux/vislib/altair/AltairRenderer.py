@@ -71,8 +71,8 @@ class AltairRenderer:
 			chart = None
 
 		if (chart):
+			if (vis.plot_config): chart.chart = vis.plot_config(chart.chart)
 			if (self.output_type=="VegaLite"):
-				if (vis.plot_config): chart.chart = vis.plot_config(chart.chart)
 				chart_dict = chart.chart.to_dict()
 				# this is a bit of a work around because altair must take a pandas dataframe and we can only generate a luxDataFrame
 				# chart["data"] =  { "values": vis.data.to_dict(orient='records') }
