@@ -17,6 +17,7 @@ import pytest
 import pandas as pd
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
+import psycopg2
 
 def test_underspecified_no_vis(test_recs):
 	no_vis_actions = ["Correlation", "Distribution", "Occurrence","Temporal"]

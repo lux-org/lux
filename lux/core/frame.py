@@ -87,7 +87,7 @@ class LuxDataFrame(pd.DataFrame):
 	def expire_recs(self):
 		self._recs_fresh = False
 		self.recommendation = {}
-		self.current_vis = None
+		self.current_vis = []
 		self._widget = None
 		self._rec_info = None
 		self._sampled = None
