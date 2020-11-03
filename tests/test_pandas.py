@@ -1,5 +1,5 @@
 #  Copyright 2019-2020 The Lux Authors.
-# 
+#
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
@@ -27,13 +27,20 @@ import pandas as pd
 #     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
 #     assert series.name == "Weight", "Pandas Series original `name` property not retained."
 
+
 def test_head_tail():
     df = pd.read_csv("lux/data/car.csv")
     df._repr_html_()
-    assert df._message.to_html()==""
+    assert df._message.to_html() == ""
     df.head()._repr_html_()
-    assert "Lux is visualizing the previous version of the dataframe before you applied <code>head</code>."in df._message.to_html()
+    assert (
+        "Lux is visualizing the previous version of the dataframe before you applied <code>head</code>."
+        in df._message.to_html()
+    )
     df._repr_html_()
-    assert df._message.to_html()==""
+    assert df._message.to_html() == ""
     df.tail()._repr_html_()
-    assert "Lux is visualizing the previous version of the dataframe before you applied <code>tail</code>." in df._message.to_html()
+    assert (
+        "Lux is visualizing the previous version of the dataframe before you applied <code>tail</code>."
+        in df._message.to_html()
+    )

@@ -654,9 +654,9 @@ class LuxDataFrame(pd.DataFrame):
         self.current_vis = Compiler.compile_intent(self, self._intent)
         self.maintain_recs()
 
-        # with self.output:
-        #     clear_output()
-        #     display(self._widget)
+        with self.output:
+            clear_output()
+            display(self._widget)
 
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
@@ -725,20 +725,19 @@ class LuxDataFrame(pd.DataFrame):
                         description="Toggle Pandas/Lux",
                         layout=widgets.Layout(width="140px", top="5px"),
                     )
-                    # self.output = widgets.Output()
+                    self.output = widgets.Output()
                     # box.children = [button,output]
                     # output.children = [button]
                     # display(box)
-                    # display(button)
-                    # display(self.output)
+                    display(button, self.output)
 
                     def on_button_clicked(b):
+                        with self.output:
                             if b:
                                 self._toggle_pandas_display = (
                                     not self._toggle_pandas_display
-                                )    
-                                clear_output()
-                            display(button)
+                                )
+                            clear_output()
                             if self._toggle_pandas_display:
                                 display(self.display_pandas())
                             else:
