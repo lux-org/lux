@@ -155,8 +155,7 @@ def test_sort_bar():
 
 
 def test_specified_vis_collection():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(
         df["Year"], format="%Y"
     )  # change pandas dtype for the column "Year" to datetype

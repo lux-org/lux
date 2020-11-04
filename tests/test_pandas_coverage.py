@@ -252,9 +252,7 @@ def test_applymap():
 
 
 def test_strcat():
-    df = pd.read_csv(
-        "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    )
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["combined"] = df["Origin"].str.cat(df["Brand"], sep=", ")
     df._repr_html_()
@@ -268,9 +266,7 @@ def test_strcat():
 
 
 def test_named_agg():
-    df = pd.read_csv(
-        "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    )
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.groupby("Brand").agg(
         avg_weight=("Weight", "mean"),
@@ -356,9 +352,7 @@ def test_prefix():
 
 
 def test_loc():
-    df = pd.read_csv(
-        "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    )
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.loc[:, "Displacement":"Origin"]
     new_df._repr_html_()
@@ -389,9 +383,7 @@ def test_loc():
 
 
 def test_iloc():
-    df = pd.read_csv(
-        "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    )
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.iloc[:, 3:9]
     new_df._repr_html_()

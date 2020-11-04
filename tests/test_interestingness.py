@@ -20,8 +20,7 @@ from lux.interestingness.interestingness import interestingness
 
 # The following test cases are labelled for vis with <Ndim, Nmsr, Nfilter>
 def test_interestingness_1_0_0():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Origin")])
@@ -59,8 +58,7 @@ def test_interestingness_1_0_0():
 
 
 def test_interestingness_1_0_1():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
@@ -74,8 +72,7 @@ def test_interestingness_1_0_1():
 
 
 def test_interestingness_0_1_0():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower")])
@@ -121,8 +118,7 @@ def test_interestingness_0_1_0():
 
 
 def test_interestingness_0_1_1():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
@@ -137,8 +133,7 @@ def test_interestingness_0_1_1():
 
 
 def test_interestingness_1_1_0():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Year")])
@@ -168,8 +163,7 @@ def test_interestingness_1_1_0():
 
 
 def test_interestingness_1_1_1():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
@@ -214,8 +208,7 @@ def test_interestingness_1_2_0():
     from lux.vis.Vis import Clause
     from lux.interestingness.interestingness import interestingness
 
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     y_clause = Clause(attribute="Name", channel="y")
     color_clause = Clause(attribute="Cylinders", channel="color")
 
@@ -228,8 +221,7 @@ def test_interestingness_1_2_0():
 
 
 def test_interestingness_0_2_0():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
@@ -280,8 +272,7 @@ def test_interestingness_0_2_0():
 
 
 def test_interestingness_0_2_1():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
