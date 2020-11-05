@@ -42,6 +42,7 @@ class Vis:
             return (
                 f"<Vis  ({str(self._intent)}) mark: {self._mark}, score: {self.score} >"
             )
+
         filter_intents = None
         channels, additional_channels = [], []
         for clause in self._inferred_intent:
