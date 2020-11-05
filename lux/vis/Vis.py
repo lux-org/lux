@@ -151,11 +151,6 @@ class Vis:
         else:
             from lux.core.frame import LuxDataFrame
 
-            if len(self._intent) != 1:
-                # VisList(intent, self._source)._repr_html_()
-                raise SyntaxError(
-                    "For Vis, only use one intent. Otherwise, use VisList."
-                )
             widget = luxwidget.LuxWidget(
                 currentVis=LuxDataFrame.current_vis_to_JSON([self]),
                 recommendations=[],
