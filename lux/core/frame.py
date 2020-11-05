@@ -516,18 +516,18 @@ class LuxDataFrame(pd.DataFrame):
                     )
 
                     # globally register default actions
-                    lux.register_action("correlation", correlation, no_vis)
+                    lux.register_action("Correlation", correlation, no_vis)
                     lux.register_action(
-                        "distribution", univariate, no_vis, "quantitative"
+                        "Distribution", univariate, no_vis, "quantitative"
                     )
-                    lux.register_action("occurrence", univariate, no_vis, "nominal")
-                    lux.register_action("temporal", univariate, no_vis, "temporal")
+                    lux.register_action("Occurrence", univariate, no_vis, "nominal")
+                    lux.register_action("Temporal", univariate, no_vis, "temporal")
 
-                    lux.register_action("enhance", enhance, one_current_vis)
-                    lux.register_action("filter", filter, one_current_vis)
-                    lux.register_action("generalize", generalize, one_current_vis)
+                    lux.register_action("Enhance", enhance, one_current_vis)
+                    lux.register_action("Filter", filter, one_current_vis)
+                    lux.register_action("Generalize", generalize, one_current_vis)
 
-                    lux.register_action("custom", custom, multiple_current_vis)
+                    lux.register_action("Custom", custom, multiple_current_vis)
 
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
