@@ -40,7 +40,7 @@ def test_multi_vis():
     df = pd.read_csv("lux/data/college.csv")
     with pytest.raises(
         SyntaxError,
-        match="The intent that you specified corresponds to more than one visualizations.",
+        match="The intent that you specified corresponds to more than one visualization.",
     ):
         Vis(["SATAverage", "AverageCost", "Geography=?"], df)._repr_html_()
 
