@@ -155,7 +155,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.rec_to_JSON
       ~LuxDataFrame.reindex
       ~LuxDataFrame.reindex_like
-      ~LuxDataFrame.removeDeletedRecs
+      ~LuxDataFrame.remove_deleted_recs
       ~LuxDataFrame.rename
       ~LuxDataFrame.rename_axis
       ~LuxDataFrame.render_widget
@@ -180,6 +180,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.set_index
       ~LuxDataFrame.set_intent
       ~LuxDataFrame.set_intent_as_vis
+      ~LuxDataFrame.set_intent_on_click
       ~LuxDataFrame.shift
       ~LuxDataFrame.skew
       ~LuxDataFrame.slice_shift
@@ -246,7 +247,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.axes
       ~LuxDataFrame.columns
       ~LuxDataFrame.current_vis
-      ~LuxDataFrame.default_display
       ~LuxDataFrame.dtypes
       ~LuxDataFrame.empty
       ~LuxDataFrame.exported

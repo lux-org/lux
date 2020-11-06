@@ -2,12 +2,12 @@ language: python
 python:
   - "3.7"
 install:
-  - pip install codecov
   - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
   - pip install git+https://github.com/lux-org/lux-widget
-  #- npm i lux-widget
 # command to run tests
 script:
+  - black --target-version py37 --check .
   - python -m pytest tests/*.py
   - pytest --cov-report term --cov=lux tests/
 after_success:
