@@ -151,7 +151,7 @@ class Vis:
         else:
             from lux.core.frame import LuxDataFrame
 
-            if len(self._intent) != 1:
+            if len(self._intent) > 2:
                 raise SyntaxError(
                     "The intent corresponds to more than one visualizations, please replace the Vis constructor with VisList to generate a list of visualizations. For more information, see: https://lux-api.readthedocs.io/en/latest/source/guide/vis.html#working-with-collections-of-visualization-with-vislist"
                 )
