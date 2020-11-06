@@ -54,7 +54,9 @@ def test_multi_vis():
         SyntaxError,
         match="The intent that you specified corresponds to more than one visualization.",
     ):
-        Vis(["SATAverage","AverageCost","Region=New England|Southeast"],df)._repr_html_()
+        Vis(
+            ["SATAverage", "AverageCost", "Region=New England|Southeast"], df
+        )._repr_html_()
 
 
 # Test Properties with Private Variables Readable but not Writable
