@@ -42,7 +42,6 @@ class Vis:
             return (
                 f"<Vis  ({str(self._intent)}) mark: {self._mark}, score: {self.score} >"
             )
-
         filter_intents = None
         channels, additional_channels = [], []
         for clause in self._inferred_intent:
@@ -151,10 +150,6 @@ class Vis:
         else:
             from lux.core.frame import LuxDataFrame
 
-            if len(self._intent) > 2:
-                raise SyntaxError(
-                    "The intent corresponds to more than one visualizations, please replace the Vis constructor with VisList to generate a list of visualizations. For more information, see: https://lux-api.readthedocs.io/en/latest/source/guide/vis.html#working-with-collections-of-visualization-with-vislist"
-                )
             widget = luxwidget.LuxWidget(
                 currentVis=LuxDataFrame.current_vis_to_JSON([self]),
                 recommendations=[],
@@ -331,6 +326,8 @@ class Vis:
                 PandasExecutor,
             )  # TODO: temporary (generalize to executor)
 
+            self.check_intent_input(self._intent)
+
             ldf.maintain_metadata()
             self._source = ldf
             self._inferred_intent = Parser.parse(self._intent)
@@ -345,3 +342,15 @@ class Vis:
                 self._inferred_intent = vis._inferred_intent
                 self._vis_data = vis.data
                 self._min_max = vis._min_max
+
+    def check_intent_input(self, intent):
+        if len(self._intent) > 2 or "?" in self._intent:
+            for i in range(len(self._intent)):
+                if type(self._intent[i]) != Clause:
+                    import sys
+
+                    sys.tracebacklimit = 0
+                    raise SyntaxError(
+                        "The intent corresponds to more than one visualizations, please replace the Vis constructor with VisList to generate a list of visualizations."
+                        + "For more information, see: https://lux-api.readthedocs.io/en/latest/source/guide/vis.html#working-with-collections-of-visualization-with-vislist"
+                    )
