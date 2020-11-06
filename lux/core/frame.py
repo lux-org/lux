@@ -298,7 +298,7 @@ class LuxDataFrame(pd.DataFrame):
 		self.SQLconnection = connection
 		self.table_name = t_name
 		self.set_executor_type("SQL")
-		self.executor.compute_dataset_metadata(self)
+		self.maintain_metadata()
 
 	def _append_rec(self,rec_infolist,recommendations:Dict):
 		if (recommendations["collection"] is not None and len(recommendations["collection"])>0):
@@ -461,7 +461,7 @@ class LuxDataFrame(pd.DataFrame):
 		from IPython.display import display
 		from IPython.display import clear_output
 		import ipywidgets as widgets
-		
+
 		try: 
 			if (self._pandas_only):
 				display(self.display_pandas())
