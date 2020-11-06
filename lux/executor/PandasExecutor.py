@@ -12,8 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# import pandas as pd
-import modin.pandas as pd
+import pandas as pd
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.core.frame import LuxDataFrame
@@ -402,7 +401,7 @@ class PandasExecutor(Executor):
             # elif any(var in str(attr).lower() for var in temporal_var_list):
             elif str(attr).lower() in temporal_var_list:
                 ldf.data_type_lookup[attr] = "temporal"
-            elif 'float' in str(ldf.dtypes[attr]):
+            elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                 ldf.data_type_lookup[attr] = "quantitative"
             elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
                 # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
