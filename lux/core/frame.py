@@ -38,6 +38,7 @@ class LuxDataFrame(pd.DataFrame):
         "data_type",
         "data_model_lookup",
         "data_model",
+        "length",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -79,6 +80,7 @@ class LuxDataFrame(pd.DataFrame):
         self.data_type = None
         self.data_model_lookup = None
         self.data_model = None
+        self.length = None
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
@@ -107,7 +109,7 @@ class LuxDataFrame(pd.DataFrame):
             not hasattr(self, "_metadata_fresh") or not self._metadata_fresh
         ):  # Check that metadata has not yet been computed
             if (
-                len(self) > 0
+                len(self) > 0 or self.executor_type == "SQL"
             ):  # only compute metadata information if the dataframe is non-empty
                 self.executor.compute_stats(self)
                 self.executor.compute_dataset_metadata(self)
@@ -117,7 +119,7 @@ class LuxDataFrame(pd.DataFrame):
     def expire_recs(self):
         self._recs_fresh = False
         self.recommendation = {}
-        self.current_vis = None
+        self.current_vis = []
         self._widget = None
         self._rec_info = None
         self._sampled = None
@@ -129,6 +131,7 @@ class LuxDataFrame(pd.DataFrame):
         self.data_type = None
         self.data_model_lookup = None
         self.data_model = None
+        self.length = None
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
@@ -162,13 +165,13 @@ class LuxDataFrame(pd.DataFrame):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels != 1
         not_int_index_flag = self.index.dtype != "int64"
-        small_df_flag = len(self) < 100
+        small_df_flag = len(self) < 100 and self.executor_type == "Pandas"
         self.pre_aggregated = (
             is_multi_index_flag or not_int_index_flag
         ) and small_df_flag
         if "Number of Records" in self.columns:
             self.pre_aggregated = True
-        very_small_df_flag = len(self) <= 10
+        very_small_df_flag = len(self) <= 10 and self.executor_type == "Pandas"
         if very_small_df_flag:
             self.pre_aggregated = True
 
@@ -184,7 +187,7 @@ class LuxDataFrame(pd.DataFrame):
                 import psycopg2
             from lux.executor.SQLExecutor import SQLExecutor
 
-            self.executor = SQLExecutor
+            self.executor = SQLExecutor()
         else:
             from lux.executor.PandasExecutor import PandasExecutor
 
@@ -275,8 +278,8 @@ class LuxDataFrame(pd.DataFrame):
         from lux.processor.Validator import Validator
 
         self._intent = Parser.parse(self._intent)
-        Validator.validate_intent(self._intent, self)
         self.maintain_metadata()
+        Validator.validate_intent(self._intent, self)
         from lux.processor.Compiler import Compiler
 
         self.current_vis = Compiler.compile_intent(self, self._intent)
@@ -333,119 +336,8 @@ class LuxDataFrame(pd.DataFrame):
     def set_SQL_connection(self, connection, t_name):
         self.SQLconnection = connection
         self.table_name = t_name
-        self.compute_SQL_dataset_metadata()
         self.set_executor_type("SQL")
-
-    def compute_SQL_dataset_metadata(self):
-        self.get_SQL_attributes()
-        for attr in list(self.columns):
-            self[attr] = None
-        self.data_type_lookup = {}
-        self.data_type = {}
-        #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this
-        #####      in the initialization and do it just once
-        self.compute_SQL_data_type()
-        self.compute_SQL_stats()
-        self.data_model_lookup = {}
-        self.data_model = {}
-        self.compute_data_model()
-
-    def compute_SQL_stats(self):
-        # precompute statistics
-        self.unique_values = {}
-        self._min_max = {}
-
-        self.get_SQL_unique_values()
-        # self.get_SQL_cardinality()
-        for attribute in self.columns:
-            if self.data_type_lookup[attribute] == "quantitative":
-                self._min_max[attribute] = (
-                    self[attribute].min(),
-                    self[attribute].max(),
-                )
-
-    def get_SQL_attributes(self):
-        if "." in self.table_name:
-            table_name = self.table_name[self.table_name.index(".") + 1 :]
-        else:
-            table_name = self.table_name
-        attr_query = "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{}'".format(
-            table_name
-        )
-        attributes = list(pd.read_sql(attr_query, self.SQLconnection)["column_name"])
-        for attr in attributes:
-            self[attr] = None
-
-    def get_SQL_cardinality(self):
-        cardinality = {}
-        for attr in list(self.columns):
-            card_query = pd.read_sql(
-                "SELECT Count(Distinct({})) FROM {}".format(attr, self.table_name),
-                self.SQLconnection,
-            )
-            cardinality[attr] = list(card_query["count"])[0]
-        self.cardinality = cardinality
-
-    def get_SQL_unique_values(self):
-        unique_vals = {}
-        for attr in list(self.columns):
-            unique_query = pd.read_sql(
-                "SELECT Distinct({}) FROM {}".format(attr, self.table_name),
-                self.SQLconnection,
-            )
-            unique_vals[attr] = list(unique_query[attr])
-        self.unique_values = unique_vals
-
-    def compute_SQL_data_type(self):
-        data_type_lookup = {}
-        sql_dtypes = {}
-        self.get_SQL_cardinality()
-        if "." in self.table_name:
-            table_name = self.table_name[self.table_name.index(".") + 1 :]
-        else:
-            table_name = self.table_name
-        # get the data types of the attributes in the SQL table
-        for attr in list(self.columns):
-            datatype_query = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{}' AND COLUMN_NAME = '{}'".format(
-                table_name, attr
-            )
-            datatype = list(
-                pd.read_sql(datatype_query, self.SQLconnection)["data_type"]
-            )[0]
-            sql_dtypes[attr] = datatype
-
-        data_type = {"quantitative": [], "nominal": [], "temporal": []}
-        for attr in list(self.columns):
-            if str(attr).lower() in ["month", "year"]:
-                data_type_lookup[attr] = "temporal"
-                data_type["temporal"].append(attr)
-            elif sql_dtypes[attr] in [
-                "character",
-                "character varying",
-                "boolean",
-                "uuid",
-                "text",
-            ]:
-                data_type_lookup[attr] = "nominal"
-                data_type["nominal"].append(attr)
-            elif sql_dtypes[attr] in [
-                "integer",
-                "real",
-                "smallint",
-                "smallserial",
-                "serial",
-            ]:
-                if self.cardinality[attr] < 13:
-                    data_type_lookup[attr] = "nominal"
-                    data_type["nominal"].append(attr)
-                else:
-                    data_type_lookup[attr] = "quantitative"
-                    data_type["quantitative"].append(attr)
-            elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
-                data_type_lookup[attr] = "temporal"
-                data_type["temporal"].append(attr)
-        self.data_type_lookup = data_type_lookup
-        self.data_type = data_type
+        self.executor.compute_dataset_metadata(self)
 
     def _append_rec(self, rec_infolist, recommendations: Dict):
         if (
@@ -688,8 +580,7 @@ class LuxDataFrame(pd.DataFrame):
                     )
                     display(self.display_pandas())
                     return
-
-                if len(self) <= 0:
+                if len(self) <= 0 and self.executor_type == "Pandas":
                     warnings.warn(
                         "\nLux can not operate on an empty dataframe.\nPlease check your input again.\n",
                         stacklevel=2,

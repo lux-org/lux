@@ -212,8 +212,12 @@ def deviation_from_overall(
     int
             Score describing how different the vis is from the overall vis
     """
-    v_filter_size = get_filtered_size(filter_specs, ldf)
-    v_size = len(vis.data)
+    if ldf.executor_type == "Pandas":
+        v_filter_size = get_filtered_size(filter_specs, ldf)
+        v_size = len(vis.data)
+    else:
+        v_filter_size = vis._vis_data.length
+        v_size = ldf.length
     v_filter = vis.data[msr_attribute]
     total = v_filter.sum()
     v_filter = v_filter / total  # normalize by total to get ratio

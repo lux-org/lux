@@ -31,19 +31,21 @@ def test_underspecified_no_vis(test_recs):
     test_recs(df, no_vis_actions)
     assert len(df.current_vis) == 0
 
+    # test for sql executor
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
 
-	#test for sql executor
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
+    test_recs(sql_df, no_vis_actions)
+    assert len(sql_df.current_vis) == 0
 
-	test_recs(sql_df, no_vis_actions)
-	assert len(sql_df.current_vis) == 0
+    # test only one filter context case.
+    sql_df.set_intent([lux.Clause(attribute="origin", filter_op="=", value="USA")])
+    test_recs(sql_df, no_vis_actions)
+    assert len(sql_df.current_vis) == 0
 
-	# test only one filter context case.
-	sql_df.set_intent([lux.Clause(attribute ="origin", filter_op="=", value="USA")])
-	test_recs(sql_df, no_vis_actions)
-	assert len(sql_df.current_vis) == 0
 
 def test_underspecified_single_vis(test_recs):
     one_vis_actions = ["Enhance", "Filter", "Generalize"]
@@ -57,49 +59,54 @@ def test_underspecified_single_vis(test_recs):
     for attr in df.current_vis[0]._inferred_intent:
         assert attr.data_type == "quantitative"
 
-    connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	sql_df.set_intent([lux.Clause(attribute ="milespergal"), lux.Clause(attribute ="weight")])
-	test_recs(sql_df, one_vis_actions)
-	assert len(sql_df.current_vis) == 1
-	assert sql_df.current_vis[0].mark == "scatter"
-	for attr in sql_df.current_vis[0]._inferred_intent: 
-		assert attr.data_model == "measure"
-	for attr in sql_df.current_vis[0]._inferred_intent: 
-		assert attr.data_type == "quantitative"
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    sql_df.set_intent(
+        [lux.Clause(attribute="milespergal"), lux.Clause(attribute="weight")]
+    )
+    test_recs(sql_df, one_vis_actions)
+    assert len(sql_df.current_vis) == 1
+    assert sql_df.current_vis[0].mark == "scatter"
+    for attr in sql_df.current_vis[0]._inferred_intent:
+        assert attr.data_model == "measure"
+    for attr in sql_df.current_vis[0]._inferred_intent:
+        assert attr.data_type == "quantitative"
+
 
 # def test_underspecified_vis_collection(test_recs):
-# 	multiple_vis_actions = ["Current viss"]
+#     multiple_vis_actions = ["Current viss"]
 
-# 	df = pd.read_csv("lux/data/car.csv")
-# 	df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
+#     df = pd.read_csv("lux/data/car.csv")
+#     df["Year"] = pd.to_datetime(df["Year"], format='%Y') # change pandas dtype for the column "Year" to datetype
 
-# 	df.set_intent([lux.Clause(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.Clause(attribute ="Year", channel="x")])
-# 	assert len(df.current_vis) == 3
-# 	assert df.current_vis[0].mark == "line"
-# 	for vlist in df.current_vis:
-# 		assert (vlist.get_attr_by_channel("x")[0].attribute == "Year")
-# 	test_recs(df, multiple_vis_actions)
+#     df.set_intent([lux.Clause(attribute = ["Horsepower", "Weight", "Acceleration"]), lux.Clause(attribute ="Year", channel="x")])
+#     assert len(df.current_vis) == 3
+#     assert df.current_vis[0].mark == "line"
+#     for vlist in df.current_vis:
+#         assert (vlist.get_attr_by_channel("x")[0].attribute == "Year")
+#     test_recs(df, multiple_vis_actions)
 
-# 	df.set_intent([lux.Clause(attribute ="?"), lux.Clause(attribute ="Year", channel="x")])
-# 	assert len(df.current_vis) == len(list(df.columns)) - 1 # we remove year by year so its 8 vis instead of 9
-# 	for vlist in df.current_vis:
-# 		assert (vlist.get_attr_by_channel("x")[0].attribute == "Year")
-# 	test_recs(df, multiple_vis_actions)
+#     df.set_intent([lux.Clause(attribute ="?"), lux.Clause(attribute ="Year", channel="x")])
+#     assert len(df.current_vis) == len(list(df.columns)) - 1 # we remove year by year so its 8 vis instead of 9
+#     for vlist in df.current_vis:
+#         assert (vlist.get_attr_by_channel("x")[0].attribute == "Year")
+#     test_recs(df, multiple_vis_actions)
 
-# 	df.set_intent([lux.Clause(attribute ="?", data_type="quantitative"), lux.Clause(attribute ="Year")])
-# 	assert len(df.current_vis) == len([vis.get_attr_by_data_type("quantitative") for vis in df.current_vis]) # should be 5
-# 	test_recs(df, multiple_vis_actions)
+#     df.set_intent([lux.Clause(attribute ="?", data_type="quantitative"), lux.Clause(attribute ="Year")])
+#     assert len(df.current_vis) == len([vis.get_attr_by_data_type("quantitative") for vis in df.current_vis]) # should be 5
+#     test_recs(df, multiple_vis_actions)
 
-# 	df.set_intent([lux.Clause(attribute ="?", data_model="measure"), lux.Clause(attribute="MilesPerGal", channel="y")])
-# 	for vlist in df.current_vis:
-# 		print (vlist.get_attr_by_channel("y")[0].attribute == "MilesPerGal")
-# 	test_recs(df, multiple_vis_actions)
+#     df.set_intent([lux.Clause(attribute ="?", data_model="measure"), lux.Clause(attribute="MilesPerGal", channel="y")])
+#     for vlist in df.current_vis:
+#         print (vlist.get_attr_by_channel("y")[0].attribute == "MilesPerGal")
+#     test_recs(df, multiple_vis_actions)
 
-# 	df.set_intent([lux.Clause(attribute ="?", data_model="measure"), lux.Clause(attribute ="?", data_model="measure")])
-# 	assert len(df.current_vis) == len([vis.get_attr_by_data_model("measure") for vis in df.current_vis]) #should be 25
-# 	test_recs(df, multiple_vis_actions)
+#     df.set_intent([lux.Clause(attribute ="?", data_model="measure"), lux.Clause(attribute ="?", data_model="measure")])
+#     assert len(df.current_vis) == len([vis.get_attr_by_data_model("measure") for vis in df.current_vis]) #should be 25
+#     test_recs(df, multiple_vis_actions)
 def test_set_intent_as_vis(test_recs):
     df = pd.read_csv("lux/data/car.csv")
     df._repr_html_()
@@ -108,15 +115,17 @@ def test_set_intent_as_vis(test_recs):
     df._repr_html_()
     test_recs(df, ["Enhance", "Filter", "Generalize"])
 
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    sql_df._repr_html_()
+    vis = sql_df.recommendation["Correlation"][0]
+    sql_df.intent = vis
+    sql_df._repr_html_()
+    test_recs(sql_df, ["Enhance", "Filter", "Generalize"])
 
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	sql_df._repr_html_()
-	vis = sql_df.recommendation["Correlation"][0]
-	sql_df.intent = vis
-	sql_df._repr_html_()
-	test_recs(sql_df,["Enhance","Filter","Generalize"])
 
 @pytest.fixture
 def test_recs():
@@ -138,21 +147,28 @@ def test_parse():
     vlst = VisList([lux.Clause("Origin=?"), lux.Clause("MilesPerGal")], df)
     assert len(vlst) == 3
 
-	df = pd.read_csv("lux/data/car.csv")
-	vlst = VisList([lux.Clause("Origin=?"), lux.Clause("MilesPerGal")],df)
-	assert len(vlst) == 3
+    df = pd.read_csv("lux/data/car.csv")
+    vlst = VisList([lux.Clause("Origin=?"), lux.Clause("MilesPerGal")], df)
+    assert len(vlst) == 3
 
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	vlst = VisList([lux.Clause("origin=?"), lux.Clause(attribute ="milespergal")],sql_df)
-	assert len(vlst) == 3
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    vlst = VisList(
+        [lux.Clause("origin=?"), lux.Clause(attribute="milespergal")], sql_df
+    )
+    assert len(vlst) == 3
 
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	vlst = VisList([lux.Clause("origin=?"), lux.Clause("milespergal")],sql_df)
-	assert len(vlst) == 3
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    vlst = VisList([lux.Clause("origin=?"), lux.Clause("milespergal")], sql_df)
+    assert len(vlst) == 3
+
 
 def test_underspecified_vis_collection_zval():
     # check if the number of charts is correct
@@ -171,17 +187,20 @@ def test_underspecified_vis_collection_zval():
     # vlst = VisList([lux.Clause(attribute = ["Origin","Cylinders"], filter_op="=",value="?"),lux.Clause(attribute = ["Horsepower"]),lux.Clause(attribute = "Weight")],df)
     # assert len(vlst) == 8
 
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	vlst = VisList(
-		[
-			lux.Clause(attribute ="origin", filter_op="=", value="?"), 
-			lux.Clause(attribute ="milespergal")
-		],
-		sql_df
-	)
-	assert len(vlst) == 3
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    vlst = VisList(
+        [
+            lux.Clause(attribute="origin", filter_op="=", value="?"),
+            lux.Clause(attribute="milespergal"),
+        ],
+        sql_df,
+    )
+    assert len(vlst) == 3
+
 
 def test_sort_bar():
     from lux.processor.Compiler import Compiler
@@ -213,22 +232,40 @@ def test_sort_bar():
     assert vis.mark == "bar"
     assert vis._inferred_intent[1].sort == "ascending"
 
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    vis = Vis(
+        [
+            lux.Clause(
+                attribute="acceleration", data_model="measure", data_type="quantitative"
+            ),
+            lux.Clause(attribute="origin", data_model="dimension", data_type="nominal"),
+        ],
+        sql_df,
+    )
+    assert vis.mark == "bar"
+    assert vis._inferred_intent[1].sort == ""
 
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	vis = Vis([lux.Clause(attribute="acceleration",data_model="measure",data_type="quantitative"),
-				lux.Clause(attribute="origin",data_model="dimension",data_type="nominal")],sql_df)
-	assert vis.mark == "bar"
-	assert vis._inferred_intent[1].sort == ''
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    vis = Vis(
+        [
+            lux.Clause(
+                attribute="acceleration", data_model="measure", data_type="quantitative"
+            ),
+            lux.Clause(attribute="name", data_model="dimension", data_type="nominal"),
+        ],
+        sql_df,
+    )
+    assert vis.mark == "bar"
+    assert vis._inferred_intent[1].sort == "ascending"
 
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	vis = Vis([lux.Clause(attribute="acceleration",data_model="measure",data_type="quantitative"),
-				lux.Clause(attribute="name",data_model="dimension",data_type="nominal")],sql_df)
-	assert vis.mark == "bar"
-	assert vis._inferred_intent[1].sort == 'ascending'
 
 def test_specified_vis_collection():
     df = pd.read_csv("lux/data/car.csv")
@@ -316,57 +353,104 @@ def test_autoencoding_scatter():
             ]
         )
 
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	visList = VisList([lux.Clause(attribute="?"),lux.Clause(attribute="milespergal",channel="x")],sql_df)
-	for vis in visList:
-		check_attribute_on_channel(vis, "milespergal", "x")
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    visList = VisList(
+        [lux.Clause(attribute="?"), lux.Clause(attribute="milespergal", channel="x")],
+        sql_df,
+    )
+    for vis in visList:
+        check_attribute_on_channel(vis, "milespergal", "x")
+
 
 def test_autoencoding_scatter():
-	# No channel specified
-	df = pd.read_csv("lux/data/car.csv")
-	df["Year"] = pd.to_datetime(df["Year"], format='%Y')  # change pandas dtype for the column "Year" to datetype
-	vis = Vis([lux.Clause(attribute="MilesPerGal"), lux.Clause(attribute="Weight")],df)
-	check_attribute_on_channel(vis, "MilesPerGal", "x")
-	check_attribute_on_channel(vis, "Weight", "y")
+    # No channel specified
+    df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(
+        df["Year"], format="%Y"
+    )  # change pandas dtype for the column "Year" to datetype
+    vis = Vis([lux.Clause(attribute="MilesPerGal"), lux.Clause(attribute="Weight")], df)
+    check_attribute_on_channel(vis, "MilesPerGal", "x")
+    check_attribute_on_channel(vis, "Weight", "y")
 
-	# Partial channel specified
-	vis = Vis([lux.Clause(attribute="MilesPerGal", channel="y"), lux.Clause(attribute="Weight")],df)
-	check_attribute_on_channel(vis, "MilesPerGal", "y")
-	check_attribute_on_channel(vis, "Weight", "x")
+    # Partial channel specified
+    vis = Vis(
+        [
+            lux.Clause(attribute="MilesPerGal", channel="y"),
+            lux.Clause(attribute="Weight"),
+        ],
+        df,
+    )
+    check_attribute_on_channel(vis, "MilesPerGal", "y")
+    check_attribute_on_channel(vis, "Weight", "x")
 
-	# Full channel specified
-	vis = Vis([lux.Clause(attribute="MilesPerGal", channel="y"), lux.Clause(attribute="Weight", channel="x")],df)
-	check_attribute_on_channel(vis, "MilesPerGal", "y")
-	check_attribute_on_channel(vis, "Weight", "x")
-	# Duplicate channel specified
-	with pytest.raises(ValueError):
-		# Should throw error because there should not be columns with the same channel specified
-		df.set_intent([lux.Clause(attribute="MilesPerGal", channel="x"), lux.Clause(attribute="Weight", channel="x")])
+    # Full channel specified
+    vis = Vis(
+        [
+            lux.Clause(attribute="MilesPerGal", channel="y"),
+            lux.Clause(attribute="Weight", channel="x"),
+        ],
+        df,
+    )
+    check_attribute_on_channel(vis, "MilesPerGal", "y")
+    check_attribute_on_channel(vis, "Weight", "x")
+    # Duplicate channel specified
+    with pytest.raises(ValueError):
+        # Should throw error because there should not be columns with the same channel specified
+        df.set_intent(
+            [
+                lux.Clause(attribute="MilesPerGal", channel="x"),
+                lux.Clause(attribute="Weight", channel="x"),
+            ]
+        )
 
-	#test for sql executor
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	vis = Vis([lux.Clause(attribute="milespergal"), lux.Clause(attribute="weight")],sql_df)
-	check_attribute_on_channel(vis, "milespergal", "x")
-	check_attribute_on_channel(vis, "weight", "y")
+    # test for sql executor
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    vis = Vis(
+        [lux.Clause(attribute="milespergal"), lux.Clause(attribute="weight")], sql_df
+    )
+    check_attribute_on_channel(vis, "milespergal", "x")
+    check_attribute_on_channel(vis, "weight", "y")
 
-	# Partial channel specified
-	vis = Vis([lux.Clause(attribute="milespergal", channel="y"), lux.Clause(attribute="weight")],sql_df)
-	check_attribute_on_channel(vis, "milespergal", "y")
-	check_attribute_on_channel(vis, "weight", "x")
+    # Partial channel specified
+    vis = Vis(
+        [
+            lux.Clause(attribute="milespergal", channel="y"),
+            lux.Clause(attribute="weight"),
+        ],
+        sql_df,
+    )
+    check_attribute_on_channel(vis, "milespergal", "y")
+    check_attribute_on_channel(vis, "weight", "x")
 
-	# Full channel specified
-	vis = Vis([lux.Clause(attribute="milespergal", channel="y"), lux.Clause(attribute="weight", channel="x")],sql_df)
-	check_attribute_on_channel(vis, "milespergal", "y")
-	check_attribute_on_channel(vis, "weight", "x")
-	# Duplicate channel specified
-	with pytest.raises(ValueError):
-		# Should throw error because there should not be columns with the same channel specified
-		sql_df.set_intent([lux.Clause(attribute="milespergal", channel="x"), lux.Clause(attribute="weight", channel="x")])
-	
+    # Full channel specified
+    vis = Vis(
+        [
+            lux.Clause(attribute="milespergal", channel="y"),
+            lux.Clause(attribute="weight", channel="x"),
+        ],
+        sql_df,
+    )
+    check_attribute_on_channel(vis, "milespergal", "y")
+    check_attribute_on_channel(vis, "weight", "x")
+    # Duplicate channel specified
+    with pytest.raises(ValueError):
+        # Should throw error because there should not be columns with the same channel specified
+        sql_df.set_intent(
+            [
+                lux.Clause(attribute="milespergal", channel="x"),
+                lux.Clause(attribute="weight", channel="x"),
+            ]
+        )
+
+
 def test_autoencoding_histogram():
     # No channel specified
     df = pd.read_csv("lux/data/car.csv")
@@ -380,18 +464,20 @@ def test_autoencoding_histogram():
     assert vis.get_attr_by_channel("x")[0].attribute == "MilesPerGal"
     assert vis.get_attr_by_channel("y")[0].attribute == "Record"
 
+    # No channel specified
+    # test for sql executor
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    vis = Vis([lux.Clause(attribute="milespergal", channel="y")], sql_df)
+    check_attribute_on_channel(vis, "milespergal", "y")
 
-	# No channel specified
-	#test for sql executor
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	vis = Vis([lux.Clause(attribute="milespergal", channel="y")],sql_df)
-	check_attribute_on_channel(vis, "milespergal", "y")
+    vis = Vis([lux.Clause(attribute="milespergal", channel="x")], sql_df)
+    assert vis.get_attr_by_channel("x")[0].attribute == "milespergal"
+    assert vis.get_attr_by_channel("y")[0].attribute == "Record"
 
-	vis = Vis([lux.Clause(attribute="milespergal",channel="x")],sql_df)
-	assert vis.get_attr_by_channel("x")[0].attribute == "milespergal"
-	assert vis.get_attr_by_channel("y")[0].attribute == "Record"
 
 def test_autoencoding_line_chart():
     df = pd.read_csv("lux/data/car.csv")
@@ -433,28 +519,49 @@ def test_autoencoding_line_chart():
             ]
         )
 
+    # test for sql executor
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    vis = Vis(
+        [lux.Clause(attribute="year"), lux.Clause(attribute="acceleration")], sql_df
+    )
+    check_attribute_on_channel(vis, "year", "x")
+    check_attribute_on_channel(vis, "acceleration", "y")
 
-	#test for sql executor
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	vis = Vis([lux.Clause(attribute="year"), lux.Clause(attribute="acceleration")],sql_df)
-	check_attribute_on_channel(vis, "year", "x")
-	check_attribute_on_channel(vis, "acceleration", "y")
+    # Partial channel specified
+    vis = Vis(
+        [
+            lux.Clause(attribute="year", channel="y"),
+            lux.Clause(attribute="acceleration"),
+        ],
+        sql_df,
+    )
+    check_attribute_on_channel(vis, "year", "y")
+    check_attribute_on_channel(vis, "acceleration", "x")
 
-	# Partial channel specified
-	vis = Vis([lux.Clause(attribute="year", channel="y"), lux.Clause(attribute="acceleration")],sql_df)
-	check_attribute_on_channel(vis, "year", "y")
-	check_attribute_on_channel(vis, "acceleration", "x")
+    # Full channel specified
+    vis = Vis(
+        [
+            lux.Clause(attribute="year", channel="y"),
+            lux.Clause(attribute="acceleration", channel="x"),
+        ],
+        sql_df,
+    )
+    check_attribute_on_channel(vis, "year", "y")
+    check_attribute_on_channel(vis, "acceleration", "x")
 
-	# Full channel specified
-	vis = Vis([lux.Clause(attribute="year", channel="y"), lux.Clause(attribute="acceleration", channel="x")],sql_df)
-	check_attribute_on_channel(vis, "year", "y")
-	check_attribute_on_channel(vis, "acceleration", "x")
+    with pytest.raises(ValueError):
+        # Should throw error because there should not be columns with the same channel specified
+        sql_df.set_intent(
+            [
+                lux.Clause(attribute="year", channel="x"),
+                lux.Clause(attribute="acceleration", channel="x"),
+            ]
+        )
 
-	with pytest.raises(ValueError):
-		# Should throw error because there should not be columns with the same channel specified
-		sql_df.set_intent([lux.Clause(attribute="year", channel="x"), lux.Clause(attribute="acceleration", channel="x")])
 
 def test_autoencoding_color_line_chart():
     df = pd.read_csv("lux/data/car.csv")
@@ -471,16 +578,22 @@ def test_autoencoding_color_line_chart():
     check_attribute_on_channel(vis, "Acceleration", "y")
     check_attribute_on_channel(vis, "Origin", "color")
 
+    # test for sql executor
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    intent = [
+        lux.Clause(attribute="year"),
+        lux.Clause(attribute="acceleration"),
+        lux.Clause(attribute="origin"),
+    ]
+    vis = Vis(intent, sql_df)
+    check_attribute_on_channel(vis, "year", "x")
+    check_attribute_on_channel(vis, "acceleration", "y")
+    check_attribute_on_channel(vis, "origin", "color")
 
-	#test for sql executor
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	intent = [lux.Clause(attribute="year"), lux.Clause(attribute="acceleration"), lux.Clause(attribute="origin")]
-	vis = Vis(intent,sql_df)
-	check_attribute_on_channel(vis, "year", "x")
-	check_attribute_on_channel(vis, "acceleration", "y")
-	check_attribute_on_channel(vis, "origin", "color")
 
 def test_autoencoding_color_scatter_chart():
     df = pd.read_csv("lux/data/car.csv")
@@ -507,16 +620,32 @@ def test_autoencoding_color_scatter_chart():
     )
     check_attribute_on_channel(vis, "Acceleration", "color")
 
+    # test for sql executor
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    vis = Vis(
+        [
+            lux.Clause(attribute="horsepower"),
+            lux.Clause(attribute="acceleration"),
+            lux.Clause(attribute="origin"),
+        ],
+        sql_df,
+    )
+    check_attribute_on_channel(vis, "origin", "color")
 
-	#test for sql executor
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	vis = Vis([lux.Clause(attribute="horsepower"), lux.Clause(attribute="acceleration"), lux.Clause(attribute="origin")],sql_df)
-	check_attribute_on_channel(vis, "origin", "color")
+    vis = Vis(
+        [
+            lux.Clause(attribute="horsepower"),
+            lux.Clause(attribute="acceleration", channel="color"),
+            lux.Clause(attribute="origin"),
+        ],
+        sql_df,
+    )
+    check_attribute_on_channel(vis, "acceleration", "color")
 
-	vis = Vis([lux.Clause(attribute="horsepower"), lux.Clause(attribute="acceleration", channel="color"), lux.Clause(attribute="origin")],sql_df)
-	check_attribute_on_channel(vis, "acceleration", "color")
 
 def test_populate_options():
     from lux.processor.Compiler import Compiler
@@ -545,25 +674,39 @@ def test_populate_options():
         ["Acceleration", "Weight", "Horsepower", "MilesPerGal", "Displacement"],
     )
 
+    # test for sql executor
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    sql_df.set_intent([lux.Clause(attribute="?"), lux.Clause(attribute="milespergal")])
+    col_set = set()
+    for specOptions in Compiler.populate_wildcard_options(sql_df._intent, sql_df)[
+        "attributes"
+    ]:
+        for clause in specOptions:
+            col_set.add(clause.attribute)
+    assert list_equal(list(col_set), list(sql_df.columns))
 
-	#test for sql executor
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	sql_df.set_intent([lux.Clause(attribute="?"), lux.Clause(attribute="milespergal")])
-	col_set = set()
-	for specOptions in Compiler.populate_wildcard_options(sql_df._intent, sql_df)["attributes"]:
-		for clause in specOptions:
-			col_set.add(clause.attribute)
-	assert list_equal(list(col_set), list(sql_df.columns))
+    sql_df.set_intent(
+        [
+            lux.Clause(attribute="?", data_model="measure"),
+            lux.Clause(attribute="milespergal"),
+        ]
+    )
+    sql_df._repr_html_()
+    col_set = set()
+    for specOptions in Compiler.populate_wildcard_options(sql_df._intent, sql_df)[
+        "attributes"
+    ]:
+        for clause in specOptions:
+            col_set.add(clause.attribute)
+    assert list_equal(
+        list(col_set),
+        ["acceleration", "weight", "horsepower", "milespergal", "displacement"],
+    )
 
-	sql_df.set_intent([lux.Clause(attribute="?", data_model="measure"), lux.Clause(attribute="milespergal")])
-	sql_df._repr_html_()
-	col_set = set()
-	for specOptions in Compiler.populate_wildcard_options(sql_df._intent, sql_df)["attributes"]:
-		for clause in specOptions:
-			col_set.add(clause.attribute)
-	assert list_equal(list(col_set), ['acceleration', 'weight', 'horsepower', 'milespergal', 'displacement'])
 
 def test_remove_all_invalid():
     df = pd.read_csv("lux/data/car.csv")
@@ -578,15 +721,22 @@ def test_remove_all_invalid():
     df._repr_html_()
     assert len(df.current_vis) == 0
 
+    # test for sql executor
+    connection = psycopg2.connect(
+        "host=localhost dbname=adventureworks user=postgres password=lux"
+    )
+    sql_df = pd.DataFrame()
+    sql_df.set_SQL_connection(connection, "car")
+    # with pytest.warns(UserWarning,match="duplicate attribute specified in the intent"):
+    sql_df.set_intent(
+        [
+            lux.Clause(attribute="origin", filter_op="=", value="USA"),
+            lux.Clause(attribute="origin"),
+        ]
+    )
+    sql_df._repr_html_()
+    assert len(sql_df.current_vis) == 0
 
-	#test for sql executor
-	connection = psycopg2.connect("host=localhost dbname=adventureworks user=postgres password=lux")
-	sql_df = pd.DataFrame()
-	sql_df.set_SQL_connection(connection, "car")
-	# with pytest.warns(UserWarning,match="duplicate attribute specified in the intent"):
-	sql_df.set_intent([lux.Clause(attribute = "origin", filter_op="=",value="USA"),lux.Clause(attribute = "origin")])
-	sql_df._repr_html_()
-	assert len(sql_df.current_vis)==0
 
 def list_equal(l1, l2):
     l1.sort()

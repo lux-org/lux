@@ -4,14 +4,18 @@ import psycopg2
 import csv
 
 import psycopg2
+
 conn = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
 cur = conn.cursor()
-cur.execute("""
+cur.execute(
+    """
 	DROP TABLE IF EXISTS flights
-	""")
+	"""
+)
 
-#create flights table in postgres database
-cur.execute("""
+# create flights table in postgres database
+cur.execute(
+    """
     CREATE TABLE flights(
     year integer,
     month text,
@@ -25,21 +29,22 @@ cur.execute("""
     weatherdelay integer,
     distance integer
 )
-""")
+"""
+)
 
-#open flights.csv and read data into database
-with open('flights.csv', 'r') as f:
-	reader = csv.reader(f)
-	next(reader) # Skip the header row.
-	i = 0
-	for row in reader:
-		if i%50000 == 0:
-			print(i)
-		i+=1
-		#print(row)
-		cur.execute(
-		"INSERT INTO flights VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-		row
-	)
+# open flights.csv and read data into database
+with open("flights.csv", "r") as f:
+    reader = csv.reader(f)
+    next(reader)  # Skip the header row.
+    i = 0
+    for row in reader:
+        if i % 50000 == 0:
+            print(i)
+        i += 1
+        # print(row)
+        cur.execute(
+            "INSERT INTO flights VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            row,
+        )
 
 conn.commit()
