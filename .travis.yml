@@ -4,8 +4,8 @@ python:
 services:
   - postgresql
 install:
-  - pip install codecov
   - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
   - pip install git+https://github.com/lux-org/lux-widget
   #- npm i lux-widget
 before_script:
@@ -15,9 +15,10 @@ before_script:
    - psql -c "DROP schema public cascade;" -U postgres
    - psql -c "CREATE schema public;" -U postgres
    - psql -c "CREATE DATABASE postgres_db;" -U postgres
-# command to run tests
+# command to upload data to test environment SQL database and run tests
 script:
   - python lux/data/upload_car_data.py
+  - black --target-version py37 --check .
   - python -m pytest tests/*.py
   - pytest --cov-report term --cov=lux tests/
 after_success:

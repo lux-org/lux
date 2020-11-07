@@ -1,3 +1,17 @@
+#  Copyright 2019-2020 The Lux Authors.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 import pandas
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
@@ -11,10 +25,12 @@ import math
 #for benchmarking
 import time
 
+
 class SQLExecutor(Executor):
     """
     Given a Vis objects with complete specifications, fetch and process data using SQL operations.
     """
+
     def __init__(self):
         self.name = "Executor"
         self.selection = []
@@ -25,32 +41,40 @@ class SQLExecutor(Executor):
         return f"<Executor>"
 
     @staticmethod
-    def execute(view_collection:VisList, ldf: LuxDataFrame):
-        '''
-        Given a VisList, fetch the data required to render the view
+    def execute(vislist: VisList, ldf: LuxDataFrame):
+        import pandas as pd
+
+        """
+        Given a VisList, fetch the data required to render the vis
         1) Apply filters
         2) Retreive relevant attribute
         3) return a DataFrame with relevant results
-        '''
-
-        for view in view_collection:
+        """
+        for vis in vislist:
             # Select relevant data based on attribute information
             attributes = set([])
-            for clause in view._inferred_intent:
-                if (clause.attribute):
-                    if (clause.attribute!="Record"):
+            for clause in vis._inferred_intent:
+                if clause.attribute:
+                    if clause.attribute == "Record":
                         attributes.add(clause.attribute)
-            if view.mark not in ["bar", "line", "histogram"]:
-                start = time.time()
-                where_clause, filterVars = SQLExecutor.execute_filter(view)
-
-                length_query = pandas.read_sql("SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)
-
+                    # else:
+                    attributes.add(clause.attribute)
+            if vis.mark not in ["bar", "line", "histogram"]:
+                where_clause, filterVars = SQLExecutor.execute_filter(vis)
                 required_variables = attributes | set(filterVars)
                 required_variables = ",".join(required_variables)
-                row_count = list(pandas.read_sql("SELECT COUNT(*) FROM {} {}".format(ldf.table_name, where_clause), ldf.SQLconnection)['count'])[0]
+                row_count = list(
+                    pd.read_sql(
+                        "SELECT COUNT(*) FROM {} {}".format(
+                            ldf.table_name, where_clause
+                        ),
+                        ldf.SQLconnection,
+                    )["count"]
+                )[0]
                 if row_count > 10000:
-                    query = "SELECT {} FROM {} {} ORDER BY random() LIMIT 10000".format(required_variables, ldf.table_name, where_clause)
+                    query = "SELECT {} FROM {} {} ORDER BY random() LIMIT 10000".format(
+                        required_variables, ldf.table_name, where_clause
+                    )
                 else:
                     query = "SELECT {} FROM {} {}".format(required_variables, ldf.table_name, where_clause)
                 data = pandas.read_sql(query, ldf.SQLconnection)
@@ -107,10 +131,9 @@ class SQLExecutor(Executor):
         if (x_attr.aggregation is None or y_attr.aggregation is None):
             return
         if (y_attr.aggregation!=""):
-            groupby_attr = x_attr
             measure_attr = y_attr
             agg_func = y_attr.aggregation
-        if (x_attr.aggregation!=""):
+        if x_attr.aggregation != "":
             groupby_attr = y_attr
             measure_attr = x_attr
             agg_func = x_attr.aggregation
@@ -289,17 +312,23 @@ class SQLExecutor(Executor):
         where_clause = []
         filters = utils.get_filter_specs(view._inferred_intent)
         filter_vars = []
-        if (filters):
-            for f in range(0,len(filters)):
+        if filters:
+            for f in range(0, len(filters)):
                 if f == 0:
                     where_clause.append("WHERE")
                 else:
                     where_clause.append("AND")
-                where_clause.extend([str(filters[f].attribute), str(filters[f].filter_op), "'" + str(filters[f].value) + "'"])
+                where_clause.extend(
+                    [
+                        str(filters[f].attribute),
+                        str(filters[f].filter_op),
+                        "'" + str(filters[f].value) + "'",
+                    ]
+                )
                 if filters[f].attribute not in filter_vars:
                     filter_vars.append(filters[f].attribute)
         if where_clause == []:
-            return("", [])
+            return ("", [])
         else:
             where_clause = " ".join(where_clause)
         return(where_clause, filter_vars)
