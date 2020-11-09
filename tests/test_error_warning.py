@@ -15,6 +15,7 @@
 from .context import lux
 import pytest
 import pandas as pd
+from lux.vis.Vis import Vis
 
 # Test suite for checking if the expected errors and warnings are showing up correctly
 def test_context_str_error():
@@ -33,6 +34,29 @@ def test_bad_filter():
     df = pd.read_csv("lux/data/college.csv")
     with pytest.warns(UserWarning, match="Lux can not operate on an empty dataframe"):
         df[df["Region"] == "asdfgh"]._repr_html_()
+
+
+def test_multi_vis():
+    df = pd.read_csv("lux/data/college.csv")
+    with pytest.raises(
+        SyntaxError,
+        match="The intent that you specified corresponds to more than one visualization.",
+    ):
+        Vis(["SATAverage", "AverageCost", "Geography=?"], df)._repr_html_()
+
+    with pytest.raises(
+        SyntaxError,
+        match="The intent that you specified corresponds to more than one visualization.",
+    ):
+        Vis(["SATAverage", "?"], df)._repr_html_()
+
+    with pytest.raises(
+        SyntaxError,
+        match="The intent that you specified corresponds to more than one visualization.",
+    ):
+        Vis(
+            ["SATAverage", "AverageCost", "Region=New England|Southeast"], df
+        )._repr_html_()
 
 
 # Test Properties with Private Variables Readable but not Writable
