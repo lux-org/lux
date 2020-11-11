@@ -22,9 +22,8 @@ from lux.executor.PandasExecutor import PandasExecutor
 
 def test_dateformatter():
     ldf = pd.read_csv("lux/data/car.csv")
-    ldf["Year"] = pd.to_datetime(
-        ldf["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    ldf["Year"] = pd.to_datetime(ldf["Year"], format="%Y")
     timestamp = np.datetime64("2019-08-26")
     ldf.maintain_metadata()
     assert date_utils.date_formatter(timestamp, ldf) == "2019"
@@ -93,11 +92,7 @@ def test_period_to_altair():
 
     exported_code = df.recommendation["Filter"][2].to_Altair()
 
-<<<<<<< HEAD
-    assert "Year = 1971" in exported_code
-=======
     assert "Year = 1972" in exported_code
->>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
 
 
 def test_refresh_inplace():

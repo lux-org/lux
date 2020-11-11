@@ -62,7 +62,8 @@ def test_metadata_column_group_reset_df():
     assert hasattr(df, "_metadata_fresh")
     result = df.groupby("Cylinders").mean()
     assert not hasattr(result, "_metadata_fresh")
-    result._repr_html_()  # Note that this should trigger two compute metadata (one for df, and one for an intermediate df.reset_index used to feed inside created Vis)
+    # Note that this should trigger two compute metadata (one for df, and one for an intermediate df.reset_index used to feed inside created Vis)
+    result._repr_html_()
     assert (
         result._metadata_fresh == True
     ), "Failed to maintain metadata after display df"
@@ -77,20 +78,12 @@ def test_recs_inplace_operation():
     df = pd.read_csv("lux/data/car.csv")
     df._repr_html_()
     assert df._recs_fresh == True, "Failed to maintain recommendation after display df"
-<<<<<<< HEAD
-    assert len(df.recommendation["Occurrence"]) == 3
-=======
     assert len(df.recommendation["Occurrence"]) == 4
->>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
     df.drop(columns=["Name"], inplace=True)
     assert "Name" not in df.columns, "Failed to perform `drop` operation in-place"
     assert (
         df._recs_fresh == False
     ), "Failed to maintain recommendation after in-place Pandas operation"
     df._repr_html_()
-<<<<<<< HEAD
-    assert len(df.recommendation["Occurrence"]) == 2
-=======
     assert len(df.recommendation["Occurrence"]) == 3
->>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
     assert df._recs_fresh == True, "Failed to maintain recommendation after display df"

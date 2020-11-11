@@ -35,9 +35,8 @@ def test_lazy_execution():
 
 def test_selection():
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     intent = [
         lux.Clause(attribute=["Horsepower", "Weight", "Acceleration"]),
         lux.Clause(attribute="Year"),
@@ -102,9 +101,8 @@ def test_colored_line_chart():
     from lux.vis.Vis import Clause
 
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     x_clause = Clause(attribute="Year", channel="x")
     y_clause = Clause(attribute="MilesPerGal", channel="y")
@@ -116,19 +114,19 @@ def test_colored_line_chart():
     color_cardinality = len(df.unique_values["Cylinders"])
     group_by_cardinality = len(df.unique_values["Year"])
     assert len(new_vis.data.columns) == 3
+    # Not color_cardinality*group_by_cardinality since some combinations have 0 values
     assert (
         len(new_vis.data)
         == 60
         > group_by_cardinality
         < color_cardinality * group_by_cardinality
-    )  # Not color_cardinality*group_by_cardinality since some combinations have 0 values
+    )
 
 
 def test_filter():
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     intent = [
         lux.Clause(attribute="Horsepower"),
         lux.Clause(attribute="Year"),

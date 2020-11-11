@@ -49,9 +49,8 @@ def test_vis_collection():
         filter(lambda x: x.get_attr_by_attr_name("Year") != [], vlist)
     )[0]
     assert vis_with_year.get_attr_by_channel("x")[0].attribute == "Year"
-    assert (
-        len(vlist) == len(df.columns) - 1 - 1
-    )  # remove 1 for vis with same filter attribute and remove 1 vis with for same attribute
+    # remove 1 for vis with same filter attribute and remove 1 vis with for same attribute
+    assert len(vlist) == len(df.columns) - 1 - 1
     vlist = VisList(["Height", "?"], df)
     assert len(vlist) == len(df.columns) - 1  # remove 1 for vis with for same attribute
 
@@ -141,9 +140,8 @@ def test_vis_collection_via_list_of_vis():
         "https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true"
     )
     df = pd.read_csv(url)
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     from lux.vis.VisList import VisList
     from lux.vis.Vis import Vis
 

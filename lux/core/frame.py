@@ -482,9 +482,8 @@ class LuxDataFrame(pd.DataFrame):
             )
         rec_df._prev = None  # reset _prev
 
-        if (
-            not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh
-        ):  # Check that recs has not yet been computed
+        # Check that recs has not yet been computed
+        if not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh:
             rec_infolist = []
             from lux.action.custom import custom
             from lux.action.custom import custom_actions
@@ -550,9 +549,8 @@ class LuxDataFrame(pd.DataFrame):
                     rec_df.recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
             self._widget = rec_df.render_widget()
-        elif (
-            show_prev
-        ):  # re-render widget for the current dataframe if previous rec is not recomputed
+        # re-render widget for the current dataframe if previous rec is not recomputed
+        elif show_prev:
             self._widget = rec_df.render_widget()
         self._recs_fresh = True
 

@@ -53,9 +53,8 @@ def enhance(ldf):
             "action": "Enhance",
             "description": f"Further breaking down current {intended_attrs} intent by additional attribute.",
         }
-    elif (
-        len(attr_specs) > 2
-    ):  # if there are too many column attributes, return don't generate Enhance recommendations
+    # if there are too many column attributes, return don't generate Enhance recommendations
+    elif len(attr_specs) > 2:
         recommendation = {"action": "Enhance"}
         recommendation["collection"] = []
         return recommendation

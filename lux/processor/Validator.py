@@ -85,9 +85,8 @@ class Validator:
                                 else:
                                     vals = [clause.value]
                                 for val in vals:
-                                    if (
-                                        val not in series.values
-                                    ):  # (not series.str.contains(val).any()):
+                                    # (not series.str.contains(val).any()):
+                                    if val not in series.values:
                                         warnings.warn(
                                             f"The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
                                         )

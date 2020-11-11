@@ -58,9 +58,8 @@ def univariate(ldf, *args):
             "action": "Distribution",
             "description": "Show univariate histograms of <p class='highlight-descriptor'>quantitative</p>  attributes.",
         }
-        if (
-            len(ldf) < 5
-        ):  # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
+        # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
+        if len(ldf) < 5:
             ignore_rec_flag = True
     elif data_type_constraint == "nominal":
         intent = [lux.Clause("?", data_type="nominal")]
@@ -76,9 +75,8 @@ def univariate(ldf, *args):
             "action": "Temporal",
             "description": "Show trends over <p class='highlight-descriptor'>time-related</p> attributes.",
         }
-        if (
-            len(ldf) < 3
-        ):  # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
+        # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
+        if len(ldf) < 3:
             ignore_rec_flag = True
     if ignore_rec_flag:
         recommendation["collection"] = []

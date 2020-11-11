@@ -120,14 +120,12 @@ class BarChart(AltairChart):
             self.chart = self.chart + self.text
             self.code += self._topkcode
 
-    def encode_color(
-        self,
-    ):  # override encode_color in AltairChart to enforce add_text occurs afterwards
+    # override encode_color in AltairChart to enforce add_text occurs afterwards
+    def encode_color(self):
         AltairChart.encode_color(self)
         self.add_text()
-        self.chart = self.chart.configure_mark(
-            tooltip=alt.TooltipContent("encoding")
-        )  # Setting tooltip as non-null
+        # Setting tooltip as non-null
+        self.chart = self.chart.configure_mark(tooltip=alt.TooltipContent("encoding"))
         self.code += (
             f"""chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding'))"""
         )

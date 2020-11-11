@@ -37,16 +37,13 @@ class Compiler:
     @staticmethod
     def compile_vis(ldf: LuxDataFrame, vis: Vis) -> VisList:
         if vis:
-            vis_collection = Compiler.populate_data_type_model(
-                ldf, [vis]
-            )  # autofill data type/model information
-            vis_collection = Compiler.remove_all_invalid(
-                vis_collection
-            )  # remove invalid visualizations from collection
+            # autofill data type/model information
+            vis_collection = Compiler.populate_data_type_model(ldf, [vis])
+            # remove invalid visualizations from collection
+            vis_collection = Compiler.remove_all_invalid(vis_collection)
             for vis in vis_collection:
-                Compiler.determine_encoding(
-                    ldf, vis
-                )  # autofill viz related information
+                # autofill viz related information
+                Compiler.determine_encoding(ldf, vis)
             ldf._compiled = True
             return vis_collection
 
@@ -72,17 +69,14 @@ class Compiler:
         """
         if _inferred_intent:
             vis_collection = Compiler.enumerate_collection(_inferred_intent, ldf)
-            vis_collection = Compiler.populate_data_type_model(
-                ldf, vis_collection
-            )  # autofill data type/model information
+            # autofill data type/model information
+            vis_collection = Compiler.populate_data_type_model(ldf, vis_collection)
+            # remove invalid visualizations from collection
             if len(vis_collection) >= 1:
-                vis_collection = Compiler.remove_all_invalid(
-                    vis_collection
-                )  # remove invalid visualizations from collection
+                vis_collection = Compiler.remove_all_invalid(vis_collection)
             for vis in vis_collection:
-                Compiler.determine_encoding(
-                    ldf, vis
-                )  # autofill viz related information
+                # autofill viz related information
+                Compiler.determine_encoding(ldf, vis)
             ldf._compiled = True
             return vis_collection
 
@@ -121,9 +115,8 @@ class Compiler:
             for i in range(n):
                 column_list = copy.deepcopy(accum + [col_attrs[0][i]])
                 if last:
-                    if (
-                        len(filters) > 0
-                    ):  # if we have filters, generate combinations for each row.
+                    # if we have filters, generate combinations for each row.
+                    if len(filters) > 0:
                         for row in filters:
                             _inferred_intent = copy.deepcopy(column_list + [row])
                             vis = Vis(_inferred_intent)
@@ -164,9 +157,8 @@ class Compiler:
                 if clause.description == "?":
                     clause.description = ""
                 # TODO: Note that "and not is_datetime_string(clause.attribute))" is a temporary hack and breaks the `test_row_column_group` example
-                if (
-                    clause.attribute != "" and clause.attribute != "Record"
-                ):  # and not is_datetime_string(clause.attribute):
+                # and not is_datetime_string(clause.attribute):
+                if clause.attribute != "" and clause.attribute != "Record":
                     if clause.data_type == "":
                         clause.data_type = ldf.data_type_lookup[clause.attribute]
                     if clause.data_type == "id":
@@ -174,9 +166,8 @@ class Compiler:
                     if clause.data_model == "":
                         clause.data_model = ldf.data_model_lookup[clause.attribute]
                 if clause.value != "":
-                    if (
-                        vis.title == ""
-                    ):  # If user provided title for Vis, then don't override.
+                    # If user provided title for Vis, then don't override.
+                    if vis.title == "":
                         if isinstance(clause.value, np.datetime64):
                             chart_title = date_utils.date_formatter(clause.value, ldf)
                         else:
@@ -303,10 +294,9 @@ class Compiler:
                 dimension = d2
                 color_attr = d1
             else:
+                # if same attribute then remove_column_from_spec will remove both dims, we only want to remove one
                 if d1.attribute == d2.attribute:
-                    vis._inferred_intent.pop(
-                        0
-                    )  # if same attribute then remove_column_from_spec will remove both dims, we only want to remove one
+                    vis._inferred_intent.pop(0)
                 else:
                     vis.remove_column_from_spec(d2.attribute)
                 dimension = d1
@@ -380,12 +370,10 @@ class Compiler:
         ValueError
                 Ensures no more than one attribute is placed in the same channel.
         """
-        result_dict = (
-            {}
-        )  # result of enforcing specified channel will be stored in result_dict
-        specified_dict = (
-            {}
-        )  # specified_dict={"x":[],"y":[list of Dobj with y specified as channel]}
+        # result of enforcing specified channel will be stored in result_dict
+        result_dict = {}
+        # specified_dict={"x":[],"y":[list of Dobj with y specified as channel]}
+        specified_dict = {}
         # create a dictionary of specified channels in the given dobj
         for val in auto_channel.keys():
             specified_dict[val] = vis.get_attr_by_channel(val)
@@ -395,9 +383,10 @@ class Compiler:
             if len(sAttr) == 1:  # if specified in dobj
                 # remove the specified channel from auto_channel (matching by value, since channel key may not be same)
                 for i in list(auto_channel.keys()):
+                    # need to ensure that the channel is the same (edge case when duplicate Cols with same attribute name)
                     if (auto_channel[i].attribute == sAttr[0].attribute) and (
                         auto_channel[i].channel == sVal
-                    ):  # need to ensure that the channel is the same (edge case when duplicate Cols with same attribute name)
+                    ):
                         auto_channel.pop(i)
                         break
                 sAttr[0].channel = sVal

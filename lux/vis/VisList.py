@@ -63,19 +63,6 @@ class VisList:
     @property
     def exported(self) -> VisList:
         """
-<<<<<<< HEAD
-                Get selected visualizations as exported Vis List
-                Notes
-        -----
-                Convert the _selectedVisIdxs dictionary into a programmable VisList
-                Example _selectedVisIdxs :
-                        {'Vis List': [0, 2]}
-
-                Returns
-                -------
-                VisList
-                        return a VisList of selected visualizations. -> VisList(v1, v2...)
-=======
         Get selected visualizations as exported Vis List
 
         Notes
@@ -88,7 +75,6 @@ class VisList:
         -------
         VisList
                 return a VisList of selected visualizations. -> VisList(v1, v2...)
->>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
         """
         if not hasattr(self, "widget"):
             warnings.warn(
@@ -143,9 +129,8 @@ class VisList:
         y_channel = ""
         largest_mark = 0
         largest_filter = 0
-        for (
-            vis
-        ) in self._collection:  # finds longest x attribute among all visualizations
+        # finds longest x attribute among all visualizations
+        for vis in self._collection:
             filter_intents = None
             for clause in vis._inferred_intent:
                 if clause.value != "":
@@ -177,11 +162,8 @@ class VisList:
         vis_repr = []
         largest_x_length = len(x_channel)
         largest_y_length = len(y_channel)
-        for (
-            vis
-        ) in (
-            self._collection
-        ):  # pads the shorter visualizations with spaces before the y attribute
+        # pads the shorter visualizations with spaces before the y attribute
+        for vis in self._collection:
             filter_intents = None
             x_channel = ""
             y_channel = ""

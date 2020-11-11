@@ -80,9 +80,8 @@ class PandasExecutor(Executor):
         """
         PandasExecutor.execute_sampling(ldf)
         for vis in vislist:
-            vis._vis_data = (
-                ldf._sampled
-            )  # The vis data starts off being original or sampled dataframe
+            # The vis data starts off being original or sampled dataframe
+            vis._vis_data = ldf._sampled
             filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
             attributes = set([])
@@ -220,9 +219,10 @@ class PandasExecutor(Executor):
                         ) == N_unique_vals * len(
                             color_attr_vals
                         ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
-                        vis._vis_data = vis.data.iloc[
-                            :, :3
-                        ]  # Keep only the three relevant columns not the *_right columns resulting from merge
+
+                        # Keep only the three relevant columns not the *_right columns resulting from merge
+                        vis._vis_data = vis.data.iloc[:, :3]
+
                     else:
                         df = pd.DataFrame({columns[0]: attr_unique_vals})
 

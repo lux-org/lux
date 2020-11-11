@@ -156,9 +156,8 @@ def test_sort_bar():
 
 def test_specified_vis_collection():
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     vlst = VisList(
         [
@@ -188,9 +187,8 @@ def test_specified_vis_collection():
 
 def test_specified_channel_enforced_vis_collection():
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     visList = VisList(
         [lux.Clause(attribute="?"), lux.Clause(attribute="MilesPerGal", channel="x")],
         df,
@@ -202,9 +200,8 @@ def test_specified_channel_enforced_vis_collection():
 def test_autoencoding_scatter():
     # No channel specified
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     vis = Vis([lux.Clause(attribute="MilesPerGal"), lux.Clause(attribute="Weight")], df)
     check_attribute_on_channel(vis, "MilesPerGal", "x")
     check_attribute_on_channel(vis, "Weight", "y")
@@ -244,9 +241,8 @@ def test_autoencoding_scatter():
 def test_autoencoding_histogram():
     # No channel specified
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     vis = Vis([lux.Clause(attribute="MilesPerGal", channel="y")], df)
     check_attribute_on_channel(vis, "MilesPerGal", "y")
 
@@ -257,9 +253,8 @@ def test_autoencoding_histogram():
 
 def test_autoencoding_line_chart():
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     vis = Vis([lux.Clause(attribute="Year"), lux.Clause(attribute="Acceleration")], df)
     check_attribute_on_channel(vis, "Year", "x")
     check_attribute_on_channel(vis, "Acceleration", "y")
@@ -298,9 +293,8 @@ def test_autoencoding_line_chart():
 
 def test_autoencoding_color_line_chart():
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     intent = [
         lux.Clause(attribute="Year"),
         lux.Clause(attribute="Acceleration"),
@@ -314,9 +308,8 @@ def test_autoencoding_color_line_chart():
 
 def test_autoencoding_color_scatter_chart():
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     vis = Vis(
         [
             lux.Clause(attribute="Horsepower"),

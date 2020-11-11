@@ -51,15 +51,9 @@ def test_interestingness_1_0_0():
             if int(vis._inferred_intent[2].value) == 8:
                 rank1 = f
             if int(vis._inferred_intent[2].value) == 6:
-<<<<<<< HEAD
-                rank2 = f
-        if "1972" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
-            rank3 = f
-=======
                 rank3 = f
         if "ford" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
             rank2 = f
->>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
 
@@ -118,11 +112,7 @@ def test_interestingness_0_1_0():
             rank1 = f
         if str(df.recommendation["Filter"][f]._inferred_intent[2].value) == "Europe":
             rank2 = f
-<<<<<<< HEAD
-        if "1971" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
-=======
         if "1970" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
->>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
@@ -161,14 +151,7 @@ def test_interestingness_1_1_0():
         if len(vis.get_attr_by_attr_name("Cylinders")) > 0:
             if int(vis._inferred_intent[2].value) == 6:
                 rank1 = f
-<<<<<<< HEAD
-            if int(vis._inferred_intent[2].value) == 5:
-                rank3 = f
-        if len(vis.get_attr_by_attr_name("Origin")) > 0:
-            if str(vis._inferred_intent[2].value) == "Europe":
-=======
             if int(vis._inferred_intent[2].value) == 8:
->>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
                 rank2 = f
         if len(vis.get_attr_by_attr_name("Origin")) > 0:
             if str(vis._inferred_intent[2].value) == "Europe":
@@ -278,15 +261,9 @@ def test_interestingness_0_2_0():
     for f in range(0, len(df.recommendation["Filter"])):
         if "1973" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
             rank1 = f
-<<<<<<< HEAD
-        if "1976" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
-            rank2 = f
-        if str(df.recommendation["Filter"][f]._inferred_intent[2].value) == "Europe":
-=======
         if "ford" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
             rank2 = f
         if str(df.recommendation["Filter"][f]._inferred_intent[2].value) == "USA":
->>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 

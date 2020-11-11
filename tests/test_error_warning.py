@@ -36,8 +36,6 @@ def test_bad_filter():
         df[df["Region"] == "asdfgh"]._repr_html_()
 
 
-<<<<<<< HEAD
-=======
 def test_multi_vis():
     df = pd.read_csv("lux/data/college.csv")
     with pytest.raises(
@@ -61,7 +59,6 @@ def test_multi_vis():
         )._repr_html_()
 
 
->>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
 # Test Properties with Private Variables Readable but not Writable
 def test_vis_private_properties():
     from lux.vis.Vis import Vis
