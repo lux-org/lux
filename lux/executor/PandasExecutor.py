@@ -358,9 +358,7 @@ class PandasExecutor(Executor):
                 result = result.dropna()
             else:
                 groups = vis._vis_data.groupby(["xBin", "yBin"])[x_attr]
-                result = groups.agg("count").reset_index(
-                    name=x_attr
-                )  # .agg in this line throws SettingWithCopyWarning
+                result = groups.count().reset_index(name=x_attr)  
                 result = result.rename(columns={x_attr: "count"})
                 result = result[result["count"] != 0]
 
