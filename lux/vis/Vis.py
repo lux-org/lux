@@ -326,6 +326,11 @@ class Vis:
                 PandasExecutor,
             )  # TODO: temporary (generalize to executor)
 
+<<<<<<< HEAD
+=======
+            self.check_not_vislist_intent()
+
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
             ldf.maintain_metadata()
             self._source = ldf
             self._inferred_intent = Parser.parse(self._intent)
@@ -340,3 +345,18 @@ class Vis:
                 self._inferred_intent = vis._inferred_intent
                 self._vis_data = vis.data
                 self._min_max = vis._min_max
+<<<<<<< HEAD
+=======
+
+    def check_not_vislist_intent(self):
+        if len(self._intent) > 2 or "?" in self._intent:
+            for i in range(len(self._intent)):
+                if type(self._intent[i]) != Clause:
+                    import sys
+
+                    sys.tracebacklimit = 0
+                    raise SyntaxError(
+                        "The intent that you specified corresponds to more than one visualization. Please replace the Vis constructor with VisList to generate a list of visualizations. "
+                        + "For more information, see: https://lux-api.readthedocs.io/en/latest/source/guide/vis.html#working-with-collections-of-visualization-with-vislist"
+                    )
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939

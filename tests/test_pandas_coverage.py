@@ -111,6 +111,10 @@ def test_rename3():
         "col7",
         "col8",
         "col9",
+<<<<<<< HEAD
+=======
+        "col10",
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
     ]
     df._repr_html_()
     assert list(df.recommendation.keys()) == [
@@ -119,7 +123,11 @@ def test_rename3():
         "Occurrence",
         "Temporal",
     ]
+<<<<<<< HEAD
     assert len(df.cardinality) == 9
+=======
+    assert len(df.cardinality) == 10
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
     assert "col2" in list(df.cardinality.keys())
 
 
@@ -194,7 +202,12 @@ def test_query():
         "Occurrence",
         "Temporal",
     ]
+<<<<<<< HEAD
     assert len(new_df.cardinality) == 9
+=======
+    assert len(new_df.cardinality) == 10
+
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
 
 
 def test_pop():
@@ -208,7 +221,12 @@ def test_pop():
         "Occurrence",
         "Temporal",
     ]
+<<<<<<< HEAD
     assert len(df.cardinality) == 8
+=======
+    assert len(df.cardinality) == 9
+
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
 
 
 def test_transform():
@@ -217,7 +235,12 @@ def test_transform():
     new_df = df.iloc[:, 1:].groupby("Origin").transform(sum)
     new_df._repr_html_()
     assert list(new_df.recommendation.keys()) == ["Correlation", "Occurrence"]
+<<<<<<< HEAD
     assert len(new_df.cardinality) == 6
+=======
+    assert len(new_df.cardinality) == 7
+
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
 
 
 def test_get_group():
@@ -232,7 +255,12 @@ def test_get_group():
         "Occurrence",
         "Temporal",
     ]
+<<<<<<< HEAD
     assert len(new_df.cardinality) == 9
+=======
+    assert len(new_df.cardinality) == 10
+
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
 
 
 def test_applymap():
@@ -247,13 +275,22 @@ def test_applymap():
         "Occurrence",
         "Temporal",
     ]
+<<<<<<< HEAD
     assert len(df.cardinality) == 9
+=======
+    assert len(df.cardinality) == 10
+
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
 
 
 def test_strcat():
+<<<<<<< HEAD
     df = pd.read_csv(
         "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
     )
+=======
+    df = pd.read_csv("lux/data/car.csv")
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["combined"] = df["Origin"].str.cat(df["Brand"], sep=", ")
     df._repr_html_()
@@ -267,9 +304,13 @@ def test_strcat():
 
 
 def test_named_agg():
+<<<<<<< HEAD
     df = pd.read_csv(
         "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
     )
+=======
+    df = pd.read_csv("lux/data/car.csv")
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.groupby("Brand").agg(
         avg_weight=("Weight", "mean"),
@@ -292,7 +333,12 @@ def test_change_dtype():
         "Occurrence",
         "Temporal",
     ]
+<<<<<<< HEAD
     assert len(df.data_type_lookup) == 9
+=======
+    assert len(df.data_type_lookup) == 10
+
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
 
 
 def test_get_dummies():
@@ -306,7 +352,12 @@ def test_get_dummies():
         "Occurrence",
         "Temporal",
     ]
+<<<<<<< HEAD
     assert len(new_df.data_type_lookup) == 310
+=======
+    assert len(new_df.data_type_lookup) == 339
+
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
 
 
 def test_drop():
@@ -321,7 +372,12 @@ def test_drop():
         "Occurrence",
         "Temporal",
     ]
+<<<<<<< HEAD
     assert len(new_df2.cardinality) == 6
+=======
+    assert len(new_df2.cardinality) == 7
+
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
 
 
 def test_merge():
@@ -336,7 +392,12 @@ def test_merge():
         "Occurrence",
         "Temporal",
     ]  # TODO once bug is fixed
+<<<<<<< HEAD
     assert len(new_df2.cardinality) == 10
+=======
+    assert len(new_df2.cardinality) == 11
+
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
 
 
 def test_prefix():
@@ -350,14 +411,22 @@ def test_prefix():
         "Occurrence",
         "Temporal",
     ]
+<<<<<<< HEAD
     assert len(new_df.cardinality) == 9
+=======
+    assert len(new_df.cardinality) == 10
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
     assert new_df.cardinality["1_Name"] == 300
 
 
 def test_loc():
+<<<<<<< HEAD
     df = pd.read_csv(
         "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
     )
+=======
+    df = pd.read_csv("lux/data/car.csv")
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.loc[:, "Displacement":"Origin"]
     new_df._repr_html_()
@@ -388,9 +457,13 @@ def test_loc():
 
 
 def test_iloc():
+<<<<<<< HEAD
     df = pd.read_csv(
         "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
     )
+=======
+    df = pd.read_csv("lux/data/car.csv")
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.iloc[:, 3:9]
     new_df._repr_html_()
@@ -563,8 +636,12 @@ def test_value_counts():
 
 
 def test_str_replace():
+<<<<<<< HEAD
     url = "https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true"
     df = pd.read_csv(url)
+=======
+    df = pd.read_csv("lux/data/car.csv")
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
     df._repr_html_()  # compute metadata
     assert df.cardinality is not None
     series = df["Brand"].str.replace("chevrolet", "chevy")

@@ -95,7 +95,7 @@ When you print out the dataframe again, you should see three different tabs of v
 
     df
 
-.. image:: ../../../../lux-resources/doc_img/overview-3.gif
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/overview-3.gif?raw=true
   :width: 700
   :align: center
   :alt: scroll through Enhance, click on Filter tab
@@ -129,7 +129,7 @@ Given the updated intent, additional actions (Enhance and Filter) are generated.
     - {MedianEarnings, **AverageCost**}
     - {MedianEarnings, **AverageFacultySalary**}.
  
-.. image:: ../img/overview-4.png
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/overview-4.png
   :width: 700
   :align: center
   :alt: screenshot of Enhance
@@ -140,7 +140,7 @@ Given the updated intent, additional actions (Enhance and Filter) are generated.
     - {MedianEarnings, **Region=Southeast**}
     - {MedianEarnings, **Region=Great Lakes**}.
 
-.. image:: ../img/overview-5.png
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/overview-5.png
   :width: 700
   :align: center
   :alt: screenshot of Filter

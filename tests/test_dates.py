@@ -93,7 +93,11 @@ def test_period_to_altair():
 
     exported_code = df.recommendation["Filter"][2].to_Altair()
 
+<<<<<<< HEAD
     assert "Year = 1971" in exported_code
+=======
+    assert "Year = 1972" in exported_code
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
 
 
 def test_refresh_inplace():

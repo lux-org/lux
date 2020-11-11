@@ -63,6 +63,7 @@ class VisList:
     @property
     def exported(self) -> VisList:
         """
+<<<<<<< HEAD
                 Get selected visualizations as exported Vis List
                 Notes
         -----
@@ -74,6 +75,20 @@ class VisList:
                 -------
                 VisList
                         return a VisList of selected visualizations. -> VisList(v1, v2...)
+=======
+        Get selected visualizations as exported Vis List
+
+        Notes
+        -----
+        Convert the _selectedVisIdxs dictionary into a programmable VisList
+        Example _selectedVisIdxs :
+                {'Vis List': [0, 2]}
+
+        Returns
+        -------
+        VisList
+                return a VisList of selected visualizations. -> VisList(v1, v2...)
+>>>>>>> 9897d0e18c9ee0c775151e88cde40ba890732939
         """
         if not hasattr(self, "widget"):
             warnings.warn(
