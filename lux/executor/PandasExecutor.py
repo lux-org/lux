@@ -455,10 +455,10 @@ class PandasExecutor(Executor):
             )
 
     def _is_datetime_string(self, series):
-        if (len(series) > 100):
+        if len(series) > 100:
             series = series.sample(100)
 
-        if (series.dtype == object):
+        if series.dtype == object:
 
             not_numeric = False
             try:
@@ -467,13 +467,13 @@ class PandasExecutor(Executor):
                 not_numeric = True
 
             datetime_col = None
-            if (not_numeric):
+            if not_numeric:
                 try:
                     datetime_col = pd.to_datetime(series)
                 except Exception as e:
                     return False
 
-            if (datetime_col is not None):
+            if datetime_col is not None:
                 return True
         return False
 
