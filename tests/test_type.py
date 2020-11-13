@@ -130,6 +130,18 @@ def test_check_datetime():
     }
 
 
+def test_check_stock():
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/stocks.csv?raw=true"
+    )
+    df.maintain_metadata()
+    assert df.data_type_lookup == {
+        "symbol": "nominal",
+        "monthdate": "temporal",
+        "price": "quantitative",
+    }, "Stock dataset type detection error"
+
+
 def test_check_college():
     df = pd.read_csv("lux/data/college.csv")
     df.maintain_metadata()
