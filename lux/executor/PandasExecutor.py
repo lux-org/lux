@@ -392,9 +392,7 @@ class PandasExecutor(Executor):
             elif self._is_datetime_string(ldf[attr]):
                 ldf.data_type_lookup[attr] = "temporal"
             elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
-                # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
                 ldf.data_type_lookup[attr] = "temporal"
-            # elif any(var in str(attr).lower() for var in temporal_var_list):
             elif str(attr).lower() in temporal_var_list:
                 ldf.data_type_lookup[attr] = "temporal"
             elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
