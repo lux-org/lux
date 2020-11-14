@@ -54,8 +54,7 @@ class Validator:
 
         def validate_clause(clause):
             if not (
-                (clause.attribute and clause.attribute == "?")
-                or (clause.value and clause.value == "?")
+                (clause.attribute and clause.attribute == "?") or (clause.value and clause.value == "?")
             ):
                 if isinstance(clause.attribute, list):
                     for attr in clause.attribute:
@@ -66,18 +65,12 @@ class Validator:
                 else:
                     if clause.attribute != "Record":
                         # we don't value check datetime since datetime can take filter values that don't exactly match the exact TimeStamp representation
-                        if clause.attribute and not is_datetime_string(
-                            clause.attribute
-                        ):
+                        if clause.attribute and not is_datetime_string(clause.attribute):
                             if not clause.attribute in list(ldf.columns):
                                 warnings.warn(
                                     f"The input attribute '{clause.attribute}' does not exist in the DataFrame."
                                 )
-                        if (
-                            clause.value
-                            and clause.attribute
-                            and clause.filter_op == "="
-                        ):
+                        if clause.value and clause.attribute and clause.filter_op == "=":
                             series = ldf[clause.attribute]
                             if not is_datetime_series(series):
                                 if isinstance(clause.value, list):

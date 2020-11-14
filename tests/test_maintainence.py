@@ -40,9 +40,7 @@ def test_metadata_inplace_operation():
     df._repr_html_()
     assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
     df.dropna(inplace=True)
-    assert (
-        df._metadata_fresh == False
-    ), "Failed to expire metadata after in-place Pandas operation"
+    assert df._metadata_fresh == False, "Failed to expire metadata after in-place Pandas operation"
 
 
 def test_metadata_new_df_operation():
@@ -64,9 +62,7 @@ def test_metadata_column_group_reset_df():
     assert not hasattr(result, "_metadata_fresh")
     # Note that this should trigger two compute metadata (one for df, and one for an intermediate df.reset_index used to feed inside created Vis)
     result._repr_html_()
-    assert (
-        result._metadata_fresh == True
-    ), "Failed to maintain metadata after display df"
+    assert result._metadata_fresh == True, "Failed to maintain metadata after display df"
 
     colgroup_recs = result.recommendation["Column Groups"]
     assert len(colgroup_recs) == 5
@@ -81,9 +77,7 @@ def test_recs_inplace_operation():
     assert len(df.recommendation["Occurrence"]) == 4
     df.drop(columns=["Name"], inplace=True)
     assert "Name" not in df.columns, "Failed to perform `drop` operation in-place"
-    assert (
-        df._recs_fresh == False
-    ), "Failed to maintain recommendation after in-place Pandas operation"
+    assert df._recs_fresh == False, "Failed to maintain recommendation after in-place Pandas operation"
     df._repr_html_()
     assert len(df.recommendation["Occurrence"]) == 3
     assert df._recs_fresh == True, "Failed to maintain recommendation after display df"

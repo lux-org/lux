@@ -50,9 +50,7 @@ def date_formatter(time_stamp, ldf):
     elif granularity == "month":
         date_str += str(datetime.year) + "-" + str(datetime.month)
     elif granularity == "day":
-        date_str += (
-            str(datetime.year) + "-" + str(datetime.month) + "-" + str(datetime.day)
-        )
+        date_str += str(datetime.year) + "-" + str(datetime.month) + "-" + str(datetime.day)
     else:
         # non supported granularity
         return datetime.date()
@@ -103,9 +101,7 @@ def is_datetime_series(series: pd.Series) -> bool:
     -------
     is_date: bool
     """
-    return pd.api.types.is_datetime64_any_dtype(series) or pd.api.types.is_period_dtype(
-        series
-    )
+    return pd.api.types.is_datetime64_any_dtype(series) or pd.api.types.is_period_dtype(series)
 
 
 def is_datetime_string(string: str) -> bool:

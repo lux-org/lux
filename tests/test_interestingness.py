@@ -85,14 +85,12 @@ def test_interestingness_0_1_0():
     for f in range(0, len(df.recommendation["Enhance"])):
         if (
             df.recommendation["Enhance"][f].mark == "scatter"
-            and df.recommendation["Enhance"][f]._inferred_intent[1].attribute
-            == "Weight"
+            and df.recommendation["Enhance"][f]._inferred_intent[1].attribute == "Weight"
         ):
             rank1 = f
         if (
             df.recommendation["Enhance"][f].mark == "scatter"
-            and df.recommendation["Enhance"][f]._inferred_intent[1].attribute
-            == "Acceleration"
+            and df.recommendation["Enhance"][f]._inferred_intent[1].attribute == "Acceleration"
         ):
             rank2 = f
         if (
@@ -181,20 +179,17 @@ def test_interestingness_1_1_1():
     for f in range(0, len(df.recommendation["Enhance"])):
         if (
             str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
-            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute)
-            == "Cylinders"
+            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Cylinders"
         ):
             rank1 = f
         if (
             str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
-            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute)
-            == "Weight"
+            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Weight"
         ):
             rank2 = f
         if (
             str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
-            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute)
-            == "Horsepower"
+            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Horsepower"
         ):
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
@@ -224,9 +219,7 @@ def test_interestingness_0_2_0():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.set_intent(
-        [lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Acceleration")]
-    )
+    df.set_intent([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Acceleration")])
     df._repr_html_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
@@ -235,14 +228,12 @@ def test_interestingness_0_2_0():
     rank3 = -1
     for f in range(0, len(df.recommendation["Enhance"])):
         if (
-            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute)
-            == "Origin"
+            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Origin"
             and str(df.recommendation["Enhance"][f].mark) == "scatter"
         ):
             rank1 = f
         if (
-            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute)
-            == "Displacement"
+            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Displacement"
             and str(df.recommendation["Enhance"][f].mark) == "scatter"
         ):
             rank2 = f

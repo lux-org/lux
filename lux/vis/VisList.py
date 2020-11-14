@@ -93,9 +93,7 @@ class VisList:
             )
             return []
         else:
-            exported_vis = VisList(
-                list(map(self.__getitem__, exported_vis_lst["Vis List"]))
-            )
+            exported_vis = VisList(list(map(self.__getitem__, exported_vis_lst["Vis List"])))
             return exported_vis
 
     def remove_duplicates(self) -> None:
@@ -137,9 +135,7 @@ class VisList:
                     filter_intents = clause
 
                 if clause.aggregation != "" and clause.aggregation is not None:
-                    attribute = (
-                        clause._aggregation_name.upper() + "(" + clause.attribute + ")"
-                    )
+                    attribute = clause._aggregation_name.upper() + "(" + clause.attribute + ")"
                 elif clause.bin_size > 0:
                     attribute = "BIN(" + clause.attribute + ")"
                 else:
@@ -153,12 +149,9 @@ class VisList:
                 largest_mark = len(vis.mark)
             if (
                 filter_intents
-                and len(str(filter_intents.value)) + len(filter_intents.attribute)
-                > largest_filter
+                and len(str(filter_intents.value)) + len(filter_intents.attribute) > largest_filter
             ):
-                largest_filter = len(str(filter_intents.value)) + len(
-                    filter_intents.attribute
-                )
+                largest_filter = len(str(filter_intents.value)) + len(filter_intents.attribute)
         vis_repr = []
         largest_x_length = len(x_channel)
         largest_y_length = len(y_channel)
@@ -172,14 +165,8 @@ class VisList:
                 if clause.value != "":
                     filter_intents = clause
 
-                if (
-                    clause.aggregation != ""
-                    and clause.aggregation is not None
-                    and vis.mark != "scatter"
-                ):
-                    attribute = (
-                        clause._aggregation_name.upper() + "(" + clause.attribute + ")"
-                    )
+                if clause.aggregation != "" and clause.aggregation is not None and vis.mark != "scatter":
+                    attribute = clause._aggregation_name.upper() + "(" + clause.attribute + ")"
                 elif clause.bin_size > 0:
                     attribute = "BIN(" + clause.attribute + ")"
                 else:
@@ -294,9 +281,7 @@ class VisList:
         import luxwidget
 
         recJSON = LuxDataFrame.rec_to_JSON([recommendation])
-        self._widget = luxwidget.LuxWidget(
-            currentVis={}, recommendations=recJSON, intent="", message=""
-        )
+        self._widget = luxwidget.LuxWidget(currentVis={}, recommendations=recJSON, intent="", message="")
         display(self._widget)
 
     def refresh_source(self, ldf):
@@ -340,7 +325,5 @@ class VisList:
                 else:
                     self._inferred_intent = Parser.parse(self._intent)
                     Validator.validate_intent(self._inferred_intent, ldf)
-                    self._collection = Compiler.compile_intent(
-                        ldf, self._inferred_intent
-                    )
+                    self._collection = Compiler.compile_intent(ldf, self._inferred_intent)
                 ldf.executor.execute(self._collection, ldf)

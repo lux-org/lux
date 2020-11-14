@@ -162,21 +162,15 @@ class PandasExecutor(Executor):
                         .reset_index()
                     )
                     vis._vis_data = vis.data.rename(columns={"index": "Record"})
-                    vis._vis_data = vis.data[
-                        [groupby_attr.attribute, color_attr.attribute, "Record"]
-                    ]
+                    vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, "Record"]]
                 else:
-                    vis._vis_data = (
-                        vis.data.groupby(groupby_attr.attribute).count().reset_index()
-                    )
+                    vis._vis_data = vis.data.groupby(groupby_attr.attribute).count().reset_index()
                     vis._vis_data = vis.data.rename(columns={"index": "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, "Record"]]
             else:
                 # if color is specified, need to group by groupby_attr and color_attr
                 if has_color:
-                    groupby_result = vis.data.groupby(
-                        [groupby_attr.attribute, color_attr.attribute]
-                    )
+                    groupby_result = vis.data.groupby([groupby_attr.attribute, color_attr.attribute])
                 else:
                     groupby_result = vis.data.groupby(groupby_attr.attribute)
                 groupby_result = groupby_result.agg(agg_func)
@@ -199,9 +193,7 @@ class PandasExecutor(Executor):
                         df = pd.DataFrame(
                             {
                                 columns[0]: attr_unique_vals * color_cardinality,
-                                columns[1]: pd.Series(color_attr_vals).repeat(
-                                    N_unique_vals
-                                ),
+                                columns[1]: pd.Series(color_attr_vals).repeat(N_unique_vals),
                             }
                         )
                         vis._vis_data = vis.data.merge(
@@ -211,12 +203,8 @@ class PandasExecutor(Executor):
                             suffixes=["", "_right"],
                         )
                         for col in columns[2:]:
-                            vis.data[col] = vis.data[col].fillna(
-                                0
-                            )  # Triggers __setitem__
-                        assert len(
-                            list(vis.data[groupby_attr.attribute])
-                        ) == N_unique_vals * len(
+                            vis.data[col] = vis.data[col].fillna(0)  # Triggers __setitem__
+                        assert len(list(vis.data[groupby_attr.attribute])) == N_unique_vals * len(
                             color_attr_vals
                         ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
 
@@ -235,9 +223,7 @@ class PandasExecutor(Executor):
                         assert (
                             len(list(vis.data[groupby_attr.attribute])) == N_unique_vals
                         ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
-            vis._vis_data = vis.data.sort_values(
-                by=groupby_attr.attribute, ascending=True
-            )
+            vis._vis_data = vis.data.sort_values(by=groupby_attr.attribute, ascending=True)
             vis._vis_data = vis.data.reset_index()
             vis._vis_data = vis.data.drop(columns="index")
 
@@ -292,9 +278,7 @@ class PandasExecutor(Executor):
             return False
 
     @staticmethod
-    def apply_filter(
-        df: pd.DataFrame, attribute: str, op: str, val: object
-    ) -> pd.DataFrame:
+    def apply_filter(df: pd.DataFrame, attribute: str, op: str, val: object) -> pd.DataFrame:
         """
         Helper function for applying filter to a dataframe
 
@@ -335,12 +319,8 @@ class PandasExecutor(Executor):
             x_attr = vis.get_attr_by_channel("x")[0]
             y_attr = vis.get_attr_by_channel("y")[0]
 
-            vis._vis_data.loc[:, "xBin"] = pd.cut(
-                vis._vis_data[x_attr.attribute], bins=40
-            )
-            vis._vis_data.loc[:, "yBin"] = pd.cut(
-                vis._vis_data[y_attr.attribute], bins=40
-            )
+            vis._vis_data.loc[:, "xBin"] = pd.cut(vis._vis_data[x_attr.attribute], bins=40)
+            vis._vis_data.loc[:, "yBin"] = pd.cut(vis._vis_data[y_attr.attribute], bins=40)
 
             color_attr = vis.get_attr_by_channel("color")
             if len(color_attr) > 0:
@@ -369,14 +349,10 @@ class PandasExecutor(Executor):
                 result = result[result["count"] != 0]
 
             # convert type to facilitate weighted correlation interestingess calculation
-            result.loc[:, "xBinStart"] = (
-                result["xBin"].apply(lambda x: x.left).astype("float")
-            )
+            result.loc[:, "xBinStart"] = result["xBin"].apply(lambda x: x.left).astype("float")
             result.loc[:, "xBinEnd"] = result["xBin"].apply(lambda x: x.right)
 
-            result.loc[:, "yBinStart"] = (
-                result["yBin"].apply(lambda x: x.left).astype("float")
-            )
+            result.loc[:, "yBinStart"] = result["yBin"].apply(lambda x: x.left).astype("float")
             result.loc[:, "yBinEnd"] = result["yBin"].apply(lambda x: x.right)
 
             vis._vis_data = result.drop(columns=["xBin", "yBin"])
@@ -408,10 +384,7 @@ class PandasExecutor(Executor):
                 if ldf.pre_aggregated:
                     if ldf.cardinality[attr] == len(ldf):
                         ldf.data_type_lookup[attr] = "nominal"
-                if (
-                    ldf.cardinality[attr] / len(ldf) < 0.4
-                    and ldf.cardinality[attr] < 20
-                ):
+                if ldf.cardinality[attr] / len(ldf) < 0.4 and ldf.cardinality[attr] < 20:
                     ldf.data_type_lookup[attr] = "nominal"
                 else:
                     ldf.data_type_lookup[attr] = "quantitative"
@@ -463,9 +436,7 @@ class PandasExecutor(Executor):
     def compute_data_model(self, ldf: LuxDataFrame):
         ldf.data_model = {
             "measure": ldf.data_type["quantitative"],
-            "dimension": ldf.data_type["nominal"]
-            + ldf.data_type["temporal"]
-            + ldf.data_type["id"],
+            "dimension": ldf.data_type["nominal"] + ldf.data_type["temporal"] + ldf.data_type["id"],
         }
         ldf.data_model_lookup = self.reverseMapping(ldf.data_model)
 

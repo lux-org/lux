@@ -60,9 +60,7 @@ class SQLExecutor(Executor):
                 required_variables = ",".join(required_variables)
                 row_count = list(
                     pd.read_sql(
-                        "SELECT COUNT(*) FROM {} {}".format(
-                            ldf.table_name, where_clause
-                        ),
+                        "SELECT COUNT(*) FROM {} {}".format(ldf.table_name, where_clause),
                         ldf.SQLconnection,
                     )["count"]
                 )[0]
@@ -116,41 +114,35 @@ class SQLExecutor(Executor):
             else:
                 where_clause, filterVars = SQLExecutor.execute_filter(vis)
                 if agg_func == "mean":
-                    mean_query = (
-                        "SELECT {}, AVG({}) as {} FROM {} {} GROUP BY {}".format(
-                            groupby_attr.attribute,
-                            measure_attr.attribute,
-                            measure_attr.attribute,
-                            ldf.table_name,
-                            where_clause,
-                            groupby_attr.attribute,
-                        )
+                    mean_query = "SELECT {}, AVG({}) as {} FROM {} {} GROUP BY {}".format(
+                        groupby_attr.attribute,
+                        measure_attr.attribute,
+                        measure_attr.attribute,
+                        ldf.table_name,
+                        where_clause,
+                        groupby_attr.attribute,
                     )
                     vis._vis_data = pd.read_sql(mean_query, ldf.SQLconnection)
                     vis._vis_data = utils.pandas_to_lux(vis.data)
                 if agg_func == "sum":
-                    mean_query = (
-                        "SELECT {}, SUM({}) as {} FROM {} {} GROUP BY {}".format(
-                            groupby_attr.attribute,
-                            measure_attr.attribute,
-                            measure_attr.attribute,
-                            ldf.table_name,
-                            where_clause,
-                            groupby_attr.attribute,
-                        )
+                    mean_query = "SELECT {}, SUM({}) as {} FROM {} {} GROUP BY {}".format(
+                        groupby_attr.attribute,
+                        measure_attr.attribute,
+                        measure_attr.attribute,
+                        ldf.table_name,
+                        where_clause,
+                        groupby_attr.attribute,
                     )
                     vis._vis_data = pd.read_sql(mean_query, ldf.SQLconnection)
                     vis._vis_data = utils.pandas_to_lux(vis.data)
                 if agg_func == "max":
-                    mean_query = (
-                        "SELECT {}, MAX({}) as {} FROM {} {} GROUP BY {}".format(
-                            groupby_attr.attribute,
-                            measure_attr.attribute,
-                            measure_attr.attribute,
-                            ldf.table_name,
-                            where_clause,
-                            groupby_attr.attribute,
-                        )
+                    mean_query = "SELECT {}, MAX({}) as {} FROM {} {} GROUP BY {}".format(
+                        groupby_attr.attribute,
+                        measure_attr.attribute,
+                        measure_attr.attribute,
+                        ldf.table_name,
+                        where_clause,
+                        groupby_attr.attribute,
                     )
                     vis._vis_data = pd.read_sql(mean_query, ldf.SQLconnection)
                     vis._vis_data = utils.pandas_to_lux(vis.data)
@@ -162,9 +154,7 @@ class SQLExecutor(Executor):
                 # For filtered aggregation that have missing groupby-attribute values, set these aggregated value as 0, since no datapoints
                 for vals in all_attr_vals:
                     if vals not in result_vals:
-                        vis.data.loc[len(vis.data)] = [vals] + [0] * (
-                            len(vis.data.columns) - 1
-                        )
+                        vis.data.loc[len(vis.data)] = [vals] + [0] * (len(vis.data.columns) - 1)
 
     @staticmethod
     def execute_binning(vis: Vis, ldf: LuxDataFrame):
@@ -200,9 +190,7 @@ class SQLExecutor(Executor):
             # binEdges of size N+1, so need to compute binCenter as the bin location
             upper_edges = [float(i) for i in upper_edges.split(",")]
             if attr_type == int:
-                bin_centers = np.array(
-                    [math.ceil((attr_min + attr_min + bin_width) / 2)]
-                )
+                bin_centers = np.array([math.ceil((attr_min + attr_min + bin_width) / 2)])
             else:
                 bin_centers = np.array([(attr_min + attr_min + bin_width) / 2])
             bin_centers = np.append(
@@ -215,9 +203,7 @@ class SQLExecutor(Executor):
                     math.ceil((upper_edges[len(upper_edges) - 1] + attr_max) / 2),
                 )
             else:
-                bin_centers = np.append(
-                    bin_centers, (upper_edges[len(upper_edges) - 1] + attr_max) / 2
-                )
+                bin_centers = np.append(bin_centers, (upper_edges[len(upper_edges) - 1] + attr_max) / 2)
 
             if len(bin_centers) > len(bin_count_data):
                 bucket_lables = bin_count_data["width_bucket"].unique()
