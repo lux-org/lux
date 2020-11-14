@@ -247,9 +247,8 @@ class PandasExecutor(Executor):
 
         bin_attribute = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0]
         if not np.isnan(vis.data[bin_attribute.attribute]).all():
-            series = vis.data[
-                bin_attribute.attribute
-            ].dropna()  # np.histogram breaks if array contain NaN
+            # np.histogram breaks if array contain NaN
+            series = vis.data[bin_attribute.attribute].dropna()
             # TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
             counts, bin_edges = np.histogram(series, bins=bin_attribute.bin_size)
             # bin_edges of size N+1, so need to compute bin_center as the bin location
@@ -319,13 +318,8 @@ class PandasExecutor(Executor):
             x_attr = vis.get_attr_by_channel("x")[0].attribute
             y_attr = vis.get_attr_by_channel("y")[0].attribute
 
-<<<<<<< HEAD
-            vis._vis_data.loc[:, "xBin"] = pd.cut(vis._vis_data[x_attr.attribute], bins=40)
-            vis._vis_data.loc[:, "yBin"] = pd.cut(vis._vis_data[y_attr.attribute], bins=40)
-=======
             vis._vis_data["xBin"] = pd.cut(vis._vis_data[x_attr], bins=40)
             vis._vis_data["yBin"] = pd.cut(vis._vis_data[y_attr], bins=40)
->>>>>>> af0043a3619eac15e962a4270f86f47affa5f126
 
             color_attr = vis.get_attr_by_channel("color")
             if len(color_attr) > 0:
@@ -352,19 +346,11 @@ class PandasExecutor(Executor):
                 result = result[result["count"] != 0]
 
             # convert type to facilitate weighted correlation interestingess calculation
-<<<<<<< HEAD
-            result.loc[:, "xBinStart"] = result["xBin"].apply(lambda x: x.left).astype("float")
-            result.loc[:, "xBinEnd"] = result["xBin"].apply(lambda x: x.right)
-
-            result.loc[:, "yBinStart"] = result["yBin"].apply(lambda x: x.left).astype("float")
-            result.loc[:, "yBinEnd"] = result["yBin"].apply(lambda x: x.right)
-=======
             result["xBinStart"] = result["xBin"].apply(lambda x: x.left).astype("float")
             result["xBinEnd"] = result["xBin"].apply(lambda x: x.right)
 
             result["yBinStart"] = result["yBin"].apply(lambda x: x.left).astype("float")
             result["yBinEnd"] = result["yBin"].apply(lambda x: x.right)
->>>>>>> af0043a3619eac15e962a4270f86f47affa5f126
 
             vis._vis_data = result.drop(columns=["xBin", "yBin"])
 
@@ -407,9 +393,8 @@ class PandasExecutor(Executor):
                     ldf.data_type_lookup[attr] = "id"
                 else:
                     ldf.data_type_lookup[attr] = "nominal"
-            elif is_datetime_series(
-                ldf.dtypes[attr]
-            ):  # check if attribute is any type of datetime dtype
+            # check if attribute is any type of datetime dtype
+            elif is_datetime_series(ldf.dtypes[attr]):
                 ldf.data_type_lookup[attr] = "temporal"
             else:
                 ldf.data_type_lookup[attr] = "nominal"
