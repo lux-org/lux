@@ -378,8 +378,9 @@ class Compiler:
                 # remove the specified channel from auto_channel (matching by value, since channel key may not be same)
                 for i in list(auto_channel.keys()):
                     # need to ensure that the channel is the same (edge case when duplicate Cols with same attribute name)
-                    if (auto_channel[i].attribute == sAttr[0].attribute) and (
-                        auto_channel[i].channel == sVal
+                    if (
+                        auto_channel[i].attribute == sAttr[0].attribute
+                        and auto_channel[i].channel == sVal
                     ):
                         auto_channel.pop(i)
                         break
