@@ -42,7 +42,7 @@ class SQLExecutor(Executor):
                 if clause.attribute:
                     if clause.attribute != "Record":
                         attributes.add(clause.attribute)
-            if view.mark not in ["bar", "line", "histogram"]:
+            if view.mark == "scatter":
                 start = time.time()
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
 
@@ -52,7 +52,11 @@ class SQLExecutor(Executor):
                     ),
                     ldf.SQLconnection,
                 )
-
+                ldf._message.add_unique(
+                    f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
+                    priority=98,
+                )
+                #SQLExecutor.execute_2D_binning(view, ldf)
                 required_variables = attributes | set(filterVars)
                 required_variables = ",".join(required_variables)
                 row_count = list(
@@ -89,6 +93,11 @@ class SQLExecutor(Executor):
                     header=False,
                     index=False,
                 )
+                view._postbin = True
+                ldf._message.add_unique(
+                        f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
+                        priority=98,
+                    )
             if view.mark == "bar" or view.mark == "line":
                 start = time.time()
                 SQLExecutor.execute_aggregate(view, ldf)
@@ -114,7 +123,7 @@ class SQLExecutor(Executor):
                 # append benchmark data to file
                 benchmark_data = {
                     "executor_name": ["SQL"],
-                    "query_action": ["binning"],
+                    "query_action": ["histogram"],
                     "time": [end - start],
                     "length": [ldf.length],
                 }
@@ -441,6 +450,93 @@ class SQLExecutor(Executor):
         )
         view._vis_data = utils.pandas_to_lux(view.data)
         view._vis_data.length = list(length_query["length"])[0]
+
+    @staticmethod
+    def execute_2D_binning(view: Vis, ldf:LuxDataFrame):
+        import numpy as np
+
+        x_attribute = list(filter(lambda x: x.channel == "x", view._inferred_intent))[
+            0
+        ]
+
+        y_attribute = list(filter(lambda x: x.channel == "y", view._inferred_intent))[
+            0
+        ]
+
+        num_bins = 40
+        x_attr_min = ldf._min_max[x_attribute.attribute][0]
+        x_attr_max = ldf._min_max[x_attribute.attribute][1]
+        x_attr_type = type(ldf.unique_values[x_attribute.attribute][0])
+
+        y_attr_min = ldf._min_max[y_attribute.attribute][0]
+        y_attr_max = ldf._min_max[y_attribute.attribute][1]
+        y_attr_type = type(ldf.unique_values[y_attribute.attribute][0])
+
+        # get filters if available
+        where_clause, filterVars = SQLExecutor.execute_filter(view)
+
+        # length_query = pandas.read_sql(
+        #     "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
+        #     ldf.SQLconnection,
+        # )
+
+        # need to calculate the bin edges before querying for the relevant data
+        x_bin_width = (x_attr_max - x_attr_min) / num_bins
+        y_bin_width = (y_attr_max - y_attr_min) / num_bins
+
+        x_upper_edges = []
+        y_upper_edges = []
+        for e in range(1, num_bins):
+            x_curr_edge = x_attr_min + e * x_bin_width
+            y_curr_edge = y_attr_min + e * y_bin_width
+            #get upper edges for x attribute bins
+            if x_attr_type == int:
+                x_upper_edges.append(str(math.ceil(x_curr_edge)))
+            else:
+                x_upper_edges.append(str(x_curr_edge))
+
+            #get upper edges for y attribute bins
+            if y_attr_type == int:
+                y_upper_edges.append(str(math.ceil(y_curr_edge)))
+            else:
+                y_upper_edges.append(str(y_curr_edge))
+        x_upper_edges_string = ",".join(x_upper_edges)
+        y_upper_edges_string = ",".join(y_upper_edges)
+        #view_filter, filter_vars = SQLExecutor.execute_filter(view)
+
+        #create a new where clause that will include the filter for each x axis bin
+        bin_count_data = []
+        for c in range(0, len(y_upper_edges)):
+            if len(where_clause) > 1:
+                bin_where_clause = where_clause + " AND "
+            else:
+                bin_where_clause = "WHERE "
+            if c == 0:
+                lower_bound = str(x_attr_min)
+                lower_bound_clause = x_attribute.attribute + " >= " + "'" + lower_bound + "'"
+            else:
+                lower_bound = str(x_upper_edges[c-1])
+                lower_bound_clause = x_attribute.attribute + " >= " + "'" + lower_bound + "'"
+            upper_bound = str(x_upper_edges[c])
+            upper_bound_clause = x_attribute.attribute + " < " + "'" + upper_bound + "'"
+            bin_where_clause = bin_where_clause + lower_bound_clause + " AND " + upper_bound_clause 
+
+            bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket({}, '{}') FROM {} {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(
+                y_attribute.attribute,
+                "{" + y_upper_edges_string + "}",
+                ldf.table_name,
+                bin_where_clause,
+            )
+            curr_column_data = pandas.read_sql(bin_count_query, ldf.SQLconnection)
+            if len(curr_column_data) > 0:
+                curr_column_data['xBinStart'] = lower_bound
+                curr_column_data['xBinEnd'] = upper_bound
+                curr_column_data['yBinStart'] = curr_column_data.apply(lambda row: float(y_upper_edges[row['width_bucket']-1])-y_bin_width, axis = 1)
+                curr_column_data['yBinEnd'] = curr_column_data.apply(lambda row: float(y_upper_edges[row['width_bucket']-1]), axis = 1)
+                bin_count_data.append(curr_column_data)
+        output = pandas.concat(bin_count_data)
+        output = output.drop(['width_bucket'], axis = 1).to_pandas()
+        view._vis_data = output
 
     @staticmethod
     # takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's _inferred_intent

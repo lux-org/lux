@@ -340,3 +340,5 @@ class Vis:
                 self._inferred_intent = vis._inferred_intent
                 self._vis_data = vis.data
                 self._min_max = vis._min_max
+                self._postbin = vis._postbin
+                self.data.executor = vis.data.executor
