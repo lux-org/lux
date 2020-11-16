@@ -17,7 +17,7 @@ The dataframe initially registers a few default recommendations, such as Correla
 Registering Custom Actions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's define a custom function to generate the recommendations on the dataframe. In this example, we will use G10 to generate a VisList to calculate the percentage change of means Between G10 v.s. non-G10 countries.
+Let's define a custom Callable function to generate the recommendations on the dataframe. In this example, we will use G10 to generate a VisList to calculate the percentage change of means Between G10 v.s. non-G10 countries.
 
 .. code-block:: python
 
@@ -46,7 +46,7 @@ In this block, we define a display condition function to determine whether or no
       except: 
           return False
 
-Here, you can register the provided action globally in lux. The function register_action requires an id, action, (optional) display_condition and (optional) additional args for the action as parameters.
+Here, you can register the provided action globally in lux. The function register_action requires an name (str), action, (optional) display_condition and (optional) additional args for the action as parameters.
 
 .. code-block:: python
     
@@ -69,7 +69,7 @@ Using our new action, we can modify our display to only show countries with that
 
     df[df["GDPPerCapita"]>40000]
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-1.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-4.png?raw=true
   :width: 700
   :align: center
   :alt: Displays countries with GDPPerCapita > 40000 to compare G10 results.
@@ -82,9 +82,20 @@ To see what actions are defined on the Lux Action Manager, the following lines a
 .. code-block:: python
     
     lux.actions.__len__()
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-5.png?raw=true
+  :width: 700
+  :align: center
+
+.. code-block:: python
+
     lux.actions.__getactions__()
 
-You can also get a single action attribute by calling this function with the action's id.
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-6.png?raw=true
+  :width: 700
+  :align: center
+
+You can also get a single action attribute by calling this function with the action's name.
 
 .. code-block:: python
 
@@ -93,19 +104,19 @@ You can also get a single action attribute by calling this function with the act
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-2.png?raw=true
   :width: 700
   :align: center
-  :alt: Retrieves a single attribute from Lux's Action Manager using its defined id.
+  :alt: Retrieves a single attribute from Lux's Action Manager using its defined name.
 
 Removing Custom Actions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This simple function allows you to remove from Lux's action manager an action with its id. The action will no longer display with the Lux dataframe.
+This simple function allows you to remove from Lux's action manager an action with its name. The action will no longer display with the Lux dataframe.
 
 .. code-block:: python
     
     lux.remove_action("G10")
     df
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-4.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-3.png?raw=true
   :width: 700
   :align: center
   :alt: Demonstrates removing custom action from Lux Action Manager.
