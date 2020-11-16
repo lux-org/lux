@@ -364,8 +364,8 @@ class LuxDataFrame(pd.DataFrame):
             table_name = self.table_name[self.table_name.index(".") + 1 :]
         else:
             table_name = self.table_name
-        attr_query = "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{}'".format(
-            table_name
+        attr_query = (
+            f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'"
         )
         attributes = list(pd.read_sql(attr_query, self.SQLconnection)["column_name"])
         for attr in attributes:
@@ -375,7 +375,7 @@ class LuxDataFrame(pd.DataFrame):
         cardinality = {}
         for attr in list(self.columns):
             card_query = pd.read_sql(
-                "SELECT Count(Distinct({})) FROM {}".format(attr, self.table_name),
+                f"SELECT Count(Distinct({attr})) FROM {self.table_name}",
                 self.SQLconnection,
             )
             cardinality[attr] = list(card_query["count"])[0]
@@ -385,7 +385,7 @@ class LuxDataFrame(pd.DataFrame):
         unique_vals = {}
         for attr in list(self.columns):
             unique_query = pd.read_sql(
-                "SELECT Distinct({}) FROM {}".format(attr, self.table_name),
+                f"SELECT Distinct({attr}) FROM {self.table_name}",
                 self.SQLconnection,
             )
             unique_vals[attr] = list(unique_query[attr])
@@ -401,8 +401,8 @@ class LuxDataFrame(pd.DataFrame):
             table_name = self.table_name
         # get the data types of the attributes in the SQL table
         for attr in list(self.columns):
-            datatype_query = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{}' AND COLUMN_NAME = '{}'".format(
-                table_name, attr
+            datatype_query = (
+                f"SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' AND COLUMN_NAME = '{attr}'",
             )
             datatype = list(pd.read_sql(datatype_query, self.SQLconnection)["data_type"])[0]
             sql_dtypes[attr] = datatype
