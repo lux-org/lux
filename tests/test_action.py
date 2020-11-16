@@ -20,8 +20,7 @@ from lux.vis.Vis import Vis
 
 
 def test_vary_filter_val():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true")
     vis = Vis(["Height", "SportType=Ball"], df)
     df.set_intent_as_vis(vis)
     df._repr_html_()

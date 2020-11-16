@@ -364,10 +364,8 @@ class LuxDataFrame(pd.DataFrame):
             table_name = self.table_name[self.table_name.index(".") + 1 :]
         else:
             table_name = self.table_name
-        attr_query = (
-            f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'"
-        )
-        attributes = list(pd.read_sql(attr_query, self.SQLconnection)["column_name"])
+        query = f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'"
+        attributes = list(pd.read_sql(query, self.SQLconnection)["column_name"])
         for attr in attributes:
             self[attr] = None
 
@@ -401,10 +399,8 @@ class LuxDataFrame(pd.DataFrame):
             table_name = self.table_name
         # get the data types of the attributes in the SQL table
         for attr in list(self.columns):
-            datatype_query = (
-                f"SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' AND COLUMN_NAME = '{attr}'",
-            )
-            datatype = list(pd.read_sql(datatype_query, self.SQLconnection)["data_type"])[0]
+            query = f"SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' AND COLUMN_NAME = '{attr}'"
+            datatype = list(pd.read_sql(query, self.SQLconnection)["data_type"])[0]
             sql_dtypes[attr] = datatype
 
         data_type = {"quantitative": [], "nominal": [], "temporal": []}

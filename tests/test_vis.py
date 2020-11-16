@@ -20,24 +20,21 @@ from lux.vis.Vis import Vis
 
 
 def test_vis():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true")
     vis = Vis(["Height", "SportType=Ball"], df)
     assert vis.get_attr_by_attr_name("Height")[0].bin_size != 0
     assert vis.get_attr_by_attr_name("Record")[0].aggregation == "count"
 
 
 def test_vis_set_specs():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true")
     vis = Vis(["Height", "SportType=Ball"], df)
     vis.set_intent(["Height", "SportType=Ice"])
     assert vis.get_attr_by_attr_name("SportType")[0].value == "Ice"
 
 
 def test_vis_collection():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true")
     vlist = VisList(["Height", "SportType=Ball", "?"], df)
     vis_with_year = list(filter(lambda x: x.get_attr_by_attr_name("Year") != [], vlist))[0]
     assert vis_with_year.get_attr_by_channel("x")[0].attribute == "Year"
@@ -48,8 +45,7 @@ def test_vis_collection():
 
 
 def test_vis_collection_set_intent():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true")
     vlist = VisList(["Height", "SportType=Ice", "?"], df)
     vlist.set_intent(["Height", "SportType=Boat", "?"])
     for v in vlist._collection:
@@ -166,8 +162,7 @@ def test_vis_to_Altair_standalone():
 
 
 def test_vis_list_custom_title_override():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     vcLst = []

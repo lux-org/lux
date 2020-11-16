@@ -20,8 +20,7 @@ import time
 # To run the script and see the printed result, run:
 # python -m pytest -s tests/test_performance.py
 def test_q1_performance_census():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/census.csv?raw=true"
-    df = pd.read_csv(url)
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/census.csv?raw=true")
     tic = time.perf_counter()
     df._repr_html_()
     toc = time.perf_counter()
