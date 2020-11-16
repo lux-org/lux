@@ -36,9 +36,6 @@ class LuxSeries(pd.Series):
         "_saved_export",
     ]
 
-    def __init__(self, *args, **kw):
-        super(LuxSeries, self).__init__(*args, **kw)
-
     @property
     def _constructor(self):
         return LuxSeries
@@ -55,3 +52,8 @@ class LuxSeries(pd.Series):
 
         f._get_axis_number = super(LuxSeries, self)._get_axis_number
         return f
+    def __repr__(self):
+        # from lux.core.frame import LuxDataFrame
+        # ldf = LuxDataFrame(self)
+        # ldf._repr_html_()
+        return super(LuxSeries, self).__repr__()

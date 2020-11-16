@@ -763,6 +763,7 @@ class LuxDataFrame(pd.DataFrame):
         except (KeyboardInterrupt, SystemExit):
             raise
         except:
+            raise
             warnings.warn(
                 "\nUnexpected error in rendering Lux widget and recommendations. "
                 "Falling back to Pandas display.\n\n"
@@ -894,3 +895,7 @@ class LuxDataFrame(pd.DataFrame):
         self._pandas_only = True
         self._history.append_event("describe", *args, **kwargs)
         return super(LuxDataFrame, self).describe(*args, **kwargs)
+
+    def groupby(self, *args, **kwargs):
+    	self._history.append_event("groupby", *args, **kwargs)
+    	return super(LuxDataFrame, self).groupby(*args, **kwargs)
