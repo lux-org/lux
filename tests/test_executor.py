@@ -88,9 +88,8 @@ def test_colored_bar_chart():
     color_cardinality = len(df.unique_values["Cylinders"])
     group_by_cardinality = len(df.unique_values["Origin"])
     assert len(new_vis.data.columns) == 3
-    assert (
-        len(new_vis.data) == 15 > group_by_cardinality < color_cardinality * group_by_cardinality
-    )  # Not color_cardinality*group_by_cardinality since some combinations have 0 values
+    # Not color_cardinality*group_by_cardinality since some combinations have 0 values
+    assert len(new_vis.data) == 15 > group_by_cardinality < color_cardinality * group_by_cardinality
 
 
 def test_colored_line_chart():
