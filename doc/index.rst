@@ -36,6 +36,7 @@ This website contains pages that overview of the basic and advanced functionalit
    source/guide/vis
    source/guide/export
    source/guide/custom
+   source/guide/default
    source/guide/style
    source/guide/FAQ
 .. source/guide/example
