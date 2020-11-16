@@ -326,7 +326,7 @@ class Vis:
                 PandasExecutor,
             )  # TODO: temporary (generalize to executor)
 
-            self.check_intent_input(self._intent)
+            self.check_not_vislist_intent()
 
             ldf.maintain_metadata()
             self._source = ldf
@@ -343,7 +343,8 @@ class Vis:
                 self._vis_data = vis.data
                 self._min_max = vis._min_max
 
-    def check_intent_input(self, intent):
+
+    def check_not_vislist_intent(self):
         if len(self._intent) > 2 or "?" in self._intent:
             for i in range(len(self._intent)):
                 if type(self._intent[i]) != Clause:

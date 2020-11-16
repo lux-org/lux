@@ -332,15 +332,11 @@ class PandasExecutor(Executor):
     def execute_2D_binning(vis: Vis):
         pd.reset_option("mode.chained_assignment")
         with pd.option_context("mode.chained_assignment", None):
-            x_attr = vis.get_attr_by_channel("x")[0]
-            y_attr = vis.get_attr_by_channel("y")[0]
+            x_attr = vis.get_attr_by_channel("x")[0].attribute
+            y_attr = vis.get_attr_by_channel("y")[0].attribute
 
-            vis._vis_data.loc[:, "xBin"] = pd.cut(
-                vis._vis_data[x_attr.attribute], bins=40
-            )
-            vis._vis_data.loc[:, "yBin"] = pd.cut(
-                vis._vis_data[y_attr.attribute], bins=40
-            )
+            vis._vis_data["xBin"] = pd.cut(vis._vis_data[x_attr], bins=40)
+            vis._vis_data["yBin"] = pd.cut(vis._vis_data[y_attr], bins=40)
 
             color_attr = vis.get_attr_by_channel("color")
             if len(color_attr) > 0:
@@ -361,23 +357,17 @@ class PandasExecutor(Executor):
                     ).reset_index()
                 result = result.dropna()
             else:
-                groups = vis._vis_data.groupby(["xBin", "yBin"])[x_attr.attribute]
-                result = groups.agg("count").reset_index(
-                    name=x_attr.attribute
-                )  # .agg in this line throws SettingWithCopyWarning
-                result = result.rename(columns={x_attr.attribute: "count"})
+                groups = vis._vis_data.groupby(["xBin", "yBin"])[x_attr]
+                result = groups.count().reset_index(name=x_attr)
+                result = result.rename(columns={x_attr: "count"})
                 result = result[result["count"] != 0]
 
             # convert type to facilitate weighted correlation interestingess calculation
-            result.loc[:, "xBinStart"] = (
-                result["xBin"].apply(lambda x: x.left).astype("float")
-            )
-            result.loc[:, "xBinEnd"] = result["xBin"].apply(lambda x: x.right)
+            result["xBinStart"] = result["xBin"].apply(lambda x: x.left).astype("float")
+            result["xBinEnd"] = result["xBin"].apply(lambda x: x.right)
 
-            result.loc[:, "yBinStart"] = (
-                result["yBin"].apply(lambda x: x.left).astype("float")
-            )
-            result.loc[:, "yBinEnd"] = result["yBin"].apply(lambda x: x.right)
+            result["yBinStart"] = result["yBin"].apply(lambda x: x.left).astype("float")
+            result["yBinEnd"] = result["yBin"].apply(lambda x: x.right)
 
             vis._vis_data = result.drop(columns=["xBin", "yBin"])
 

@@ -149,5 +149,5 @@ Other additional resources:
 
 - Visit [ReadTheDoc](https://lux-api.readthedocs.io/en/latest/) for more detailed documentation.
 - Clone [lux-binder](https://github.com/lux-org/lux-binder) to try out these [hands-on exercises](https://github.com/lux-org/lux-binder/tree/master/exercise) or a more comprehensive [tutorial series](https://github.com/lux-org/lux-binder/tree/master/tutorial) on how to use Lux.
-- Join our [Slack channel](http://lux-project.slack.com/) for support and discussion.
+- Join our [Slack channel](https://lux-project.slack.com/join/shared_invite/zt-iwg84wfb-fBPaGTBBZfkb9arziy3W~g) for support and discussion.
 - Report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues). 
