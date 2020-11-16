@@ -97,11 +97,49 @@ def test_check_airbnb():
         "price": "quantitative",
         "minimum_nights": "quantitative",
         "number_of_reviews": "quantitative",
-        "last_review": "nominal",
+        "last_review": "temporal",
         "reviews_per_month": "quantitative",
         "calculated_host_listings_count": "quantitative",
         "availability_365": "quantitative",
     }
+
+
+def test_check_datetime():
+    df = pd.DataFrame(
+        {
+            "a": ["2020-01-01"],
+            "b": ["20-01-01"],
+            "c": ["20-jan-01"],
+            "d": ["20-january-01"],
+            "e": ["2020 January 01"],
+            "f": ["2020 January 01 00:00:00 pm PT"],
+            "g": ["2020 January 01 13:00:00"],
+            "h": ["2020 January 01 23:59:59 GTC-6"],
+        }
+    )
+    df.maintain_metadata()
+    assert df.data_type_lookup == {
+        "a": "temporal",
+        "b": "temporal",
+        "c": "temporal",
+        "d": "temporal",
+        "e": "temporal",
+        "f": "temporal",
+        "g": "temporal",
+        "h": "temporal",
+    }
+
+
+def test_check_stock():
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/stocks.csv?raw=true"
+    )
+    df.maintain_metadata()
+    assert df.data_type_lookup == {
+        "symbol": "nominal",
+        "monthdate": "temporal",
+        "price": "quantitative",
+    }, "Stock dataset type detection error"
 
 
 def test_check_college():
