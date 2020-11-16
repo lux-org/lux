@@ -127,9 +127,7 @@ def test_check_datetime():
 
 
 def test_check_stock():
-    df = pd.read_csv(
-        "https://github.com/lux-org/lux-datasets/blob/master/data/stocks.csv?raw=true"
-    )
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/stocks.csv?raw=true")
     df.maintain_metadata()
     assert df.data_type_lookup == {
         "symbol": "nominal",
