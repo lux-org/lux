@@ -35,14 +35,10 @@ def enhance(ldf):
 
     filters = utils.get_filter_specs(ldf._intent)
     # Collect variables that already exist in the intent
-    attr_specs = list(
-        filter(lambda x: x.value == "" and x.attribute != "Record", ldf._intent)
-    )
+    attr_specs = list(filter(lambda x: x.value == "" and x.attribute != "Record", ldf._intent))
     fltr_str = [fltr.attribute + fltr.filter_op + str(fltr.value) for fltr in filters]
     attr_str = [clause.attribute for clause in attr_specs]
-    intended_attrs = (
-        '<p class="highlight-intent">' + ", ".join(attr_str + fltr_str) + "</p>"
-    )
+    intended_attrs = '<p class="highlight-intent">' + ", ".join(attr_str + fltr_str) + "</p>"
     if len(attr_specs) == 1:
         recommendation = {
             "action": "Enhance",
@@ -53,9 +49,8 @@ def enhance(ldf):
             "action": "Enhance",
             "description": f"Further breaking down current {intended_attrs} intent by additional attribute.",
         }
-    elif (
-        len(attr_specs) > 2
-    ):  # if there are too many column attributes, return don't generate Enhance recommendations
+    # if there are too many column attributes, return don't generate Enhance recommendations
+    elif len(attr_specs) > 2:
         recommendation = {"action": "Enhance"}
         recommendation["collection"] = []
         return recommendation

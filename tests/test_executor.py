@@ -35,9 +35,8 @@ def test_lazy_execution():
 
 def test_selection():
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     intent = [
         lux.Clause(attribute=["Horsepower", "Weight", "Acceleration"]),
         lux.Clause(attribute="Year"),
@@ -89,12 +88,8 @@ def test_colored_bar_chart():
     color_cardinality = len(df.unique_values["Cylinders"])
     group_by_cardinality = len(df.unique_values["Origin"])
     assert len(new_vis.data.columns) == 3
-    assert (
-        len(new_vis.data)
-        == 15
-        > group_by_cardinality
-        < color_cardinality * group_by_cardinality
-    )  # Not color_cardinality*group_by_cardinality since some combinations have 0 values
+    # Not color_cardinality*group_by_cardinality since some combinations have 0 values
+    assert len(new_vis.data) == 15 > group_by_cardinality < color_cardinality * group_by_cardinality
 
 
 def test_colored_line_chart():
@@ -102,9 +97,8 @@ def test_colored_line_chart():
     from lux.vis.Vis import Clause
 
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     x_clause = Clause(attribute="Year", channel="x")
     y_clause = Clause(attribute="MilesPerGal", channel="y")
@@ -116,19 +110,14 @@ def test_colored_line_chart():
     color_cardinality = len(df.unique_values["Cylinders"])
     group_by_cardinality = len(df.unique_values["Year"])
     assert len(new_vis.data.columns) == 3
-    assert (
-        len(new_vis.data)
-        == 60
-        > group_by_cardinality
-        < color_cardinality * group_by_cardinality
-    )  # Not color_cardinality*group_by_cardinality since some combinations have 0 values
+    # Not color_cardinality*group_by_cardinality since some combinations have 0 values
+    assert len(new_vis.data) == 60 > group_by_cardinality < color_cardinality * group_by_cardinality
 
 
 def test_filter():
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(
-        df["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     intent = [
         lux.Clause(attribute="Horsepower"),
         lux.Clause(attribute="Year"),
@@ -190,23 +179,12 @@ def test_filter_aggregation_fillzero_aligned():
     ]
     vis = Vis(intent, df)
     result = vis.data
-    externalValidation = (
-        df[df["Origin"] == "Japan"].groupby("Cylinders").mean()["MilesPerGal"]
-    )
+    externalValidation = df[df["Origin"] == "Japan"].groupby("Cylinders").mean()["MilesPerGal"]
     assert result[result["Cylinders"] == 5]["MilesPerGal"].values[0] == 0
     assert result[result["Cylinders"] == 8]["MilesPerGal"].values[0] == 0
-    assert (
-        result[result["Cylinders"] == 3]["MilesPerGal"].values[0]
-        == externalValidation[3]
-    )
-    assert (
-        result[result["Cylinders"] == 4]["MilesPerGal"].values[0]
-        == externalValidation[4]
-    )
-    assert (
-        result[result["Cylinders"] == 6]["MilesPerGal"].values[0]
-        == externalValidation[6]
-    )
+    assert result[result["Cylinders"] == 3]["MilesPerGal"].values[0] == externalValidation[3]
+    assert result[result["Cylinders"] == 4]["MilesPerGal"].values[0] == externalValidation[4]
+    assert result[result["Cylinders"] == 6]["MilesPerGal"].values[0] == externalValidation[6]
 
 
 def test_exclude_attribute():

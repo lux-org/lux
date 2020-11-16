@@ -31,9 +31,9 @@ def column_group(ldf):
     ldf_flat = ldf
     if isinstance(ldf.columns, pd.DatetimeIndex):
         ldf_flat.columns = ldf_flat.columns.format()
-    ldf_flat = (
-        ldf_flat.reset_index()
-    )  # use a single shared ldf_flat so that metadata doesn't need to be computed for every vis
+
+    # use a single shared ldf_flat so that metadata doesn't need to be computed for every vis
+    ldf_flat = ldf_flat.reset_index()
     if ldf.index.nlevels == 1:
         if ldf.index.name:
             index_column_name = ldf.index.name
@@ -51,9 +51,7 @@ def column_group(ldf):
                             data_model="dimension",
                             aggregation=None,
                         ),
-                        lux.Clause(
-                            str(attribute), data_type="quantitative", aggregation=None
-                        ),
+                        lux.Clause(str(attribute), data_type="quantitative", aggregation=None),
                     ]
                 )
                 collection.append(vis)

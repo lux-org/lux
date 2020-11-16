@@ -75,9 +75,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         if n_filter == 0:
             return unevenness(vis, ldf, measure_lst, dimension_lst)
         elif n_filter == 1:
-            return deviation_from_overall(
-                vis, ldf, filter_specs, measure_lst[0].attribute
-            )
+            return deviation_from_overall(vis, ldf, filter_specs, measure_lst[0].attribute)
     # Histogram
     elif n_dim == 0 and n_msr == 1:
         if v_size < 2:
@@ -94,9 +92,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         if v_size < 10:
             return -1
         if vis.mark == "heatmap":
-            return weighted_correlation(
-                vis.data["xBinStart"], vis.data["yBinStart"], vis.data["count"]
-            )
+            return weighted_correlation(vis.data["xBinStart"], vis.data["yBinStart"], vis.data["count"])
         if n_filter == 1:
             v_filter_size = get_filtered_size(filter_specs, vis.data)
             sig = v_filter_size / v_size
@@ -139,9 +135,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         groupby_unique_vals = ldf.unique_values[groupby_column]
         for c in range(0, groupby_cardinality):
             contingency_table.append(
-                vis.data[vis.data[groupby_column] == groupby_unique_vals[c]][
-                    measure_column
-                ]
+                vis.data[vis.data[groupby_column] == groupby_unique_vals[c]][measure_column]
             )
         score = 0.12
         # ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in
@@ -186,14 +180,10 @@ def weighted_cov(x, y, w):
 
 def weighted_correlation(x, y, w):
     # Based on https://en.wikipedia.org/wiki/Pearson_correlation_coefficient#Weighted_correlation_coefficient
-    return weighted_cov(x, y, w) / np.sqrt(
-        weighted_cov(x, x, w) * weighted_cov(y, y, w)
-    )
+    return weighted_cov(x, y, w) / np.sqrt(weighted_cov(x, x, w) * weighted_cov(y, y, w))
 
 
-def deviation_from_overall(
-    vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_attribute: str
-) -> int:
+def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_attribute: str) -> int:
     """
     Difference in bar chart/histogram shape from overall chart
     Note: this function assumes that the filtered vis.data is operating on the same range as the unfiltered vis.data.
@@ -223,16 +213,13 @@ def deviation_from_overall(
     import copy
 
     unfiltered_vis = copy.copy(vis)
-    unfiltered_vis._inferred_intent = utils.get_attrs_specs(
-        vis._inferred_intent
-    )  # Remove filters, keep only attribute intent
+    # Remove filters, keep only attribute intent
+    unfiltered_vis._inferred_intent = utils.get_attrs_specs(vis._inferred_intent)
     ldf.executor.execute([unfiltered_vis], ldf)
 
     v = unfiltered_vis.data[msr_attribute]
     v = v / v.sum()
-    assert len(v) == len(
-        v_filter
-    ), "Data for filtered and unfiltered vis have unequal length."
+    assert len(v) == len(v_filter), "Data for filtered and unfiltered vis have unequal length."
     sig = v_filter_size / v_size  # significance factor
     # Euclidean distance as L2 function
 
@@ -257,9 +244,7 @@ def deviation_from_overall(
     return sig * rankSig * euclidean(v, v_filter)
 
 
-def unevenness(
-    vis: Vis, ldf: LuxDataFrame, measure_lst: list, dimension_lst: list
-) -> int:
+def unevenness(vis: Vis, ldf: LuxDataFrame, measure_lst: list, dimension_lst: list) -> int:
     """
     Measure the unevenness of a bar chart vis.
     If a bar chart is highly uneven across the possible values, then it may be interesting. (e.g., USA produces lots of cars compared to Japan and Europe)

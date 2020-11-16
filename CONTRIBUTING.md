@@ -46,7 +46,7 @@ python -m pytest tests/*.py
 ```
 
 # Code Formatting
-In order to keep our codebase clean and readible, we are using PEP8 guidelines. To help us maintain and check code style, we are using [black](https://github.com/psf/black). Simply run `black .` before commiting. Failure to do so may fail the tests run on Travis. This package should have been installed for you. 
+In order to keep our codebase clean and readible, we are using PEP8 guidelines. To help us maintain and check code style, we are using [black](https://github.com/psf/black). Simply run `black --line-length 105 .` before commiting. Failure to do so may fail the tests run on Travis. This package should have been installed for you. 
 
 # Submitting a Pull Request
 

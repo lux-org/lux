@@ -54,9 +54,8 @@ class Parser:
             if isinstance(clause, list):
                 valid_values = []
                 for v in clause:
-                    if (
-                        type(v) is str
-                    ):  # and v in list(ldf.columns): #TODO: Move validation check to Validator
+                    # and v in list(ldf.columns): #TODO: Move validation check to Validator
+                    if type(v) is str:
                         valid_values.append(v)
                 temp_spec = Clause(attribute=valid_values)
                 new_context.append(temp_spec)
@@ -95,13 +94,10 @@ class Parser:
             if clause.description:
                 # TODO: Move validation check to Validator
                 # if ((clause.description in list(ldf.columns)) or clause.description == "?"):# if clause.description in the list of attributes
-                if any(
-                    ext in [">", "<", "=", "!="] for ext in clause.description
-                ):  # clause.description contain ">","<". or "="
+                # clause.description contain ">","<". or "="
+                if any(ext in [">", "<", "=", "!="] for ext in clause.description):
                     # then parse it and assign to clause.attribute, clause.filter_op, clause.values
-                    clause.filter_op = re.findall(
-                        r"/.*/|>|=|<|>=|<=|!=", clause.description
-                    )[0]
+                    clause.filter_op = re.findall(r"/.*/|>|=|<|>=|<=|!=", clause.description)[0]
                     split_description = clause.description.split(clause.filter_op)
                     clause.attribute = split_description[0]
                     clause.value = split_description[1]
