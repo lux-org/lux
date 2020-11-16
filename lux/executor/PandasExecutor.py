@@ -366,12 +366,16 @@ class PandasExecutor(Executor):
         self.compute_data_model(ldf)
 
     def compute_data_type(self, ldf: LuxDataFrame):
+        from pandas.api.types import is_datetime64_any_dtype as is_datetime
+
         for attr in list(ldf.columns):
             temporal_var_list = ["month", "year", "day", "date", "time"]
-            if isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
-                # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+            if is_datetime(ldf[attr]):
                 ldf.data_type_lookup[attr] = "temporal"
-            # elif any(var in str(attr).lower() for var in temporal_var_list):
+            elif self._is_datetime_string(ldf[attr]):
+                ldf.data_type_lookup[attr] = "temporal"
+            elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
+                ldf.data_type_lookup[attr] = "temporal"
             elif str(attr).lower() in temporal_var_list:
                 ldf.data_type_lookup[attr] = "temporal"
             elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
@@ -404,8 +408,6 @@ class PandasExecutor(Executor):
             ldf.data_type_lookup[ldf.index.name] = "nominal"
         ldf.data_type = self.mapping(ldf.data_type_lookup)
 
-        from pandas.api.types import is_datetime64_any_dtype as is_datetime
-
         non_datetime_attrs = []
         for attr in ldf.columns:
             if ldf.data_type_lookup[attr] == "temporal" and not is_datetime(ldf[attr]):
@@ -428,6 +430,29 @@ class PandasExecutor(Executor):
                 "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n",
                 stacklevel=2,
             )
+
+    def _is_datetime_string(self, series):
+        if len(series) > 100:
+            series = series.sample(100)
+
+        if series.dtype == object:
+
+            not_numeric = False
+            try:
+                pd.to_numeric(series)
+            except Exception as e:
+                not_numeric = True
+
+            datetime_col = None
+            if not_numeric:
+                try:
+                    datetime_col = pd.to_datetime(series)
+                except Exception as e:
+                    return False
+
+            if datetime_col is not None:
+                return True
+        return False
 
     def compute_data_model(self, ldf: LuxDataFrame):
         ldf.data_model = {
