@@ -20,7 +20,7 @@ from lux.vis.Vis import Vis
 # Test suite for checking if the expected errors and warnings are showing up correctly
 def test_intent_str_error():
     df = pd.read_csv("lux/data/college.csv")
-    with pytest.raises(TypeError, match="Input intent must be a list"):
+    with pytest.raises(TypeError, match="Input intent must be either a list"):
         df.intent = "bad string input"
 
 
