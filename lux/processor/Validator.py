@@ -60,7 +60,9 @@ class Validator:
                 if isinstance(clause.attribute, list):
                     for attr in clause.attribute:
                         if attr not in list(ldf.columns):
-                            warn_msg = f"\nThe input attribute '{attr}' does not exist in the DataFrame."
+                            warn_msg = (
+                                f"\n- The input attribute '{attr}' does not exist in the DataFrame."
+                            )
                 else:
                     if clause.attribute != "Record":
                         # we don't value check datetime since datetime can take filter values that don't exactly match the exact TimeStamp representation
@@ -83,9 +85,8 @@ class Validator:
                                 else:
                                     vals = [clause.value]
                                 for val in vals:
-                                    # (not series.str.contains(val).any()):
                                     if val not in series.values:
-                                        warn_msg = f"\nThe input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
+                                        warn_msg = f"\n- The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
             return warn_msg
 
         warn_msg = ""
