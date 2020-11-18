@@ -80,9 +80,8 @@ class PandasExecutor(Executor):
         """
         PandasExecutor.execute_sampling(ldf)
         for vis in vislist:
-            vis._vis_data = (
-                ldf._sampled
-            )  # The vis data starts off being original or sampled dataframe
+            # The vis data starts off being original or sampled dataframe
+            vis._vis_data = ldf._sampled
             filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
             attributes = set([])
@@ -163,21 +162,15 @@ class PandasExecutor(Executor):
                         .reset_index()
                     )
                     vis._vis_data = vis.data.rename(columns={"index": "Record"})
-                    vis._vis_data = vis.data[
-                        [groupby_attr.attribute, color_attr.attribute, "Record"]
-                    ]
+                    vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, "Record"]]
                 else:
-                    vis._vis_data = (
-                        vis.data.groupby(groupby_attr.attribute).count().reset_index()
-                    )
+                    vis._vis_data = vis.data.groupby(groupby_attr.attribute).count().reset_index()
                     vis._vis_data = vis.data.rename(columns={"index": "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, "Record"]]
             else:
                 # if color is specified, need to group by groupby_attr and color_attr
                 if has_color:
-                    groupby_result = vis.data.groupby(
-                        [groupby_attr.attribute, color_attr.attribute]
-                    )
+                    groupby_result = vis.data.groupby([groupby_attr.attribute, color_attr.attribute])
                 else:
                     groupby_result = vis.data.groupby(groupby_attr.attribute)
                 groupby_result = groupby_result.agg(agg_func)
@@ -200,9 +193,7 @@ class PandasExecutor(Executor):
                         df = pd.DataFrame(
                             {
                                 columns[0]: attr_unique_vals * color_cardinality,
-                                columns[1]: pd.Series(color_attr_vals).repeat(
-                                    N_unique_vals
-                                ),
+                                columns[1]: pd.Series(color_attr_vals).repeat(N_unique_vals),
                             }
                         )
                         vis._vis_data = vis.data.merge(
@@ -212,17 +203,14 @@ class PandasExecutor(Executor):
                             suffixes=["", "_right"],
                         )
                         for col in columns[2:]:
-                            vis.data[col] = vis.data[col].fillna(
-                                0
-                            )  # Triggers __setitem__
-                        assert len(
-                            list(vis.data[groupby_attr.attribute])
-                        ) == N_unique_vals * len(
+                            vis.data[col] = vis.data[col].fillna(0)  # Triggers __setitem__
+                        assert len(list(vis.data[groupby_attr.attribute])) == N_unique_vals * len(
                             color_attr_vals
                         ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
-                        vis._vis_data = vis.data.iloc[
-                            :, :3
-                        ]  # Keep only the three relevant columns not the *_right columns resulting from merge
+
+                        # Keep only the three relevant columns not the *_right columns resulting from merge
+                        vis._vis_data = vis.data.iloc[:, :3]
+
                     else:
                         df = pd.DataFrame({columns[0]: attr_unique_vals})
 
@@ -235,9 +223,7 @@ class PandasExecutor(Executor):
                         assert (
                             len(list(vis.data[groupby_attr.attribute])) == N_unique_vals
                         ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
-            vis._vis_data = vis.data.sort_values(
-                by=groupby_attr.attribute, ascending=True
-            )
+            vis._vis_data = vis.data.sort_values(by=groupby_attr.attribute, ascending=True)
             vis._vis_data = vis.data.reset_index()
             vis._vis_data = vis.data.drop(columns="index")
 
@@ -260,19 +246,17 @@ class PandasExecutor(Executor):
         import numpy as np
 
         bin_attribute = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0]
-        if not np.isnan(vis.data[bin_attribute.attribute]).all():
-            series = vis.data[
-                bin_attribute.attribute
-            ].dropna()  # np.histogram breaks if array contain NaN
+        bin_attr = bin_attribute.attribute
+        if not np.isnan(vis.data[bin_attr]).all():
+            # np.histogram breaks if array contain NaN
+            series = vis.data[bin_attr].dropna()
             # TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
             counts, bin_edges = np.histogram(series, bins=bin_attribute.bin_size)
             # bin_edges of size N+1, so need to compute bin_center as the bin location
             bin_center = np.mean(np.vstack([bin_edges[0:-1], bin_edges[1:]]), axis=0)
             # TODO: Should vis.data be a LuxDataFrame or a Pandas DataFrame?
-            vis._vis_data = pd.DataFrame(
-                np.array([bin_center, counts]).T,
-                columns=[bin_attribute.attribute, "Number of Records"],
-            )
+            binned_result = np.array([bin_center, counts]).T
+            vis._vis_data = pd.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
 
     @staticmethod
     def execute_filter(vis: Vis):
@@ -292,9 +276,7 @@ class PandasExecutor(Executor):
             return False
 
     @staticmethod
-    def apply_filter(
-        df: pd.DataFrame, attribute: str, op: str, val: object
-    ) -> pd.DataFrame:
+    def apply_filter(df: pd.DataFrame, attribute: str, op: str, val: object) -> pd.DataFrame:
         """
         Helper function for applying filter to a dataframe
 
@@ -383,12 +365,16 @@ class PandasExecutor(Executor):
         self.compute_data_model(ldf)
 
     def compute_data_type(self, ldf: LuxDataFrame):
+        from pandas.api.types import is_datetime64_any_dtype as is_datetime
+
         for attr in list(ldf.columns):
             temporal_var_list = ["month", "year", "day", "date", "time"]
-            if isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
-                # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+            if is_datetime(ldf[attr]):
                 ldf.data_type_lookup[attr] = "temporal"
-            # elif any(var in str(attr).lower() for var in temporal_var_list):
+            elif self._is_datetime_string(ldf[attr]):
+                ldf.data_type_lookup[attr] = "temporal"
+            elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
+                ldf.data_type_lookup[attr] = "temporal"
             elif str(attr).lower() in temporal_var_list:
                 ldf.data_type_lookup[attr] = "temporal"
             elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
@@ -398,10 +384,7 @@ class PandasExecutor(Executor):
                 if ldf.pre_aggregated:
                     if ldf.cardinality[attr] == len(ldf):
                         ldf.data_type_lookup[attr] = "nominal"
-                if (
-                    ldf.cardinality[attr] / len(ldf) < 0.4
-                    and ldf.cardinality[attr] < 20
-                ):
+                if ldf.cardinality[attr] / len(ldf) < 0.4 and ldf.cardinality[attr] < 20:
                     ldf.data_type_lookup[attr] = "nominal"
                 else:
                     ldf.data_type_lookup[attr] = "quantitative"
@@ -413,9 +396,8 @@ class PandasExecutor(Executor):
                     ldf.data_type_lookup[attr] = "id"
                 else:
                     ldf.data_type_lookup[attr] = "nominal"
-            elif is_datetime_series(
-                ldf.dtypes[attr]
-            ):  # check if attribute is any type of datetime dtype
+            # check if attribute is any type of datetime dtype
+            elif is_datetime_series(ldf.dtypes[attr]):
                 ldf.data_type_lookup[attr] = "temporal"
             else:
                 ldf.data_type_lookup[attr] = "nominal"
@@ -424,8 +406,6 @@ class PandasExecutor(Executor):
         if ldf.index.dtype != "int64" and ldf.index.name:
             ldf.data_type_lookup[ldf.index.name] = "nominal"
         ldf.data_type = self.mapping(ldf.data_type_lookup)
-
-        from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
         non_datetime_attrs = []
         for attr in ldf.columns:
@@ -450,12 +430,33 @@ class PandasExecutor(Executor):
                 stacklevel=2,
             )
 
+    def _is_datetime_string(self, series):
+        if len(series) > 100:
+            series = series.sample(100)
+
+        if series.dtype == object:
+
+            not_numeric = False
+            try:
+                pd.to_numeric(series)
+            except Exception as e:
+                not_numeric = True
+
+            datetime_col = None
+            if not_numeric:
+                try:
+                    datetime_col = pd.to_datetime(series)
+                except Exception as e:
+                    return False
+
+            if datetime_col is not None:
+                return True
+        return False
+
     def compute_data_model(self, ldf: LuxDataFrame):
         ldf.data_model = {
             "measure": ldf.data_type["quantitative"],
-            "dimension": ldf.data_type["nominal"]
-            + ldf.data_type["temporal"]
-            + ldf.data_type["id"],
+            "dimension": ldf.data_type["nominal"] + ldf.data_type["temporal"] + ldf.data_type["id"],
         }
         ldf.data_model_lookup = self.reverseMapping(ldf.data_model)
 

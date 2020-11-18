@@ -80,12 +80,7 @@ def aggregate(vis):
         xAxis = vis.get_attr_by_channel("x")[0].attribute
         yAxis = vis.get_attr_by_channel("y")[0].attribute
 
-        vis.data = (
-            vis.data[[xAxis, yAxis]]
-            .groupby(xAxis, as_index=False)
-            .agg({yAxis: "mean"})
-            .copy()
-        )
+        vis.data = vis.data[[xAxis, yAxis]].groupby(xAxis, as_index=False).agg({yAxis: "mean"}).copy()
 
 
 def interpolate(vis, length):
@@ -133,8 +128,7 @@ def interpolate(vis, length):
                     x_diff = xVals[count] - xVals[count - 1]
                     yDiff = yVals[count] - yVals[count - 1]
                     interpolated_y_vals[i] = (
-                        yVals[count - 1]
-                        + (interpolated_x - xVals[count - 1]) / x_diff * yDiff
+                        yVals[count - 1] + (interpolated_x - xVals[count - 1]) / x_diff * yDiff
                     )
             vis.data = pd.DataFrame(
                 list(zip(interpolated_x_vals, interpolated_y_vals)),

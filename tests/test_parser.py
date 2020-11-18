@@ -14,6 +14,7 @@
 
 import pandas as pd
 import lux
+import pytest
 
 
 def test_case1():
@@ -80,9 +81,37 @@ def test_case6():
     assert ldf._intent[1].value == ["USA", "Japan", "Europe"]
 
 
-# TODO: Need to support this case
-"""
-lux.set_intent(["Horsepower","MPG","Acceleration"],"Origin")
-	lux.set_intent("Horsepower/MPG/Acceleration", "Origin")
-		--> [Clause(attr= ["Horsepower","MPG","Acceleration"], type= "attributeGroup")]
-"""
+def test_case7():
+    df = pd.read_csv("lux/data/car.csv")
+    df.intent = [["Horsepower", "MilesPerGal", "Acceleration"], "Origin"]
+    df._repr_html_()
+    assert len(df.current_vis) == 3
+
+
+def test_validator_invalid_value():
+    df = pd.read_csv("lux/data/college.csv")
+    with pytest.warns(
+        UserWarning,
+        match="The input value 'bob' does not exist for the attribute 'Region' for the DataFrame.",
+    ):
+        df.intent = ["Region=bob"]
+
+
+def test_validator_invalid_filter():
+    df = pd.read_csv("lux/data/college.csv")
+
+    with pytest.raises(KeyError, match="'New England'"):
+        with pytest.warns(
+            UserWarning,
+            match="The input 'New England' looks like a value that belongs to the 'Region' attribute.",
+        ):
+            df.intent = ["New England", "Southeast", "Far West"]
+
+
+def test_validator_invalid_attribute():
+    df = pd.read_csv("lux/data/college.csv")
+    with pytest.raises(KeyError, match="'blah'"):
+        with pytest.warns(
+            UserWarning, match="The input attribute 'blah' does not exist in the DataFrame."
+        ):
+            df.intent = ["blah"]
