@@ -50,9 +50,7 @@ class AltairChart:
             self.chart = self.chart.encode(tooltip=list(self.vis.data.columns))
 
     def apply_default_config(self):
-        self.chart = self.chart.configure_title(
-            fontWeight=500, fontSize=13, font="Helvetica Neue"
-        )
+        self.chart = self.chart.configure_title(fontWeight=500, fontSize=13, font="Helvetica Neue")
         self.chart = self.chart.configure_axis(
             titleFontWeight=500,
             titleFontSize=11,
@@ -71,13 +69,13 @@ class AltairChart:
             labelFont="Helvetica Neue",
         )
         self.chart = self.chart.properties(width=160, height=150)
-        self.code += "\nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
-        self.code += "chart = chart.configure_axis(titleFontWeight=500,titleFontSize=11,titleFont='Helvetica Neue',\n"
-        self.code += "					labelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue',labelColor='#505050')\n"
-        self.code += "chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',\n"
         self.code += (
-            "					labelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue')\n"
+            "\nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
         )
+        self.code += "chart = chart.configure_axis(titleFontWeight=500,titleFontSize=11,titleFont='Helvetica Neue',\n"
+        self.code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue',labelColor='#505050')\n"
+        self.code += "chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',\n"
+        self.code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue')\n"
         self.code += "chart = chart.properties(width=160,height=150)\n"
 
     def encode_color(self):
@@ -97,9 +95,7 @@ class AltairChart:
                 )
                 self.code += f"chart = chart.encode(color=alt.Color('{color_attr_name}',type='{color_attr_type}',timeUnit='{timeUnit}',title='{color_attr_name}'))"
             else:
-                self.chart = self.chart.encode(
-                    color=alt.Color(color_attr_name, type=color_attr_type)
-                )
+                self.chart = self.chart.encode(color=alt.Color(color_attr_name, type=color_attr_type))
                 self.code += f"chart = chart.encode(color=alt.Color('{color_attr_name}',type='{color_attr_type}'))\n"
         elif len(color_attr) > 1:
             raise ValueError(
@@ -111,9 +107,7 @@ class AltairChart:
         if chart_title:
             self.chart = self.chart.encode().properties(title=chart_title)
             if self.code != "":
-                self.code += (
-                    f"chart = chart.encode().properties(title = '{chart_title}')"
-                )
+                self.code += f"chart = chart.encode().properties(title = '{chart_title}')"
 
     def initialize_chart(self):
         return NotImplemented

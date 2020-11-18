@@ -22,9 +22,8 @@ from lux.executor.PandasExecutor import PandasExecutor
 
 def test_dateformatter():
     ldf = pd.read_csv("lux/data/car.csv")
-    ldf["Year"] = pd.to_datetime(
-        ldf["Year"], format="%Y"
-    )  # change pandas dtype for the column "Year" to datetype
+    # change pandas dtype for the column "Year" to datetype
+    ldf["Year"] = pd.to_datetime(ldf["Year"], format="%Y")
     timestamp = np.datetime64("2019-08-26")
     ldf.maintain_metadata()
     assert date_utils.date_formatter(timestamp, ldf) == "2019"
@@ -53,9 +52,7 @@ def test_period_selection():
 
     PandasExecutor.execute(ldf.current_vis, ldf)
 
-    assert all(
-        [type(vlist.data) == lux.core.frame.LuxDataFrame for vlist in ldf.current_vis]
-    )
+    assert all([type(vlist.data) == lux.core.frame.LuxDataFrame for vlist in ldf.current_vis])
     assert all(ldf.current_vis[2].data.columns == ["Year", "Acceleration"])
 
 
@@ -65,16 +62,12 @@ def test_period_filter():
 
     ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq="A")
 
-    ldf.set_intent(
-        [lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")]
-    )
+    ldf.set_intent([lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")])
 
     PandasExecutor.execute(ldf.current_vis, ldf)
     ldf._repr_html_()
 
-    assert isinstance(
-        ldf.recommendation["Filter"][2]._inferred_intent[2].value, pd.Period
-    )
+    assert isinstance(ldf.recommendation["Filter"][2]._inferred_intent[2].value, pd.Period)
 
 
 def test_period_to_altair():
@@ -84,9 +77,7 @@ def test_period_to_altair():
 
     df["Year"] = pd.DatetimeIndex(df["Year"]).to_period(freq="A")
 
-    df.set_intent(
-        [lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")]
-    )
+    df.set_intent([lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")])
 
     PandasExecutor.execute(df.current_vis, df)
     df._repr_html_()
@@ -103,9 +94,7 @@ def test_refresh_inplace():
             "value": [10.5, 15.2, 20.3, 25.2],
         }
     )
-    with pytest.warns(
-        UserWarning, match="Lux detects that the attribute 'date' may be temporal."
-    ):
+    with pytest.warns(UserWarning, match="Lux detects that the attribute 'date' may be temporal."):
         df._repr_html_()
     assert df.data_type_lookup["date"] == "temporal"
 

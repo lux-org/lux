@@ -53,9 +53,8 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
         "description": "Show relationships between two <p class='highlight-descriptor'>quantitative</p> attributes.",
     }
     ignore_rec_flag = False
-    if (
-        len(ldf) < 5
-    ):  # Doesn't make sense to compute correlation if less than 4 data values
+    # Doesn't make sense to compute correlation if less than 4 data values
+    if len(ldf) < 5:
         ignore_rec_flag = True
     # Then use the data populated in the vis list to compute score
     for vis in vlist:
@@ -86,8 +85,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 def check_transpose_not_computed(vlist: VisList, a: str, b: str):
     transpose_exist = list(
         filter(
-            lambda x: (x._inferred_intent[0].attribute == b)
-            and (x._inferred_intent[1].attribute == a),
+            lambda x: (x._inferred_intent[0].attribute == b) and (x._inferred_intent[1].attribute == a),
             vlist,
         )
     )

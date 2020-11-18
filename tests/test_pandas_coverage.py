@@ -38,10 +38,8 @@ def test_rename_inplace():
     df.rename(columns={"Name": "Car Name"}, inplace=True)
     df._repr_html_()
     new_df._repr_html_()
-    new_df, df = (
-        df,
-        new_df,
-    )  # new_df is the old dataframe (df) with the new column name changed inplace
+    # new_df is the old dataframe (df) with the new column name changed inplace
+    new_df, df = df, new_df
 
     assert df.data_type_lookup != new_df.data_type_lookup
 
@@ -128,9 +126,7 @@ def test_concat():
 
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
-    new_df = pd.concat(
-        [df.loc[:, "Name":"Cylinders"], df.loc[:, "Year":"Origin"]], axis="columns"
-    )
+    new_df = pd.concat([df.loc[:, "Name":"Cylinders"], df.loc[:, "Year":"Origin"]], axis="columns")
     new_df._repr_html_()
     assert list(new_df.recommendation.keys()) == [
         "Distribution",
@@ -158,9 +154,7 @@ def test_qcut():
 
 def test_cut():
     df = pd.read_csv("lux/data/car.csv")
-    df["Weight"] = pd.cut(
-        df["Weight"], bins=[0, 2500, 7500, 10000], labels=["small", "medium", "large"]
-    )
+    df["Weight"] = pd.cut(df["Weight"], bins=[0, 2500, 7500, 10000], labels=["small", "medium", "large"])
     df._repr_html_()
 
 
@@ -373,9 +367,7 @@ def test_loc():
     assert len(new_df.cardinality) == 2
     import numpy as np
 
-    inter_df = df.groupby("Brand")[["Acceleration", "Weight", "Horsepower"]].agg(
-        np.mean
-    )
+    inter_df = df.groupby("Brand")[["Acceleration", "Weight", "Horsepower"]].agg(np.mean)
     new_df = inter_df.loc["chevrolet":"fiat", "Acceleration":"Weight"]
     new_df._repr_html_()
     assert list(new_df.recommendation.keys()) == ["Column Groups"]
@@ -404,9 +396,7 @@ def test_iloc():
     assert len(new_df.cardinality) == 2
     import numpy as np
 
-    inter_df = df.groupby("Brand")[["Acceleration", "Weight", "Horsepower"]].agg(
-        np.mean
-    )
+    inter_df = df.groupby("Brand")[["Acceleration", "Weight", "Horsepower"]].agg(np.mean)
     new_df = inter_df.iloc[5:10, 0:2]
     new_df._repr_html_()
     assert list(new_df.recommendation.keys()) == ["Column Groups"]
@@ -488,9 +478,7 @@ def test_df_to_series():
     df._repr_html_()  # compute metadata
     assert df.cardinality is not None
     series = df["Weight"]
-    assert isinstance(
-        series, lux.core.series.LuxSeries
-    ), "Derived series is type LuxSeries."
+    assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
     df["Weight"]._metadata
     assert df["Weight"]._metadata == [
         "_intent",
@@ -511,12 +499,8 @@ def test_df_to_series():
         "_history",
         "_saved_export",
     ], "Metadata is lost when going from Dataframe to Series."
-    assert (
-        df.cardinality is not None
-    ), "Metadata is lost when going from Dataframe to Series."
-    assert (
-        series.name == "Weight"
-    ), "Pandas Series original `name` property not retained."
+    assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
+    assert series.name == "Weight", "Pandas Series original `name` property not retained."
 
 
 def test_value_counts():
@@ -525,9 +509,7 @@ def test_value_counts():
     assert df.cardinality is not None
     series = df["Weight"]
     series.value_counts()
-    assert isinstance(
-        series, lux.core.series.LuxSeries
-    ), "Derived series is type LuxSeries."
+    assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
     assert df["Weight"]._metadata == [
         "_intent",
         "data_type_lookup",
@@ -547,12 +529,8 @@ def test_value_counts():
         "_history",
         "_saved_export",
     ], "Metadata is lost when going from Dataframe to Series."
-    assert (
-        df.cardinality is not None
-    ), "Metadata is lost when going from Dataframe to Series."
-    assert (
-        series.name == "Weight"
-    ), "Pandas Series original `name` property not retained."
+    assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
+    assert series.name == "Weight", "Pandas Series original `name` property not retained."
 
 
 def test_str_replace():
@@ -560,9 +538,7 @@ def test_str_replace():
     df._repr_html_()  # compute metadata
     assert df.cardinality is not None
     series = df["Brand"].str.replace("chevrolet", "chevy")
-    assert isinstance(
-        series, lux.core.series.LuxSeries
-    ), "Derived series is type LuxSeries."
+    assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
     assert df["Brand"]._metadata == [
         "_intent",
         "data_type_lookup",
@@ -582,9 +558,5 @@ def test_str_replace():
         "_history",
         "_saved_export",
     ], "Metadata is lost when going from Dataframe to Series."
-    assert (
-        df.cardinality is not None
-    ), "Metadata is lost when going from Dataframe to Series."
-    assert (
-        series.name == "Brand"
-    ), "Pandas Series original `name` property not retained."
+    assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
+    assert series.name == "Brand", "Pandas Series original `name` property not retained."

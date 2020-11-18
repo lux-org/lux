@@ -18,10 +18,10 @@ import pandas as pd
 from lux.vis.Vis import Vis
 
 # Test suite for checking if the expected errors and warnings are showing up correctly
-def test_context_str_error():
+def test_intent_str_error():
     df = pd.read_csv("lux/data/college.csv")
-    with pytest.raises(TypeError, match="Input intent must be a list"):
-        df.set_intent("bad string input")
+    with pytest.raises(TypeError, match="Input intent must be either a list"):
+        df.intent = "bad string input"
 
 
 def test_export_b4_widget_created():
@@ -54,9 +54,7 @@ def test_multi_vis():
         SyntaxError,
         match="The intent that you specified corresponds to more than one visualization.",
     ):
-        Vis(
-            ["SATAverage", "AverageCost", "Region=New England|Southeast"], df
-        )
+        Vis(["SATAverage", "AverageCost", "Region=New England|Southeast"], df)
 
     with pytest.raises(
         SyntaxError,
@@ -69,6 +67,7 @@ def test_multi_vis():
         match="The intent that you specified corresponds to more than one visualization.",
     ):
         Vis(["FundingModel", ["Region", "ACTMedian"]], df)
+
 
 
 # Test Properties with Private Variables Readable but not Writable
