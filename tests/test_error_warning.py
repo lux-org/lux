@@ -69,7 +69,6 @@ def test_multi_vis():
         Vis(["FundingModel", ["Region", "ACTMedian"]], df)
 
 
-
 # Test Properties with Private Variables Readable but not Writable
 def test_vis_private_properties():
     from lux.vis.Vis import Vis

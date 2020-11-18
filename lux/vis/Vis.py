@@ -334,13 +334,17 @@ class Vis:
         import sys
 
         sys.tracebacklimit = 0
-        syntaxMsg = ("The intent that you specified corresponds to more than one visualization. "
-        "Please replace the Vis constructor with VisList to generate a list of visualizations. "
-        "For more information, see: https://lux-api.readthedocs.io/en/latest/source/guide/vis.html#working-with-collections-of-visualization-with-vislist")
-        
+        syntaxMsg = (
+            "The intent that you specified corresponds to more than one visualization. "
+            "Please replace the Vis constructor with VisList to generate a list of visualizations. "
+            "For more information, see: https://lux-api.readthedocs.io/en/latest/source/guide/vis.html#working-with-collections-of-visualization-with-vislist"
+        )
+
         if len(self._intent) < 3:
             for i in range(len(self._intent)):
-                if type(self._intent[i]) != Clause and ('|' in self._intent[i] or type(self._intent[i]) == list):
+                if type(self._intent[i]) != Clause and (
+                    "|" in self._intent[i] or type(self._intent[i]) == list
+                ):
                     raise SyntaxError(syntaxMsg)
 
         if len(self._intent) > 2 or "?" in self._intent:
