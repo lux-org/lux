@@ -23,7 +23,7 @@ def test_underspecified_no_vis(global_var, test_recs):
     no_vis_actions = ["Correlation", "Distribution", "Occurrence", "Temporal"]
     df = pytest.car_df
     test_recs(df, no_vis_actions)
-    assert len(df.current_vis) == 0
+    assert df.current_vis is None or len(df.current_vis) == 0
 
     # test only one filter context case.
     df.set_intent([lux.Clause(attribute="Origin", filter_op="=", value="USA")])
@@ -42,6 +42,7 @@ def test_underspecified_single_vis(global_var, test_recs):
         assert attr.data_model == "measure"
     for attr in df.current_vis[0]._inferred_intent:
         assert attr.data_type == "quantitative"
+    df.clear_intent()
 
 
 # def test_underspecified_vis_collection(test_recs):

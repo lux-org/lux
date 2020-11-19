@@ -18,7 +18,6 @@ import pytest
 import pandas as pd
 from lux.vis.Vis import Vis
 
-
 def test_metadata_subsequent_display(global_var):
     df = pytest.car_df
     df._repr_html_()
@@ -54,7 +53,7 @@ def test_metadata_new_df_operation(global_var):
 
 
 def test_metadata_column_group_reset_df(global_var):
-    df = pytest.car_df
+    df = pd.read_csv("lux/data/car.csv")
     assert not hasattr(df, "_metadata_fresh")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     assert hasattr(df, "_metadata_fresh")

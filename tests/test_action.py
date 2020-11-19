@@ -73,7 +73,7 @@ def test_generalize_action(global_var):
 
 
 def test_row_column_group(global_var):
-    df = pytest.state_timeseries_df
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true")
     df["Date"] = pd.to_datetime(df["Date"])
     tseries = df.pivot(index="State", columns="Date", values="Value")
     # Interpolating missing values
@@ -190,3 +190,4 @@ def test_year_filter_value(global_var):
     assert (
         "T00:00:00.000000000" not in vis.to_Altair()
     ), "Year filter title contains extraneous string, not displayed as summarized string"
+    df.clear_intent()

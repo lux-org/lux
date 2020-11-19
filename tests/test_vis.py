@@ -31,6 +31,7 @@ def test_vis_set_specs(global_var):
     vis = Vis(["Height", "SportType=Ball"], df)
     vis.set_intent(["Height", "SportType=Ice"])
     assert vis.get_attr_by_attr_name("SportType")[0].value == "Ice"
+    df.clear_intent()
 
 
 def test_vis_collection(global_var):
@@ -51,14 +52,14 @@ def test_vis_collection_set_intent(global_var):
     for v in vlist._collection:
         filter_vspec = list(filter(lambda x: x.channel == "", v._inferred_intent))[0]
         assert filter_vspec.value == "Boat"
-
+    df.clear_intent()
 
 def test_custom_plot_setting(global_var):
     def change_color_make_transparent_add_title(chart):
         chart = chart.configure_mark(color="green", opacity=0.2)
         chart.title = "Test Title"
         return chart
-
+    
     df = pytest.car_df
     df.plot_config = change_color_make_transparent_add_title
     df._repr_html_()
@@ -96,7 +97,7 @@ def test_refresh_collection(global_var):
     df._repr_html_()
     enhanceCollection = df.recommendation["Enhance"]
     enhanceCollection.refresh_source(df[df["Origin"] == "USA"])
-
+    df.clear_intent()
 
 def test_vis_custom_aggregation_as_str(global_var):
     df = pytest.college_df
@@ -202,10 +203,9 @@ def test_vis_list_set_intent(global_var):
         assert vis.get_attr_by_attr_name("Weight") != []
 
 
-def test_text_not_overridden(global_var):
+def test_text_not_overridden():
     from lux.vis.Vis import Vis
-
-    df = pytest.college_df
+    df = pd.read_csv("lux/data/college.csv")
     vis = Vis(["Region", "Geography"], df)
     vis._repr_html_()
     code = vis.to_Altair()

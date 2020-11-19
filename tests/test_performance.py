@@ -21,7 +21,7 @@ import time
 # To run the script and see the printed result, run:
 # python -m pytest -s tests/test_performance.py
 def test_q1_performance_census(global_var):
-    df = pytest.census_df
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/census.csv?raw=true")
     tic = time.perf_counter()
     df._repr_html_()
     toc = time.perf_counter()

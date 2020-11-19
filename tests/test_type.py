@@ -18,9 +18,8 @@ import pandas as pd
 
 
 # Suite of test that checks if data_type inferred correctly by Lux
-def test_check_cars(global_var):
-    df = pytest.car_df
-    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+def test_check_cars():
+    df = pd.read_csv("lux/data/car.csv")
     df.maintain_metadata()
     assert df.data_type_lookup["Name"] == "nominal"
     assert df.data_type_lookup["MilesPerGal"] == "quantitative"
@@ -55,10 +54,7 @@ def test_check_str_id():
 
 
 def test_check_hpi():
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/hpi.csv?raw=true").head(
-        10
-    )
-
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/hpi.csv?raw=true")
     df.maintain_metadata()
 
     assert df.data_type_lookup == {
@@ -137,8 +133,8 @@ def test_check_stock():
     }, "Stock dataset type detection error"
 
 
-def test_check_college(global_var):
-    df = pytest.college_df
+def test_check_college():
+    df = pd.read_csv("lux/data/college.csv")
     df.maintain_metadata()
     assert df.data_type_lookup == {
         "Name": "nominal",

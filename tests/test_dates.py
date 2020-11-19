@@ -21,7 +21,7 @@ from lux.executor.PandasExecutor import PandasExecutor
 
 
 def test_dateformatter(global_var):
-    ldf = pytest.car_df
+    ldf = pd.read_csv("lux/data/car.csv")
     # change pandas dtype for the column "Year" to datetype
     ldf["Year"] = pd.to_datetime(ldf["Year"], format="%Y")
     timestamp = np.datetime64("2019-08-26")
@@ -38,7 +38,7 @@ def test_dateformatter(global_var):
 
 
 def test_period_selection(global_var):
-    ldf = pytest.car_df
+    ldf = pd.read_csv("lux/data/car.csv")
     ldf["Year"] = pd.to_datetime(ldf["Year"], format="%Y")
 
     ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq="A")
@@ -57,7 +57,7 @@ def test_period_selection(global_var):
 
 
 def test_period_filter(global_var):
-    ldf = pytest.car_df
+    ldf = pd.read_csv("lux/data/car.csv")
     ldf["Year"] = pd.to_datetime(ldf["Year"], format="%Y")
 
     ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq="A")
@@ -72,7 +72,7 @@ def test_period_filter(global_var):
 
 def test_period_to_altair(global_var):
     chart = None
-    df = pytest.car_df
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df["Year"] = pd.DatetimeIndex(df["Year"]).to_period(freq="A")
