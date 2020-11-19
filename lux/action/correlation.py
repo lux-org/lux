@@ -54,7 +54,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
     }
     ignore_rec_flag = False
     # Doesn't make sense to compute correlation if less than 4 data values
-    if len(ldf) < 5:
+    if ldf.length < 5:
         ignore_rec_flag = True
     # Then use the data populated in the vis list to compute score
     for vis in vlist:
@@ -65,7 +65,6 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
             )
         msr1 = measures[0].attribute
         msr2 = measures[1].attribute
-
         if ignore_transpose:
             check_transpose = check_transpose_not_computed(vlist, msr1, msr2)
         else:

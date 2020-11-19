@@ -108,7 +108,7 @@ class LuxDataFrame(pd.DataFrame):
         # Check that metadata has not yet been computed
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
-            if len(self) > 0:
+            if len(self) > 0 or self.executor_type == "SQL":
                 self.executor.compute_stats(self)
                 self.executor.compute_dataset_metadata(self)
                 self._infer_structure()
