@@ -246,6 +246,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def clear_intent(self):
         self.intent = []
+        self.expire_recs()
 
     def set_intent(self, intent: List[Union[str, Clause]]):
         """
