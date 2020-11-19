@@ -21,8 +21,8 @@ import pandas as pd
 ###################
 
 
-def test_deepcopy():
-    df = pd.read_csv("lux/data/car.csv")
+def test_deepcopy(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df._repr_html_()
     saved_df = df.copy(deep=True)
@@ -30,8 +30,8 @@ def test_deepcopy():
     check_metadata_equal(df, saved_df)
 
 
-def test_rename_inplace():
-    df = pd.read_csv("lux/data/car.csv")
+def test_rename_inplace(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df._repr_html_()
     new_df = df.copy(deep=True)
@@ -65,8 +65,8 @@ def test_rename_inplace():
     assert df.pre_aggregated == new_df.pre_aggregated
 
 
-def test_rename():
-    df = pd.read_csv("lux/data/car.csv")
+def test_rename(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df._repr_html_()
     new_df = df.rename(columns={"Name": "Car Name"}, inplace=False)
@@ -95,9 +95,9 @@ def test_rename():
     assert df.pre_aggregated == new_df.pre_aggregated
 
 
-def test_rename3():
+def test_rename3(global_var):
 
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df.columns = [
         "col1",
@@ -122,9 +122,9 @@ def test_rename3():
     assert "col2" in list(df.cardinality.keys())
 
 
-def test_concat():
+def test_concat(global_var):
 
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = pd.concat([df.loc[:, "Name":"Cylinders"], df.loc[:, "Year":"Origin"]], axis="columns")
     new_df._repr_html_()
@@ -136,8 +136,8 @@ def test_concat():
     assert len(new_df.cardinality) == 5
 
 
-def test_groupby_agg():
-    df = pd.read_csv("lux/data/car.csv")
+def test_groupby_agg(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.groupby("Year").agg(sum)
     new_df._repr_html_()
@@ -145,22 +145,22 @@ def test_groupby_agg():
     assert len(new_df.cardinality) == 7
 
 
-def test_qcut():
-    df = pd.read_csv("lux/data/car.csv")
+def test_qcut(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["Weight"] = pd.qcut(df["Weight"], q=3)
     df._repr_html_()
 
 
-def test_cut():
-    df = pd.read_csv("lux/data/car.csv")
+def test_cut(global_var):
+    df = pytest.car_df
     df["Weight"] = pd.cut(df["Weight"], bins=[0, 2500, 7500, 10000], labels=["small", "medium", "large"])
     df._repr_html_()
 
 
-def test_groupby_agg_very_small():
+def test_groupby_agg_very_small(global_var):
 
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.groupby("Origin").agg(sum).reset_index()
     new_df._repr_html_()
@@ -168,7 +168,7 @@ def test_groupby_agg_very_small():
     assert len(new_df.cardinality) == 7
 
 
-# def test_groupby_multi_index():
+# def test_groupby_multi_index(global_var):
 #     url = 'https://github.com/lux-org/lux-datasets/blob/master/data/cars.csv?raw=true'
 #     df = pd.read_csv(url)
 #     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
@@ -178,8 +178,8 @@ def test_groupby_agg_very_small():
 #     assert len(new_df.cardinality) == 7 # TODO
 
 
-def test_query():
-    df = pd.read_csv("lux/data/car.csv")
+def test_query(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.query("Weight > 3000")
     new_df._repr_html_()
@@ -192,8 +192,8 @@ def test_query():
     assert len(new_df.cardinality) == 10
 
 
-def test_pop():
-    df = pd.read_csv("lux/data/car.csv")
+def test_pop(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df.pop("Weight")
     df._repr_html_()
@@ -206,8 +206,8 @@ def test_pop():
     assert len(df.cardinality) == 9
 
 
-def test_transform():
-    df = pd.read_csv("lux/data/car.csv")
+def test_transform(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.iloc[:, 1:].groupby("Origin").transform(sum)
     new_df._repr_html_()
@@ -215,8 +215,8 @@ def test_transform():
     assert len(new_df.cardinality) == 7
 
 
-def test_get_group():
-    df = pd.read_csv("lux/data/car.csv")
+def test_get_group(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     gbobj = df.groupby("Origin")
     new_df = gbobj.get_group("Japan")
@@ -230,8 +230,8 @@ def test_get_group():
     assert len(new_df.cardinality) == 10
 
 
-def test_applymap():
-    df = pd.read_csv("lux/data/car.csv")
+def test_applymap(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     mapping = {"USA": 0, "Europe": 1, "Japan": 2}
     df["Origin"] = df[["Origin"]].applymap(mapping.get)
@@ -245,8 +245,8 @@ def test_applymap():
     assert len(df.cardinality) == 10
 
 
-def test_strcat():
-    df = pd.read_csv("lux/data/car.csv")
+def test_strcat(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["combined"] = df["Origin"].str.cat(df["Brand"], sep=", ")
     df._repr_html_()
@@ -259,8 +259,8 @@ def test_strcat():
     assert len(df.cardinality) == 11
 
 
-def test_named_agg():
-    df = pd.read_csv("lux/data/car.csv")
+def test_named_agg(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.groupby("Brand").agg(
         avg_weight=("Weight", "mean"),
@@ -272,8 +272,8 @@ def test_named_agg():
     assert len(new_df.cardinality) == 4
 
 
-def test_change_dtype():
-    df = pd.read_csv("lux/data/car.csv")
+def test_change_dtype(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["Cylinders"] = pd.Series(df["Cylinders"], dtype="Int64")
     df._repr_html_()
@@ -286,8 +286,8 @@ def test_change_dtype():
     assert len(df.data_type_lookup) == 10
 
 
-def test_get_dummies():
-    df = pd.read_csv("lux/data/car.csv")
+def test_get_dummies(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = pd.get_dummies(df)
     new_df._repr_html_()
@@ -300,8 +300,8 @@ def test_get_dummies():
     assert len(new_df.data_type_lookup) == 339
 
 
-def test_drop():
-    df = pd.read_csv("lux/data/car.csv")
+def test_drop(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.drop([0, 1, 2], axis="rows")
     new_df2 = new_df.drop(["Name", "MilesPerGal", "Cylinders"], axis="columns")
@@ -315,8 +315,8 @@ def test_drop():
     assert len(new_df2.cardinality) == 7
 
 
-def test_merge():
-    df = pd.read_csv("lux/data/car.csv")
+def test_merge(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.drop([0, 1, 2], axis="rows")
     new_df2 = pd.merge(df, new_df, how="left", indicator=True)
@@ -330,8 +330,8 @@ def test_merge():
     assert len(new_df2.cardinality) == 11
 
 
-def test_prefix():
-    df = pd.read_csv("lux/data/car.csv")
+def test_prefix(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.add_prefix("1_")
     new_df._repr_html_()
@@ -345,8 +345,8 @@ def test_prefix():
     assert new_df.cardinality["1_Name"] == 300
 
 
-def test_loc():
-    df = pd.read_csv("lux/data/car.csv")
+def test_loc(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.loc[:, "Displacement":"Origin"]
     new_df._repr_html_()
@@ -374,8 +374,8 @@ def test_loc():
     assert len(new_df.cardinality) == 3
 
 
-def test_iloc():
-    df = pd.read_csv("lux/data/car.csv")
+def test_iloc(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.iloc[:, 3:9]
     new_df._repr_html_()
@@ -472,9 +472,9 @@ def compare_vis(vis1, vis2):
 ################
 
 
-def test_df_to_series():
+def test_df_to_series(global_var):
     # Ensure metadata is kept when going from df to series
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df._repr_html_()  # compute metadata
     assert df.cardinality is not None
     series = df["Weight"]
@@ -503,8 +503,8 @@ def test_df_to_series():
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
 
 
-def test_value_counts():
-    df = pd.read_csv("lux/data/car.csv")
+def test_value_counts(global_var):
+    df = pytest.car_df
     df._repr_html_()  # compute metadata
     assert df.cardinality is not None
     series = df["Weight"]
@@ -533,8 +533,8 @@ def test_value_counts():
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
 
 
-def test_str_replace():
-    df = pd.read_csv("lux/data/car.csv")
+def test_str_replace(global_var):
+    df = pytest.car_df
     df._repr_html_()  # compute metadata
     assert df.cardinality is not None
     series = df["Brand"].str.replace("chevrolet", "chevy")

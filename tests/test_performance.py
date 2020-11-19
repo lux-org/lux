@@ -17,10 +17,11 @@ import pytest
 import pandas as pd
 import time
 
+
 # To run the script and see the printed result, run:
 # python -m pytest -s tests/test_performance.py
-def test_q1_performance_census():
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/census.csv?raw=true")
+def test_q1_performance_census(global_var):
+    df = pytest.census_df
     tic = time.perf_counter()
     df._repr_html_()
     toc = time.perf_counter()
@@ -31,10 +32,10 @@ def test_q1_performance_census():
     print(f"1st display Performance: {delta:0.4f} seconds")
     print(f"2nd display Performance: {delta2:0.4f} seconds")
     assert (
-        delta < 4.5
+            delta < 4.5
     ), "The recommendations on Census dataset took a total of {delta:0.4f} seconds, longer than expected."
     assert (
-        delta2 < 0.15 < delta
+            delta2 < 0.15 < delta
     ), "Subsequent display of recommendations on Census dataset took a total of {delta2:0.4f} seconds, longer than expected."
 
     assert df.data_type_lookup == {

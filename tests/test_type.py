@@ -16,9 +16,10 @@ from .context import lux
 import pytest
 import pandas as pd
 
+
 # Suite of test that checks if data_type inferred correctly by Lux
-def test_check_cars():
-    df = pd.read_csv("lux/data/car.csv")
+def test_check_cars(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df.maintain_metadata()
     assert df.data_type_lookup["Name"] == "nominal"
@@ -39,8 +40,8 @@ def test_check_int_id():
     df._repr_html_()
     assert len(df.data_type["id"]) == 3
     assert (
-        "<code>order_id</code>, <code>product_id</code>, <code>user_id</code> is not visualized since it resembles an ID field."
-        in df._message.to_html()
+            "<code>order_id</code>, <code>product_id</code>, <code>user_id</code> is not visualized since it resembles an ID field."
+            in df._message.to_html()
     )
 
 
@@ -48,8 +49,8 @@ def test_check_str_id():
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/churn.csv?raw=true")
     df._repr_html_()
     assert (
-        "<code>customerID</code> is not visualized since it resembles an ID field.</li>"
-        in df._message.to_html()
+            "<code>customerID</code> is not visualized since it resembles an ID field.</li>"
+            in df._message.to_html()
     )
 
 
@@ -136,8 +137,8 @@ def test_check_stock():
     }, "Stock dataset type detection error"
 
 
-def test_check_college():
-    df = pd.read_csv("lux/data/college.csv")
+def test_check_college(global_var):
+    df = pytest.college_df
     df.maintain_metadata()
     assert df.data_type_lookup == {
         "Name": "nominal",

@@ -17,15 +17,15 @@ import lux
 import pytest
 
 
-def test_case1():
-    ldf = pd.read_csv("lux/data/car.csv")
+def test_case1(global_var):
+    ldf = pytest.car_df
     ldf.set_intent(["Horsepower"])
     assert type(ldf._intent[0]) is lux.Clause
     assert ldf._intent[0].attribute == "Horsepower"
 
 
-def test_case2():
-    ldf = pd.read_csv("lux/data/car.csv")
+def test_case2(global_var):
+    ldf = pytest.car_df
     ldf.set_intent(["Horsepower", lux.Clause("MilesPerGal", channel="x")])
     assert type(ldf._intent[0]) is lux.Clause
     assert ldf._intent[0].attribute == "Horsepower"
@@ -33,8 +33,8 @@ def test_case2():
     assert ldf._intent[1].attribute == "MilesPerGal"
 
 
-def test_case3():
-    ldf = pd.read_csv("lux/data/car.csv")
+def test_case3(global_var):
+    ldf = pytest.car_df
     ldf.set_intent(["Horsepower", "Origin=USA"])
     assert type(ldf._intent[0]) is lux.Clause
     assert ldf._intent[0].attribute == "Horsepower"
@@ -43,8 +43,8 @@ def test_case3():
     assert ldf._intent[1].value == "USA"
 
 
-def test_case4():
-    ldf = pd.read_csv("lux/data/car.csv")
+def test_case4(global_var):
+    ldf = pytest.car_df
     ldf.set_intent(["Horsepower", "Origin=USA|Japan"])
     assert type(ldf._intent[0]) is lux.Clause
     assert ldf._intent[0].attribute == "Horsepower"
@@ -53,8 +53,8 @@ def test_case4():
     assert ldf._intent[1].value == ["USA", "Japan"]
 
 
-def test_case5():
-    ldf = pd.read_csv("lux/data/car.csv")
+def test_case5(global_var):
+    ldf = pytest.car_df
     ldf.set_intent([["Horsepower", "MilesPerGal", "Weight"], "Origin=USA"])
     assert type(ldf._intent[0]) is lux.Clause
     assert ldf._intent[0].attribute == ["Horsepower", "MilesPerGal", "Weight"]
@@ -70,8 +70,8 @@ def test_case5():
     assert ldf._intent[1].value == "USA"
 
 
-def test_case6():
-    ldf = pd.read_csv("lux/data/car.csv")
+def test_case6(global_var):
+    ldf = pytest.car_df
     ldf.set_intent(["Horsepower", "Origin=?"])
     ldf._repr_html_()
     assert type(ldf._intent[0]) is lux.Clause
@@ -81,15 +81,15 @@ def test_case6():
     assert ldf._intent[1].value == ["USA", "Japan", "Europe"]
 
 
-def test_case7():
-    df = pd.read_csv("lux/data/car.csv")
+def test_case7(global_var):
+    df = pytest.car_df
     df.intent = [["Horsepower", "MilesPerGal", "Acceleration"], "Origin"]
     df._repr_html_()
     assert len(df.current_vis) == 3
 
 
-def test_validator_invalid_value():
-    df = pd.read_csv("lux/data/college.csv")
+def test_validator_invalid_value(global_var):
+    df = pytest.college_df
     with pytest.warns(
         UserWarning,
         match="The input value 'bob' does not exist for the attribute 'Region' for the DataFrame.",
@@ -97,8 +97,8 @@ def test_validator_invalid_value():
         df.intent = ["Region=bob"]
 
 
-def test_validator_invalid_filter():
-    df = pd.read_csv("lux/data/college.csv")
+def test_validator_invalid_filter(global_var):
+    df = pytest.college_df
 
     with pytest.raises(KeyError, match="'New England'"):
         with pytest.warns(
@@ -108,8 +108,8 @@ def test_validator_invalid_filter():
             df.intent = ["New England", "Southeast", "Far West"]
 
 
-def test_validator_invalid_attribute():
-    df = pd.read_csv("lux/data/college.csv")
+def test_validator_invalid_attribute(global_var):
+    df = pytest.college_df
     with pytest.raises(KeyError, match="'blah'"):
         with pytest.warns(
             UserWarning, match="The input attribute 'blah' does not exist in the DataFrame."

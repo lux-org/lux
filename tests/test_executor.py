@@ -20,8 +20,8 @@ from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 
 
-def test_lazy_execution():
-    df = pd.read_csv("lux/data/car.csv")
+def test_lazy_execution(global_var):
+    df = pytest.car_df
     intent = [
         lux.Clause(attribute="Horsepower", aggregation="mean"),
         lux.Clause(attribute="Origin"),
@@ -33,8 +33,8 @@ def test_lazy_execution():
     assert type(vis.data) == lux.core.frame.LuxDataFrame
 
 
-def test_selection():
-    df = pd.read_csv("lux/data/car.csv")
+def test_selection(global_var):
+    df = pytest.car_df
     # change pandas dtype for the column "Year" to datetype
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     intent = [
@@ -46,8 +46,8 @@ def test_selection():
     assert all(vislist[2].data.columns == ["Year", "Acceleration"])
 
 
-def test_aggregation():
-    df = pd.read_csv("lux/data/car.csv")
+def test_aggregation(global_var):
+    df = pytest.car_df
     intent = [
         lux.Clause(attribute="Horsepower", aggregation="mean"),
         lux.Clause(attribute="Origin"),
@@ -73,11 +73,11 @@ def test_aggregation():
     assert int(result_df[result_df["Origin"] == "Europe"]["Horsepower"]) == 133
 
 
-def test_colored_bar_chart():
+def test_colored_bar_chart(global_var):
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
 
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
 
     x_clause = Clause(attribute="MilesPerGal", channel="x")
     y_clause = Clause(attribute="Origin", channel="y")
@@ -92,11 +92,11 @@ def test_colored_bar_chart():
     assert len(new_vis.data) == 15 > group_by_cardinality < color_cardinality * group_by_cardinality
 
 
-def test_colored_line_chart():
+def test_colored_line_chart(global_var):
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
 
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     # change pandas dtype for the column "Year" to datetype
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
@@ -114,8 +114,8 @@ def test_colored_line_chart():
     assert len(new_vis.data) == 60 > group_by_cardinality < color_cardinality * group_by_cardinality
 
 
-def test_filter():
-    df = pd.read_csv("lux/data/car.csv")
+def test_filter(global_var):
+    df = pytest.car_df
     # change pandas dtype for the column "Year" to datetype
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     intent = [
@@ -129,8 +129,8 @@ def test_filter():
     assert len(vis.data) == len(df[df["Origin"] == "USA"])
 
 
-def test_inequalityfilter():
-    df = pd.read_csv("lux/data/car.csv")
+def test_inequalityfilter(global_var):
+    df = pytest.car_df
     vis = Vis(
         [
             lux.Clause(attribute="Horsepower", filter_op=">", value=50),
@@ -157,21 +157,21 @@ def test_inequalityfilter():
     assert len(vis.data) == Nbins
 
 
-def test_binning():
-    df = pd.read_csv("lux/data/car.csv")
+def test_binning(global_var):
+    df = pytest.car_df
     vis = Vis([lux.Clause(attribute="Horsepower")], df)
     nbins = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0].bin_size
     assert len(vis.data) == nbins
 
 
-def test_record():
-    df = pd.read_csv("lux/data/car.csv")
+def test_record(global_var):
+    df = pytest.car_df
     vis = Vis([lux.Clause(attribute="Cylinders")], df)
     assert len(vis.data) == len(df["Cylinders"].unique())
 
 
-def test_filter_aggregation_fillzero_aligned():
-    df = pd.read_csv("lux/data/car.csv")
+def test_filter_aggregation_fillzero_aligned(global_var):
+    df = pytest.car_df
     intent = [
         lux.Clause(attribute="Cylinders"),
         lux.Clause(attribute="MilesPerGal"),
@@ -187,8 +187,8 @@ def test_filter_aggregation_fillzero_aligned():
     assert result[result["Cylinders"] == 6]["MilesPerGal"].values[0] == externalValidation[6]
 
 
-def test_exclude_attribute():
-    df = pd.read_csv("lux/data/car.csv")
+def test_exclude_attribute(global_var):
+    df = pytest.car_df
     intent = [lux.Clause("?", exclude=["Name", "Year"]), lux.Clause("Horsepower")]
     vislist = VisList(intent, df)
     for vis in vislist:
