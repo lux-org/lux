@@ -331,13 +331,23 @@ class Vis:
                 self._min_max = vis._min_max
 
     def check_not_vislist_intent(self):
+        import sys
+
+        sys.tracebacklimit = 0
+        syntaxMsg = (
+            "The intent that you specified corresponds to more than one visualization. "
+            "Please replace the Vis constructor with VisList to generate a list of visualizations. "
+            "For more information, see: https://lux-api.readthedocs.io/en/latest/source/guide/vis.html#working-with-collections-of-visualization-with-vislist"
+        )
+
+        if len(self._intent) < 3:
+            for i in range(len(self._intent)):
+                if type(self._intent[i]) != Clause and (
+                    "|" in self._intent[i] or type(self._intent[i]) == list
+                ):
+                    raise SyntaxError(syntaxMsg)
+
         if len(self._intent) > 2 or "?" in self._intent:
             for i in range(len(self._intent)):
                 if type(self._intent[i]) != Clause:
-                    import sys
-
-                    sys.tracebacklimit = 0
-                    raise SyntaxError(
-                        "The intent that you specified corresponds to more than one visualization. Please replace the Vis constructor with VisList to generate a list of visualizations. "
-                        + "For more information, see: https://lux-api.readthedocs.io/en/latest/source/guide/vis.html#working-with-collections-of-visualization-with-vislist"
-                    )
+                    raise SyntaxError(syntaxMsg)
