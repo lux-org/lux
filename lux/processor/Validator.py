@@ -104,5 +104,6 @@ class Validator:
             #     return '%s:%s: %s:%s\n' % (filename, lineno, category.__name__, message)
             # warnings.formatwarning = warning_on_one_line
             warnings.warn(
-                "\nThe following issues are ecountered when validating the parsed intent:" + warn_msg, source=None, stacklevel=1
+                "\nThe following issues are ecountered when validating the parsed intent:" + warn_msg,
+                stacklevel=2,
             )

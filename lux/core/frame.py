@@ -448,7 +448,7 @@ class LuxDataFrame(pd.DataFrame):
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
         if lux.update_actions["flag"] == True:
-            rec_df._recs_fresh = False
+            self._recs_fresh = False
         show_prev = False  # flag indicating whether rec_df is showing previous df or current self
         if self._prev is not None:
             rec_df = self._prev
