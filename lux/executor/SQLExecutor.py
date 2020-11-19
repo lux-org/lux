@@ -60,17 +60,19 @@ class SQLExecutor(Executor):
                 required_variables = attributes | set(filterVars)
                 required_variables = ",".join(required_variables)
                 row_count = list(
-                    pandas.read_sql(
-                        "SELECT COUNT(*) FROM {} {}".format(
-                            ldf.table_name, where_clause
-                        ),
+# <<<<<<< HEAD
+#                     pandas.read_sql(
+#                         "SELECT COUNT(*) FROM {} {}".format(
+#                             ldf.table_name, where_clause
+#                         ),
+# =======
+                    pd.read_sql(
+                        f"SELECT COUNT(*) FROM {ldf.table_name} {where_clause}",
                         ldf.SQLconnection,
                     )["count"]
                 )[0]
                 if row_count > 10000:
-                    query = "SELECT {} FROM {} {} ORDER BY random() LIMIT 10000".format(
-                        required_variables, ldf.table_name, where_clause
-                    )
+                    query = f"SELECT {required_variables} FROM {ldf.table_name} {where_clause} ORDER BY random() LIMIT 10000"
                 else:
                     query = "SELECT {} FROM {} {}".format(
                         required_variables, ldf.table_name, where_clause
@@ -494,7 +496,6 @@ class SQLExecutor(Executor):
                 x_upper_edges.append(str(math.ceil(x_curr_edge)))
             else:
                 x_upper_edges.append(str(x_curr_edge))
-
             #get upper edges for y attribute bins
             if y_attr_type == int:
                 y_upper_edges.append(str(math.ceil(y_curr_edge)))

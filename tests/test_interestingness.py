@@ -18,9 +18,10 @@ import pandas as pd
 import numpy as np
 from lux.interestingness.interestingness import interestingness
 
+
 # The following test cases are labelled for vis with <Ndim, Nmsr, Nfilter>
-def test_interestingness_1_0_0():
-    df = pd.read_csv("lux/data/car.csv")
+def test_interestingness_1_0_0(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Origin")])
@@ -57,8 +58,8 @@ def test_interestingness_1_0_0():
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
 
-def test_interestingness_1_0_1():
-    df = pd.read_csv("lux/data/car.csv")
+def test_interestingness_1_0_1(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
@@ -71,8 +72,8 @@ def test_interestingness_1_0_1():
     assert df.current_vis[0].score == 0
 
 
-def test_interestingness_0_1_0():
-    df = pd.read_csv("lux/data/car.csv")
+def test_interestingness_0_1_0(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower")])
@@ -85,14 +86,12 @@ def test_interestingness_0_1_0():
     for f in range(0, len(df.recommendation["Enhance"])):
         if (
             df.recommendation["Enhance"][f].mark == "scatter"
-            and df.recommendation["Enhance"][f]._inferred_intent[1].attribute
-            == "Weight"
+            and df.recommendation["Enhance"][f]._inferred_intent[1].attribute == "Weight"
         ):
             rank1 = f
         if (
             df.recommendation["Enhance"][f].mark == "scatter"
-            and df.recommendation["Enhance"][f]._inferred_intent[1].attribute
-            == "Acceleration"
+            and df.recommendation["Enhance"][f]._inferred_intent[1].attribute == "Acceleration"
         ):
             rank2 = f
         if (
@@ -117,8 +116,8 @@ def test_interestingness_0_1_0():
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
 
-def test_interestingness_0_1_1():
-    df = pd.read_csv("lux/data/car.csv")
+def test_interestingness_0_1_1(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
@@ -132,8 +131,8 @@ def test_interestingness_0_1_1():
     assert str(df.recommendation["Current Vis"][0]._inferred_intent[2].value) == "USA"
 
 
-def test_interestingness_1_1_0():
-    df = pd.read_csv("lux/data/car.csv")
+def test_interestingness_1_1_0(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Year")])
@@ -162,8 +161,8 @@ def test_interestingness_1_1_0():
     assert interestingness(df.recommendation["Filter"][0], df) != None
 
 
-def test_interestingness_1_1_1():
-    df = pd.read_csv("lux/data/car.csv")
+def test_interestingness_1_1_1(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
@@ -181,20 +180,17 @@ def test_interestingness_1_1_1():
     for f in range(0, len(df.recommendation["Enhance"])):
         if (
             str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
-            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute)
-            == "Cylinders"
+            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Cylinders"
         ):
             rank1 = f
         if (
             str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
-            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute)
-            == "Weight"
+            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Weight"
         ):
             rank2 = f
         if (
             str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
-            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute)
-            == "Horsepower"
+            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Horsepower"
         ):
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
@@ -203,12 +199,12 @@ def test_interestingness_1_1_1():
     assert interestingness(df.recommendation["Filter"][0], df) != None
 
 
-def test_interestingness_1_2_0():
+def test_interestingness_1_2_0(global_var):
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
     from lux.interestingness.interestingness import interestingness
 
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     y_clause = Clause(attribute="Name", channel="y")
     color_clause = Clause(attribute="Cylinders", channel="color")
 
@@ -220,13 +216,11 @@ def test_interestingness_1_2_0():
     assert interestingness(new_vis, df) < 0.01
 
 
-def test_interestingness_0_2_0():
-    df = pd.read_csv("lux/data/car.csv")
+def test_interestingness_0_2_0(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.set_intent(
-        [lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Acceleration")]
-    )
+    df.set_intent([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Acceleration")])
     df._repr_html_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
@@ -235,14 +229,12 @@ def test_interestingness_0_2_0():
     rank3 = -1
     for f in range(0, len(df.recommendation["Enhance"])):
         if (
-            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute)
-            == "Origin"
+            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Origin"
             and str(df.recommendation["Enhance"][f].mark) == "scatter"
         ):
             rank1 = f
         if (
-            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute)
-            == "Displacement"
+            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Displacement"
             and str(df.recommendation["Enhance"][f].mark) == "scatter"
         ):
             rank2 = f
@@ -271,8 +263,8 @@ def test_interestingness_0_2_0():
     assert interestingness(df.recommendation["Generalize"][0], df) != None
 
 
-def test_interestingness_0_2_1():
-    df = pd.read_csv("lux/data/car.csv")
+def test_interestingness_0_2_1(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(

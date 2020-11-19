@@ -19,19 +19,16 @@ import pandas as pd
 from lux.vis.Vis import Vis
 
 
-def test_vary_filter_val():
-    url = (
-        "https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true"
-    )
-    df = pd.read_csv(url)
+def test_vary_filter_val(global_var):
+    df = pytest.olympic
     vis = Vis(["Height", "SportType=Ball"], df)
     df.set_intent_as_vis(vis)
     df._repr_html_()
     assert len(df.recommendation["Filter"]) == len(df["SportType"].unique()) - 1
 
 
-def test_filter_inequality():
-    df = pd.read_csv("lux/data/car.csv")
+def test_filter_inequality(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
@@ -51,9 +48,9 @@ def test_filter_inequality():
     assert fltr_clause.value == 10
 
 
-def test_generalize_action():
+def test_generalize_action(global_var):
     # test that generalize action creates all unique visualizations
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(
         df["Year"], format="%Y"
     )  # change pandas dtype for the column "Year" to datetype
@@ -75,23 +72,22 @@ def test_generalize_action():
     assert check1 and check2 and check3
 
 
-def test_row_column_group():
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true"
-    df = pd.read_csv(url)
+def test_row_column_group(global_var):
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true"
+    )
     df["Date"] = pd.to_datetime(df["Date"])
     tseries = df.pivot(index="State", columns="Date", values="Value")
     # Interpolating missing values
     tseries[tseries.columns.min()] = tseries[tseries.columns.min()].fillna(0)
-    tseries[tseries.columns.max()] = tseries[tseries.columns.max()].fillna(
-        tseries.max(axis=1)
-    )
+    tseries[tseries.columns.max()] = tseries[tseries.columns.max()].fillna(tseries.max(axis=1))
     tseries = tseries.interpolate("zero", axis=1)
     tseries._repr_html_()
     assert list(tseries.recommendation.keys()) == ["Row Groups", "Column Groups"]
 
 
-def test_groupby():
-    df = pd.read_csv("lux/data/college.csv")
+def test_groupby(global_var):
+    df = pytest.college_df
     groupbyResult = df.groupby("Region").sum()
     groupbyResult._repr_html_()
     assert list(groupbyResult.recommendation.keys()) == ["Column Groups"]
@@ -164,17 +160,17 @@ def test_crosstab():
     assert list(result.recommendation.keys()) == ["Row Groups", "Column Groups"]
 
 
-def test_custom_aggregation():
+def test_custom_aggregation(global_var):
     import numpy as np
 
-    df = pd.read_csv("lux/data/college.csv")
+    df = pytest.college_df
     df.set_intent(["HighestDegree", lux.Clause("AverageCost", aggregation=np.ptp)])
     df._repr_html_()
     assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]
 
 
-def test_year_filter_value():
-    df = pd.read_csv("lux/data/car.csv")
+def test_year_filter_value(global_var):
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df.set_intent(["Acceleration", "Horsepower"])
     df._repr_html_()
@@ -183,8 +179,7 @@ def test_year_filter_value():
             lambda vis: len(
                 list(
                     filter(
-                        lambda clause: clause.value != ""
-                        and clause.attribute == "Year",
+                        lambda clause: clause.value != "" and clause.attribute == "Year",
                         vis._intent,
                     )
                 )
@@ -197,3 +192,4 @@ def test_year_filter_value():
     assert (
         "T00:00:00.000000000" not in vis.to_Altair()
     ), "Year filter title contains extraneous string, not displayed as summarized string"
+    df.clear_intent()

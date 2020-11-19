@@ -49,11 +49,11 @@ class BarChart(AltairChart):
                 type=y_attr.data_type,
                 axis=alt.Axis(labelOverlap=True),
             )
-            x_attr_field = alt.X(
-                x_attr.attribute, type=x_attr.data_type, title=agg_title
-            )
+            x_attr_field = alt.X(x_attr.attribute, type=x_attr.data_type, title=agg_title)
             y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
-            x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', title='{agg_title}')"
+            x_attr_field_code = (
+                f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', title='{agg_title}')"
+            )
 
             if y_attr.sort == "ascending":
                 y_attr_field.sort = "-x"
@@ -67,11 +67,11 @@ class BarChart(AltairChart):
                 type=x_attr.data_type,
                 axis=alt.Axis(labelOverlap=True),
             )
-            y_attr_field = alt.Y(
-                y_attr.attribute, type=y_attr.data_type, title=agg_title
-            )
             x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
-            y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', title='{agg_title}')"
+            y_attr_field = alt.Y(y_attr.attribute, type=y_attr.data_type, title=agg_title)
+            y_attr_field_code = (
+                f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', title='{agg_title}')"
+            )
             if x_attr.sort == "ascending":
                 x_attr_field.sort = "-y"
                 x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True),sort='-y')"
@@ -120,14 +120,10 @@ class BarChart(AltairChart):
             self.chart = self.chart + self.text
             self.code += self._topkcode
 
-    def encode_color(
-        self,
-    ):  # override encode_color in AltairChart to enforce add_text occurs afterwards
+    # override encode_color in AltairChart to enforce add_text occurs afterwards
+    def encode_color(self):
         AltairChart.encode_color(self)
         self.add_text()
-        self.chart = self.chart.configure_mark(
-            tooltip=alt.TooltipContent("encoding")
-        )  # Setting tooltip as non-null
-        self.code += (
-            f"""chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding'))"""
-        )
+        # Setting tooltip as non-null
+        self.chart = self.chart.configure_mark(tooltip=alt.TooltipContent("encoding"))
+        self.code += f"""chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding'))"""

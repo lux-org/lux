@@ -48,8 +48,8 @@ def register_new_action(validator: bool = True):
     return df
 
 
-def test_default_actions_registered():
-    df = pd.read_csv("lux/data/car.csv")
+def test_default_actions_registered(global_var):
+    df = pytest.car_df
     df._repr_html_()
     assert "Distribution" in df.recommendation
     assert len(df.recommendation["Distribution"]) > 0
@@ -91,13 +91,13 @@ def test_no_validator():
     assert "bars" in df.recommendation
 
 
-def test_invalid_function():
+def test_invalid_function(global_var):
     df = pd.read_csv("lux/data/car.csv")
     with pytest.raises(ValueError, match="Value must be a callable"):
         lux.register_action("bars", "not a Callable")
 
 
-def test_invalid_validator():
+def test_invalid_validator(global_var):
     df = pd.read_csv("lux/data/car.csv")
 
     def random_categorical(ldf):
@@ -136,14 +136,14 @@ def test_remove_action():
     )
 
 
-def test_remove_invalid_action():
-    df = pd.read_csv("lux/data/car.csv")
+def test_remove_invalid_action(global_var):
+    df = pytest.car_df
     with pytest.raises(ValueError, match="Option 'bars' has not been registered"):
         lux.remove_action("bars")
 
 
-def test_remove_default_actions():
-    df = pd.read_csv("lux/data/car.csv")
+def test_remove_default_actions(global_var):
+    df = pytest.car_df
     df._repr_html_()
 
     lux.remove_action("Distribution")
@@ -178,8 +178,8 @@ def test_remove_default_actions():
 
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.
-# def test_plot_setting():
-# 	df = pd.read_csv("lux/data/car.csv")
+# def test_plot_setting(global_var):
+# 	df = pytest.car_df
 # 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 # 	def change_color_add_title(chart):
 # 		chart = chart.configure_mark(color="green") # change mark color to green
