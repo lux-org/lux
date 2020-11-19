@@ -11,11 +11,19 @@ You can install the Python Lux API through `PyPI <https://pypi.org/project/lux-a
 
     pip install lux-api
 
-You can install the Lux Jupyter widget through `npm <https://www.npmjs.com/package/lux-widget>`_
+To activate the Jupyter notebook extension: 
 
 .. code-block:: bash
 
-    npm i lux-widget
+    jupyter nbextension install --py luxwidget
+    jupyter nbextension enable --py luxwidget
+
+To activate the JupyterLab extension: 
+
+.. code-block:: bash
+
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager
+    jupyter lab build
 
 Additional Requirements
 -----------------------
