@@ -82,6 +82,9 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = None
         self._min_max = None
         self.pre_aggregated = None
+        def warning_format(message, category, filename, lineno, file=None, line=None):
+            return '%s:%s: %s:%s\n' % (filename, lineno, category.__name__, message)
+        warnings.formatwarning = warning_format
 
     @property
     def _constructor(self):
@@ -445,7 +448,7 @@ class LuxDataFrame(pd.DataFrame):
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
         if lux.update_actions["flag"] == True:
-            self._recs_fresh = False
+            rec_df._recs_fresh = False
         show_prev = False  # flag indicating whether rec_df is showing previous df or current self
         if self._prev is not None:
             rec_df = self._prev

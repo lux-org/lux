@@ -40,6 +40,9 @@ class VisList:
             self._intent = []
         self._widget = None
         self.refresh_source(self._source)
+        def warning_format(message, category, filename, lineno, file=None, line=None):
+            return '%s:%s: %s:%s\n' % (filename, lineno, category.__name__, message)
+        warnings.formatwarning = warning_format
 
     @property
     def intent(self):

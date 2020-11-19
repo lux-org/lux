@@ -31,6 +31,9 @@ class PandasExecutor(Executor):
 
     def __init__(self):
         self.name = "PandasExecutor"
+        def warning_format(message, category, filename, lineno, file=None, line=None):
+            return '%s:%s: %s:%s\n' % (filename, lineno, category.__name__, message)
+        warnings.formatwarning = warning_format
 
     def __repr__(self):
         return f"<PandasExecutor>"
