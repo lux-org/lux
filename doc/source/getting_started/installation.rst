@@ -64,6 +64,7 @@ Then, we can install the `Lux Jupyter widget <https://github.com/lux-org/lux-wid
     git clone git@github.com:lux-org/lux-widget.git
     cd lux-widget/
     npm install
-    bash install.sh
+    sh install.sh
+    sh install_lab.sh
 
 If you are experiencing issues with installing Lux, please checkout the `Troubleshooting page <https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips>`_.
