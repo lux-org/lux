@@ -39,8 +39,8 @@ def test_check_int_id():
     df._repr_html_()
     assert len(df.data_type["id"]) == 3
     assert (
-            "<code>order_id</code>, <code>product_id</code>, <code>user_id</code> is not visualized since it resembles an ID field."
-            in df._message.to_html()
+        "<code>order_id</code>, <code>product_id</code>, <code>user_id</code> is not visualized since it resembles an ID field."
+        in df._message.to_html()
     )
 
 
@@ -48,8 +48,8 @@ def test_check_str_id():
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/churn.csv?raw=true")
     df._repr_html_()
     assert (
-            "<code>customerID</code> is not visualized since it resembles an ID field.</li>"
-            in df._message.to_html()
+        "<code>customerID</code> is not visualized since it resembles an ID field.</li>"
+        in df._message.to_html()
     )
 
 

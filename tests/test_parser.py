@@ -24,6 +24,7 @@ def test_case1(global_var):
     assert df._intent[0].attribute == "Horsepower"
     df.clear_intent()
 
+
 def test_case2(global_var):
     df = pytest.car_df
     df.set_intent(["Horsepower", lux.Clause("MilesPerGal", channel="x")])
@@ -32,6 +33,7 @@ def test_case2(global_var):
     assert type(df._intent[1]) is lux.Clause
     assert df._intent[1].attribute == "MilesPerGal"
     df.clear_intent()
+
 
 def test_case3(global_var):
     df = pytest.car_df
@@ -43,6 +45,7 @@ def test_case3(global_var):
     assert df._intent[1].value == "USA"
     df.clear_intent()
 
+
 def test_case4(global_var):
     df = pytest.car_df
     df.set_intent(["Horsepower", "Origin=USA|Japan"])
@@ -52,6 +55,7 @@ def test_case4(global_var):
     assert df._intent[1].attribute == "Origin"
     assert df._intent[1].value == ["USA", "Japan"]
     df.clear_intent()
+
 
 def test_case5(global_var):
     df = pytest.car_df
@@ -70,6 +74,7 @@ def test_case5(global_var):
     assert df._intent[1].value == "USA"
     df.clear_intent()
 
+
 def test_case6(global_var):
     df = pytest.car_df
     df.set_intent(["Horsepower", "Origin=?"])
@@ -81,12 +86,14 @@ def test_case6(global_var):
     assert df._intent[1].value == ["USA", "Japan", "Europe"]
     df.clear_intent()
 
+
 def test_case7(global_var):
     df = pytest.car_df
     df.intent = [["Horsepower", "MilesPerGal", "Acceleration"], "Origin"]
     df._repr_html_()
     assert len(df.current_vis) == 3
     df.clear_intent()
+
 
 def test_validator_invalid_value(global_var):
     df = pytest.college_df
@@ -97,6 +104,8 @@ def test_validator_invalid_value(global_var):
         df.intent = ["Region=bob"]
 
     df.clear_intent()
+
+
 def test_validator_invalid_filter(global_var):
     df = pytest.college_df
 

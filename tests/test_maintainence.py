@@ -18,6 +18,7 @@ import pytest
 import pandas as pd
 from lux.vis.Vis import Vis
 
+
 def test_metadata_subsequent_display(global_var):
     df = pytest.car_df
     df._repr_html_()

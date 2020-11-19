@@ -85,18 +85,18 @@ def test_interestingness_0_1_0(global_var):
     rank3 = -1
     for f in range(0, len(df.recommendation["Enhance"])):
         if (
-                df.recommendation["Enhance"][f].mark == "scatter"
-                and df.recommendation["Enhance"][f]._inferred_intent[1].attribute == "Weight"
+            df.recommendation["Enhance"][f].mark == "scatter"
+            and df.recommendation["Enhance"][f]._inferred_intent[1].attribute == "Weight"
         ):
             rank1 = f
         if (
-                df.recommendation["Enhance"][f].mark == "scatter"
-                and df.recommendation["Enhance"][f]._inferred_intent[1].attribute == "Acceleration"
+            df.recommendation["Enhance"][f].mark == "scatter"
+            and df.recommendation["Enhance"][f]._inferred_intent[1].attribute == "Acceleration"
         ):
             rank2 = f
         if (
-                df.recommendation["Enhance"][f].mark == "line"
-                and df.recommendation["Enhance"][f]._inferred_intent[0].attribute == "Year"
+            df.recommendation["Enhance"][f].mark == "line"
+            and df.recommendation["Enhance"][f]._inferred_intent[0].attribute == "Year"
         ):
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
@@ -179,18 +179,18 @@ def test_interestingness_1_1_1(global_var):
     rank3 = -1
     for f in range(0, len(df.recommendation["Enhance"])):
         if (
-                str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
-                and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Cylinders"
+            str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
+            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Cylinders"
         ):
             rank1 = f
         if (
-                str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
-                and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Weight"
+            str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
+            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Weight"
         ):
             rank2 = f
         if (
-                str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
-                and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Horsepower"
+            str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
+            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Horsepower"
         ):
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
@@ -229,18 +229,18 @@ def test_interestingness_0_2_0(global_var):
     rank3 = -1
     for f in range(0, len(df.recommendation["Enhance"])):
         if (
-                str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Origin"
-                and str(df.recommendation["Enhance"][f].mark) == "scatter"
+            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Origin"
+            and str(df.recommendation["Enhance"][f].mark) == "scatter"
         ):
             rank1 = f
         if (
-                str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Displacement"
-                and str(df.recommendation["Enhance"][f].mark) == "scatter"
+            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Displacement"
+            and str(df.recommendation["Enhance"][f].mark) == "scatter"
         ):
             rank2 = f
         if (
-                str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Year"
-                and str(df.recommendation["Enhance"][f].mark) == "scatter"
+            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Year"
+            and str(df.recommendation["Enhance"][f].mark) == "scatter"
         ):
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3

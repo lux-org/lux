@@ -20,7 +20,7 @@ from lux.vis.Vis import Vis
 
 
 def test_vary_filter_val(global_var):
-    df = pytest.olympics_df
+    df = pytest.olympic
     vis = Vis(["Height", "SportType=Ball"], df)
     df.set_intent_as_vis(vis)
     df._repr_html_()
@@ -73,7 +73,9 @@ def test_generalize_action(global_var):
 
 
 def test_row_column_group(global_var):
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true")
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true"
+    )
     df["Date"] = pd.to_datetime(df["Date"])
     tseries = df.pivot(index="State", columns="Date", values="Value")
     # Interpolating missing values

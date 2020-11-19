@@ -20,14 +20,14 @@ from lux.vis.Vis import Vis
 
 
 def test_vis(global_var):
-    df = pytest.olympics_df
+    df = pytest.olympic
     vis = Vis(["Height", "SportType=Ball"], df)
     assert vis.get_attr_by_attr_name("Height")[0].bin_size != 0
     assert vis.get_attr_by_attr_name("Record")[0].aggregation == "count"
 
 
 def test_vis_set_specs(global_var):
-    df = pytest.olympics_df
+    df = pytest.olympic
     vis = Vis(["Height", "SportType=Ball"], df)
     vis.set_intent(["Height", "SportType=Ice"])
     assert vis.get_attr_by_attr_name("SportType")[0].value == "Ice"
@@ -35,7 +35,7 @@ def test_vis_set_specs(global_var):
 
 
 def test_vis_collection(global_var):
-    df = pytest.olympics_df
+    df = pytest.olympic
     vlist = VisList(["Height", "SportType=Ball", "?"], df)
     vis_with_year = list(filter(lambda x: x.get_attr_by_attr_name("Year") != [], vlist))[0]
     assert vis_with_year.get_attr_by_channel("x")[0].attribute == "Year"
@@ -46,7 +46,7 @@ def test_vis_collection(global_var):
 
 
 def test_vis_collection_set_intent(global_var):
-    df = pytest.olympics_df
+    df = pytest.olympic
     vlist = VisList(["Height", "SportType=Ice", "?"], df)
     vlist.set_intent(["Height", "SportType=Boat", "?"])
     for v in vlist._collection:
@@ -54,12 +54,13 @@ def test_vis_collection_set_intent(global_var):
         assert filter_vspec.value == "Boat"
     df.clear_intent()
 
+
 def test_custom_plot_setting(global_var):
     def change_color_make_transparent_add_title(chart):
         chart = chart.configure_mark(color="green", opacity=0.2)
         chart.title = "Test Title"
         return chart
-    
+
     df = pytest.car_df
     df.plot_config = change_color_make_transparent_add_title
     df._repr_html_()
@@ -99,6 +100,7 @@ def test_refresh_collection(global_var):
     enhanceCollection.refresh_source(df[df["Origin"] == "USA"])
     df.clear_intent()
 
+
 def test_vis_custom_aggregation_as_str(global_var):
     df = pytest.college_df
     import numpy as np
@@ -119,7 +121,7 @@ def test_vis_custom_aggregation_as_numpy_func(global_var):
 
 
 def test_vis_collection_via_list_of_vis(global_var):
-    df = pytest.olympics_df
+    df = pytest.olympic
     # change pandas dtype for the column "Year" to datetype
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     from lux.vis.VisList import VisList
@@ -162,7 +164,7 @@ def test_vis_to_Altair_standalone(global_var):
 
 
 def test_vis_list_custom_title_override(global_var):
-    df = pytest.olympics_df
+    df = pytest.olympic
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     vcLst = []
@@ -205,6 +207,7 @@ def test_vis_list_set_intent(global_var):
 
 def test_text_not_overridden():
     from lux.vis.Vis import Vis
+
     df = pd.read_csv("lux/data/college.csv")
     vis = Vis(["Region", "Geography"], df)
     vis._repr_html_()
