@@ -18,6 +18,7 @@ from lux.vis.Clause import Clause
 from typing import List
 from lux.utils.date_utils import is_datetime_series, is_datetime_string
 import warnings
+import lux
 
 
 class Validator:
@@ -27,9 +28,7 @@ class Validator:
 
     def __init__(self):
         self.name = "Validator"
-        def warning_format(message, category, filename, lineno, file=None, line=None):
-            return '%s:%s: %s:%s\n' % (filename, lineno, category.__name__, message)
-        warnings.formatwarning = warning_format
+        warnings.formatwarning = lux.warning_format
 
     def __repr__(self):
         return f"<Validator>"
@@ -100,9 +99,6 @@ class Validator:
             else:
                 warn_msg += validate_clause(clause)
         if warn_msg != "":
-            # def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
-            #     return '%s:%s: %s:%s\n' % (filename, lineno, category.__name__, message)
-            # warnings.formatwarning = warning_on_one_line
             warnings.warn(
                 "\nThe following issues are ecountered when validating the parsed intent:" + warn_msg,
                 stacklevel=2,

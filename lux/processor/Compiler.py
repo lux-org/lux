@@ -21,6 +21,7 @@ from lux.utils import date_utils
 import pandas as pd
 import numpy as np
 import warnings
+import lux
 
 
 class Compiler:
@@ -30,9 +31,7 @@ class Compiler:
 
     def __init__(self):
         self.name = "Compiler"
-        def warning_format(message, category, filename, lineno, file=None, line=None):
-            return '%s:%s: %s:%s\n' % (filename, lineno, category.__name__, message)
-        warnings.formatwarning = warning_format
+        warnings.formatwarning = lux.warning_format
 
     def __repr__(self):
         return f"<Compiler>"
