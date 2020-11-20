@@ -462,7 +462,6 @@ def compare_vis(vis1, vis2):
     assert vis1._code == vis2._code
     assert vis1._mark == vis2._mark
     assert vis1._min_max == vis2._min_max
-    assert vis1._plot_config == vis2._plot_config
     assert vis1.title == vis2.title
     assert vis1.score == vis2.score
 

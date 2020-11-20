@@ -176,6 +176,7 @@ def test_remove_default_actions(global_var):
     )
     assert len(df.recommendation["bars"]) > 0
 
+
 def test_set_default_plot_config():
     def change_color_make_transparent_add_title(chart):
         chart = chart.configure_mark(color="green", opacity=0.2)

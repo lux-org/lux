@@ -155,7 +155,6 @@ class Config:
         self._default_display = "pandas"
         self._default_renderer = "altair"
         self._default_plot_config = None
-        
 
     @property
     def default_display(self):
@@ -179,10 +178,11 @@ class Config:
                 "Unsupported display type. Default display option should either be `lux` or `pandas`.",
                 stacklevel=2,
             )
+
     @property
     def default_renderer(self):
         return self._default_renderer
-    
+
     @default_renderer.setter
     def default_renderer(self, type: str) -> None:
         """
@@ -197,7 +197,7 @@ class Config:
     @property
     def default_plot_config(self):
         return self._default_plot_config
-    
+
     @default_plot_config.setter
     def default_plot_config(self, config_func: Callable):
         """
@@ -223,7 +223,6 @@ class Config:
 
     def clear_plot_config(self):
         self._default_plot_config = None
-
 
 
 config = Config()
