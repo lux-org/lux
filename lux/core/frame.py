@@ -695,13 +695,6 @@ class LuxDataFrame(pd.DataFrame):
                     )
                     display(self.display_pandas())
                     return
-                if len(self.columns) <= 1:
-                    warnings.warn(
-                        "\nLux defaults to Pandas when there is only a single column.",
-                        stacklevel=2,
-                    )
-                    display(self.display_pandas())
-                    return
                 self.maintain_metadata()
 
                 if self._intent != [] and (
@@ -763,7 +756,6 @@ class LuxDataFrame(pd.DataFrame):
         except (KeyboardInterrupt, SystemExit):
             raise
         except:
-            raise
             warnings.warn(
                 "\nUnexpected error in rendering Lux widget and recommendations. "
                 "Falling back to Pandas display.\n\n"
@@ -897,5 +889,5 @@ class LuxDataFrame(pd.DataFrame):
         return super(LuxDataFrame, self).describe(*args, **kwargs)
 
     def groupby(self, *args, **kwargs):
-    	self._history.append_event("groupby", *args, **kwargs)
+    	# self._history.append_event("groupby", *args, **kwargs)
     	return super(LuxDataFrame, self).groupby(*args, **kwargs)
