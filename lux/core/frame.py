@@ -888,6 +888,3 @@ class LuxDataFrame(pd.DataFrame):
         self._history.append_event("describe", *args, **kwargs)
         return super(LuxDataFrame, self).describe(*args, **kwargs)
 
-    def groupby(self, *args, **kwargs):
-    	# self._history.append_event("groupby", *args, **kwargs)
-    	return super(LuxDataFrame, self).groupby(*args, **kwargs)
