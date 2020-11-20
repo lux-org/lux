@@ -38,16 +38,12 @@ def generalize(ldf):
 
     output = []
     excluded_columns = []
-    attributes = list(
-        filter(lambda x: x.value == "" and x.attribute != "Record", ldf._intent)
-    )
+    attributes = list(filter(lambda x: x.value == "" and x.attribute != "Record", ldf._intent))
     filters = utils.get_filter_specs(ldf._intent)
 
     fltr_str = [fltr.attribute + fltr.filter_op + str(fltr.value) for fltr in filters]
     attr_str = [clause.attribute for clause in attributes]
-    intended_attrs = (
-        '<p class="highlight-intent">' + ", ".join(attr_str + fltr_str) + "</p>"
-    )
+    intended_attrs = '<p class="highlight-intent">' + ", ".join(attr_str + fltr_str) + "</p>"
 
     recommendation = {
         "action": "Generalize",

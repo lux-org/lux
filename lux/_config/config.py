@@ -114,9 +114,7 @@ def register_action(
     update_actions["flag"] = True
 
 
-def remove_action(
-    name: str = "",
-) -> None:
+def remove_action(name: str = "") -> None:
     """
     Removes the provided action globally in lux
 

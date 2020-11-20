@@ -27,7 +27,9 @@ class Vis:
         self._intent = intent  # This is the user's original intent to Vis
         self._inferred_intent = intent  # This is the re-written, expanded version of user's original intent (include inferred vis info)
         self._source = source  # This is the original data that is attached to the Vis
-        self._vis_data = None  # This is the data that represents the Vis (e.g., selected, aggregated, binned)
+        self._vis_data = (
+            None  # This is the data that represents the Vis (e.g., selected, aggregated, binned)
+        )
         self._code = None
         self._mark = ""
         self._min_max = {}
@@ -39,9 +41,7 @@ class Vis:
 
     def __repr__(self):
         if self._source is None:
-            return (
-                f"<Vis  ({str(self._intent)}) mark: {self._mark}, score: {self.score} >"
-            )
+            return f"<Vis  ({str(self._intent)}) mark: {self._mark}, score: {self.score} >"
         filter_intents = None
         channels, additional_channels = [], []
         for clause in self._inferred_intent:
@@ -52,12 +52,7 @@ class Vis:
             if hasattr(clause, "attribute"):
                 if clause.attribute != "":
                     if clause.aggregation != "" and clause.aggregation is not None:
-                        attribute = (
-                            clause._aggregation_name.upper()
-                            + "("
-                            + clause.attribute
-                            + ")"
-                        )
+                        attribute = clause._aggregation_name.upper() + "(" + clause.attribute + ")"
                     elif clause.bin_size > 0:
                         attribute = "BIN(" + clause.attribute + ")"
                     else:
@@ -77,9 +72,7 @@ class Vis:
         if filter_intents:
             return f"<Vis  ({str_channels[:-2]} -- [{filter_intents.attribute}{filter_intents.filter_op}{filter_intents.value}]) mark: {self._mark}, score: {self.score} >"
         else:
-            return (
-                f"<Vis  ({str_channels[:-2]}) mark: {self._mark}, score: {self.score} >"
-            )
+            return f"<Vis  ({str_channels[:-2]}) mark: {self._mark}, score: {self.score} >"
 
     @property
     def data(self):
@@ -164,9 +157,7 @@ class Vis:
     def get_attr_by_channel(self, channel):
         spec_obj = list(
             filter(
-                lambda x: x.channel == channel and x.value == ""
-                if hasattr(x, "channel")
-                else False,
+                lambda x: x.channel == channel and x.value == "" if hasattr(x, "channel") else False,
                 self._inferred_intent,
             )
         )
@@ -195,9 +186,7 @@ class Vis:
     def get_attr_by_data_type(self, dtype):
         return list(
             filter(
-                lambda x: x.data_type == dtype and x.value == ""
-                if hasattr(x, "data_type")
-                else False,
+                lambda x: x.data_type == dtype and x.value == "" if hasattr(x, "data_type") else False,
                 self._inferred_intent,
             )
         )
@@ -218,9 +207,7 @@ class Vis:
                 Boolean flag to determine whether to remove all instances of the attribute or only one (first) instance, by default False
         """
         if not remove_first:
-            new_inferred = list(
-                filter(lambda x: x.attribute != attribute, self._inferred_intent)
-            )
+            new_inferred = list(filter(lambda x: x.attribute != attribute, self._inferred_intent))
             self._inferred_intent = new_inferred
             self._intent = new_inferred
         elif remove_first:
@@ -322,9 +309,11 @@ class Vis:
             from lux.processor.Parser import Parser
             from lux.processor.Validator import Validator
             from lux.processor.Compiler import Compiler
-            from lux.executor.PandasExecutor import (
-                PandasExecutor,
-            )  # TODO: temporary (generalize to executor)
+            from lux.executor.PandasExecutor import PandasExecutor
+
+            # TODO: temporary (generalize to executor)
+
+            self.check_not_vislist_intent()
 
             ldf.maintain_metadata()
             self._source = ldf
@@ -340,3 +329,25 @@ class Vis:
                 self._inferred_intent = vis._inferred_intent
                 self._vis_data = vis.data
                 self._min_max = vis._min_max
+
+    def check_not_vislist_intent(self):
+        import sys
+
+        sys.tracebacklimit = 0
+        syntaxMsg = (
+            "The intent that you specified corresponds to more than one visualization. "
+            "Please replace the Vis constructor with VisList to generate a list of visualizations. "
+            "For more information, see: https://lux-api.readthedocs.io/en/latest/source/guide/vis.html#working-with-collections-of-visualization-with-vislist"
+        )
+
+        if len(self._intent) < 3:
+            for i in range(len(self._intent)):
+                if type(self._intent[i]) != Clause and (
+                    "|" in self._intent[i] or type(self._intent[i]) == list
+                ):
+                    raise SyntaxError(syntaxMsg)
+
+        if len(self._intent) > 2 or "?" in self._intent:
+            for i in range(len(self._intent)):
+                if type(self._intent[i]) != Clause:
+                    raise SyntaxError(syntaxMsg)

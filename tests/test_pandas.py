@@ -28,8 +28,8 @@ import pandas as pd
 #     assert series.name == "Weight", "Pandas Series original `name` property not retained."
 
 
-def test_head_tail():
-    df = pd.read_csv("lux/data/car.csv")
+def test_head_tail(global_var):
+    df = pytest.car_df
     df._repr_html_()
     assert df._message.to_html() == ""
     df.head()._repr_html_()

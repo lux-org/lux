@@ -69,9 +69,8 @@ def check_if_id_like(df, attribute):
     import re
 
     # Strong signals
-    high_cardinality = (
-        df.cardinality[attribute] > 500
-    )  # so that aggregated reset_index fields don't get misclassified
+    # so that aggregated reset_index fields don't get misclassified
+    high_cardinality = df.cardinality[attribute] > 500
     attribute_contain_id = re.search(r"id", str(attribute)) is not None
     almost_all_vals_unique = df.cardinality[attribute] >= 0.98 * len(df)
     is_string = pd.api.types.is_string_dtype(df[attribute])
@@ -81,9 +80,7 @@ def check_if_id_like(df, attribute):
             sampled = df[attribute].sample(50, random_state=99)
         else:
             sampled = df[attribute]
-        str_length_uniformity = (
-            sampled.apply(lambda x: type(x) == str and len(x)).std() < 3
-        )
+        str_length_uniformity = sampled.apply(lambda x: type(x) == str and len(x)).std() < 3
         return (
             high_cardinality
             and (attribute_contain_id or almost_all_vals_unique)

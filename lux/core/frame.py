@@ -102,12 +102,10 @@ class LuxDataFrame(pd.DataFrame):
         return self._history
 
     def maintain_metadata(self):
-        if (
-            not hasattr(self, "_metadata_fresh") or not self._metadata_fresh
-        ):  # Check that metadata has not yet been computed
-            if (
-                len(self) > 0
-            ):  # only compute metadata information if the dataframe is non-empty
+        # Check that metadata has not yet been computed
+        if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
+            # only compute metadata information if the dataframe is non-empty
+            if len(self) > 0:
                 self.executor.compute_stats(self)
                 self.executor.compute_dataset_metadata(self)
                 self._infer_structure()
@@ -162,9 +160,7 @@ class LuxDataFrame(pd.DataFrame):
         is_multi_index_flag = self.index.nlevels != 1
         not_int_index_flag = self.index.dtype != "int64"
         small_df_flag = len(self) < 100
-        self.pre_aggregated = (
-            is_multi_index_flag or not_int_index_flag
-        ) and small_df_flag
+        self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
         if "Number of Records" in self.columns:
             self.pre_aggregated = True
         very_small_df_flag = len(self) <= 10
@@ -250,6 +246,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def clear_intent(self):
         self.intent = []
+        self.expire_recs()
 
     def set_intent(self, intent: List[Union[str, Clause]]):
         """
@@ -270,6 +267,7 @@ class LuxDataFrame(pd.DataFrame):
         self._parse_validate_compile_intent()
 
     def _parse_validate_compile_intent(self):
+        self.maintain_metadata()
         from lux.processor.Parser import Parser
         from lux.processor.Validator import Validator
 
@@ -368,10 +366,8 @@ class LuxDataFrame(pd.DataFrame):
             table_name = self.table_name[self.table_name.index(".") + 1 :]
         else:
             table_name = self.table_name
-        attr_query = "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{}'".format(
-            table_name
-        )
-        attributes = list(pd.read_sql(attr_query, self.SQLconnection)["column_name"])
+        query = f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'"
+        attributes = list(pd.read_sql(query, self.SQLconnection)["column_name"])
         for attr in attributes:
             self[attr] = None
 
@@ -379,7 +375,7 @@ class LuxDataFrame(pd.DataFrame):
         cardinality = {}
         for attr in list(self.columns):
             card_query = pd.read_sql(
-                "SELECT Count(Distinct({})) FROM {}".format(attr, self.table_name),
+                f"SELECT Count(Distinct({attr})) FROM {self.table_name}",
                 self.SQLconnection,
             )
             cardinality[attr] = list(card_query["count"])[0]
@@ -389,7 +385,7 @@ class LuxDataFrame(pd.DataFrame):
         unique_vals = {}
         for attr in list(self.columns):
             unique_query = pd.read_sql(
-                "SELECT Distinct({}) FROM {}".format(attr, self.table_name),
+                f"SELECT Distinct({attr}) FROM {self.table_name}",
                 self.SQLconnection,
             )
             unique_vals[attr] = list(unique_query[attr])
@@ -405,12 +401,8 @@ class LuxDataFrame(pd.DataFrame):
             table_name = self.table_name
         # get the data types of the attributes in the SQL table
         for attr in list(self.columns):
-            datatype_query = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{}' AND COLUMN_NAME = '{}'".format(
-                table_name, attr
-            )
-            datatype = list(
-                pd.read_sql(datatype_query, self.SQLconnection)["data_type"]
-            )[0]
+            query = f"SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' AND COLUMN_NAME = '{attr}'"
+            datatype = list(pd.read_sql(query, self.SQLconnection)["data_type"])[0]
             sql_dtypes[attr] = datatype
 
         data_type = {"quantitative": [], "nominal": [], "temporal": []}
@@ -447,10 +439,7 @@ class LuxDataFrame(pd.DataFrame):
         self.data_type = data_type
 
     def _append_rec(self, rec_infolist, recommendations: Dict):
-        if (
-            recommendations["collection"] is not None
-            and len(recommendations["collection"]) > 0
-        ):
+        if recommendations["collection"] is not None and len(recommendations["collection"]) > 0:
             rec_infolist.append(recommendations)
 
     def maintain_recs(self):
@@ -477,14 +466,11 @@ class LuxDataFrame(pd.DataFrame):
             for id_field in rec_df.data_type["id"]:
                 id_fields_str += f"<code>{id_field}</code>, "
             id_fields_str = id_fields_str[:-2]
-            rec_df._message.add(
-                f"{id_fields_str} is not visualized since it resembles an ID field."
-            )
+            rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
         rec_df._prev = None  # reset _prev
 
-        if (
-            not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh
-        ):  # Check that recs has not yet been computed
+        # Check that recs has not yet been computed
+        if not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh:
             rec_infolist = []
             from lux.action.custom import custom
             from lux.action.custom import custom_actions
@@ -507,21 +493,17 @@ class LuxDataFrame(pd.DataFrame):
                         ldf.current_vis is not None and len(ldf.current_vis) == 0
                     )
                     one_current_vis = (
-                        lambda ldf: ldf.current_vis is not None
-                        and len(ldf.current_vis) == 1
+                        lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
                     )
                     multiple_current_vis = (
-                        lambda ldf: ldf.current_vis is not None
-                        and len(ldf.current_vis) > 1
+                        lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
                     )
 
                     # globally register default actions
-                    lux.register_action("Correlation", correlation, no_vis)
-                    lux.register_action(
-                        "Distribution", univariate, no_vis, "quantitative"
-                    )
-                    lux.register_action("Occurrence", univariate, no_vis, "nominal")
-                    lux.register_action("Temporal", univariate, no_vis, "temporal")
+                    lux.register_action("correlation", correlation, no_vis)
+                    lux.register_action("distribution", univariate, no_vis, "quantitative")
+                    lux.register_action("occurrence", univariate, no_vis, "nominal")
+                    lux.register_action("temporal", univariate, no_vis, "temporal")
 
                     lux.register_action("Enhance", enhance, one_current_vis)
                     lux.register_action("Filter", filter, one_current_vis)
@@ -550,9 +532,8 @@ class LuxDataFrame(pd.DataFrame):
                     rec_df.recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
             self._widget = rec_df.render_widget()
-        elif (
-            show_prev
-        ):  # re-render widget for the current dataframe if previous rec is not recomputed
+        # re-render widget for the current dataframe if previous rec is not recomputed
+        elif show_prev:
             self._widget = rec_df.render_widget()
         self._recs_fresh = True
 
@@ -651,9 +632,7 @@ class LuxDataFrame(pd.DataFrame):
         from lux.processor.Compiler import Compiler
 
         intent_action = list(self._widget.selectedIntentIndex.keys())[0]
-        vis = self.recommendation[intent_action][
-            self._widget.selectedIntentIndex[intent_action][0]
-        ]
+        vis = self.recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
         self.set_intent_as_vis(vis)
 
         self.maintain_metadata()
@@ -704,9 +683,7 @@ class LuxDataFrame(pd.DataFrame):
                     return
                 self.maintain_metadata()
 
-                if self._intent != [] and (
-                    not hasattr(self, "_compiled") or not self._compiled
-                ):
+                if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
                     from lux.processor.Compiler import Compiler
 
                     self.current_vis = Compiler.compile_intent(self, self._intent)
@@ -721,9 +698,7 @@ class LuxDataFrame(pd.DataFrame):
 
                 # Observers(callback_function, listen_to_this_variable)
                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
-                self._widget.observe(
-                    self.set_intent_on_click, names="selectedIntentIndex"
-                )
+                self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
                 if len(self.recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
@@ -740,9 +715,7 @@ class LuxDataFrame(pd.DataFrame):
                     def on_button_clicked(b):
                         with self.output:
                             if b:
-                                self._toggle_pandas_display = (
-                                    not self._toggle_pandas_display
-                                )
+                                self._toggle_pandas_display = not self._toggle_pandas_display
                             clear_output()
                             if self._toggle_pandas_display:
                                 display(self.display_pandas())

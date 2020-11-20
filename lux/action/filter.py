@@ -86,8 +86,8 @@ def filter(ldf):
             new_spec.append(new_filter)
             temp_vis = Vis(new_spec, score=1)
             output.append(temp_vis)
-
-    else:  # if no existing filters, create filters using unique values from all categorical variables in the dataset
+    # if no existing filters, create filters using unique values from all categorical variables in the dataset
+    else:
         intended_attrs = ", ".join(
             [
                 clause.attribute
@@ -108,9 +108,7 @@ def filter(ldf):
             unique_values = ldf.unique_values[cat]
             for i in range(0, len(unique_values)):
                 new_spec = column_spec.copy()
-                new_filter = lux.Clause(
-                    attribute=cat, filter_op="=", value=unique_values[i]
-                )
+                new_filter = lux.Clause(attribute=cat, filter_op="=", value=unique_values[i])
                 new_spec.append(new_filter)
                 temp_vis = Vis(new_spec)
                 output.append(temp_vis)

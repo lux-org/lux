@@ -66,9 +66,8 @@ class Heatmap(AltairChart):
             )
         )
         chart = chart.configure_scale(minOpacity=0.1, maxOpacity=1)
-        chart = chart.configure_mark(
-            tooltip=alt.TooltipContent("encoding")
-        )  # Setting tooltip as non-null
+        # Setting tooltip as non-null
+        chart = chart.configure_mark(tooltip=alt.TooltipContent("encoding"))
         chart = chart.interactive()  # Enable Zooming and Panning
 
         ####################################
