@@ -204,6 +204,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def clear_intent(self):
         self.intent = []
+        self.expire_recs()
 
     def set_intent(self, intent: List[Union[str, Clause]]):
         """
@@ -224,6 +225,7 @@ class LuxDataFrame(pd.DataFrame):
         self._parse_validate_compile_intent()
 
     def _parse_validate_compile_intent(self):
+        self.maintain_metadata()
         from lux.processor.Parser import Parser
         from lux.processor.Validator import Validator
 

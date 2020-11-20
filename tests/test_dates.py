@@ -20,7 +20,7 @@ from lux.utils import date_utils
 from lux.executor.PandasExecutor import PandasExecutor
 
 
-def test_dateformatter():
+def test_dateformatter(global_var):
     ldf = pd.read_csv("lux/data/car.csv")
     # change pandas dtype for the column "Year" to datetype
     ldf["Year"] = pd.to_datetime(ldf["Year"], format="%Y")
@@ -37,7 +37,7 @@ def test_dateformatter():
     assert date_utils.date_formatter(timestamp, ldf) == "2019-8-26"
 
 
-def test_period_selection():
+def test_period_selection(global_var):
     ldf = pd.read_csv("lux/data/car.csv")
     ldf["Year"] = pd.to_datetime(ldf["Year"], format="%Y")
 
@@ -56,7 +56,7 @@ def test_period_selection():
     assert all(ldf.current_vis[2].data.columns == ["Year", "Acceleration"])
 
 
-def test_period_filter():
+def test_period_filter(global_var):
     ldf = pd.read_csv("lux/data/car.csv")
     ldf["Year"] = pd.to_datetime(ldf["Year"], format="%Y")
 
@@ -70,7 +70,7 @@ def test_period_filter():
     assert isinstance(ldf.recommendation["Filter"][2]._inferred_intent[2].value, pd.Period)
 
 
-def test_period_to_altair():
+def test_period_to_altair(global_var):
     chart = None
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
