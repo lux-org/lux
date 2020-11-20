@@ -226,22 +226,6 @@ class VisList:
     def set(self, field_name, field_val):
         return NotImplemented
 
-    def set_plot_config(self, config_func: Callable):
-        """
-        Modify plot aesthetic settings to the Vis List
-        Currently only supported for Altair visualizations
-        Parameters
-        ----------
-        config_func : typing.Callable
-                A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
-        """
-        for vis in self._collection:
-            vis.plot_config = config_func
-
-    def clear_plot_config(self):
-        for vis in self._collection:
-            vis.plot_config = None
-
     def sort(self, remove_invalid=True, descending=True):
         # remove the items that have invalid (-1) score
         if remove_invalid:
