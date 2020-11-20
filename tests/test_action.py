@@ -20,9 +20,7 @@ from lux.vis.Vis import Vis
 
 
 def test_vary_filter_val():
-    url = (
-        "https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true"
-    )
+    url = "https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true"
     df = pd.read_csv(url)
     vis = Vis(["Height", "SportType=Ball"], df)
     df.set_intent_as_vis(vis)
@@ -82,9 +80,7 @@ def test_row_column_group():
     tseries = df.pivot(index="State", columns="Date", values="Value")
     # Interpolating missing values
     tseries[tseries.columns.min()] = tseries[tseries.columns.min()].fillna(0)
-    tseries[tseries.columns.max()] = tseries[tseries.columns.max()].fillna(
-        tseries.max(axis=1)
-    )
+    tseries[tseries.columns.max()] = tseries[tseries.columns.max()].fillna(tseries.max(axis=1))
     tseries = tseries.interpolate("zero", axis=1)
     tseries._repr_html_()
     assert list(tseries.recommendation.keys()) == ["Row Groups", "Column Groups"]
@@ -183,8 +179,7 @@ def test_year_filter_value():
             lambda vis: len(
                 list(
                     filter(
-                        lambda clause: clause.value != ""
-                        and clause.attribute == "Year",
+                        lambda clause: clause.value != "" and clause.attribute == "Year",
                         vis._intent,
                     )
                 )

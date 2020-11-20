@@ -54,6 +54,7 @@ class LuxSeries(pd.Series):
 
         f._get_axis_number = super(LuxSeries, self)._get_axis_number
         return f
+
     def __repr__(self):
         from IPython.display import display
         from IPython.display import clear_output
@@ -98,9 +99,7 @@ class LuxSeries(pd.Series):
 
                 # Observers(callback_function, listen_to_this_variable)
                 ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")
-                ldf._widget.observe(
-                    ldf.set_intent_on_click, names="selectedIntentIndex"
-                )
+                ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
 
                 if len(ldf.recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
@@ -117,9 +116,7 @@ class LuxSeries(pd.Series):
                     def on_button_clicked(b):
                         with ldf.output:
                             if b:
-                                self._toggle_pandas_display = (
-                                    not self._toggle_pandas_display
-                                )
+                                self._toggle_pandas_display = not self._toggle_pandas_display
                             clear_output()
                             if self._toggle_pandas_display:
                                 print(series_repr)

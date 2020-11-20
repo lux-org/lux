@@ -93,9 +93,7 @@ class AltairRenderer:
                 import inspect
 
                 if vis.plot_config:
-                    chart.code += "\n".join(
-                        inspect.getsource(vis.plot_config).split("\n    ")[1:-1]
-                    )
+                    chart.code += "\n".join(inspect.getsource(vis.plot_config).split("\n    ")[1:-1])
                 chart.code += "\nchart"
                 chart.code = chart.code.replace("\n\t\t", "\n")
 
@@ -107,15 +105,11 @@ class AltairRenderer:
                         if local_vars:
                             callers_local_vars = local_vars.f_locals.items()
                             possible_vars = [
-                                var_name
-                                for var_name, var_val in callers_local_vars
-                                if var_val is var
+                                var_name for var_name, var_val in callers_local_vars if var_val is var
                             ]
                             all_vars.extend(possible_vars)
                     found_variable = [
-                        possible_var
-                        for possible_var in all_vars
-                        if possible_var[0] != "_"
+                        possible_var for possible_var in all_vars if possible_var[0] != "_"
                     ][0]
                 else:  # if vis._source was not set when the Vis was created
                     found_variable = "df"

@@ -45,9 +45,7 @@ def test_check_int_id():
 
 
 def test_check_str_id():
-    df = pd.read_csv(
-        "https://github.com/lux-org/lux-datasets/blob/master/data/churn.csv?raw=true"
-    )
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/churn.csv?raw=true")
     df._repr_html_()
     assert (
         "<code>customerID</code> is not visualized since it resembles an ID field.</li>"
@@ -56,9 +54,9 @@ def test_check_str_id():
 
 
 def test_check_hpi():
-    df = pd.read_csv(
-        "https://github.com/lux-org/lux-datasets/blob/master/data/hpi.csv?raw=true"
-    ).head(10)
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/hpi.csv?raw=true").head(
+        10
+    )
 
     df.maintain_metadata()
 
@@ -80,9 +78,7 @@ def test_check_hpi():
 
 
 def test_check_airbnb():
-    df = pd.read_csv(
-        "https://github.com/lux-org/lux-datasets/blob/master/data/airbnb_nyc.csv?raw=true"
-    )
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/airbnb_nyc.csv?raw=true")
     df.maintain_metadata()
     assert df.data_type_lookup == {
         "id": "id",

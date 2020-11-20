@@ -41,10 +41,7 @@ class Histogram(AltairChart):
         x_min = self.vis.min_max[msr_attr.attribute][0]
         x_max = self.vis.min_max[msr_attr.attribute][1]
 
-        x_range = abs(
-            max(self.vis.data[msr_attr.attribute])
-            - min(self.vis.data[msr_attr.attribute])
-        )
+        x_range = abs(max(self.vis.data[msr_attr.attribute]) - min(self.vis.data[msr_attr.attribute]))
         plot_range = abs(x_max - x_min)
         markbar = x_range / plot_range * 12
 

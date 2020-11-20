@@ -51,9 +51,7 @@ def column_group(ldf):
                             data_model="dimension",
                             aggregation=None,
                         ),
-                        lux.Clause(
-                            str(attribute), data_type="quantitative", aggregation=None
-                        ),
+                        lux.Clause(str(attribute), data_type="quantitative", aggregation=None),
                     ]
                 )
                 collection.append(vis)

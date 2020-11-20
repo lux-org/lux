@@ -99,9 +99,7 @@ class Parser:
                     ext in [">", "<", "=", "!="] for ext in clause.description
                 ):  # clause.description contain ">","<". or "="
                     # then parse it and assign to clause.attribute, clause.filter_op, clause.values
-                    clause.filter_op = re.findall(
-                        r"/.*/|>|=|<|>=|<=|!=", clause.description
-                    )[0]
+                    clause.filter_op = re.findall(r"/.*/|>|=|<|>=|<=|!=", clause.description)[0]
                     split_description = clause.description.split(clause.filter_op)
                     clause.attribute = split_description[0]
                     clause.value = split_description[1]

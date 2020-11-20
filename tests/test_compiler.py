@@ -130,9 +130,7 @@ def test_sort_bar():
     df = pd.read_csv("lux/data/car.csv")
     vis = Vis(
         [
-            lux.Clause(
-                attribute="Acceleration", data_model="measure", data_type="quantitative"
-            ),
+            lux.Clause(attribute="Acceleration", data_model="measure", data_type="quantitative"),
             lux.Clause(attribute="Origin", data_model="dimension", data_type="nominal"),
         ],
         df,
@@ -143,9 +141,7 @@ def test_sort_bar():
     df = pd.read_csv("lux/data/car.csv")
     vis = Vis(
         [
-            lux.Clause(
-                attribute="Acceleration", data_model="measure", data_type="quantitative"
-            ),
+            lux.Clause(attribute="Acceleration", data_model="measure", data_type="quantitative"),
             lux.Clause(attribute="Name", data_model="dimension", data_type="nominal"),
         ],
         df,

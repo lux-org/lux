@@ -90,10 +90,7 @@ def test_colored_bar_chart():
     group_by_cardinality = len(df.unique_values["Origin"])
     assert len(new_vis.data.columns) == 3
     assert (
-        len(new_vis.data)
-        == 15
-        > group_by_cardinality
-        < color_cardinality * group_by_cardinality
+        len(new_vis.data) == 15 > group_by_cardinality < color_cardinality * group_by_cardinality
     )  # Not color_cardinality*group_by_cardinality since some combinations have 0 values
 
 
@@ -117,10 +114,7 @@ def test_colored_line_chart():
     group_by_cardinality = len(df.unique_values["Year"])
     assert len(new_vis.data.columns) == 3
     assert (
-        len(new_vis.data)
-        == 60
-        > group_by_cardinality
-        < color_cardinality * group_by_cardinality
+        len(new_vis.data) == 60 > group_by_cardinality < color_cardinality * group_by_cardinality
     )  # Not color_cardinality*group_by_cardinality since some combinations have 0 values
 
 
@@ -190,23 +184,12 @@ def test_filter_aggregation_fillzero_aligned():
     ]
     vis = Vis(intent, df)
     result = vis.data
-    externalValidation = (
-        df[df["Origin"] == "Japan"].groupby("Cylinders").mean()["MilesPerGal"]
-    )
+    externalValidation = df[df["Origin"] == "Japan"].groupby("Cylinders").mean()["MilesPerGal"]
     assert result[result["Cylinders"] == 5]["MilesPerGal"].values[0] == 0
     assert result[result["Cylinders"] == 8]["MilesPerGal"].values[0] == 0
-    assert (
-        result[result["Cylinders"] == 3]["MilesPerGal"].values[0]
-        == externalValidation[3]
-    )
-    assert (
-        result[result["Cylinders"] == 4]["MilesPerGal"].values[0]
-        == externalValidation[4]
-    )
-    assert (
-        result[result["Cylinders"] == 6]["MilesPerGal"].values[0]
-        == externalValidation[6]
-    )
+    assert result[result["Cylinders"] == 3]["MilesPerGal"].values[0] == externalValidation[3]
+    assert result[result["Cylinders"] == 4]["MilesPerGal"].values[0] == externalValidation[4]
+    assert result[result["Cylinders"] == 6]["MilesPerGal"].values[0] == externalValidation[6]
 
 
 def test_exclude_attribute():
