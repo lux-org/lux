@@ -375,8 +375,7 @@ class LuxDataFrame(pd.DataFrame):
         cardinality = {}
         for attr in list(self.columns):
             card_query = pd.read_sql(
-                f"SELECT Count(Distinct({attr})) FROM {self.table_name}",
-                self.SQLconnection,
+                f"SELECT Count(Distinct({attr})) FROM {self.table_name}", self.SQLconnection,
             )
             cardinality[attr] = list(card_query["count"])[0]
         self.cardinality = cardinality
@@ -385,8 +384,7 @@ class LuxDataFrame(pd.DataFrame):
         unique_vals = {}
         for attr in list(self.columns):
             unique_query = pd.read_sql(
-                f"SELECT Distinct({attr}) FROM {self.table_name}",
-                self.SQLconnection,
+                f"SELECT Distinct({attr}) FROM {self.table_name}", self.SQLconnection,
             )
             unique_vals[attr] = list(unique_query[attr])
         self.unique_values = unique_vals
@@ -604,10 +602,7 @@ class LuxDataFrame(pd.DataFrame):
             export_action = list(exported_vis_lst.keys())[0]
             exported_vis = VisList(
                 list(
-                    map(
-                        self.recommendation[export_action].__getitem__,
-                        exported_vis_lst[export_action],
-                    )
+                    map(self.recommendation[export_action].__getitem__, exported_vis_lst[export_action],)
                 )
             )
             self._saved_export = exported_vis
@@ -676,8 +671,7 @@ class LuxDataFrame(pd.DataFrame):
                     return
                 if len(self.columns) <= 1:
                     warnings.warn(
-                        "\nLux defaults to Pandas when there is only a single column.",
-                        stacklevel=2,
+                        "\nLux defaults to Pandas when there is only a single column.", stacklevel=2,
                     )
                     display(self.display_pandas())
                     return
@@ -703,8 +697,7 @@ class LuxDataFrame(pd.DataFrame):
                 if len(self.recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
                     button = widgets.Button(
-                        description="Toggle Pandas/Lux",
-                        layout=widgets.Layout(width="140px", top="5px"),
+                        description="Toggle Pandas/Lux", layout=widgets.Layout(width="140px", top="5px"),
                     )
                     self.output = widgets.Output()
                     # box.children = [button,output]
