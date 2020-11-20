@@ -102,10 +102,10 @@ class LuxDataFrame(pd.DataFrame):
         return self._history
 
     def maintain_metadata(self):
-        if (
-            not hasattr(self, "_metadata_fresh") or not self._metadata_fresh
-        ):  # Check that metadata has not yet been computed
-            if len(self) > 0:  # only compute metadata information if the dataframe is non-empty
+        # Check that metadata has not yet been computed
+        if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
+            # only compute metadata information if the dataframe is non-empty
+            if len(self) > 0:
                 self.executor.compute_stats(self)
                 self.executor.compute_dataset_metadata(self)
                 self._infer_structure()
@@ -246,6 +246,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def clear_intent(self):
         self.intent = []
+        self.expire_recs()
 
     def set_intent(self, intent: List[Union[str, Clause]]):
         """
@@ -266,6 +267,7 @@ class LuxDataFrame(pd.DataFrame):
         self._parse_validate_compile_intent()
 
     def _parse_validate_compile_intent(self):
+        self.maintain_metadata()
         from lux.processor.Parser import Parser
         from lux.processor.Validator import Validator
 
@@ -364,10 +366,8 @@ class LuxDataFrame(pd.DataFrame):
             table_name = self.table_name[self.table_name.index(".") + 1 :]
         else:
             table_name = self.table_name
-        attr_query = "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{}'".format(
-            table_name
-        )
-        attributes = list(pd.read_sql(attr_query, self.SQLconnection)["column_name"])
+        query = f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'"
+        attributes = list(pd.read_sql(query, self.SQLconnection)["column_name"])
         for attr in attributes:
             self[attr] = None
 
@@ -375,7 +375,7 @@ class LuxDataFrame(pd.DataFrame):
         cardinality = {}
         for attr in list(self.columns):
             card_query = pd.read_sql(
-                "SELECT Count(Distinct({})) FROM {}".format(attr, self.table_name),
+                f"SELECT Count(Distinct({attr})) FROM {self.table_name}",
                 self.SQLconnection,
             )
             cardinality[attr] = list(card_query["count"])[0]
@@ -385,7 +385,7 @@ class LuxDataFrame(pd.DataFrame):
         unique_vals = {}
         for attr in list(self.columns):
             unique_query = pd.read_sql(
-                "SELECT Distinct({}) FROM {}".format(attr, self.table_name),
+                f"SELECT Distinct({attr}) FROM {self.table_name}",
                 self.SQLconnection,
             )
             unique_vals[attr] = list(unique_query[attr])
@@ -401,10 +401,8 @@ class LuxDataFrame(pd.DataFrame):
             table_name = self.table_name
         # get the data types of the attributes in the SQL table
         for attr in list(self.columns):
-            datatype_query = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{}' AND COLUMN_NAME = '{}'".format(
-                table_name, attr
-            )
-            datatype = list(pd.read_sql(datatype_query, self.SQLconnection)["data_type"])[0]
+            query = f"SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' AND COLUMN_NAME = '{attr}'"
+            datatype = list(pd.read_sql(query, self.SQLconnection)["data_type"])[0]
             sql_dtypes[attr] = datatype
 
         data_type = {"quantitative": [], "nominal": [], "temporal": []}
@@ -471,9 +469,8 @@ class LuxDataFrame(pd.DataFrame):
             rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
         rec_df._prev = None  # reset _prev
 
-        if (
-            not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh
-        ):  # Check that recs has not yet been computed
+        # Check that recs has not yet been computed
+        if not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh:
             rec_infolist = []
             from lux.action.custom import custom
             from lux.action.custom import custom_actions
@@ -508,11 +505,11 @@ class LuxDataFrame(pd.DataFrame):
                     lux.register_action("occurrence", univariate, no_vis, "nominal")
                     lux.register_action("temporal", univariate, no_vis, "temporal")
 
-                    lux.register_action("enhance", enhance, one_current_vis)
-                    lux.register_action("filter", filter, one_current_vis)
-                    lux.register_action("generalize", generalize, one_current_vis)
+                    lux.register_action("Enhance", enhance, one_current_vis)
+                    lux.register_action("Filter", filter, one_current_vis)
+                    lux.register_action("Generalize", generalize, one_current_vis)
 
-                    lux.register_action("custom", custom, multiple_current_vis)
+                    lux.register_action("Custom", custom, multiple_current_vis)
 
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
@@ -535,7 +532,8 @@ class LuxDataFrame(pd.DataFrame):
                     rec_df.recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
             self._widget = rec_df.render_widget()
-        elif show_prev:  # re-render widget for the current dataframe if previous rec is not recomputed
+        # re-render widget for the current dataframe if previous rec is not recomputed
+        elif show_prev:
             self._widget = rec_df.render_widget()
         self._recs_fresh = True
 

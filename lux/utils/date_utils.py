@@ -40,9 +40,9 @@ def date_formatter(time_stamp, ldf):
     """
     datetime = pd.to_datetime(time_stamp)
     if ldf.data_type["temporal"]:
-        date_column = ldf[
-            ldf.data_type["temporal"][0]
-        ]  # assumes only one temporal column, may need to change this function to recieve multiple temporal columns in the future
+        # assumes only one temporal column, may need to change this function to recieve multiple temporal columns in the future
+        date_column = ldf[ldf.data_type["temporal"][0]]
+
     granularity = compute_date_granularity(date_column)
     date_str = ""
     if granularity == "year":
@@ -78,16 +78,12 @@ def compute_date_granularity(date_column: pd.core.series.Series):
     field: str
             A str specifying the granularity of dates for the inspected temporal column
     """
-    date_fields = [
-        "day",
-        "month",
-        "year",
-    ]  # supporting a limited set of Vega-Lite TimeUnit (https://vega.github.io/vega-lite/docs/timeunit.html)
+    # supporting a limited set of Vega-Lite TimeUnit (https://vega.github.io/vega-lite/docs/timeunit.html)
+    date_fields = ["day", "month", "year"]
     date_index = pd.DatetimeIndex(date_column)
     for field in date_fields:
-        if (
-            hasattr(date_index, field) and len(getattr(date_index, field).unique()) != 1
-        ):  # can be changed to sum(getattr(date_index, field)) != 0
+        # can be changed to sum(getattr(date_index, field)) != 0
+        if hasattr(date_index, field) and len(getattr(date_index, field).unique()) != 1:
             return field
     return "year"  # if none, then return year by default
 

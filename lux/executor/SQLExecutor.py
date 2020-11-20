@@ -60,18 +60,14 @@ class SQLExecutor(Executor):
                 required_variables = ",".join(required_variables)
                 row_count = list(
                     pd.read_sql(
-                        "SELECT COUNT(*) FROM {} {}".format(ldf.table_name, where_clause),
+                        f"SELECT COUNT(*) FROM {ldf.table_name} {where_clause}",
                         ldf.SQLconnection,
                     )["count"]
                 )[0]
                 if row_count > 10000:
-                    query = "SELECT {} FROM {} {} ORDER BY random() LIMIT 10000".format(
-                        required_variables, ldf.table_name, where_clause
-                    )
+                    query = f"SELECT {required_variables} FROM {ldf.table_name} {where_clause} ORDER BY random() LIMIT 10000"
                 else:
-                    query = "SELECT {} FROM {} {}".format(
-                        required_variables, ldf.table_name, where_clause
-                    )
+                    query = f"SELECT {required_variables} FROM {ldf.table_name} {where_clause}"
                 data = pd.read_sql(query, ldf.SQLconnection)
                 vis._vis_data = utils.pandas_to_lux(data)
             if vis.mark == "bar" or vis.mark == "line":
@@ -100,13 +96,7 @@ class SQLExecutor(Executor):
             # barchart case, need count data for each group
             if measure_attr.attribute == "Record":
                 where_clause, filterVars = SQLExecutor.execute_filter(vis)
-                count_query = "SELECT {}, COUNT({}) FROM {} {} GROUP BY {}".format(
-                    groupby_attr.attribute,
-                    groupby_attr.attribute,
-                    ldf.table_name,
-                    where_clause,
-                    groupby_attr.attribute,
-                )
+                count_query = f"SELECT {groupby_attr.attribute}, COUNT({groupby_attr.attribute}) FROM {ldf.table_name} {where_clause} GROUP BY {groupby_attr.attribute}"
                 vis._vis_data = pd.read_sql(count_query, ldf.SQLconnection)
                 vis._vis_data = vis.data.rename(columns={"count": "Record"})
                 vis._vis_data = utils.pandas_to_lux(vis.data)
@@ -114,36 +104,15 @@ class SQLExecutor(Executor):
             else:
                 where_clause, filterVars = SQLExecutor.execute_filter(vis)
                 if agg_func == "mean":
-                    mean_query = "SELECT {}, AVG({}) as {} FROM {} {} GROUP BY {}".format(
-                        groupby_attr.attribute,
-                        measure_attr.attribute,
-                        measure_attr.attribute,
-                        ldf.table_name,
-                        where_clause,
-                        groupby_attr.attribute,
-                    )
+                    mean_query = f"SELECT {groupby_attr.attribute}, AVG({measure_attr.attribute}) as {measure_attr.attribute} FROM {ldf.table_name} {where_clause} GROUP BY {groupby_attr.attribute}"
                     vis._vis_data = pd.read_sql(mean_query, ldf.SQLconnection)
                     vis._vis_data = utils.pandas_to_lux(vis.data)
                 if agg_func == "sum":
-                    mean_query = "SELECT {}, SUM({}) as {} FROM {} {} GROUP BY {}".format(
-                        groupby_attr.attribute,
-                        measure_attr.attribute,
-                        measure_attr.attribute,
-                        ldf.table_name,
-                        where_clause,
-                        groupby_attr.attribute,
-                    )
+                    mean_query = f"SELECT {groupby_attr.attribute}, SUM({measure_attr.attribute}) as {measure_attr.attribute} FROM {ldf.table_name} {where_clause} GROUP BY {groupby_attr.attribute}"
                     vis._vis_data = pd.read_sql(mean_query, ldf.SQLconnection)
                     vis._vis_data = utils.pandas_to_lux(vis.data)
                 if agg_func == "max":
-                    mean_query = "SELECT {}, MAX({}) as {} FROM {} {} GROUP BY {}".format(
-                        groupby_attr.attribute,
-                        measure_attr.attribute,
-                        measure_attr.attribute,
-                        ldf.table_name,
-                        where_clause,
-                        groupby_attr.attribute,
-                    )
+                    mean_query = f"SELECT {groupby_attr.attribute}, MAX({measure_attr.attribute}) as {measure_attr.attribute} FROM {ldf.table_name} {where_clause} GROUP BY {groupby_attr.attribute}"
                     vis._vis_data = pd.read_sql(mean_query, ldf.SQLconnection)
                     vis._vis_data = utils.pandas_to_lux(vis.data)
 
@@ -181,9 +150,7 @@ class SQLExecutor(Executor):
                     upper_edges.append(str(curr_edge))
             upper_edges = ",".join(upper_edges)
             vis_filter, filter_vars = SQLExecutor.execute_filter(vis)
-            bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket({}, '{}') FROM {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(
-                bin_attribute.attribute, "{" + upper_edges + "}", ldf.table_name
-            )
+            bin_count_query = f"SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket({bin_attribute.attribute}, '{{{upper_edges}}}') FROM {ldf.table_name}) as Buckets GROUP BY width_bucket ORDER BY width_bucket"
             bin_count_data = pd.read_sql(bin_count_query, ldf.SQLconnection)
 
             # counts,binEdges = np.histogram(ldf[bin_attribute.attribute],bins=bin_attribute.bin_size)

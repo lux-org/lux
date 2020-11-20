@@ -213,9 +213,8 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
     import copy
 
     unfiltered_vis = copy.copy(vis)
-    unfiltered_vis._inferred_intent = utils.get_attrs_specs(
-        vis._inferred_intent
-    )  # Remove filters, keep only attribute intent
+    # Remove filters, keep only attribute intent
+    unfiltered_vis._inferred_intent = utils.get_attrs_specs(vis._inferred_intent)
     ldf.executor.execute([unfiltered_vis], ldf)
 
     v = unfiltered_vis.data[msr_attribute]

@@ -119,7 +119,6 @@ class AltairRenderer:
                         f"pd.DataFrame({str(vis.data.to_dict())})",
                     )
                 else:
-                    chart.code = chart.code.replace(
-                        "placeholder_variable", found_variable
-                    )  # TODO: Placeholder (need to read dynamically via locals())
+                    # TODO: Placeholder (need to read dynamically via locals())
+                    chart.code = chart.code.replace("placeholder_variable", found_variable)
                 return chart.code

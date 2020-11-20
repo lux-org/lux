@@ -127,7 +127,8 @@ class VisList:
         y_channel = ""
         largest_mark = 0
         largest_filter = 0
-        for vis in self._collection:  # finds longest x attribute among all visualizations
+        # finds longest x attribute among all visualizations
+        for vis in self._collection:
             filter_intents = None
             for clause in vis._inferred_intent:
                 if clause.value != "":
@@ -154,9 +155,8 @@ class VisList:
         vis_repr = []
         largest_x_length = len(x_channel)
         largest_y_length = len(y_channel)
-        for (
-            vis
-        ) in self._collection:  # pads the shorter visualizations with spaces before the y attribute
+        # pads the shorter visualizations with spaces before the y attribute
+        for vis in self._collection:
             filter_intents = None
             x_channel = ""
             y_channel = ""

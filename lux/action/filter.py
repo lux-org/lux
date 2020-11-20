@@ -86,8 +86,8 @@ def filter(ldf):
             new_spec.append(new_filter)
             temp_vis = Vis(new_spec, score=1)
             output.append(temp_vis)
-
-    else:  # if no existing filters, create filters using unique values from all categorical variables in the dataset
+    # if no existing filters, create filters using unique values from all categorical variables in the dataset
+    else:
         intended_attrs = ", ".join(
             [
                 clause.attribute

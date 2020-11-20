@@ -103,7 +103,6 @@ def register_action(
     args: Any
             any additional arguments the function may require
     """
-    name = name.lower()
     if action:
         is_callable(action)
 
@@ -115,9 +114,7 @@ def register_action(
     update_actions["flag"] = True
 
 
-def remove_action(
-    name: str = "",
-) -> None:
+def remove_action(name: str = "") -> None:
     """
     Removes the provided action globally in lux
 
@@ -126,7 +123,6 @@ def remove_action(
     name : str
             the name of the action to remove
     """
-    name = name.lower()
     if name not in _registered_actions:
         raise ValueError(f"Option '{name}' has not been registered")
 

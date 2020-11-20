@@ -80,7 +80,6 @@ The Lux Jupyter widget does not show up when I print a dataframe.
 
   - If you are able to import lux successfully and you do not see the "Toggle button" when you print the dataframe, it may be possible that Lux is not compatible with your browser. Lux is compatible with Google Chrome, but have not been extensively tested on Safari or Firefox.
   - If you recieve the error message :code:`A Jupyter widget could not be displayed because the widget state could not be found.` This could happen if the kernel storing the widget is no longer available, or if the widget state was not saved in the notebook. You may be able to create the widget by running the appropriate cells.`, you may want to restart the notebook and rerun the cell.
-  - If you recieve the error message :code:`Error displaying widget: model not found`, it is possible that you are using JupyterLab or other frontends (e.g., VSCode) to open up your notebook. Lux does not currently support JupyterLab (`#16 <https://github.com/lux-org/lux-widget/issues/16>`_), please try out Lux with the basic :code:`jupyter notebook`.
   - If you receive the error message :code:`ModuleNotFoundError: No module named 'luxwidget'`, it is possible that your luxwidget and lux-api versions are not in sync. The latest version of lux-api requires luxwidget v0.1 or above. Try running the following code:
 
   .. code-block:: bash
