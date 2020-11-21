@@ -136,6 +136,7 @@ def test_remove_action():
     )
     df.clear_intent()
 
+
 def test_remove_invalid_action(global_var):
     df = pytest.car_df
     with pytest.raises(ValueError, match="Option 'bars' has not been registered"):
@@ -178,6 +179,7 @@ def test_remove_default_actions(global_var):
     )
     assert len(df.recommendation["bars"]) > 0
     df.clear_intent()
+
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.
 # def test_plot_setting(global_var):
