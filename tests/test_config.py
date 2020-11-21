@@ -147,7 +147,6 @@ def test_remove_default_actions(global_var):
     # df = pytest.car_df
     df = pd.read_csv("lux/data/car.csv")
     df._repr_html_()
-    print (df.recommendation)
 
     lux.remove_action("distribution")
     df._repr_html_()
