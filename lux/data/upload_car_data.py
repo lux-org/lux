@@ -2,8 +2,6 @@ import pandas as pd
 import psycopg2
 import csv
 
-import psycopg2
-
 conn = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
 cur = conn.cursor()
 cur.execute(
@@ -23,7 +21,8 @@ cur.execute(
     weight integer,
     acceleration numeric,
     year integer,
-    origin text
+    origin text,
+    brand text
 )
 """
 )
@@ -34,6 +33,6 @@ with open("lux/data/car.csv", "r") as f:
     next(reader)  # Skip the header row.
     i = 0
     for row in reader:
-        cur.execute("INSERT INTO car VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", row)
+        cur.execute("INSERT INTO car VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", row)
 
 conn.commit()
