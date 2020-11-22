@@ -8,8 +8,6 @@ from lux.utils.utils import check_import_lux_widget, check_if_id_like
 
 import math
 
-# for benchmarking
-import time
 
 
 class SQLExecutor(Executor):
@@ -59,42 +57,13 @@ class SQLExecutor(Executor):
                 start = time.time()
                 SQLExecutor.execute_aggregate(view, ldf)
                 end = time.time()
-                # append benchmark data to file
-                benchmark_data = {
-                    "executor_name": ["SQL"],
-                    "query_action": ["bar/line"],
-                    "time": [end - start],
-                    "length": [ldf.length],
-                }
-                benchmark_df = pandas.DataFrame(data=benchmark_data)
-                benchmark_df.to_csv(
-                    "C:/Users/thyne/Documents/GitHub/thyne-lux/sql_benchmarking.csv",
-                    mode="a",
-                    header=False,
-                    index=False,
-                )
             elif view.mark == "histogram":
                 start = time.time()
                 SQLExecutor.execute_binning(view, ldf)
                 end = time.time()
-                # append benchmark data to file
-                benchmark_data = {
-                    "executor_name": ["SQL"],
-                    "query_action": ["histogram"],
-                    "time": [end - start],
-                    "length": [ldf.length],
-                }
-                benchmark_df = pandas.DataFrame(data=benchmark_data)
-                benchmark_df.to_csv(
-                    "C:/Users/thyne/Documents/GitHub/thyne-lux/sql_benchmarking.csv",
-                    mode="a",
-                    header=False,
-                    index=False,
-                )
 
     @staticmethod
     def execute_scatter(view: Vis, ldf: LuxDataFrame):
-        start = time.time()
         attributes = set([])
         for clause in view._inferred_intent:
             if clause.attribute:
@@ -123,21 +92,7 @@ class SQLExecutor(Executor):
         data = pandas.read_sql(query, ldf.SQLconnection)
         view._vis_data = utils.pandas_to_lux(data)
         view._vis_data.length = list(length_query["length"])[0]
-        end = time.time()
-        # append benchmark data to file
-        benchmark_data = {
-            "executor_name": ["SQL"],
-            "query_action": ["scatter"],
-            "time": [end - start],
-            "length": [ldf.length],
-        }
-        benchmark_df = pandas.DataFrame(data=benchmark_data)
-        benchmark_df.to_csv(
-            "C:/Users/thyne/Documents/GitHub/thyne-lux/sql_benchmarking.csv",
-            mode="a",
-            header=False,
-            index=False,
-        )
+
         ldf._message.add_unique(
             f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
             priority=98,
@@ -581,7 +536,6 @@ class SQLExecutor(Executor):
         self.compute_data_model(ldf)
 
     def get_SQL_attributes(self, ldf: LuxDataFrame):
-        start = time.time()
         if "." in ldf.table_name:
             table_name = ldf.table_name[self.table_name.index(".") + 1 :]
         else:
@@ -593,46 +547,16 @@ class SQLExecutor(Executor):
         for attr in attributes:
             ldf[attr] = None
         end = time.time()
-        # append benchmark data to file
-        benchmark_data = {
-            "executor_name": ["SQL"],
-            "query_action": ["get_attributes"],
-            "time": [end - start],
-            "length": [ldf.length],
-        }
-        benchmark_df = pandas.DataFrame(data=benchmark_data)
-        benchmark_df.to_csv(
-            "C:/Users/thyne/Documents/GitHub/thyne-lux/sql_benchmarking.csv",
-            mode="a",
-            header=False,
-            index=False,
-        )
 
     def compute_stats(self, ldf: LuxDataFrame):
         # precompute statistics
         ldf.unique_values = {}
         ldf._min_max = {}
-        start = time.time()
         length_query = pandas.read_sql(
             "SELECT COUNT(*) as length FROM {}".format(ldf.table_name),
             ldf.SQLconnection,
         )
-        end = time.time()
-        # append benchmark data to file
-        benchmark_data = {
-            "executor_name": ["SQL"],
-            "query_action": ["data_length"],
-            "time": [end - start],
-            "length": [ldf.length],
-        }
-        benchmark_df = pandas.DataFrame(data=benchmark_data)
         ldf.length = list(length_query["length"])[0]
-        benchmark_df.to_pandas().to_csv(
-            "C:/Users/thyne/Documents/GitHub/thyne-lux/sql_benchmarking.csv",
-            mode="a",
-            header=False,
-            index=False,
-        )
 
         self.get_unique_values(ldf)
         # ldf.get_cardinality()
@@ -650,43 +574,13 @@ class SQLExecutor(Executor):
                     list(min_max_query["min"])[0],
                     list(min_max_query["max"])[0],
                 )
-                # append benchmark data to file
-                benchmark_data = {
-                    "executor_name": ["SQL"],
-                    "query_action": ["min_max"],
-                    "time": [end - start],
-                    "length": [ldf.length],
-                }
-                benchmark_df = pandas.DataFrame(data=benchmark_data)
-                benchmark_df.to_csv(
-                    "C:/Users/thyne/Documents/GitHub/thyne-lux/sql_benchmarking.csv",
-                    mode="a",
-                    header=False,
-                    index=False,
-                )
 
     def get_cardinality(self, ldf: LuxDataFrame):
         cardinality = {}
         for attr in list(ldf.columns):
-            start = time.time()
             card_query = pandas.read_sql(
                 "SELECT Count(Distinct({})) FROM {}".format(attr, ldf.table_name),
                 ldf.SQLconnection,
-            )
-            end = time.time()
-            # append benchmark data to file
-            benchmark_data = {
-                "executor_name": ["SQL"],
-                "query_action": ["cardinality"],
-                "time": [end - start],
-                "length": [ldf.length],
-            }
-            benchmark_df = pandas.DataFrame(data=benchmark_data)
-            benchmark_df.to_csv(
-                "C:/Users/thyne/Documents/GitHub/thyne-lux/sql_benchmarking.csv",
-                mode="a",
-                header=False,
-                index=False,
             )
 
             cardinality[attr] = list(card_query["count"])[0]
@@ -695,25 +589,9 @@ class SQLExecutor(Executor):
     def get_unique_values(self, ldf: LuxDataFrame):
         unique_vals = {}
         for attr in list(ldf.columns):
-            start = time.time()
             unique_query = pandas.read_sql(
                 "SELECT Distinct({}) FROM {}".format(attr, ldf.table_name),
                 ldf.SQLconnection,
-            )
-            end = time.time()
-            # append benchmark data to file
-            benchmark_data = {
-                "executor_name": ["SQL"],
-                "query_action": ["unique_values"],
-                "time": [end - start],
-                "length": [ldf.length],
-            }
-            benchmark_df = pandas.DataFrame(data=benchmark_data)
-            benchmark_df.to_csv(
-                "C:/Users/thyne/Documents/GitHub/thyne-lux/sql_benchmarking.csv",
-                mode="a",
-                header=False,
-                index=False,
             )
 
             unique_vals[attr] = list(unique_query[attr])
@@ -729,26 +607,10 @@ class SQLExecutor(Executor):
             table_name = ldf.table_name
         # get the data types of the attributes in the SQL table
         for attr in list(ldf.columns):
-            start = time.time()
             datatype_query = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{}' AND COLUMN_NAME = '{}'".format(
                 table_name, attr
             )
             datatype = list(pandas.read_sql(datatype_query, ldf.SQLconnection)["data_type"])[0]
-            end = time.time()
-            # append benchmark data to file
-            benchmark_data = {
-                "executor_name": ["SQL"],
-                "query_action": ["data_type"],
-                "time": [end - start],
-                "length": [ldf.length],
-            }
-            benchmark_df = pandas.DataFrame(data=benchmark_data)
-            benchmark_df.to_csv(
-                "C:/Users/thyne/Documents/GitHub/thyne-lux/sql_benchmarking.csv",
-                mode="a",
-                header=False,
-                index=False,
-            )
 
             sql_dtypes[attr] = datatype
 
