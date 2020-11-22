@@ -70,7 +70,7 @@ def test_underspecified_single_vis(global_var, test_recs):
     )
     test_recs(sql_df, one_vis_actions)
     assert len(sql_df.current_vis) == 1
-    assert sql_df.current_vis[0].mark == "scatter"
+    assert sql_df.current_vis[0].mark == "heatmap"
     for attr in sql_df.current_vis[0]._inferred_intent:
         assert attr.data_model == "measure"
     for attr in sql_df.current_vis[0]._inferred_intent:

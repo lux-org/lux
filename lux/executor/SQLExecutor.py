@@ -42,63 +42,20 @@ class SQLExecutor(Executor):
                 if clause.attribute:
                     if clause.attribute != "Record":
                         attributes.add(clause.attribute)
-            if view.mark == "scatter":
-                view._mark = "heatmap"
-                start = time.time()
-                SQLExecutor.execute_2D_binning(view, ldf)
-                end = time.time()
-            #     start = time.time()
-            #     where_clause, filterVars = SQLExecutor.execute_filter(view)
-
-            #     length_query = pandas.read_sql(
-            #         "SELECT COUNT(*) as length FROM {} {}".format(
-            #             ldf.table_name, where_clause
-            #         ),
-            #         ldf.SQLconnection,
-            #     )
-            #     ldf._message.add_unique(
-            #         f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
-            #         priority=98,
-            #     )
-            #     #SQLExecutor.execute_2D_binning(view, ldf)
-            #     required_variables = attributes | set(filterVars)
-            #     required_variables = ",".join(required_variables)
-            #     row_count = list(
-            #         pd.read_sql(
-            #             f"SELECT COUNT(*) FROM {ldf.table_name} {where_clause}",
-            #             ldf.SQLconnection,
-            #         )["count"]
-            #     )[0]
-            #     if row_count > 10000:
-            #         query = f"SELECT {required_variables} FROM {ldf.table_name} {where_clause} ORDER BY random() LIMIT 10000"
-            #     else:
-            #         query = "SELECT {} FROM {} {}".format(
-            #             required_variables, ldf.table_name, where_clause
-            #         )
-            #     data = pandas.read_sql(query, ldf.SQLconnection)
-            #     view._vis_data = utils.pandas_to_lux(data)
-            #     view._vis_data.length = list(length_query["length"])[0]
-            #     end = time.time()
-            #     # append benchmark data to file
-            #     benchmark_data = {
-            #         "executor_name": ["SQL"],
-            #         "query_action": ["scatter"],
-            #         "time": [end - start],
-            #         "length": [ldf.length],
-            #     }
-            #     benchmark_df = pandas.DataFrame(data=benchmark_data)
-            #     benchmark_df.to_csv(
-            #         "C:/Users/thyne/Documents/GitHub/thyne-lux/sql_benchmarking.csv",
-            #         mode="a",
-            #         header=False,
-            #         index=False,
-            #     )
-            #     view._postbin = True
-            #     ldf._message.add_unique(
-            #             f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
-            #             priority=98,
-            #         )
-            if view.mark == "bar" or view.mark == "line":
+            #for lazy execution: if mark is not specified, need to compile the vis before execution
+            if view.mark == '':
+                view.refresh_source(ldf)
+            elif view.mark == "scatter":
+                if len(view.get_attr_by_channel("color")) == 1:
+                    # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
+                    has_color = True
+                    SQLExecutor.execute_scatter(view, ldf)
+                else:
+                    view._mark = "heatmap"
+                    start = time.time()
+                    SQLExecutor.execute_2D_binning(view, ldf)
+                    end = time.time()
+            elif view.mark == "bar" or view.mark == "line":
                 start = time.time()
                 SQLExecutor.execute_aggregate(view, ldf)
                 end = time.time()
@@ -134,6 +91,61 @@ class SQLExecutor(Executor):
                     header=False,
                     index=False,
                 )
+
+    @staticmethod
+    def execute_scatter(view: Vis, ldf: LuxDataFrame):
+        start = time.time()
+        attributes = set([])
+        for clause in view._inferred_intent:
+            if clause.attribute:
+                if clause.attribute != "Record":
+                    attributes.add(clause.attribute)
+        where_clause, filterVars = SQLExecutor.execute_filter(view)
+
+        length_query = pandas.read_sql(
+            "SELECT COUNT(*) as length FROM {} {}".format(
+                ldf.table_name, where_clause
+            ),
+            ldf.SQLconnection,
+        )
+
+        #SQLExecutor.execute_2D_binning(view, ldf)
+        required_variables = attributes | set(filterVars)
+        required_variables = ",".join(required_variables)
+        row_count = list(
+            pandas.read_sql(
+                f"SELECT COUNT(*) FROM {ldf.table_name} {where_clause}",
+                ldf.SQLconnection,
+            )["count"]
+        )[0]
+        if row_count > 10000:
+            query = f"SELECT {required_variables} FROM {ldf.table_name} {where_clause} ORDER BY random() LIMIT 10000"
+        else:
+            query = "SELECT {} FROM {} {}".format(
+                required_variables, ldf.table_name, where_clause
+            )
+        data = pandas.read_sql(query, ldf.SQLconnection)
+        view._vis_data = utils.pandas_to_lux(data)
+        view._vis_data.length = list(length_query["length"])[0]
+        end = time.time()
+        # append benchmark data to file
+        benchmark_data = {
+            "executor_name": ["SQL"],
+            "query_action": ["scatter"],
+            "time": [end - start],
+            "length": [ldf.length],
+        }
+        benchmark_df = pandas.DataFrame(data=benchmark_data)
+        benchmark_df.to_csv(
+            "C:/Users/thyne/Documents/GitHub/thyne-lux/sql_benchmarking.csv",
+            mode="a",
+            header=False,
+            index=False,
+        )
+        ldf._message.add_unique(
+                f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
+                priority=98,
+            )
 
     @staticmethod
     def execute_aggregate(view: Vis, ldf: LuxDataFrame, isFiltered=True):
@@ -528,15 +540,16 @@ class SQLExecutor(Executor):
                 bin_where_clause,
             )
             curr_column_data = pandas.read_sql(bin_count_query, ldf.SQLconnection)
+            curr_column_data = curr_column_data[curr_column_data['width_bucket'] != num_bins-1]
             if len(curr_column_data) > 0:
                 curr_column_data['xBinStart'] = lower_bound
                 curr_column_data['xBinEnd'] = upper_bound
-                curr_column_data['yBinStart'] = curr_column_data.apply(lambda row: float(y_upper_edges[int(row['width_bucket']-1)])-y_bin_width, axis = 1)
-                curr_column_data['yBinEnd'] = curr_column_data.apply(lambda row: float(y_upper_edges[int(row['width_bucket']-1)]), axis = 1)
+                curr_column_data['yBinStart'] = curr_column_data.apply(lambda row: float(y_upper_edges[int(row['width_bucket'])])-y_bin_width, axis = 1)
+                curr_column_data['yBinEnd'] = curr_column_data.apply(lambda row: float(y_upper_edges[int(row['width_bucket'])]), axis = 1)
                 bin_count_data.append(curr_column_data)
         output = pandas.concat(bin_count_data)
         output = output.drop(['width_bucket'], axis = 1).to_pandas()
-        view._vis_data = output
+        view._vis_data = utils.pandas_to_lux(output)
 
     @staticmethod
     # takes in a view and returns an appropriate SQL WHERE clause that based on the filters specified in the view's _inferred_intent

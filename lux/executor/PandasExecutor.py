@@ -331,7 +331,7 @@ class PandasExecutor(Executor):
                             (color_attr.attribute, lambda x: pd.Series.mode(x).iat[0]),
                         ]
                     ).reset_index()
-                elif color_attr.data_type == "quantitative":
+                elif color_attr.data_type == "quantitative" or color_attr.data_type == "temporal":
                     # Compute the average of all values in the bin
                     result = groups.agg(
                         [("count", "count"), (color_attr.attribute, "mean")]
