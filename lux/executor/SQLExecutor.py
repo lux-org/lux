@@ -9,7 +9,6 @@ from lux.utils.utils import check_import_lux_widget, check_if_id_like
 import math
 
 
-
 class SQLExecutor(Executor):
     """
     Given a Vis objects with complete specifications, fetch and process data using SQL operations.
@@ -50,17 +49,11 @@ class SQLExecutor(Executor):
                     SQLExecutor.execute_scatter(view, ldf)
                 else:
                     view._mark = "heatmap"
-                    start = time.time()
                     SQLExecutor.execute_2D_binning(view, ldf)
-                    end = time.time()
             elif view.mark == "bar" or view.mark == "line":
-                start = time.time()
                 SQLExecutor.execute_aggregate(view, ldf)
-                end = time.time()
             elif view.mark == "histogram":
-                start = time.time()
                 SQLExecutor.execute_binning(view, ldf)
-                end = time.time()
 
     @staticmethod
     def execute_scatter(view: Vis, ldf: LuxDataFrame):
@@ -546,7 +539,6 @@ class SQLExecutor(Executor):
         attributes = list(pandas.read_sql(attr_query, ldf.SQLconnection)["column_name"])
         for attr in attributes:
             ldf[attr] = None
-        end = time.time()
 
     def compute_stats(self, ldf: LuxDataFrame):
         # precompute statistics
@@ -562,14 +554,12 @@ class SQLExecutor(Executor):
         # ldf.get_cardinality()
         for attribute in ldf.columns:
             if ldf.data_type_lookup[attribute] == "quantitative":
-                start = time.time()
                 min_max_query = pandas.read_sql(
                     "SELECT MIN({}) as min, MAX({}) as max FROM {}".format(
                         attribute, attribute, ldf.table_name
                     ),
                     ldf.SQLconnection,
                 )
-                end = time.time()
                 ldf._min_max[attribute] = (
                     list(min_max_query["min"])[0],
                     list(min_max_query["max"])[0],
