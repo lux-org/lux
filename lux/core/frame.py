@@ -82,6 +82,7 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = None
         self._min_max = None
         self.pre_aggregated = None
+        warnings.formatwarning = lux.warning_format
 
     @property
     def _constructor(self):
