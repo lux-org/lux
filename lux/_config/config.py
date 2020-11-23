@@ -153,8 +153,8 @@ def is_callable(obj) -> bool:
 class Config:
     def __init__(self):
         self._default_display = "pandas"
-        self._default_renderer = "altair"
-        self._default_plot_config = None
+        self.renderer = "altair"
+        self.plot_config = None
 
     @property
     def default_display(self):
@@ -178,51 +178,5 @@ class Config:
                 "Unsupported display type. Default display option should either be `lux` or `pandas`.",
                 stacklevel=2,
             )
-
-    @property
-    def default_renderer(self):
-        return self._default_renderer
-
-    @default_renderer.setter
-    def default_renderer(self, type: str) -> None:
-        """
-        Set the widget display to use a particular renderer
-        Parameters
-        ----------
-        type: str
-                Choice of visualization rendering library, by default "altair"
-        """
-        self._default_renderer = type.lower()
-
-    @property
-    def plot_config(self):
-        return self._default_plot_config
-
-    @plot_config.setter
-    def plot_config(self, config_func: Callable):
-        """
-        Modify plot aesthetic settings to all visualizations in the dataframe display
-        Currently only supported for Altair visualizations
-        Parameters
-        ----------
-        config_func : Callable
-                A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
-
-        Example
-        ----------
-        Changing the color of marks and adding a title for all charts displayed for this dataframe
-        >>> df = pd.read_csv("lux/data/car.csv")
-        >>> def changeColorAddTitle(chart):
-                        chart = chart.configure_mark(color="red") # change mark color to red
-                        chart.title = "Custom Title" # add title to chart
-                        return chart
-        >>> lux.config.plot_config = changeColorAddTitle
-        >>> df
-        """
-        self._default_plot_config = config_func
-
-    def clear_plot_config(self):
-        self._default_plot_config = None
-
 
 config = Config()
