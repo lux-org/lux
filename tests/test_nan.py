@@ -20,8 +20,8 @@ import numpy as np
 from lux.vis.Vis import Vis
 
 
-def test_nan_column():
-    df = pd.read_csv("lux/data/college.csv")
+def test_nan_column(global_var):
+    df = pytest.college_df
     df["Geography"] = np.nan
     df._repr_html_()
     for visList in df.recommendation.keys():
