@@ -195,11 +195,11 @@ class Config:
         self._default_renderer = type.lower()
 
     @property
-    def default_plot_config(self):
+    def plot_config(self):
         return self._default_plot_config
 
-    @default_plot_config.setter
-    def default_plot_config(self, config_func: Callable):
+    @plot_config.setter
+    def plot_config(self, config_func: Callable):
         """
         Modify plot aesthetic settings to all visualizations in the dataframe display
         Currently only supported for Altair visualizations
@@ -216,7 +216,7 @@ class Config:
                         chart = chart.configure_mark(color="red") # change mark color to red
                         chart.title = "Custom Title" # add title to chart
                         return chart
-        >>> lux.config.default_plot_config = changeColorAddTitle
+        >>> lux.config.plot_config = changeColorAddTitle
         >>> df
         """
         self._default_plot_config = config_func
