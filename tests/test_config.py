@@ -134,6 +134,7 @@ def test_remove_action():
         "bars" not in df.recommendation,
         "Bars should not be rendered after it has been removed.",
     )
+    df.clear_intent()
 
 
 def test_remove_invalid_action(global_var):
@@ -143,22 +144,23 @@ def test_remove_invalid_action(global_var):
 
 
 def test_remove_default_actions(global_var):
-    df = pytest.car_df
+    # df = pytest.car_df
+    df = pd.read_csv("lux/data/car.csv")
     df._repr_html_()
 
-    lux.remove_action("Distribution")
+    lux.remove_action("distribution")
     df._repr_html_()
     assert "Distribution" not in df.recommendation
 
-    lux.remove_action("Occurrence")
+    lux.remove_action("occurrence")
     df._repr_html_()
     assert "Occurrence" not in df.recommendation
 
-    lux.remove_action("Temporal")
+    lux.remove_action("temporal")
     df._repr_html_()
     assert "Temporal" not in df.recommendation
 
-    lux.remove_action("Correlation")
+    lux.remove_action("correlation")
     df._repr_html_()
     assert "Correlation" not in df.recommendation
 
@@ -175,6 +177,7 @@ def test_remove_default_actions(global_var):
         "Bars should be rendered after it has been registered with correct intent.",
     )
     assert len(df.recommendation["bars"]) > 0
+    df.clear_intent()
 
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.
