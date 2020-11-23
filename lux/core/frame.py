@@ -53,7 +53,6 @@ class LuxDataFrame(pd.DataFrame):
 
     def __init__(self, *args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
-
         self._history = History()
         self._intent = []
         self._recommendation = {}
