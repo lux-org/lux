@@ -151,6 +151,8 @@ def is_callable(obj) -> bool:
 class Config:
     def __init__(self):
         self._default_display = "pandas"
+        self.renderer = "altair"
+        self.plot_config = None
 
     @property
     def default_display(self):

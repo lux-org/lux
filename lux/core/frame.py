@@ -42,7 +42,6 @@ class LuxDataFrame(pd.DataFrame):
         "_rec_info",
         "_pandas_only",
         "_min_max",
-        "plot_config",
         "_current_vis",
         "_widget",
         "_recommendation",
@@ -70,7 +69,6 @@ class LuxDataFrame(pd.DataFrame):
         self._sampled = None
         self._default_pandas_display = True
         self._toggle_pandas_display = True
-        self._plot_config = None
         self._message = Message()
         self._pandas_only = False
         # Metadata
@@ -186,46 +184,6 @@ class LuxDataFrame(pd.DataFrame):
 
             self.executor = PandasExecutor()
         self.executor_type = exe
-
-    @property
-    def plot_config(self):
-        return self._plot_config
-
-    @plot_config.setter
-    def plot_config(self, config_func: Callable):
-        """
-        Modify plot aesthetic settings to all visualizations in the dataframe display
-        Currently only supported for Altair visualizations
-        Parameters
-        ----------
-        config_func : Callable
-                A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
-
-        Example
-        ----------
-        Changing the color of marks and adding a title for all charts displayed for this dataframe
-        >>> df = pd.read_csv("lux/data/car.csv")
-        >>> def changeColorAddTitle(chart):
-                        chart = chart.configure_mark(color="red") # change mark color to red
-                        chart.title = "Custom Title" # add title to chart
-                        return chart
-        >>> df.plot_config = changeColorAddTitle
-        >>> df
-        Change the opacity of all scatterplots displayed for this dataframe
-        >>> df = pd.read_csv("lux/data/olympic.csv")
-        >>> def changeOpacityScatterOnly(chart):
-                        if chart.mark=='circle':
-                                chart = chart.configure_mark(opacity=0.1) # lower opacity
-                        return chart
-        >>> df.plot_config = changeOpacityScatterOnly
-        >>> df
-        """
-        self._plot_config = config_func
-        self._recs_fresh = False
-
-    def clear_plot_config(self):
-        self._plot_config = None
-        self._recs_fresh = False
 
     @property
     def intent(self):
@@ -523,12 +481,6 @@ class LuxDataFrame(pd.DataFrame):
             for rec_info in rec_infolist:
                 action_type = rec_info["action"]
                 vlist = rec_info["collection"]
-                if rec_df._plot_config:
-                    if rec_df.current_vis:
-                        for vis in rec_df.current_vis:
-                            vis._plot_config = rec_df.plot_config
-                    for vis in vlist:
-                        vis._plot_config = rec_df.plot_config
                 if len(vlist) > 0:
                     rec_df.recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist

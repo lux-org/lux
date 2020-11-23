@@ -14,7 +14,6 @@ lux.vis.Vis.Vis
    .. autosummary::
    
       ~Vis.__init__
-      ~Vis.clear_plot_config
       ~Vis.get_attr_by_attr_name
       ~Vis.get_attr_by_channel
       ~Vis.get_attr_by_data_model
