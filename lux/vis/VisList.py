@@ -19,6 +19,7 @@ from typing import List, Union, Callable, Dict
 from lux.vis.Vis import Vis
 from lux.vis.Clause import Clause
 import warnings
+import lux
 
 
 class VisList:
@@ -40,6 +41,7 @@ class VisList:
             self._intent = []
         self._widget = None
         self.refresh_source(self._source)
+        warnings.formatwarning = lux.warning_format
 
     @property
     def intent(self):
