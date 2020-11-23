@@ -10,5 +10,6 @@ static/
 *.egg-info*
 build/
 .DS_Store
+.idea/
 tests/.coverage
 tests/coverage.xml
