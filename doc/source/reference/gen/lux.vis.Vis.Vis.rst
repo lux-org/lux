@@ -14,6 +14,7 @@ lux.vis.Vis.Vis
    .. autosummary::
    
       ~Vis.__init__
+      ~Vis.check_not_vislist_intent
       ~Vis.get_attr_by_attr_name
       ~Vis.get_attr_by_channel
       ~Vis.get_attr_by_data_model
@@ -39,6 +40,5 @@ lux.vis.Vis.Vis
       ~Vis.intent
       ~Vis.mark
       ~Vis.min_max
-      ~Vis.plot_config
    
    

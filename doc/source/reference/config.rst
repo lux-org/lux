@@ -1,20 +1,14 @@
-********************************
-How To Use Config Class 
-********************************
+***********************
+Configuration Settings 
+***********************
 
-In this tutorial, we look at the functionality of the global Config class.
+In Lux, users can customize various global settings to configure the behavior of Lux through :py:mod:`lux.config.Config`. This page documents some of the configurations that you can apply in Lux.
 
-.. code-block:: python
 
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/hpi.csv")
-    df
+Change the default display of Lux
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The dataframe initially registers a few default recommendations, such as Correlation, Enhance, Filter, etc, and defaults to a pandas display.
-
-Registering Custom Actions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Let's set the default_display of the global class 'Config' to change the default form of output. In the following block, we set it to 'lux,' therefore the VisList will display first.
+We can set the `default_display` of the global class 'Config' to change the default form of output. In the following block, we set it to 'lux,' therefore the VisList will display first.
 
 .. code-block:: python
 
