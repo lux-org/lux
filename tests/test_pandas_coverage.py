@@ -432,8 +432,7 @@ def check_metadata_equal(df1, df2):
                     elif key in y_info:
                         assert x_info[key] == y_info[key]
 
-        elif attr != "_widget":
-            print(attr)
+        elif attr != "_widget" and attr != "_sampled" and attr != "_message":
             assert getattr(df1, attr) == getattr(df2, attr)
 
 

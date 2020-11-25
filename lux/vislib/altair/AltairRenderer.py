@@ -35,7 +35,7 @@ class AltairRenderer:
 
     def create_vis(self, vis, standalone=True):
         """
-        Input DataObject and return a visualization specification
+        Input Vis object and return a visualization specification
 
         Parameters
         ----------

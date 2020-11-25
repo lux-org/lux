@@ -303,10 +303,8 @@ class VisList:
                     for vis in self._collection:
                         vis._inferred_intent = Parser.parse(vis._intent)
                         Validator.validate_intent(vis._inferred_intent, ldf)
-                        vislist = Compiler.compile_vis(ldf, vis)
-                        if len(vislist) > 0:
-                            vis = vislist[0]
-                            compiled_collection.append(vis)
+                        Compiler.compile_vis(ldf, vis)
+                        compiled_collection.append(vis)
                     self._collection = compiled_collection
                 else:
                     self._inferred_intent = Parser.parse(self._intent)

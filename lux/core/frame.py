@@ -40,7 +40,6 @@ class LuxDataFrame(pd.DataFrame):
         "unique_values",
         "cardinality",
         "_rec_info",
-        "_pandas_only",
         "_min_max",
         "_current_vis",
         "_widget",
@@ -48,6 +47,11 @@ class LuxDataFrame(pd.DataFrame):
         "_prev",
         "_history",
         "_saved_export",
+        "_sampled",
+        "_toggle_pandas_display",
+        "_message",
+        "_pandas_only",
+        "pre_aggregated",
     ]
 
     def __init__(self, *args, **kw):
@@ -67,7 +71,6 @@ class LuxDataFrame(pd.DataFrame):
         self.table_name = ""
 
         self._sampled = None
-        self._default_pandas_display = True
         self._toggle_pandas_display = True
         self._message = Message()
         self._pandas_only = False
@@ -771,7 +774,7 @@ class LuxDataFrame(pd.DataFrame):
         current_vis_spec = {}
         numVC = len(vlist)  # number of visualizations in the vis list
         if numVC == 1:
-            current_vis_spec = vlist[0].render_VSpec()
+            current_vis_spec = vlist[0].to_code(prettyOutput=False)
         elif numVC > 1:
             pass
         return current_vis_spec
@@ -786,10 +789,10 @@ class LuxDataFrame(pd.DataFrame):
             if len(rec["collection"]) > 0:
                 rec["vspec"] = []
                 for vis in rec["collection"]:
-                    chart = vis.render_VSpec()
+                    chart = vis.to_code(prettyOutput=False)
                     rec["vspec"].append(chart)
                 rec_lst.append(rec)
-                # delete DataObjectCollection since not JSON serializable
+                # delete since not JSON serializable
                 del rec_lst[idx]["collection"]
         return rec_lst
 
