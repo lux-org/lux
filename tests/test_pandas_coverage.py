@@ -566,19 +566,22 @@ def test_str_replace(global_var):
 ################
 
 def test_read_json(global_var):
-    df = pd.read_json('lux/data/car.json')
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/car.json?raw=true'
+    df = pd.read_csv(url)
     df._repr_html_()
     assert list(new_df.recommendation.keys()) == ['Correlation', 'Distribution', 'Occurrence', 'Temporal']
     assert len(new_df.data_type_lookup) == 10
 
 def test_read_html(global_var):
-    df = pd.read_html('lux/data/horror.html')[1]
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/horror.html?raw=true'
+    df = pd.read_html(url)[1]
     df._repr_html_()
     assert list(new_df.recommendation.keys()) == ['Occurrence']
     assert len(new_df.data_type_lookup) == 5
 
 def test_read_sas(global_var):
-    df = pd.read_sas('lux/data/airline.sas7bdat')[1]
+    url = 'https://github.com/lux-org/lux-datasets/blob/master/data/airline.sas7bdat?raw=true'
+    df = pd.read_sas(url)
     df._repr_html_()
     assert list(new_df.recommendation.keys()) == ['Correlation', 'Distribution', 'Temporal']
     assert len(new_df.data_type_lookup) == 6
