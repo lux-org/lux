@@ -582,7 +582,7 @@ def test_read_json(global_var):
 
 def test_read_html(global_var):
     url = "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/horror.html"
-    df = pd.read_html(url)[1]
+    df = pd.read_html(url, flavor="html5lib")[1]
     df._repr_html_()
     assert list(df.recommendation.keys()) == ["Occurrence"]
     assert len(df.data_type_lookup) == 5
