@@ -18,6 +18,7 @@ from lux.vis.Clause import Clause
 from lux.utils.utils import check_import_lux_widget
 import lux
 
+
 class Vis:
     """
     Vis Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
