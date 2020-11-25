@@ -22,11 +22,11 @@ originalDF = pd.core.frame.DataFrame
 
 def setOption(overridePandas=True):
     if overridePandas:
-        pd.DataFrame = pd.core.frame.DataFrame = LuxDataFrame
-        pd.DataFrame = pd.io.json._json.DataFrame = pd.io.parsers.DataFrame
+        pd.DataFrame = (
+            pd.io.json._json.DataFrame
+        ) = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = LuxDataFrame
     else:
-        pd.DataFrame = pd.core.frame.DataFrame = originalDF
-        pd.DataFrame = pd.io.json._json.DataFrame = pd.io.parsers.DataFrame = originalDF
+        pd.DataFrame = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = originalDF
 
 
 setOption(overridePandas=True)
