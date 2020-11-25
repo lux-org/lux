@@ -30,6 +30,3 @@ def setOption(overridePandas=True):
 
 
 setOption(overridePandas=True)
-
-# global latest_history
-# global
