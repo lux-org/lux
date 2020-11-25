@@ -16,7 +16,7 @@ from __future__ import annotations
 from typing import List, Callable, Union
 from lux.vis.Clause import Clause
 from lux.utils.utils import check_import_lux_widget
-
+import lux
 
 class Vis:
     """
@@ -311,7 +311,7 @@ class Vis:
             self._inferred_intent = Parser.parse(self._intent)
             Validator.validate_intent(self._inferred_intent, ldf)
             Compiler.compile_vis(ldf, self)
-            ldf.executor.execute([self], ldf)
+            lux.config.executor.execute([self], ldf)
 
     def check_not_vislist_intent(self):
         import sys

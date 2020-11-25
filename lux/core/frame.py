@@ -65,10 +65,10 @@ class LuxDataFrame(pd.DataFrame):
         self._prev = None
         super(LuxDataFrame, self).__init__(*args, **kw)
 
-        self.executor_type = "Pandas"
-        self.executor = PandasExecutor()
-        self.SQLconnection = ""
-        self.table_name = ""
+        lux.config.executor_type = "Pandas"
+        lux.config.executor = PandasExecutor()
+        lux.config.SQLconnection = ""
+        lux.config.table_name = ""
 
         self._sampled = None
         self._toggle_pandas_display = True
@@ -108,8 +108,8 @@ class LuxDataFrame(pd.DataFrame):
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
             if len(self) > 0:
-                self.executor.compute_stats(self)
-                self.executor.compute_dataset_metadata(self)
+                lux.config.executor.compute_stats(self)
+                lux.config.executor.compute_dataset_metadata(self)
                 self._infer_structure()
                 self._metadata_fresh = True
 
@@ -181,12 +181,12 @@ class LuxDataFrame(pd.DataFrame):
                 import psycopg2
             from lux.executor.SQLExecutor import SQLExecutor
 
-            self.executor = SQLExecutor
+            lux.config.executor = SQLExecutor()
         else:
             from lux.executor.PandasExecutor import PandasExecutor
 
-            self.executor = PandasExecutor()
-        self.executor_type = exe
+            lux.config.executor = PandasExecutor()
+        lux.config.executor_type = exe
 
     @property
     def intent(self):
@@ -235,10 +235,12 @@ class LuxDataFrame(pd.DataFrame):
 
         self._intent = Parser.parse(self._intent)
         Validator.validate_intent(self._intent, self)
+        print("validated")
         self.maintain_metadata()
         from lux.processor.Compiler import Compiler
 
         self.current_vis = Compiler.compile_intent(self, self._intent)
+        print("curr vis compiled")
 
     def copy_intent(self):
         # creates a true copy of the dataframe's intent
@@ -290,8 +292,8 @@ class LuxDataFrame(pd.DataFrame):
     #######################################################
 
     def set_SQL_connection(self, connection, t_name):
-        self.SQLconnection = connection
-        self.table_name = t_name
+        lux.config.SQLconnection = connection
+        lux.config.table_name = t_name
         self.compute_SQL_dataset_metadata()
         self.set_executor_type("SQL")
 
@@ -324,12 +326,12 @@ class LuxDataFrame(pd.DataFrame):
                 )
 
     def get_SQL_attributes(self):
-        if "." in self.table_name:
-            table_name = self.table_name[self.table_name.index(".") + 1 :]
+        if "." in lux.config.table_name:
+            table_name = lux.config.table_name[lux.config.table_name.index(".") + 1 :]
         else:
-            table_name = self.table_name
+            table_name = lux.config.table_name
         query = f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'"
-        attributes = list(pd.read_sql(query, self.SQLconnection)["column_name"])
+        attributes = list(pd.read_sql(query, lux.config.SQLconnection)["column_name"])
         for attr in attributes:
             self[attr] = None
 
@@ -337,8 +339,8 @@ class LuxDataFrame(pd.DataFrame):
         cardinality = {}
         for attr in list(self.columns):
             card_query = pd.read_sql(
-                f"SELECT Count(Distinct({attr})) FROM {self.table_name}",
-                self.SQLconnection,
+                f"SELECT Count(Distinct({attr})) FROM {lux.config.table_name}",
+                lux.config.SQLconnection,
             )
             cardinality[attr] = list(card_query["count"])[0]
         self.cardinality = cardinality
@@ -347,8 +349,8 @@ class LuxDataFrame(pd.DataFrame):
         unique_vals = {}
         for attr in list(self.columns):
             unique_query = pd.read_sql(
-                f"SELECT Distinct({attr}) FROM {self.table_name}",
-                self.SQLconnection,
+                f"SELECT Distinct({attr}) FROM {lux.config.table_name}",
+                lux.config.SQLconnection,
             )
             unique_vals[attr] = list(unique_query[attr])
         self.unique_values = unique_vals
@@ -357,14 +359,14 @@ class LuxDataFrame(pd.DataFrame):
         data_type_lookup = {}
         sql_dtypes = {}
         self.get_SQL_cardinality()
-        if "." in self.table_name:
-            table_name = self.table_name[self.table_name.index(".") + 1 :]
+        if "." in lux.config.table_name:
+            table_name = lux.config.table_name[lux.config.table_name.index(".") + 1 :]
         else:
-            table_name = self.table_name
+            table_name = lux.config.table_name
         # get the data types of the attributes in the SQL table
         for attr in list(self.columns):
             query = f"SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' AND COLUMN_NAME = '{attr}'"
-            datatype = list(pd.read_sql(query, self.SQLconnection)["data_type"])[0]
+            datatype = list(pd.read_sql(query, lux.config.SQLconnection)["data_type"])[0]
             sql_dtypes[attr] = datatype
 
         data_type = {"quantitative": [], "nominal": [], "temporal": []}
@@ -756,7 +758,7 @@ class LuxDataFrame(pd.DataFrame):
     def to_JSON(self, rec_infolist, input_current_vis=""):
         widget_spec = {}
         if self.current_vis:
-            self.executor.execute(self.current_vis, self)
+            lux.config.executor.execute(self.current_vis, self)
             widget_spec["current_vis"] = LuxDataFrame.current_vis_to_JSON(
                 self.current_vis, input_current_vis
             )
