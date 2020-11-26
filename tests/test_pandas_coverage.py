@@ -580,14 +580,6 @@ def test_read_json(global_var):
     assert len(df.data_type_lookup) == 10
 
 
-def test_read_html(global_var):
-    url = "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/horror.html"
-    df = pd.read_html(url, flavor="html5lib")[1]
-    df._repr_html_()
-    assert list(df.recommendation.keys()) == ["Occurrence"]
-    assert len(df.data_type_lookup) == 5
-
-
 def test_read_sas(global_var):
     url = "https://github.com/lux-org/lux-datasets/blob/master/data/airline.sas7bdat?raw=true"
     df = pd.read_sas(url, format="sas7bdat")
