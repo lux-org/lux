@@ -65,7 +65,7 @@ class LuxDataFrame(pd.DataFrame):
         self._prev = None
         super(LuxDataFrame, self).__init__(*args, **kw)
 
-        lux.config.executor_type = "Pandas"
+        self.table_name = ""
         lux.config.executor = PandasExecutor()
         lux.config.SQLconnection = ""
         lux.config.table_name = ""
@@ -186,7 +186,6 @@ class LuxDataFrame(pd.DataFrame):
             from lux.executor.PandasExecutor import PandasExecutor
 
             lux.config.executor = PandasExecutor()
-        lux.config.executor_type = exe
 
     @property
     def intent(self):

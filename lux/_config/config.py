@@ -154,8 +154,6 @@ class Config:
         self.renderer = "altair"
         self.plot_config = None
         self.SQLconnection = ""
-        self.table_name = ""
-        self.executor_type = ""
         self.executor = None
 
     @property
