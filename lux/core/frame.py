@@ -442,6 +442,7 @@ class LuxDataFrame(pd.DataFrame):
             from lux.action.enhance import enhance
             from lux.action.filter import filter
             from lux.action.generalize import generalize
+            from lux.action.similarity import similar_pattern
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
 
@@ -471,6 +472,7 @@ class LuxDataFrame(pd.DataFrame):
                     lux.register_action("Enhance", enhance, one_current_vis)
                     lux.register_action("Filter", filter, one_current_vis)
                     lux.register_action("Generalize", generalize, one_current_vis)
+                    lux.register_action("Similarity", similar_pattern, one_current_vis, 15)
 
                     lux.register_action("Custom", custom, multiple_current_vis)
 

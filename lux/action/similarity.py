@@ -19,7 +19,7 @@ import numpy as np
 from lux.vis.VisList import VisList
 
 
-def similar_pattern(ldf, intent, topK=-1):
+def similar_pattern(ldf, *args):
     """
     Generates visualizations with similar patterns to a query visualization.
 
@@ -39,23 +39,31 @@ def similar_pattern(ldf, intent, topK=-1):
     recommendations : Dict[str,obj]
         object with a collection of visualizations that result from the Similarity action
     """
-    row_specs = list(filter(lambda x: x.value != "", intent))
-    if len(row_specs) == 1:
-        search_space_vc = VisList(ldf.current_vis.collection.copy(), ldf)
 
-        query_vc = VisList(intent, ldf)
+    last = ldf.intent[-1]
+    query = ldf.intent.copy()[0:-1]
+    query.append(lux.Clause(last.attribute, last.attribute, "?"))
+    row_specs = ldf.intent
+    if len(args) == 0:
+        topK = 15
+    else:
+        topK = args[0][0]
+    
+    row_specs = list(filter(lambda x: x.value != "", row_specs))
+    if(len(row_specs) == 1):
+        search_space_vc = VisList(ldf.current_vis,ldf)
+        
+        query_vc = VisList(query,ldf)     
         query_vis = query_vc[0]
         preprocess(query_vis)
-        # for loop to create assign euclidean distance
-        recommendation = {
-            "action": "Similarity",
-            "description": "Show other charts that are visually similar to the Current vis.",
-        }
+        #for loop to create assign euclidean distance
+        recommendation = {"action":"Similarity",
+                               "description":"Show other charts that are visually similar to the Current vis."}
         for vis in search_space_vc:
             preprocess(vis)
             vis.score = euclidean_dist(query_vis, vis)
         search_space_vc.normalize_score(invert_order=True)
-        if topK != -1:
+        if(topK!=-1):
             search_space_vc = search_space_vc.topK(topK)
         recommendation["collection"] = search_space_vc
         return recommendation
@@ -204,6 +212,6 @@ def preprocess(vis):
     -------
     None
     """
-    aggregate(vis)
-    interpolate(vis, 100)
+    # aggregate(vis)
+    # interpolate(vis, 100)
     normalize(vis)
