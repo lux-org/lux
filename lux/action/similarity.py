@@ -56,14 +56,16 @@ def similar_pattern(ldf, *args):
         query_vc = VisList(query,ldf)     
         query_vis = query_vc[0]
         preprocess(query_vis)
-        #for loop to create assign euclidean distance
-        recommendation = {"action":"Similarity",
-                               "description":"Show other charts that are visually similar to the Current vis."}
+        # for loop to create assign euclidean distance
+        recommendation = {
+            "action": "Similarity",
+            "description": "Show other charts that are visually similar to the Current vis.",
+        }
         for vis in search_space_vc:
             preprocess(vis)
             vis.score = euclidean_dist(query_vis, vis)
         search_space_vc.normalize_score(invert_order=True)
-        if(topK!=-1):
+        if(topK != -1):
             search_space_vc = search_space_vc.topK(topK)
         recommendation["collection"] = search_space_vc
         return recommendation
