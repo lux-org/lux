@@ -17,51 +17,50 @@ import pytest
 import pandas as pd
 from lux.vis.Vis import Vis
 
+
 # Test suite for checking if the expected errors and warnings are showing up correctly
-def test_context_str_error():
-    df = pd.read_csv("lux/data/college.csv")
-    with pytest.raises(TypeError, match="Input intent must be a list"):
-        df.set_intent("bad string input")
+def test_intent_str_error(global_var):
+    df = pytest.college_df
+    with pytest.raises(TypeError, match="Input intent must be either a list"):
+        df.intent = "bad string input"
 
 
-def test_export_b4_widget_created():
+def test_export_b4_widget_created(global_var):
     df = pd.read_csv("lux/data/college.csv")
     with pytest.warns(UserWarning, match="No widget attached to the dataframe"):
         df.exported
 
 
-def test_bad_filter():
-    df = pd.read_csv("lux/data/college.csv")
+def test_bad_filter(global_var):
+    df = pytest.college_df
     with pytest.warns(UserWarning, match="Lux can not operate on an empty dataframe"):
         df[df["Region"] == "asdfgh"]._repr_html_()
 
 
-def test_multi_vis():
-    df = pd.read_csv("lux/data/college.csv")
-    with pytest.raises(
-        SyntaxError,
-        match="The intent that you specified corresponds to more than one visualization.",
-    ):
-        Vis(["SATAverage", "AverageCost", "Geography=?"], df)._repr_html_()
+def test_multi_vis(global_var):
+    df = pytest.college_df
+    multivis_msg = "The intent that you specified corresponds to more than one visualization."
+    with pytest.raises(TypeError, match=multivis_msg):
+        Vis(["SATAverage", "AverageCost", "Geography=?"], df)
 
-    with pytest.raises(
-        SyntaxError,
-        match="The intent that you specified corresponds to more than one visualization.",
-    ):
-        Vis(["SATAverage", "?"], df)._repr_html_()
+    with pytest.raises(TypeError, match=multivis_msg):
+        Vis(["SATAverage", "?"], df)
 
-    with pytest.raises(
-        SyntaxError,
-        match="The intent that you specified corresponds to more than one visualization.",
-    ):
-        Vis(["SATAverage", "AverageCost", "Region=New England|Southeast"], df)._repr_html_()
+    with pytest.raises(TypeError, match=multivis_msg):
+        Vis(["SATAverage", "AverageCost", "Region=New England|Southeast"], df)
+
+    with pytest.raises(TypeError, match=multivis_msg):
+        Vis(["Region=New England|Southeast"], df)
+
+    with pytest.raises(TypeError, match=multivis_msg):
+        Vis(["FundingModel", ["Region", "ACTMedian"]], df)
 
 
 # Test Properties with Private Variables Readable but not Writable
-def test_vis_private_properties():
+def test_vis_private_properties(global_var):
     from lux.vis.Vis import Vis
 
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     vis = Vis(["Horsepower", "Weight"], df)
     vis._repr_html_()
     assert isinstance(vis.data, lux.core.frame.LuxDataFrame)

@@ -18,6 +18,7 @@ from lux.vis.Clause import Clause
 from typing import List
 from lux.utils.date_utils import is_datetime_series, is_datetime_string
 import warnings
+import lux
 
 
 class Validator:
@@ -27,6 +28,7 @@ class Validator:
 
     def __init__(self):
         self.name = "Validator"
+        warnings.formatwarning = lux.warning_format
 
     def __repr__(self):
         return f"<Validator>"
@@ -53,23 +55,36 @@ class Validator:
         """
 
         def validate_clause(clause):
+            warn_msg = ""
             if not (
                 (clause.attribute and clause.attribute == "?") or (clause.value and clause.value == "?")
             ):
                 if isinstance(clause.attribute, list):
                     for attr in clause.attribute:
                         if attr not in list(ldf.columns):
-                            warnings.warn(
-                                f"The input attribute '{attr}' does not exist in the DataFrame."
+                            warn_msg = (
+                                f"\n- The input attribute '{attr}' does not exist in the DataFrame."
                             )
                 else:
                     if clause.attribute != "Record":
                         # we don't value check datetime since datetime can take filter values that don't exactly match the exact TimeStamp representation
                         if clause.attribute and not is_datetime_string(clause.attribute):
                             if not clause.attribute in list(ldf.columns):
+<<<<<<< HEAD
                                 warnings.warn(
                                     f"The input attribute '{clause.attribute}' does not exist in the DataFrame."
                                 )
+=======
+                                search_val = clause.attribute
+                                match_attr = False
+                                for attr, val_list in ldf.unique_values.items():
+                                    if search_val in val_list:
+                                        match_attr = attr
+                                if match_attr:
+                                    warn_msg = f"\n- The input '{search_val}' looks like a value that belongs to the '{match_attr}' attribute. \n  Please specify the value fully, as something like {match_attr}={search_val}."
+                                else:
+                                    warn_msg = f"\n- The input attribute '{clause.attribute}' does not exist in the DataFrame. \n  Please check your input intent for typos."
+>>>>>>> 8149e7222f218e100b79d114a81d27ccda129784
                         if clause.value and clause.attribute and clause.filter_op == "=":
                             series = ldf[clause.attribute]
                             if not is_datetime_series(series):
@@ -78,15 +93,27 @@ class Validator:
                                 else:
                                     vals = [clause.value]
                                 for val in vals:
+<<<<<<< HEAD
                                     # (not series.str.contains(val).any()):
                                     if val not in series.values:
                                         warnings.warn(
                                             f"The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
                                         )
+=======
+                                    if val not in series.values:
+                                        warn_msg = f"\n- The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
+            return warn_msg
+>>>>>>> 8149e7222f218e100b79d114a81d27ccda129784
 
+        warn_msg = ""
         for clause in intent:
             if type(clause) is list:
                 for s in clause:
-                    validate_clause(s)
+                    warn_msg += validate_clause(s)
             else:
-                validate_clause(clause)
+                warn_msg += validate_clause(clause)
+        if warn_msg != "":
+            warnings.warn(
+                "\nThe following issues are ecountered when validating the parsed intent:" + warn_msg,
+                stacklevel=2,
+            )
