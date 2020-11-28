@@ -496,6 +496,7 @@ def test_df_to_series(global_var):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
@@ -526,6 +527,7 @@ def test_value_counts(global_var):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
@@ -555,6 +557,7 @@ def test_str_replace(global_var):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Brand", "Pandas Series original `name` property not retained."

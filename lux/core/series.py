@@ -36,6 +36,7 @@ class LuxSeries(pd.Series):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
     ]
 
     @property
