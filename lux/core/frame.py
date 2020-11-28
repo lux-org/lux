@@ -67,8 +67,6 @@ class LuxDataFrame(pd.DataFrame):
 
         self.table_name = ""
         lux.config.executor = PandasExecutor()
-        lux.config.SQLconnection = ""
-        lux.config.table_name = ""
 
         self._sampled = None
         self._toggle_pandas_display = True
@@ -292,7 +290,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def set_SQL_connection(self, connection, t_name):
         lux.config.SQLconnection = connection
-        lux.config.table_name = t_name
+        self.table_name = t_name
         self.compute_SQL_dataset_metadata()
         self.set_executor_type("SQL")
 
@@ -325,10 +323,10 @@ class LuxDataFrame(pd.DataFrame):
                 )
 
     def get_SQL_attributes(self):
-        if "." in lux.config.table_name:
-            table_name = lux.config.table_name[lux.config.table_name.index(".") + 1 :]
+        if "." in self.table_name:
+            table_name = self.table_name[self.table_name.index(".") + 1 :]
         else:
-            table_name = lux.config.table_name
+            table_name = self.table_name
         query = f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'"
         attributes = list(pd.read_sql(query, lux.config.SQLconnection)["column_name"])
         for attr in attributes:
@@ -338,7 +336,7 @@ class LuxDataFrame(pd.DataFrame):
         cardinality = {}
         for attr in list(self.columns):
             card_query = pd.read_sql(
-                f"SELECT Count(Distinct({attr})) FROM {lux.config.table_name}",
+                f"SELECT Count(Distinct({attr})) FROM {self.table_name}",
                 lux.config.SQLconnection,
             )
             cardinality[attr] = list(card_query["count"])[0]
@@ -348,7 +346,7 @@ class LuxDataFrame(pd.DataFrame):
         unique_vals = {}
         for attr in list(self.columns):
             unique_query = pd.read_sql(
-                f"SELECT Distinct({attr}) FROM {lux.config.table_name}",
+                f"SELECT Distinct({attr}) FROM {self.table_name}",
                 lux.config.SQLconnection,
             )
             unique_vals[attr] = list(unique_query[attr])
@@ -358,10 +356,10 @@ class LuxDataFrame(pd.DataFrame):
         data_type_lookup = {}
         sql_dtypes = {}
         self.get_SQL_cardinality()
-        if "." in lux.config.table_name:
-            table_name = lux.config.table_name[lux.config.table_name.index(".") + 1 :]
+        if "." in self.table_name:
+            table_name = self.table_name[self.table_name.index(".") + 1 :]
         else:
-            table_name = lux.config.table_name
+            table_name = self.table_name
         # get the data types of the attributes in the SQL table
         for attr in list(self.columns):
             query = f"SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' AND COLUMN_NAME = '{attr}'"
