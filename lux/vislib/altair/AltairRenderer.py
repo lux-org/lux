@@ -92,15 +92,10 @@ class AltairRenderer:
             elif self.output_type == "Altair":
                 import inspect
 
-<<<<<<< HEAD
-                if vis.plot_config:
-                    chart.code += "\n".join(inspect.getsource(vis.plot_config).split("\n    ")[1:-1])
-=======
                 if lux.config.plot_config:
                     chart.code += "\n".join(
                         inspect.getsource(lux.config.plot_config).split("\n    ")[1:-1]
                     )
->>>>>>> 8149e7222f218e100b79d114a81d27ccda129784
                 chart.code += "\nchart"
                 chart.code = chart.code.replace("\n\t\t", "\n")
 

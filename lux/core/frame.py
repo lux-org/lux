@@ -603,11 +603,7 @@ class LuxDataFrame(pd.DataFrame):
         from lux.processor.Compiler import Compiler
 
         intent_action = list(self._widget.selectedIntentIndex.keys())[0]
-<<<<<<< HEAD
-        vis = self.recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
-=======
         vis = self._recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
->>>>>>> 8149e7222f218e100b79d114a81d27ccda129784
         self.set_intent_as_vis(vis)
 
         self.maintain_metadata()

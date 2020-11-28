@@ -53,20 +53,11 @@ class Compiler:
         """
         if vis:
             # autofill data type/model information
-<<<<<<< HEAD
-            vis_collection = Compiler.populate_data_type_model(ldf, [vis])
-            # remove invalid visualizations from collection
-            vis_collection = Compiler.remove_all_invalid(vis_collection)
-            for vis in vis_collection:
-                # autofill viz related information
-                Compiler.determine_encoding(ldf, vis)
-=======
             Compiler.populate_data_type_model(ldf, [vis])
             # remove invalid visualizations from collection
             Compiler.remove_all_invalid([vis])
             # autofill viz related information
             Compiler.determine_encoding(ldf, vis)
->>>>>>> 8149e7222f218e100b79d114a81d27ccda129784
             ldf._compiled = True
             return vis
 
@@ -93,11 +84,7 @@ class Compiler:
         if _inferred_intent:
             vis_collection = Compiler.enumerate_collection(_inferred_intent, ldf)
             # autofill data type/model information
-<<<<<<< HEAD
-            vis_collection = Compiler.populate_data_type_model(ldf, vis_collection)
-=======
             Compiler.populate_data_type_model(ldf, vis_collection)
->>>>>>> 8149e7222f218e100b79d114a81d27ccda129784
             # remove invalid visualizations from collection
             if len(vis_collection) >= 1:
                 vis_collection = Compiler.remove_all_invalid(vis_collection)
@@ -192,10 +179,6 @@ class Compiler:
                         else:
                             chart_title = clause.value
                         vis.title = f"{clause.attribute} {clause.filter_op} {chart_title}"
-<<<<<<< HEAD
-        return vlist
-=======
->>>>>>> 8149e7222f218e100b79d114a81d27ccda129784
 
     @staticmethod
     def remove_all_invalid(vis_collection: VisList) -> VisList:

@@ -303,12 +303,6 @@ class Vis:
             from lux.processor.Parser import Parser
             from lux.processor.Validator import Validator
             from lux.processor.Compiler import Compiler
-<<<<<<< HEAD
-            from lux.executor.PandasExecutor import PandasExecutor
-
-            # TODO: temporary (generalize to executor)
-=======
->>>>>>> 8149e7222f218e100b79d114a81d27ccda129784
 
             self.check_not_vislist_intent()
 

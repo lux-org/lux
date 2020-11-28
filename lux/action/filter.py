@@ -108,11 +108,7 @@ def filter(ldf):
             unique_values = ldf.unique_values[cat]
             for val in unique_values:
                 new_spec = column_spec.copy()
-<<<<<<< HEAD
-                new_filter = lux.Clause(attribute=cat, filter_op="=", value=unique_values[i])
-=======
                 new_filter = lux.Clause(attribute=cat, filter_op="=", value=val)
->>>>>>> 8149e7222f218e100b79d114a81d27ccda129784
                 new_spec.append(new_filter)
                 temp_vis = Vis(new_spec)
                 output.append(temp_vis)

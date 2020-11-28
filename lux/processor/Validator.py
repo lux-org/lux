@@ -70,11 +70,6 @@ class Validator:
                         # we don't value check datetime since datetime can take filter values that don't exactly match the exact TimeStamp representation
                         if clause.attribute and not is_datetime_string(clause.attribute):
                             if not clause.attribute in list(ldf.columns):
-<<<<<<< HEAD
-                                warnings.warn(
-                                    f"The input attribute '{clause.attribute}' does not exist in the DataFrame."
-                                )
-=======
                                 search_val = clause.attribute
                                 match_attr = False
                                 for attr, val_list in ldf.unique_values.items():
@@ -84,7 +79,6 @@ class Validator:
                                     warn_msg = f"\n- The input '{search_val}' looks like a value that belongs to the '{match_attr}' attribute. \n  Please specify the value fully, as something like {match_attr}={search_val}."
                                 else:
                                     warn_msg = f"\n- The input attribute '{clause.attribute}' does not exist in the DataFrame. \n  Please check your input intent for typos."
->>>>>>> 8149e7222f218e100b79d114a81d27ccda129784
                         if clause.value and clause.attribute and clause.filter_op == "=":
                             series = ldf[clause.attribute]
                             if not is_datetime_series(series):
@@ -93,17 +87,9 @@ class Validator:
                                 else:
                                     vals = [clause.value]
                                 for val in vals:
-<<<<<<< HEAD
-                                    # (not series.str.contains(val).any()):
-                                    if val not in series.values:
-                                        warnings.warn(
-                                            f"The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
-                                        )
-=======
                                     if val not in series.values:
                                         warn_msg = f"\n- The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
             return warn_msg
->>>>>>> 8149e7222f218e100b79d114a81d27ccda129784
 
         warn_msg = ""
         for clause in intent:
