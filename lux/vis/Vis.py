@@ -314,9 +314,7 @@ class Vis:
             ldf.executor.execute([self], ldf)
 
     def check_not_vislist_intent(self):
-        import sys
 
-        sys.tracebacklimit = 0
         syntaxMsg = (
             "The intent that you specified corresponds to more than one visualization. "
             "Please replace the Vis constructor with VisList to generate a list of visualizations. "
@@ -328,9 +326,9 @@ class Vis:
                 if type(self._intent[i]) != Clause and (
                     "|" in self._intent[i] or type(self._intent[i]) == list
                 ):
-                    raise SyntaxError(syntaxMsg)
+                    raise TypeError(syntaxMsg)
 
         if len(self._intent) > 2 or "?" in self._intent:
             for i in range(len(self._intent)):
                 if type(self._intent[i]) != Clause:
-                    raise SyntaxError(syntaxMsg)
+                    raise TypeError(syntaxMsg)
