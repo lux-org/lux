@@ -116,7 +116,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def expire_recs(self):
         self._recs_fresh = False
-        self.recommendation = {}
+        self._recommendation = {}
         self.current_vis = None
         self._widget = None
         self._rec_info = None
@@ -268,6 +268,12 @@ class LuxDataFrame(pd.DataFrame):
 
     @property
     def recommendation(self):
+        if self._recommendation is not None and self._recommendation == {}:
+            from lux.processor.Compiler import Compiler
+
+            self.maintain_metadata()
+            self.current_vis = Compiler.compile_intent(self, self._intent)
+            self.maintain_recs()
         return self._recommendation
 
     @recommendation.setter
@@ -276,6 +282,14 @@ class LuxDataFrame(pd.DataFrame):
 
     @property
     def current_vis(self):
+        # _parse_validate_compile_intent does not call executor,
+        # we only attach data to current vis when user request current_vis
+        if (
+            self._current_vis is not None
+            and len(self._current_vis) > 0
+            and self._current_vis[0].data is None
+        ):
+            self.executor.execute(self._current_vis, self)
         return self._current_vis
 
     @current_vis.setter
@@ -450,7 +464,7 @@ class LuxDataFrame(pd.DataFrame):
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
             else:
-                if rec_df.recommendation == {}:
+                if rec_df._recommendation == {}:
                     # display conditions for default actions
                     no_vis = lambda ldf: (ldf.current_vis is None) or (
                         ldf.current_vis is not None and len(ldf.current_vis) == 0
@@ -481,12 +495,12 @@ class LuxDataFrame(pd.DataFrame):
                 lux.update_actions["flag"] = False
 
             # Store _rec_info into a more user-friendly dictionary form
-            rec_df.recommendation = {}
+            rec_df._recommendation = {}
             for rec_info in rec_infolist:
                 action_type = rec_info["action"]
                 vlist = rec_info["collection"]
                 if len(vlist) > 0:
-                    rec_df.recommendation[action_type] = vlist
+                    rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
             self._widget = rec_df.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
@@ -551,7 +565,7 @@ class LuxDataFrame(pd.DataFrame):
                     exported_vis[export_action] = VisList(
                         list(
                             map(
-                                self.recommendation[export_action].__getitem__,
+                                self._recommendation[export_action].__getitem__,
                                 exported_vis_lst[export_action],
                             )
                         )
@@ -562,7 +576,7 @@ class LuxDataFrame(pd.DataFrame):
             exported_vis = VisList(
                 list(
                     map(
-                        self.recommendation[export_action].__getitem__,
+                        self._recommendation[export_action].__getitem__,
                         exported_vis_lst[export_action],
                     )
                 )
@@ -581,7 +595,7 @@ class LuxDataFrame(pd.DataFrame):
         for action in self._widget.deletedIndices:
             deletedSoFar = 0
             for index in self._widget.deletedIndices[action]:
-                self.recommendation[action].remove_index(index - deletedSoFar)
+                self._recommendation[action].remove_index(index - deletedSoFar)
                 deletedSoFar += 1
 
     def set_intent_on_click(self, change):
@@ -589,7 +603,7 @@ class LuxDataFrame(pd.DataFrame):
         from lux.processor.Compiler import Compiler
 
         intent_action = list(self._widget.selectedIntentIndex.keys())[0]
-        vis = self.recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
+        vis = self._recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
         self.set_intent_as_vis(vis)
 
         self.maintain_metadata()
@@ -650,7 +664,7 @@ class LuxDataFrame(pd.DataFrame):
                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
                 self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
-                if len(self.recommendation) > 0:
+                if len(self._recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
                     button = widgets.Button(
                         description="Toggle Pandas/Lux",
