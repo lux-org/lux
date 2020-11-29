@@ -45,7 +45,6 @@ There is a suite of test files for ensuring that Lux is working correctly. These
 To run all the tests, including checking for code formatting, run:
 
 ```
-make
 make test
 ```
 
