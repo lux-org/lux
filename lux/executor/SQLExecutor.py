@@ -27,13 +27,13 @@ class SQLExecutor(Executor):
     """
 
     def __init__(self):
-        self.name = "Executor"
+        self.name = "SQLExecutor"
         self.selection = []
         self.tables = []
         self.filters = ""
 
     def __repr__(self):
-        return f"<Executor>"
+        return f"<SQLExecutor>"
 
     @staticmethod
     def execute(vislist: VisList, ldf: LuxDataFrame):
