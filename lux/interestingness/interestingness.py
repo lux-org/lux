@@ -21,6 +21,7 @@ import pandas as pd
 import numpy as np
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from scipy.spatial.distance import euclidean
+import lux
 
 
 def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
@@ -219,7 +220,7 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
     unfiltered_vis = copy.copy(vis)
     # Remove filters, keep only attribute intent
     unfiltered_vis._inferred_intent = utils.get_attrs_specs(vis._inferred_intent)
-    ldf.executor.execute([unfiltered_vis], ldf)
+    lux.config.executor.execute([unfiltered_vis], ldf)
 
     v = unfiltered_vis.data[msr_attribute]
     v = v / v.sum()

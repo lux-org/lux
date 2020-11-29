@@ -38,8 +38,8 @@ def filter(ldf):
     filter_values = []
     output = []
     # if fltr is specified, create visualizations where data is filtered by all values of the fltr's categorical variable
-    column_spec = utils.get_attrs_specs(ldf.current_vis[0]._inferred_intent)
-    column_spec_attr = map(lambda x: x.attribute, column_spec)
+    column_spec = utils.get_attrs_specs(ldf.current_vis[0].intent)
+    column_spec_attr = list(map(lambda x: x.attribute, column_spec))
     if len(filters) == 1:
         # get unique values for all categorical values specified and creates corresponding filters
         fltr = filters[0]
@@ -106,9 +106,9 @@ def filter(ldf):
                 categorical_vars.append(col)
         for cat in categorical_vars:
             unique_values = ldf.unique_values[cat]
-            for i in range(0, len(unique_values)):
+            for val in unique_values:
                 new_spec = column_spec.copy()
-                new_filter = lux.Clause(attribute=cat, filter_op="=", value=unique_values[i])
+                new_filter = lux.Clause(attribute=cat, filter_op="=", value=val)
                 new_spec.append(new_filter)
                 temp_vis = Vis(new_spec)
                 output.append(temp_vis)

@@ -37,7 +37,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.bool
       ~LuxDataFrame.boxplot
       ~LuxDataFrame.clear_intent
-      ~LuxDataFrame.clear_plot_config
       ~LuxDataFrame.clip
       ~LuxDataFrame.combine
       ~LuxDataFrame.combine_first
@@ -257,7 +256,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.intent
       ~LuxDataFrame.loc
       ~LuxDataFrame.ndim
-      ~LuxDataFrame.plot_config
       ~LuxDataFrame.recommendation
       ~LuxDataFrame.shape
       ~LuxDataFrame.size

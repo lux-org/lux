@@ -432,8 +432,7 @@ def check_metadata_equal(df1, df2):
                     elif key in y_info:
                         assert x_info[key] == y_info[key]
 
-        elif attr != "_widget":
-            print(attr)
+        elif attr != "_widget" and attr != "_sampled" and attr != "_message":
             assert getattr(df1, attr) == getattr(df2, attr)
 
 
@@ -462,7 +461,6 @@ def compare_vis(vis1, vis2):
     assert vis1._code == vis2._code
     assert vis1._mark == vis2._mark
     assert vis1._min_max == vis2._min_max
-    assert vis1._plot_config == vis2._plot_config
     assert vis1.title == vis2.title
     assert vis1.score == vis2.score
 

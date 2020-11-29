@@ -42,15 +42,18 @@ class LuxDataFrame(pd.DataFrame):
         "unique_values",
         "cardinality",
         "_rec_info",
-        "_pandas_only",
         "_min_max",
-        "plot_config",
         "_current_vis",
         "_widget",
         "_recommendation",
         "_prev",
         "_history",
         "_saved_export",
+        "_sampled",
+        "_toggle_pandas_display",
+        "_message",
+        "_pandas_only",
+        "pre_aggregated",
     ]
 
     def __init__(self, *args, **kw):
@@ -64,15 +67,11 @@ class LuxDataFrame(pd.DataFrame):
         self._prev = None
         super(LuxDataFrame, self).__init__(*args, **kw)
 
-        self.executor_type = "Pandas"
-        self.executor = PandasExecutor()
-        self.SQLconnection = ""
         self.table_name = ""
+        lux.config.executor = PandasExecutor()
 
         self._sampled = None
-        self._default_pandas_display = True
         self._toggle_pandas_display = True
-        self._plot_config = None
         self._message = Message()
         self._pandas_only = False
         # Metadata
@@ -85,6 +84,7 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = None
         self._min_max = None
         self.pre_aggregated = None
+        warnings.formatwarning = lux.warning_format
 
     @property
     def _constructor(self):
@@ -108,9 +108,10 @@ class LuxDataFrame(pd.DataFrame):
         # Check that metadata has not yet been computed
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
+
             if len(self) > 0 or self.executor_type == "SQL":
-                self.executor.compute_stats(self)
-                self.executor.compute_dataset_metadata(self)
+                lux.config.executor.compute_stats(self)
+                lux.config.executor.compute_dataset_metadata(self)
                 self._infer_structure()
                 self._metadata_fresh = True
 
@@ -183,53 +184,11 @@ class LuxDataFrame(pd.DataFrame):
             else:
                 import psycopg2
             from lux.executor.SQLExecutor import SQLExecutor
-
-            self.executor = SQLExecutor()
+            lux.config.executor = SQLExecutor()
         else:
             from lux.executor.PandasExecutor import PandasExecutor
 
-            self.executor = PandasExecutor()
-        self.executor_type = exe
-
-    @property
-    def plot_config(self):
-        return self._plot_config
-
-    @plot_config.setter
-    def plot_config(self, config_func: Callable):
-        """
-        Modify plot aesthetic settings to all visualizations in the dataframe display
-        Currently only supported for Altair visualizations
-        Parameters
-        ----------
-        config_func : Callable
-                A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
-
-        Example
-        ----------
-        Changing the color of marks and adding a title for all charts displayed for this dataframe
-        >>> df = pd.read_csv("lux/data/car.csv")
-        >>> def changeColorAddTitle(chart):
-                        chart = chart.configure_mark(color="red") # change mark color to red
-                        chart.title = "Custom Title" # add title to chart
-                        return chart
-        >>> df.plot_config = changeColorAddTitle
-        >>> df
-        Change the opacity of all scatterplots displayed for this dataframe
-        >>> df = pd.read_csv("lux/data/olympic.csv")
-        >>> def changeOpacityScatterOnly(chart):
-                        if chart.mark=='circle':
-                                chart = chart.configure_mark(opacity=0.1) # lower opacity
-                        return chart
-        >>> df.plot_config = changeOpacityScatterOnly
-        >>> df
-        """
-        self._plot_config = config_func
-        self._recs_fresh = False
-
-    def clear_plot_config(self):
-        self._plot_config = None
-        self._recs_fresh = False
+            lux.config.executor = PandasExecutor()
 
     @property
     def intent(self):
@@ -277,6 +236,7 @@ class LuxDataFrame(pd.DataFrame):
         from lux.processor.Validator import Validator
 
         self._intent = Parser.parse(self._intent)
+        Validator.validate_intent(self._intent, self)
         self.maintain_metadata()
         Validator.validate_intent(self._intent, self)
         from lux.processor.Compiler import Compiler
@@ -332,11 +292,10 @@ class LuxDataFrame(pd.DataFrame):
     ########## SQL Metadata, type, model schema ###########
     #######################################################
 
-    def set_SQL_connection(self, connection, t_name):
-        self.SQLconnection = connection
+    def set_SQL_table(self, t_name):
         self.table_name = t_name
-        self.set_executor_type("SQL")
-        self.executor.compute_dataset_metadata(self)
+        lux.config.set_executor_type("SQL")
+        lux.config.executor.compute_dataset_metadata(self)
 
     def _append_rec(self, rec_infolist, recommendations: Dict):
         if recommendations["collection"] is not None and len(recommendations["collection"]) > 0:
@@ -405,11 +364,11 @@ class LuxDataFrame(pd.DataFrame):
                     lux.register_action("occurrence", univariate, no_vis, "nominal")
                     lux.register_action("temporal", univariate, no_vis, "temporal")
 
-                    lux.register_action("enhance", enhance, one_current_vis)
-                    lux.register_action("filter", filter, one_current_vis)
-                    lux.register_action("generalize", generalize, one_current_vis)
+                    lux.register_action("Enhance", enhance, one_current_vis)
+                    lux.register_action("Filter", filter, one_current_vis)
+                    lux.register_action("Generalize", generalize, one_current_vis)
 
-                    lux.register_action("custom", custom, multiple_current_vis)
+                    lux.register_action("Custom", custom, multiple_current_vis)
 
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
@@ -422,12 +381,6 @@ class LuxDataFrame(pd.DataFrame):
             for rec_info in rec_infolist:
                 action_type = rec_info["action"]
                 vlist = rec_info["collection"]
-                if rec_df._plot_config:
-                    if rec_df.current_vis:
-                        for vis in rec_df.current_vis:
-                            vis._plot_config = rec_df.plot_config
-                    for vis in vlist:
-                        vis._plot_config = rec_df.plot_config
                 if len(vlist) > 0:
                     rec_df.recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
@@ -573,13 +526,6 @@ class LuxDataFrame(pd.DataFrame):
                     )
                     display(self.display_pandas())
                     return
-                if len(self.columns) <= 1:
-                    warnings.warn(
-                        "\nLux defaults to Pandas when there is only a single column.",
-                        stacklevel=2,
-                    )
-                    display(self.display_pandas())
-                    return
                 self.maintain_metadata()
 
                 if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
@@ -706,7 +652,7 @@ class LuxDataFrame(pd.DataFrame):
     def to_JSON(self, rec_infolist, input_current_vis=""):
         widget_spec = {}
         if self.current_vis:
-            self.executor.execute(self.current_vis, self)
+            lux.config.executor.execute(self.current_vis, self)
             widget_spec["current_vis"] = LuxDataFrame.current_vis_to_JSON(
                 self.current_vis, input_current_vis
             )
@@ -724,7 +670,7 @@ class LuxDataFrame(pd.DataFrame):
         current_vis_spec = {}
         numVC = len(vlist)  # number of visualizations in the vis list
         if numVC == 1:
-            current_vis_spec = vlist[0].render_VSpec()
+            current_vis_spec = vlist[0].to_code(prettyOutput=False)
         elif numVC > 1:
             pass
         return current_vis_spec
@@ -739,10 +685,10 @@ class LuxDataFrame(pd.DataFrame):
             if len(rec["collection"]) > 0:
                 rec["vspec"] = []
                 for vis in rec["collection"]:
-                    chart = vis.render_VSpec()
+                    chart = vis.to_code(prettyOutput=False)
                     rec["vspec"].append(chart)
                 rec_lst.append(rec)
-                # delete DataObjectCollection since not JSON serializable
+                # delete since not JSON serializable
                 del rec_lst[idx]["collection"]
         return rec_lst
 

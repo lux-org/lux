@@ -19,6 +19,7 @@ from typing import List
 from lux.utils.date_utils import is_datetime_series, is_datetime_string
 import warnings
 import pandas as pd
+import lux
 
 
 class Validator:
@@ -28,6 +29,7 @@ class Validator:
 
     def __init__(self):
         self.name = "Validator"
+        warnings.formatwarning = lux.warning_format
 
     def __repr__(self):
         return f"<Validator>"
