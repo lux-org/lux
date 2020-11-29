@@ -49,9 +49,9 @@ def column_group(ldf):
                             index_column_name,
                             data_type="nominal",
                             data_model="dimension",
-                            aggregation=None,
+                            aggregation="",
                         ),
-                        lux.Clause(str(attribute), data_type="quantitative", aggregation=None),
+                        lux.Clause(str(attribute), data_type="quantitative", aggregation=""),
                     ]
                 )
                 collection.append(vis)

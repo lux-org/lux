@@ -152,7 +152,6 @@ class PandasExecutor(Executor):
             has_color = True
         else:
             color_cardinality = 1
-
         if measure_attr != "":
             if measure_attr.attribute == "Record":
                 vis._vis_data = vis.data.reset_index()
