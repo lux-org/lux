@@ -192,6 +192,7 @@ class SQLExecutor(Executor):
                             color_attr.attribute,
                         )
                         view._vis_data = pandas.read_sql(mean_query, lux.config.SQLconnection)
+
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "sum":
                         mean_query = "SELECT {}, {}, SUM({}) as {} FROM {} {} GROUP BY {}, {}".format(

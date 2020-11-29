@@ -103,6 +103,7 @@ def register_action(
     args: Any
             any additional arguments the function may require
     """
+
     if action:
         is_callable(action)
 
@@ -123,6 +124,7 @@ def remove_action(name: str = "") -> None:
     name : str
             the name of the action to remove
     """
+
     if name not in _registered_actions:
         raise ValueError(f"Option '{name}' has not been registered")
 
@@ -155,6 +157,7 @@ class Config:
         self.plot_config = None
         self.SQLconnection = ""
         self.executor = None
+
 
     @property
     def default_display(self):

@@ -24,6 +24,7 @@ import warnings
 import lux
 
 
+
 class Compiler:
     """
     Given a intent with underspecified inputs, compile the intent into fully specified visualizations for visualization.
