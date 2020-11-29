@@ -55,8 +55,8 @@ class SQLExecutor(Executor):
                 SQLExecutor.execute_aggregate(view, ldf)
             elif view.mark == "histogram":
                 SQLExecutor.execute_binning(view, ldf)
-        #this is weird, somewhere in the SQL executor the lux.config.executor is being set to a PandasExecutor
-        #temporary fix here
+        # this is weird, somewhere in the SQL executor the lux.config.executor is being set to a PandasExecutor
+        # temporary fix here
         lux.config.executor = SQLExecutor()
 
     @staticmethod

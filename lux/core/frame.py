@@ -112,6 +112,7 @@ class LuxDataFrame(pd.DataFrame):
     def maintain_metadata(self):
         if lux.config.SQLconnection != "":
             from lux.executor.SQLExecutor import SQLExecutor
+
             lux.config.executor = SQLExecutor()
 
         # Check that metadata has not yet been computed

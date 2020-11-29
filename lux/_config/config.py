@@ -198,6 +198,7 @@ class Config:
         else:
             self.executor = PandasExecutor()
 
+
 config = Config()
 
 
