@@ -179,6 +179,9 @@ class Config:
                 stacklevel=2,
             )
 
+    def set_SQL_connection(self, connection):
+        self.SQLconnection = connection
+
 
 config = Config()
 

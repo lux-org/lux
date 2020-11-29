@@ -288,11 +288,9 @@ class LuxDataFrame(pd.DataFrame):
     ########## SQL Metadata, type, model schema ###########
     #######################################################
 
-    def set_SQL_connection(self, connection, t_name):
-        lux.config.SQLconnection = connection
+    def set_SQL_table(self, t_name):
         self.table_name = t_name
         self.compute_SQL_dataset_metadata()
-        self.set_executor_type("SQL")
 
     def compute_SQL_dataset_metadata(self):
         self.get_SQL_attributes()
