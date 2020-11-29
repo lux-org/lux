@@ -126,7 +126,7 @@ class LuxDataFrame(pd.DataFrame):
     def expire_recs(self):
         self._recs_fresh = False
         self._recommendation = {}
-        self.current_vis = None
+        self.current_vis = []
         self._widget = None
         self._rec_info = None
         self._sampled = None
@@ -173,11 +173,11 @@ class LuxDataFrame(pd.DataFrame):
         is_multi_index_flag = self.index.nlevels != 1
         not_int_index_flag = self.index.dtype != "int64"
 
-        small_df_flag = len(self) < 100 and lux.config.executor.name == "Pandas"
+        small_df_flag = len(self) < 100 and lux.config.executor.name == "PandasExecutor"
         self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
         if "Number of Records" in self.columns:
             self.pre_aggregated = True
-        very_small_df_flag = len(self) <= 10 and lux.config.executor.name == "Pandas"
+        very_small_df_flag = len(self) <= 10 and lux.config.executor.name == "PandasExecutor"
         if very_small_df_flag:
             self.pre_aggregated = True
 
@@ -282,7 +282,7 @@ class LuxDataFrame(pd.DataFrame):
             and len(self._current_vis) > 0
             and self._current_vis[0].data is None
         ):
-            self.executor.execute(self._current_vis, self)
+            lux.config.executor.execute(self._current_vis, self)
         return self._current_vis
 
     @current_vis.setter
