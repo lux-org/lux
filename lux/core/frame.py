@@ -523,7 +523,7 @@ class LuxDataFrame(pd.DataFrame):
                     )
                     display(self.display_pandas())
                     return
-                if len(self) <= 0 and lux.config.executor.name == "Pandas":
+                if len(self) <= 0 and lux.config.executor.name == "PandasExecutor":
                     warnings.warn(
                         "\nLux can not operate on an empty dataframe.\nPlease check your input again.\n",
                         stacklevel=2,
