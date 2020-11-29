@@ -158,7 +158,6 @@ class Config:
         self.SQLconnection = ""
         self.executor = None
 
-
     @property
     def default_display(self):
         return self._default_display

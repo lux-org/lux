@@ -228,7 +228,7 @@ class LuxDataFrame(pd.DataFrame):
         from lux.processor.Validator import Validator
 
         self._intent = Parser.parse(self._intent)
-        #Validator.validate_intent(self._intent, self)
+        # Validator.validate_intent(self._intent, self)
         self.maintain_metadata()
         Validator.validate_intent(self._intent, self)
         from lux.processor.Compiler import Compiler
