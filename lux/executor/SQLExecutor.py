@@ -5,6 +5,7 @@ from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
+import lux
 
 import math
 
@@ -15,13 +16,13 @@ class SQLExecutor(Executor):
     """
 
     def __init__(self):
-        self.name = "Executor"
+        self.name = "SQLExecutor"
         self.selection = []
         self.tables = []
         self.filters = ""
 
     def __repr__(self):
-        return f"<Executor>"
+        return f"<SQLExecutor>"
 
     @staticmethod
     def execute(view_collection: VisList, ldf: LuxDataFrame):
@@ -54,6 +55,9 @@ class SQLExecutor(Executor):
                 SQLExecutor.execute_aggregate(view, ldf)
             elif view.mark == "histogram":
                 SQLExecutor.execute_binning(view, ldf)
+        #this is weird, somewhere in the SQL executor the lux.config.executor is being set to a PandasExecutor
+        #temporary fix here
+        lux.config.executor = SQLExecutor()
 
     @staticmethod
     def execute_scatter(view: Vis, ldf: LuxDataFrame):
@@ -653,4 +657,4 @@ class SQLExecutor(Executor):
             "measure": ldf.data_type["quantitative"],
             "dimension": ldf.data_type["ordinal"] + ldf.data_type["nominal"] + ldf.data_type["temporal"],
         }
-        ldf.data_model_lookup = lux.config.reverseMapping(ldf.data_model)
+        ldf.data_model_lookup = lux.config.executor.reverseMapping(ldf.data_model)

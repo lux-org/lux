@@ -311,8 +311,8 @@ class Vis:
             self._source = ldf
             self._inferred_intent = Parser.parse(self._intent)
             Validator.validate_intent(self._inferred_intent, ldf)
-            vlist = Compiler.compile_vis(ldf, self)
-            ldf.executor.execute(vlist, ldf)
+            vlist = [Compiler.compile_vis(ldf, self)]
+            lux.config.executor.execute(vlist, ldf)
             # Copying properties over since we can not redefine `self` within class function
             if len(vlist) > 0:
                 vis = vlist[0]

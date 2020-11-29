@@ -39,7 +39,6 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
     int
             Interestingness Score
     """
-
     if vis.data is None or len(vis.data) == 0:
         return -1
         # raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
@@ -203,7 +202,7 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
     int
             Score describing how different the vis is from the overall vis
     """
-    if ldf.executor_type == "Pandas":
+    if lux.config.executor.name == "PandasExecutor":
         v_filter_size = get_filtered_size(filter_specs, ldf)
         v_size = len(vis.data)
     else:

@@ -180,8 +180,23 @@ class Config:
             )
 
     def set_SQL_connection(self, connection):
-        self.SQLconnection = connection
+        from lux.executor.SQLExecutor import SQLExecutor
+        from lux.executor.PandasExecutor import PandasExecutor
 
+        import pkgutil
+
+        if pkgutil.find_loader("psycopg2") is None:
+            raise ImportError(
+                "psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection."
+            )
+        else:
+            import psycopg2
+
+        self.SQLconnection = connection
+        if connection != "":
+            self.executor = SQLExecutor()
+        else:
+            self.executor = PandasExecutor()
 
 config = Config()
 

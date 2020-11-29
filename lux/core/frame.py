@@ -58,6 +58,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def __init__(self, *args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
+        from lux.executor.SQLExecutor import SQLExecutor
 
         self._history = History()
         self._intent = []
@@ -68,7 +69,10 @@ class LuxDataFrame(pd.DataFrame):
         super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.table_name = ""
-        lux.config.executor = PandasExecutor()
+        if lux.config.SQLconnection == "":
+            lux.config.executor = PandasExecutor()
+        else:
+            lux.config.executor = SQLExecutor()
 
         self._sampled = None
         self._toggle_pandas_display = True
@@ -105,11 +109,14 @@ class LuxDataFrame(pd.DataFrame):
         return self._history
 
     def maintain_metadata(self):
+        if lux.config.SQLconnection != "":
+            from lux.executor.SQLExecutor import SQLExecutor
+            lux.config.executor = SQLExecutor()
+
         # Check that metadata has not yet been computed
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
-
-            if len(self) > 0 or self.executor_type == "SQL":
+            if len(self) > 0 or lux.config.executor.name == "SQLExecutor":
                 lux.config.executor.compute_stats(self)
                 lux.config.executor.compute_dataset_metadata(self)
                 self._infer_structure()
@@ -165,30 +172,13 @@ class LuxDataFrame(pd.DataFrame):
         is_multi_index_flag = self.index.nlevels != 1
         not_int_index_flag = self.index.dtype != "int64"
 
-        small_df_flag = len(self) < 100 and self.executor_type == "Pandas"
+        small_df_flag = len(self) < 100 and lux.config.executor.name == "Pandas"
         self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
         if "Number of Records" in self.columns:
             self.pre_aggregated = True
-        very_small_df_flag = len(self) <= 10 and self.executor_type == "Pandas"
+        very_small_df_flag = len(self) <= 10 and lux.config.executor.name == "Pandas"
         if very_small_df_flag:
             self.pre_aggregated = True
-
-    def set_executor_type(self, exe):
-        if exe == "SQL":
-            import pkgutil
-
-            if pkgutil.find_loader("psycopg2") is None:
-                raise ImportError(
-                    "psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection."
-                )
-            else:
-                import psycopg2
-            from lux.executor.SQLExecutor import SQLExecutor
-            lux.config.executor = SQLExecutor()
-        else:
-            from lux.executor.PandasExecutor import PandasExecutor
-
-            lux.config.executor = PandasExecutor()
 
     @property
     def intent(self):
@@ -294,7 +284,6 @@ class LuxDataFrame(pd.DataFrame):
 
     def set_SQL_table(self, t_name):
         self.table_name = t_name
-        lux.config.set_executor_type("SQL")
         lux.config.executor.compute_dataset_metadata(self)
 
     def _append_rec(self, rec_infolist, recommendations: Dict):
@@ -519,7 +508,7 @@ class LuxDataFrame(pd.DataFrame):
                     )
                     display(self.display_pandas())
                     return
-                if len(self) <= 0 and self.executor_type == "Pandas":
+                if len(self) <= 0 and lux.config.executor.name == "Pandas":
                     warnings.warn(
                         "\nLux can not operate on an empty dataframe.\nPlease check your input again.\n",
                         stacklevel=2,
@@ -580,14 +569,14 @@ class LuxDataFrame(pd.DataFrame):
 
         except (KeyboardInterrupt, SystemExit):
             raise
-        except:
-            warnings.warn(
-                "\nUnexpected error in rendering Lux widget and recommendations. "
-                "Falling back to Pandas display.\n\n"
-                "Please report this issue on Github: https://github.com/lux-org/lux/issues ",
-                stacklevel=2,
-            )
-            display(self.display_pandas())
+        # except:
+        #     warnings.warn(
+        #         "\nUnexpected error in rendering Lux widget and recommendations. "
+        #         "Falling back to Pandas display.\n\n"
+        #         "Please report this issue on Github: https://github.com/lux-org/lux/issues ",
+        #         stacklevel=2,
+        #     )
+        #     display(self.display_pandas())
 
     def display_pandas(self):
         return self.to_pandas()

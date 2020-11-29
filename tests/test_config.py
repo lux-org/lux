@@ -21,6 +21,7 @@ import lux
 
 
 def register_new_action(validator: bool = True):
+    lux.config.set_SQL_connection("")
     df = pd.read_csv("lux/data/car.csv")
 
     def random_categorical(ldf):
