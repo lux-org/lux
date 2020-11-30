@@ -34,6 +34,7 @@ class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = [
         "_intent",
+        "_inferred_intent",
         "data_type_lookup",
         "data_type",
         "data_model_lookup",
@@ -60,6 +61,7 @@ class LuxDataFrame(pd.DataFrame):
 
         self._history = History()
         self._intent = []
+        self._inferred_intent = []
         self._recommendation = {}
         self._saved_export = None
         self._current_vis = []
