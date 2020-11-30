@@ -288,7 +288,7 @@ class LuxDataFrame(pd.DataFrame):
             and len(self._current_vis) > 0
             and self._current_vis[0].data is None
         ):
-            self.executor.execute(self._current_vis, self)
+            lux.config.executor.execute(self._current_vis, self)
         return self._current_vis
 
     @current_vis.setter
