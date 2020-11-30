@@ -39,34 +39,20 @@ def test_bad_filter(global_var):
 
 def test_multi_vis(global_var):
     df = pytest.college_df
-    with pytest.raises(
-        SyntaxError,
-        match="The intent that you specified corresponds to more than one visualization.",
-    ):
+    multivis_msg = "The intent that you specified corresponds to more than one visualization."
+    with pytest.raises(TypeError, match=multivis_msg):
         Vis(["SATAverage", "AverageCost", "Geography=?"], df)
 
-    with pytest.raises(
-        SyntaxError,
-        match="The intent that you specified corresponds to more than one visualization.",
-    ):
+    with pytest.raises(TypeError, match=multivis_msg):
         Vis(["SATAverage", "?"], df)
 
-    with pytest.raises(
-        SyntaxError,
-        match="The intent that you specified corresponds to more than one visualization.",
-    ):
+    with pytest.raises(TypeError, match=multivis_msg):
         Vis(["SATAverage", "AverageCost", "Region=New England|Southeast"], df)
 
-    with pytest.raises(
-        SyntaxError,
-        match="The intent that you specified corresponds to more than one visualization.",
-    ):
+    with pytest.raises(TypeError, match=multivis_msg):
         Vis(["Region=New England|Southeast"], df)
 
-    with pytest.raises(
-        SyntaxError,
-        match="The intent that you specified corresponds to more than one visualization.",
-    ):
+    with pytest.raises(TypeError, match=multivis_msg):
         Vis(["FundingModel", ["Region", "ACTMedian"]], df)
 
 

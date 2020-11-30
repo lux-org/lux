@@ -36,6 +36,7 @@ class LuxSeries(pd.Series):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
     ]
 
     @property
@@ -101,7 +102,7 @@ class LuxSeries(pd.Series):
                 ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")
                 ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
 
-                if len(ldf.recommendation) > 0:
+                if len(ldf._recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
                     button = widgets.Button(
                         description="Toggle Pandas/Lux",
