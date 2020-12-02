@@ -233,12 +233,10 @@ class LuxDataFrame(pd.DataFrame):
 
         self._intent = Parser.parse(self._intent)
         Validator.validate_intent(self._intent, self)
-        print("validated")
         self.maintain_metadata()
         from lux.processor.Compiler import Compiler
 
         self.current_vis = Compiler.compile_intent(self, self._intent)
-        print("curr vis compiled")
 
     def copy_intent(self):
         # creates a true copy of the dataframe's intent
