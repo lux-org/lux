@@ -168,24 +168,6 @@ class LuxDataFrame(pd.DataFrame):
         if very_small_df_flag:
             self.pre_aggregated = True
 
-    def set_executor_type(self, exe):
-        if exe == "SQL":
-            import pkgutil
-
-            if pkgutil.find_loader("psycopg2") is None:
-                raise ImportError(
-                    "psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection."
-                )
-            else:
-                import psycopg2
-            from lux.executor.SQLExecutor import SQLExecutor
-
-            lux.config.executor = SQLExecutor()
-        else:
-            from lux.executor.PandasExecutor import PandasExecutor
-
-            lux.config.executor = PandasExecutor()
-
     @property
     def intent(self):
         return self._intent
