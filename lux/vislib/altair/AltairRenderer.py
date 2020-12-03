@@ -52,7 +52,7 @@ class AltairRenderer:
         if vis.mark == "scatter" and vis._postbin:
             vis._mark = "heatmap"
 
-            vis.data.executor.execute_2D_binning(vis)
+            lux.config.executor.execute_2D_binning(vis)
         # If a column has a Period dtype, or contains Period objects, convert it back to Datetime
         if vis.data is not None:
             for attr in list(vis.data.columns):

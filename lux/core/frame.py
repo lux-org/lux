@@ -58,9 +58,6 @@ class LuxDataFrame(pd.DataFrame):
     ]
 
     def __init__(self, *args, **kw):
-        from lux.executor.PandasExecutor import PandasExecutor
-        from lux.executor.SQLExecutor import SQLExecutor
-
         self._history = History()
         self._intent = []
         self._recommendation = {}
@@ -71,8 +68,10 @@ class LuxDataFrame(pd.DataFrame):
 
         self.table_name = ""
         if lux.config.SQLconnection == "":
+            from lux.executor.PandasExecutor import PandasExecutor
             lux.config.executor = PandasExecutor()
         else:
+            from lux.executor.SQLExecutor import SQLExecutor
             lux.config.executor = SQLExecutor()
 
         self._sampled = None
@@ -110,9 +109,8 @@ class LuxDataFrame(pd.DataFrame):
         return self._history
 
     def maintain_metadata(self):
-        if lux.config.SQLconnection != "":
+        if lux.config.SQLconnection != "" and lux.config.executor.name != "SQL":
             from lux.executor.SQLExecutor import SQLExecutor
-
             lux.config.executor = SQLExecutor()
 
         # Check that metadata has not yet been computed

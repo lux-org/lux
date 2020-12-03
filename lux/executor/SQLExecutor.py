@@ -57,7 +57,7 @@ class SQLExecutor(Executor):
                 SQLExecutor.execute_binning(view, ldf)
         # this is weird, somewhere in the SQL executor the lux.config.executor is being set to a PandasExecutor
         # temporary fix here
-        lux.config.executor = SQLExecutor()
+        #lux.config.executor = SQLExecutor()
 
     @staticmethod
     def execute_scatter(view: Vis, ldf: LuxDataFrame):
