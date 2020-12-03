@@ -68,10 +68,8 @@ class LuxDataFrame(pd.DataFrame):
         self._prev = None
         super(LuxDataFrame, self).__init__(*args, **kw)
 
-        self.executor_type = "Pandas"
-        self.executor = PandasExecutor()
-        self.SQLconnection = ""
         self.table_name = ""
+        lux.config.executor = PandasExecutor()
 
         self._sampled = None
         self._toggle_pandas_display = True
@@ -111,8 +109,8 @@ class LuxDataFrame(pd.DataFrame):
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
             if len(self) > 0:
-                self.executor.compute_stats(self)
-                self.executor.compute_dataset_metadata(self)
+                lux.config.executor.compute_stats(self)
+                lux.config.executor.compute_dataset_metadata(self)
                 self._infer_structure()
                 self._metadata_fresh = True
 
@@ -171,25 +169,6 @@ class LuxDataFrame(pd.DataFrame):
         very_small_df_flag = len(self) <= 10
         if very_small_df_flag:
             self.pre_aggregated = True
-
-    def set_executor_type(self, exe):
-        if exe == "SQL":
-            import pkgutil
-
-            if pkgutil.find_loader("psycopg2") is None:
-                raise ImportError(
-                    "psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection."
-                )
-            else:
-                import psycopg2
-            from lux.executor.SQLExecutor import SQLExecutor
-
-            self.executor = SQLExecutor
-        else:
-            from lux.executor.PandasExecutor import PandasExecutor
-
-            self.executor = PandasExecutor()
-        self.executor_type = exe
 
     @property
     def intent(self):
@@ -291,7 +270,7 @@ class LuxDataFrame(pd.DataFrame):
             and len(self._current_vis) > 0
             and self._current_vis[0].data is None
         ):
-            self.executor.execute(self._current_vis, self)
+            lux.config.executor.execute(self._current_vis, self)
         return self._current_vis
 
     @current_vis.setter
@@ -306,11 +285,9 @@ class LuxDataFrame(pd.DataFrame):
     ########## SQL Metadata, type, model schema ###########
     #######################################################
 
-    def set_SQL_connection(self, connection, t_name):
-        self.SQLconnection = connection
+    def set_SQL_table(self, t_name):
         self.table_name = t_name
         self.compute_SQL_dataset_metadata()
-        self.set_executor_type("SQL")
 
     def compute_SQL_dataset_metadata(self):
         self.get_SQL_attributes()
@@ -346,7 +323,7 @@ class LuxDataFrame(pd.DataFrame):
         else:
             table_name = self.table_name
         query = f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'"
-        attributes = list(pd.read_sql(query, self.SQLconnection)["column_name"])
+        attributes = list(pd.read_sql(query, lux.config.SQLconnection)["column_name"])
         for attr in attributes:
             self[attr] = None
 
@@ -355,7 +332,7 @@ class LuxDataFrame(pd.DataFrame):
         for attr in list(self.columns):
             card_query = pd.read_sql(
                 f"SELECT Count(Distinct({attr})) FROM {self.table_name}",
-                self.SQLconnection,
+                lux.config.SQLconnection,
             )
             cardinality[attr] = list(card_query["count"])[0]
         self.cardinality = cardinality
@@ -365,7 +342,7 @@ class LuxDataFrame(pd.DataFrame):
         for attr in list(self.columns):
             unique_query = pd.read_sql(
                 f"SELECT Distinct({attr}) FROM {self.table_name}",
-                self.SQLconnection,
+                lux.config.SQLconnection,
             )
             unique_vals[attr] = list(unique_query[attr])
         self.unique_values = unique_vals
@@ -381,7 +358,7 @@ class LuxDataFrame(pd.DataFrame):
         # get the data types of the attributes in the SQL table
         for attr in list(self.columns):
             query = f"SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' AND COLUMN_NAME = '{attr}'"
-            datatype = list(pd.read_sql(query, self.SQLconnection)["data_type"])[0]
+            datatype = list(pd.read_sql(query, lux.config.SQLconnection)["data_type"])[0]
             sql_dtypes[attr] = datatype
 
         data_type = {"quantitative": [], "nominal": [], "temporal": []}
@@ -774,7 +751,7 @@ class LuxDataFrame(pd.DataFrame):
     def to_JSON(self, rec_infolist, input_current_vis=""):
         widget_spec = {}
         if self.current_vis:
-            self.executor.execute(self.current_vis, self)
+            lux.config.executor.execute(self.current_vis, self)
             widget_spec["current_vis"] = LuxDataFrame.current_vis_to_JSON(
                 self.current_vis, input_current_vis
             )

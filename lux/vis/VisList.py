@@ -310,4 +310,4 @@ class VisList:
                     self._inferred_intent = Parser.parse(self._intent)
                     Validator.validate_intent(self._inferred_intent, ldf)
                     self._collection = Compiler.compile_intent(ldf, self._inferred_intent)
-                ldf.executor.execute(self._collection, ldf)
+                lux.config.executor.execute(self._collection, ldf)
