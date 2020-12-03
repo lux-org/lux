@@ -12,7 +12,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from __future__ import annotations
 from typing import List, Callable, Union
 from lux.vis.Clause import Clause
 from lux.utils.utils import check_import_lux_widget
@@ -33,7 +32,6 @@ class Vis:
         self._code = None
         self._mark = ""
         self._min_max = {}
-        self._plot_config = None
         self._postbin = None
         self.title = title
         self.score = score
@@ -109,26 +107,6 @@ class Vis:
         """
         self._intent = intent
         self.refresh_source(self._source)
-
-    @property
-    def plot_config(self):
-        return self._plot_config
-
-    @plot_config.setter
-    def plot_config(self, config_func: Callable):
-        """
-        Modify plot aesthetic settings to the Vis
-        Currently only supported for Altair visualizations
-
-        Parameters
-        ----------
-        config_func : typing.Callable
-                A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
-        """
-        self._plot_config = config_func
-
-    def clear_plot_config(self):
-        self._plot_config = None
 
     def _repr_html_(self):
         from IPython.display import display
@@ -278,9 +256,24 @@ class Vis:
         else:
             return self._code
 
-    def render_VSpec(self, renderer="altair"):
-        if renderer == "altair":
-            return self.to_VegaLite(prettyOutput=False)
+    def to_code(self, language="vegalite", **kwargs):
+        """
+        Export Vis object to code specification
+
+        Parameters
+        ----------
+        language : str, optional
+            choice of target language to produce the visualization code in, by default "vegalite"
+
+        Returns
+        -------
+        spec:
+            visualization specification corresponding to the Vis object
+        """
+        if language == "vegalite":
+            return self.to_VegaLite(**kwargs)
+        elif language == "altair":
+            return self.to_Altair(**kwargs)
 
     def refresh_source(self, ldf):  # -> Vis:
         """
@@ -309,9 +302,6 @@ class Vis:
             from lux.processor.Parser import Parser
             from lux.processor.Validator import Validator
             from lux.processor.Compiler import Compiler
-            from lux.executor.PandasExecutor import PandasExecutor
-
-            # TODO: temporary (generalize to executor)
 
             self.check_not_vislist_intent()
 
@@ -319,35 +309,18 @@ class Vis:
             self._source = ldf
             self._inferred_intent = Parser.parse(self._intent)
             Validator.validate_intent(self._inferred_intent, ldf)
-            vlist = Compiler.compile_vis(ldf, self)
-            ldf.executor.execute(vlist, ldf)
-            # Copying properties over since we can not redefine `self` within class function
-            if len(vlist) > 0:
-                vis = vlist[0]
-                self.title = vis.title
-                self._mark = vis._mark
-                self._inferred_intent = vis._inferred_intent
-                self._vis_data = vis.data
-                self._min_max = vis._min_max
+            Compiler.compile_vis(ldf, self)
+            ldf.executor.execute([self], ldf)
 
     def check_not_vislist_intent(self):
-        import sys
 
-        sys.tracebacklimit = 0
         syntaxMsg = (
             "The intent that you specified corresponds to more than one visualization. "
             "Please replace the Vis constructor with VisList to generate a list of visualizations. "
             "For more information, see: https://lux-api.readthedocs.io/en/latest/source/guide/vis.html#working-with-collections-of-visualization-with-vislist"
         )
 
-        if len(self._intent) < 3:
-            for i in range(len(self._intent)):
-                if type(self._intent[i]) != Clause and (
-                    "|" in self._intent[i] or type(self._intent[i]) == list
-                ):
-                    raise SyntaxError(syntaxMsg)
-
-        if len(self._intent) > 2 or "?" in self._intent:
-            for i in range(len(self._intent)):
-                if type(self._intent[i]) != Clause:
-                    raise SyntaxError(syntaxMsg)
+        for i in range(len(self._intent)):
+            clause = self._intent[i]
+            if type(clause) != Clause and ("|" in clause or type(clause) == list or "?" in clause):
+                raise TypeError(syntaxMsg)

@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from __future__ import annotations
+
 from lux.vislib.altair.AltairRenderer import AltairRenderer
 from lux.utils.utils import check_import_lux_widget
 from typing import List, Union, Callable, Dict
@@ -63,7 +63,7 @@ class VisList:
         self.refresh_source(self._source)
 
     @property
-    def exported(self) -> VisList:
+    def exported(self):
         """
         Get selected visualizations as exported Vis List
 
@@ -100,7 +100,7 @@ class VisList:
 
     def remove_duplicates(self) -> None:
         """
-        Removes duplicate visualizations in Vis List
+        Removes duplicate visualizations in VisList
         """
         self._collection = list(set(self._collection))
 
@@ -228,22 +228,6 @@ class VisList:
     def set(self, field_name, field_val):
         return NotImplemented
 
-    def set_plot_config(self, config_func: Callable):
-        """
-        Modify plot aesthetic settings to the Vis List
-        Currently only supported for Altair visualizations
-        Parameters
-        ----------
-        config_func : typing.Callable
-                A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
-        """
-        for vis in self._collection:
-            vis.plot_config = config_func
-
-    def clear_plot_config(self):
-        for vis in self._collection:
-            vis.plot_config = None
-
     def sort(self, remove_invalid=True, descending=True):
         # remove the items that have invalid (-1) score
         if remove_invalid:
@@ -319,10 +303,8 @@ class VisList:
                     for vis in self._collection:
                         vis._inferred_intent = Parser.parse(vis._intent)
                         Validator.validate_intent(vis._inferred_intent, ldf)
-                        vislist = Compiler.compile_vis(ldf, vis)
-                        if len(vislist) > 0:
-                            vis = vislist[0]
-                            compiled_collection.append(vis)
+                        Compiler.compile_vis(ldf, vis)
+                        compiled_collection.append(vis)
                     self._collection = compiled_collection
                 else:
                     self._inferred_intent = Parser.parse(self._intent)
