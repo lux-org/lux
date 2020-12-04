@@ -46,12 +46,12 @@ def column_group(ldf):
                 vis = Vis(
                     [
                         lux.Clause(
-                            index_column_name,
+                            attribute=index_column_name,
                             data_type="nominal",
                             data_model="dimension",
                             aggregation="",
                         ),
-                        lux.Clause(str(attribute), data_type="quantitative", aggregation=""),
+                        lux.Clause(attribute=str(attribute), data_type="quantitative", aggregation=""),
                     ]
                 )
                 collection.append(vis)

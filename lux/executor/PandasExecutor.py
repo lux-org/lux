@@ -133,11 +133,11 @@ class PandasExecutor(Executor):
         measure_attr = ""
         if x_attr.aggregation is None or y_attr.aggregation is None:
             return
-        if y_attr.aggregation != "":
+        if y_attr.aggregation:
             groupby_attr = x_attr
             measure_attr = y_attr
             agg_func = y_attr.aggregation
-        if x_attr.aggregation != "":
+        if x_attr.aggregation:
             groupby_attr = y_attr
             measure_attr = x_attr
             agg_func = x_attr.aggregation
@@ -156,6 +156,7 @@ class PandasExecutor(Executor):
             if measure_attr.attribute == "Record":
                 vis._vis_data = vis.data.reset_index()
                 # if color is specified, need to group by groupby_attr and color_attr
+
                 if has_color:
                     vis._vis_data = (
                         vis.data.groupby([groupby_attr.attribute, color_attr.attribute])
@@ -226,7 +227,10 @@ class PandasExecutor(Executor):
                         ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
             vis._vis_data = vis.data.sort_values(by=groupby_attr.attribute, ascending=True)
             vis._vis_data = vis.data.reset_index()
-            vis._vis_data = vis.data.drop(columns="index")
+            if "level_0" in vis._vis_data.columns:
+                vis._vis_data = vis.data.drop(columns="level_0")
+            else:
+                vis._vis_data = vis.data.drop(columns="index")
 
     @staticmethod
     def execute_binning(vis: Vis):
