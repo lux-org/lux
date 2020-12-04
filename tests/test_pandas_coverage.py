@@ -145,6 +145,15 @@ def test_groupby_agg(global_var):
     assert len(new_df.cardinality) == 7
 
 
+def test_groupby_agg_big(global_var):
+    df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    new_df = df.groupby("Brand").agg(sum)
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys()) == ["Column Groups"]
+    assert len(new_df.cardinality) == 7
+
+
 def test_qcut(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
