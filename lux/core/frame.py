@@ -463,8 +463,9 @@ class LuxDataFrame(pd.DataFrame):
                         lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
                     )
                     one_current_vis_similarity = (
-                        lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
-                        and ldf.current_vis[0].mark == 'line'
+                        lambda ldf: ldf.current_vis is not None
+                        and len(ldf.current_vis) == 1
+                        and ldf.current_vis[0].mark == "line"
                         and len(get_filter_specs(ldf.intent)) > 0
                     )
 

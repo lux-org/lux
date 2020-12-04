@@ -48,12 +48,12 @@ def similar_pattern(ldf, *args):
         topK = 15
     else:
         topK = args[0][0]
-    
+
     row_specs = list(filter(lambda x: x.value != "", row_specs))
-    if(len(row_specs) == 1):
-        search_space_vc = VisList(query,ldf)
-        
-        query_vc = VisList(ldf.current_vis,ldf)     
+    if len(row_specs) == 1:
+        search_space_vc = VisList(query, ldf)
+
+        query_vc = VisList(ldf.current_vis, ldf)
         query_vis = query_vc[0]
         preprocess(query_vis)
         # for loop to create assign euclidean distance
