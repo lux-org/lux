@@ -133,11 +133,11 @@ class PandasExecutor(Executor):
         measure_attr = ""
         if x_attr.aggregation is None or y_attr.aggregation is None:
             return
-        if y_attr.aggregation:
+        if y_attr.aggregation != "":
             groupby_attr = x_attr
             measure_attr = y_attr
             agg_func = y_attr.aggregation
-        if x_attr.aggregation:
+        if x_attr.aggregation != "":
             groupby_attr = y_attr
             measure_attr = x_attr
             agg_func = x_attr.aggregation
