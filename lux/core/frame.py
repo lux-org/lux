@@ -19,7 +19,7 @@ from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 from lux.history.history import History
 from lux.utils.message import Message
-from lux.utils.utils import check_import_lux_widget
+from lux.utils.utils import check_import_lux_widget, get_filter_specs
 from typing import Dict, Union, List, Callable
 import warnings
 import traceback
@@ -462,6 +462,11 @@ class LuxDataFrame(pd.DataFrame):
                     multiple_current_vis = (
                         lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
                     )
+                    one_current_vis_similarity = (
+                        lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
+                        and ldf.current_vis[0].mark == 'line'
+                        and len(get_filter_specs(ldf.intent)) > 0
+                    )
 
                     # globally register default actions
                     lux.register_action("correlation", correlation, no_vis)
@@ -472,7 +477,7 @@ class LuxDataFrame(pd.DataFrame):
                     lux.register_action("Enhance", enhance, one_current_vis)
                     lux.register_action("Filter", filter, one_current_vis)
                     lux.register_action("Generalize", generalize, one_current_vis)
-                    lux.register_action("Similarity", similar_pattern, one_current_vis, 15)
+                    lux.register_action("Similarity", similar_pattern, one_current_vis_similarity, 15)
 
                     lux.register_action("Custom", custom, multiple_current_vis)
 
