@@ -151,6 +151,20 @@ def test_groupby_agg_big(global_var):
     new_df._repr_html_()
     assert list(new_df.recommendation.keys()) == ["Column Groups"]
     assert len(new_df.cardinality) == 8
+    year_vis = list(
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("Year") != [], new_df.recommendation["Column Groups"]
+        )
+    )[0]
+    assert year_vis.mark == "bar"
+    assert year_vis.get_attr_by_channel("x")[0].attribute == "Year"
+    new_df = new_df.T
+    new_df._repr_html_()
+    year_vis = list(
+        filter(lambda vis: vis.get_attr_by_attr_name("Year") != [], new_df.recommendation["Row Groups"])
+    )[0]
+    assert year_vis.mark == "bar"
+    assert year_vis.get_attr_by_channel("x")[0].attribute == "Year"
 
 
 def test_qcut(global_var):
