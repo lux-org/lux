@@ -1,5 +1,5 @@
 #  Copyright 2019-2020 The Lux Authors.
-# 
+#
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
@@ -14,26 +14,31 @@
 
 from lux.vis.VisList import VisList
 from lux.utils import utils
+
+
 class Executor:
     """
     Abstract class for the execution engine that fetches data for a given vis on a LuxDataFrame
-    """    
+    """
+
     def __init__(self):
         self.name = "Executor"
 
     def __repr__(self):
         return f"<Executor>"
+
     @staticmethod
-    def execute(vis_collection:VisList, ldf):
+    def execute(vis_collection: VisList, ldf):
         return NotImplemented
 
     @staticmethod
     def execute_aggregate(vis, ldf):
         return NotImplemented
+
     @staticmethod
     def execute_binning(vis, ldf):
         return NotImplemented
-        
+
     @staticmethod
     def execute_filter(vis, ldf):
         return NotImplemented

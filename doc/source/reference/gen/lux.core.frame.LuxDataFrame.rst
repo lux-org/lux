@@ -37,7 +37,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.bool
       ~LuxDataFrame.boxplot
       ~LuxDataFrame.clear_intent
-      ~LuxDataFrame.clear_plot_config
       ~LuxDataFrame.clip
       ~LuxDataFrame.combine
       ~LuxDataFrame.combine_first
@@ -45,10 +44,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.compute_SQL_data_type
       ~LuxDataFrame.compute_SQL_dataset_metadata
       ~LuxDataFrame.compute_SQL_stats
-      ~LuxDataFrame.compute_data_model
-      ~LuxDataFrame.compute_data_type
-      ~LuxDataFrame.compute_dataset_metadata
-      ~LuxDataFrame.compute_stats
       ~LuxDataFrame.convert_dtypes
       ~LuxDataFrame.copy
       ~LuxDataFrame.copy_intent
@@ -124,7 +119,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.mad
       ~LuxDataFrame.maintain_metadata
       ~LuxDataFrame.maintain_recs
-      ~LuxDataFrame.mapping
       ~LuxDataFrame.mask
       ~LuxDataFrame.max
       ~LuxDataFrame.mean
@@ -160,6 +154,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.rec_to_JSON
       ~LuxDataFrame.reindex
       ~LuxDataFrame.reindex_like
+      ~LuxDataFrame.remove_deleted_recs
       ~LuxDataFrame.rename
       ~LuxDataFrame.rename_axis
       ~LuxDataFrame.render_widget
@@ -167,7 +162,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.replace
       ~LuxDataFrame.resample
       ~LuxDataFrame.reset_index
-      ~LuxDataFrame.reverseMapping
       ~LuxDataFrame.rfloordiv
       ~LuxDataFrame.rmod
       ~LuxDataFrame.rmul
@@ -185,6 +179,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.set_index
       ~LuxDataFrame.set_intent
       ~LuxDataFrame.set_intent_as_vis
+      ~LuxDataFrame.set_intent_on_click
       ~LuxDataFrame.shift
       ~LuxDataFrame.skew
       ~LuxDataFrame.slice_shift
@@ -251,7 +246,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.axes
       ~LuxDataFrame.columns
       ~LuxDataFrame.current_vis
-      ~LuxDataFrame.default_display
       ~LuxDataFrame.dtypes
       ~LuxDataFrame.empty
       ~LuxDataFrame.exported
@@ -262,7 +256,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.intent
       ~LuxDataFrame.loc
       ~LuxDataFrame.ndim
-      ~LuxDataFrame.plot_config
       ~LuxDataFrame.recommendation
       ~LuxDataFrame.shape
       ~LuxDataFrame.size

@@ -14,6 +14,7 @@ lux.vislib.altair.BarChart.BarChart
    .. autosummary::
    
       ~BarChart.__init__
+      ~BarChart.add_text
       ~BarChart.add_title
       ~BarChart.add_tooltip
       ~BarChart.apply_default_config

@@ -15,10 +15,18 @@ lux.executor.PandasExecutor.PandasExecutor
    
       ~PandasExecutor.__init__
       ~PandasExecutor.apply_filter
+      ~PandasExecutor.compute_data_model
+      ~PandasExecutor.compute_data_type
+      ~PandasExecutor.compute_dataset_metadata
+      ~PandasExecutor.compute_stats
       ~PandasExecutor.execute
+      ~PandasExecutor.execute_2D_binning
       ~PandasExecutor.execute_aggregate
       ~PandasExecutor.execute_binning
       ~PandasExecutor.execute_filter
+      ~PandasExecutor.execute_sampling
+      ~PandasExecutor.mapping
+      ~PandasExecutor.reverseMapping
    
    
 
