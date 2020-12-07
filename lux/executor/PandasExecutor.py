@@ -227,10 +227,7 @@ class PandasExecutor(Executor):
                         ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
             vis._vis_data = vis.data.sort_values(by=groupby_attr.attribute, ascending=True)
             vis._vis_data = vis.data.reset_index()
-            if "level_0" in vis._vis_data.columns:
-                vis._vis_data = vis.data.drop(columns="level_0")
-            else:
-                vis._vis_data = vis.data.drop(columns="index")
+            vis._vis_data = vis.data.drop(columns="index")
 
     @staticmethod
     def execute_binning(vis: Vis):
