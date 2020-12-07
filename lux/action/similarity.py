@@ -80,7 +80,7 @@ def aggregate(vis):
         xAxis = vis.get_attr_by_channel("x")[0].attribute
         yAxis = vis.get_attr_by_channel("y")[0].attribute
 
-        vis.data = vis.data[[xAxis, yAxis]].groupby(xAxis, as_index=False).agg({yAxis: "mean"}).copy()
+        vis.data = vis.data[[xAxis, yAxis]]._groupby(xAxis, as_index=False).agg({yAxis: "mean"}).copy()
 
 
 def interpolate(vis, length):

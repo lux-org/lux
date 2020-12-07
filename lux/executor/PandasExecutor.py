@@ -159,22 +159,22 @@ class PandasExecutor(Executor):
 
                 if has_color:
                     vis._vis_data = (
-                        vis.data.groupby([groupby_attr.attribute, color_attr.attribute])
+                        vis.data._groupby([groupby_attr.attribute, color_attr.attribute])
                         .count()
                         .reset_index()
                     )
                     vis._vis_data = vis.data.rename(columns={"index": "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, "Record"]]
                 else:
-                    vis._vis_data = vis.data.groupby(groupby_attr.attribute).count().reset_index()
+                    vis._vis_data = vis.data._groupby(groupby_attr.attribute).count().reset_index()
                     vis._vis_data = vis.data.rename(columns={"index": "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, "Record"]]
             else:
                 # if color is specified, need to group by groupby_attr and color_attr
                 if has_color:
-                    groupby_result = vis.data.groupby([groupby_attr.attribute, color_attr.attribute])
+                    groupby_result = vis.data._groupby([groupby_attr.attribute, color_attr.attribute])
                 else:
-                    groupby_result = vis.data.groupby(groupby_attr.attribute)
+                    groupby_result = vis.data._groupby(groupby_attr.attribute)
                 groupby_result = groupby_result.agg(agg_func)
                 intermediate = groupby_result.reset_index()
                 vis._vis_data = intermediate.__finalize__(vis.data)
@@ -328,7 +328,7 @@ class PandasExecutor(Executor):
             color_attr = vis.get_attr_by_channel("color")
             if len(color_attr) > 0:
                 color_attr = color_attr[0]
-                groups = vis._vis_data.groupby(["xBin", "yBin"])[color_attr.attribute]
+                groups = vis._vis_data._groupby(["xBin", "yBin"])[color_attr.attribute]
                 if color_attr.data_type == "nominal":
                     # Compute mode and count. Mode aggregates each cell by taking the majority vote for the category variable. In cases where there is ties across categories, pick the first item (.iat[0])
                     result = groups.agg(
@@ -344,7 +344,7 @@ class PandasExecutor(Executor):
                     ).reset_index()
                 result = result.dropna()
             else:
-                groups = vis._vis_data.groupby(["xBin", "yBin"])[x_attr]
+                groups = vis._vis_data._groupby(["xBin", "yBin"])[x_attr]
                 result = groups.count().reset_index(name=x_attr)
                 result = result.rename(columns={x_attr: "count"})
                 result = result[result["count"] != 0]

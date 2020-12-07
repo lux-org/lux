@@ -14,6 +14,7 @@
 
 import pandas as pd
 from .frame import LuxDataFrame
+from .groupby import LuxDataFrameGroupBy
 
 global originalDF
 # Keep variable scope of original pandas df
@@ -25,6 +26,7 @@ def setOption(overridePandas=True):
         pd.DataFrame = (
             pd.io.json._json.DataFrame
         ) = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = LuxDataFrame
+        pd.core.groupby.generic.DataFrameGroupBy = LuxDataFrameGroupBy
     else:
         pd.DataFrame = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = originalDF
 

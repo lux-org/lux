@@ -832,3 +832,13 @@ class LuxDataFrame(pd.DataFrame):
         self._pandas_only = True
         self._history.append_event("describe", *args, **kwargs)
         return super(LuxDataFrame, self).describe(*args, **kwargs)
+
+    def _groupby(self, *args, **kwargs):
+        return super(LuxDataFrame, self).groupby(*args, **kwargs)
+
+    def groupby(self, *args, **kwargs):
+        self._history.append_event("groupby", *args, **kwargs)
+        groupby_obj = super(LuxDataFrame, self).groupby(*args, **kwargs)
+        for attr in self._metadata:
+            groupby_obj.__dict__[attr] = getattr(self, attr, None)
+        return groupby_obj
