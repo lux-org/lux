@@ -134,16 +134,30 @@ To get started, Lux can be installed through [PyPI](https://pypi.org/project/lux
     pip install lux-api
 ```
 
-This installation includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). To activate the Jupyter notebook extension: 
+This installation includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). 
+
+## Setup in Jupyter Notebook, VSCode
+
+To use Lux in [Jupyter notebook](https://github.com/jupyter/notebook) or [VSCode](https://code.visualstudio.com/docs/python/jupyter-support), activate the notebook extension:
 
 ```bash
     jupyter nbextension install --py luxwidget
     jupyter nbextension enable --py luxwidget
 ```
 
-If the installation happens correctly, you should see two `- Validating: OK` after executing the two lines above. 
+If the installation happens correctly, you should see two `- Validating: OK` after executing the two lines above.
 
-Note that Lux currently only works with Jupyter notebooks in Chrome. Support for Jupyter Lab will be coming soon. 
+## Setup in Jupyter Lab
+
+To use Lux in [Jupyter Lab](https://github.com/jupyterlab/jupyterlab), activate the lab extension:
+
+```bash
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager
+    jupyter labextension install luxwidget
+```
+
+Note that Lux currently only works with Jupyter notebooks in Chrome. 
+
 If you encounter issues with the installation, please refer to [this page](https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips) to troubleshoot the installation. Follow [these instructions](https://lux-api.readthedocs.io/en/latest/source/getting_started/installation.html#manual-installation-dev-setup) to set up Lux for development purposes.
 
 # Support and Resources
