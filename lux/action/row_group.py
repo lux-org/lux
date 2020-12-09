@@ -45,7 +45,7 @@ def row_group(ldf):
             # 	rowdf.cardinality["index"]=len(rowdf)
             # if isinstance(ldf.columns,pd.DatetimeIndex):
             # 	rowdf.data_type_lookup[dim_name]="temporal"
-            vis = Vis([dim_name, lux.Clause(row.name, aggregation=None)], rowdf)
+            vis = Vis([dim_name, lux.Clause(row.name, data_model="measure", aggregation=None)], rowdf)
             collection.append(vis)
     vlst = VisList(collection)
     # Note that we are not computing interestingness score here because we want to preserve the arrangement of the aggregated data

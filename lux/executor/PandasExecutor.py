@@ -152,11 +152,11 @@ class PandasExecutor(Executor):
             has_color = True
         else:
             color_cardinality = 1
-
         if measure_attr != "":
             if measure_attr.attribute == "Record":
                 vis._vis_data = vis.data.reset_index()
                 # if color is specified, need to group by groupby_attr and color_attr
+
                 if has_color:
                     vis._vis_data = (
                         vis.data.groupby([groupby_attr.attribute, color_attr.attribute])
