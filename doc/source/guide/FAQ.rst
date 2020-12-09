@@ -28,13 +28,13 @@ How do I set the Lux widgets to show up on default?
 
     .. code-block:: python
     
-        df.default_display = "lux"
+        df.config.default_display = "lux"
     
   To switch back to Pandas as the default display: 
 
     .. code-block:: python
     
-        df.default_display = "pandas"
+        df.config.default_display = "pandas"
   
 I want to change the opacity of my chart, add title, change chart font size, etc. How do I modify chart settings?
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
