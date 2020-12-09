@@ -5,6 +5,7 @@ from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
+import lux
 
 import math
 
@@ -15,13 +16,13 @@ class SQLExecutor(Executor):
     """
 
     def __init__(self):
-        self.name = "Executor"
+        self.name = "SQLExecutor"
         self.selection = []
         self.tables = []
         self.filters = ""
 
     def __repr__(self):
-        return f"<Executor>"
+        return f"<SQLExecutor>"
 
     @staticmethod
     def execute(view_collection: VisList, ldf: LuxDataFrame):
@@ -54,6 +55,9 @@ class SQLExecutor(Executor):
                 SQLExecutor.execute_aggregate(view, ldf)
             elif view.mark == "histogram":
                 SQLExecutor.execute_binning(view, ldf)
+        # this is weird, somewhere in the SQL executor the lux.config.executor is being set to a PandasExecutor
+        # temporary fix here
+        # lux.config.executor = SQLExecutor()
 
     @staticmethod
     def execute_scatter(view: Vis, ldf: LuxDataFrame):
@@ -66,7 +70,7 @@ class SQLExecutor(Executor):
 
         length_query = pandas.read_sql(
             "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
-            ldf.SQLconnection,
+            lux.config.SQLconnection,
         )
 
         # SQLExecutor.execute_2D_binning(view, ldf)
@@ -75,14 +79,14 @@ class SQLExecutor(Executor):
         row_count = list(
             pandas.read_sql(
                 f"SELECT COUNT(*) FROM {ldf.table_name} {where_clause}",
-                ldf.SQLconnection,
+                lux.config.SQLconnection,
             )["count"]
         )[0]
         if row_count > 10000:
             query = f"SELECT {required_variables} FROM {ldf.table_name} {where_clause} ORDER BY random() LIMIT 10000"
         else:
             query = "SELECT {} FROM {} {}".format(required_variables, ldf.table_name, where_clause)
-        data = pandas.read_sql(query, ldf.SQLconnection)
+        data = pandas.read_sql(query, lux.config.SQLconnection)
         view._vis_data = utils.pandas_to_lux(data)
         view._vis_data.length = list(length_query["length"])[0]
 
@@ -140,7 +144,7 @@ class SQLExecutor(Executor):
 
                 length_query = pandas.read_sql(
                     "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
-                    ldf.SQLconnection,
+                    lux.config.SQLconnection,
                 )
                 if has_color:
                     count_query = "SELECT {}, {}, COUNT({}) FROM {} {} GROUP BY {}, {}".format(
@@ -152,7 +156,7 @@ class SQLExecutor(Executor):
                         groupby_attr.attribute,
                         color_attr.attribute,
                     )
-                    view._vis_data = pandas.read_sql(count_query, ldf.SQLconnection)
+                    view._vis_data = pandas.read_sql(count_query, lux.config.SQLconnection)
                     view._vis_data = view._vis_data.rename(columns={"count": "Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
                 else:
@@ -163,7 +167,7 @@ class SQLExecutor(Executor):
                         where_clause,
                         groupby_attr.attribute,
                     )
-                    view._vis_data = pandas.read_sql(count_query, ldf.SQLconnection)
+                    view._vis_data = pandas.read_sql(count_query, lux.config.SQLconnection)
                     view._vis_data = view._vis_data.rename(columns={"count": "Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
                 view._vis_data.length = list(length_query["length"])[0]
@@ -173,7 +177,7 @@ class SQLExecutor(Executor):
 
                 length_query = pandas.read_sql(
                     "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
-                    ldf.SQLconnection,
+                    lux.config.SQLconnection,
                 )
                 if has_color:
                     if agg_func == "mean":
@@ -187,7 +191,8 @@ class SQLExecutor(Executor):
                             groupby_attr.attribute,
                             color_attr.attribute,
                         )
-                        view._vis_data = pandas.read_sql(mean_query, ldf.SQLconnection)
+                        view._vis_data = pandas.read_sql(mean_query, lux.config.SQLconnection)
+
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "sum":
                         mean_query = "SELECT {}, {}, SUM({}) as {} FROM {} {} GROUP BY {}, {}".format(
@@ -200,7 +205,7 @@ class SQLExecutor(Executor):
                             groupby_attr.attribute,
                             color_attr.attribute,
                         )
-                        view._vis_data = pandas.read_sql(mean_query, ldf.SQLconnection)
+                        view._vis_data = pandas.read_sql(mean_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "max":
                         mean_query = "SELECT {}, {}, MAX({}) as {} FROM {} {} GROUP BY {}, {}".format(
@@ -213,7 +218,7 @@ class SQLExecutor(Executor):
                             groupby_attr.attribute,
                             color_attr.attribute,
                         )
-                        view._vis_data = pandas.read_sql(mean_query, ldf.SQLconnection)
+                        view._vis_data = pandas.read_sql(mean_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                 else:
                     if agg_func == "mean":
@@ -225,7 +230,7 @@ class SQLExecutor(Executor):
                             where_clause,
                             groupby_attr.attribute,
                         )
-                        view._vis_data = pandas.read_sql(mean_query, ldf.SQLconnection)
+                        view._vis_data = pandas.read_sql(mean_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "sum":
                         mean_query = "SELECT {}, SUM({}) as {} FROM {} {} GROUP BY {}".format(
@@ -236,7 +241,7 @@ class SQLExecutor(Executor):
                             where_clause,
                             groupby_attr.attribute,
                         )
-                        view._vis_data = pandas.read_sql(mean_query, ldf.SQLconnection)
+                        view._vis_data = pandas.read_sql(mean_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "max":
                         mean_query = "SELECT {}, MAX({}) as {} FROM {} {} GROUP BY {}".format(
@@ -247,7 +252,7 @@ class SQLExecutor(Executor):
                             where_clause,
                             groupby_attr.attribute,
                         )
-                        view._vis_data = pandas.read_sql(mean_query, ldf.SQLconnection)
+                        view._vis_data = pandas.read_sql(mean_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
             result_vals = list(view._vis_data[groupby_attr.attribute])
             # create existing group by attribute combinations if color is specified
@@ -328,7 +333,7 @@ class SQLExecutor(Executor):
 
         length_query = pandas.read_sql(
             "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
-            ldf.SQLconnection,
+            lux.config.SQLconnection,
         )
         # need to calculate the bin edges before querying for the relevant data
         bin_width = (attr_max - attr_min) / num_bins
@@ -347,7 +352,7 @@ class SQLExecutor(Executor):
             ldf.table_name,
             where_clause,
         )
-        bin_count_data = pandas.read_sql(bin_count_query, ldf.SQLconnection)
+        bin_count_data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
 
         # counts,binEdges = np.histogram(ldf[bin_attribute.attribute],bins=bin_attribute.bin_size)
         # binEdges of size N+1, so need to compute binCenter as the bin location
@@ -404,7 +409,7 @@ class SQLExecutor(Executor):
 
         # length_query = pandas.read_sql(
         #     "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
-        #     ldf.SQLconnection,
+        #     lux.config.SQLconnection,
         # )
 
         # need to calculate the bin edges before querying for the relevant data
@@ -454,7 +459,7 @@ class SQLExecutor(Executor):
                 ldf.table_name,
                 bin_where_clause,
             )
-            curr_column_data = pandas.read_sql(bin_count_query, ldf.SQLconnection)
+            curr_column_data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
             curr_column_data = curr_column_data[curr_column_data["width_bucket"] != num_bins - 1]
             if len(curr_column_data) > 0:
                 curr_column_data["xBinStart"] = lower_bound
@@ -536,7 +541,7 @@ class SQLExecutor(Executor):
         attr_query = "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{}'".format(
             table_name
         )
-        attributes = list(pandas.read_sql(attr_query, ldf.SQLconnection)["column_name"])
+        attributes = list(pandas.read_sql(attr_query, lux.config.SQLconnection)["column_name"])
         for attr in attributes:
             ldf[attr] = None
 
@@ -546,7 +551,7 @@ class SQLExecutor(Executor):
         ldf._min_max = {}
         length_query = pandas.read_sql(
             "SELECT COUNT(*) as length FROM {}".format(ldf.table_name),
-            ldf.SQLconnection,
+            lux.config.SQLconnection,
         )
         ldf.length = list(length_query["length"])[0]
 
@@ -558,7 +563,7 @@ class SQLExecutor(Executor):
                     "SELECT MIN({}) as min, MAX({}) as max FROM {}".format(
                         attribute, attribute, ldf.table_name
                     ),
-                    ldf.SQLconnection,
+                    lux.config.SQLconnection,
                 )
                 ldf._min_max[attribute] = (
                     list(min_max_query["min"])[0],
@@ -570,7 +575,7 @@ class SQLExecutor(Executor):
         for attr in list(ldf.columns):
             card_query = pandas.read_sql(
                 "SELECT Count(Distinct({})) FROM {}".format(attr, ldf.table_name),
-                ldf.SQLconnection,
+                lux.config.SQLconnection,
             )
 
             cardinality[attr] = list(card_query["count"])[0]
@@ -581,7 +586,7 @@ class SQLExecutor(Executor):
         for attr in list(ldf.columns):
             unique_query = pandas.read_sql(
                 "SELECT Distinct({}) FROM {}".format(attr, ldf.table_name),
-                ldf.SQLconnection,
+                lux.config.SQLconnection,
             )
 
             unique_vals[attr] = list(unique_query[attr])
@@ -600,7 +605,7 @@ class SQLExecutor(Executor):
             datatype_query = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{}' AND COLUMN_NAME = '{}'".format(
                 table_name, attr
             )
-            datatype = list(pandas.read_sql(datatype_query, ldf.SQLconnection)["data_type"])[0]
+            datatype = list(pandas.read_sql(datatype_query, lux.config.SQLconnection)["data_type"])[0]
 
             sql_dtypes[attr] = datatype
 
@@ -653,4 +658,4 @@ class SQLExecutor(Executor):
             "measure": ldf.data_type["quantitative"],
             "dimension": ldf.data_type["ordinal"] + ldf.data_type["nominal"] + ldf.data_type["temporal"],
         }
-        ldf.data_model_lookup = ldf.executor.reverseMapping(ldf.data_model)
+        ldf.data_model_lookup = lux.config.executor.reverseMapping(ldf.data_model)

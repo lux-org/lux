@@ -35,7 +35,7 @@ class AltairRenderer:
 
     def create_vis(self, vis, standalone=True):
         """
-        Input DataObject and return a visualization specification
+        Input Vis object and return a visualization specification
 
         Parameters
         ----------
@@ -52,7 +52,7 @@ class AltairRenderer:
         if vis.mark == "scatter" and vis._postbin:
             vis._mark = "heatmap"
 
-            vis.data.executor.execute_2D_binning(vis)
+            lux.config.executor.execute_2D_binning(vis)
         # If a column has a Period dtype, or contains Period objects, convert it back to Datetime
         if vis.data is not None:
             for attr in list(vis.data.columns):
@@ -79,8 +79,8 @@ class AltairRenderer:
             chart = None
 
         if chart:
-            if vis.plot_config:
-                chart.chart = vis.plot_config(chart.chart)
+            if lux.config.plot_config:
+                chart.chart = lux.config.plot_config(chart.chart)
             if self.output_type == "VegaLite":
                 chart_dict = chart.chart.to_dict()
                 # this is a bit of a work around because altair must take a pandas dataframe and we can only generate a luxDataFrame
@@ -91,8 +91,10 @@ class AltairRenderer:
             elif self.output_type == "Altair":
                 import inspect
 
-                if vis.plot_config:
-                    chart.code += "\n".join(inspect.getsource(vis.plot_config).split("\n    ")[1:-1])
+                if lux.config.plot_config:
+                    chart.code += "\n".join(
+                        inspect.getsource(lux.config.plot_config).split("\n    ")[1:-1]
+                    )
                 chart.code += "\nchart"
                 chart.code = chart.code.replace("\n\t\t", "\n")
 

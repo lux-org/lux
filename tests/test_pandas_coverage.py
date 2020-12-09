@@ -432,8 +432,7 @@ def check_metadata_equal(df1, df2):
                     elif key in y_info:
                         assert x_info[key] == y_info[key]
 
-        elif attr != "_widget":
-            print(attr)
+        elif attr != "_widget" and attr != "_sampled" and attr != "_message":
             assert getattr(df1, attr) == getattr(df2, attr)
 
 
@@ -462,7 +461,6 @@ def compare_vis(vis1, vis2):
     assert vis1._code == vis2._code
     assert vis1._mark == vis2._mark
     assert vis1._min_max == vis2._min_max
-    assert vis1._plot_config == vis2._plot_config
     assert vis1.title == vis2.title
     assert vis1.score == vis2.score
 
@@ -498,6 +496,7 @@ def test_df_to_series(global_var):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
@@ -528,6 +527,7 @@ def test_value_counts(global_var):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
@@ -557,6 +557,33 @@ def test_str_replace(global_var):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Brand", "Pandas Series original `name` property not retained."
+
+
+################
+# Read Tests #
+################
+
+
+def test_read_json(global_var):
+    url = "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.json"
+    df = pd.read_json(url)
+    df._repr_html_()
+    assert list(df.recommendation.keys()) == [
+        "Correlation",
+        "Distribution",
+        "Occurrence",
+        "Temporal",
+    ]
+    assert len(df.data_type_lookup) == 10
+
+
+def test_read_sas(global_var):
+    url = "https://github.com/lux-org/lux-datasets/blob/master/data/airline.sas7bdat?raw=true"
+    df = pd.read_sas(url, format="sas7bdat")
+    df._repr_html_()
+    assert list(df.recommendation.keys()) == ["Correlation", "Distribution", "Temporal"]
+    assert len(df.data_type_lookup) == 6

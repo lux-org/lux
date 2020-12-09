@@ -2,9 +2,9 @@
 Styling Custom Plot Settings 
 ********************************
 
-.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder/blob/master/tutorial/tutorial/4-chart-settings.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial/4-chart-settings.ipynb>`_]
+.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder/blob/master/tutorial/4-chart-settings.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial/4-chart-settings.ipynb>`_]
 
-In the last tutorial, we saw how :code:`Vis` objects could be exported into visualization code for further editing. What if we want to change the chart settings for *all* the visualizations displayed in the widget. In Lux, we can change the chart settings and aesthetics by inputting custom plot settings the :code:`plot_config` property of the dataframe.
+In the last tutorial, we saw how :code:`Vis` objects could be exported into visualization code for further editing. What if we want to change the chart settings for *all* the visualizations displayed in the widget. In Lux, we can change the chart settings and aesthetics by inputting global custom plot settings the :code:`plot_config`.
 
 Example #1 : Changing Color and Title of all charts
 ---------------------------------------------------
@@ -31,11 +31,11 @@ Let's say that we want to change all the graphical marks of the charts to green 
 	    chart.title = "Custom Title" # add title to chart
 	    return chart
 
-We then set the plot configuration of the dataframe by changing the :code:`plot_config` property. With the added plot_config, Lux runs this user-defined function after every `Vis` is rendered to a chart, allow the user-defined function to override any existing default chart settings.
+We then set the global plot configuration of the dataframe by changing the :code:`plot_config` property. With the added plot_config, Lux runs this user-defined function after every `Vis` is rendered to a chart, allow the user-defined function to override any existing default chart settings.
 
 .. code-block:: python
 	
-	df.plot_config = change_color_add_title
+	lux.config.plot_config = change_color_add_title
 
 We now see that the displayed visualizations adopt these new imported settings.
 
@@ -108,7 +108,7 @@ We want to decrease the opacity of scatterplots, but keep the opacity for the ot
 
 .. code-block:: python
 	
-	df.plot_config = changeOpacityScatterOnly
+	lux.config.plot_config = changeOpacityScatterOnly
 	df
 
 .. image:: ../img/style-6.png

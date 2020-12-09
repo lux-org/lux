@@ -45,10 +45,18 @@ This website contains pages that overview of the basic and advanced functionalit
    
    source/advanced/date
    source/advanced/indexgroup
+   source/advanced/custom
    source/advanced/architecture
    source/advanced/interestingness
    source/advanced/executor
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Reference
+   
+   source/reference/config
    source/reference/API
+   
 
 Indices and tables
 ==================

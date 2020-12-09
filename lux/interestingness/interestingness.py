@@ -21,6 +21,7 @@ import pandas as pd
 import numpy as np
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from scipy.spatial.distance import euclidean
+import lux
 
 
 def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
@@ -38,7 +39,6 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
     int
             Interestingness Score
     """
-
     if vis.data is None or len(vis.data) == 0:
         return -1
         # raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
@@ -202,7 +202,7 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
     int
             Score describing how different the vis is from the overall vis
     """
-    if ldf.executor_type == "Pandas":
+    if lux.config.executor.name == "PandasExecutor":
         v_filter_size = get_filtered_size(filter_specs, ldf)
         v_size = len(vis.data)
     else:
@@ -219,7 +219,7 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
     unfiltered_vis = copy.copy(vis)
     # Remove filters, keep only attribute intent
     unfiltered_vis._inferred_intent = utils.get_attrs_specs(vis._inferred_intent)
-    ldf.executor.execute([unfiltered_vis], ldf)
+    lux.config.executor.execute([unfiltered_vis], ldf)
 
     v = unfiltered_vis.data[msr_attribute]
     v = v / v.sum()

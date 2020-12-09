@@ -38,7 +38,7 @@ How do I set the Lux widgets to show up on default?
   
 I want to change the opacity of my chart, add title, change chart font size, etc. How do I modify chart settings?
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  To add custom plot settings to the recommendations, you can set the :code:`plot_config` property of the dataframe. See `this tutorial <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`_ on how to configure chart properties. Lux currently only support chart modifications in Altair.
+  To add custom plot settings to the recommendations, you can set the global :code:`plot_config` property. See `this tutorial <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`_ on how to configure chart properties. Lux currently only support chart modifications in Altair.
 
 How do I change aggregation functions, binning, or axis channels to non-default values?
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

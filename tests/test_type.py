@@ -19,6 +19,7 @@ import pandas as pd
 
 # Suite of test that checks if data_type inferred correctly by Lux
 def test_check_cars():
+    lux.config.set_SQL_connection("")
     df = pd.read_csv("lux/data/car.csv")
     df.maintain_metadata()
     assert df.data_type_lookup["Name"] == "nominal"
