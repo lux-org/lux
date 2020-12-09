@@ -2,7 +2,7 @@
 Constructing Vis and VisList
 ********************************
 
-.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder/blob/master/tutorial/tutorial/2-constructing-vis-and-vislist.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial/2-constructing-vis-and-vislist.ipynb>`_]
+.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder/blob/master/tutorial/2-constructing-vis-and-vislist.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial/2-constructing-vis-and-vislist.ipynb>`_]
 
 In the earlier tutorials, we have seen how Lux recommends visualizations automatically to the user. Often, the user might have a particular visualizations in mind that they want to specify. In this case, users can quickly define their own visualizations using Lux and visualize their data on-demand.
 In this tutorial, we will introduce how to create a visualization via the Vis object and a collection of visualization via the `VisList` object.

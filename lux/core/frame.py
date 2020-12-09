@@ -22,6 +22,7 @@ from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
 import warnings
+import traceback
 import lux
 
 
@@ -33,6 +34,7 @@ class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = [
         "_intent",
+        "_inferred_intent",
         "data_type_lookup",
         "data_type",
         "data_model_lookup",
@@ -40,15 +42,18 @@ class LuxDataFrame(pd.DataFrame):
         "unique_values",
         "cardinality",
         "_rec_info",
-        "_pandas_only",
         "_min_max",
-        "plot_config",
         "_current_vis",
         "_widget",
         "_recommendation",
         "_prev",
         "_history",
         "_saved_export",
+        "_sampled",
+        "_toggle_pandas_display",
+        "_message",
+        "_pandas_only",
+        "pre_aggregated",
     ]
 
     def __init__(self, *args, **kw):
@@ -56,21 +61,19 @@ class LuxDataFrame(pd.DataFrame):
 
         self._history = History()
         self._intent = []
+        self._inferred_intent = []
         self._recommendation = {}
         self._saved_export = None
         self._current_vis = []
         self._prev = None
+        self._widget = None
         super(LuxDataFrame, self).__init__(*args, **kw)
 
-        self.executor_type = "Pandas"
-        self.executor = PandasExecutor()
-        self.SQLconnection = ""
         self.table_name = ""
+        lux.config.executor = PandasExecutor()
 
         self._sampled = None
-        self._default_pandas_display = True
         self._toggle_pandas_display = True
-        self._plot_config = None
         self._message = Message()
         self._pandas_only = False
         # Metadata
@@ -82,6 +85,7 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = None
         self._min_max = None
         self.pre_aggregated = None
+        warnings.formatwarning = lux.warning_format
 
     @property
     def _constructor(self):
@@ -106,14 +110,14 @@ class LuxDataFrame(pd.DataFrame):
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
             if len(self) > 0:
-                self.executor.compute_stats(self)
-                self.executor.compute_dataset_metadata(self)
+                lux.config.executor.compute_stats(self)
+                lux.config.executor.compute_dataset_metadata(self)
                 self._infer_structure()
                 self._metadata_fresh = True
 
     def expire_recs(self):
         self._recs_fresh = False
-        self.recommendation = {}
+        self._recommendation = {}
         self.current_vis = None
         self._widget = None
         self._rec_info = None
@@ -167,65 +171,6 @@ class LuxDataFrame(pd.DataFrame):
         if very_small_df_flag:
             self.pre_aggregated = True
 
-    def set_executor_type(self, exe):
-        if exe == "SQL":
-            import pkgutil
-
-            if pkgutil.find_loader("psycopg2") is None:
-                raise ImportError(
-                    "psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection."
-                )
-            else:
-                import psycopg2
-            from lux.executor.SQLExecutor import SQLExecutor
-
-            self.executor = SQLExecutor
-        else:
-            from lux.executor.PandasExecutor import PandasExecutor
-
-            self.executor = PandasExecutor()
-        self.executor_type = exe
-
-    @property
-    def plot_config(self):
-        return self._plot_config
-
-    @plot_config.setter
-    def plot_config(self, config_func: Callable):
-        """
-        Modify plot aesthetic settings to all visualizations in the dataframe display
-        Currently only supported for Altair visualizations
-        Parameters
-        ----------
-        config_func : Callable
-                A function that takes in an AltairChart (https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html) as input and returns an AltairChart as output
-
-        Example
-        ----------
-        Changing the color of marks and adding a title for all charts displayed for this dataframe
-        >>> df = pd.read_csv("lux/data/car.csv")
-        >>> def changeColorAddTitle(chart):
-                        chart = chart.configure_mark(color="red") # change mark color to red
-                        chart.title = "Custom Title" # add title to chart
-                        return chart
-        >>> df.plot_config = changeColorAddTitle
-        >>> df
-        Change the opacity of all scatterplots displayed for this dataframe
-        >>> df = pd.read_csv("lux/data/olympic.csv")
-        >>> def changeOpacityScatterOnly(chart):
-                        if chart.mark=='circle':
-                                chart = chart.configure_mark(opacity=0.1) # lower opacity
-                        return chart
-        >>> df.plot_config = changeOpacityScatterOnly
-        >>> df
-        """
-        self._plot_config = config_func
-        self._recs_fresh = False
-
-    def clear_plot_config(self):
-        self._plot_config = None
-        self._recs_fresh = False
-
     @property
     def intent(self):
         return self._intent
@@ -246,6 +191,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def clear_intent(self):
         self.intent = []
+        self.expire_recs()
 
     def set_intent(self, intent: List[Union[str, Clause]]):
         """
@@ -304,6 +250,12 @@ class LuxDataFrame(pd.DataFrame):
 
     @property
     def recommendation(self):
+        if self._recommendation is not None and self._recommendation == {}:
+            from lux.processor.Compiler import Compiler
+
+            self.maintain_metadata()
+            self.current_vis = Compiler.compile_intent(self, self._intent)
+            self.maintain_recs()
         return self._recommendation
 
     @recommendation.setter
@@ -312,6 +264,14 @@ class LuxDataFrame(pd.DataFrame):
 
     @property
     def current_vis(self):
+        # _parse_validate_compile_intent does not call executor,
+        # we only attach data to current vis when user request current_vis
+        if (
+            self._current_vis is not None
+            and len(self._current_vis) > 0
+            and self._current_vis[0].data is None
+        ):
+            lux.config.executor.execute(self._current_vis, self)
         return self._current_vis
 
     @current_vis.setter
@@ -326,11 +286,9 @@ class LuxDataFrame(pd.DataFrame):
     ########## SQL Metadata, type, model schema ###########
     #######################################################
 
-    def set_SQL_connection(self, connection, t_name):
-        self.SQLconnection = connection
+    def set_SQL_table(self, t_name):
         self.table_name = t_name
         self.compute_SQL_dataset_metadata()
-        self.set_executor_type("SQL")
 
     def compute_SQL_dataset_metadata(self):
         self.get_SQL_attributes()
@@ -366,7 +324,7 @@ class LuxDataFrame(pd.DataFrame):
         else:
             table_name = self.table_name
         query = f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'"
-        attributes = list(pd.read_sql(query, self.SQLconnection)["column_name"])
+        attributes = list(pd.read_sql(query, lux.config.SQLconnection)["column_name"])
         for attr in attributes:
             self[attr] = None
 
@@ -375,7 +333,7 @@ class LuxDataFrame(pd.DataFrame):
         for attr in list(self.columns):
             card_query = pd.read_sql(
                 f"SELECT Count(Distinct({attr})) FROM {self.table_name}",
-                self.SQLconnection,
+                lux.config.SQLconnection,
             )
             cardinality[attr] = list(card_query["count"])[0]
         self.cardinality = cardinality
@@ -385,7 +343,7 @@ class LuxDataFrame(pd.DataFrame):
         for attr in list(self.columns):
             unique_query = pd.read_sql(
                 f"SELECT Distinct({attr}) FROM {self.table_name}",
-                self.SQLconnection,
+                lux.config.SQLconnection,
             )
             unique_vals[attr] = list(unique_query[attr])
         self.unique_values = unique_vals
@@ -401,7 +359,7 @@ class LuxDataFrame(pd.DataFrame):
         # get the data types of the attributes in the SQL table
         for attr in list(self.columns):
             query = f"SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' AND COLUMN_NAME = '{attr}'"
-            datatype = list(pd.read_sql(query, self.SQLconnection)["data_type"])[0]
+            datatype = list(pd.read_sql(query, lux.config.SQLconnection)["data_type"])[0]
             sql_dtypes[attr] = datatype
 
         data_type = {"quantitative": [], "nominal": [], "temporal": []}
@@ -486,7 +444,7 @@ class LuxDataFrame(pd.DataFrame):
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
             else:
-                if rec_df.recommendation == {}:
+                if rec_df._recommendation == {}:
                     # display conditions for default actions
                     no_vis = lambda ldf: (ldf.current_vis is None) or (
                         ldf.current_vis is not None and len(ldf.current_vis) == 0
@@ -504,11 +462,11 @@ class LuxDataFrame(pd.DataFrame):
                     lux.register_action("occurrence", univariate, no_vis, "nominal")
                     lux.register_action("temporal", univariate, no_vis, "temporal")
 
-                    lux.register_action("enhance", enhance, one_current_vis)
-                    lux.register_action("filter", filter, one_current_vis)
-                    lux.register_action("generalize", generalize, one_current_vis)
+                    lux.register_action("Enhance", enhance, one_current_vis)
+                    lux.register_action("Filter", filter, one_current_vis)
+                    lux.register_action("Generalize", generalize, one_current_vis)
 
-                    lux.register_action("custom", custom, multiple_current_vis)
+                    lux.register_action("Custom", custom, multiple_current_vis)
 
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
@@ -517,18 +475,12 @@ class LuxDataFrame(pd.DataFrame):
                 lux.update_actions["flag"] = False
 
             # Store _rec_info into a more user-friendly dictionary form
-            rec_df.recommendation = {}
+            rec_df._recommendation = {}
             for rec_info in rec_infolist:
                 action_type = rec_info["action"]
                 vlist = rec_info["collection"]
-                if rec_df._plot_config:
-                    if rec_df.current_vis:
-                        for vis in rec_df.current_vis:
-                            vis._plot_config = rec_df.plot_config
-                    for vis in vlist:
-                        vis._plot_config = rec_df.plot_config
                 if len(vlist) > 0:
-                    rec_df.recommendation[action_type] = vlist
+                    rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
             self._widget = rec_df.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
@@ -563,7 +515,7 @@ class LuxDataFrame(pd.DataFrame):
                 When all the exported vis is from the same tab, return a VisList of selected visualizations. -> VisList(v1, v2...)
                 When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisList. -> {"Enhance": VisList(v1, v2...), "Filter": VisList(v5, v7...), ..}
         """
-        if not hasattr(self, "_widget"):
+        if self.widget is None:
             warnings.warn(
                 "\nNo widget attached to the dataframe."
                 "Please assign dataframe to an output variable.\n"
@@ -593,7 +545,7 @@ class LuxDataFrame(pd.DataFrame):
                     exported_vis[export_action] = VisList(
                         list(
                             map(
-                                self.recommendation[export_action].__getitem__,
+                                self._recommendation[export_action].__getitem__,
                                 exported_vis_lst[export_action],
                             )
                         )
@@ -604,7 +556,7 @@ class LuxDataFrame(pd.DataFrame):
             exported_vis = VisList(
                 list(
                     map(
-                        self.recommendation[export_action].__getitem__,
+                        self._recommendation[export_action].__getitem__,
                         exported_vis_lst[export_action],
                     )
                 )
@@ -623,7 +575,7 @@ class LuxDataFrame(pd.DataFrame):
         for action in self._widget.deletedIndices:
             deletedSoFar = 0
             for index in self._widget.deletedIndices[action]:
-                self.recommendation[action].remove_index(index - deletedSoFar)
+                self._recommendation[action].remove_index(index - deletedSoFar)
                 deletedSoFar += 1
 
     def set_intent_on_click(self, change):
@@ -631,7 +583,7 @@ class LuxDataFrame(pd.DataFrame):
         from lux.processor.Compiler import Compiler
 
         intent_action = list(self._widget.selectedIntentIndex.keys())[0]
-        vis = self.recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
+        vis = self._recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
         self.set_intent_as_vis(vis)
 
         self.maintain_metadata()
@@ -673,13 +625,6 @@ class LuxDataFrame(pd.DataFrame):
                     )
                     display(self.display_pandas())
                     return
-                if len(self.columns) <= 1:
-                    warnings.warn(
-                        "\nLux defaults to Pandas when there is only a single column.",
-                        stacklevel=2,
-                    )
-                    display(self.display_pandas())
-                    return
                 self.maintain_metadata()
 
                 if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
@@ -699,7 +644,7 @@ class LuxDataFrame(pd.DataFrame):
                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
                 self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
-                if len(self.recommendation) > 0:
+                if len(self._recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
                     button = widgets.Button(
                         description="Toggle Pandas/Lux",
@@ -734,13 +679,14 @@ class LuxDataFrame(pd.DataFrame):
 
         except (KeyboardInterrupt, SystemExit):
             raise
-        except:
+        except Exception:
             warnings.warn(
                 "\nUnexpected error in rendering Lux widget and recommendations. "
-                "Falling back to Pandas display.\n\n"
-                "Please report this issue on Github: https://github.com/lux-org/lux/issues ",
+                "Falling back to Pandas display.\n"
+                "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
                 stacklevel=2,
             )
+            warnings.warn(traceback.format_exc())
             display(self.display_pandas())
 
     def display_pandas(self):
@@ -806,7 +752,7 @@ class LuxDataFrame(pd.DataFrame):
     def to_JSON(self, rec_infolist, input_current_vis=""):
         widget_spec = {}
         if self.current_vis:
-            self.executor.execute(self.current_vis, self)
+            lux.config.executor.execute(self.current_vis, self)
             widget_spec["current_vis"] = LuxDataFrame.current_vis_to_JSON(
                 self.current_vis, input_current_vis
             )
@@ -824,7 +770,7 @@ class LuxDataFrame(pd.DataFrame):
         current_vis_spec = {}
         numVC = len(vlist)  # number of visualizations in the vis list
         if numVC == 1:
-            current_vis_spec = vlist[0].render_VSpec()
+            current_vis_spec = vlist[0].to_code(prettyOutput=False)
         elif numVC > 1:
             pass
         return current_vis_spec
@@ -839,12 +785,98 @@ class LuxDataFrame(pd.DataFrame):
             if len(rec["collection"]) > 0:
                 rec["vspec"] = []
                 for vis in rec["collection"]:
-                    chart = vis.render_VSpec()
+                    chart = vis.to_code(prettyOutput=False)
                     rec["vspec"].append(chart)
                 rec_lst.append(rec)
-                # delete DataObjectCollection since not JSON serializable
+                # delete since not JSON serializable
                 del rec_lst[idx]["collection"]
         return rec_lst
+
+    def save_as_html(self, filename: str = "export.html") -> None:
+        """
+        Save dataframe widget as static HTML file
+
+        Parameters
+        ----------
+        filename : str
+            Filename for the output HTML file
+        """
+
+        if self.widget is None:
+            self.maintain_metadata()
+            self.maintain_recs()
+
+        from ipywidgets.embed import embed_data
+
+        data = embed_data(views=[self.widget])
+
+        import json
+
+        manager_state = json.dumps(data["manager_state"])
+        widget_view = json.dumps(data["view_specs"][0])
+
+        # Separate out header since CSS file conflict with {} notation in Python format strings
+        header = """
+        <head>
+
+            <title>Lux Widget</title>
+            <link rel="lux" type="image/png" sizes="96x96" href="https://github.com/lux-org/lux-resources/blob/master/logo/favicon-96x96.png?raw=True">
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+            <!-- Load RequireJS, used by the IPywidgets for dependency management -->
+            <script 
+            src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js" 
+            integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" 
+            crossorigin="anonymous">
+            </script>
+
+            <!-- Load IPywidgets bundle for embedding. -->
+            <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.18.0/dist/embed-amd.js" 
+                    crossorigin="anonymous">
+            </script>
+            
+            <style type="text/css">
+                #intentBtn, #warnBtn, #exportBtn{
+                display: none;
+                }
+                #deleteBtn {
+                right: 10px !important; 
+                }
+                #footer-description{
+                margin: 10px;
+                text-align: right;
+                }
+            </style>
+        </head>
+        """
+        html_template = """
+        <html>
+        {header}
+        <body>
+            
+            <script type="application/vnd.jupyter.widget-state+json">
+            {manager_state}
+            </script>
+
+            <script type="application/vnd.jupyter.widget-view+json">
+                {widget_view}
+            </script>
+            
+            <div id="footer-description">
+            These visualizations were generated by <a href="https://github.com/lux-org/lux/"><img src="https://raw.githubusercontent.com/lux-org/lux-resources/master/logo/logo.png" width="65px" style="vertical-align: middle;"></img></a>
+            </div>
+
+        </body>
+        </html>
+        """
+
+        manager_state = json.dumps(data["manager_state"])
+        widget_view = json.dumps(data["view_specs"][0])
+        rendered_template = html_template.format(
+            header=header, manager_state=manager_state, widget_view=widget_view
+        )
+        with open(filename, "w") as fp:
+            fp.write(rendered_template)
+            print(f"Saved HTML to {filename}")
 
     # Overridden Pandas Functions
     def head(self, n: int = 5):

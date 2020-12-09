@@ -124,7 +124,7 @@ class Clause:
     def __repr__(self):
         attributes = []
         if self.description != "":
-            attributes.append("         description: " + self.description)
+            attributes.append(f"         description: {self.description}")
         if self.channel != "":
             attributes.append("         channel: " + self.channel)
         if len(self.attribute) != 0:

@@ -22,6 +22,7 @@ from lux.utils.date_utils import is_datetime_series
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
 from lux.utils.date_utils import is_datetime_series
 import warnings
+import lux
 
 
 class PandasExecutor(Executor):
@@ -31,6 +32,7 @@ class PandasExecutor(Executor):
 
     def __init__(self):
         self.name = "PandasExecutor"
+        warnings.formatwarning = lux.warning_format
 
     def __repr__(self):
         return f"<PandasExecutor>"

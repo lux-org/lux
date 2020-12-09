@@ -103,7 +103,6 @@ def register_action(
     args: Any
             any additional arguments the function may require
     """
-    name = name.lower()
     if action:
         is_callable(action)
 
@@ -124,7 +123,6 @@ def remove_action(name: str = "") -> None:
     name : str
             the name of the action to remove
     """
-    name = name.lower()
     if name not in _registered_actions:
         raise ValueError(f"Option '{name}' has not been registered")
 
@@ -153,6 +151,10 @@ def is_callable(obj) -> bool:
 class Config:
     def __init__(self):
         self._default_display = "pandas"
+        self.renderer = "altair"
+        self.plot_config = None
+        self.SQLconnection = ""
+        self.executor = None
 
     @property
     def default_display(self):
@@ -177,5 +179,33 @@ class Config:
                 stacklevel=2,
             )
 
+    def set_SQL_connection(self, connection):
+        self.SQLconnection = connection
+
+    def set_executor_type(self, exe):
+        if exe == "SQL":
+            import pkgutil
+
+            if pkgutil.find_loader("psycopg2") is None:
+                raise ImportError(
+                    "psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection."
+                )
+            else:
+                import psycopg2
+            from lux.executor.SQLExecutor import SQLExecutor
+
+            self.executor = SQLExecutor()
+        else:
+            from lux.executor.PandasExecutor import PandasExecutor
+
+            self.executor = PandasExecutor()
+
+    def set_SQL_connection(self, connection):
+        self.SQLconnection = connection
+
 
 config = Config()
+
+
+def warning_format(message, category, filename, lineno, file=None, line=None):
+    return "%s:%s: %s:%s\n" % (filename, lineno, category.__name__, message)
