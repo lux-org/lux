@@ -153,6 +153,8 @@ class Config:
         self._default_display = "pandas"
         self.renderer = "altair"
         self.plot_config = None
+        self.SQLconnection = ""
+        self.executor = None
 
     @property
     def default_display(self):
@@ -176,6 +178,30 @@ class Config:
                 "Unsupported display type. Default display option should either be `lux` or `pandas`.",
                 stacklevel=2,
             )
+
+    def set_SQL_connection(self, connection):
+        self.SQLconnection = connection
+
+    def set_executor_type(self, exe):
+        if exe == "SQL":
+            import pkgutil
+
+            if pkgutil.find_loader("psycopg2") is None:
+                raise ImportError(
+                    "psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection."
+                )
+            else:
+                import psycopg2
+            from lux.executor.SQLExecutor import SQLExecutor
+
+            self.executor = SQLExecutor()
+        else:
+            from lux.executor.PandasExecutor import PandasExecutor
+
+            self.executor = PandasExecutor()
+
+    def set_SQL_connection(self, connection):
+        self.SQLconnection = connection
 
 
 config = Config()

@@ -41,7 +41,7 @@ def custom(ldf):
     recommendation["collection"] = ldf.current_vis
 
     vlist = ldf.current_vis
-    PandasExecutor.execute(vlist, ldf)
+    lux.config.executor.execute(vlist, ldf)
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
     # ldf.clear_intent()

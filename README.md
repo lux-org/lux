@@ -88,13 +88,15 @@ For example, we might be interested in the attributes `AverageCost` and `SATAver
 
  See [this page](https://lux-api.readthedocs.io/en/latest/source/guide/intent.html) for more information on additional ways for specifying the intent.
 
-### Easy programmatic access of exported visualization objects: 
+### Easy programmatic access and export of visualizations: 
 
-Now that we have found some interesting visualizations through Lux, we might be interested in digging into these visualizations a bit more. We can click on one or more visualizations to be exported, so we can programmatically access these visualizations further in Jupyter. Visualizations are represented as `Vis` objects in Lux. These `Vis` objects can be translated into Altair or VegaLite code, so that we can further edit these visualizations.
+Now that we have found some interesting visualizations through Lux, we might be interested in digging into these visualizations a bit more or sharing it with others. We can save the visualizations generated in Lux as a [static, shareable HTML](https://lux-api.readthedocs.io/en/latest/source/guide/export.html#exporting-widget-visualizations-as-static-html) or programmatically access these visualizations further in Jupyter. Selected `Vis` objects can be translated into [Altair](http://altair-viz.github.io/) or [Vega-Lite](https://vega.github.io/vega-lite/) code, so that they can be further edited.
 
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/export.gif?raw=true"
      alt="Easily exportable visualization object"
      style="width:600px" />
+     
+Learn more about how to save and export visualizations [here](https://lux-api.readthedocs.io/en/latest/source/guide/export.html#exporting-widget-visualizations-as-static-html).
 
 ### Quick, on-demand visualizations with the help of automatic encoding: 
 We've seen how `Vis`s are automatically generated as part of the recommendations. Users can also create their own Vis via the same syntax as specifying the intent. Lux is built on the philosophy that users should always be able to visualize anything they want, without having to think about *how* the visualization should look like. Lux automatically determines the mark and channel mappings based on a set of [best practices](http://hosteddocs.ittoolbox.com/fourshowmeautomaticpresentations.pdf). The visualizations are rendered via [Altair](https://github.com/altair-viz/altair/tree/master/altair) into [Vega-Lite](https://github.com/vega/vega-lite) specifications.
@@ -134,16 +136,30 @@ To get started, Lux can be installed through [PyPI](https://pypi.org/project/lux
     pip install lux-api
 ```
 
-This installation includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). To activate the Jupyter notebook extension: 
+This installation includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). 
+
+## Setup in Jupyter Notebook, VSCode
+
+To use Lux in [Jupyter notebook](https://github.com/jupyter/notebook) or [VSCode](https://code.visualstudio.com/docs/python/jupyter-support), activate the notebook extension:
 
 ```bash
     jupyter nbextension install --py luxwidget
     jupyter nbextension enable --py luxwidget
 ```
 
-If the installation happens correctly, you should see two `- Validating: OK` after executing the two lines above. 
+If the installation happens correctly, you should see two `- Validating: OK` after executing the two lines above.
 
-Note that Lux currently only works with Jupyter notebooks in Chrome. Support for Jupyter Lab will be coming soon. 
+## Setup in Jupyter Lab
+
+To use Lux in [Jupyter Lab](https://github.com/jupyterlab/jupyterlab), activate the lab extension:
+
+```bash
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager
+    jupyter labextension install luxwidget
+```
+
+Note that JupyterLab and VSCode is supported only for lux-widget version >=0.1.2, if you have an earlier version, please upgrade to the latest version of [lux-widget](https://pypi.org/project/lux-widget/). Lux currently only works with the Chrome browser. 
+
 If you encounter issues with the installation, please refer to [this page](https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips) to troubleshoot the installation. Follow [these instructions](https://lux-api.readthedocs.io/en/latest/source/getting_started/installation.html#manual-installation-dev-setup) to set up Lux for development purposes.
 
 # Support and Resources
@@ -154,6 +170,6 @@ Other additional resources:
 
 - Sign up for the early-user [mailing list](https://forms.gle/XKv3ejrshkCi3FJE6) to stay tuned for upcoming releases, updates, or user studies. 
 - Visit [ReadTheDoc](https://lux-api.readthedocs.io/en/latest/) for more detailed documentation.
-- Clone [lux-binder](https://github.com/lux-org/lux-binder) to try out these [hands-on exercises](https://github.com/lux-org/lux-binder/tree/master/exercise) or [tutorial series](https://github.com/lux-org/lux-binder/tree/master/tutorial) on how to use Lux.
+- Try out these hands-on [exercises](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/exercise) or [tutorials](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial) on [Binder](https://mybinder.org/v2/gh/lux-org/lux-binder/master). Or clone and run [lux-binder](https://github.com/lux-org/lux-binder) locally.
 - Join our community [Slack](https://lux-project.slack.com/join/shared_invite/zt-iwg84wfb-fBPaGTBBZfkb9arziy3W~g) to discuss and ask questions.
 - Report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues). 
