@@ -27,3 +27,51 @@ def test_nan_column(global_var):
     for visList in df.recommendation.keys():
         for vis in df.recommendation[visList]:
             assert vis.get_attr_by_attr_name("Geography") == []
+
+
+def test_nan_data_type_detection():
+    import numpy as np
+
+    dataset = [
+        {"fully_nan": np.nan, "some_nan": 3.0, "some_nan2": np.nan},
+        {"fully_nan": np.nan, "some_nan": 15.0, "some_nan2": 3.0},
+        {"fully_nan": np.nan, "some_nan": np.nan, "some_nan2": 3.0},
+        {"fully_nan": np.nan, "some_nan": 7.0, "some_nan2": 0.0},
+        {"fully_nan": np.nan, "some_nan": 2.0, "some_nan2": 2.0},
+        {"fully_nan": np.nan, "some_nan": 3.0, "some_nan2": np.nan},
+        {"fully_nan": np.nan, "some_nan": 1.0, "some_nan2": 1.0},
+        {"fully_nan": np.nan, "some_nan": 1.0, "some_nan2": 1.0},
+        {"fully_nan": np.nan, "some_nan": 2.0, "some_nan2": 0.0},
+        {"fully_nan": np.nan, "some_nan": 11.0, "some_nan2": 0.0},
+    ]
+    test = pd.DataFrame(dataset)
+    test.maintain_metadata()
+    assert test.data_type["nominal"] == [
+        "fully_nan",
+        "some_nan",
+        "some_nan2",
+    ], "Categorical columns containing NaNs should be treated as nominal data type"
+
+
+def test_apply_nan_filter():
+    from lux.vis.Vis import Vis
+
+    import numpy as np
+
+    dataset = [
+        {"fully_nan": np.nan, "some_nan": 3.0, "some_nan2": np.nan},
+        {"fully_nan": np.nan, "some_nan": 15.0, "some_nan2": 3.0},
+        {"fully_nan": np.nan, "some_nan": np.nan, "some_nan2": 3.0},
+        {"fully_nan": np.nan, "some_nan": 7.0, "some_nan2": 0.0},
+        {"fully_nan": np.nan, "some_nan": 2.0, "some_nan2": 2.0},
+        {"fully_nan": np.nan, "some_nan": 3.0, "some_nan2": np.nan},
+        {"fully_nan": np.nan, "some_nan": 1.0, "some_nan2": 1.0},
+        {"fully_nan": np.nan, "some_nan": 1.0, "some_nan2": 1.0},
+        {"fully_nan": np.nan, "some_nan": 2.0, "some_nan2": 0.0},
+        {"fully_nan": np.nan, "some_nan": 11.0, "some_nan2": 0.0},
+    ]
+    test = pd.DataFrame(dataset)
+
+    vis = Vis(["some_nan", "some_nan2=nan"], test)
+    vis._repr_html_()
+    assert vis.mark == "bar"

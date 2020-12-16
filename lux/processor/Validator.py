@@ -19,6 +19,7 @@ from typing import List
 from lux.utils.date_utils import is_datetime_series, is_datetime_string
 import warnings
 import lux
+import lux.utils.utils
 
 
 class Validator:
@@ -83,7 +84,7 @@ class Validator:
                             import math
 
                             # Skip check for NaN filter values
-                            if not (isinstance(clause.value, float) and math.isnan(clause.value)):
+                            if not lux.utils.utils.like_nan(clause.value):
                                 series = ldf[clause.attribute]
                                 if not is_datetime_series(series):
                                     if isinstance(clause.value, list):

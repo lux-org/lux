@@ -300,8 +300,8 @@ class PandasExecutor(Executor):
             Dataframe resulting from the filter operation
         """
         # Handling NaN filter values
-        if val == "nan":
-            if op == "=" or op == "!=":
+        if utils.like_nan(val):
+            if op != "=" and op != "!=":
                 warnings.warn("Filter on NaN must be used with equality operations (i.e., `=` or `!=`)")
             else:
                 if op == "=":
@@ -391,7 +391,11 @@ class PandasExecutor(Executor):
             elif str(attr).lower() in temporal_var_list:
                 ldf.data_type_lookup[attr] = "temporal"
             elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
-                ldf.data_type_lookup[attr] = "quantitative"
+                # int columns gets coerced into floats if contain NaN
+                if ldf[attr].hasnans and ldf.cardinality[attr] < 20:
+                    ldf.data_type_lookup[attr] = "nominal"
+                else:
+                    ldf.data_type_lookup[attr] = "quantitative"
             elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
                 # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                 if ldf.pre_aggregated:
