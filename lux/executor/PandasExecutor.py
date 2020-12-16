@@ -225,6 +225,7 @@ class PandasExecutor(Executor):
                         assert (
                             len(list(vis.data[groupby_attr.attribute])) == N_unique_vals
                         ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
+            vis._vis_data = vis.data.dropna()
             vis._vis_data = vis.data.sort_values(by=groupby_attr.attribute, ascending=True)
             vis._vis_data = vis.data.reset_index()
             vis._vis_data = vis.data.drop(columns="index")
@@ -298,6 +299,16 @@ class PandasExecutor(Executor):
         df: pandas.DataFrame
             Dataframe resulting from the filter operation
         """
+        # Handling NaN filter values
+        if val == "nan":
+            if op == "=" or op == "!=":
+                warnings.warn("Filter on NaN must be used with equality operations (i.e., `=` or `!=`)")
+            else:
+                if op == "=":
+                    return df[df[attribute].isna()]
+                elif op == "!=":
+                    return df[~df[attribute].isna()]
+        # Applying filter in regular, non-NaN cases
         if op == "=":
             return df[df[attribute] == val]
         elif op == "<":

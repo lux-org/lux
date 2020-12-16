@@ -102,7 +102,7 @@ def filter(ldf):
         categorical_vars = []
         for col in list(ldf.columns):
             # if cardinality is not too high, and attribute is not one of the X,Y (specified) column
-            if ldf.cardinality[col] < 30 and col not in column_spec_attr:
+            if 1 < ldf.cardinality[col] < 30 and col not in column_spec_attr:
                 categorical_vars.append(col)
         for cat in categorical_vars:
             unique_values = ldf.unique_values[cat]
