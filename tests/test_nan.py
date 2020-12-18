@@ -75,3 +75,30 @@ def test_apply_nan_filter():
     vis = Vis(["some_nan", "some_nan2=nan"], test)
     vis._repr_html_()
     assert vis.mark == "bar"
+
+
+def test_nan_series_occurence():
+    from lux.core.series import LuxSeries
+    from math import nan
+
+    dvalues = {
+        1: " dummy ",
+        2: " dummy ",
+        3: nan,
+        4: " dummy ",
+        5: nan,
+        6: " dummy ",
+        7: " dummy ",
+        8: nan,
+        9: " dummy ",
+        10: nan,
+        11: " dummy ",
+        12: nan,
+        13: nan,
+        14: " dummy ",
+        15: " dummy ",
+    }
+    nan_series = LuxSeries(dvalues)
+    ldf = pd.DataFrame(nan_series, columns=["col"])
+    ldf._repr_html_()
+    assert ldf.recommendation["Occurrence"][0].mark == "bar"

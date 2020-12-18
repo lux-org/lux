@@ -159,22 +159,26 @@ class PandasExecutor(Executor):
 
                 if has_color:
                     vis._vis_data = (
-                        vis.data.groupby([groupby_attr.attribute, color_attr.attribute])
+                        vis.data.groupby([groupby_attr.attribute, color_attr.attribute], dropna=False)
                         .count()
                         .reset_index()
                     )
                     vis._vis_data = vis.data.rename(columns={"index": "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, "Record"]]
                 else:
-                    vis._vis_data = vis.data.groupby(groupby_attr.attribute).count().reset_index()
+                    vis._vis_data = (
+                        vis.data.groupby(groupby_attr.attribute, dropna=False).count().reset_index()
+                    )
                     vis._vis_data = vis.data.rename(columns={"index": "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, "Record"]]
             else:
                 # if color is specified, need to group by groupby_attr and color_attr
                 if has_color:
-                    groupby_result = vis.data.groupby([groupby_attr.attribute, color_attr.attribute])
+                    groupby_result = vis.data.groupby(
+                        [groupby_attr.attribute, color_attr.attribute], dropna=False
+                    )
                 else:
-                    groupby_result = vis.data.groupby(groupby_attr.attribute)
+                    groupby_result = vis.data.groupby(groupby_attr.attribute, dropna=False)
                 groupby_result = groupby_result.agg(agg_func)
                 intermediate = groupby_result.reset_index()
                 vis._vis_data = intermediate.__finalize__(vis.data)
@@ -225,7 +229,7 @@ class PandasExecutor(Executor):
                         assert (
                             len(list(vis.data[groupby_attr.attribute])) == N_unique_vals
                         ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
-            vis._vis_data = vis.data.dropna()
+            vis._vis_data = vis.data.dropna(subset=[measure_attr.attribute])
             vis._vis_data = vis.data.sort_values(by=groupby_attr.attribute, ascending=True)
             vis._vis_data = vis.data.reset_index()
             vis._vis_data = vis.data.drop(columns="index")

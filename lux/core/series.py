@@ -15,6 +15,7 @@
 import pandas as pd
 import lux
 import warnings
+import traceback
 
 
 class LuxSeries(pd.Series):
@@ -63,6 +64,9 @@ class LuxSeries(pd.Series):
         from lux.core.frame import LuxDataFrame
 
         series_repr = super(LuxSeries, self).__repr__()
+        # Default column name 0 causes errors
+        if self.name is None:
+            self.name = " "
         ldf = LuxDataFrame(self)
 
         try:
@@ -137,12 +141,14 @@ class LuxSeries(pd.Series):
 
         except (KeyboardInterrupt, SystemExit):
             raise
-        except:
+        except Exception:
             warnings.warn(
                 "\nUnexpected error in rendering Lux widget and recommendations. "
-                "Falling back to Pandas display.\n\n"
-                "Please report this issue on Github: https://github.com/lux-org/lux/issues ",
+                "Falling back to Pandas display.\n"
+                "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
                 stacklevel=2,
             )
+            warnings.warn(traceback.format_exc())
+            display(self.display_pandas())
             print(series_repr)
         return ""

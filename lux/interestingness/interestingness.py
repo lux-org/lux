@@ -185,7 +185,9 @@ def weighted_correlation(x, y, w):
     return weighted_cov(x, y, w) / np.sqrt(weighted_cov(x, x, w) * weighted_cov(y, y, w))
 
 
-def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_attribute: str) -> int:
+def deviation_from_overall(
+    vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_attribute: str, exclude_nan: bool = True
+) -> int:
     """
     Difference in bar chart/histogram shape from overall chart
     Note: this function assumes that the filtered vis.data is operating on the same range as the unfiltered vis.data.
@@ -198,6 +200,8 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
             List of filters from the Vis
     msr_attribute : str
             The attribute name of the measure value of the chart
+    exclude_nan: bool
+            Whether to include/exclude NaN values as part of the deviation calculation
 
     Returns
     -------
@@ -205,8 +209,13 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
             Score describing how different the vis is from the overall vis
     """
     v_filter_size = get_filtered_size(filter_specs, ldf)
-    v_size = len(vis.data)
-    v_filter = vis.data[msr_attribute]
+
+    if exclude_nan:
+        vdata = vis.data.dropna()
+    else:
+        vdata = vis.data
+    v_size = len(vdata)
+    v_filter = vdata[msr_attribute]
     total = v_filter.sum()
     v_filter = v_filter / total  # normalize by total to get ratio
     if total == 0:
@@ -218,8 +227,11 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
     # Remove filters, keep only attribute intent
     unfiltered_vis._inferred_intent = utils.get_attrs_specs(vis._inferred_intent)
     lux.config.executor.execute([unfiltered_vis], ldf)
-
-    v = unfiltered_vis.data[msr_attribute]
+    if exclude_nan:
+        uv = unfiltered_vis.data.dropna()
+    else:
+        uv = unfiltered_vis.data
+    v = uv[msr_attribute]
     v = v / v.sum()
     assert len(v) == len(v_filter), "Data for filtered and unfiltered vis have unequal length."
     sig = v_filter_size / v_size  # significance factor
@@ -231,8 +243,8 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
         dimList = vis.get_attr_by_data_model("dimension")
 
         # use Pandas rank function to calculate rank positions for each category
-        v_rank = unfiltered_vis.data.rank()
-        v_filter_rank = vis.data.rank()
+        v_rank = uv.rank()
+        v_filter_rank = vdata.rank()
         # go through and count the number of ranking changes between the filtered and unfiltered data
         numCategories = ldf.cardinality[dimList[0].attribute]
         for r in range(0, numCategories - 1):
