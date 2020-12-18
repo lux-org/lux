@@ -57,6 +57,14 @@ class LuxSeries(pd.Series):
         f._get_axis_number = super(LuxSeries, self)._get_axis_number
         return f
 
+    def to_pandas(self):
+        import lux.core
+
+        return lux.core.originalSeries(self, copy=False)
+
+    def display_pandas(self):
+        return self.to_pandas()
+
     def __repr__(self):
         from IPython.display import display
         from IPython.display import clear_output
@@ -150,5 +158,4 @@ class LuxSeries(pd.Series):
             )
             warnings.warn(traceback.format_exc())
             display(self.display_pandas())
-            print(series_repr)
         return ""
