@@ -48,14 +48,10 @@ class ScatterChart(AltairChart):
             .mark_circle()
             .encode(
                 x=alt.X(
-                    x_attr.attribute,
-                    scale=alt.Scale(domain=(x_min, x_max)),
-                    type=x_attr.data_type,
+                    x_attr.attribute, scale=alt.Scale(domain=(x_min, x_max)), type=x_attr.data_type,
                 ),
                 y=alt.Y(
-                    y_attr.attribute,
-                    scale=alt.Scale(domain=(y_min, y_max)),
-                    type=y_attr.data_type,
+                    y_attr.attribute, scale=alt.Scale(domain=(y_min, y_max)), type=y_attr.data_type,
                 ),
             )
         )

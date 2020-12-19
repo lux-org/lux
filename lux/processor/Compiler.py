@@ -263,10 +263,7 @@ class Compiler:
         # ShowMe logic + additional heuristics
         # count_col = Clause( attribute="count()", data_model="measure")
         count_col = Clause(
-            attribute="Record",
-            aggregation="count",
-            data_model="measure",
-            data_type="quantitative",
+            attribute="Record", aggregation="count", data_model="measure", data_type="quantitative",
         )
         auto_channel = {}
         if ndim == 0 and nmsr == 1:
@@ -454,9 +451,7 @@ class Compiler:
                         options = ldf.unique_values[attr]
                         specInd = _inferred_intent.index(clause)
                         _inferred_intent[specInd] = Clause(
-                            attribute=clause.attribute,
-                            filter_op="=",
-                            value=list(options),
+                            attribute=clause.attribute, filter_op="=", value=list(options),
                         )
                     else:
                         options.extend(convert_to_list(clause.value))

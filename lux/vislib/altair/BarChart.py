@@ -45,9 +45,7 @@ class BarChart(AltairChart):
             measure_attr = x_attr.attribute
             bar_attr = y_attr.attribute
             y_attr_field = alt.Y(
-                y_attr.attribute,
-                type=y_attr.data_type,
-                axis=alt.Axis(labelOverlap=True),
+                y_attr.attribute, type=y_attr.data_type, axis=alt.Axis(labelOverlap=True),
             )
             x_attr_field = alt.X(x_attr.attribute, type=x_attr.data_type, title=agg_title)
             y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
@@ -63,9 +61,7 @@ class BarChart(AltairChart):
             measure_attr = y_attr.attribute
             bar_attr = x_attr.attribute
             x_attr_field = alt.X(
-                x_attr.attribute,
-                type=x_attr.data_type,
-                axis=alt.Axis(labelOverlap=True),
+                x_attr.attribute, type=x_attr.data_type, axis=alt.Axis(labelOverlap=True),
             )
             x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
             y_attr_field = alt.Y(y_attr.attribute, type=y_attr.data_type, title=agg_title)

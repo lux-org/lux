@@ -179,8 +179,7 @@ def test_year_filter_value(global_var):
             lambda vis: len(
                 list(
                     filter(
-                        lambda clause: clause.value != "" and clause.attribute == "Year",
-                        vis._intent,
+                        lambda clause: clause.value != "" and clause.attribute == "Year", vis._intent,
                     )
                 )
             )
@@ -212,3 +211,4 @@ def test_similarity(global_var):
         > df.recommendation["Similarity"][1].score
         > df.recommendation["Similarity"][2].score
     )
+    df.clear_intent()

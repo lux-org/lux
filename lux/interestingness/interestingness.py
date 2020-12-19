@@ -50,10 +50,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
     vis_attrs_specs = utils.get_attrs_specs(vis._inferred_intent)
 
     record_attrs = list(
-        filter(
-            lambda x: x.attribute == "Record" and x.data_model == "measure",
-            vis_attrs_specs,
-        )
+        filter(lambda x: x.attribute == "Record" and x.data_model == "measure", vis_attrs_specs,)
     )
     n_record = len(record_attrs)
     for clause in vis_attrs_specs:
