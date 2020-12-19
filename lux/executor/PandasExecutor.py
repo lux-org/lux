@@ -396,7 +396,8 @@ class PandasExecutor(Executor):
                 ldf.data_type_lookup[attr] = "temporal"
             elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                 # int columns gets coerced into floats if contain NaN
-                if ldf[attr].hasnans and ldf.cardinality[attr] < 20:
+                convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
+                if convertible2int and ldf.cardinality[attr] != len(ldf) and ldf.cardinality[attr] < 20:
                     ldf.data_type_lookup[attr] = "nominal"
                 else:
                     ldf.data_type_lookup[attr] = "quantitative"

@@ -51,6 +51,13 @@ def test_nan_data_type_detection():
         "some_nan",
         "some_nan2",
     ], "Categorical columns containing NaNs should be treated as nominal data type"
+    nona_test = test.dropna(subset=["some_nan"])
+    nona_test.maintain_metadata()
+    assert nona_test.data_type["nominal"] == [
+        "fully_nan",
+        "some_nan",
+        "some_nan2",
+    ], "Categorical float columns without NaNs should still be categorical, even after dropping NaNs"
 
 
 def test_apply_nan_filter():
