@@ -47,7 +47,7 @@ def test_period_selection(global_var):
         [lux.Clause(attribute=["Horsepower", "Weight", "Acceleration"]), lux.Clause(attribute="Year"),]
     )
 
-    PandasExecutor.execute(ldf.current_vis, ldf)
+    lux.config.executor.execute(ldf.current_vis, ldf)
 
     assert all([type(vlist.data) == lux.core.frame.LuxDataFrame for vlist in ldf.current_vis])
     assert all(ldf.current_vis[2].data.columns == ["Year", "Acceleration"])
@@ -61,7 +61,7 @@ def test_period_filter(global_var):
 
     ldf.set_intent([lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")])
 
-    PandasExecutor.execute(ldf.current_vis, ldf)
+    lux.config.executor.execute(ldf.current_vis, ldf)
     ldf._repr_html_()
 
     assert isinstance(ldf.recommendation["Filter"][2]._inferred_intent[2].value, pd.Period)
@@ -76,7 +76,7 @@ def test_period_to_altair(global_var):
 
     df.set_intent([lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")])
 
-    PandasExecutor.execute(df.current_vis, df)
+    lux.config.executor.execute(df.current_vis, df)
     df._repr_html_()
 
     exported_code = df.recommendation["Filter"][2].to_Altair()

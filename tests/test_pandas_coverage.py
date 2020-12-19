@@ -145,6 +145,28 @@ def test_groupby_agg(global_var):
     assert len(new_df.cardinality) == 7
 
 
+def test_groupby_agg_big(global_var):
+    df = pd.read_csv("lux/data/car.csv")
+    new_df = df.groupby("Brand").agg(sum)
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys()) == ["Column Groups"]
+    assert len(new_df.cardinality) == 8
+    year_vis = list(
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("Year") != [], new_df.recommendation["Column Groups"]
+        )
+    )[0]
+    assert year_vis.mark == "bar"
+    assert year_vis.get_attr_by_channel("x")[0].attribute == "Year"
+    new_df = new_df.T
+    new_df._repr_html_()
+    year_vis = list(
+        filter(lambda vis: vis.get_attr_by_attr_name("Year") != [], new_df.recommendation["Row Groups"])
+    )[0]
+    assert year_vis.mark == "bar"
+    assert year_vis.get_attr_by_channel("x")[0].attribute == "Year"
+
+
 def test_qcut(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
@@ -496,6 +518,7 @@ def test_df_to_series(global_var):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
@@ -526,6 +549,7 @@ def test_value_counts(global_var):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
@@ -555,6 +579,7 @@ def test_str_replace(global_var):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Brand", "Pandas Series original `name` property not retained."

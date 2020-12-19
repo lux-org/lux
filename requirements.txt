@@ -5,4 +5,4 @@ scikit-learn>=0.22
 # Install only to use SQLExecutor
 # psycopg2>=2.8.5
 # psycopg2-binary>=2.8.5
-lux-widget>=0.1.0
+lux-widget>=0.1.1

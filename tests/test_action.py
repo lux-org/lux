@@ -25,6 +25,10 @@ def test_vary_filter_val(global_var):
     df.set_intent_as_vis(vis)
     df._repr_html_()
     assert len(df.recommendation["Filter"]) == len(df["SportType"].unique()) - 1
+    linechart = list(filter(lambda x: x.mark == "line", df.recommendation["Enhance"]))[0]
+    assert (
+        linechart.get_attr_by_channel("x")[0].attribute == "Year"
+    ), "Ensure recommended vis does not inherit input vis channel"
 
 
 def test_filter_inequality(global_var):
