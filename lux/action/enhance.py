@@ -55,6 +55,9 @@ def enhance(ldf):
         recommendation["collection"] = []
         return recommendation
     intent = ldf._intent.copy()
+    # Clear channel so that channel not enforced based on input vis intent
+    for clause in intent:
+        clause.channel = ""
     intent = filters + attr_specs
     intent.append("?")
     vlist = lux.vis.VisList.VisList(intent, ldf)
