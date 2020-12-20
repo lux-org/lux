@@ -156,18 +156,20 @@ class PandasExecutor(Executor):
             if measure_attr.attribute == "Record":
                 vis._vis_data = vis.data.reset_index()
                 # if color is specified, need to group by groupby_attr and color_attr
-
+                #print(vis._vis_data.to_pandas())
                 if has_color:
                     vis._vis_data = (
                         vis.data.groupby([groupby_attr.attribute, color_attr.attribute])
                         .count()
                         .reset_index()
                     )
-                    vis._vis_data = vis.data.rename(columns={"index": "Record"})
+                    index_name =  list(filter(lambda k: groupby_attr.attribute not in k and color_attr.attribute not in k, vis.data.columns))[0]
+                    vis._vis_data = vis.data.rename(columns={index_name: "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, "Record"]]
                 else:
                     vis._vis_data = vis.data.groupby(groupby_attr.attribute).count().reset_index()
-                    vis._vis_data = vis.data.rename(columns={"index": "Record"})
+                    index_name =  list(filter(lambda k: groupby_attr.attribute not in k, vis.data.columns))[0]
+                    vis._vis_data = vis.data.rename(columns={index_name: "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, "Record"]]
             else:
                 # if color is specified, need to group by groupby_attr and color_attr
