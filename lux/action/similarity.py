@@ -17,9 +17,10 @@ import pandas as pd
 import math
 import numpy as np
 from lux.vis.VisList import VisList
+from lux.utils.utils import get_filter_specs
 
 
-def similar_pattern(ldf, intent, topK=-1):
+def similar_pattern(ldf, *args):
     """
     Generates visualizations with similar patterns to a query visualization.
 
@@ -28,10 +29,7 @@ def similar_pattern(ldf, intent, topK=-1):
     ldf : lux.core.frame
         LuxDataFrame with underspecified intent.
 
-    intent: list[lux.Clause]
-        intent for specifying the visual query for the similarity search.
-
-    topK: int
+    args: topK: int
         number of visual recommendations to return.
 
     Returns
@@ -39,11 +37,23 @@ def similar_pattern(ldf, intent, topK=-1):
     recommendations : Dict[str,obj]
         object with a collection of visualizations that result from the Similarity action
     """
-    row_specs = list(filter(lambda x: x.value != "", intent))
-    if len(row_specs) == 1:
-        search_space_vc = VisList(ldf.current_vis.collection.copy(), ldf)
 
-        query_vc = VisList(intent, ldf)
+    last = get_filter_specs(ldf.intent)[-1]
+    query = ldf.intent.copy()[0:-1]
+    # array of possible values for attribute
+    arr = ldf[last.attribute].unique().tolist()
+    query.append(lux.Clause(last.attribute, last.attribute, arr))
+    row_specs = ldf.intent
+    if len(args) == 0:
+        topK = 15
+    else:
+        topK = args[0][0]
+
+    row_specs = list(filter(lambda x: x.value != "", row_specs))
+    if len(row_specs) == 1:
+        search_space_vc = VisList(query, ldf)
+
+        query_vc = VisList(ldf.current_vis, ldf)
         query_vis = query_vc[0]
         preprocess(query_vis)
         # for loop to create assign euclidean distance
@@ -204,6 +214,4 @@ def preprocess(vis):
     -------
     None
     """
-    aggregate(vis)
-    interpolate(vis, 100)
     normalize(vis)

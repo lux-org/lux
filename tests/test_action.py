@@ -197,3 +197,23 @@ def test_year_filter_value(global_var):
         "T00:00:00.000000000" not in vis.to_Altair()
     ), "Year filter title contains extraneous string, not displayed as summarized string"
     df.clear_intent()
+
+
+def test_similarity(global_var):
+    df = pytest.car_df
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    df.set_intent(
+        [
+            lux.Clause("Year", channel="x"),
+            lux.Clause("Displacement", channel="y"),
+            lux.Clause("Origin=USA"),
+        ]
+    )
+    df._repr_html_()
+    assert len(df.recommendation["Similarity"]) == 3
+    assert (
+        df.recommendation["Similarity"][0].score
+        > df.recommendation["Similarity"][1].score
+        > df.recommendation["Similarity"][2].score
+    )
+    df.clear_intent()
