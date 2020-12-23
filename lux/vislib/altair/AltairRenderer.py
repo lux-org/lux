@@ -56,6 +56,7 @@ class AltairRenderer:
             PandasExecutor.execute_2D_binning(vis)
         # If a column has a Period dtype, or contains Period objects, convert it back to Datetime
         if vis.data is not None:
+            cols = []
             for attr in list(vis.data.columns):
                 if pd.api.types.is_period_dtype(vis.data.dtypes[attr]) or isinstance(
                     vis.data[attr].iloc[0], pd.Period
@@ -67,7 +68,8 @@ class AltairRenderer:
                 ):
                     vis.data[attr] = vis.data[attr].astype(str)
                 attr_new = attr.replace(".", "")
-                vis.data[attr_new] = vis.data[attr]
+                vis._vis_data = vis.data.rename(columns={attr: attr_new})
+                print(vis.data.columns)
         if vis.mark == "histogram":
             chart = Histogram(vis)
         elif vis.mark == "bar":
