@@ -77,7 +77,7 @@ class BarChart(AltairChart):
                 x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True),sort='-y')"
         k = 10
         self._topkcode = ""
-        n_bars = len(self.data[bar_attr.replace(".", "")].unique())
+        n_bars = len(self.data.iloc[:, 0].unique())
         if n_bars > k:  # Truncating to only top k
             remaining_bars = n_bars - k
             self.data = self.data.nlargest(k, measure_attr)

@@ -20,12 +20,32 @@ from lux.vis.Vis import Vis
 
 
 def test_special_char():
-    import numpy as np
-
     dataset = [
+        {"special.char": 1, "normal": 2},
+        {"special.char": 1, "normal": 2},
+        {"special.char": 1, "normal": 5},
+        {"special.char": 1, "normal": 2},
+        {"special.char": 1, "normal": 3},
+        {"special.char": 1, "normal": 2},
+        {"special.char": 1, "normal": 6},
+        {"special.char": 1, "normal": 2},
+        {"special.char": 1, "normal": 7},
+        {"special.char": 1, "normal": 2},
+        {"special.char": 3, "normal": 10},
+        {"special.char": 1, "normal": 1},
+        {"special.char": 5, "normal": 2},
+        {"special.char": 1, "normal": 2},
+        {"special.char": 1, "normal": 2},
         {"special.char": 1, "normal": 2},
         {"special.char": 1, "normal": 2},
     ]
     test = pd.DataFrame(dataset)
-    test._repr_html_()
-    assert df.columns
+
+    from lux.vis.Vis import Vis
+
+    # TODO: add assert that checks that the bar chart is rendered correctly in Altair
+    Vis(["special.char"], test)
+    # Checking that this works even when there are multiple "." in column
+    test = test.rename(columns={"special.char": "special..char.."})
+    # TODO: add assert that checks that the bar chart is rendered correctly in Altair
+    Vis(["special..char.."], test)
