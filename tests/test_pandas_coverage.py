@@ -45,19 +45,28 @@ def test_rename_inplace(global_var):
 
     assert df.data_type_lookup["Name"] == new_df.data_type_lookup["Car Name"]
 
-    assert df.data_type != new_df.data_type
+    data_type = df.compute_data_type_from_lookup()
+    new_data_type = new_df.compute_data_type_from_lookup()
 
-    assert df.data_type["nominal"][0] == "Name"
-    assert new_df.data_type["nominal"][0] == "Car Name"
+    assert data_type != new_data_type
 
-    assert df.data_model_lookup != new_df.data_model_lookup
+    assert data_type["nominal"][0] == "Name"
+    assert new_data_type["nominal"][0] == "Car Name"
 
-    assert df.data_model_lookup["Name"] == new_df.data_model_lookup["Car Name"]
+    data_model_lookup = df.compute_data_model_lookup()
+    new_data_model_lookup = new_df.compute_data_model_lookup()
 
-    assert df.data_model != new_df.data_model
+    assert data_model_lookup != new_data_model_lookup
 
-    assert df.data_model["dimension"][0] == "Name"
-    assert new_df.data_model["dimension"][0] == "Car Name"
+    assert data_model_lookup["Name"] == new_data_model_lookup["Car Name"]
+
+    data_model = df.compute_data_model()
+    new_data_model = new_df.compute_data_model()
+
+    assert data_model != new_data_model
+
+    assert data_model["dimension"][0] == "Name"
+    assert new_data_model["dimension"][0] == "Car Name"
 
     assert list(df.unique_values.values()) == list(new_df.unique_values.values())
     assert list(df.cardinality.values()) == list(new_df.cardinality.values())
@@ -75,19 +84,28 @@ def test_rename(global_var):
 
     assert df.data_type_lookup["Name"] == new_df.data_type_lookup["Car Name"]
 
-    assert df.data_type != new_df.data_type
+    data_type = df.compute_data_type_from_lookup()
+    new_data_type = new_df.compute_data_type_from_lookup()
 
-    assert df.data_type["nominal"][0] == "Name"
-    assert new_df.data_type["nominal"][0] == "Car Name"
+    assert data_type != new_data_type
 
-    assert df.data_model_lookup != new_df.data_model_lookup
+    assert data_type["nominal"][0] == "Name"
+    assert new_data_type["nominal"][0] == "Car Name"
 
-    assert df.data_model_lookup["Name"] == new_df.data_model_lookup["Car Name"]
+    data_model_lookup = df.compute_data_model_lookup()
+    new_data_model_lookup = new_df.compute_data_model_lookup()
 
-    assert df.data_model != new_df.data_model
+    assert data_model_lookup != new_data_model_lookup
 
-    assert df.data_model["dimension"][0] == "Name"
-    assert new_df.data_model["dimension"][0] == "Car Name"
+    assert data_model_lookup["Name"] == new_data_model_lookup["Car Name"]
+
+    data_model = df.compute_data_model()
+    new_data_model = new_df.compute_data_model()
+
+    assert data_model != new_data_model
+
+    assert data_model["dimension"][0] == "Name"
+    assert new_data_model["dimension"][0] == "Car Name"
 
     assert list(df.unique_values.values()) == list(new_df.unique_values.values())
     assert list(df.cardinality.values()) == list(new_df.cardinality.values())
@@ -503,9 +521,6 @@ def test_df_to_series(global_var):
     assert df["Weight"]._metadata == [
         "_intent",
         "data_type_lookup",
-        "data_type",
-        "data_model_lookup",
-        "data_model",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -534,9 +549,6 @@ def test_value_counts(global_var):
     assert df["Weight"]._metadata == [
         "_intent",
         "data_type_lookup",
-        "data_type",
-        "data_model_lookup",
-        "data_model",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -564,9 +576,6 @@ def test_str_replace(global_var):
     assert df["Brand"]._metadata == [
         "_intent",
         "data_type_lookup",
-        "data_type",
-        "data_model_lookup",
-        "data_model",
         "unique_values",
         "cardinality",
         "_rec_info",

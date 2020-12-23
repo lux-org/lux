@@ -360,11 +360,7 @@ class PandasExecutor(Executor):
     #######################################################
     def compute_dataset_metadata(self, ldf: LuxDataFrame):
         ldf.data_type_lookup = {}
-        ldf.data_type = {}
         self.compute_data_type(ldf)
-        ldf.data_model_lookup = {}
-        ldf.data_model = {}
-        self.compute_data_model(ldf)
 
     def compute_data_type(self, ldf: LuxDataFrame):
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
@@ -407,7 +403,6 @@ class PandasExecutor(Executor):
         #   if self.cardinality[attr]>50:
         if ldf.index.dtype != "int64" and ldf.index.name:
             ldf.data_type_lookup[ldf.index.name] = "nominal"
-        ldf.data_type = self.mapping(ldf.data_type_lookup)
 
         non_datetime_attrs = []
         for attr in ldf.columns:
@@ -454,13 +449,6 @@ class PandasExecutor(Executor):
             if datetime_col is not None:
                 return True
         return False
-
-    def compute_data_model(self, ldf: LuxDataFrame):
-        ldf.data_model = {
-            "measure": ldf.data_type["quantitative"],
-            "dimension": ldf.data_type["nominal"] + ldf.data_type["temporal"] + ldf.data_type["id"],
-        }
-        ldf.data_model_lookup = self.reverseMapping(ldf.data_model)
 
     def compute_stats(self, ldf: LuxDataFrame):
         # precompute statistics

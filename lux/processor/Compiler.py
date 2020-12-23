@@ -158,6 +158,8 @@ class Compiler:
         # TODO: copy might not be neccesary
         from lux.utils.date_utils import is_datetime_string
 
+        data_model_lookup = ldf.compute_data_model_lookup()
+
         for vis in vlist:
             for clause in vis._inferred_intent:
                 if clause.description == "?":
@@ -170,7 +172,7 @@ class Compiler:
                     if clause.data_type == "id":
                         clause.data_type = "nominal"
                     if clause.data_model == "":
-                        clause.data_model = ldf.data_model_lookup[clause.attribute]
+                        clause.data_model = data_model_lookup[clause.attribute]
                 if clause.value != "":
                     # If user provided title for Vis, then don't override.
                     if vis.title == "":
@@ -427,6 +429,9 @@ class Compiler:
         import copy
         from lux.utils.utils import convert_to_list
 
+        data_type = ldf.compute_data_type_from_lookup()
+        data_model = ldf.compute_data_model()
+
         intent = {"attributes": [], "filters": []}
         for clause in _inferred_intent:
             spec_options = []
@@ -434,9 +439,9 @@ class Compiler:
                 if clause.attribute == "?":
                     options = set(list(ldf.columns))  # all attributes
                     if clause.data_type != "":
-                        options = options.intersection(set(ldf.data_type[clause.data_type]))
+                        options = options.intersection(set(data_type[clause.data_type]))
                     if clause.data_model != "":
-                        options = options.intersection(set(ldf.data_model[clause.data_model]))
+                        options = options.intersection(set(data_model[clause.data_model]))
                     options = list(options)
                 else:
                     options = convert_to_list(clause.attribute)

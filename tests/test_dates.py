@@ -104,7 +104,8 @@ def test_refresh_inplace():
 
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     df.maintain_metadata()
-    assert df.data_type["temporal"][0] == "date"
+    data_type = df.compute_data_type_from_lookup()
+    assert data_type["temporal"][0] == "date"
 
     vis.refresh_source(df)
     assert vis.mark == "line"

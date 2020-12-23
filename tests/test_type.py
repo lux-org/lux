@@ -37,7 +37,9 @@ def test_check_int_id():
         "https://github.com/lux-org/lux-datasets/blob/master/data/instacart_sample.csv?raw=true"
     )
     df._repr_html_()
-    assert len(df.data_type["id"]) == 3
+    data_type = df.compute_data_type_from_lookup()
+    assert len(data_type["id"]) == 3
+    # assert len(df.data_type["id"]) == 3
     assert (
         "<code>order_id</code>, <code>product_id</code>, <code>user_id</code> is not visualized since it resembles an ID field."
         in df._message.to_html()
