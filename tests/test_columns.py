@@ -63,18 +63,22 @@ def test_special_char():
     assert "axis=alt.Axis(labelOverlap=True, title='specialchar')" in vis
 
 
+long_var = "The teacher provides supports, encouragement, and opportunities equally well for all students in the class, across all sub-groups"
+
+
 def test_abbrev_bar():
-    long_var = "The teacher provides supports, encouragement, and opportunities equally well for all students in the class, across all sub-groups"
     dataset = [
-        {long_var: 1},
+        {long_var: 1, "normal": 3},
+        {long_var: 1, "normal": 3},
+        {long_var: 1, "normal": 2},
+        {long_var: 1, "normal": 4},
     ]
     test = pd.DataFrame(dataset)
-    vis = test.recommendation["Column Groups"][0].to_Altair()
-    assert "axis=alt.Axis(title='The teacher pro...sub-groups'" in vis
+    vis = Vis([long_var, "normal"], test).to_Altair()
+    assert "axis=alt.Axis(labelOverlap=True, title='The teacher pro...sub-groups')" in vis
 
 
 def test_abbrev_histogram():
-    long_var = "The teacher provides supports, encouragement, and opportunities equally well for all students in the class, across all sub-groups"
     dataset = [
         {long_var: 1},
         {long_var: 0},
@@ -85,7 +89,6 @@ def test_abbrev_histogram():
 
 
 def test_abbrev_scatter():
-    long_var = "The teacher provides supports, encouragement, and opportunities equally well for all students in the class, across all sub-groups"
     dataset = [
         {long_var: 1, "normal": 3},
     ]
