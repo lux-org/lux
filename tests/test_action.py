@@ -217,3 +217,24 @@ def test_similarity(global_var):
         > df.recommendation["Similarity"][2].score
     )
     df.clear_intent()
+
+
+def test_similarity2():
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/real_estate_tutorial.csv"
+    )
+
+    df["Month"] = pd.to_datetime(df["Month"], format="%m")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+
+    df.intent = [lux.Clause("Year"), lux.Clause("PctForeclosured"), lux.Clause("City=Crofton")]
+
+    ranked_list = df.recommendation["Similarity"]
+
+    morrisville_vis = list(
+        filter(lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Morrisville", ranked_list)
+    )[0]
+    watertown_vis = list(
+        filter(lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Watertown", ranked_list)
+    )[0]
+    assert morrisville_vis.score > watertown_vis.score
