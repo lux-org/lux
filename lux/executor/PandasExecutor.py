@@ -40,8 +40,8 @@ class PandasExecutor(Executor):
     @staticmethod
     def execute_sampling(ldf: LuxDataFrame):
         # General Sampling for entire dataframe
-        SAMPLE_START = 10000
-        SAMPLE_CAP = 30000
+        SAMPLE_START = lux.config.default_sampling_start
+        SAMPLE_CAP = lux.config.default_sampling_cap
         SAMPLE_FRAC = 0.75
         if len(ldf) > SAMPLE_CAP:
             if ldf._sampled is None:  # memoize unfiltered sample df

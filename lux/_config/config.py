@@ -155,10 +155,57 @@ class Config:
         self.plot_config = None
         self.SQLconnection = ""
         self.executor = None
+        self._sampling_start = 10000
+        self._sampling_cap = 30000
+
+    @property
+    def default_sampling_cap(self):
+        return self._sampling_cap
+
+    @default_sampling_cap.setter
+    def default_sampling_cap(self, sample_number: int) -> None:
+        """
+        TODO
+        Parameters
+        ----------
+        type : int
+                TODO
+        """
+        if type(sample_number) == int:
+            assert sample_number >= self._sampling_start
+            self._sampling_cap = sample_number
+        else:
+            warnings.warn(
+                "The cap on the number samples must be an integer.",
+                stacklevel=2,
+            ) 
+    @property
+    def default_sampling_start(self):
+        return self._sampling_start
+
+    @default_sampling_start.setter
+    def default_sampling_start(self, sample_number: int) -> None:
+        """
+        TODO
+        Parameters
+        ----------
+        type : int
+                TODO
+        """
+        if type(sample_number) == int:
+            assert sample_number <= self._sampling_cap
+            self._sampling_start = sample_number
+        else:
+            warnings.warn(
+                "The sampling starting point must be an integer.",
+                stacklevel=2,
+            )
 
     @property
     def default_display(self):
         return self._default_display
+
+
 
     @default_display.setter
     def default_display(self, type: str) -> None:
