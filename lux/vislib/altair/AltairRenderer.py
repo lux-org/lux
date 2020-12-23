@@ -56,7 +56,6 @@ class AltairRenderer:
             PandasExecutor.execute_2D_binning(vis)
         # If a column has a Period dtype, or contains Period objects, convert it back to Datetime
         if vis.data is not None:
-            cols = []
             for attr in list(vis.data.columns):
                 if pd.api.types.is_period_dtype(vis.data.dtypes[attr]) or isinstance(
                     vis.data[attr].iloc[0], pd.Period
