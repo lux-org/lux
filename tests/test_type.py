@@ -178,7 +178,8 @@ def test_float_categorical():
     ]
     df = pd.DataFrame(values)
     df.maintain_metadata()
-    assert df.data_type["nominal"] == [
+    data_type = df.compute_data_type_from_lookup()
+    assert data_type["nominal"] == [
         "A",
         "B",
         "C",
