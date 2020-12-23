@@ -40,6 +40,14 @@ class BarChart(AltairChart):
         x_attr = self.vis.get_attr_by_channel("x")[0]
         y_attr = self.vis.get_attr_by_channel("y")[0]
 
+        x_attr_abv = x_attr.attribute
+        y_attr_abv = y_attr.attribute
+
+        if len(x_attr.attribute) > 25:
+            x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
+        if len(y_attr.attribute) > 25:
+            y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
+
         if x_attr.data_model == "measure":
             agg_title = get_agg_title(x_attr)
             measure_attr = x_attr.attribute
@@ -47,17 +55,17 @@ class BarChart(AltairChart):
             y_attr_field = alt.Y(
                 y_attr.attribute,
                 type=y_attr.data_type,
-                axis=alt.Axis(labelOverlap=True),
+                axis=alt.Axis(labelOverlap=True, title=y_attr_abv),
             )
-            x_attr_field = alt.X(x_attr.attribute, type=x_attr.data_type, title=agg_title)
-            y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
-            x_attr_field_code = (
-                f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', title='{agg_title}')"
+            x_attr_field = alt.X(
+                x_attr.attribute, type=x_attr.data_type, title=agg_title, axis=alt.Axis(title=x_attr_abv)
             )
+            y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{y_attr_abv}'))"
+            x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', title='{agg_title}', axis=alt.Axis(title='{x_attr_abv}'))"
 
             if y_attr.sort == "ascending":
                 y_attr_field.sort = "-x"
-                y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True), sort ='-x')"
+                y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{y_attr_abv}'), sort ='-x')"
         else:
             agg_title = get_agg_title(y_attr)
             measure_attr = y_attr.attribute
@@ -65,16 +73,16 @@ class BarChart(AltairChart):
             x_attr_field = alt.X(
                 x_attr.attribute,
                 type=x_attr.data_type,
-                axis=alt.Axis(labelOverlap=True),
+                axis=alt.Axis(labelOverlap=True, title=x_attr_abv),
             )
-            x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True))"
-            y_attr_field = alt.Y(y_attr.attribute, type=y_attr.data_type, title=agg_title)
-            y_attr_field_code = (
-                f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', title='{agg_title}')"
+            x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{x_attr_abv}'))"
+            y_attr_field = alt.Y(
+                y_attr.attribute, type=y_attr.data_type, title=agg_title, axis=alt.Axis(title=y_attr_abv)
             )
+            y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', title='{agg_title}', axis=alt.Axis(title='{y_attr_abv}'))"
             if x_attr.sort == "ascending":
                 x_attr_field.sort = "-y"
-                x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True),sort='-y')"
+                x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{x_attr_abv}'),sort='-y')"
         k = 10
         self._topkcode = ""
         n_bars = len(self.data.iloc[:, 0].unique())
@@ -101,6 +109,7 @@ class BarChart(AltairChart):
 		chart = chart + text\n"""
 
         chart = alt.Chart(self.data).mark_bar().encode(y=y_attr_field, x=x_attr_field)
+
         # TODO: tooltip messes up the count() bar charts
         # Can not do interactive whenever you have default count measure otherwise output strange error (Javascript Error: Cannot read property 'length' of undefined)
         # chart = chart.interactive() # If you want to enable Zooming and Panning

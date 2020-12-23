@@ -44,8 +44,51 @@ def test_special_char():
     from lux.vis.Vis import Vis
 
     # TODO: add assert that checks that the bar chart is rendered correctly in Altair
-    Vis(["special.char"], test)
+    vis = Vis(["special.char"], test)
+    assert vis.mark == "bar"
+    assert vis.intent == ["special.char"]
+    assert vis.get_attr_by_channel("x")[0].attribute == "Record"
+    assert vis.get_attr_by_channel("y")[0].attribute == "special.char"
+    vis = vis.to_Altair()
+    assert "axis=alt.Axis(labelOverlap=True, title='specialchar')" in vis
     # Checking that this works even when there are multiple "." in column
     test = test.rename(columns={"special.char": "special..char.."})
     # TODO: add assert that checks that the bar chart is rendered correctly in Altair
-    Vis(["special..char.."], test)
+    vis = Vis(["special..char.."], test)
+    assert vis.mark == "bar"
+    assert vis.intent == ["special..char.."]
+    assert vis.get_attr_by_channel("x")[0].attribute == "Record"
+    assert vis.get_attr_by_channel("y")[0].attribute == "special..char.."
+    vis = vis.to_Altair()
+    assert "axis=alt.Axis(labelOverlap=True, title='specialchar')" in vis
+
+
+def test_abbrev_bar():
+    long_var = "The teacher provides supports, encouragement, and opportunities equally well for all students in the class, across all sub-groups"
+    dataset = [
+        {long_var: 1},
+    ]
+    test = pd.DataFrame(dataset)
+    vis = test.recommendation["Column Groups"][0].to_Altair()
+    assert "axis=alt.Axis(title='The teacher pro...sub-groups'" in vis
+
+
+def test_abbrev_histogram():
+    long_var = "The teacher provides supports, encouragement, and opportunities equally well for all students in the class, across all sub-groups"
+    dataset = [
+        {long_var: 1},
+        {long_var: 0},
+    ]
+    test = pd.DataFrame(dataset)
+    vis = Vis([long_var], test).to_Altair()
+    "axis=alt.Axis(labelOverlap=True, title='The teache...-groups (binned)')" in vis
+
+
+def test_abbrev_scatter():
+    long_var = "The teacher provides supports, encouragement, and opportunities equally well for all students in the class, across all sub-groups"
+    dataset = [
+        {long_var: 1, "normal": 3},
+    ]
+    test = pd.DataFrame(dataset)
+    vis = Vis([long_var, "normal"], test).to_Altair()
+    "axis=alt.Axis(title='The teacher pro...sub-groups'))" in vis

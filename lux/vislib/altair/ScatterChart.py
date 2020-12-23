@@ -37,6 +37,15 @@ class ScatterChart(AltairChart):
     def initialize_chart(self):
         x_attr = self.vis.get_attr_by_channel("x")[0]
         y_attr = self.vis.get_attr_by_channel("y")[0]
+
+        x_attr_abv = x_attr.attribute
+        y_attr_abv = y_attr.attribute
+
+        if len(x_attr.attribute) > 25:
+            x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
+        if len(y_attr.attribute) > 25:
+            y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
+
         x_min = self.vis.min_max[x_attr.attribute][0]
         x_max = self.vis.min_max[x_attr.attribute][1]
 
@@ -51,11 +60,13 @@ class ScatterChart(AltairChart):
                     x_attr.attribute,
                     scale=alt.Scale(domain=(x_min, x_max)),
                     type=x_attr.data_type,
+                    axis=alt.Axis(title=x_attr_abv),
                 ),
                 y=alt.Y(
                     y_attr.attribute,
                     scale=alt.Scale(domain=(y_min, y_max)),
                     type=y_attr.data_type,
+                    axis=alt.Axis(title=y_attr_abv),
                 ),
             )
         )
@@ -71,8 +82,8 @@ class ScatterChart(AltairChart):
         dfname = "placeholder_variable"
         self.code += f"""
 		chart = alt.Chart({dfname}).mark_circle().encode(
-		    x=alt.X('{x_attr.attribute}',scale=alt.Scale(domain=({x_min}, {x_max})),type='{x_attr.data_type}'),
-		    y=alt.Y('{y_attr.attribute}',scale=alt.Scale(domain=({y_min}, {y_max})),type='{y_attr.data_type}')
+		    x=alt.X('{x_attr.attribute}',scale=alt.Scale(domain=({x_min}, {x_max})),type='{x_attr.data_type}', axis=alt.Axis(title='{x_attr_abv}')),
+		    y=alt.Y('{y_attr.attribute}',scale=alt.Scale(domain=({y_min}, {y_max})),type='{y_attr.data_type}', axis=alt.Axis(title='{y_attr_abv}'))
 		)
 		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
 		chart = chart.interactive() # Enable Zooming and Panning
