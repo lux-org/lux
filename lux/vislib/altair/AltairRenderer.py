@@ -66,6 +66,8 @@ class AltairRenderer:
                     vis.data[attr].iloc[0], pd.Interval
                 ):
                     vis.data[attr] = vis.data[attr].astype(str)
+                attr_new = attr.replace(".", "")
+                vis.data[attr_new] = vis.data[attr]
         if vis.mark == "histogram":
             chart = Histogram(vis)
         elif vis.mark == "bar":
@@ -80,6 +82,28 @@ class AltairRenderer:
             chart = None
 
         if chart:
+            import altair as alt
+
+            if vis.mark == "histogram":
+                measure = vis.get_attr_by_data_model("measure", exclude_record=True)[0]
+                msr_attr = vis.get_attr_by_channel(measure.channel)[0]
+                if len(msr_attr.attribute) > 25:
+                    chart.chart.encoding.x.axis.title = (
+                        msr_attr.attribute[:15] + "..." + msr_attr.attribute[-10:] + "(binned)"
+                    )
+            else:
+                x_attr = vis.get_attr_by_channel("x")[0]
+                y_attr = vis.get_attr_by_channel("y")[0]
+
+                if len(x_attr.attribute) > 25:
+                    chart.chart.encoding.x.axis.title = (
+                        x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
+                    )
+                if len(y_attr.attribute) > 25:
+                    chart.chart.encoding.y.axis.title = (
+                        y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
+                    )
+
             if lux.config.plot_config:
                 chart.chart = lux.config.plot_config(chart.chart)
             if self.output_type == "VegaLite":
