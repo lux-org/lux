@@ -89,3 +89,12 @@ def check_if_id_like(df, attribute):
     else:
         # TODO: Could probably add some type of entropy measure (since the binned id fields are usually very even)
         return high_cardinality and (attribute_contain_id or almost_all_vals_unique)
+
+
+def like_nan(val):
+    if isinstance(val, str):
+        return val.lower() == "nan"
+    elif isinstance(val, float) or isinstance(val, int):
+        import math
+
+        return math.isnan(val)
