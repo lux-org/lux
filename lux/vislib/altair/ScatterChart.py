@@ -52,6 +52,9 @@ class ScatterChart(AltairChart):
         y_min = self.vis.min_max[y_attr.attribute][0]
         y_max = self.vis.min_max[y_attr.attribute][1]
 
+        x_attr.attribute = x_attr.attribute.replace(".", "")
+        y_attr.attribute = y_attr.attribute.replace(".", "")
+
         chart = (
             alt.Chart(self.data)
             .mark_circle()

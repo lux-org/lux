@@ -47,6 +47,9 @@ class Heatmap(AltairChart):
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
 
+        x_attr.attribute = x_attr.attribute.replace(".", "")
+        y_attr.attribute = y_attr.attribute.replace(".", "")
+
         chart = (
             alt.Chart(self.data)
             .mark_rect()

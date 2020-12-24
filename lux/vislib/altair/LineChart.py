@@ -48,6 +48,9 @@ class LineChart(AltairChart):
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
 
+        x_attr.attribute = x_attr.attribute.replace(".", "")
+        y_attr.attribute = y_attr.attribute.replace(".", "")
+
         # Remove NaNs only for Line Charts (offsets axis range)
         self.data = self.data.dropna(subset=[x_attr.attribute, y_attr.attribute])
         self.code += "import altair as alt\n"
