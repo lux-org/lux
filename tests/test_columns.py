@@ -50,7 +50,14 @@ def test_special_char():
     assert vis.get_attr_by_channel("x")[0].attribute == "Record"
     assert vis.get_attr_by_channel("y")[0].attribute == "special.char"
     vis = vis.to_Altair()
-    assert "axis=alt.Axis(labelOverlap=True, title='specialchar')" in vis
+    assert (
+        "alt.Y('specialchar', type= 'nominal', axis=alt.Axis(labelOverlap=True, title='special.char'))"
+        in vis
+    )
+    assert (
+        "alt.X('Record', type= 'quantitative', title='Number of Records', axis=alt.Axis(title='Number of Records')"
+        in vis
+    )
     # Checking that this works even when there are multiple "." in column
     test = test.rename(columns={"special.char": "special..char.."})
     # TODO: add assert that checks that the bar chart is rendered correctly in Altair
@@ -60,10 +67,17 @@ def test_special_char():
     assert vis.get_attr_by_channel("x")[0].attribute == "Record"
     assert vis.get_attr_by_channel("y")[0].attribute == "special..char.."
     vis = vis.to_Altair()
-    assert "axis=alt.Axis(labelOverlap=True, title='specialchar')" in vis
+    assert (
+        "alt.Y('specialchar', type= 'nominal', axis=alt.Axis(labelOverlap=True, title='special..char..')"
+        in vis
+    )
+    assert (
+        "alt.X('Record', type= 'quantitative', title='Number of Records', axis=alt.Axis(title='Number of Records')"
+        in vis
+    )
 
 
-long_var = "The teacher provides supports, encouragement, and opportunities equally well for all students in the class, across all sub-groups"
+long_var = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 
 
 def test_abbrev_bar():
@@ -75,7 +89,7 @@ def test_abbrev_bar():
     ]
     test = pd.DataFrame(dataset)
     vis = Vis([long_var, "normal"], test).to_Altair()
-    assert "axis=alt.Axis(labelOverlap=True, title='The teacher pro...sub-groups')" in vis
+    assert "axis=alt.Axis(labelOverlap=True, title='Lorem ipsum dol...t laborum.')" in vis
 
 
 def test_abbrev_histogram():
@@ -85,7 +99,7 @@ def test_abbrev_histogram():
     ]
     test = pd.DataFrame(dataset)
     vis = Vis([long_var], test).to_Altair()
-    "axis=alt.Axis(labelOverlap=True, title='The teache...-groups (binned)')" in vis
+    "axis=alt.Axis(labelOverlap=True, title='Lorem ipsu...aborum. (binned)')" in vis
 
 
 def test_abbrev_scatter():
@@ -94,4 +108,16 @@ def test_abbrev_scatter():
     ]
     test = pd.DataFrame(dataset)
     vis = Vis([long_var, "normal"], test).to_Altair()
-    "axis=alt.Axis(title='The teacher pro...sub-groups'))" in vis
+    "axis=alt.Axis(title='Lorem ipsum dol...t laborum.')" in vis
+
+
+def test_abbrev_agg():
+    dataset = [
+        {"normal": "USA", long_var: 3},
+        {"normal": "Europe", long_var: 3},
+        {"normal": "USA", long_var: 2},
+        {"normal": "Europe", long_var: 4},
+    ]
+    test = pd.DataFrame(dataset)
+    vis = Vis([long_var, "normal"], test).to_Altair()
+    "axis=alt.Axis(title='Mean of Lorem ipsum dol...')" in vis
