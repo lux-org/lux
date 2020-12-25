@@ -19,61 +19,6 @@ import numpy as np
 from lux.vis.VisList import VisList
 from lux.utils.utils import get_filter_specs
 
-
-def similar_pattern(ldf, *args):
-    """
-    Generates visualizations with similar patterns to a query visualization.
-
-    Parameters
-    ----------
-    ldf : lux.core.frame
-        LuxDataFrame with underspecified intent.
-
-    args: topK: int
-        number of visual recommendations to return.
-
-    Returns
-    -------
-    recommendations : Dict[str,obj]
-        object with a collection of visualizations that result from the Similarity action
-    """
-
-    last = get_filter_specs(ldf.intent)[-1]
-    query = ldf.intent.copy()[0:-1]
-    # array of possible values for attribute
-    arr = ldf[last.attribute].unique().tolist()
-    query.append(lux.Clause(last.attribute, last.attribute, arr))
-    row_specs = ldf.intent
-    if len(args) == 0:
-        topK = 15
-    else:
-        topK = args[0][0]
-
-    row_specs = list(filter(lambda x: x.value != "", row_specs))
-    if len(row_specs) == 1:
-        search_space_vc = VisList(query, ldf)
-
-        query_vc = VisList(ldf.current_vis, ldf)
-        query_vis = query_vc[0]
-        preprocess(query_vis)
-        # for loop to create assign euclidean distance
-        recommendation = {
-            "action": "Similarity",
-            "description": "Show other charts that are visually similar to the Current vis.",
-        }
-        search_space_vc_copy = VisList(query, ldf)
-        for i in range(len(search_space_vc_copy)):
-            preprocess(search_space_vc_copy[i])
-            search_space_vc[i].score = euclidean_dist(query_vis, search_space_vc_copy[i])
-        search_space_vc.normalize_score(invert_order=True)
-        if topK != -1:
-            search_space_vc = search_space_vc.topK(topK)
-        recommendation["collection"] = search_space_vc[1:]
-        return recommendation
-    else:
-        print("Query needs to have 1 row value")
-
-
 def aggregate(vis):
     """
     Aggregates data values on the y axis so that the vis is a time series
