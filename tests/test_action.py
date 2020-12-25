@@ -210,12 +210,16 @@ def test_similarity(global_var):
         ]
     )
     df._repr_html_()
-    assert len(df.recommendation["Similarity"]) == 3
-    assert (
-        df.recommendation["Similarity"][0].score
-        > df.recommendation["Similarity"][1].score
-        > df.recommendation["Similarity"][2].score
-    )
+    assert len(df.recommendation["Similarity"]) == 2
+    ranked_list = df.recommendation["Similarity"]
+
+    japan_vis = list(
+        filter(lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Japan", ranked_list)
+    )[0]
+    europe_vis = list(
+        filter(lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Europe", ranked_list)
+    )[0]
+    assert japan_vis.score > europe_vis.score
     df.clear_intent()
 
 

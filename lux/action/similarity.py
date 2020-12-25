@@ -61,13 +61,14 @@ def similar_pattern(ldf, *args):
             "action": "Similarity",
             "description": "Show other charts that are visually similar to the Current vis.",
         }
-        for vis in search_space_vc:
-            preprocess(vis)
-            vis.score = euclidean_dist(query_vis, vis)
+        search_space_vc_copy = VisList(query, ldf)
+        for i in range(len(search_space_vc_copy)):
+            preprocess(search_space_vc_copy[i])
+            search_space_vc[i].score = euclidean_dist(query_vis, search_space_vc_copy[i])
         search_space_vc.normalize_score(invert_order=True)
         if topK != -1:
             search_space_vc = search_space_vc.topK(topK)
-        recommendation["collection"] = search_space_vc
+        recommendation["collection"] = search_space_vc[1:]
         return recommendation
     else:
         print("Query needs to have 1 row value")
