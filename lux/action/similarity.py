@@ -19,6 +19,7 @@ import numpy as np
 from lux.vis.VisList import VisList
 from lux.utils.utils import get_filter_specs
 
+
 def aggregate(vis):
     """
     Aggregates data values on the y axis so that the vis is a time series
