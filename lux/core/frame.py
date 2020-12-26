@@ -332,8 +332,7 @@ class LuxDataFrame(pd.DataFrame):
         cardinality = {}
         for attr in list(self.columns):
             card_query = pd.read_sql(
-                f"SELECT Count(Distinct({attr})) FROM {self.table_name}",
-                lux.config.SQLconnection,
+                f"SELECT Count(Distinct({attr})) FROM {self.table_name}", lux.config.SQLconnection,
             )
             cardinality[attr] = list(card_query["count"])[0]
         self.cardinality = cardinality
@@ -342,8 +341,7 @@ class LuxDataFrame(pd.DataFrame):
         unique_vals = {}
         for attr in list(self.columns):
             unique_query = pd.read_sql(
-                f"SELECT Distinct({attr}) FROM {self.table_name}",
-                lux.config.SQLconnection,
+                f"SELECT Distinct({attr}) FROM {self.table_name}", lux.config.SQLconnection,
             )
             unique_vals[attr] = list(unique_query[attr])
         self.unique_values = unique_vals
@@ -556,8 +554,7 @@ class LuxDataFrame(pd.DataFrame):
             exported_vis = VisList(
                 list(
                     map(
-                        self._recommendation[export_action].__getitem__,
-                        exported_vis_lst[export_action],
+                        self._recommendation[export_action].__getitem__, exported_vis_lst[export_action],
                     )
                 )
             )
@@ -647,8 +644,7 @@ class LuxDataFrame(pd.DataFrame):
                 if len(self._recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
                     button = widgets.Button(
-                        description="Toggle Pandas/Lux",
-                        layout=widgets.Layout(width="140px", top="5px"),
+                        description="Toggle Pandas/Lux", layout=widgets.Layout(width="140px", top="5px"),
                     )
                     self.output = widgets.Output()
                     # box.children = [button,output]

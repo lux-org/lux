@@ -99,7 +99,7 @@ def test_abbrev_histogram():
     ]
     test = pd.DataFrame(dataset)
     vis = Vis([long_var], test).to_Altair()
-    "axis=alt.Axis(labelOverlap=True, title='Lorem ipsu...aborum. (binned)')" in vis
+    assert "axis=alt.Axis(labelOverlap=True, title='Lorem ipsu...aborum. (binned)')" in vis
 
 
 def test_abbrev_scatter():
@@ -108,7 +108,7 @@ def test_abbrev_scatter():
     ]
     test = pd.DataFrame(dataset)
     vis = Vis([long_var, "normal"], test).to_Altair()
-    "axis=alt.Axis(title='Lorem ipsum dol...t laborum.')" in vis
+    assert "axis=alt.Axis(title='Lorem ipsum dol...t laborum.')" in vis
 
 
 def test_abbrev_agg():
@@ -120,4 +120,4 @@ def test_abbrev_agg():
     ]
     test = pd.DataFrame(dataset)
     vis = Vis([long_var, "normal"], test).to_Altair()
-    "axis=alt.Axis(title='Mean of Lorem ipsum dol...')" in vis
+    assert "axis=alt.Axis(title='Mean of Lorem ipsum dol...')" in vis

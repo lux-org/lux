@@ -203,10 +203,7 @@ class PandasExecutor(Executor):
                             }
                         )
                         vis._vis_data = vis.data.merge(
-                            df,
-                            on=[columns[0], columns[1]],
-                            how="right",
-                            suffixes=["", "_right"],
+                            df, on=[columns[0], columns[1]], how="right", suffixes=["", "_right"],
                         )
                         for col in columns[2:]:
                             vis.data[col] = vis.data[col].fillna(0)  # Triggers __setitem__
@@ -344,10 +341,7 @@ class PandasExecutor(Executor):
                 if color_attr.data_type == "nominal":
                     # Compute mode and count. Mode aggregates each cell by taking the majority vote for the category variable. In cases where there is ties across categories, pick the first item (.iat[0])
                     result = groups.agg(
-                        [
-                            ("count", "count"),
-                            (color_attr.attribute, lambda x: pd.Series.mode(x).iat[0]),
-                        ]
+                        [("count", "count"), (color_attr.attribute, lambda x: pd.Series.mode(x).iat[0]),]
                     ).reset_index()
                 elif color_attr.data_type == "quantitative":
                     # Compute the average of all values in the bin
