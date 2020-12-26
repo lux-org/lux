@@ -23,7 +23,7 @@ from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from scipy.spatial.distance import euclidean
 import lux
 from lux.utils.utils import get_filter_specs
-from lux.action.similarity import preprocess, euclidean_dist
+from lux.interestingness.similarity import preprocess, euclidean_dist
 from lux.vis.VisList import VisList
 
 
@@ -85,7 +85,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         query_vis = query_vc[0]
         preprocess(query_vis)
         preprocess(vis)
-        return -1 * euclidean_dist(query_vis, vis)
+        return 1 - euclidean_dist(query_vis, vis)
 
     # Line/Bar Chart
     # print("r:", n_record, "m:", n_msr, "d:",n_dim)

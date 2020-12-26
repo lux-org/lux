@@ -20,26 +20,6 @@ from lux.vis.VisList import VisList
 from lux.utils.utils import get_filter_specs
 
 
-def aggregate(vis):
-    """
-    Aggregates data values on the y axis so that the vis is a time series
-
-    Parameters
-    ----------
-    vis : lux.vis.Vis
-        vis that represents the candidate visualization
-    Returns
-    -------
-    None
-    """
-    if vis.get_attr_by_channel("x") and vis.get_attr_by_channel("y"):
-
-        xAxis = vis.get_attr_by_channel("x")[0].attribute
-        yAxis = vis.get_attr_by_channel("y")[0].attribute
-
-        vis.data = vis.data[[xAxis, yAxis]].groupby(xAxis, as_index=False).agg({yAxis: "mean"}).copy()
-
-
 def interpolate(vis, length):
     """
     Interpolates the vis data so that the number of data points is fixed to a constant
