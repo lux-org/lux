@@ -171,7 +171,9 @@ class PandasExecutor(Executor):
                     vis._vis_data = vis.data.rename(columns={index_name: "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, "Record"]]
                 else:
-                    vis._vis_data = vis.data.groupby(groupby_attr.attribute, dropna=False).count().reset_index()
+                    vis._vis_data = (
+                        vis.data.groupby(groupby_attr.attribute, dropna=False).count().reset_index()
+                    )
                     index_name = list(
                         filter(lambda k: groupby_attr.attribute not in k, vis.data.columns)
                     )[0]

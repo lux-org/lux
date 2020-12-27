@@ -530,13 +530,14 @@ def test_index(global_var):
     df._repr_html_()
     assert len(df.recommendation) > 0
 
-    #this case is not yet addressed, need to have a check that eliminates bar charts with duplicate column names
+    # this case is not yet addressed, need to have a check that eliminates bar charts with duplicate column names
     # df = df.set_index(["Name"], drop=False)
     # assert "Name" not in df.columns and df.index.name == "Name"
     # df._repr_html_()
     # assert len(df.recommendation) > 0
     # df = df.reset_index(drop=True)
     # assert "Name" not in df.columns and df.index.name != "Name"
+
 
 ################
 # Series Tests #
