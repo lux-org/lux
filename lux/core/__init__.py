@@ -14,10 +14,12 @@
 
 import pandas as pd
 from .frame import LuxDataFrame
+from .series import LuxSeries
 
 global originalDF
 # Keep variable scope of original pandas df
 originalDF = pd.core.frame.DataFrame
+originalSeries = pd.core.series.Series
 
 
 def setOption(overridePandas=True):
@@ -25,8 +27,10 @@ def setOption(overridePandas=True):
         pd.DataFrame = (
             pd.io.json._json.DataFrame
         ) = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = LuxDataFrame
+        pd.Series = LuxSeries
     else:
         pd.DataFrame = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = originalDF
+        pd.Series = originalSeries
 
 
 setOption(overridePandas=True)

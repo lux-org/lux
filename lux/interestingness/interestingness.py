@@ -22,6 +22,9 @@ import numpy as np
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from scipy.spatial.distance import euclidean
 import lux
+from lux.utils.utils import get_filter_specs
+from lux.interestingness.similarity import preprocess, euclidean_dist
+from lux.vis.VisList import VisList
 
 
 def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
@@ -68,11 +71,28 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
     dimension_lst = vis.get_attr_by_data_model("dimension")
     measure_lst = vis.get_attr_by_data_model("measure")
     v_size = len(vis.data)
+
+    if (
+        n_dim == 1
+        and (n_msr == 0 or n_msr == 1)
+        and ldf.current_vis is not None
+        and vis.get_attr_by_channel("y")[0].data_type == "quantitative"
+        and len(ldf.current_vis) == 1
+        and ldf.current_vis[0].mark == "line"
+        and len(get_filter_specs(ldf.intent)) > 0
+    ):
+        query_vc = VisList(ldf.current_vis, ldf)
+        query_vis = query_vc[0]
+        preprocess(query_vis)
+        preprocess(vis)
+        return 1 - euclidean_dist(query_vis, vis)
+
     # Line/Bar Chart
     # print("r:", n_record, "m:", n_msr, "d:",n_dim)
     if n_dim == 1 and (n_msr == 0 or n_msr == 1):
         if v_size < 2:
             return -1
+
         if n_filter == 0:
             return unevenness(vis, ldf, measure_lst, dimension_lst)
         elif n_filter == 1:
@@ -184,7 +204,9 @@ def weighted_correlation(x, y, w):
     return weighted_cov(x, y, w) / np.sqrt(weighted_cov(x, x, w) * weighted_cov(y, y, w))
 
 
-def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_attribute: str) -> int:
+def deviation_from_overall(
+    vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_attribute: str, exclude_nan: bool = True
+) -> int:
     """
     Difference in bar chart/histogram shape from overall chart
     Note: this function assumes that the filtered vis.data is operating on the same range as the unfiltered vis.data.
@@ -197,6 +219,8 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
             List of filters from the Vis
     msr_attribute : str
             The attribute name of the measure value of the chart
+    exclude_nan: bool
+            Whether to include/exclude NaN values as part of the deviation calculation
 
     Returns
     -------
@@ -204,8 +228,13 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
             Score describing how different the vis is from the overall vis
     """
     v_filter_size = get_filtered_size(filter_specs, ldf)
-    v_size = len(vis.data)
-    v_filter = vis.data[msr_attribute]
+
+    if exclude_nan:
+        vdata = vis.data.dropna()
+    else:
+        vdata = vis.data
+    v_size = len(vdata)
+    v_filter = vdata[msr_attribute]
     total = v_filter.sum()
     v_filter = v_filter / total  # normalize by total to get ratio
     if total == 0:
@@ -217,8 +246,11 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
     # Remove filters, keep only attribute intent
     unfiltered_vis._inferred_intent = utils.get_attrs_specs(vis._inferred_intent)
     lux.config.executor.execute([unfiltered_vis], ldf)
-
-    v = unfiltered_vis.data[msr_attribute]
+    if exclude_nan:
+        uv = unfiltered_vis.data.dropna()
+    else:
+        uv = unfiltered_vis.data
+    v = uv[msr_attribute]
     v = v / v.sum()
     assert len(v) == len(v_filter), "Data for filtered and unfiltered vis have unequal length."
     sig = v_filter_size / v_size  # significance factor
@@ -230,8 +262,8 @@ def deviation_from_overall(vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_
         dimList = vis.get_attr_by_data_model("dimension")
 
         # use Pandas rank function to calculate rank positions for each category
-        v_rank = unfiltered_vis.data.rank()
-        v_filter_rank = vis.data.rank()
+        v_rank = uv.rank()
+        v_filter_rank = vdata.rank()
         # go through and count the number of ranking changes between the filtered and unfiltered data
         numCategories = ldf.cardinality[dimList[0].attribute]
         for r in range(0, numCategories - 1):
@@ -267,12 +299,16 @@ def unevenness(vis: Vis, ldf: LuxDataFrame, measure_lst: list, dimension_lst: li
     """
     v = vis.data[measure_lst[0].attribute]
     v = v / v.sum()  # normalize by total to get ratio
+    v = v.fillna(0)  # Some bar values may be NaN
     C = ldf.cardinality[dimension_lst[0].attribute]
     D = (0.9) ** C  # cardinality-based discounting factor
     v_flat = pd.Series([1 / C] * len(v))
     if is_datetime(v):
         v = v.astype("int")
-    return D * euclidean(v, v_flat)
+    try:
+        return D * euclidean(v, v_flat)
+    except (ValueError):
+        return 0.01
 
 
 def mutual_information(v_x: list, v_y: list) -> int:

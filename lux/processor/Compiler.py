@@ -18,6 +18,7 @@ from lux.vis.Vis import Vis
 from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 from lux.utils import date_utils
+from lux.utils import utils
 import pandas as pd
 import numpy as np
 import warnings
@@ -181,12 +182,25 @@ class Compiler:
                         else:
                             chart_title = clause.value
                         vis.title = f"{clause.attribute} {clause.filter_op} {chart_title}"
+            vis._ndim = 0
+            vis._nmsr = 0
+
+            for clause in vis._inferred_intent:
+                if clause.value == "":
+                    if clause.data_model == "dimension":
+                        vis._ndim += 1
+                    elif clause.data_model == "measure" and clause.attribute != "Record":
+                        vis._nmsr += 1
 
     @staticmethod
     def remove_all_invalid(vis_collection: VisList) -> VisList:
         """
         Given an expanded vis list, remove all visualizations that are invalid.
-        Currently, the invalid visualizations are ones that contain two of the same attribute, no more than two temporal attributes, or overlapping attributes (same filter attribute and visualized attribute).
+        Currently, the invalid visualizations are ones that do not contain:
+        - two of the same attribute,
+        - more than two temporal attributes,
+        - no overlapping attributes (same filter attribute and visualized attribute),
+        - more than 1 temporal attribute with 2 or more measures
         Parameters
         ----------
         vis_collection : list[lux.vis.Vis]
@@ -205,7 +219,11 @@ class Compiler:
                 if clause.data_type == "temporal":
                     num_temporal_specs += 1
             all_distinct_specs = 0 == len(vis._inferred_intent) - len(attribute_set)
-            if num_temporal_specs < 2 and all_distinct_specs:
+            if (
+                num_temporal_specs < 2
+                and all_distinct_specs
+                and not (vis._nmsr == 2 and num_temporal_specs == 1)
+            ):
                 new_vc.append(vis)
             # else:
             # 	warnings.warn("\nThere is more than one duplicate attribute specified in the intent.\nPlease check your intent specification again.")
@@ -237,17 +255,11 @@ class Compiler:
         https://doi.org/10.1109/TVCG.2007.70594
         """
         # Count number of measures and dimensions
-        ndim = 0
-        nmsr = 0
-        filters = []
-        for clause in vis._inferred_intent:
-            if clause.value == "":
-                if clause.data_model == "dimension":
-                    ndim += 1
-                elif clause.data_model == "measure" and clause.attribute != "Record":
-                    nmsr += 1
-            else:  # preserve to add back to _inferred_intent later
-                filters.append(clause)
+        ndim = vis._ndim
+        nmsr = vis._nmsr
+        # preserve to add back to _inferred_intent later
+        filters = utils.get_filter_specs(vis._inferred_intent)
+
         # Helper function (TODO: Move this into utils)
         def line_or_bar(ldf, dimension: Clause, measure: Clause):
             dim_type = dimension.data_type
