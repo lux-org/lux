@@ -155,3 +155,35 @@ def test_check_college():
         "MedianFamilyIncome": "quantitative",
         "MedianEarnings": "quantitative",
     }
+
+
+def test_float_categorical():
+    values = [
+        {"A": 6.0, "B": 1.0, "C": 1.0, "D": 3.0, "E": 2.0, "F": 5.0},
+        {"A": 5.0, "B": 2.0, "C": 2.0, "D": 2.0, "E": 2.0, "F": 3.0},
+        {"A": 3.0, "B": 6.0, "C": 3.0, "D": 3.0, "E": 2.0, "F": 5.0},
+        {"A": 6.0, "B": 3.0, "C": 3.0, "D": 2.0, "E": 2.0, "F": 2.0},
+        {"A": 7.0, "B": 4.0, "C": 2.0, "D": 2.0, "E": 2.0, "F": 4.0},
+        {"A": 5.0, "B": 3.0, "C": 6.0, "D": 3.0, "E": 3.0, "F": 4.0},
+        {"A": 3.0, "B": 4.0, "C": 3.0, "D": 6.0, "E": 5.0, "F": 5.0},
+        {"A": 3.0, "B": 3.0, "C": 2.0, "D": 2.0, "E": 4.0, "F": 5.0},
+        {"A": 3.0, "B": 2.0, "C": 2.0, "D": 2.0, "E": 2.0, "F": 4.0},
+        {"A": 1.0, "B": 2.0, "C": 2.0, "D": 2.0, "E": 2.0, "F": 6.0},
+        {"A": 3.0, "B": 3.0, "C": 2.0, "D": 3.0, "E": 3.0, "F": 5.0},
+        {"A": 7.0, "B": 1.0, "C": 1.0, "D": 2.0, "E": 2.0, "F": 3.0},
+        {"A": 6.0, "B": 2.0, "C": 2.0, "D": 2.0, "E": 2.0, "F": 3.0},
+        {"A": 2.0, "B": 3.0, "C": 2.0, "D": 3.0, "E": 3.0, "F": 4.0},
+        {"A": 6.0, "B": 2.0, "C": 3.0, "D": 3.0, "E": 3.0, "F": 5.0},
+    ]
+    df = pd.DataFrame(values)
+    df.maintain_metadata()
+    assert df.data_type["nominal"] == [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+    ], "Float column should be detected as categorical"
+    for x in list(df.dtypes):
+        assert x == "float64", "Source dataframe preserved as float dtype"

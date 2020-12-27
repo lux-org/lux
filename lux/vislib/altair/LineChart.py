@@ -39,7 +39,8 @@ class LineChart(AltairChart):
         self.tooltip = False  # tooltip looks weird for line chart
         x_attr = self.vis.get_attr_by_channel("x")[0]
         y_attr = self.vis.get_attr_by_channel("y")[0]
-
+        # Remove NaNs only for Line Charts (offsets axis range)
+        self.data = self.data.dropna(subset=[x_attr.attribute, y_attr.attribute])
         self.code += "import altair as alt\n"
         self.code += "import pandas._libs.tslibs.timestamps\n"
         self.code += "from pandas._libs.tslibs.timestamps import Timestamp\n"

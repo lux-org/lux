@@ -20,6 +20,7 @@ from lux.utils.date_utils import is_datetime_series, is_datetime_string
 import warnings
 import pandas as pd
 import lux
+import lux.utils.utils
 
 
 class Validator:
@@ -81,15 +82,19 @@ class Validator:
                                 else:
                                     warn_msg = f"\n- The input attribute '{clause.attribute}' does not exist in the DataFrame. \n  Please check your input intent for typos."
                         if clause.value and clause.attribute and clause.filter_op == "=":
-                            series = pd.Series(ldf.unique_values[clause.attribute])
-                            if not is_datetime_series(series):
-                                if isinstance(clause.value, list):
-                                    vals = clause.value
-                                else:
-                                    vals = [clause.value]
-                                for val in vals:
-                                    if val not in series.values:
-                                        warn_msg = f"\n- The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
+                            import math
+
+                            # Skip check for NaN filter values
+                            if not lux.utils.utils.like_nan(clause.value):
+                                series = ldf[clause.attribute]
+                                if not is_datetime_series(series):
+                                    if isinstance(clause.value, list):
+                                        vals = clause.value
+                                    else:
+                                        vals = [clause.value]
+                                    for val in vals:
+                                        if val not in series.values:
+                                            warn_msg = f"\n- The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
             return warn_msg
 
         warn_msg = ""

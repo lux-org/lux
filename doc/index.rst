@@ -1,10 +1,6 @@
 Lux: A Python API for Intelligent Visual Discovery
 ====================================================
 
-.. .. image:: https://raw.githubusercontent.com/lux-org/lux-resources/master/logo.png
-..   :width: 400
-..   :alt: Lux Logo
-
 Lux is a Python library that makes data science easier by automating certain aspects of the data exploration process. Lux is designed to facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Lux is integrated with an `interactive Jupyter widget <https://github.com/lux-org/lux-widget>`_ that allows users to quickly browse through large collections of data directly within their Jupyter notebooks.
 
 This website contains pages that overview of the basic and advanced functionalities supported in Lux. If you prefer to follow along these tutorial on your own in a Jupyter notebook, you can clone `this repo <https://github.com/lux-org/lux-binder>`_ to download the `tutorials <https://github.com/lux-org/lux-binder/tree/master/tutorial>`_ or launch a live notebook `via Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial>`_ to try it out.
