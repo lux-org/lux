@@ -183,7 +183,8 @@ def test_year_filter_value(global_var):
             lambda vis: len(
                 list(
                     filter(
-                        lambda clause: clause.value != "" and clause.attribute == "Year", vis._intent,
+                        lambda clause: clause.value != "" and clause.attribute == "Year",
+                        vis._intent,
                     )
                 )
             )

@@ -44,7 +44,10 @@ def test_period_selection(global_var):
     ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq="A")
 
     ldf.set_intent(
-        [lux.Clause(attribute=["Horsepower", "Weight", "Acceleration"]), lux.Clause(attribute="Year"),]
+        [
+            lux.Clause(attribute=["Horsepower", "Weight", "Acceleration"]),
+            lux.Clause(attribute="Year"),
+        ]
     )
 
     lux.config.executor.execute(ldf.current_vis, ldf)

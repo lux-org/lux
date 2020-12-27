@@ -69,7 +69,10 @@ class Heatmap(AltairChart):
                 ),
                 y2=alt.Y2("yBinEnd"),
                 opacity=alt.Opacity(
-                    "count", type="quantitative", scale=alt.Scale(type="log"), legend=None,
+                    "count",
+                    type="quantitative",
+                    scale=alt.Scale(type="log"),
+                    legend=None,
                 ),
             )
         )
