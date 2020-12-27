@@ -220,7 +220,6 @@ def test_interestingness_0_2_0(global_var):
     assert interestingness(df.recommendation["Enhance"][0], df) != None
     rank1 = -1
     rank2 = -1
-    rank3 = -1
     for f in range(0, len(df.recommendation["Enhance"])):
         if (
             str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Origin"
@@ -232,12 +231,7 @@ def test_interestingness_0_2_0(global_var):
             and str(df.recommendation["Enhance"][f].mark) == "scatter"
         ):
             rank2 = f
-        if (
-            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Year"
-            and str(df.recommendation["Enhance"][f].mark) == "scatter"
-        ):
-            rank3 = f
-    assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
+    assert rank1 < rank2
 
     # check that top recommended filter graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Filter"][0], df) != None

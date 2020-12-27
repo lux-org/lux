@@ -22,6 +22,9 @@ import numpy as np
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from scipy.spatial.distance import euclidean
 import lux
+from lux.utils.utils import get_filter_specs
+from lux.interestingness.similarity import preprocess, euclidean_dist
+from lux.vis.VisList import VisList
 
 
 def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
@@ -65,6 +68,22 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
     dimension_lst = vis.get_attr_by_data_model("dimension")
     measure_lst = vis.get_attr_by_data_model("measure")
     v_size = len(vis.data)
+
+    if (
+        n_dim == 1
+        and (n_msr == 0 or n_msr == 1)
+        and ldf.current_vis is not None
+        and vis.get_attr_by_channel("y")[0].data_type == "quantitative"
+        and len(ldf.current_vis) == 1
+        and ldf.current_vis[0].mark == "line"
+        and len(get_filter_specs(ldf.intent)) > 0
+    ):
+        query_vc = VisList(ldf.current_vis, ldf)
+        query_vis = query_vc[0]
+        preprocess(query_vis)
+        preprocess(vis)
+        return 1 - euclidean_dist(query_vis, vis)
+
     # Line/Bar Chart
     # print("r:", n_record, "m:", n_msr, "d:",n_dim)
     if n_dim == 1 and (n_msr == 0 or n_msr == 1):
