@@ -213,13 +213,10 @@ class Config:
             from lux.executor.SQLExecutor import SQLExecutor
 
             self.executor = SQLExecutor()
-        else:
+        elif exe == "Pandas":
             from lux.executor.PandasExecutor import PandasExecutor
-
+            self.SQLconnection = ""
             self.executor = PandasExecutor()
-
-    def set_SQL_connection(self, connection):
-        self.SQLconnection = connection
 
 
 config = Config()

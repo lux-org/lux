@@ -208,13 +208,17 @@ def deviation_from_overall(
             Score describing how different the vis is from the overall vis
     """
     if lux.config.executor.name == "PandasExecutor":
+        if exclude_nan:
+            vdata = vis.data.dropna()
+        else:
+            vdata = vis.data
         v_filter_size = get_filtered_size(filter_specs, ldf)
         v_size = len(vis.data)
     else:
         v_filter_size = vis._vis_data.length
         v_size = ldf.length
-    v_filter = vis.data[msr_attribute]
-
+        vdata = vis.data
+    v_filter = vdata[msr_attribute]
     total = v_filter.sum()
     v_filter = v_filter / total  # normalize by total to get ratio
     if total == 0:
