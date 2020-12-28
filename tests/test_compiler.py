@@ -47,7 +47,7 @@ def test_underspecified_no_vis(global_var, test_recs):
 
 
 def test_underspecified_single_vis(global_var, test_recs):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     one_vis_actions = ["Enhance", "Filter", "Generalize"]
     df = pytest.car_df
     df.set_intent([lux.Clause(attribute="MilesPerGal"), lux.Clause(attribute="Weight")])
@@ -106,7 +106,7 @@ def test_underspecified_single_vis(global_var, test_recs):
 # 	assert len(df.current_vis) == len([vis.get_attr_by_data_model("measure") for vis in df.current_vis]) #should be 25
 # 	test_recs(df, multiple_vis_actions)
 def test_set_intent_as_vis(global_var, test_recs):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     df._repr_html_()
     vis = df.recommendation["Correlation"][0]
@@ -137,7 +137,7 @@ def test_recs():
 
 
 def test_parse(global_var):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     vlst = VisList([lux.Clause("Origin=?"), lux.Clause(attribute="MilesPerGal")], df)
     assert len(vlst) == 3
@@ -166,7 +166,7 @@ def test_parse(global_var):
 
 
 def test_underspecified_vis_collection_zval(global_var):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     # check if the number of charts is correct
     df = pytest.car_df
     vlst = VisList(
@@ -201,7 +201,7 @@ def test_sort_bar(global_var):
     from lux.processor.Compiler import Compiler
     from lux.vis.Vis import Vis
 
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     vis = Vis(
         [
@@ -254,7 +254,7 @@ def test_sort_bar(global_var):
 
 
 def test_specified_vis_collection(global_var):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     # change pandas dtype for the column "Year" to datetype
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
@@ -286,7 +286,7 @@ def test_specified_vis_collection(global_var):
 
 
 def test_specified_channel_enforced_vis_collection(global_var):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     # change pandas dtype for the column "Year" to datetype
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
@@ -299,7 +299,7 @@ def test_specified_channel_enforced_vis_collection(global_var):
 
 
 def test_autoencoding_scatter(global_var):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     # No channel specified
     df = pytest.car_df
     # change pandas dtype for the column "Year" to datetype
@@ -352,7 +352,7 @@ def test_autoencoding_scatter(global_var):
 
 
 def test_autoencoding_scatter():
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     # No channel specified
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(
@@ -435,7 +435,7 @@ def test_autoencoding_scatter():
 
 
 def test_autoencoding_histogram(global_var):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     # No channel specified
     df = pytest.car_df
     # change pandas dtype for the column "Year" to datetype
@@ -462,7 +462,7 @@ def test_autoencoding_histogram(global_var):
 
 
 def test_autoencoding_line_chart(global_var):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     # change pandas dtype for the column "Year" to datetype
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
@@ -543,7 +543,7 @@ def test_autoencoding_line_chart(global_var):
 
 
 def test_autoencoding_color_line_chart(global_var):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     # change pandas dtype for the column "Year" to datetype
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
@@ -574,7 +574,7 @@ def test_autoencoding_color_line_chart(global_var):
 
 
 def test_autoencoding_color_scatter_chart(global_var):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     # change pandas dtype for the column "Year" to datetype
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
@@ -625,7 +625,7 @@ def test_autoencoding_color_scatter_chart(global_var):
 
 
 def test_populate_options(global_var):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     from lux.processor.Compiler import Compiler
 
     df = pytest.car_df
@@ -682,7 +682,7 @@ def test_populate_options(global_var):
 
 
 def test_remove_all_invalid(global_var):
-    lux.config.set_SQL_connection("")
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     # with pytest.warns(UserWarning,match="duplicate attribute specified in the intent"):

@@ -151,29 +151,41 @@ class PandasExecutor(Executor):
             has_color = True
         else:
             color_cardinality = 1
-
         if measure_attr != "":
             if measure_attr.attribute == "Record":
                 vis._vis_data = vis.data.reset_index()
                 # if color is specified, need to group by groupby_attr and color_attr
                 if has_color:
                     vis._vis_data = (
-                        vis.data.groupby([groupby_attr.attribute, color_attr.attribute])
+                        vis.data.groupby([groupby_attr.attribute, color_attr.attribute], dropna=False)
                         .count()
                         .reset_index()
                     )
-                    vis._vis_data = vis.data.rename(columns={"index": "Record"})
+                    index_name = list(
+                        filter(
+                            lambda k: groupby_attr.attribute not in k and color_attr.attribute not in k,
+                            vis.data.columns,
+                        )
+                    )[0]
+                    vis._vis_data = vis.data.rename(columns={index_name: "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, "Record"]]
                 else:
-                    vis._vis_data = vis.data.groupby(groupby_attr.attribute).count().reset_index()
-                    vis._vis_data = vis.data.rename(columns={"index": "Record"})
+                    vis._vis_data = (
+                        vis.data.groupby(groupby_attr.attribute, dropna=False).count().reset_index()
+                    )
+                    index_name = list(
+                        filter(lambda k: groupby_attr.attribute not in k, vis.data.columns)
+                    )[0]
+                    vis._vis_data = vis.data.rename(columns={index_name: "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, "Record"]]
             else:
                 # if color is specified, need to group by groupby_attr and color_attr
                 if has_color:
-                    groupby_result = vis.data.groupby([groupby_attr.attribute, color_attr.attribute])
+                    groupby_result = vis.data.groupby(
+                        [groupby_attr.attribute, color_attr.attribute], dropna=False
+                    )
                 else:
-                    groupby_result = vis.data.groupby(groupby_attr.attribute)
+                    groupby_result = vis.data.groupby(groupby_attr.attribute, dropna=False)
                 groupby_result = groupby_result.agg(agg_func)
                 intermediate = groupby_result.reset_index()
                 vis._vis_data = intermediate.__finalize__(vis.data)
@@ -224,6 +236,7 @@ class PandasExecutor(Executor):
                         assert (
                             len(list(vis.data[groupby_attr.attribute])) == N_unique_vals
                         ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
+            vis._vis_data = vis.data.dropna(subset=[measure_attr.attribute])
             vis._vis_data = vis.data.sort_values(by=groupby_attr.attribute, ascending=True)
             vis._vis_data = vis.data.reset_index()
             vis._vis_data = vis.data.drop(columns="index")
@@ -297,6 +310,16 @@ class PandasExecutor(Executor):
         df: pandas.DataFrame
             Dataframe resulting from the filter operation
         """
+        # Handling NaN filter values
+        if utils.like_nan(val):
+            if op != "=" and op != "!=":
+                warnings.warn("Filter on NaN must be used with equality operations (i.e., `=` or `!=`)")
+            else:
+                if op == "=":
+                    return df[df[attribute].isna()]
+                elif op == "!=":
+                    return df[~df[attribute].isna()]
+        # Applying filter in regular, non-NaN cases
         if op == "=":
             return df[df[attribute] == val]
         elif op == "<":
@@ -379,7 +402,12 @@ class PandasExecutor(Executor):
             elif str(attr).lower() in temporal_var_list:
                 ldf.data_type_lookup[attr] = "temporal"
             elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
-                ldf.data_type_lookup[attr] = "quantitative"
+                # int columns gets coerced into floats if contain NaN
+                convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
+                if convertible2int and ldf.cardinality[attr] != len(ldf) and ldf.cardinality[attr] < 20:
+                    ldf.data_type_lookup[attr] = "nominal"
+                else:
+                    ldf.data_type_lookup[attr] = "quantitative"
             elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
                 # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                 if ldf.pre_aggregated:
@@ -412,24 +440,17 @@ class PandasExecutor(Executor):
         for attr in ldf.columns:
             if ldf.data_type_lookup[attr] == "temporal" and not is_datetime(ldf[attr]):
                 non_datetime_attrs.append(attr)
+        warn_msg = ""
         if len(non_datetime_attrs) == 1:
-            warnings.warn(
-                f"\nLux detects that the attribute '{non_datetime_attrs[0]}' may be temporal.\n"
-                "In order to display visualizations for this attribute accurately, temporal attributes should be converted to Pandas Datetime objects.\n\n"
-                "Please consider converting this attribute using the pd.to_datetime function and providing a 'format' parameter to specify datetime format of the attribute.\n"
-                "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format='%m')\n\n"
-                "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n",
-                stacklevel=2,
-            )
+            warn_msg += f"\nLux detects that the attribute '{non_datetime_attrs[0]}' may be temporal.\n"
         elif len(non_datetime_attrs) > 1:
-            warnings.warn(
-                f"\nLux detects that attributes {non_datetime_attrs} may be temporal.\n"
-                "In order to display visualizations for these attributes accurately, temporal attributes should be converted to Pandas Datetime objects.\n\n"
-                "Please consider converting these attributes using the pd.to_datetime function and providing a 'format' parameter to specify datetime format of the attribute.\n"
-                "For example, you can convert the 'month' attribute in a dataset to Datetime type via the following command:\n\n\t df['month'] = pd.to_datetime(df['month'], format='%m')\n\n"
-                "See more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html\n",
-                stacklevel=2,
-            )
+            warn_msg += f"\nLux detects that attributes {non_datetime_attrs} may be temporal.\n"
+        if len(non_datetime_attrs) > 0:
+            warn_msg += "To display visualizations for these attributes accurately, please convert temporal attributes to Pandas Datetime objects using the pd.to_datetime function and provide a 'format' parameter to specify the datetime format of the attribute.\nFor example, you can convert a year-only attribute (e.g., 1998, 1971, 1982) to Datetime type by specifying the `format` as '%Y'.\n\nHere is a starter template that you can use for converting the temporal fields:\n"
+            for attr in non_datetime_attrs:
+                warn_msg += f"\tdf['{attr}'] = pd.to_datetime(df['{attr}'], format='<replace-with-datetime-format>')\n"
+            warn_msg += "\nSee more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html"
+            warnings.warn(warn_msg, stacklevel=2)
 
     def _is_datetime_string(self, series):
         if len(series) > 100:

@@ -18,10 +18,25 @@ In this tutorial, we look at the `Happy Planet Index <http://happyplanetindex.or
 
 Note that for the convienience of this tutorial, we have set Lux as the default display so we don't have to Toggle from the Pandas table display everytime we print the dataframe.
 
-Exporting one or more visualizations from recommendations
+Exporting widget visualizations as static HTML
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In Lux, you can click on visualizations of interest and export them into a separate widget for further processing.
+Let's say that you are interested in sharing the visualizations displayed in Lux with others, you can export the visualizations into a static HTML using the following command: 
+
+.. code-block:: python
+
+    df.save_as_html()
+
+By default, the file is saved as `export.html`, you can optionally specify the HTML filename in the input parameter. 
+
+.. code-block:: python
+
+    df.save_as_html('hpi.html')
+
+Selecting visualizations from recommendation widget
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can also click on visualizations of interest and export them into a separate widget for further processing.
 
 .. code-block:: python
 

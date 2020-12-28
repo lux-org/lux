@@ -145,6 +145,28 @@ def test_groupby_agg(global_var):
     assert len(new_df.cardinality) == 7
 
 
+def test_groupby_agg_big(global_var):
+    df = pd.read_csv("lux/data/car.csv")
+    new_df = df.groupby("Brand").agg(sum)
+    new_df._repr_html_()
+    assert list(new_df.recommendation.keys()) == ["Column Groups"]
+    assert len(new_df.cardinality) == 8
+    year_vis = list(
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("Year") != [], new_df.recommendation["Column Groups"]
+        )
+    )[0]
+    assert year_vis.mark == "bar"
+    assert year_vis.get_attr_by_channel("x")[0].attribute == "Year"
+    new_df = new_df.T
+    new_df._repr_html_()
+    year_vis = list(
+        filter(lambda vis: vis.get_attr_by_attr_name("Year") != [], new_df.recommendation["Row Groups"])
+    )[0]
+    assert year_vis.mark == "bar"
+    assert year_vis.get_attr_by_channel("x")[0].attribute == "Year"
+
+
 def test_qcut(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
@@ -463,6 +485,50 @@ def compare_vis(vis1, vis2):
     assert vis1._min_max == vis2._min_max
     assert vis1.title == vis2.title
     assert vis1.score == vis2.score
+
+
+def test_index(global_var):
+    # testing set_index and reset_index functions
+    # setting a column as an index should remove it from the dataframe's column list
+    # and change the dataframe's index name parameter
+    df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+
+    df = df.set_index(["Name"])
+    assert "Name" not in df.columns and df.index.name == "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+    df = df.reset_index()
+    assert "Name" in df.columns and df.index.name != "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+
+    df.set_index(["Name"], inplace=True)
+    assert "Name" not in df.columns and df.index.name == "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+    df.reset_index(inplace=True)
+    assert "Name" in df.columns and df.index.name != "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+
+    df = df.set_index(["Name"])
+    assert "Name" not in df.columns and df.index.name == "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+    df = df.reset_index(drop=True)
+    assert "Name" not in df.columns and df.index.name != "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+
+    df = pd.read_csv("lux/data/car.csv", index_col="Name")
+    assert "Name" not in df.columns and df.index.name == "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+    df = df.reset_index()
+    assert "Name" in df.columns and df.index.name != "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
 
 
 ################
