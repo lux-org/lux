@@ -12,10 +12,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from __future__ import annotations
 from typing import List, Callable, Union
 from lux.vis.Clause import Clause
 from lux.utils.utils import check_import_lux_widget
+import lux
 
 
 class Vis:
@@ -311,7 +311,7 @@ class Vis:
             self._inferred_intent = Parser.parse(self._intent)
             Validator.validate_intent(self._inferred_intent, ldf)
             Compiler.compile_vis(ldf, self)
-            ldf.executor.execute([self], ldf)
+            lux.config.executor.execute([self], ldf)
 
     def check_not_vislist_intent(self):
 
@@ -321,14 +321,7 @@ class Vis:
             "For more information, see: https://lux-api.readthedocs.io/en/latest/source/guide/vis.html#working-with-collections-of-visualization-with-vislist"
         )
 
-        if len(self._intent) < 3:
-            for i in range(len(self._intent)):
-                if type(self._intent[i]) != Clause and (
-                    "|" in self._intent[i] or type(self._intent[i]) == list
-                ):
-                    raise TypeError(syntaxMsg)
-
-        if len(self._intent) > 2 or "?" in self._intent:
-            for i in range(len(self._intent)):
-                if type(self._intent[i]) != Clause:
-                    raise TypeError(syntaxMsg)
+        for i in range(len(self._intent)):
+            clause = self._intent[i]
+            if type(clause) != Clause and ("|" in clause or type(clause) == list or "?" in clause):
+                raise TypeError(syntaxMsg)

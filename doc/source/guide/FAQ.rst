@@ -28,13 +28,13 @@ How do I set the Lux widgets to show up on default?
 
     .. code-block:: python
     
-        df.default_display = "lux"
+        df.config.default_display = "lux"
     
   To switch back to Pandas as the default display: 
 
     .. code-block:: python
     
-        df.default_display = "pandas"
+        df.config.default_display = "pandas"
   
 I want to change the opacity of my chart, add title, change chart font size, etc. How do I modify chart settings?
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -64,6 +64,17 @@ How do I turn off Lux?
   To display only the Pandas view of the dataframe, print the dataframe by doing :code:`df.to_pandas()`.
   To turn off Lux completely, remove the :code:`import lux` statement and restart your Jupyter notebook.
 
+Lux is only visualizing a random sample of my data. How do I disable sampling and have Lux visualize the full dataset?
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  To disable sampling, you can run 
+
+  .. code-block:: python
+
+      lux.config.sampling = False
+
+  and then reload the Dataframe. 
+  If you want to fine-tune the sampling parameters, you can edit :code:`lux.config.sampling_start` and :code:`lux.config.sampling_cap`. See `this page <https://lux-api.readthedocs.io/en/latest/source/reference/config.html>`_ for more details.
+
 Troubleshooting Tips
 --------------------
 
@@ -81,6 +92,7 @@ The Lux Jupyter widget does not show up when I print a dataframe.
   - If you are able to import lux successfully and you do not see the "Toggle button" when you print the dataframe, it may be possible that Lux is not compatible with your browser. Lux is compatible with Google Chrome, but have not been extensively tested on Safari or Firefox.
   - If you recieve the error message :code:`A Jupyter widget could not be displayed because the widget state could not be found.` This could happen if the kernel storing the widget is no longer available, or if the widget state was not saved in the notebook. You may be able to create the widget by running the appropriate cells.`, you may want to restart the notebook and rerun the cell.
   - If you receive the error message :code:`ModuleNotFoundError: No module named 'luxwidget'`, it is possible that your luxwidget and lux-api versions are not in sync. The latest version of lux-api requires luxwidget v0.1 or above. Try running the following code:
+  - If you receive the error message :code:`PermissionError: [Errno 13] Permission denied.` during the execution of the command :code:`jupyter nbextension install --py luxwidget`, then you can add the flag :code:`--user` (:code:`jupyter nbextension enable --py --user luxwidget`).
 
   .. code-block:: bash
 

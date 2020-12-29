@@ -35,18 +35,26 @@ lux/
     - lux/
 ```
 
+# Code Formatting
+In order to keep our codebase clean and readible, we are using PEP8 guidelines. To help us maintain and check code style, we are using [black](https://github.com/psf/black). Simply run `black .` before commiting. Failure to do so may fail the tests run on Travis. This package should have been installed for you. 
+
 # Running the Test Suite
 
-There is a suite of test files for ensuring that Lux is working correctly. These tests are triggered to run via [Travis CI](https://travis-ci.com/lux-org/lux) whenever there is a commit made to the lux repository.
+There is a suite of test files for ensuring that Lux is working correctly. These tests are triggered to run via [Travis CI](https://travis-ci.com/lux-org/lux) whenever there is a commit made to the lux repository. You can run them locally to make sure that your changes are working and do not break any of the existing tests.
 
-You can run them locally to make sure that your changes are working and do not break any of the existing tests: 
+To run all the tests, including checking for code formatting, run:
 
 ```
-python -m pytest tests/*.py
+make test
 ```
 
-# Code Formatting
-In order to keep our codebase clean and readible, we are using PEP8 guidelines. To help us maintain and check code style, we are using [black](https://github.com/psf/black). Simply run `black --line-length 105 .` before commiting. Failure to do so may fail the tests run on Travis. This package should have been installed for you. 
+To run a single test file, run:
+
+```
+python -m pytest tests/<test_file_name>.py
+```
+
+
 
 # Submitting a Pull Request
 

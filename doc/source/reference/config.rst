@@ -44,3 +44,20 @@ If you try to set the default_display to anything other than 'lux' or 'pandas,' 
   :align: center
   :alt: Retrieves a single attribute from Lux's Action Manager using its defined id.
 
+Change the sampling parameters of Lux
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, Lux will sample data points for generated visualizations for datasets with more than 10000 rows. For datasets over 30000 rows, Lux will randomly sample 30000 rows from the dataset.
+
+If we want to change these parameters, we can set the `sampling_start` and `sampling_cap` of the global class 'Config' to change the default form of output. The `sampling_start` is by default set to 10000 and the `sampling_cap` is by default set to 30000. In the following block, we increase these sampling bounds.
+
+.. code-block:: python
+
+    lux.config.sampling_start = 20000
+    lux.config.sampling_cap = 40000
+
+We can also disable sampling if we want Lux to use the full dataset in the visualization. We can set the `sampling` of the global class 'Config' to enable or disable sampling (by default, it is enabled). Below is an example if disabling the sampling:
+
+.. code-block:: python
+
+    lux.config.sampling = False

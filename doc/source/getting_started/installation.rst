@@ -23,7 +23,7 @@ To activate the JupyterLab extension:
 .. code-block:: bash
 
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
-    jupyter lab build
+    jupyter labextension install luxwidget
 
 Additional Requirements
 -----------------------

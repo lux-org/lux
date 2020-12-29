@@ -34,6 +34,7 @@ class LuxDataFrame(pd.DataFrame):
     # MUST register here for new properties!!
     _metadata = [
         "_intent",
+        "_inferred_intent",
         "data_type_lookup",
         "data_type",
         "data_model_lookup",
@@ -60,16 +61,16 @@ class LuxDataFrame(pd.DataFrame):
 
         self._history = History()
         self._intent = []
+        self._inferred_intent = []
         self._recommendation = {}
         self._saved_export = None
         self._current_vis = []
         self._prev = None
+        self._widget = None
         super(LuxDataFrame, self).__init__(*args, **kw)
 
-        self.executor_type = "Pandas"
-        self.executor = PandasExecutor()
-        self.SQLconnection = ""
         self.table_name = ""
+        lux.config.executor = PandasExecutor()
 
         self._sampled = None
         self._toggle_pandas_display = True
@@ -109,8 +110,8 @@ class LuxDataFrame(pd.DataFrame):
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
             if len(self) > 0:
-                self.executor.compute_stats(self)
-                self.executor.compute_dataset_metadata(self)
+                lux.config.executor.compute_stats(self)
+                lux.config.executor.compute_dataset_metadata(self)
                 self._infer_structure()
                 self._metadata_fresh = True
 
@@ -169,25 +170,6 @@ class LuxDataFrame(pd.DataFrame):
         very_small_df_flag = len(self) <= 10
         if very_small_df_flag:
             self.pre_aggregated = True
-
-    def set_executor_type(self, exe):
-        if exe == "SQL":
-            import pkgutil
-
-            if pkgutil.find_loader("psycopg2") is None:
-                raise ImportError(
-                    "psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection."
-                )
-            else:
-                import psycopg2
-            from lux.executor.SQLExecutor import SQLExecutor
-
-            self.executor = SQLExecutor
-        else:
-            from lux.executor.PandasExecutor import PandasExecutor
-
-            self.executor = PandasExecutor()
-        self.executor_type = exe
 
     @property
     def intent(self):
@@ -289,7 +271,7 @@ class LuxDataFrame(pd.DataFrame):
             and len(self._current_vis) > 0
             and self._current_vis[0].data is None
         ):
-            self.executor.execute(self._current_vis, self)
+            lux.config.executor.execute(self._current_vis, self)
         return self._current_vis
 
     @current_vis.setter
@@ -304,11 +286,9 @@ class LuxDataFrame(pd.DataFrame):
     ########## SQL Metadata, type, model schema ###########
     #######################################################
 
-    def set_SQL_connection(self, connection, t_name):
-        self.SQLconnection = connection
+    def set_SQL_table(self, t_name):
         self.table_name = t_name
         self.compute_SQL_dataset_metadata()
-        self.set_executor_type("SQL")
 
     def compute_SQL_dataset_metadata(self):
         self.get_SQL_attributes()
@@ -344,7 +324,7 @@ class LuxDataFrame(pd.DataFrame):
         else:
             table_name = self.table_name
         query = f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'"
-        attributes = list(pd.read_sql(query, self.SQLconnection)["column_name"])
+        attributes = list(pd.read_sql(query, lux.config.SQLconnection)["column_name"])
         for attr in attributes:
             self[attr] = None
 
@@ -353,7 +333,7 @@ class LuxDataFrame(pd.DataFrame):
         for attr in list(self.columns):
             card_query = pd.read_sql(
                 f"SELECT Count(Distinct({attr})) FROM {self.table_name}",
-                self.SQLconnection,
+                lux.config.SQLconnection,
             )
             cardinality[attr] = list(card_query["count"])[0]
         self.cardinality = cardinality
@@ -363,7 +343,7 @@ class LuxDataFrame(pd.DataFrame):
         for attr in list(self.columns):
             unique_query = pd.read_sql(
                 f"SELECT Distinct({attr}) FROM {self.table_name}",
-                self.SQLconnection,
+                lux.config.SQLconnection,
             )
             unique_vals[attr] = list(unique_query[attr])
         self.unique_values = unique_vals
@@ -379,7 +359,7 @@ class LuxDataFrame(pd.DataFrame):
         # get the data types of the attributes in the SQL table
         for attr in list(self.columns):
             query = f"SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' AND COLUMN_NAME = '{attr}'"
-            datatype = list(pd.read_sql(query, self.SQLconnection)["data_type"])[0]
+            datatype = list(pd.read_sql(query, lux.config.SQLconnection)["data_type"])[0]
             sql_dtypes[attr] = datatype
 
         data_type = {"quantitative": [], "nominal": [], "temporal": []}
@@ -535,7 +515,7 @@ class LuxDataFrame(pd.DataFrame):
                 When all the exported vis is from the same tab, return a VisList of selected visualizations. -> VisList(v1, v2...)
                 When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisList. -> {"Enhance": VisList(v1, v2...), "Filter": VisList(v5, v7...), ..}
         """
-        if not hasattr(self, "_widget"):
+        if self.widget is None:
             warnings.warn(
                 "\nNo widget attached to the dataframe."
                 "Please assign dataframe to an output variable.\n"
@@ -772,7 +752,7 @@ class LuxDataFrame(pd.DataFrame):
     def to_JSON(self, rec_infolist, input_current_vis=""):
         widget_spec = {}
         if self.current_vis:
-            self.executor.execute(self.current_vis, self)
+            lux.config.executor.execute(self.current_vis, self)
             widget_spec["current_vis"] = LuxDataFrame.current_vis_to_JSON(
                 self.current_vis, input_current_vis
             )
@@ -811,6 +791,92 @@ class LuxDataFrame(pd.DataFrame):
                 # delete since not JSON serializable
                 del rec_lst[idx]["collection"]
         return rec_lst
+
+    def save_as_html(self, filename: str = "export.html") -> None:
+        """
+        Save dataframe widget as static HTML file
+
+        Parameters
+        ----------
+        filename : str
+            Filename for the output HTML file
+        """
+
+        if self.widget is None:
+            self.maintain_metadata()
+            self.maintain_recs()
+
+        from ipywidgets.embed import embed_data
+
+        data = embed_data(views=[self.widget])
+
+        import json
+
+        manager_state = json.dumps(data["manager_state"])
+        widget_view = json.dumps(data["view_specs"][0])
+
+        # Separate out header since CSS file conflict with {} notation in Python format strings
+        header = """
+        <head>
+
+            <title>Lux Widget</title>
+            <link rel="lux" type="image/png" sizes="96x96" href="https://github.com/lux-org/lux-resources/blob/master/logo/favicon-96x96.png?raw=True">
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+            <!-- Load RequireJS, used by the IPywidgets for dependency management -->
+            <script 
+            src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js" 
+            integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" 
+            crossorigin="anonymous">
+            </script>
+
+            <!-- Load IPywidgets bundle for embedding. -->
+            <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.18.0/dist/embed-amd.js" 
+                    crossorigin="anonymous">
+            </script>
+            
+            <style type="text/css">
+                #intentBtn, #warnBtn, #exportBtn{
+                display: none;
+                }
+                #deleteBtn {
+                right: 10px !important; 
+                }
+                #footer-description{
+                margin: 10px;
+                text-align: right;
+                }
+            </style>
+        </head>
+        """
+        html_template = """
+        <html>
+        {header}
+        <body>
+            
+            <script type="application/vnd.jupyter.widget-state+json">
+            {manager_state}
+            </script>
+
+            <script type="application/vnd.jupyter.widget-view+json">
+                {widget_view}
+            </script>
+            
+            <div id="footer-description">
+            These visualizations were generated by <a href="https://github.com/lux-org/lux/"><img src="https://raw.githubusercontent.com/lux-org/lux-resources/master/logo/logo.png" width="65px" style="vertical-align: middle;"></img></a>
+            </div>
+
+        </body>
+        </html>
+        """
+
+        manager_state = json.dumps(data["manager_state"])
+        widget_view = json.dumps(data["view_specs"][0])
+        rendered_template = html_template.format(
+            header=header, manager_state=manager_state, widget_view=widget_view
+        )
+        with open(filename, "w") as fp:
+            fp.write(rendered_template)
+            print(f"Saved HTML to {filename}")
 
     # Overridden Pandas Functions
     def head(self, n: int = 5):
