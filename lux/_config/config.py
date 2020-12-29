@@ -179,7 +179,8 @@ class Config:
             warnings.warn(
                 "The cap on the number samples must be an integer.",
                 stacklevel=2,
-            ) 
+            )
+
     @property
     def sampling_start(self):
         return self._sampling_start
@@ -222,15 +223,11 @@ class Config:
             warnings.warn(
                 "The flag for sampling must be a boolean.",
                 stacklevel=2,
-            ) 
-    
-
+            )
 
     @property
     def default_display(self):
         return self._default_display
-
-
 
     @default_display.setter
     def default_display(self, type: str) -> None:
