@@ -154,6 +154,12 @@ class PandasExecutor(Executor):
             color_cardinality = 1
         if measure_attr != "":
             if measure_attr.attribute == "Record":
+                # need to get the index name so that we can rename the index column to "Record"
+                # if there is no index, default to "index"
+                index_name = vis.data.index.name
+                if index_name == None:
+                    index_name = "index"
+
                 vis._vis_data = vis.data.reset_index()
                 # if color is specified, need to group by groupby_attr and color_attr
                 if has_color:
@@ -161,23 +167,16 @@ class PandasExecutor(Executor):
                         vis.data.groupby([groupby_attr.attribute, color_attr.attribute], dropna=False)
                         .count()
                         .reset_index()
+                        .rename(columns={index_name: "Record"})
                     )
-                    index_name = list(
-                        filter(
-                            lambda k: groupby_attr.attribute not in k and color_attr.attribute not in k,
-                            vis.data.columns,
-                        )
-                    )[0]
-                    vis._vis_data = vis.data.rename(columns={index_name: "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, "Record"]]
                 else:
                     vis._vis_data = (
-                        vis.data.groupby(groupby_attr.attribute, dropna=False).count().reset_index()
+                        vis.data.groupby(groupby_attr.attribute, dropna=False)
+                        .count()
+                        .reset_index()
+                        .rename(columns={index_name: "Record"})
                     )
-                    index_name = list(
-                        filter(lambda k: groupby_attr.attribute not in k, vis.data.columns)
-                    )[0]
-                    vis._vis_data = vis.data.rename(columns={index_name: "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, "Record"]]
             else:
                 # if color is specified, need to group by groupby_attr and color_attr

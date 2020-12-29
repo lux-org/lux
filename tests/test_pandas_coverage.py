@@ -495,6 +495,7 @@ def test_index(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df = df.set_index(["Name"])
+    # if this assert fails, then the index column has not properly been removed from the dataframe's column and registered as an index
     assert "Name" not in df.columns and df.index.name == "Name"
     df._repr_html_()
     assert len(df.recommendation) > 0
@@ -521,7 +522,10 @@ def test_index(global_var):
     df._repr_html_()
     assert len(df.recommendation) > 0
 
+
+def test_index_col(global_var):
     df = pd.read_csv("lux/data/car.csv", index_col="Name")
+    # if this assert fails, then the index column has not properly been removed from the dataframe's column and registered as an index
     assert "Name" not in df.columns and df.index.name == "Name"
     df._repr_html_()
     assert len(df.recommendation) > 0
