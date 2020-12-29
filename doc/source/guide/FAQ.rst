@@ -64,15 +64,21 @@ How do I turn off Lux?
   To display only the Pandas view of the dataframe, print the dataframe by doing :code:`df.to_pandas()`.
   To turn off Lux completely, remove the :code:`import lux` statement and restart your Jupyter notebook.
 
-Lux is only visualizing a random sample of my data. How do I disable sampling and have Lux visualize the full dataset?
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  To disable sampling, you can run 
+How do I disable sampling and have Lux visualize the full dataset?
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  Lux displays a warning saying "Large dataframe detected: Lux is only visualizing a random sample". If you would like to disable sampling, you can run: 
 
   .. code-block:: python
 
       lux.config.sampling = False
 
-  and then reload the Dataframe. 
+  Note that if you have already loaded your data in and printed the visualizations, you would need to reinitialize the Dataframe by setting the config before loading in your data, as such:
+
+  .. code-block:: python
+
+      lux.config.sampling = False
+      df = pd.read_csv("...")
+
   If you want to fine-tune the sampling parameters, you can edit :code:`lux.config.sampling_start` and :code:`lux.config.sampling_cap`. See `this page <https://lux-api.readthedocs.io/en/latest/source/reference/config.html>`_ for more details.
 
 Troubleshooting Tips
