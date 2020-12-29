@@ -166,7 +166,6 @@ class Config:
     @sampling_cap.setter
     def sampling_cap(self, sample_number: int) -> None:
         """
-        TODO
         Parameters
         ----------
         sample_number : int
@@ -188,7 +187,6 @@ class Config:
     @sampling_start.setter
     def sampling_start(self, sample_number: int) -> None:
         """
-        TODO
         Parameters
         ----------
         sample_number : int
@@ -211,7 +209,6 @@ class Config:
     @sampling.setter
     def sampling(self, sample_flag: bool) -> None:
         """
-        TODO
         Parameters
         ----------
         sample_flag : bool
