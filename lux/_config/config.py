@@ -157,19 +157,20 @@ class Config:
         self.executor = None
         self._sampling_start = 10000
         self._sampling_cap = 30000
+        self._sampling_flag = True
 
     @property
-    def default_sampling_cap(self):
+    def sampling_cap(self):
         return self._sampling_cap
 
-    @default_sampling_cap.setter
-    def default_sampling_cap(self, sample_number: int) -> None:
+    @sampling_cap.setter
+    def sampling_cap(self, sample_number: int) -> None:
         """
         TODO
         Parameters
         ----------
-        type : int
-                TODO
+        sample_number : int
+                Cap on the number of rows to sample. Must be larger than _sampling_start
         """
         if type(sample_number) == int:
             assert sample_number >= self._sampling_start
@@ -180,17 +181,18 @@ class Config:
                 stacklevel=2,
             ) 
     @property
-    def default_sampling_start(self):
+    def sampling_start(self):
         return self._sampling_start
 
-    @default_sampling_start.setter
-    def default_sampling_start(self, sample_number: int) -> None:
+    @sampling_start.setter
+    def sampling_start(self, sample_number: int) -> None:
         """
         TODO
         Parameters
         ----------
-        type : int
-                TODO
+        sample_number : int
+                Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
+
         """
         if type(sample_number) == int:
             assert sample_number <= self._sampling_cap
@@ -200,6 +202,29 @@ class Config:
                 "The sampling starting point must be an integer.",
                 stacklevel=2,
             )
+
+    @property
+    def sampling(self):
+        return self._sampling_flag
+
+    @sampling.setter
+    def sampling(self, sample_flag: bool) -> None:
+        """
+        TODO
+        Parameters
+        ----------
+        sample_flag : bool
+                Whether or not sampling will occur.
+        """
+        if type(sample_flag) == bool:
+            self._sampling_flag = sample_flag
+        else:
+            warnings.warn(
+                "The flag for sampling must be a boolean.",
+                stacklevel=2,
+            ) 
+    
+
 
     @property
     def default_display(self):

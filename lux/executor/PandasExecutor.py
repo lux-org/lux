@@ -40,17 +40,19 @@ class PandasExecutor(Executor):
     @staticmethod
     def execute_sampling(ldf: LuxDataFrame):
         # General Sampling for entire dataframe
-        SAMPLE_START = lux.config.default_sampling_start
-        SAMPLE_CAP = lux.config.default_sampling_cap
+        SAMPLE_FLAG = lux.config.sampling
+        SAMPLE_START = lux.config.sampling_start
+        SAMPLE_CAP = lux.config.sampling_cap
         SAMPLE_FRAC = 0.75
-        if len(ldf) > SAMPLE_CAP:
+
+        if SAMPLE_FLAG and len(ldf) > SAMPLE_CAP:
             if ldf._sampled is None:  # memoize unfiltered sample df
                 ldf._sampled = ldf.sample(n=SAMPLE_CAP, random_state=1)
             ldf._message.add_unique(
                 f"Large dataframe detected: Lux is only visualizing a random sample capped at {SAMPLE_CAP} rows.",
                 priority=99,
             )
-        elif len(ldf) > SAMPLE_START:
+        elif SAMPLE_FLAG and len(ldf) > SAMPLE_START:
             if ldf._sampled is None:  # memoize unfiltered sample df
                 ldf._sampled = ldf.sample(frac=SAMPLE_FRAC, random_state=1)
             ldf._message.add_unique(

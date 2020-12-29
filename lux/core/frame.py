@@ -680,6 +680,7 @@ class LuxDataFrame(pd.DataFrame):
         except (KeyboardInterrupt, SystemExit):
             raise
         except Exception:
+            raise
             warnings.warn(
                 "\nUnexpected error in rendering Lux widget and recommendations. "
                 "Falling back to Pandas display.\n"
