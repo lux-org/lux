@@ -21,7 +21,7 @@ from lux.utils import utils
 from lux.utils.utils import get_filter_specs
 
 
-def filter(ldf):
+def add_filter(ldf):
     """
     Iterates over all possible values of a categorical variable and generates visualizations where each categorical value filters the data.
 

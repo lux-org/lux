@@ -25,3 +25,6 @@ from lux._config.config import (
     config,
     warning_format,
 )
+from lux.action.default import register_default_actions
+
+register_default_actions()

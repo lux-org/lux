@@ -429,44 +429,16 @@ class LuxDataFrame(pd.DataFrame):
         # Check that recs has not yet been computed
         if not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh:
             rec_infolist = []
-            from lux.action.custom import custom
-            from lux.action.custom import custom_actions
-            from lux.action.correlation import correlation
-            from lux.action.univariate import univariate
-            from lux.action.enhance import enhance
-            from lux.action.filter import filter
-            from lux.action.generalize import generalize
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
-
+            # TODO: Rewrite these as register action inside default actions
             if rec_df.pre_aggregated:
                 if rec_df.columns.name is not None:
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
             else:
-                if rec_df._recommendation == {}:
-                    # display conditions for default actions
-                    no_vis = lambda ldf: (ldf.current_vis is None) or (
-                        ldf.current_vis is not None and len(ldf.current_vis) == 0
-                    )
-                    one_current_vis = (
-                        lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
-                    )
-                    multiple_current_vis = (
-                        lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
-                    )
-
-                    # globally register default actions
-                    lux.register_action("correlation", correlation, no_vis)
-                    lux.register_action("distribution", univariate, no_vis, "quantitative")
-                    lux.register_action("occurrence", univariate, no_vis, "nominal")
-                    lux.register_action("temporal", univariate, no_vis, "temporal")
-
-                    lux.register_action("Enhance", enhance, one_current_vis)
-                    lux.register_action("Filter", filter, one_current_vis)
-                    lux.register_action("Generalize", generalize, one_current_vis)
-
-                    lux.register_action("Custom", custom, multiple_current_vis)
+                # if rec_df._recommendation == {}:
+                from lux.action.custom import custom_actions
 
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
