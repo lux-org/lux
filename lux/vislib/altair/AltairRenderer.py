@@ -93,6 +93,7 @@ class AltairRenderer:
                 # chart["data"] =  { "values": vis.data.to_dict(orient='records') }
                 # chart_dict["width"] = 160
                 # chart_dict["height"] = 150
+                chart_dict["vislib"] = "vegalite"
                 return chart_dict
             elif self.output_type == "Altair":
                 import inspect

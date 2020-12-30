@@ -22,16 +22,16 @@ from typing import Callable
 # from lux.vislib.altair.Heatmap import Heatmap
 
 
-class AltairRenderer:
+class MatplotlibRenderer:
     """
     Renderer for Charts based on Altair (https://altair-viz.github.io/)
     """
 
-    def __init__(self, output_type="VegaLite"):
+    def __init__(self, output_type="matplotlib"):
         self.output_type = output_type
 
     def __repr__(self):
-        return f"AltairRenderer"
+        return f"MatplotlibRenderer"
 
     def create_vis(self, vis, standalone=True):
         """
@@ -84,5 +84,5 @@ class AltairRenderer:
         chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>
-        return chart_code
+        return {'config': chart_code, 'vislib': 'matplotlib'}
 
