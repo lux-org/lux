@@ -16,13 +16,13 @@ def register_default_actions():
     multiple_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
 
     # globally register default actions
-    lux.register_action("correlation", correlation, no_vis)
-    lux.register_action("distribution", univariate, no_vis, "quantitative")
-    lux.register_action("occurrence", univariate, no_vis, "nominal")
-    lux.register_action("temporal", univariate, no_vis, "temporal")
+    lux.config.register_action("correlation", correlation, no_vis)
+    lux.config.register_action("distribution", univariate, no_vis, "quantitative")
+    lux.config.register_action("occurrence", univariate, no_vis, "nominal")
+    lux.config.register_action("temporal", univariate, no_vis, "temporal")
 
-    lux.register_action("Enhance", enhance, one_current_vis)
-    lux.register_action("Filter", add_filter, one_current_vis)
-    lux.register_action("Generalize", generalize, one_current_vis)
+    lux.config.register_action("Enhance", enhance, one_current_vis)
+    lux.config.register_action("Filter", add_filter, one_current_vis)
+    lux.config.register_action("Generalize", generalize, one_current_vis)
 
-    lux.register_action("Custom", custom, multiple_current_vis)
+    lux.config.register_action("Custom", custom, multiple_current_vis)

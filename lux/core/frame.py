@@ -402,7 +402,7 @@ class LuxDataFrame(pd.DataFrame):
     def maintain_recs(self):
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
-        if lux.update_actions["flag"] == True:
+        if lux.config.update_actions["flag"] == True:
             self._recs_fresh = False
         show_prev = False  # flag indicating whether rec_df is showing previous df or current self
         if self._prev is not None:
@@ -444,7 +444,7 @@ class LuxDataFrame(pd.DataFrame):
                 custom_action_collection = custom_actions(rec_df)
                 for rec in custom_action_collection:
                     rec_df._append_rec(rec_infolist, rec)
-                lux.update_actions["flag"] = False
+                lux.config.update_actions["flag"] = False
 
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
