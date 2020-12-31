@@ -222,6 +222,7 @@ class Config:
                 "The flag for sampling must be a boolean.",
                 stacklevel=2,
             )
+
     @property
     def heatmap(self):
         return self._heatmap_flag
@@ -241,7 +242,6 @@ class Config:
                 "The flag for enabling/disabling heatmaps must be a boolean.",
                 stacklevel=2,
             )
-
 
     @property
     def default_display(self):

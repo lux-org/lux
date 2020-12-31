@@ -61,3 +61,14 @@ If we want Lux to use the full dataset in the visualization, we can also disable
 .. code-block:: python
 
     lux.config.sampling = False
+
+Disable the use of heatmaps for large datasets
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to sampling, Lux replaces scatter plots with heatmaps for datasets with over 5000 rows to speed up the visualization process.
+
+We can disable this feature and revert back to using a scatter plot by running the following code block (but note that this may result in long processing times).
+
+.. code-block:: python
+
+    lux.config.heatmap = False
