@@ -101,7 +101,7 @@ class PandasExecutor(Executor):
                 PandasExecutor.execute_binning(vis)
             elif vis.mark == "scatter":
                 HBIN_START = 5000
-                if len(ldf) > HBIN_START:
+                if lux.config.heatmap and len(ldf) > HBIN_START:
                     vis._postbin = True
                     ldf._message.add_unique(
                         f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",

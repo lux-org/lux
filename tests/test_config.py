@@ -198,13 +198,6 @@ def test_set_default_plot_config():
 
 def test_sampling_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
-    lux.config.sampling = False
-    df._repr_html_()
-    assert df.recommendation["Correlation"][0].data.shape[0] == 48895
-
-
-def test_sampling_flag_config():
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df._repr_html_()
     assert df.recommendation["Correlation"][0].data.shape[0] == 30000
     lux.config.sampling = False
@@ -225,6 +218,16 @@ def test_sampling_parameters_config():
     assert df.recommendation["Correlation"][0].data.shape[0] == 100
     lux.config.sampling_cap = 30000
     lux.config.sampling_start = 10000
+
+def test_heatmap_flag_config():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df._repr_html_()
+    assert df.recommendation['Correlation'][0]._postbin
+    lux.config.heatmap = False
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = df.copy()
+    assert not df.recommendation['Correlation'][0]._postbin
+    lux.config.heatmap = True
 
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.

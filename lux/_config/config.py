@@ -158,6 +158,7 @@ class Config:
         self._sampling_start = 10000
         self._sampling_cap = 30000
         self._sampling_flag = True
+        self._heatmap_flag = True
 
     @property
     def sampling_cap(self):
@@ -221,6 +222,26 @@ class Config:
                 "The flag for sampling must be a boolean.",
                 stacklevel=2,
             )
+    @property
+    def heatmap(self):
+        return self._heatmap_flag
+
+    @heatmap.setter
+    def heatmap(self, heatmap_flag: bool) -> None:
+        """
+        Parameters
+        ----------
+        heatmap_flag : bool
+                Whether or not a heatmap will be used instead of a scatter plot.
+        """
+        if type(heatmap_flag) == bool:
+            self._heatmap_flag = heatmap_flag
+        else:
+            warnings.warn(
+                "The flag for enabling/disabling heatmaps must be a boolean.",
+                stacklevel=2,
+            )
+
 
     @property
     def default_display(self):
