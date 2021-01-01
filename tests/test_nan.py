@@ -46,16 +46,16 @@ def test_nan_data_type_detection():
     ]
     test = pd.DataFrame(dataset)
     test.maintain_metadata()
-    data_type = test.compute_data_type_from_lookup()
-    assert data_type["nominal"] == [
+    inverted_data_type = test.invert_data_type()
+    assert inverted_data_type["nominal"] == [
         "fully_nan",
         "some_nan",
         "some_nan2",
     ], "Categorical columns containing NaNs should be treated as nominal data type"
     nona_test = test.dropna(subset=["some_nan"])
     nona_test.maintain_metadata()
-    data_type = nona_test.compute_data_type_from_lookup()
-    assert data_type["nominal"] == [
+    inverted_data_type = nona_test.invert_data_type()
+    assert inverted_data_type["nominal"] == [
         "fully_nan",
         "some_nan",
         "some_nan2",

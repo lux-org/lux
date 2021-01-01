@@ -38,12 +38,12 @@ def date_formatter(time_stamp, ldf):
     date_str: str
             A reformatted version of the time_stamp according to granularity
     """
-    data_type = ldf.compute_data_type_from_lookup()
+    inverted_data_type = ldf.invert_data_type()
     # TODO: method for data_type_lookup to data_type
     datetime = pd.to_datetime(time_stamp)
-    if data_type["temporal"]:
+    if inverted_data_type["temporal"]:
         # assumes only one temporal column, may need to change this function to recieve multiple temporal columns in the future
-        date_column = ldf[data_type["temporal"][0]]
+        date_column = ldf[inverted_data_type["temporal"][0]]
 
     granularity = compute_date_granularity(date_column)
     date_str = ""

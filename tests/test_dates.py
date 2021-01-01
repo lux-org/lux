@@ -96,7 +96,7 @@ def test_refresh_inplace():
     )
     with pytest.warns(UserWarning, match="Lux detects that the attribute 'date' may be temporal."):
         df._repr_html_()
-    assert df.data_type_lookup["date"] == "temporal"
+    assert df.data_type["date"] == "temporal"
 
     from lux.vis.Vis import Vis
 
@@ -104,8 +104,8 @@ def test_refresh_inplace():
 
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     df.maintain_metadata()
-    data_type = df.compute_data_type_from_lookup()
-    assert data_type["temporal"][0] == "date"
+    inverted_data_type = df.invert_data_type()
+    assert inverted_data_type["temporal"][0] == "date"
 
     vis.refresh_source(df)
     assert vis.mark == "line"

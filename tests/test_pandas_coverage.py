@@ -41,17 +41,17 @@ def test_rename_inplace(global_var):
     # new_df is the old dataframe (df) with the new column name changed inplace
     new_df, df = df, new_df
 
-    assert df.data_type_lookup != new_df.data_type_lookup
+    assert df.data_type != new_df.data_type
 
-    assert df.data_type_lookup["Name"] == new_df.data_type_lookup["Car Name"]
+    assert df.data_type["Name"] == new_df.data_type["Car Name"]
 
-    data_type = df.compute_data_type_from_lookup()
-    new_data_type = new_df.compute_data_type_from_lookup()
+    inverted_data_type = df.invert_data_type()
+    new_inverted_data_type = new_df.invert_data_type()
 
-    assert data_type != new_data_type
+    assert inverted_data_type != new_inverted_data_type
 
-    assert data_type["nominal"][0] == "Name"
-    assert new_data_type["nominal"][0] == "Car Name"
+    assert inverted_data_type["nominal"][0] == "Name"
+    assert new_inverted_data_type["nominal"][0] == "Car Name"
 
     data_model_lookup = df.compute_data_model_lookup()
     new_data_model_lookup = new_df.compute_data_model_lookup()
@@ -80,17 +80,17 @@ def test_rename(global_var):
     df._repr_html_()
     new_df = df.rename(columns={"Name": "Car Name"}, inplace=False)
     new_df._repr_html_()
-    assert df.data_type_lookup != new_df.data_type_lookup
+    assert df.data_type != new_df.data_type
 
-    assert df.data_type_lookup["Name"] == new_df.data_type_lookup["Car Name"]
+    assert df.data_type["Name"] == new_df.data_type["Car Name"]
 
-    data_type = df.compute_data_type_from_lookup()
-    new_data_type = new_df.compute_data_type_from_lookup()
+    inverted_data_type = df.invert_data_type()
+    new_inverted_data_type = new_df.invert_data_type()
 
-    assert data_type != new_data_type
+    assert inverted_data_type != new_inverted_data_type
 
-    assert data_type["nominal"][0] == "Name"
-    assert new_data_type["nominal"][0] == "Car Name"
+    assert inverted_data_type["nominal"][0] == "Name"
+    assert new_inverted_data_type["nominal"][0] == "Car Name"
 
     data_model_lookup = df.compute_data_model_lookup()
     new_data_model_lookup = new_df.compute_data_model_lookup()
@@ -323,7 +323,7 @@ def test_change_dtype(global_var):
         "Occurrence",
         "Temporal",
     ]
-    assert len(df.data_type_lookup) == 10
+    assert len(df.data_type) == 10
 
 
 def test_get_dummies(global_var):
@@ -337,7 +337,7 @@ def test_get_dummies(global_var):
         "Occurrence",
         "Temporal",
     ]
-    assert len(new_df.data_type_lookup) == 339
+    assert len(new_df.data_type) == 339
 
 
 def test_drop(global_var):
@@ -520,7 +520,7 @@ def test_df_to_series(global_var):
     df["Weight"]._metadata
     assert df["Weight"]._metadata == [
         "_intent",
-        "data_type_lookup",
+        "data_type",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -548,7 +548,7 @@ def test_value_counts(global_var):
     assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
     assert df["Weight"]._metadata == [
         "_intent",
-        "data_type_lookup",
+        "data_type",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -575,7 +575,7 @@ def test_str_replace(global_var):
     assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
     assert df["Brand"]._metadata == [
         "_intent",
-        "data_type_lookup",
+        "data_type",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -609,7 +609,7 @@ def test_read_json(global_var):
         "Occurrence",
         "Temporal",
     ]
-    assert len(df.data_type_lookup) == 10
+    assert len(df.data_type) == 10
 
 
 def test_read_sas(global_var):
@@ -617,4 +617,4 @@ def test_read_sas(global_var):
     df = pd.read_sas(url, format="sas7bdat")
     df._repr_html_()
     assert list(df.recommendation.keys()) == ["Correlation", "Distribution", "Temporal"]
-    assert len(df.data_type_lookup) == 6
+    assert len(df.data_type) == 6

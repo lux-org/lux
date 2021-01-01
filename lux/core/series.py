@@ -21,7 +21,7 @@ import traceback
 class LuxSeries(pd.Series):
     _metadata = [
         "_intent",
-        "data_type_lookup",
+        "data_type",
         "unique_values",
         "cardinality",
         "_rec_info",
