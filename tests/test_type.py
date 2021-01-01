@@ -37,7 +37,7 @@ def test_check_int_id():
         "https://github.com/lux-org/lux-datasets/blob/master/data/instacart_sample.csv?raw=true"
     )
     df._repr_html_()
-    inverted_data_type = df.invert_data_type()
+    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
     assert len(inverted_data_type["id"]) == 3
     assert (
         "<code>order_id</code>, <code>product_id</code>, <code>user_id</code> is not visualized since it resembles an ID field."
@@ -177,7 +177,7 @@ def test_float_categorical():
     ]
     df = pd.DataFrame(values)
     df.maintain_metadata()
-    inverted_data_type = df.invert_data_type()
+    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
     assert inverted_data_type["nominal"] == [
         "A",
         "B",

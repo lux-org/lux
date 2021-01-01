@@ -159,7 +159,7 @@ class Compiler:
         # TODO: copy might not be neccesary
         from lux.utils.date_utils import is_datetime_string
 
-        data_model_lookup = ldf.compute_data_model_lookup()
+        data_model_lookup = lux.config.executor.compute_data_model_lookup(ldf.data_type)
 
         for vis in vlist:
             for clause in vis._inferred_intent:
@@ -441,8 +441,8 @@ class Compiler:
         import copy
         from lux.utils.utils import convert_to_list
 
-        inverted_data_type = ldf.invert_data_type()
-        data_model = ldf.compute_data_model()
+        inverted_data_type = lux.config.executor.invert_data_type(ldf.data_type)
+        data_model = lux.config.executor.compute_data_model(ldf.data_type)
 
         intent = {"attributes": [], "filters": []}
         for clause in _inferred_intent:

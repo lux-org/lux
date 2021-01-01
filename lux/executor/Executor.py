@@ -55,17 +55,31 @@ class Executor:
     # def compute_data_model(self):
     #     return NotImplemented
 
-    @staticmethod
     def mapping(self, rmap):
         group_map = {}
         for val in ["quantitative", "id", "nominal", "temporal"]:
             group_map[val] = list(filter(lambda x: rmap[x] == val, rmap))
         return group_map
 
-    @staticmethod
     def reverseMapping(self, map):
         reverse_map = {}
         for valKey in map:
             for val in map[valKey]:
                 reverse_map[val] = valKey
         return reverse_map
+
+    def invert_data_type(self, data_type):
+        return self.mapping(data_type)
+
+    def compute_data_model(self, data_type):
+        data_type_inverted = self.invert_data_type(data_type)
+        data_model = {
+            "measure": data_type_inverted["quantitative"],
+            "dimension": data_type_inverted["nominal"]
+            + data_type_inverted["temporal"]
+            + data_type_inverted["id"],
+        }
+        return data_model
+
+    def compute_data_model_lookup(self, data_type):
+        return self.reverseMapping(self.compute_data_model(data_type))

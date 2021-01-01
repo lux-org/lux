@@ -46,7 +46,7 @@ def test_nan_data_type_detection():
     ]
     test = pd.DataFrame(dataset)
     test.maintain_metadata()
-    inverted_data_type = test.invert_data_type()
+    inverted_data_type = lux.config.executor.invert_data_type(test.data_type)
     assert inverted_data_type["nominal"] == [
         "fully_nan",
         "some_nan",
@@ -54,7 +54,7 @@ def test_nan_data_type_detection():
     ], "Categorical columns containing NaNs should be treated as nominal data type"
     nona_test = test.dropna(subset=["some_nan"])
     nona_test.maintain_metadata()
-    inverted_data_type = nona_test.invert_data_type()
+    inverted_data_type = lux.config.executor.invert_data_type(nona_test.data_type)
     assert inverted_data_type["nominal"] == [
         "fully_nan",
         "some_nan",

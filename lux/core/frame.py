@@ -21,7 +21,7 @@ from lux.history.history import History
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
-from lux.executor.Executor import *
+# from lux.executor.Executor import *
 import warnings
 import traceback
 import lux
@@ -126,22 +126,6 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = None
         self._min_max = None
         self.pre_aggregated = None
-
-    def invert_data_type(self):
-        return Executor.mapping(Executor, self.data_type)
-
-    def compute_data_model(self):
-        data_type_inverted = self.invert_data_type()
-        data_model = {
-            "measure": data_type_inverted["quantitative"],
-            "dimension": data_type_inverted["nominal"]
-            + data_type_inverted["temporal"]
-            + data_type_inverted["id"],
-        }
-        return data_model
-
-    def compute_data_model_lookup(self):
-        return Executor.reverseMapping(Executor, self.compute_data_model())
 
     #####################
     ## Override Pandas ##
@@ -416,7 +400,7 @@ class LuxDataFrame(pd.DataFrame):
             rec_df._message = Message()
         # Add warning message if there exist ID fields
         id_fields_str = ""
-        inverted_data_type = rec_df.invert_data_type()
+        inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
         if len(inverted_data_type["id"]) > 0:
             for id_field in inverted_data_type["id"]:
                 id_fields_str += f"<code>{id_field}</code>, "

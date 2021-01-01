@@ -45,23 +45,23 @@ def test_rename_inplace(global_var):
 
     assert df.data_type["Name"] == new_df.data_type["Car Name"]
 
-    inverted_data_type = df.invert_data_type()
-    new_inverted_data_type = new_df.invert_data_type()
+    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    new_inverted_data_type = lux.config.executor.invert_data_type(new_df.data_type)
 
     assert inverted_data_type != new_inverted_data_type
 
     assert inverted_data_type["nominal"][0] == "Name"
     assert new_inverted_data_type["nominal"][0] == "Car Name"
 
-    data_model_lookup = df.compute_data_model_lookup()
-    new_data_model_lookup = new_df.compute_data_model_lookup()
+    data_model_lookup = lux.config.executor.compute_data_model_lookup(df.data_type)
+    new_data_model_lookup = lux.config.executor.compute_data_model_lookup(new_df.data_type)
 
     assert data_model_lookup != new_data_model_lookup
 
     assert data_model_lookup["Name"] == new_data_model_lookup["Car Name"]
 
-    data_model = df.compute_data_model()
-    new_data_model = new_df.compute_data_model()
+    data_model = lux.config.executor.compute_data_model(df.data_type)
+    new_data_model = lux.config.executor.compute_data_model(new_df.data_type)
 
     assert data_model != new_data_model
 
@@ -84,23 +84,23 @@ def test_rename(global_var):
 
     assert df.data_type["Name"] == new_df.data_type["Car Name"]
 
-    inverted_data_type = df.invert_data_type()
-    new_inverted_data_type = new_df.invert_data_type()
+    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    new_inverted_data_type = lux.config.executor.invert_data_type(new_df.data_type)
 
     assert inverted_data_type != new_inverted_data_type
 
     assert inverted_data_type["nominal"][0] == "Name"
     assert new_inverted_data_type["nominal"][0] == "Car Name"
 
-    data_model_lookup = df.compute_data_model_lookup()
-    new_data_model_lookup = new_df.compute_data_model_lookup()
+    data_model_lookup = lux.config.executor.compute_data_model_lookup(df.data_type)
+    new_data_model_lookup = lux.config.executor.compute_data_model_lookup(new_df.data_type)
 
     assert data_model_lookup != new_data_model_lookup
 
     assert data_model_lookup["Name"] == new_data_model_lookup["Car Name"]
 
-    data_model = df.compute_data_model()
-    new_data_model = new_df.compute_data_model()
+    data_model = lux.config.executor.compute_data_model(df.data_type)
+    new_data_model = lux.config.executor.compute_data_model(new_df.data_type)
 
     assert data_model != new_data_model
 

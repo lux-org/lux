@@ -14,7 +14,6 @@
 
 import pandas as pd
 
-
 def date_formatter(time_stamp, ldf):
     """
     Given a numpy timestamp and ldf, inspects which date granularity is appropriate and reformats timestamp accordingly
@@ -38,7 +37,8 @@ def date_formatter(time_stamp, ldf):
     date_str: str
             A reformatted version of the time_stamp according to granularity
     """
-    inverted_data_type = ldf.invert_data_type()
+    
+    inverted_data_type = lux.config.executor.invert_data_type(ldf.data_type)
     # TODO: method for data_type_lookup to data_type
     datetime = pd.to_datetime(time_stamp)
     if inverted_data_type["temporal"]:

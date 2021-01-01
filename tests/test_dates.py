@@ -104,7 +104,7 @@ def test_refresh_inplace():
 
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     df.maintain_metadata()
-    inverted_data_type = df.invert_data_type()
+    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
     assert inverted_data_type["temporal"][0] == "date"
 
     vis.refresh_source(df)
