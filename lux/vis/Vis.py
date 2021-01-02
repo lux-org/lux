@@ -278,7 +278,7 @@ class Vis:
         else:
             return self._code
 
-    def to_code(self, language="matplotlib", **kwargs):
+    def to_code(self, language="vegalite", **kwargs):
         """
         Export Vis object to code specification
 
