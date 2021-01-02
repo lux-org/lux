@@ -742,7 +742,7 @@ class LuxDataFrame(pd.DataFrame):
         current_vis_spec = {}
         numVC = len(vlist)  # number of visualizations in the vis list
         if numVC == 1:
-            current_vis_spec = vlist[0].to_code(language="vegalite", prettyOutput=False)
+            current_vis_spec = vlist[0].to_code(language="matplotlib", prettyOutput=False)
         elif numVC > 1:
             pass
         return current_vis_spec
