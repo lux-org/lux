@@ -30,6 +30,14 @@ from lux._config import Config
 
 config = Config()
 
+from collections import namedtuple
+from typing import Any, Callable, Dict, Iterable, List, Optional
+
+RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
+actions: Dict[str, RegisteredOption] = {}
+
+plot_config = None
+
 from lux.action.default import register_default_actions
 
 register_default_actions()

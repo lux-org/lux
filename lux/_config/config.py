@@ -5,19 +5,20 @@ For more resources, see https://github.com/pandas-dev/pandas/blob/master/pandas/
 from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional
 import warnings
+import lux
 
-RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
+# RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
 
 class Config:
     def __init__(self):
         self._default_display = "pandas"
         self.renderer = "altair"
-        self.plot_config = None
+        # self.plot_config = None
         self.SQLconnection = ""
         self.executor = None
         # holds registered option metadata
-        self.actions: Dict[str, RegisteredOption] = {}
+        # self.actions: Dict[str, RegisteredOption] = {}
         # flags whether or not an action has been registered or removed and should be re-rendered by frame.py
         self.update_actions: Dict[str, bool] = {}
         self.update_actions["flag"] = False
@@ -46,7 +47,7 @@ class Config:
             )
 
     def _get_action(self, pat: str, silent: bool = False):
-        return self.actions[pat]
+        return lux.actions[pat]
 
     def register_action(
         self,
@@ -75,7 +76,7 @@ class Config:
         if display_condition:
             if not callable(display_condition):
                 raise ValueError("Display condition must be a callable")
-        self.actions[name] = RegisteredOption(
+        lux.actions[name] = lux.RegisteredOption(
             name=name, action=action, display_condition=display_condition, args=args
         )
         self.update_actions["flag"] = True
@@ -89,10 +90,10 @@ class Config:
         name : str
                 the name of the action to remove
         """
-        if name not in self.actions:
+        if name not in lux.actions:
             raise ValueError(f"Option '{name}' has not been registered")
 
-        del self.actions[name]
+        del lux.actions[name]
         self.update_actions["flag"] = True
 
     def set_SQL_connection(self, connection):

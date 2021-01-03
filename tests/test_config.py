@@ -187,7 +187,8 @@ def test_set_default_plot_config():
         return chart
 
     df = pd.read_csv("lux/data/car.csv")
-    lux.config.plot_config = change_color_make_transparent_add_title
+    lux.plot_config = change_color_make_transparent_add_title
+    print("HEE")
     df._repr_html_()
     config_mark_addition = 'chart = chart.configure_mark(color="green", opacity=0.2)'
     title_addition = 'chart.title = "Test Title"'
