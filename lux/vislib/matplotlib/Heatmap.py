@@ -52,6 +52,7 @@ class Heatmap(MatplotlibChart):
                     index='xBinStart',
                     values='count',
                     columns='yBinStart')
+        df = df.apply(lambda x : np.log(x), axis=1)   
 
         fig, ax = plt.subplots()
 

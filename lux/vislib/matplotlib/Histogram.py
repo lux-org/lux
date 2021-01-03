@@ -59,7 +59,9 @@ class Histogram(MatplotlibChart):
         
         fig, ax = plt.subplots()
         counts, bins = np.histogram(self.data)
-        ax.hist(bins[:-1], bins, weights=counts)
+        ax.hist(bins[:-1], bins, weights=counts, range=(x_min, x_max))
+
+
 
         if measure.channel == "x":
             ax.set_xlabel(f"{msr_attr.attribute} (binned)")
