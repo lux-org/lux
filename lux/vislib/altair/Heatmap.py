@@ -39,6 +39,17 @@ class Heatmap(AltairChart):
         x_attr = self.vis.get_attr_by_channel("x")[0]
         y_attr = self.vis.get_attr_by_channel("y")[0]
 
+        x_attr_abv = x_attr.attribute
+        y_attr_abv = y_attr.attribute
+
+        if len(x_attr.attribute) > 25:
+            x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
+        if len(y_attr.attribute) > 25:
+            y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
+
+        x_attr.attribute = x_attr.attribute.replace(".", "")
+        y_attr.attribute = y_attr.attribute.replace(".", "")
+
         chart = (
             alt.Chart(self.data)
             .mark_rect()
@@ -46,14 +57,14 @@ class Heatmap(AltairChart):
                 x=alt.X(
                     "xBinStart",
                     type="quantitative",
-                    axis=alt.Axis(title=x_attr.attribute),
+                    axis=alt.Axis(title=x_attr_abv),
                     bin=alt.BinParams(binned=True),
                 ),
                 x2=alt.X2("xBinEnd"),
                 y=alt.Y(
                     "yBinStart",
                     type="quantitative",
-                    axis=alt.Axis(title=y_attr.attribute),
+                    axis=alt.Axis(title=y_attr_abv),
                     bin=alt.BinParams(binned=True),
                 ),
                 y2=alt.Y2("yBinEnd"),
@@ -79,9 +90,9 @@ class Heatmap(AltairChart):
         self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
         self.code += f"""
 		chart = alt.Chart(visData).mark_rect().encode(
-			x=alt.X('xBinStart', type='quantitative', axis=alt.Axis(title='{x_attr.attribute}'), bin = alt.BinParams(binned=True)),
+			x=alt.X('xBinStart', type='quantitative', axis=alt.Axis(title='{x_attr_abv}'), bin = alt.BinParams(binned=True)),
 			x2=alt.X2('xBinEnd'),
-			y=alt.Y('yBinStart', type='quantitative', axis=alt.Axis(title='{y_attr.attribute}'), bin = alt.BinParams(binned=True)),
+			y=alt.Y('yBinStart', type='quantitative', axis=alt.Axis(title='{y_attr_abv}'), bin = alt.BinParams(binned=True)),
 			y2=alt.Y2('yBinEnd'),
 			opacity = alt.Opacity('count',type='quantitative',scale=alt.Scale(type="log"),legend=None)
 		)

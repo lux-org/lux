@@ -95,7 +95,9 @@ class Parser:
                 # TODO: Move validation check to Validator
                 # if ((clause.description in list(ldf.columns)) or clause.description == "?"):# if clause.description in the list of attributes
                 # clause.description contain ">","<". or "="
-                if any(ext in [">", "<", "=", "!="] for ext in clause.description):
+                if type(clause.description) == str and any(
+                    ext in [">", "<", "=", "!="] for ext in clause.description
+                ):
                     # then parse it and assign to clause.attribute, clause.filter_op, clause.values
                     clause.filter_op = re.findall(r"/.*/|>|=|<|>=|<=|!=", clause.description)[0]
                     split_description = clause.description.split(clause.filter_op)
@@ -107,7 +109,7 @@ class Parser:
                     clause.attribute = clause.description
                 elif type(clause.description) == list:
                     clause.attribute = clause.description
-                # else: # then it is probably a value
-                # 	clause.values = clause.description
+                else:  # then it is probably a value
+                    clause.value = clause.description
         return intent
         # ldf._intent = intent

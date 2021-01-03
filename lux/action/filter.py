@@ -18,6 +18,7 @@ from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 from lux.processor.Compiler import Compiler
 from lux.utils import utils
+from lux.utils.utils import get_filter_specs
 
 
 def filter(ldf):
@@ -44,7 +45,7 @@ def filter(ldf):
         # get unique values for all categorical values specified and creates corresponding filters
         fltr = filters[0]
 
-        if ldf.data_type_lookup[fltr.attribute] == "nominal":
+        if ldf.data_type[fltr.attribute] == "nominal":
             recommendation = {
                 "action": "Filter",
                 "description": f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative value.",
@@ -59,7 +60,7 @@ def filter(ldf):
                     new_spec.append(new_filter)
                     temp_vis = Vis(new_spec)
                     output.append(temp_vis)
-        elif ldf.data_type_lookup[fltr.attribute] == "quantitative":
+        elif ldf.data_type[fltr.attribute] == "quantitative":
             recommendation = {
                 "action": "Filter",
                 "description": f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative inequality operation.",
@@ -112,9 +113,28 @@ def filter(ldf):
                 new_spec.append(new_filter)
                 temp_vis = Vis(new_spec)
                 output.append(temp_vis)
+    if (
+        ldf.current_vis is not None
+        and len(ldf.current_vis) == 1
+        and ldf.current_vis[0].mark == "line"
+        and len(get_filter_specs(ldf.intent)) > 0
+    ):
+        recommendation = {
+            "action": "Similarity",
+            "description": "Show other charts that are visually similar to the Current vis.",
+        }
+        last = get_filter_specs(ldf.intent)[-1]
+        output = ldf.intent.copy()[0:-1]
+        # array of possible values for attribute
+        arr = ldf[last.attribute].unique().tolist()
+        output.append(lux.Clause(last.attribute, last.attribute, arr))
     vlist = lux.vis.VisList.VisList(output, ldf)
-    for vis in vlist:
-        vis.score = interestingness(vis, ldf)
+    vlist_copy = lux.vis.VisList.VisList(output, ldf)
+    for i in range(len(vlist_copy)):
+        vlist[i].score = interestingness(vlist_copy[i], ldf)
     vlist = vlist.topK(15)
-    recommendation["collection"] = vlist
+    if recommendation["action"] == "Similarity":
+        recommendation["collection"] = vlist[1:]
+    else:
+        recommendation["collection"] = vlist
     return recommendation
