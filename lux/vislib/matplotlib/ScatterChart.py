@@ -73,5 +73,17 @@ class ScatterChart(MatplotlibChart):
         chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>
-        plt.cla()
+        self.code += "import matplotlib.pyplot as plt\n"
+        self.code += "import numpy as np\n"
+
+        self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
+
+        self.code += f"fig, ax = plt.subplots()\n"
+        self.code += f"objects = df['{x_attr.attribute}']\n"
+        self.code += f"y_pos = np.arrange(len(objects))\n"
+        self.code += f"performance = df['{y_attr.attribute}']\n"
+
+        self.code += f"ax.scatter(objects, performance)\n"
+        self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
+        self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
         return chart_code

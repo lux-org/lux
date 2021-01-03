@@ -60,7 +60,7 @@ class Heatmap(MatplotlibChart):
             df,
             cbar=False,
             square=True,
-            cmap="Blues",
+            cmap='Blues',
         )
 
         ax.set_xlabel(x_attr_abv)
@@ -74,5 +74,26 @@ class Heatmap(MatplotlibChart):
         chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>
+
+        self.code += "import matplotlib.pyplot as plt\n"
+        self.code += "import seaborn as sns\n"
+
+        self.code += f"""df = pd.pivot_table(data={str(self.data.to_dict())},
+                    index='xBinStart',
+                    values='count',
+                    columns='yBinStart')\n
+		"""
+        self.code += f"df = df.apply(lambda x : np.log(x), axis=1)\n"
+
+        self.code += f"fig, ax = plt.subplots()\n"
+
+        self.code += f"""
+        ax = sns.heatmap(df,
+            cbar=False,
+            square=True,
+            cmap='Blues',
+        )\n"""
+        self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
+        self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
         return chart_code
 

@@ -68,11 +68,12 @@ class MatplotlibRenderer:
                     vis.data[attr].iloc[0], pd.Interval
                 ):
                     vis.data[attr] = vis.data[attr].astype(str)
-                if "." in attr:
-                    attr_clause = vis.get_attr_by_attr_name(attr)[0]
-                    # Suppress special character ".", not displayable in Altair
-                    # attr_clause.attribute = attr_clause.attribute.replace(".", "")
-                    vis._vis_data = vis.data.rename(columns={attr: attr.replace(".", "")})
+                # if "." in attr:
+                #     attr_clause = vis.get_attr_by_attr_name(attr)[0]
+                #     # Suppress special character ".", not displayable in Altair
+                #     # attr_clause.attribute = attr_clause.attribute.replace(".", "")
+                #     vis._vis_data = vis.data.rename(columns={attr: attr.replace(".", "")})
+        plt.ioff()
         if vis.mark == "histogram":
             chart = Histogram(vis)
         elif vis.mark == "bar":
@@ -87,42 +88,9 @@ class MatplotlibRenderer:
             chart = None
             return chart
         if chart:
-            return {'config': chart.chart, 'vislib': 'matplotlib'}
-        # # Test visualization
-        # import numpy as np
-        # import matplotlib.pyplot as plt
-
-        # vis_data = [{'Q1': '18-21', 'Record': 2558},
-        #             {'Q1': '22-24', 'Record': 2851},
-        #             {'Q1': '25-29', 'Record': 3018},
-        #             {'Q1': '30-34', 'Record': 2082},
-        #             {'Q1': '35-39', 'Record': 1522},
-        #             {'Q1': '40-44', 'Record': 1041},
-        #             {'Q1': '45-49', 'Record': 746},
-        #             {'Q1': '50-54', 'Record': 527},
-        #             {'Q1': '55-59', 'Record': 315},
-        #             {'Q1': '60-69', 'Record': 312},
-        #             {'Q1': '70+', 'Record': 55}]
-        # df = pd.DataFrame(vis_data)
-
-        # objects = df["Q1"]
-        # y_pos = np.arange(len(objects))
-        # performance = df["Record"]
-
-        # fig, ax = plt.subplots()
-        # ax.bar(y_pos, performance, align='center', alpha=0.5)
-        # ax.set_xticks(y_pos)
-        # ax.set_xticklabels(objects)
-        # ax.set_ylabel('Usage')
-        # ax.set_title('Age of Data Scientists')
-
-        # # Convert chart to HTML
-        # import base64
-        # from io import BytesIO
-        # tmpfile = BytesIO()
-        # fig.savefig(tmpfile, format='png')
-        # chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
-        # # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
-        # # '<img src=\'data:image/png;base64,{}\'>
-        # return {'config': chart_code, 'vislib': 'matplotlib'}
+            if self.output_type == "matplotlib":
+                return {'config': chart.chart, 'vislib': 'matplotlib'}
+            if self.output_type == "code":
+                return chart.code
+        
 

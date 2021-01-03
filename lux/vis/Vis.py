@@ -255,6 +255,26 @@ class Vis:
         renderer = MatplotlibRenderer(output_type="matplotlib")
         self._code = renderer.create_vis(self, standalone)
         return self._code
+    
+    def to_Matplotlib_code(self, standalone=False) -> str:
+        """
+        Generate minimal Altair code to visualize the Vis
+
+        Parameters
+        ----------
+        standalone : bool, optional
+                Flag to determine if outputted code uses user-defined variable names or can be run independently, by default False
+
+        Returns
+        -------
+        str
+                String version of the Altair code. Need to print out the string to apply formatting.
+        """
+        from lux.vislib.matplotlib.MatplotlibRenderer import MatplotlibRenderer
+
+        renderer = MatplotlibRenderer(output_type="code")
+        self._code = renderer.create_vis(self, standalone)
+        return self._code
 
     def to_VegaLite(self, prettyOutput=True) -> Union[dict, str]:
         """
@@ -298,6 +318,8 @@ class Vis:
             return self.to_Altair(**kwargs)
         elif language == "matplotlib":
             return self.to_Matplotlib()
+        elif language == "code":
+            return self.to_Matplotlib_code()
 
 
     def refresh_source(self, ldf):  # -> Vis:

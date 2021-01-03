@@ -61,14 +61,18 @@ class Histogram(MatplotlibChart):
         counts, bins = np.histogram(self.data)
         ax.hist(bins[:-1], bins, weights=counts, range=(x_min, x_max))
 
-
-
+        x_label = ""
+        y_label = ""
         if measure.channel == "x":
-            ax.set_xlabel(f"{msr_attr.attribute} (binned)")
-            ax.set_ylabel("Number of Records")
+            x_label = f"{msr_attr.attribute} (binned)"
+            y_label = "Number of Records"
         elif measure.channel == "y":
-            ax.set_xlabel("Number of Records")
-            ax.set_ylabel(f"{msr_attr.attribute} (binned)")
+            x_label = "Number of Records"
+            y_label = f"{msr_attr.attribute} (binned)"
+
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
+
         # Convert chart to HTML
         import base64
         from io import BytesIO
@@ -77,4 +81,17 @@ class Histogram(MatplotlibChart):
         chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>
+
+        self.code += "import matplotlib.pyplot as plt\n"
+        self.code += "import numpy as np\n"
+
+        self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
+
+        self.code += f"fig, ax = plt.subplots()\n"
+        self.code += f"objects = df['{msr_attr.attribute}']\n"
+
+        self.code += f"counts, bins = np.histogram({str(self.data.to_dict())})\n"
+        self.code += f"ax.hist(bins[:-1], bins, weights=counts, range=('{x_min}', '{x_max}'))\n"
+        self.code += f"ax.set_xlabel('{x_label}')\n"
+        self.code += f"ax.set_ylabel('{y_label}')\n"
         return chart_code

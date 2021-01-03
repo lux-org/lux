@@ -63,14 +63,20 @@ class LineChart(MatplotlibChart):
         fig, ax = plt.subplots()
         ax.plot(objects, performance)
 
+        x_label = ""
+        y_label = ""
         if y_attr.data_model == "measure":
             agg_title = get_agg_title(y_attr)
             ax.set_xlabel(x_attr_abv)
             ax.set_ylabel(agg_title)
+            x_label = x_attr_abv
+            y_label = agg_title
         else:
             agg_title = get_agg_title(x_attr)
             ax.set_xlabel(agg_title)
             ax.set_ylabel(y_attr_abv)
+            x_label = agg_title
+            y_label = y_attr_abv
 
         # Convert chart to HTML
         import base64
@@ -80,4 +86,18 @@ class LineChart(MatplotlibChart):
         chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>
+
+        self.code += "import matplotlib.pyplot as plt\n"
+        self.code += "import numpy as np\n"
+
+        self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
+
+        self.code += f"fig, ax = plt.subplots()\n"
+        self.code += f"objects = df['{x_attr.attribute}']\n"
+        self.code += f"y_pos = np.arrange(len(objects))\n"
+        self.code += f"performance = df['{y_attr.attribute}']\n"
+
+        self.code += f"ax.plot(objects, performance)\n"
+        self.code += f"ax.set_xlabel('{x_label}')\n"
+        self.code += f"ax.set_ylabel('{y_label}')\n"
         return chart_code
