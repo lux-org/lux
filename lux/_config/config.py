@@ -7,18 +7,17 @@ from typing import Any, Callable, Dict, Iterable, List, Optional
 import warnings
 import lux
 
-# RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
-
+RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
 class Config:
     def __init__(self):
         self._default_display = "pandas"
         self.renderer = "altair"
-        # self.plot_config = None
+        self.plot_config = None
         self.SQLconnection = ""
         self.executor = None
         # holds registered option metadata
-        # self.actions: Dict[str, RegisteredOption] = {}
+        self.actions: Dict[str, RegisteredOption] = {}
         # flags whether or not an action has been registered or removed and should be re-rendered by frame.py
         self.update_actions: Dict[str, bool] = {}
         self.update_actions["flag"] = False
@@ -76,7 +75,7 @@ class Config:
         if display_condition:
             if not callable(display_condition):
                 raise ValueError("Display condition must be a callable")
-        lux.actions[name] = lux.RegisteredOption(
+        self.actions[name] = RegisteredOption(
             name=name, action=action, display_condition=display_condition, args=args
         )
         self.update_actions["flag"] = True
@@ -90,10 +89,10 @@ class Config:
         name : str
                 the name of the action to remove
         """
-        if name not in lux.actions:
+        if name not in self.actions:
             raise ValueError(f"Option '{name}' has not been registered")
 
-        del lux.actions[name]
+        del self.actions[name]
         self.update_actions["flag"] = True
 
     def set_SQL_connection(self, connection):

@@ -85,8 +85,8 @@ class AltairRenderer:
             chart = None
 
         if chart:
-            if lux.plot_config:
-                chart.chart = lux.plot_config(chart.chart)
+            if lux.config.plot_config:
+                chart.chart = lux.config.plot_config(chart.chart)
             if self.output_type == "VegaLite":
                 chart_dict = chart.chart.to_dict()
                 # this is a bit of a work around because altair must take a pandas dataframe and we can only generate a luxDataFrame
@@ -97,9 +97,9 @@ class AltairRenderer:
             elif self.output_type == "Altair":
                 import inspect
 
-                if lux.plot_config:
+                if lux.config.plot_config:
                     chart.code += "\n".join(
-                        inspect.getsource(lux.plot_config).split("\n    ")[1:-1]
+                        inspect.getsource(lux.config.plot_config).split("\n    ")[1:-1]
                     )
                 chart.code += "\nchart"
                 chart.code = chart.code.replace("\n\t\t", "\n")
