@@ -93,7 +93,10 @@ class Validator:
                                     else:
                                         vals = [clause.value]
                                     for val in vals:
-                                        if val not in series.values:
+                                        if (
+                                            lux.config.executor.name == "PandasExecutor"
+                                            and val not in series.values
+                                        ):
                                             warn_msg = f"\n- The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
             return warn_msg
 
