@@ -115,21 +115,6 @@ def test_invalid_validator(global_var):
     with pytest.raises(ValueError, match="Display condition must be a callable"):
         lux.config.register_action("bars", random_categorical, "not a Callable")\
 
-def test_set_default_plot_config():
-    def change_color_make_transparent_add_title(chart):
-        chart = chart.configure_mark(color="green", opacity=0.2)
-        chart.title = "Test Title"
-        return chart
-
-    df = pd.read_csv("lux/data/car.csv")
-    lux.plot_config = change_color_make_transparent_add_title
-    df._repr_html_()
-    config_mark_addition = 'chart = chart.configure_mark(color="green", opacity=0.2)'
-    title_addition = 'chart.title = "Test Title"'
-    exported_code_str = df.recommendation["Correlation"][0].to_Altair()
-    assert config_mark_addition in exported_code_str
-    assert title_addition in exported_code_str
-
 
 def test_remove_action():
     df = register_new_action()
@@ -156,6 +141,7 @@ def test_remove_invalid_action(global_var):
     df = pd.read_csv("lux/data/car.csv")
     with pytest.raises(ValueError, match="Option 'bars' has not been registered"):
         lux.config.remove_action("bars")
+
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.
 def test_remove_default_actions(global_var):
@@ -195,6 +181,22 @@ def test_remove_default_actions(global_var):
 
     from lux.action.default import register_default_actions
     register_default_actions()
+
+
+def test_set_default_plot_config():
+    def change_color_make_transparent_add_title(chart):
+        chart = chart.configure_mark(color="green", opacity=0.2)
+        chart.title = "Test Title"
+        return chart
+
+    df = pd.read_csv("lux/data/car.csv")
+    lux.plot_config = change_color_make_transparent_add_title
+    df._repr_html_()
+    config_mark_addition = 'chart = chart.configure_mark(color="green", opacity=0.2)'
+    title_addition = 'chart.title = "Test Title"'
+    exported_code_str = df.recommendation["Correlation"][0].to_Altair()
+    assert config_mark_addition in exported_code_str
+    assert title_addition in exported_code_str
 
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.
