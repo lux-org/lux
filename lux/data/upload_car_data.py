@@ -2,17 +2,17 @@ import pandas as pd
 import psycopg2
 import csv
 
-conn = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+conn = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
 cur = conn.cursor()
 cur.execute(
     """
-	DROP TABLE IF EXISTS car
+	DROP TABLE IF EXISTS cars
 	"""
 )
 # create car table in postgres database
 cur.execute(
     """
-    CREATE TABLE car(
+    CREATE TABLE cars(
     name text,
     milespergal numeric,
     cylinders integer,
@@ -28,11 +28,11 @@ cur.execute(
 )
 
 # open car.csv and read data into database
-with open("lux/data/car.csv", "r") as f:
-    reader = csv.reader(f)
-    next(reader)  # Skip the header row.
-    i = 0
-    for row in reader:
-        cur.execute("INSERT INTO car VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", row)
-
+import urllib.request
+target_url = "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.csv"
+for line in urllib.request.urlopen(target_url):
+    decoded = line.decode("utf-8")
+    print(decoded.split(","))
+    if 'Name,MilesPerGal,Cylinders' not in decoded:
+        cur.execute("INSERT INTO cars VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", decoded.split(","))
 conn.commit()
