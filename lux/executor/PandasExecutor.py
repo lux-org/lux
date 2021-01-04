@@ -40,17 +40,19 @@ class PandasExecutor(Executor):
     @staticmethod
     def execute_sampling(ldf: LuxDataFrame):
         # General Sampling for entire dataframe
-        SAMPLE_START = 10000
-        SAMPLE_CAP = 30000
+        SAMPLE_FLAG = lux.config.sampling
+        SAMPLE_START = lux.config.sampling_start
+        SAMPLE_CAP = lux.config.sampling_cap
         SAMPLE_FRAC = 0.75
-        if len(ldf) > SAMPLE_CAP:
+
+        if SAMPLE_FLAG and len(ldf) > SAMPLE_CAP:
             if ldf._sampled is None:  # memoize unfiltered sample df
                 ldf._sampled = ldf.sample(n=SAMPLE_CAP, random_state=1)
             ldf._message.add_unique(
                 f"Large dataframe detected: Lux is only visualizing a random sample capped at {SAMPLE_CAP} rows.",
                 priority=99,
             )
-        elif len(ldf) > SAMPLE_START:
+        elif SAMPLE_FLAG and len(ldf) > SAMPLE_START:
             if ldf._sampled is None:  # memoize unfiltered sample df
                 ldf._sampled = ldf.sample(frac=SAMPLE_FRAC, random_state=1)
             ldf._message.add_unique(
@@ -99,7 +101,7 @@ class PandasExecutor(Executor):
                 PandasExecutor.execute_binning(vis)
             elif vis.mark == "scatter":
                 HBIN_START = 5000
-                if len(ldf) > HBIN_START:
+                if lux.config.heatmap and len(ldf) > HBIN_START:
                     vis._postbin = True
                     ldf._message.add_unique(
                         f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
@@ -374,12 +376,8 @@ class PandasExecutor(Executor):
     ############ Metadata: data type, model #############
     #######################################################
     def compute_dataset_metadata(self, ldf: LuxDataFrame):
-        ldf.data_type_lookup = {}
         ldf.data_type = {}
         self.compute_data_type(ldf)
-        ldf.data_model_lookup = {}
-        ldf.data_model = {}
-        self.compute_data_model(ldf)
 
     def compute_data_type(self, ldf: LuxDataFrame):
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
@@ -387,51 +385,50 @@ class PandasExecutor(Executor):
         for attr in list(ldf.columns):
             temporal_var_list = ["month", "year", "day", "date", "time"]
             if is_datetime(ldf[attr]):
-                ldf.data_type_lookup[attr] = "temporal"
+                ldf.data_type[attr] = "temporal"
             elif self._is_datetime_string(ldf[attr]):
-                ldf.data_type_lookup[attr] = "temporal"
+                ldf.data_type[attr] = "temporal"
             elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
-                ldf.data_type_lookup[attr] = "temporal"
+                ldf.data_type[attr] = "temporal"
             elif str(attr).lower() in temporal_var_list:
-                ldf.data_type_lookup[attr] = "temporal"
+                ldf.data_type[attr] = "temporal"
             elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                 # int columns gets coerced into floats if contain NaN
                 convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
                 if convertible2int and ldf.cardinality[attr] != len(ldf) and ldf.cardinality[attr] < 20:
-                    ldf.data_type_lookup[attr] = "nominal"
+                    ldf.data_type[attr] = "nominal"
                 else:
-                    ldf.data_type_lookup[attr] = "quantitative"
+                    ldf.data_type[attr] = "quantitative"
             elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
                 # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                 if ldf.pre_aggregated:
                     if ldf.cardinality[attr] == len(ldf):
-                        ldf.data_type_lookup[attr] = "nominal"
+                        ldf.data_type[attr] = "nominal"
                 if ldf.cardinality[attr] / len(ldf) < 0.4 and ldf.cardinality[attr] < 20:
-                    ldf.data_type_lookup[attr] = "nominal"
+                    ldf.data_type[attr] = "nominal"
                 else:
-                    ldf.data_type_lookup[attr] = "quantitative"
+                    ldf.data_type[attr] = "quantitative"
                 if check_if_id_like(ldf, attr):
-                    ldf.data_type_lookup[attr] = "id"
+                    ldf.data_type[attr] = "id"
             # Eliminate this clause because a single NaN value can cause the dtype to be object
             elif pd.api.types.is_string_dtype(ldf.dtypes[attr]):
                 if check_if_id_like(ldf, attr):
-                    ldf.data_type_lookup[attr] = "id"
+                    ldf.data_type[attr] = "id"
                 else:
-                    ldf.data_type_lookup[attr] = "nominal"
+                    ldf.data_type[attr] = "nominal"
             # check if attribute is any type of datetime dtype
             elif is_datetime_series(ldf.dtypes[attr]):
-                ldf.data_type_lookup[attr] = "temporal"
+                ldf.data_type[attr] = "temporal"
             else:
-                ldf.data_type_lookup[attr] = "nominal"
+                ldf.data_type[attr] = "nominal"
         # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
         #   if self.cardinality[attr]>50:
         if ldf.index.dtype != "int64" and ldf.index.name:
-            ldf.data_type_lookup[ldf.index.name] = "nominal"
-        ldf.data_type = self.mapping(ldf.data_type_lookup)
+            ldf.data_type[ldf.index.name] = "nominal"
 
         non_datetime_attrs = []
         for attr in ldf.columns:
-            if ldf.data_type_lookup[attr] == "temporal" and not is_datetime(ldf[attr]):
+            if ldf.data_type[attr] == "temporal" and not is_datetime(ldf[attr]):
                 non_datetime_attrs.append(attr)
         warn_msg = ""
         if len(non_datetime_attrs) == 1:
@@ -467,13 +464,6 @@ class PandasExecutor(Executor):
             if datetime_col is not None:
                 return True
         return False
-
-    def compute_data_model(self, ldf: LuxDataFrame):
-        ldf.data_model = {
-            "measure": ldf.data_type["quantitative"],
-            "dimension": ldf.data_type["nominal"] + ldf.data_type["temporal"] + ldf.data_type["id"],
-        }
-        ldf.data_model_lookup = self.reverseMapping(ldf.data_model)
 
     def compute_stats(self, ldf: LuxDataFrame):
         # precompute statistics
