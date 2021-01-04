@@ -21,6 +21,8 @@ from lux.history.history import History
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
+
+# from lux.executor.Executor import *
 import warnings
 import traceback
 import lux
@@ -35,10 +37,7 @@ class LuxDataFrame(pd.DataFrame):
     _metadata = [
         "_intent",
         "_inferred_intent",
-        "data_type_lookup",
         "data_type",
-        "data_model_lookup",
-        "data_model",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -77,10 +76,7 @@ class LuxDataFrame(pd.DataFrame):
         self._message = Message()
         self._pandas_only = False
         # Metadata
-        self.data_type_lookup = None
         self.data_type = None
-        self.data_model_lookup = None
-        self.data_model = None
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
@@ -126,10 +122,7 @@ class LuxDataFrame(pd.DataFrame):
     def expire_metadata(self):
         # Set metadata as null
         self._metadata_fresh = False
-        self.data_type_lookup = None
         self.data_type = None
-        self.data_model_lookup = None
-        self.data_model = None
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
@@ -294,15 +287,11 @@ class LuxDataFrame(pd.DataFrame):
         self.get_SQL_attributes()
         for attr in list(self.columns):
             self[attr] = None
-        self.data_type_lookup = {}
         self.data_type = {}
         #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this
         #####      in the initialization and do it just once
         self.compute_SQL_data_type()
         self.compute_SQL_stats()
-        self.data_model_lookup = {}
-        self.data_model = {}
-        self.compute_data_model()
 
     def compute_SQL_stats(self):
         # precompute statistics
@@ -312,7 +301,7 @@ class LuxDataFrame(pd.DataFrame):
         self.get_SQL_unique_values()
         # self.get_SQL_cardinality()
         for attribute in self.columns:
-            if self.data_type_lookup[attribute] == "quantitative":
+            if self.data_type[attribute] == "quantitative":
                 self._min_max[attribute] = (
                     self[attribute].min(),
                     self[attribute].max(),
@@ -349,7 +338,7 @@ class LuxDataFrame(pd.DataFrame):
         self.unique_values = unique_vals
 
     def compute_SQL_data_type(self):
-        data_type_lookup = {}
+        data_type = {}
         sql_dtypes = {}
         self.get_SQL_cardinality()
         if "." in self.table_name:
@@ -362,11 +351,9 @@ class LuxDataFrame(pd.DataFrame):
             datatype = list(pd.read_sql(query, lux.config.SQLconnection)["data_type"])[0]
             sql_dtypes[attr] = datatype
 
-        data_type = {"quantitative": [], "nominal": [], "temporal": []}
         for attr in list(self.columns):
             if str(attr).lower() in ["month", "year"]:
-                data_type_lookup[attr] = "temporal"
-                data_type["temporal"].append(attr)
+                data_type[attr] = "temporal"
             elif sql_dtypes[attr] in [
                 "character",
                 "character varying",
@@ -374,8 +361,7 @@ class LuxDataFrame(pd.DataFrame):
                 "uuid",
                 "text",
             ]:
-                data_type_lookup[attr] = "nominal"
-                data_type["nominal"].append(attr)
+                data_type[attr] = "nominal"
             elif sql_dtypes[attr] in [
                 "integer",
                 "real",
@@ -384,15 +370,11 @@ class LuxDataFrame(pd.DataFrame):
                 "serial",
             ]:
                 if self.cardinality[attr] < 13:
-                    data_type_lookup[attr] = "nominal"
-                    data_type["nominal"].append(attr)
+                    data_type[attr] = "nominal"
                 else:
-                    data_type_lookup[attr] = "quantitative"
-                    data_type["quantitative"].append(attr)
+                    data_type[attr] = "quantitative"
             elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
-                data_type_lookup[attr] = "temporal"
-                data_type["temporal"].append(attr)
-        self.data_type_lookup = data_type_lookup
+                data_type[attr] = "temporal"
         self.data_type = data_type
 
     def _append_rec(self, rec_infolist, recommendations: Dict):
@@ -419,8 +401,9 @@ class LuxDataFrame(pd.DataFrame):
             rec_df._message = Message()
         # Add warning message if there exist ID fields
         id_fields_str = ""
-        if len(rec_df.data_type["id"]) > 0:
-            for id_field in rec_df.data_type["id"]:
+        inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
+        if len(inverted_data_type["id"]) > 0:
+            for id_field in inverted_data_type["id"]:
                 id_fields_str += f"<code>{id_field}</code>, "
             id_fields_str = id_fields_str[:-2]
             rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")

@@ -45,7 +45,7 @@ def add_filter(ldf):
         # get unique values for all categorical values specified and creates corresponding filters
         fltr = filters[0]
 
-        if ldf.data_type_lookup[fltr.attribute] == "nominal":
+        if ldf.data_type[fltr.attribute] == "nominal":
             recommendation = {
                 "action": "Filter",
                 "description": f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative value.",
@@ -60,7 +60,7 @@ def add_filter(ldf):
                     new_spec.append(new_filter)
                     temp_vis = Vis(new_spec)
                     output.append(temp_vis)
-        elif ldf.data_type_lookup[fltr.attribute] == "quantitative":
+        elif ldf.data_type[fltr.attribute] == "quantitative":
             recommendation = {
                 "action": "Filter",
                 "description": f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative inequality operation.",

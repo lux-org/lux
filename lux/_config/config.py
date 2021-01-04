@@ -21,7 +21,94 @@ class Config:
         # flags whether or not an action has been registered or removed and should be re-rendered by frame.py
         self.update_actions: Dict[str, bool] = {}
         self.update_actions["flag"] = False
+        self._sampling_start = 10000
+        self._sampling_cap = 30000
+        self._sampling_flag = True
+        self._heatmap_flag = True
 
+    @property
+    def sampling_cap(self):
+        return self._sampling_cap
+
+    @sampling_cap.setter
+    def sampling_cap(self, sample_number: int) -> None:
+        """
+        Parameters
+        ----------
+        sample_number : int
+                Cap on the number of rows to sample. Must be larger than _sampling_start
+        """
+        if type(sample_number) == int:
+            assert sample_number >= self._sampling_start
+            self._sampling_cap = sample_number
+        else:
+            warnings.warn(
+                "The cap on the number samples must be an integer.",
+                stacklevel=2,
+            )
+
+    @property
+    def sampling_start(self):
+        return self._sampling_start
+
+    @sampling_start.setter
+    def sampling_start(self, sample_number: int) -> None:
+        """
+        Parameters
+        ----------
+        sample_number : int
+                Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
+
+        """
+        if type(sample_number) == int:
+            assert sample_number <= self._sampling_cap
+            self._sampling_start = sample_number
+        else:
+            warnings.warn(
+                "The sampling starting point must be an integer.",
+                stacklevel=2,
+            )
+
+    @property
+    def sampling(self):
+        return self._sampling_flag
+
+    @sampling.setter
+    def sampling(self, sample_flag: bool) -> None:
+        """
+        Parameters
+        ----------
+        sample_flag : bool
+                Whether or not sampling will occur.
+        """
+        if type(sample_flag) == bool:
+            self._sampling_flag = sample_flag
+        else:
+            warnings.warn(
+                "The flag for sampling must be a boolean.",
+                stacklevel=2,
+            )
+
+    @property
+    def heatmap(self):
+        return self._heatmap_flag
+
+    @heatmap.setter
+    def heatmap(self, heatmap_flag: bool) -> None:
+        """
+        Parameters
+        ----------
+        heatmap_flag : bool
+                Whether or not a heatmap will be used instead of a scatter plot.
+        """
+        if type(heatmap_flag) == bool:
+            self._heatmap_flag = heatmap_flag
+        else:
+            warnings.warn(
+                "The flag for enabling/disabling heatmaps must be a boolean.",
+                stacklevel=2,
+            )
+            
     @property
     def default_display(self):
         return self._default_display
