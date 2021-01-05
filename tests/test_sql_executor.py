@@ -23,7 +23,7 @@ import psycopg2
 
 
 def test_lazy_execution():
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = lux.LuxDataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -40,7 +40,7 @@ def test_lazy_execution():
 
 
 def test_selection():
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = lux.LuxDataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -55,7 +55,7 @@ def test_selection():
 
 
 def test_aggregation():
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = lux.LuxDataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -89,7 +89,7 @@ def test_colored_bar_chart():
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
 
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = lux.LuxDataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -112,7 +112,7 @@ def test_colored_line_chart():
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
 
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = lux.LuxDataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -133,7 +133,7 @@ def test_colored_line_chart():
 
 
 def test_filter():
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = lux.LuxDataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -151,7 +151,7 @@ def test_filter():
 
 
 def test_inequalityfilter():
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = lux.LuxDataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -179,7 +179,7 @@ def test_inequalityfilter():
 
 
 def test_binning():
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = lux.LuxDataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -190,7 +190,7 @@ def test_binning():
 
 
 def test_record():
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = lux.LuxDataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -200,7 +200,7 @@ def test_record():
 
 
 def test_filter_aggregation_fillzero_aligned():
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = lux.LuxDataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -217,7 +217,7 @@ def test_filter_aggregation_fillzero_aligned():
 
 
 def test_exclude_attribute():
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = lux.LuxDataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")

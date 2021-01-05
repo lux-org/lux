@@ -32,7 +32,7 @@ def test_underspecified_no_vis(global_var, test_recs):
     assert len(df.current_vis) == 0
 
     # test for sql executor
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -60,7 +60,7 @@ def test_underspecified_single_vis(global_var, test_recs):
         assert attr.data_type == "quantitative"
     df.clear_intent()
 
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -114,7 +114,7 @@ def test_set_intent_as_vis(global_var, test_recs):
     df._repr_html_()
     test_recs(df, ["Enhance", "Filter", "Generalize"])
 
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -150,14 +150,14 @@ def test_parse(global_var):
     vlst = VisList([lux.Clause("Origin=?"), lux.Clause("MilesPerGal")], df)
     assert len(vlst) == 3
 
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
     vlst = VisList([lux.Clause("origin=?"), lux.Clause(attribute="milespergal")], sql_df)
     assert len(vlst) == 3
 
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -183,7 +183,7 @@ def test_underspecified_vis_collection_zval(global_var):
     # vlst = VisList([lux.Clause(attribute = ["Origin","Cylinders"], filter_op="=",value="?"),lux.Clause(attribute = ["Horsepower"]),lux.Clause(attribute = "Weight")],df)
     # assert len(vlst) == 8
 
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -224,7 +224,7 @@ def test_sort_bar(global_var):
     assert vis.mark == "bar"
     assert vis._inferred_intent[1].sort == "ascending"
 
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -238,7 +238,7 @@ def test_sort_bar(global_var):
     assert vis.mark == "bar"
     assert vis._inferred_intent[1].sort == ""
 
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -339,7 +339,7 @@ def test_autoencoding_scatter(global_var):
             ]
         )
 
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -394,7 +394,7 @@ def test_autoencoding_scatter():
         )
 
     # test for sql executor
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -449,7 +449,7 @@ def test_autoencoding_histogram(global_var):
 
     # No channel specified
     # test for sql executor
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -502,7 +502,7 @@ def test_autoencoding_line_chart(global_var):
         )
 
     # test for sql executor
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -558,7 +558,7 @@ def test_autoencoding_color_line_chart(global_var):
     check_attribute_on_channel(vis, "Origin", "color")
 
     # test for sql executor
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -599,7 +599,7 @@ def test_autoencoding_color_scatter_chart(global_var):
     check_attribute_on_channel(vis, "Acceleration", "color")
 
     # test for sql executor
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -653,7 +653,7 @@ def test_populate_options(global_var):
     )
 
     # test for sql executor
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")
@@ -696,7 +696,7 @@ def test_remove_all_invalid(global_var):
     assert len(df.current_vis) == 0
 
     # test for sql executor
-    connection = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
     lux.config.set_SQL_connection(connection)
     sql_df.set_SQL_table("cars")

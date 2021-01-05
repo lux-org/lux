@@ -14,7 +14,7 @@ before_script:
    - psql -c "ALTER DATABASE postgres OWNER TO travis;"
    - psql -c "DROP schema public cascade;" -U postgres
    - psql -c "CREATE schema public;" -U postgres
-   - psql -c "CREATE DATABASE postgres_db;" -U postgres
+   - psql -c "CREATE DATABASE postgres;" -U postgres
 # command to upload data to test environment SQL database and run tests
 script:
   - python lux/data/upload_car_data.py
