@@ -33,7 +33,6 @@ import urllib.request
 target_url = "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.csv"
 for line in urllib.request.urlopen(target_url):
     decoded = line.decode("utf-8")
-    print(decoded.split(","))
     if "Name,MilesPerGal,Cylinders" not in decoded:
         cur.execute(
             "INSERT INTO cars VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", decoded.split(",")
