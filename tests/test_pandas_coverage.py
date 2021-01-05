@@ -505,6 +505,62 @@ def compare_vis(vis1, vis2):
     assert vis1.score == vis2.score
 
 
+def test_index(global_var):
+    # testing set_index and reset_index functions
+    # setting a column as an index should remove it from the dataframe's column list
+    # and change the dataframe's index name parameter
+    df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+
+    df = df.set_index(["Name"])
+    # if this assert fails, then the index column has not properly been removed from the dataframe's column and registered as an index
+    assert "Name" not in df.columns and df.index.name == "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+    df = df.reset_index()
+    assert "Name" in df.columns and df.index.name != "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+
+    df.set_index(["Name"], inplace=True)
+    assert "Name" not in df.columns and df.index.name == "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+    df.reset_index(inplace=True)
+    assert "Name" in df.columns and df.index.name != "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+
+    df = df.set_index(["Name"])
+    assert "Name" not in df.columns and df.index.name == "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+    df = df.reset_index(drop=True)
+    assert "Name" not in df.columns and df.index.name != "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+
+
+def test_index_col(global_var):
+    df = pd.read_csv("lux/data/car.csv", index_col="Name")
+    # if this assert fails, then the index column has not properly been removed from the dataframe's column and registered as an index
+    assert "Name" not in df.columns and df.index.name == "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+    df = df.reset_index()
+    assert "Name" in df.columns and df.index.name != "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+
+    # this case is not yet addressed, need to have a check that eliminates bar charts with duplicate column names
+    # df = df.set_index(["Name"], drop=False)
+    # assert "Name" not in df.columns and df.index.name == "Name"
+    # df._repr_html_()
+    # assert len(df.recommendation) > 0
+    # df = df.reset_index(drop=True)
+    # assert "Name" not in df.columns and df.index.name != "Name"
+
+
 ################
 # Series Tests #
 ################
