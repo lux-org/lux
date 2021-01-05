@@ -12,14 +12,6 @@ lux.utils.date\_utils module
    :undoc-members:
    :show-inheritance:
 
-lux.utils.renderjson module
----------------------------
-
-.. automodule:: lux.utils.renderjson
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 lux.utils.utils module
 ----------------------
 

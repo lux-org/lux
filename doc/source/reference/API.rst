@@ -4,17 +4,26 @@
 API
 ****
 
+Core Lux Objects
+-----------------
+
+.. autosummary::
+	:toctree: gen
+	:nosignatures:
+	
+	lux.core.frame.LuxDataFrame
+	lux.core.series.LuxSeries
+
 Basic API Interface
 -------------------
 
 .. autosummary::
 	:toctree: gen
 	:nosignatures: 
-	
+
 	lux.vis.Vis.Vis
 	lux.vis.VisList.VisList
 	lux.vis.Vis.Clause
-	lux.core.frame.LuxDataFrame
 
 Advanced Internals (Dev)
 -------------------------

@@ -60,14 +60,6 @@ lux.action.row\_group module
    :undoc-members:
    :show-inheritance:
 
-lux.action.similarity module
-----------------------------
-
-.. automodule:: lux.action.similarity
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 lux.action.univariate module
 ----------------------------
 
