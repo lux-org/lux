@@ -72,3 +72,41 @@ We can disable this feature and revert back to using a scatter plot by running t
 .. code-block:: python
 
     lux.config.heatmap = False
+
+
+Default Renderer
+~~~~~~~~~~~~~~~~~
+
+For now, all graphs will be rendered using `altair`. We are working on creating support for `matplotlib` and other plotting libraries.
+
+To set the default renderer, run the following code block:
+
+.. code-block::python
+
+    lux.config.renderer = "altair"
+
+Plot Configurations
+~~~~~~~~~~~~~~~~~~~
+
+Altair supports plot configurations to be applied on top of the generated graphs. To set a default plot configuration, first write a function that can take in a `chart` and returns a `chart`. For example:
+
+.. code-block::python
+    def change_color_add_title(chart):
+		  chart = chart.configure_mark(color="green") # change mark color to green
+		  chart.title = "Custom Title" # add title to chart
+		  return chart
+
+Then, set the `plot_config` to this function so that this function is applied to every plot generated.
+
+.. code-block::python
+
+    lux.config.plot_config = change_color_add_title
+
+The above results in the following changes:
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/plotconfig-1.png?raw=true
+  :width: 700
+  :align: center
+  :alt: Retrieves a single attribute from Lux's Action Manager using its defined id.
+
+
