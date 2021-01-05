@@ -61,7 +61,7 @@ class BarChart(AltairChart):
                 axis=alt.Axis(labelOverlap=True, title=y_attr_abv),
             )
             x_attr_field = alt.X(
-                x_attr.attribute, type=x_attr.data_type, title=agg_title, axis=alt.Axis(title=agg_title)
+                x_attr.attribute, type=x_attr.data_type, title=agg_title, axis=alt.Axis(title=agg_title),
             )
             y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{y_attr_abv}'))"
             x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', title='{agg_title}', axis=alt.Axis(title='{agg_title}'))"
@@ -80,7 +80,7 @@ class BarChart(AltairChart):
             )
             x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{x_attr_abv}'))"
             y_attr_field = alt.Y(
-                y_attr.attribute, type=y_attr.data_type, title=agg_title, axis=alt.Axis(title=agg_title)
+                y_attr.attribute, type=y_attr.data_type, title=agg_title, axis=alt.Axis(title=agg_title),
             )
             y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', title='{agg_title}', axis=alt.Axis(title='{agg_title}'))"
             if x_attr.sort == "ascending":

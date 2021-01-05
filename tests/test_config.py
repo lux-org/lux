@@ -113,7 +113,7 @@ def test_invalid_validator(global_var):
         }
 
     with pytest.raises(ValueError, match="Display condition must be a callable"):
-        lux.config.register_action("bars", random_categorical, "not a Callable")\
+        lux.config.register_action("bars", random_categorical, "not a Callable")
 
 
 def test_remove_action():
@@ -180,6 +180,7 @@ def test_remove_default_actions(global_var):
     df.clear_intent()
 
     from lux.action.default import register_default_actions
+
     register_default_actions()
 
 

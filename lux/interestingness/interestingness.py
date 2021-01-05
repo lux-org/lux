@@ -195,7 +195,7 @@ def weighted_correlation(x, y, w):
 
 
 def deviation_from_overall(
-    vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_attribute: str, exclude_nan: bool = True
+    vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_attribute: str, exclude_nan: bool = True,
 ) -> int:
     """
     Difference in bar chart/histogram shape from overall chart
