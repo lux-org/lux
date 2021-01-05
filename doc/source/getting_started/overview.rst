@@ -25,8 +25,7 @@ Lux preserves the Pandas dataframe semantics -- which means that you can apply a
 
     df = pd.read_csv("lux/data/college.csv")
 
-Lux is built on the philosophy that generating useful visualizations should be as simple as printing out a dataframe. 
-When you print out the dataframe in the notebook, you should see the default Pandas table display with an additional Toggle button. 
+To see the suggested visualizations, simply print the DataFrame. You should see the default Pandas table display with an additional toggle button.
 
 .. code-block:: python
 
@@ -37,7 +36,7 @@ When you print out the dataframe in the notebook, you should see the default Pan
   :align: center
   :alt: click on toggle, scroll on Correlation
 
-By clicking on the Toggle button, you can now explore the data visually through Lux. You should see three tabs of visualizations recommended to you. 
+By clicking on the Toggle button, you can now explore the data visually through Lux. You should see several categories of visualizations recommended to you by pressing on the tabs. 
 
 .. image:: ../../../../lux-resources/doc_img/overview-2.gif
   :width: 700
@@ -75,7 +74,7 @@ As shown in the example above, by default, we display three types of actions sho
   :alt: Example of even and uneven category distributions
   
 
-Refer to :doc:`this page <../advanced/action>` for details on different types of action in Lux.
+Refer to :doc:`this page <../reference/lux.action>` for details on different types of action in Lux.
 
 Expressing Analysis Interest and Goals with User `Intent`
 ----------------------------------------------------------
@@ -111,7 +110,7 @@ You can specify a variety of things that you might be interested in, for example
     df.intent = ["MedianEarnings", "FundingModel=Public"]
     df
 
-For more advance use of intent, refer to :doc:`this page <../getting_started/intent>` on how to specify the intent.
+For more advance use of intent, refer to :doc:`this page <../guide/intent>` on how to specify the intent.
 
 Steering Recommendations via User Intent
 ----------------------------------------
@@ -129,7 +128,7 @@ Given the updated intent, additional actions (Enhance and Filter) are generated.
     - {MedianEarnings, **AverageCost**}
     - {MedianEarnings, **AverageFacultySalary**}.
  
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/overview-4.png
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/overview-4.png?raw=true
   :width: 700
   :align: center
   :alt: screenshot of Enhance
@@ -140,10 +139,7 @@ Given the updated intent, additional actions (Enhance and Filter) are generated.
     - {MedianEarnings, **Region=Southeast**}
     - {MedianEarnings, **Region=Great Lakes**}.
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/overview-5.png
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/overview-5.png?raw=true
   :width: 700
   :align: center
   :alt: screenshot of Filter
-
-
-.. Lux is built on the principle that users should always be able to visualize and explore anything they specify, without having to think about how the visualization should look like. 
