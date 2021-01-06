@@ -214,10 +214,16 @@ def test_similarity(global_var):
     ranked_list = df.recommendation["Similarity"]
 
     japan_vis = list(
-        filter(lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Japan", ranked_list)
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Japan",
+            ranked_list,
+        )
     )[0]
     europe_vis = list(
-        filter(lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Europe", ranked_list)
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Europe",
+            ranked_list,
+        )
     )[0]
     assert japan_vis.score > europe_vis.score
     df.clear_intent()
@@ -231,14 +237,24 @@ def test_similarity2():
     df["Month"] = pd.to_datetime(df["Month"], format="%m")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.intent = [lux.Clause("Year"), lux.Clause("PctForeclosured"), lux.Clause("City=Crofton")]
+    df.intent = [
+        lux.Clause("Year"),
+        lux.Clause("PctForeclosured"),
+        lux.Clause("City=Crofton"),
+    ]
 
     ranked_list = df.recommendation["Similarity"]
 
     morrisville_vis = list(
-        filter(lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Morrisville", ranked_list)
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Morrisville",
+            ranked_list,
+        )
     )[0]
     watertown_vis = list(
-        filter(lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Watertown", ranked_list)
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Watertown",
+            ranked_list,
+        )
     )[0]
     assert morrisville_vis.score > watertown_vis.score

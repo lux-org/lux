@@ -21,15 +21,15 @@ import pandas as pd
 def test_check_cars():
     df = pd.read_csv("lux/data/car.csv")
     df.maintain_metadata()
-    assert df.data_type_lookup["Name"] == "nominal"
-    assert df.data_type_lookup["MilesPerGal"] == "quantitative"
-    assert df.data_type_lookup["Cylinders"] == "nominal"
-    assert df.data_type_lookup["Displacement"] == "quantitative"
-    assert df.data_type_lookup["Horsepower"] == "quantitative"
-    assert df.data_type_lookup["Weight"] == "quantitative"
-    assert df.data_type_lookup["Acceleration"] == "quantitative"
-    assert df.data_type_lookup["Year"] == "temporal"
-    assert df.data_type_lookup["Origin"] == "nominal"
+    assert df.data_type["Name"] == "nominal"
+    assert df.data_type["MilesPerGal"] == "quantitative"
+    assert df.data_type["Cylinders"] == "nominal"
+    assert df.data_type["Displacement"] == "quantitative"
+    assert df.data_type["Horsepower"] == "quantitative"
+    assert df.data_type["Weight"] == "quantitative"
+    assert df.data_type["Acceleration"] == "quantitative"
+    assert df.data_type["Year"] == "temporal"
+    assert df.data_type["Origin"] == "nominal"
 
 
 def test_check_int_id():
@@ -37,7 +37,8 @@ def test_check_int_id():
         "https://github.com/lux-org/lux-datasets/blob/master/data/instacart_sample.csv?raw=true"
     )
     df._repr_html_()
-    assert len(df.data_type["id"]) == 3
+    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    assert len(inverted_data_type["id"]) == 3
     assert (
         "<code>order_id</code>, <code>product_id</code>, <code>user_id</code> is not visualized since it resembles an ID field."
         in df._message.to_html()
@@ -57,7 +58,7 @@ def test_check_hpi():
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/hpi.csv?raw=true")
     df.maintain_metadata()
 
-    assert df.data_type_lookup == {
+    assert df.data_type == {
         "HPIRank": "quantitative",
         "Country": "nominal",
         "SubRegion": "nominal",
@@ -77,7 +78,7 @@ def test_check_hpi():
 def test_check_airbnb():
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/airbnb_nyc.csv?raw=true")
     df.maintain_metadata()
-    assert df.data_type_lookup == {
+    assert df.data_type == {
         "id": "id",
         "name": "nominal",
         "host_id": "id",
@@ -111,7 +112,7 @@ def test_check_datetime():
         }
     )
     df.maintain_metadata()
-    assert df.data_type_lookup == {
+    assert df.data_type == {
         "a": "temporal",
         "b": "temporal",
         "c": "temporal",
@@ -126,7 +127,7 @@ def test_check_datetime():
 def test_check_stock():
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/stocks.csv?raw=true")
     df.maintain_metadata()
-    assert df.data_type_lookup == {
+    assert df.data_type == {
         "symbol": "nominal",
         "monthdate": "temporal",
         "price": "quantitative",
@@ -136,7 +137,7 @@ def test_check_stock():
 def test_check_college():
     df = pd.read_csv("lux/data/college.csv")
     df.maintain_metadata()
-    assert df.data_type_lookup == {
+    assert df.data_type == {
         "Name": "nominal",
         "PredominantDegree": "nominal",
         "HighestDegree": "nominal",
@@ -176,7 +177,8 @@ def test_float_categorical():
     ]
     df = pd.DataFrame(values)
     df.maintain_metadata()
-    assert df.data_type["nominal"] == [
+    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    assert inverted_data_type["nominal"] == [
         "A",
         "B",
         "C",

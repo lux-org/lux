@@ -138,14 +138,14 @@ def test_remove_action():
 
 
 def test_remove_invalid_action(global_var):
-    df = pytest.car_df
+    df = pd.read_csv("lux/data/car.csv")
     with pytest.raises(ValueError, match="Option 'bars' has not been registered"):
         lux.config.remove_action("bars")
 
 
+# TODO: This test does not pass in pytest but is working in Jupyter notebook.
 def test_remove_default_actions(global_var):
-    # df = pytest.car_df
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df._repr_html_()
 
     lux.config.remove_action("distribution")
@@ -179,6 +179,10 @@ def test_remove_default_actions(global_var):
     assert len(df.recommendation["bars"]) > 0
     df.clear_intent()
 
+    from lux.action.default import register_default_actions
+
+    register_default_actions()
+
 
 def test_set_default_plot_config():
     def change_color_make_transparent_add_title(chart):
@@ -194,6 +198,41 @@ def test_set_default_plot_config():
     exported_code_str = df.recommendation["Correlation"][0].to_Altair()
     assert config_mark_addition in exported_code_str
     assert title_addition in exported_code_str
+
+
+def test_sampling_flag_config():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df._repr_html_()
+    assert df.recommendation["Correlation"][0].data.shape[0] == 30000
+    lux.config.sampling = False
+    df = df.copy()
+    df._repr_html_()
+    assert df.recommendation["Correlation"][0].data.shape[0] == 48895
+    lux.config.sampling = True
+
+
+def test_sampling_parameters_config():
+    df = pd.read_csv("lux/data/car.csv")
+    df._repr_html_()
+    assert df.recommendation["Correlation"][0].data.shape[0] == 392
+    lux.config.sampling_start = 50
+    lux.config.sampling_cap = 100
+    df = pd.read_csv("lux/data/car.csv")
+    df._repr_html_()
+    assert df.recommendation["Correlation"][0].data.shape[0] == 100
+    lux.config.sampling_cap = 30000
+    lux.config.sampling_start = 10000
+
+
+def test_heatmap_flag_config():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df._repr_html_()
+    assert df.recommendation["Correlation"][0]._postbin
+    lux.config.heatmap = False
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = df.copy()
+    assert not df.recommendation["Correlation"][0]._postbin
+    lux.config.heatmap = True
 
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.

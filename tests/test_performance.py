@@ -38,7 +38,7 @@ def test_q1_performance_census(global_var):
         delta2 < 0.15 < delta
     ), "Subsequent display of recommendations on Census dataset took a total of {delta2:0.4f} seconds, longer than expected."
 
-    assert df.data_type_lookup == {
+    assert df.data_type == {
         "age": "quantitative",
         "workclass": "nominal",
         "fnlwgt": "quantitative",
