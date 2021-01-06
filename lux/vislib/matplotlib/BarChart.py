@@ -21,12 +21,12 @@ import matplotlib.pyplot as plt
 
 class BarChart(MatplotlibChart):
     """
-    BarChart is a subclass of AltairChart that render as a bar charts.
+    BarChart is a subclass of MatplotlibChart that render as a bar charts.
     All rendering properties for bar charts are set here.
 
     See Also
     --------
-    altair-viz.github.io
+    matplotlib.org
     """
 
     def __init__(self, dobj, fig, ax):

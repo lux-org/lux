@@ -25,7 +25,7 @@ class Histogram(MatplotlibChart):
 
     See Also
     --------
-    altair-viz.github.io
+    matplotlib.org
     """
 
     def __init__(self, vis, fig, ax):

@@ -414,6 +414,7 @@ class LuxDataFrame(pd.DataFrame):
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
+            
             # TODO: Rewrite these as register action inside default actions
             if rec_df.pre_aggregated:
                 if rec_df.columns.name is not None:

@@ -17,14 +17,15 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class Heatmap(MatplotlibChart):
     """
-    Heatmap is a subclass of AltairChart that render as a heatmap.
+    Heatmap is a subclass of MatplotlibChart that render as a heatmap.
     All rendering properties for heatmap are set here.
 
     See Also
     --------
-    altair-viz.github.io
+    matplotlib.org
     """
 
     def __init__(self, vis, fig, ax):

@@ -17,14 +17,15 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class ScatterChart(MatplotlibChart):
     """
-    ScatterChart is a subclass of AltairChart that render as a scatter charts.
+    ScatterChart is a subclass of MatplotlibChart that render as a scatter charts.
     All rendering properties for scatter charts are set here.
 
     See Also
     --------
-    altair-viz.github.io
+    matplotlib.org
     """
 
     def __init__(self, vis, fig, ax):

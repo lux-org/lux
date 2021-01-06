@@ -14,19 +14,17 @@
 
 import lux
 import pandas as pd
-from typing import Callable
 from lux.vislib.matplotlib.BarChart import BarChart
 from lux.vislib.matplotlib.ScatterChart import ScatterChart
 from lux.vislib.matplotlib.LineChart import LineChart
 from lux.vislib.matplotlib.Histogram import Histogram
 from lux.vislib.matplotlib.Heatmap import Heatmap
-
 import matplotlib.pyplot as plt
 
 
 class MatplotlibRenderer:
     """
-    Renderer for Charts based on Altair (https://altair-viz.github.io/)
+    Renderer for Charts based on Matplotlib (https://matplotlib.org/)
     """
 
     def __init__(self, output_type="matplotlib"):

@@ -18,15 +18,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from lux.utils.utils import get_agg_title
 
-
 class LineChart(MatplotlibChart):
     """
-    LineChart is a subclass of AltairChart that render as a line charts.
+    LineChart is a subclass of MatplotlibChart that render as a line charts.
     All rendering properties for line charts are set here.
 
     See Also
     --------
-    altair-viz.github.io
+    matplotlib.org
     """
 
     def __init__(self, dobj, fig, ax):
