@@ -44,3 +44,17 @@ def test_head_tail(global_var):
         "Lux is visualizing the previous version of the dataframe before you applied <code>tail</code>."
         in df._message.to_html()
     )
+
+
+def test_describe(global_var):
+    df = pytest.college_df
+    summary = df.describe()
+    summary._repr_html_()
+    assert len(summary.recommendation["Column Groups"]) == len(summary.columns) == 10
+
+
+def test_convert_dtype(global_var):
+    df = pytest.college_df
+    cdf = df.convert_dtypes()
+    cdf._repr_html_()
+    assert list(cdf.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
