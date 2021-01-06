@@ -64,14 +64,6 @@ class BarChart(MatplotlibChart):
         if n_bars > k:  # Truncating to only top k
             remaining_bars = n_bars - k
             self.data = self.data.nlargest(k, measure_attr)
-            # self.text = plt.text(
-            #     x=0.5,
-            #     y=0.5,
-            #     horizontalalignment='right',
-            #     color="#ff8e04",
-            #     fontSize=11,
-            #     s=f"+ {remaining_bars} more ...",
-            # )
             ax.text(0.95, 0.01, f"+ {remaining_bars} more ...", verticalalignment='bottom', horizontalalignment='right', transform=ax.transAxes, fontsize=11, color="#ff8e04")
 
             self._topkcode = f"""text = alt.Chart(visData).mark_text(
@@ -86,10 +78,8 @@ class BarChart(MatplotlibChart):
 
         df = pd.DataFrame(self.data)
 
-        objects = df[bar_attr]
-        y_pos = np.arange(len(objects))
+        objects = df[bar_attr].astype(str)
         performance = df[measure_attr]
-
         
         ax.barh(objects, performance, align='center', alpha=0.5)
         ax.set_xlabel(x_attr_abv)
