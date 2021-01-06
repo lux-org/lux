@@ -60,7 +60,7 @@ class LineChart(MatplotlibChart):
         y_pos = np.arange(len(objects))
         performance = df[y_attr.attribute]
 
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(5,4))
         ax.plot(objects, performance)
 
         x_label = ""
@@ -77,6 +77,7 @@ class LineChart(MatplotlibChart):
             ax.set_ylabel(y_attr_abv)
             x_label = agg_title
             y_label = y_attr_abv
+        plt.tight_layout()
 
         # Convert chart to HTML
         import base64

@@ -57,7 +57,7 @@ class Histogram(MatplotlibChart):
 
         objects = df[msr_attr.attribute]
         
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(5,4))
         counts, bins = np.histogram(self.data)
         ax.hist(bins[:-1], bins, weights=counts, range=(x_min, x_max))
 
@@ -72,6 +72,7 @@ class Histogram(MatplotlibChart):
 
         ax.set_xlabel(x_label)
         ax.set_ylabel(y_label)
+        plt.tight_layout()
 
         # Convert chart to HTML
         import base64

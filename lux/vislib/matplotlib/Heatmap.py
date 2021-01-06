@@ -46,25 +46,22 @@ class Heatmap(MatplotlibChart):
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
         
-        import seaborn as sns
-
         df = pd.pivot_table(data=self.data,
                     index='xBinStart',
                     values='count',
                     columns='yBinStart')
-        df = df.apply(lambda x : np.log(x), axis=1)   
+        df = df.apply(lambda x : np.log(x), axis=1) 
+        df = df.values
 
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(5,4))
+        plt.imshow(df, cmap="Blues")
+        ax.set_aspect('auto')
+        plt.gca().invert_yaxis()
 
-        ax = sns.heatmap(
-            df,
-            cbar=False,
-            square=True,
-            cmap='Blues',
-        )
 
         ax.set_xlabel(x_attr_abv)
         ax.set_ylabel(y_attr_abv)
+        plt.tight_layout()
 
         # Convert chart to HTML
         import base64

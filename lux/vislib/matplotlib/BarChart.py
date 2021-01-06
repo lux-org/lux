@@ -48,9 +48,6 @@ class BarChart(MatplotlibChart):
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
 
-        # x_attr.attribute = x_attr.attribute.replace(".", "")
-        # y_attr.attribute = y_attr.attribute.replace(".", "")
-
         if x_attr.data_model == "measure":
             agg_title = get_agg_title(x_attr)
             measure_attr = x_attr.attribute
@@ -66,10 +63,11 @@ class BarChart(MatplotlibChart):
         y_pos = np.arange(len(objects))
         performance = df[measure_attr]
 
-        fig, ax = plt.subplots()
-        ax.bar(y_pos, performance, align='center', alpha=0.5)
+        fig, ax = plt.subplots(figsize=(5,4))
+        ax.barh(objects, performance, align='center', alpha=0.5)
         ax.set_xlabel(x_attr_abv)
         ax.set_ylabel(y_attr_abv)
+        plt.tight_layout()
 
         # Convert chart to HTML
         import base64
