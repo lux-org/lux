@@ -58,7 +58,6 @@ class Heatmap(MatplotlibChart):
         ax.set_aspect('auto')
         plt.gca().invert_yaxis()
 
-
         ax.set_xlabel(x_attr_abv)
         ax.set_ylabel(y_attr_abv)
         plt.tight_layout()

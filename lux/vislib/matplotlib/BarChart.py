@@ -57,13 +57,40 @@ class BarChart(MatplotlibChart):
             measure_attr = y_attr.attribute
             bar_attr = x_attr.attribute
 
+        fig, ax = plt.subplots(figsize=(5,4))
+        k = 10
+        self._topkcode = ""
+        n_bars = len(self.data.iloc[:, 0].unique())
+        if n_bars > k:  # Truncating to only top k
+            remaining_bars = n_bars - k
+            self.data = self.data.nlargest(k, measure_attr)
+            # self.text = plt.text(
+            #     x=0.5,
+            #     y=0.5,
+            #     horizontalalignment='right',
+            #     color="#ff8e04",
+            #     fontSize=11,
+            #     s=f"+ {remaining_bars} more ...",
+            # )
+            ax.text(0.95, 0.01, f"+ {remaining_bars} more ...", verticalalignment='bottom', horizontalalignment='right', transform=ax.transAxes, fontsize=11, color="#ff8e04")
+
+            self._topkcode = f"""text = alt.Chart(visData).mark_text(
+			x=155, 
+			y=142,
+			align="right",
+			color = "#ff8e04",
+			fontSize = 11,
+			text=f"+ {remaining_bars} more ..."
+		)
+		chart = chart + text\n"""
+
         df = pd.DataFrame(self.data)
 
         objects = df[bar_attr]
         y_pos = np.arange(len(objects))
         performance = df[measure_attr]
 
-        fig, ax = plt.subplots(figsize=(5,4))
+        
         ax.barh(objects, performance, align='center', alpha=0.5)
         ax.set_xlabel(x_attr_abv)
         ax.set_ylabel(y_attr_abv)
