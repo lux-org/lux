@@ -16,6 +16,7 @@ import pandas as pd
 import lux
 import warnings
 import traceback
+import numpy as np
 
 
 class LuxSeries(pd.Series):
@@ -75,7 +76,8 @@ class LuxSeries(pd.Series):
         ldf = LuxDataFrame(self)
 
         try:
-            if ldf._pandas_only:
+            is_dtype_series = all(isinstance(val, np.dtype) for val in self.values)
+            if ldf._pandas_only or is_dtype_series:
                 print(series_repr)
                 ldf._pandas_only = False
             else:
