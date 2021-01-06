@@ -16,15 +16,32 @@ from .context import lux
 import pytest
 import pandas as pd
 
+
 def test_df_to_series():
     # Ensure metadata is kept when going from df to series
     df = pd.read_csv("lux/data/car.csv")
-    df._repr_html_() # compute metadata
+    df._repr_html_()  # compute metadata
     assert df.cardinality is not None
     series = df["Weight"]
-    assert isinstance(series,lux.core.series.LuxSeries), "Derived series is type LuxSeries."
-    print (df["Weight"]._metadata)
-    assert df["Weight"]._metadata == ['_intent', 'data_type', 'unique_values', 'cardinality', '_rec_info', '_pandas_only', '_min_max', 'plot_config', '_current_vis', '_widget', '_recommendation', '_prev', '_history', '_saved_export', 'name'], "Metadata is lost when going from Dataframe to Series."
+    assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
+    print(df["Weight"]._metadata)
+    assert df["Weight"]._metadata == [
+        "_intent",
+        "data_type",
+        "unique_values",
+        "cardinality",
+        "_rec_info",
+        "_pandas_only",
+        "_min_max",
+        "plot_config",
+        "_current_vis",
+        "_widget",
+        "_recommendation",
+        "_prev",
+        "_history",
+        "_saved_export",
+        "name",
+    ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
 
