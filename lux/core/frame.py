@@ -725,7 +725,7 @@ class LuxDataFrame(pd.DataFrame):
         current_vis_spec = {}
         numVC = len(vlist)  # number of visualizations in the vis list
         if numVC == 1:
-            current_vis_spec = vlist[0].to_code(language="matplotlib", prettyOutput=False)
+            current_vis_spec = vlist[0].to_code(language=lux.config.set_vislib, prettyOutput=False)
         elif numVC > 1:
             pass
         return current_vis_spec
@@ -740,7 +740,7 @@ class LuxDataFrame(pd.DataFrame):
             if len(rec["collection"]) > 0:
                 rec["vspec"] = []
                 for vis in rec["collection"]:
-                    chart = vis.to_code(language="matplotlib", prettyOutput=False)
+                    chart = vis.to_code(language=lux.config.set_vislib, prettyOutput=False)
                     rec["vspec"].append(chart)
                 rec_lst.append(rec)
                 # delete since not JSON serializable

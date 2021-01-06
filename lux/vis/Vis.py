@@ -272,7 +272,7 @@ class Vis:
         """
         from lux.vislib.matplotlib.MatplotlibRenderer import MatplotlibRenderer
 
-        renderer = MatplotlibRenderer(output_type="code")
+        renderer = MatplotlibRenderer(output_type="matplotlib_code")
         self._code = renderer.create_vis(self, standalone)
         return self._code
 
@@ -318,7 +318,7 @@ class Vis:
             return self.to_Altair(**kwargs)
         elif language == "matplotlib":
             return self.to_Matplotlib()
-        elif language == "code":
+        elif language == "matplotlib_code":
             return self.to_Matplotlib_code()
 
 

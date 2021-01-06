@@ -85,7 +85,7 @@ class MatplotlibRenderer:
         if chart:
             if self.output_type == "matplotlib":
                 return {'config': chart.chart, 'vislib': 'matplotlib'}
-            if self.output_type == "code":
+            if self.output_type == "matplotlib_code":
                 return chart.code
         
 

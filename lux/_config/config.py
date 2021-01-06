@@ -26,6 +26,7 @@ class Config:
         self._sampling_cap = 30000
         self._sampling_flag = True
         self._heatmap_flag = True
+        self.set_vislib = "vegalite"
 
     @property
     def sampling_cap(self):
@@ -132,9 +133,36 @@ class Config:
                 "Unsupported display type. Default display option should either be `lux` or `pandas`.",
                 stacklevel=2,
             )
+    
+    @property
+    def set_vislib(self):
+        return self.set_vislib
+
+    @set_vislib.setter
+    def set_vislib(self, type: str) -> None:
+        """
+        Set the widget display to show Pandas by default or Lux by default
+        Parameters
+        ----------
+        type : str
+                Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
+        """
+        if type.lower() == "vegalite":
+            self.set_vislib = "vegalite"
+        elif type.lower() == "altair":
+            self.set_vislib = "altair"
+        elif type.lower() == "matplotlib":
+            self.set_vislib = "matplotlib"
+        elif type.lower() == "matplotlib_code":
+            self.set_vislib = "matplotlib_code"
+        else:
+            warnings.warn(
+                "Unsupported vislib type. Vislib should either be `vegalite`, `altair`, 'matplotlib', or 'matplotlib_code'.",
+                stacklevel=2,
+            )
 
     def _get_action(self, pat: str, silent: bool = False):
-        return self.actions[pat]
+        return lux.actions[pat]
 
     def register_action(
         self,
