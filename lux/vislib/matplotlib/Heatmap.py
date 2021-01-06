@@ -27,8 +27,8 @@ class Heatmap(MatplotlibChart):
     altair-viz.github.io
     """
 
-    def __init__(self, vis):
-        super().__init__(vis)
+    def __init__(self, vis, fig, ax):
+        super().__init__(vis, fig, ax)
 
     def __repr__(self):
         return f"Heatmap <{str(self.vis)}>"
@@ -53,20 +53,20 @@ class Heatmap(MatplotlibChart):
         df = df.apply(lambda x : np.log(x), axis=1) 
         df = df.values
 
-        fig, ax = plt.subplots(figsize=(5,4))
         plt.imshow(df, cmap="Blues")
-        ax.set_aspect('auto')
+        self.ax.set_aspect('auto')
         plt.gca().invert_yaxis()
 
-        ax.set_xlabel(x_attr_abv)
-        ax.set_ylabel(y_attr_abv)
+        self.ax.set_xlabel(x_attr_abv)
+        self.ax.set_ylabel(y_attr_abv)
+        self.ax.grid(False)
         plt.tight_layout()
 
         # Convert chart to HTML
         import base64
         from io import BytesIO
         tmpfile = BytesIO()
-        fig.savefig(tmpfile, format='png')
+        self.fig.savefig(tmpfile, format='png')
         chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>

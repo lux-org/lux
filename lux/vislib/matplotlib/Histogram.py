@@ -28,8 +28,8 @@ class Histogram(MatplotlibChart):
     altair-viz.github.io
     """
 
-    def __init__(self, vis):
-        super().__init__(vis)
+    def __init__(self, vis, fig, ax):
+        super().__init__(vis, fig, ax)
 
     def __repr__(self):
         return f"Histogram <{str(self.vis)}>"
@@ -57,9 +57,9 @@ class Histogram(MatplotlibChart):
 
         objects = df[msr_attr.attribute]
         
-        fig, ax = plt.subplots(figsize=(5,4))
+        fig, ax = plt.subplots(figsize=(4.5,4))
         counts, bins = np.histogram(self.data)
-        ax.hist(bins[:-1], bins, weights=counts, range=(x_min, x_max))
+        self.ax.hist(bins[:-1], bins, weights=counts, range=(x_min, x_max))
 
         x_label = ""
         y_label = ""
@@ -70,15 +70,15 @@ class Histogram(MatplotlibChart):
             x_label = "Number of Records"
             y_label = f"{msr_attr.attribute} (binned)"
 
-        ax.set_xlabel(x_label)
-        ax.set_ylabel(y_label)
+        self.ax.set_xlabel(x_label)
+        self.ax.set_ylabel(y_label)
         plt.tight_layout()
 
         # Convert chart to HTML
         import base64
         from io import BytesIO
         tmpfile = BytesIO()
-        fig.savefig(tmpfile, format='png')
+        self.fig.savefig(tmpfile, format='png')
         chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>

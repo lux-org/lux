@@ -26,7 +26,7 @@ class Config:
         self._sampling_cap = 30000
         self._sampling_flag = True
         self._heatmap_flag = True
-        self.set_vislib = "vegalite"
+        self._set_vislib = "vegalite"
 
     @property
     def sampling_cap(self):
@@ -136,7 +136,7 @@ class Config:
     
     @property
     def set_vislib(self):
-        return self.set_vislib
+        return self._set_vislib
 
     @set_vislib.setter
     def set_vislib(self, type: str) -> None:
@@ -148,16 +148,12 @@ class Config:
                 Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
         """
         if type.lower() == "vegalite":
-            self.set_vislib = "vegalite"
-        elif type.lower() == "altair":
-            self.set_vislib = "altair"
+            self._set_vislib = "vegalite"
         elif type.lower() == "matplotlib":
-            self.set_vislib = "matplotlib"
-        elif type.lower() == "matplotlib_code":
-            self.set_vislib = "matplotlib_code"
+            self._set_vislib = "matplotlib"
         else:
             warnings.warn(
-                "Unsupported vislib type. Vislib should either be `vegalite`, `altair`, 'matplotlib', or 'matplotlib_code'.",
+                "Unsupported vislib type. Vislib should either be `vegalite` or `matplotlib`.",
                 stacklevel=2,
             )
 

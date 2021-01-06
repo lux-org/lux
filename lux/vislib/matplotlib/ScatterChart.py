@@ -27,8 +27,8 @@ class ScatterChart(MatplotlibChart):
     altair-viz.github.io
     """
 
-    def __init__(self, vis):
-        super().__init__(vis)
+    def __init__(self, vis, fig, ax):
+        super().__init__(vis, fig, ax)
 
     def __repr__(self):
         return f"ScatterChart <{str(self.vis)}>"
@@ -51,26 +51,21 @@ class ScatterChart(MatplotlibChart):
         y_min = self.vis.min_max[y_attr.attribute][0]
         y_max = self.vis.min_max[y_attr.attribute][1]
 
-        # x_attr.attribute = x_attr.attribute.replace(".", "")
-        # y_attr.attribute = y_attr.attribute.replace(".", "")
-
         df = pd.DataFrame(self.data)
 
         objects = df[x_attr.attribute]
-        y_pos = np.arange(len(objects))
         performance = df[y_attr.attribute]
 
-        fig, ax = plt.subplots(figsize=(5,4))
-        ax.scatter(objects, performance)
-        ax.set_xlabel(x_attr_abv)
-        ax.set_ylabel(y_attr_abv)
+        self.ax.scatter(objects, performance)
+        self.ax.set_xlabel(x_attr_abv)
+        self.ax.set_ylabel(y_attr_abv)
         plt.tight_layout()
 
         # Convert chart to HTML
         import base64
         from io import BytesIO
         tmpfile = BytesIO()
-        fig.savefig(tmpfile, format='png')
+        self.fig.savefig(tmpfile, format='png')
         chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>

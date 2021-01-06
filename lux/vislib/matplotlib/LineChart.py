@@ -29,8 +29,8 @@ class LineChart(MatplotlibChart):
     altair-viz.github.io
     """
 
-    def __init__(self, dobj):
-        super().__init__(dobj)
+    def __init__(self, dobj, fig, ax):
+        super().__init__(dobj, fig, ax)
 
     def __repr__(self):
         return f"Line Chart <{str(self.vis)}>"
@@ -57,24 +57,22 @@ class LineChart(MatplotlibChart):
         df = pd.DataFrame(self.data)
 
         objects = df[x_attr.attribute]
-        y_pos = np.arange(len(objects))
         performance = df[y_attr.attribute]
 
-        fig, ax = plt.subplots(figsize=(5,4))
-        ax.plot(objects, performance)
+        self.ax.plot(objects, performance)
 
         x_label = ""
         y_label = ""
         if y_attr.data_model == "measure":
             agg_title = get_agg_title(y_attr)
-            ax.set_xlabel(x_attr_abv)
-            ax.set_ylabel(agg_title)
+            self.ax.set_xlabel(x_attr_abv)
+            self.ax.set_ylabel(agg_title)
             x_label = x_attr_abv
             y_label = agg_title
         else:
             agg_title = get_agg_title(x_attr)
-            ax.set_xlabel(agg_title)
-            ax.set_ylabel(y_attr_abv)
+            self.ax.set_xlabel(agg_title)
+            self.ax.set_ylabel(y_attr_abv)
             x_label = agg_title
             y_label = y_attr_abv
         plt.tight_layout()
@@ -83,7 +81,7 @@ class LineChart(MatplotlibChart):
         import base64
         from io import BytesIO
         tmpfile = BytesIO()
-        fig.savefig(tmpfile, format='png')
+        self.fig.savefig(tmpfile, format='png')
         chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>

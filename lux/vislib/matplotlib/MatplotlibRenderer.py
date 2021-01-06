@@ -69,16 +69,21 @@ class MatplotlibRenderer:
                 ):
                     vis.data[attr] = vis.data[attr].astype(str)
         plt.ioff()
+        fig, ax = plt.subplots(figsize=(4.5,4))
+        ax.set_axisbelow(True)
+        ax.grid(color='#dddddd')
+        ax.spines['right'].set_color('#dddddd')
+        ax.spines['top'].set_color('#dddddd')
         if vis.mark == "histogram":
-            chart = Histogram(vis)
+            chart = Histogram(vis, fig, ax)
         elif vis.mark == "bar":
-            chart = BarChart(vis)
+            chart = BarChart(vis, fig, ax)
         elif vis.mark == "scatter":
-            chart = ScatterChart(vis)
+            chart = ScatterChart(vis, fig, ax)
         elif vis.mark == "line":
-            chart = LineChart(vis)
+            chart = LineChart(vis, fig, ax)
         elif vis.mark == "heatmap":
-            chart = Heatmap(vis)
+            chart = Heatmap(vis, fig, ax)
         else:
             chart = None
             return chart

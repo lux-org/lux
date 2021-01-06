@@ -27,10 +27,12 @@ class MatplotlibChart:
 
     """
 
-    def __init__(self, vis):
+    def __init__(self, vis, fig, ax):
         self.vis = vis
         self.data = vis.data
         self.tooltip = True
+        self.fig = fig
+        self.ax = ax
         # ----- START self.code modification -----
         self.code = ""
         self.chart = self.initialize_chart()
