@@ -65,9 +65,10 @@ class ScatterChart(MatplotlibChart):
         # Convert chart to HTML
         import base64
         from io import BytesIO
+
         tmpfile = BytesIO()
-        self.fig.savefig(tmpfile, format='png')
-        chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
+        self.fig.savefig(tmpfile, format="png")
+        chart_code = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>
         self.code += "import matplotlib.pyplot as plt\n"

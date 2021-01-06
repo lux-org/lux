@@ -18,6 +18,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from lux.utils.utils import get_agg_title
 
+
 class LineChart(MatplotlibChart):
     """
     LineChart is a subclass of MatplotlibChart that render as a line charts.
@@ -79,9 +80,10 @@ class LineChart(MatplotlibChart):
         # Convert chart to HTML
         import base64
         from io import BytesIO
+
         tmpfile = BytesIO()
-        self.fig.savefig(tmpfile, format='png')
-        chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
+        self.fig.savefig(tmpfile, format="png")
+        chart_code = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>
 

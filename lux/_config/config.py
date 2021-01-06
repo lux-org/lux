@@ -45,8 +45,7 @@ class Config:
             self._sampling_cap = sample_number
         else:
             warnings.warn(
-                "The cap on the number samples must be an integer.",
-                stacklevel=2,
+                "The cap on the number samples must be an integer.", stacklevel=2,
             )
 
     @property
@@ -67,8 +66,7 @@ class Config:
             self._sampling_start = sample_number
         else:
             warnings.warn(
-                "The sampling starting point must be an integer.",
-                stacklevel=2,
+                "The sampling starting point must be an integer.", stacklevel=2,
             )
 
     @property
@@ -87,8 +85,7 @@ class Config:
             self._sampling_flag = sample_flag
         else:
             warnings.warn(
-                "The flag for sampling must be a boolean.",
-                stacklevel=2,
+                "The flag for sampling must be a boolean.", stacklevel=2,
             )
 
     @property
@@ -107,8 +104,7 @@ class Config:
             self._heatmap_flag = heatmap_flag
         else:
             warnings.warn(
-                "The flag for enabling/disabling heatmaps must be a boolean.",
-                stacklevel=2,
+                "The flag for enabling/disabling heatmaps must be a boolean.", stacklevel=2,
             )
 
     @property
@@ -133,7 +129,7 @@ class Config:
                 "Unsupported display type. Default display option should either be `lux` or `pandas`.",
                 stacklevel=2,
             )
-    
+
     @property
     def set_vislib(self):
         return self._set_vislib

@@ -235,7 +235,7 @@ class Vis:
         renderer = AltairRenderer(output_type="Altair")
         self._code = renderer.create_vis(self, standalone)
         return self._code
-    
+
     def to_Matplotlib(self, standalone=False) -> str:
         """
         Generate minimal Altair code to visualize the Vis
@@ -255,7 +255,7 @@ class Vis:
         renderer = MatplotlibRenderer(output_type="matplotlib")
         self._code = renderer.create_vis(self, standalone)
         return self._code
-    
+
     def to_Matplotlib_code(self, standalone=False) -> str:
         """
         Generate minimal Altair code to visualize the Vis
@@ -320,7 +320,6 @@ class Vis:
             return self.to_Matplotlib()
         elif language == "matplotlib_code":
             return self.to_Matplotlib_code()
-
 
     def refresh_source(self, ldf):  # -> Vis:
         """

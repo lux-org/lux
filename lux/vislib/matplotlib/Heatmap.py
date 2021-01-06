@@ -46,16 +46,13 @@ class Heatmap(MatplotlibChart):
             x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
-        
-        df = pd.pivot_table(data=self.data,
-                    index='xBinStart',
-                    values='count',
-                    columns='yBinStart')
-        df = df.apply(lambda x : np.log(x), axis=1) 
+
+        df = pd.pivot_table(data=self.data, index="xBinStart", values="count", columns="yBinStart")
+        df = df.apply(lambda x: np.log(x), axis=1)
         df = df.values
 
         plt.imshow(df, cmap="Blues")
-        self.ax.set_aspect('auto')
+        self.ax.set_aspect("auto")
         plt.gca().invert_yaxis()
 
         self.ax.set_xlabel(x_attr_abv)
@@ -66,9 +63,10 @@ class Heatmap(MatplotlibChart):
         # Convert chart to HTML
         import base64
         from io import BytesIO
+
         tmpfile = BytesIO()
-        self.fig.savefig(tmpfile, format='png')
-        chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
+        self.fig.savefig(tmpfile, format="png")
+        chart_code = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>
 
@@ -93,4 +91,3 @@ class Heatmap(MatplotlibChart):
         self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
         self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
         return chart_code
-

@@ -67,11 +67,11 @@ class MatplotlibRenderer:
                 ):
                     vis.data[attr] = vis.data[attr].astype(str)
         plt.ioff()
-        fig, ax = plt.subplots(figsize=(4.5,4))
+        fig, ax = plt.subplots(figsize=(4.5, 4))
         ax.set_axisbelow(True)
-        ax.grid(color='#dddddd')
-        ax.spines['right'].set_color('#dddddd')
-        ax.spines['top'].set_color('#dddddd')
+        ax.grid(color="#dddddd")
+        ax.spines["right"].set_color("#dddddd")
+        ax.spines["top"].set_color("#dddddd")
         if vis.mark == "histogram":
             chart = Histogram(vis, fig, ax)
         elif vis.mark == "bar":
@@ -87,8 +87,6 @@ class MatplotlibRenderer:
             return chart
         if chart:
             if self.output_type == "matplotlib":
-                return {'config': chart.chart, 'vislib': 'matplotlib'}
+                return {"config": chart.chart, "vislib": "matplotlib"}
             if self.output_type == "matplotlib_code":
                 return chart.code
-        
-

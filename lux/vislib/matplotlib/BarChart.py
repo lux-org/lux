@@ -64,7 +64,16 @@ class BarChart(MatplotlibChart):
         if n_bars > k:  # Truncating to only top k
             remaining_bars = n_bars - k
             self.data = self.data.nlargest(k, measure_attr)
-            self.ax.text(0.95, 0.01, f"+ {remaining_bars} more ...", verticalalignment='bottom', horizontalalignment='right', transform=self.ax.transAxes, fontsize=11, color="#ff8e04")
+            self.ax.text(
+                0.95,
+                0.01,
+                f"+ {remaining_bars} more ...",
+                verticalalignment="bottom",
+                horizontalalignment="right",
+                transform=self.ax.transAxes,
+                fontsize=11,
+                color="#ff8e04",
+            )
 
             self._topkcode = f"""text = alt.Chart(visData).mark_text(
 			x=155, 
@@ -80,8 +89,8 @@ class BarChart(MatplotlibChart):
 
         objects = df[bar_attr].astype(str)
         performance = df[measure_attr]
-        
-        self.ax.barh(objects, performance, align='center')
+
+        self.ax.barh(objects, performance, align="center")
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
         plt.tight_layout()
@@ -89,9 +98,10 @@ class BarChart(MatplotlibChart):
         # Convert chart to HTML
         import base64
         from io import BytesIO
+
         tmpfile = BytesIO()
-        self.fig.savefig(tmpfile, format='png')
-        chart_code = base64.b64encode(tmpfile.getvalue()).decode('utf-8') 
+        self.fig.savefig(tmpfile, format="png")
+        chart_code = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
         # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
         # '<img src=\'data:image/png;base64,{}\'>
 
