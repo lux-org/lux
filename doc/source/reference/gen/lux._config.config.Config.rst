@@ -1,4 +1,4 @@
-﻿lux.\_config.config.Config
+lux.\_config.config.Config
 ==========================
 
 .. currentmodule:: lux._config.config

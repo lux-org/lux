@@ -1,4 +1,4 @@
-﻿lux.vis.Vis.Vis
+lux.vis.Vis.Vis
 ===============
 
 .. currentmodule:: lux.vis.Vis

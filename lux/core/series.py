@@ -20,7 +20,7 @@ import traceback
 
 class LuxSeries(pd.Series):
     """
-    A subclass of pd.Series that supports all series operations while housing other variables and functions for generating visual recommendations.
+    A subclass of pd.Series that supports all 1-D Series operations
     """
 
     _metadata = [
@@ -58,15 +58,17 @@ class LuxSeries(pd.Series):
         f._get_axis_number = super(LuxSeries, self)._get_axis_number
         return f
 
-    def to_pandas(self):
-        """ Convert Lux Series to Pandas Series """
+    def to_pandas(self) -> pd.Series:
+        """
+        Convert Lux Series to Pandas Series
+
+        Returns
+        -------
+        pd.Series
+        """
         import lux.core
 
         return lux.core.originalSeries(self, copy=False)
-
-    def display_pandas(self):
-        """ Display Lux Series as Pandas Series"""
-        return self.to_pandas()
 
     def __repr__(self):
         from IPython.display import display
@@ -160,5 +162,5 @@ class LuxSeries(pd.Series):
                 stacklevel=2,
             )
             warnings.warn(traceback.format_exc())
-            display(self.display_pandas())
+            display(self.to_pandas())
         return ""

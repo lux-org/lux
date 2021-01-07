@@ -1,4 +1,4 @@
-﻿lux.executor.PandasExecutor.PandasExecutor
+lux.executor.PandasExecutor.PandasExecutor
 ==========================================
 
 .. currentmodule:: lux.executor.PandasExecutor

@@ -1,4 +1,4 @@
-﻿lux.core.series.LuxSeries
+lux.core.series.LuxSeries
 =========================
 
 .. currentmodule:: lux.core.series

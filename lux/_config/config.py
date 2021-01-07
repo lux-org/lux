@@ -150,7 +150,7 @@ def is_callable(obj) -> bool:
 
 class Config:
     """
-    An object for global configurations applying to the entire notebook.
+    Class for Lux configurations applied globally across entire session
     """
 
     def __init__(self):
@@ -170,7 +170,7 @@ class Config:
         Parameters
         ----------
         sample_number : int
-                Cap on the number of rows to sample. Must be larger than _sampling_start
+            Cap on the number of rows to sample. Must be larger than _sampling_start
         """
         return self._sampling_cap
 
@@ -180,7 +180,7 @@ class Config:
         Parameters
         ----------
         sample_number : int
-                Cap on the number of rows to sample. Must be larger than _sampling_start
+            Cap on the number of rows to sample. Must be larger than _sampling_start
         """
         if type(sample_number) == int:
             assert sample_number >= self._sampling_start
@@ -197,7 +197,7 @@ class Config:
         Parameters
         ----------
         sample_number : int
-                Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
+            Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
 
         """
         return self._sampling_start
@@ -208,7 +208,7 @@ class Config:
         Parameters
         ----------
         sample_number : int
-                Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
+            Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
 
         """
         if type(sample_number) == int:
@@ -226,7 +226,7 @@ class Config:
         Parameters
         ----------
         sample_flag : bool
-                Whether or not sampling will occur.
+            Whether or not sampling will occur.
         """
         return self._sampling_flag
 
@@ -236,7 +236,7 @@ class Config:
         Parameters
         ----------
         sample_flag : bool
-                Whether or not sampling will occur.
+            Whether or not sampling will occur.
         """
         if type(sample_flag) == bool:
             self._sampling_flag = sample_flag
@@ -252,7 +252,7 @@ class Config:
         Parameters
         ----------
         heatmap_flag : bool
-                Whether or not a heatmap will be used instead of a scatter plot.
+            Whether or not a heatmap will be used instead of a scatter plot.
         """
         return self._heatmap_flag
 
@@ -262,7 +262,7 @@ class Config:
         Parameters
         ----------
         heatmap_flag : bool
-                Whether or not a heatmap will be used instead of a scatter plot.
+            Whether or not a heatmap will be used instead of a scatter plot.
         """
         if type(heatmap_flag) == bool:
             self._heatmap_flag = heatmap_flag
@@ -279,7 +279,7 @@ class Config:
         Parameters
         ----------
         type : str
-                Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
+            Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
         """
         return self._default_display
 
@@ -290,7 +290,7 @@ class Config:
         Parameters
         ----------
         type : str
-                Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
+            Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
         """
         if type.lower() == "lux":
             self._default_display = "lux"

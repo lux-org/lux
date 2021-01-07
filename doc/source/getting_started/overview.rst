@@ -25,7 +25,7 @@ Lux preserves the Pandas dataframe semantics -- which means that you can apply a
 
     df = pd.read_csv("lux/data/college.csv")
 
-To see the suggested visualizations, simply print the DataFrame. You should see the default Pandas table display with an additional toggle button.
+To visualized your dataframe in Lux, simply print out the dataframe. You should see the default Pandas table display with an additional toggle button.
 
 .. code-block:: python
 
@@ -36,7 +36,7 @@ To see the suggested visualizations, simply print the DataFrame. You should see 
   :align: center
   :alt: click on toggle, scroll on Correlation
 
-By clicking on the Toggle button, you can now explore the data visually through Lux. You should see several categories of visualizations recommended to you by pressing on the tabs. 
+By clicking on the Toggle button, you can now explore the data visually through Lux. You should see several categories of visualizations recommended to you by browsing through the different tabs. 
 
 .. image:: ../../../../lux-resources/doc_img/overview-2.gif
   :width: 700

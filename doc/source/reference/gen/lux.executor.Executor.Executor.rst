@@ -1,4 +1,4 @@
-﻿lux.executor.Executor.Executor
+lux.executor.Executor.Executor
 ==============================
 
 .. currentmodule:: lux.executor.Executor

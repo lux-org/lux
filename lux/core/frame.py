@@ -113,8 +113,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def expire_recs(self):
         """
-        Expires recommendations
-
+        Expires and resets all recommendations
         """
         self._recs_fresh = False
         self._recommendation = {}
@@ -127,7 +126,6 @@ class LuxDataFrame(pd.DataFrame):
         """
         Expire all saved metadata to trigger a recomputation the next time the data is required.
         """
-        # Set metadata as null
         self._metadata_fresh = False
         self.data_type = None
         self.unique_values = None
@@ -232,13 +230,14 @@ class LuxDataFrame(pd.DataFrame):
         return output
 
     def set_intent_as_vis(self, vis: Vis):
+        """
+        Set intent of the dataframe based on the intent of a Vis
 
-        # Set intent of the dataframe as the Vis
-
-        # Parameters
-        # ----------
-        # vis : Vis
-
+        Parameters
+        ----------
+        vis : Vis
+            Input Vis object
+        """
         self.expire_recs()
         self._intent = vis._inferred_intent
         self._parse_validate_compile_intent()

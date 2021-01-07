@@ -30,7 +30,7 @@ Bar charts without filters: Unevenness
 
 A chart is scored higher if it is more uneven, indicating high variation 
 in the individual bar values in the chart. The score is computed based 
-on the difference between the value of the bar chart .. math::`V` and the flat uniform distribution .. math::`V_{flat}`.
+on the difference between the value of the bar chart :math:`V` and the flat uniform distribution :math:`V_{flat}`.
 The difference is captured via the Euclidean distance (L2 norm).
 
 

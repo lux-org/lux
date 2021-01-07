@@ -1,4 +1,4 @@
-﻿lux.core.frame.LuxDataFrame
+lux.core.frame.LuxDataFrame
 ===========================
 
 .. currentmodule:: lux.core.frame

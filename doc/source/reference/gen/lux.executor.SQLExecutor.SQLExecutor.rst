@@ -1,4 +1,4 @@
-﻿lux.executor.SQLExecutor.SQLExecutor
+lux.executor.SQLExecutor.SQLExecutor
 ====================================
 
 .. currentmodule:: lux.executor.SQLExecutor
