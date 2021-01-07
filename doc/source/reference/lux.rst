@@ -22,4 +22,3 @@ Module contents
 .. automodule:: lux
    :members:
    :undoc-members:
-   :show-inheritance:

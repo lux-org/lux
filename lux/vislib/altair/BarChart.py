@@ -55,7 +55,6 @@ class BarChart(AltairChart):
         if x_attr.data_model == "measure":
             agg_title = get_agg_title(x_attr)
             measure_attr = x_attr.attribute
-            bar_attr = y_attr.attribute
             y_attr_field = alt.Y(
                 str(y_attr.attribute),
                 type=y_attr.data_type,
@@ -76,7 +75,6 @@ class BarChart(AltairChart):
         else:
             agg_title = get_agg_title(y_attr)
             measure_attr = y_attr.attribute
-            bar_attr = x_attr.attribute
             x_attr_field = alt.X(
                 str(x_attr.attribute),
                 type=x_attr.data_type,

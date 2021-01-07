@@ -17,11 +17,12 @@ from lux.vis.Clause import Clause
 from lux.core.frame import LuxDataFrame
 from ._version import __version__, version_info
 from lux._config import config
-from lux._config.config import (
-    register_action,
-    remove_action,
-    actions,
-    update_actions,
-    config,
-    warning_format,
-)
+from lux._config.config import warning_format
+
+from lux._config import Config
+
+config = Config()
+
+from lux.action.default import register_default_actions
+
+register_default_actions()
