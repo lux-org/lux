@@ -25,7 +25,7 @@ Lux preserves the Pandas dataframe semantics -- which means that you can apply a
 
     df = pd.read_csv("lux/data/college.csv")
 
-To visualized your dataframe in Lux, simply print out the dataframe. You should see the default Pandas table display with an additional toggle button.
+To visualize your dataframe in Lux, simply print out the dataframe. You should see the default Pandas table display with an additional toggle button.
 
 .. code-block:: python
 
