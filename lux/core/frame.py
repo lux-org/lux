@@ -98,7 +98,7 @@ class LuxDataFrame(pd.DataFrame):
         return f
 
     @property
-    def history(self):  
+    def history(self):
         return self._history
 
     def maintain_metadata(self):
@@ -115,7 +115,7 @@ class LuxDataFrame(pd.DataFrame):
         """
         Expires recommendations
 
-        """        
+        """
         self._recs_fresh = False
         self._recommendation = {}
         self.current_vis = None
@@ -126,7 +126,7 @@ class LuxDataFrame(pd.DataFrame):
     def expire_metadata(self):
         """
         Expire all saved metadata to trigger a recomputation the next time the data is required.
-        """        
+        """
         # Set metadata as null
         self._metadata_fresh = False
         self.data_type = None
@@ -690,7 +690,7 @@ class LuxDataFrame(pd.DataFrame):
 
         Structure of widgetJSON:
 
-        {   
+        {
 
             'current_vis': {},
             'recommendation': [
@@ -720,7 +720,7 @@ class LuxDataFrame(pd.DataFrame):
                 Choice of visualization rendering library, by default "altair"
         input_current_vis : lux.LuxDataFrame, optional
                 User-specified current vis to override default Current Vis, by default
-        
+
         """
         check_import_lux_widget()
         import luxwidget
@@ -882,7 +882,7 @@ class LuxDataFrame(pd.DataFrame):
             print(f"Saved HTML to {filename}")
 
     # Overridden Pandas Functions
-    def head(self, n: int = 5):      
+    def head(self, n: int = 5):
         self._prev = self
         self._history.append_event("head", n=5)
         return super(LuxDataFrame, self).head(n)

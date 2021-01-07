@@ -22,6 +22,7 @@ class LuxSeries(pd.Series):
     """
     A subclass of pd.Series that supports all series operations while housing other variables and functions for generating visual recommendations.
     """
+
     _metadata = [
         "_intent",
         "data_type",

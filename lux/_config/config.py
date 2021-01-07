@@ -151,7 +151,8 @@ def is_callable(obj) -> bool:
 class Config:
     """
     An object for global configurations applying to the entire notebook.
-    """    
+    """
+
     def __init__(self):
         self._default_display = "pandas"
         self.renderer = "altair"
@@ -308,7 +309,7 @@ class Config:
         Parameters:
             connection : SQLAlchemy connectable, str, or sqlite3 connection
                 For more information, `see here <https://docs.sqlalchemy.org/en/13/core/connections.html>`__
-        """        
+        """
         self.SQLconnection = connection
 
     def set_executor_type(self, exe):
