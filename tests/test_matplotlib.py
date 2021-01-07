@@ -192,8 +192,7 @@ def test_matplotlib_year_filter_value(global_var):
             lambda vis: len(
                 list(
                     filter(
-                        lambda clause: clause.value != "" and clause.attribute == "Year",
-                        vis._intent,
+                        lambda clause: clause.value != "" and clause.attribute == "Year", vis._intent,
                     )
                 )
             )
@@ -224,19 +223,14 @@ def test_matplotlib_similarity(global_var):
     ranked_list = df.recommendation["Similarity"]
 
     japan_vis = list(
-        filter(
-            lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Japan",
-            ranked_list,
-        )
+        filter(lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Japan", ranked_list,)
     )[0]
     europe_vis = list(
-        filter(
-            lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Europe",
-            ranked_list,
-        )
+        filter(lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Europe", ranked_list,)
     )[0]
     assert japan_vis.score > europe_vis.score
     df.clear_intent()
+
 
 def test_matplotlib_heatmap_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")

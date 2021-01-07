@@ -57,7 +57,6 @@ class BarChart(MatplotlibChart):
             measure_attr = y_attr.attribute
             bar_attr = x_attr.attribute
 
-        # fig, ax = plt.subplots(figsize=(4.5,4))
         k = 10
         self._topkcode = ""
         n_bars = len(self.data.iloc[:, 0].unique())
