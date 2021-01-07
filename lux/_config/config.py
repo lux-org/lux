@@ -5,149 +5,9 @@ For more resources, see https://github.com/pandas-dev/pandas/blob/master/pandas/
 from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional
 import warnings
+import lux
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
-
-# holds registered option metadata
-_registered_actions: Dict[str, RegisteredOption] = {}
-# flags whether or not an action has been registered or removed and should be re-rendered by frame.py
-update_actions: Dict[str, bool] = {}
-update_actions["flag"] = False
-
-
-class OptionError(AttributeError, KeyError):
-    """
-    Exception for pandas.options, backwards compatible with KeyError
-    checks
-    """
-
-
-def _get_action(pat: str, silent: bool = False):
-    return _registered_actions[pat]
-
-
-class DictWrapper:
-    def __init__(self, d: Dict[str, Any], prefix: str = ""):
-        object.__setattr__(self, "d", d)
-        object.__setattr__(self, "prefix", prefix)
-
-    def __init__(self, d: Dict[str, RegisteredOption], prefix: str = ""):
-        object.__setattr__(self, "d", d)
-        object.__setattr__(self, "prefix", prefix)
-
-    def __getattr__(self, name: str):
-        """
-        Gets a specific registered action by id
-
-        Parameters
-        ----------
-        name : str
-                the name of the action
-        Return
-        -------
-        DictWrapper object for the action
-        """
-        prefix = object.__getattribute__(self, "prefix")
-        if prefix:
-            prefix += "."
-        prefix += name
-        try:
-            v = object.__getattribute__(self, "d")[name]
-        except KeyError as err:
-            raise OptionError("No such option") from err
-        if isinstance(v, dict):
-            return DictWrapper(v, prefix)
-        else:
-            return _get_action(prefix)
-
-    def __getactions__(self):
-        """
-        Gathers all currently registered actions in a list of DictWrapper
-
-        Return
-        -------
-        List of DictWrapper objects that are registered
-        """
-        l = []
-        for name in self.__dir__():
-            l.append(self.__getattr__(name))
-        return l
-
-    def __len__(self):
-        return len(list(self.d.keys()))
-
-    def __dir__(self) -> Iterable[str]:
-        return list(self.d.keys())
-
-
-actions = DictWrapper(_registered_actions)
-
-
-def register_action(
-    name: str = "",
-    action: Callable[[Any], Any] = None,
-    display_condition: Optional[Callable[[Any], Any]] = None,
-    *args,
-) -> None:
-    """
-    Registers the provided action globally in lux
-
-    Parameters
-    ----------
-    name : str
-            the name of the action
-    action : Callable[[Any], Any]
-            the function used to generate the recommendations
-    display_condition : Callable[[Any], Any]
-            the function to check whether or not the function should be applied
-    args: Any
-            any additional arguments the function may require
-    """
-
-    if action:
-        is_callable(action)
-
-    if display_condition:
-        is_callable(display_condition)
-    _registered_actions[name] = RegisteredOption(
-        name=name, action=action, display_condition=display_condition, args=args
-    )
-    update_actions["flag"] = True
-
-
-def remove_action(name: str = "") -> None:
-    """
-    Removes the provided action globally in lux
-
-    Parameters
-    ----------
-    name : str
-            the name of the action to remove
-    """
-
-    if name not in _registered_actions:
-        raise ValueError(f"Option '{name}' has not been registered")
-
-    del _registered_actions[name]
-    update_actions["flag"] = True
-
-
-def is_callable(obj) -> bool:
-    """
-    Parameters
-    ----------
-    obj: Any
-            the object to be checked
-
-    Returns
-    -------
-    validator : bool
-            returns True if object is callable
-            raises ValueError otherwise.
-    """
-    if not callable(obj):
-        raise ValueError("Value must be a callable")
-    return True
 
 
 class Config:
@@ -157,6 +17,98 @@ class Config:
         self.plot_config = None
         self.SQLconnection = ""
         self.executor = None
+        # holds registered option metadata
+        self.actions: Dict[str, RegisteredOption] = {}
+        # flags whether or not an action has been registered or removed and should be re-rendered by frame.py
+        self.update_actions: Dict[str, bool] = {}
+        self.update_actions["flag"] = False
+        self._sampling_start = 10000
+        self._sampling_cap = 30000
+        self._sampling_flag = True
+        self._heatmap_flag = True
+
+    @property
+    def sampling_cap(self):
+        return self._sampling_cap
+
+    @sampling_cap.setter
+    def sampling_cap(self, sample_number: int) -> None:
+        """
+        Parameters
+        ----------
+        sample_number : int
+                Cap on the number of rows to sample. Must be larger than _sampling_start
+        """
+        if type(sample_number) == int:
+            assert sample_number >= self._sampling_start
+            self._sampling_cap = sample_number
+        else:
+            warnings.warn(
+                "The cap on the number samples must be an integer.",
+                stacklevel=2,
+            )
+
+    @property
+    def sampling_start(self):
+        return self._sampling_start
+
+    @sampling_start.setter
+    def sampling_start(self, sample_number: int) -> None:
+        """
+        Parameters
+        ----------
+        sample_number : int
+                Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
+
+        """
+        if type(sample_number) == int:
+            assert sample_number <= self._sampling_cap
+            self._sampling_start = sample_number
+        else:
+            warnings.warn(
+                "The sampling starting point must be an integer.",
+                stacklevel=2,
+            )
+
+    @property
+    def sampling(self):
+        return self._sampling_flag
+
+    @sampling.setter
+    def sampling(self, sample_flag: bool) -> None:
+        """
+        Parameters
+        ----------
+        sample_flag : bool
+                Whether or not sampling will occur.
+        """
+        if type(sample_flag) == bool:
+            self._sampling_flag = sample_flag
+        else:
+            warnings.warn(
+                "The flag for sampling must be a boolean.",
+                stacklevel=2,
+            )
+
+    @property
+    def heatmap(self):
+        return self._heatmap_flag
+
+    @heatmap.setter
+    def heatmap(self, heatmap_flag: bool) -> None:
+        """
+        Parameters
+        ----------
+        heatmap_flag : bool
+                Whether or not a heatmap will be used instead of a scatter plot.
+        """
+        if type(heatmap_flag) == bool:
+            self._heatmap_flag = heatmap_flag
+        else:
+            warnings.warn(
+                "The flag for enabling/disabling heatmaps must be a boolean.",
+                stacklevel=2,
+            )
 
     @property
     def default_display(self):
@@ -180,6 +132,56 @@ class Config:
                 "Unsupported display type. Default display option should either be `lux` or `pandas`.",
                 stacklevel=2,
             )
+
+    def _get_action(self, pat: str, silent: bool = False):
+        return lux.actions[pat]
+
+    def register_action(
+        self,
+        name: str = "",
+        action: Callable[[Any], Any] = None,
+        display_condition: Optional[Callable[[Any], Any]] = None,
+        *args,
+    ) -> None:
+        """
+        Registers the provided action globally in lux
+
+        Parameters
+        ----------
+        name : str
+                the name of the action
+        action : Callable[[Any], Any]
+                the function used to generate the recommendations
+        display_condition : Callable[[Any], Any]
+                the function to check whether or not the function should be applied
+        args: Any
+                any additional arguments the function may require
+        """
+        if action:
+            if not callable(action):
+                raise ValueError("Action must be a callable")
+        if display_condition:
+            if not callable(display_condition):
+                raise ValueError("Display condition must be a callable")
+        self.actions[name] = RegisteredOption(
+            name=name, action=action, display_condition=display_condition, args=args
+        )
+        self.update_actions["flag"] = True
+
+    def remove_action(self, name: str = "") -> None:
+        """
+        Removes the provided action globally in lux
+
+        Parameters
+        ----------
+        name : str
+                the name of the action to remove
+        """
+        if name not in self.actions:
+            raise ValueError(f"Option '{name}' has not been registered")
+
+        del self.actions[name]
+        self.update_actions["flag"] = True
 
     def set_SQL_connection(self, connection):
         from lux.executor.SQLExecutor import SQLExecutor
@@ -218,9 +220,6 @@ class Config:
 
             self.SQLconnection = ""
             self.executor = PandasExecutor()
-
-
-config = Config()
 
 
 def warning_format(message, category, filename, lineno, file=None, line=None):
