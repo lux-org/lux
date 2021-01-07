@@ -19,6 +19,9 @@ import traceback
 
 
 class LuxSeries(pd.Series):
+    """
+    A subclass of pd.Series that supports all series operations while housing other variables and functions for generating visual recommendations.
+    """
     _metadata = [
         "_intent",
         "data_type",
@@ -55,11 +58,13 @@ class LuxSeries(pd.Series):
         return f
 
     def to_pandas(self):
+        """ Convert Lux Series to Pandas Series """
         import lux.core
 
         return lux.core.originalSeries(self, copy=False)
 
     def display_pandas(self):
+        """ Display Lux Series as Pandas Series"""
         return self.to_pandas()
 
     def __repr__(self):

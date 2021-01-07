@@ -1,0 +1,34 @@
+﻿lux.\_config.config.Config
+==========================
+
+.. currentmodule:: lux._config.config
+
+.. autoclass:: Config
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Config.__init__
+      ~Config.set_SQL_connection
+      ~Config.set_executor_type
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Config.default_display
+      ~Config.heatmap
+      ~Config.sampling
+      ~Config.sampling_cap
+      ~Config.sampling_start
+   
+   

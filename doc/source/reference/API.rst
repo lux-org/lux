@@ -10,9 +10,18 @@ Core Lux Objects
 .. autosummary::
 	:toctree: gen
 	:nosignatures:
-	
+
 	lux.core.frame.LuxDataFrame
 	lux.core.series.LuxSeries
+
+Configuration Options
+----------------------
+
+.. autosummary::
+	:toctree: gen
+	:nosignatures:
+
+	lux._config.config.Config
 
 Basic API Interface
 -------------------
