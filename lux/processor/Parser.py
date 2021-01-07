@@ -46,7 +46,6 @@ class Parser:
             )
         import re
 
-        # intent = ldf.get_context()
         new_context = []
         # checks for and converts users' string inputs into lux specifications
         for clause in intent:
@@ -59,37 +58,40 @@ class Parser:
                         valid_values.append(v)
                 temp_spec = Clause(attribute=valid_values)
                 new_context.append(temp_spec)
-            elif isinstance(clause, str):
-                # case where user specifies a filter
-                if "=" in clause:
-                    eqInd = clause.index("=")
-                    var = clause[0:eqInd]
-                    if "|" in clause:
-                        values = clause[eqInd + 1 :].split("|")
-                        for v in values:
-                            # if v in ldf.unique_values[var]: #TODO: Move validation check to Validator
-                            valid_values.append(v)
-                    else:
-                        valid_values = clause[eqInd + 1 :]
-                    # if var in list(ldf.columns): #TODO: Move validation check to Validator
-                    temp_spec = Clause(attribute=var, filter_op="=", value=valid_values)
-                    new_context.append(temp_spec)
-                # case where user specifies a variable
-                else:
-                    if "|" in clause:
-                        values = clause.split("|")
-                        for v in values:
-                            # if v in list(ldf.columns): #TODO: Move validation check to Validator
-                            valid_values.append(v)
-                    else:
-                        valid_values = clause
-                    temp_spec = Clause(attribute=valid_values)
-                    new_context.append(temp_spec)
-            elif type(clause) is Clause:
+            elif isinstance(clause, Clause):
                 new_context.append(clause)
-        intent = new_context
-        # ldf._intent = new_context
+            else:
+                if isinstance(clause, str):
+                    # case where user specifies a filter
+                    if "=" in clause:
+                        eqInd = clause.index("=")
+                        var = clause[0:eqInd]
+                        if "|" in clause:
+                            values = clause[eqInd + 1 :].split("|")
+                            for v in values:
+                                # if v in ldf.unique_values[var]: #TODO: Move validation check to Validator
+                                valid_values.append(v)
+                        else:
+                            valid_values = clause[eqInd + 1 :]
+                        # if var in list(ldf.columns): #TODO: Move validation check to Validator
+                        temp_spec = Clause(attribute=var, filter_op="=", value=valid_values)
+                        new_context.append(temp_spec)
+                    # case where user specifies a variable
+                    else:
+                        if "|" in clause:
+                            values = clause.split("|")
+                            for v in values:
+                                # if v in list(ldf.columns): #TODO: Move validation check to Validator
+                                valid_values.append(v)
+                        else:
+                            valid_values = clause
+                        temp_spec = Clause(attribute=valid_values)
+                        new_context.append(temp_spec)
+                else:
+                    temp_spec = Clause(attribute=clause)
+                    new_context.append(temp_spec)
 
+        intent = new_context
         for clause in intent:
             if clause.description:
                 # TODO: Move validation check to Validator
@@ -112,4 +114,3 @@ class Parser:
                 else:  # then it is probably a value
                     clause.value = clause.description
         return intent
-        # ldf._intent = intent
