@@ -87,7 +87,10 @@ class AltairChart:
                 timeUnit = compute_date_granularity(self.vis.data[color_attr_name])
                 self.chart = self.chart.encode(
                     color=alt.Color(
-                        color_attr_name, type=color_attr_type, timeUnit=timeUnit, title=color_attr_name,
+                        color_attr_name,
+                        type=color_attr_type,
+                        timeUnit=timeUnit,
+                        title=color_attr_name,
                     )
                 )
                 self.code += f"chart = chart.encode(color=alt.Color('{color_attr_name}',type='{color_attr_type}',timeUnit='{timeUnit}',title='{color_attr_name}'))"
