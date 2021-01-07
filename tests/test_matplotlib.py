@@ -95,14 +95,6 @@ def test_matplotlib_row_column_group(global_var):
     assert list(tseries.recommendation.keys()) == ["Row Groups", "Column Groups"]
 
 
-def test_matplotlib_groupby(global_var):
-    df = pytest.college_df
-    groupbyResult = df.groupby("Region").sum()
-    lux.config.set_vislib = "matplotlib"
-    groupbyResult._repr_html_()
-    assert list(groupbyResult.recommendation.keys()) == ["Column Groups"]
-
-
 def test_matplotlib_crosstab():
     # Example from http://www.datasciencemadesimple.com/cross-tab-cross-table-python-pandas/
     d = {
@@ -231,6 +223,20 @@ def test_matplotlib_similarity(global_var):
     assert japan_vis.score > europe_vis.score
     df.clear_intent()
 
+def test_matplotlib_default_actions_registered(global_var):
+    df = pytest.car_df
+    df._repr_html_()
+    assert "Distribution" in df.recommendation
+    assert len(df.recommendation["Distribution"]) > 0
+
+    assert "Occurrence" in df.recommendation
+    assert len(df.recommendation["Occurrence"]) > 0
+
+    assert "Temporal" in df.recommendation
+    assert len(df.recommendation["Temporal"]) > 0
+
+    assert "Correlation" in df.recommendation
+    assert len(df.recommendation["Correlation"]) > 0
 
 def test_matplotlib_heatmap_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
@@ -243,3 +249,4 @@ def test_matplotlib_heatmap_flag_config():
     assert not df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True
     lux.config.set_vislib = "vegalite"
+
