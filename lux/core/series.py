@@ -20,6 +20,10 @@ import numpy as np
 
 
 class LuxSeries(pd.Series):
+    """
+    A subclass of pd.Series that supports all 1-D Series operations
+    """
+
     _metadata = [
         "_intent",
         "data_type",
@@ -55,13 +59,17 @@ class LuxSeries(pd.Series):
         # f._get_axis_number = super(LuxSeries, self)._get_axis_number
         return LuxDataFrame
 
-    def to_pandas(self):
+    def to_pandas(self) -> pd.Series:
+        """
+        Convert Lux Series to Pandas Series
+
+        Returns
+        -------
+        pd.Series
+        """
         import lux.core
 
         return lux.core.originalSeries(self, copy=False)
-
-    def display_pandas(self):
-        return self.to_pandas()
 
     def __repr__(self):
         from IPython.display import display
@@ -156,5 +164,5 @@ class LuxSeries(pd.Series):
                 stacklevel=2,
             )
             warnings.warn(traceback.format_exc())
-            display(self.display_pandas())
+            display(self.to_pandas())
         return ""

@@ -112,6 +112,9 @@ class LuxDataFrame(pd.DataFrame):
                 self._metadata_fresh = True
 
     def expire_recs(self):
+        """
+        Expires and resets all recommendations
+        """
         self._recs_fresh = False
         self._recommendation = {}
         self.current_vis = None
@@ -120,7 +123,9 @@ class LuxDataFrame(pd.DataFrame):
         self._sampled = None
 
     def expire_metadata(self):
-        # Set metadata as null
+        """
+        Expire all saved metadata to trigger a recomputation the next time the data is required.
+        """
         self._metadata_fresh = False
         self.data_type = None
         self.unique_values = None
@@ -166,6 +171,19 @@ class LuxDataFrame(pd.DataFrame):
 
     @property
     def intent(self):
+        """
+        Main function to set the intent of the dataframe.
+        The intent input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
+
+        Parameters
+        ----------
+        intent : List[str,Clause]
+                intent list, can be a mix of string shorthand or a lux.Clause object
+
+        Notes
+        -----
+                :doc:`../guide/intent`
+        """
         return self._intent
 
     @intent.setter
@@ -187,19 +205,6 @@ class LuxDataFrame(pd.DataFrame):
         self.expire_recs()
 
     def set_intent(self, intent: List[Union[str, Clause]]):
-        """
-        Main function to set the intent of the dataframe.
-        The intent input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
-
-        Parameters
-        ----------
-        intent : List[str,Clause]
-                intent list, can be a mix of string shorthand or a lux.Clause object
-
-        Notes
-        -----
-                :doc:`../guide/clause`
-        """
         self.expire_recs()
         self._intent = intent
         self._parse_validate_compile_intent()
@@ -226,11 +231,12 @@ class LuxDataFrame(pd.DataFrame):
 
     def set_intent_as_vis(self, vis: Vis):
         """
-        Set intent of the dataframe as the Vis
+        Set intent of the dataframe based on the intent of a Vis
 
         Parameters
         ----------
         vis : Vis
+            Input Vis object
         """
         self.expire_recs()
         self._intent = vis._inferred_intent
@@ -461,7 +467,9 @@ class LuxDataFrame(pd.DataFrame):
         -----
         Convert the _selectedVisIdxs dictionary into a programmable VisList
         Example _selectedVisIdxs :
-                {'Correlation': [0, 2], 'Occurrence': [1]}
+
+            {'Correlation': [0, 2], 'Occurrence': [1]}
+
         indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Occurrence` tab is selected.
 
         Returns
@@ -653,27 +661,38 @@ class LuxDataFrame(pd.DataFrame):
         Generate a LuxWidget based on the LuxDataFrame
 
         Structure of widgetJSON:
+
         {
-                'current_vis': {},
-                'recommendation': [
-                        {
-                                'action': 'Correlation',
-                                'description': "some description",
-                                'vspec': [
-                                        {Vega-Lite spec for vis 1},
-                                        {Vega-Lite spec for vis 2},
-                                        ...
-                                ]
-                        },
-                        ... repeat for other actions
-                ]
+
+            'current_vis': {},
+            'recommendation': [
+
+                {
+
+                    'action': 'Correlation',
+                    'description': "some description",
+                    'vspec': [
+
+                            {Vega-Lite spec for vis 1},
+                            {Vega-Lite spec for vis 2},
+                            ...
+
+                    ]
+
+                },
+                ... repeat for other actions
+
+            ]
+
         }
+
         Parameters
         ----------
         renderer : str, optional
                 Choice of visualization rendering library, by default "altair"
         input_current_vis : lux.LuxDataFrame, optional
                 User-specified current vis to override default Current Vis, by default
+
         """
         check_import_lux_widget()
         import luxwidget

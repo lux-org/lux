@@ -16,6 +16,7 @@ lux.executor.PandasExecutor.PandasExecutor
       ~PandasExecutor.__init__
       ~PandasExecutor.apply_filter
       ~PandasExecutor.compute_data_model
+      ~PandasExecutor.compute_data_model_lookup
       ~PandasExecutor.compute_data_type
       ~PandasExecutor.compute_dataset_metadata
       ~PandasExecutor.compute_stats
@@ -25,6 +26,7 @@ lux.executor.PandasExecutor.PandasExecutor
       ~PandasExecutor.execute_binning
       ~PandasExecutor.execute_filter
       ~PandasExecutor.execute_sampling
+      ~PandasExecutor.invert_data_type
       ~PandasExecutor.mapping
       ~PandasExecutor.reverseMapping
    
