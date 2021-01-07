@@ -40,16 +40,18 @@ class LineChart(AltairChart):
         x_attr = self.vis.get_attr_by_channel("x")[0]
         y_attr = self.vis.get_attr_by_channel("y")[0]
 
-        x_attr_abv = x_attr.attribute
-        y_attr_abv = y_attr.attribute
+        x_attr_abv = str(x_attr.attribute)
+        y_attr_abv = str(y_attr.attribute)
 
-        if len(x_attr.attribute) > 25:
+        if len(x_attr_abv) > 25:
             x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
-        if len(y_attr.attribute) > 25:
+        if len(y_attr_abv) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
 
-        x_attr.attribute = x_attr.attribute.replace(".", "")
-        y_attr.attribute = y_attr.attribute.replace(".", "")
+        if isinstance(x_attr.attribute, str):
+            x_attr.attribute = x_attr.attribute.replace(".", "")
+        if isinstance(y_attr.attribute, str):
+            y_attr.attribute = y_attr.attribute.replace(".", "")
 
         # Remove NaNs only for Line Charts (offsets axis range)
         self.data = self.data.dropna(subset=[x_attr.attribute, y_attr.attribute])
@@ -60,21 +62,31 @@ class LineChart(AltairChart):
 
         if y_attr.data_model == "measure":
             agg_title = get_agg_title(y_attr)
-            x_attr_spec = alt.X(x_attr.attribute, type=x_attr.data_type, axis=alt.Axis(title=x_attr_abv))
+            x_attr_spec = alt.X(
+                str(x_attr.attribute), type=x_attr.data_type, axis=alt.Axis(title=x_attr_abv)
+            )
             y_attr_spec = alt.Y(
-                y_attr.attribute, type=y_attr.data_type, title=agg_title, axis=alt.Axis(title=y_attr_abv)
+                str(y_attr.attribute),
+                type=y_attr.data_type,
+                title=agg_title,
+                axis=alt.Axis(title=y_attr_abv),
             )
             x_attr_field_code = f"alt.X('{x_attr.attribute}', type = '{x_attr.data_type}', axis=alt.Axis(title='{x_attr_abv}'))"
             y_attr_fieldCode = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', title='{agg_title}', axis=alt.Axis(title='{y_attr_abv}')"
         else:
             agg_title = get_agg_title(x_attr)
             x_attr_spec = alt.X(
-                x_attr.attribute, type=x_attr.data_type, title=agg_title, axis=alt.Axis(title=x_attr_abv)
+                str(x_attr.attribute),
+                type=x_attr.data_type,
+                title=agg_title,
+                axis=alt.Axis(title=x_attr_abv),
             )
-            y_attr_spec = alt.Y(y_attr.attribute, type=y_attr.data_type, axis=alt.Axis(title=y_attr_abv))
+            y_attr_spec = alt.Y(
+                str(y_attr.attribute), type=y_attr.data_type, axis=alt.Axis(title=y_attr_abv)
+            )
             x_attr_field_code = f"alt.X('{x_attr.attribute}', type = '{x_attr.data_type}', title='{agg_title}', axis=alt.Axis(title='{x_attr_abv}')"
-            y_attr_fieldCode = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(title='{u_attr_abv}')"
-
+            y_attr_fieldCode = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(title='{y_attr_abv}')"
+        self.data = AltairChart.sanitize_dataframe(self.data)
         chart = alt.Chart(self.data).mark_line().encode(x=x_attr_spec, y=y_attr_spec)
         chart = chart.interactive()  # Enable Zooming and Panning
         self.code += f"""

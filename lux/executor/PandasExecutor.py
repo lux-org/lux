@@ -90,11 +90,11 @@ class PandasExecutor(Executor):
             # Select relevant data based on attribute information
             attributes = set([])
             for clause in vis._inferred_intent:
-                if clause.attribute:
-                    if clause.attribute != "Record":
-                        attributes.add(clause.attribute)
+                if clause.attribute != "Record":
+                    attributes.add(clause.attribute)
             # TODO: Add some type of cap size on Nrows ?
             vis._vis_data = vis.data[list(attributes)]
+
             if vis.mark == "bar" or vis.mark == "line":
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
