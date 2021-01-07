@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from __future__ import annotations
+
 from lux.vislib.altair.AltairRenderer import AltairRenderer
 from lux.utils.utils import check_import_lux_widget
 from typing import List, Union, Callable, Dict
@@ -63,7 +63,7 @@ class VisList:
         self.refresh_source(self._source)
 
     @property
-    def exported(self) -> VisList:
+    def exported(self):
         """
         Get selected visualizations as exported Vis List
 
@@ -100,7 +100,7 @@ class VisList:
 
     def remove_duplicates(self) -> None:
         """
-        Removes duplicate visualizations in Vis List
+        Removes duplicate visualizations in VisList
         """
         self._collection = list(set(self._collection))
 
@@ -310,4 +310,4 @@ class VisList:
                     self._inferred_intent = Parser.parse(self._intent)
                     Validator.validate_intent(self._inferred_intent, ldf)
                     self._collection = Compiler.compile_intent(ldf, self._inferred_intent)
-                ldf.executor.execute(self._collection, ldf)
+                lux.config.executor.execute(self._collection, ldf)

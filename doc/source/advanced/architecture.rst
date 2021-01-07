@@ -80,4 +80,4 @@ Number of Dimensions       Number of Measures         Mark Type
 Executor
 ----------
 The data executor populates each Vis with a subset of the dataframe based on the specified intent. 
-You can learn more about executors in Lux `here <https://lux-api.readthedocs.io/en/dfapi/source/guide/executor.html>`_.
+You can learn more about executors in Lux `here <https://lux-api.readthedocs.io/en/latest/source/advanced/executor.html>`_.

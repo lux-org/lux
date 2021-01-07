@@ -25,6 +25,10 @@ def test_vary_filter_val(global_var):
     df.set_intent_as_vis(vis)
     df._repr_html_()
     assert len(df.recommendation["Filter"]) == len(df["SportType"].unique()) - 1
+    linechart = list(filter(lambda x: x.mark == "line", df.recommendation["Enhance"]))[0]
+    assert (
+        linechart.get_attr_by_channel("x")[0].attribute == "Year"
+    ), "Ensure recommended vis does not inherit input vis channel"
 
 
 def test_filter_inequality(global_var):
@@ -193,3 +197,48 @@ def test_year_filter_value(global_var):
         "T00:00:00.000000000" not in vis.to_Altair()
     ), "Year filter title contains extraneous string, not displayed as summarized string"
     df.clear_intent()
+
+
+def test_similarity(global_var):
+    df = pytest.car_df
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    df.set_intent(
+        [
+            lux.Clause("Year", channel="x"),
+            lux.Clause("Displacement", channel="y"),
+            lux.Clause("Origin=USA"),
+        ]
+    )
+    df._repr_html_()
+    assert len(df.recommendation["Similarity"]) == 2
+    ranked_list = df.recommendation["Similarity"]
+
+    japan_vis = list(
+        filter(lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Japan", ranked_list)
+    )[0]
+    europe_vis = list(
+        filter(lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Europe", ranked_list)
+    )[0]
+    assert japan_vis.score > europe_vis.score
+    df.clear_intent()
+
+
+def test_similarity2():
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/real_estate_tutorial.csv"
+    )
+
+    df["Month"] = pd.to_datetime(df["Month"], format="%m")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+
+    df.intent = [lux.Clause("Year"), lux.Clause("PctForeclosured"), lux.Clause("City=Crofton")]
+
+    ranked_list = df.recommendation["Similarity"]
+
+    morrisville_vis = list(
+        filter(lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Morrisville", ranked_list)
+    )[0]
+    watertown_vis = list(
+        filter(lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Watertown", ranked_list)
+    )[0]
+    assert morrisville_vis.score > watertown_vis.score

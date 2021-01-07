@@ -58,10 +58,14 @@ def check_import_lux_widget():
 
 def get_agg_title(clause):
     if clause.aggregation is None:
+        if len(clause.attribute) > 25:
+            return clause.attribute[:15] + "..." + clause.attribute[-10:]
         return f"{clause.attribute}"
     elif clause.attribute == "Record":
         return f"Number of Records"
     else:
+        if len(clause.attribute) > 15:
+            return f"{clause._aggregation_name.capitalize()} of {clause.attribute[:15]}..."
         return f"{clause._aggregation_name.capitalize()} of {clause.attribute}"
 
 
@@ -89,3 +93,12 @@ def check_if_id_like(df, attribute):
     else:
         # TODO: Could probably add some type of entropy measure (since the binned id fields are usually very even)
         return high_cardinality and (attribute_contain_id or almost_all_vals_unique)
+
+
+def like_nan(val):
+    if isinstance(val, str):
+        return val.lower() == "nan"
+    elif isinstance(val, float) or isinstance(val, int):
+        import math
+
+        return math.isnan(val)

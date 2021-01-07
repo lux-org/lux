@@ -50,7 +50,7 @@ def test_period_selection(global_var):
         ]
     )
 
-    PandasExecutor.execute(ldf.current_vis, ldf)
+    lux.config.executor.execute(ldf.current_vis, ldf)
 
     assert all([type(vlist.data) == lux.core.frame.LuxDataFrame for vlist in ldf.current_vis])
     assert all(ldf.current_vis[2].data.columns == ["Year", "Acceleration"])
@@ -64,7 +64,7 @@ def test_period_filter(global_var):
 
     ldf.set_intent([lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")])
 
-    PandasExecutor.execute(ldf.current_vis, ldf)
+    lux.config.executor.execute(ldf.current_vis, ldf)
     ldf._repr_html_()
 
     assert isinstance(ldf.recommendation["Filter"][2]._inferred_intent[2].value, pd.Period)
@@ -79,7 +79,7 @@ def test_period_to_altair(global_var):
 
     df.set_intent([lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")])
 
-    PandasExecutor.execute(df.current_vis, df)
+    lux.config.executor.execute(df.current_vis, df)
     df._repr_html_()
 
     exported_code = df.recommendation["Filter"][2].to_Altair()
@@ -96,7 +96,7 @@ def test_refresh_inplace():
     )
     with pytest.warns(UserWarning, match="Lux detects that the attribute 'date' may be temporal."):
         df._repr_html_()
-    assert df.data_type_lookup["date"] == "temporal"
+    assert df.data_type["date"] == "temporal"
 
     from lux.vis.Vis import Vis
 
@@ -104,7 +104,8 @@ def test_refresh_inplace():
 
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     df.maintain_metadata()
-    assert df.data_type["temporal"][0] == "date"
+    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    assert inverted_data_type["temporal"][0] == "date"
 
     vis.refresh_source(df)
     assert vis.mark == "line"

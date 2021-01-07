@@ -15,15 +15,17 @@
 import pandas as pd
 import lux
 import warnings
+import traceback
 
 
 class LuxSeries(pd.Series):
+    """
+    A subclass of pd.Series that supports all series operations while housing other variables and functions for generating visual recommendations.
+    """
+
     _metadata = [
         "_intent",
-        "data_type_lookup",
         "data_type",
-        "data_model_lookup",
-        "data_model",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -56,6 +58,16 @@ class LuxSeries(pd.Series):
         f._get_axis_number = super(LuxSeries, self)._get_axis_number
         return f
 
+    def to_pandas(self):
+        """ Convert Lux Series to Pandas Series """
+        import lux.core
+
+        return lux.core.originalSeries(self, copy=False)
+
+    def display_pandas(self):
+        """ Display Lux Series as Pandas Series"""
+        return self.to_pandas()
+
     def __repr__(self):
         from IPython.display import display
         from IPython.display import clear_output
@@ -63,6 +75,9 @@ class LuxSeries(pd.Series):
         from lux.core.frame import LuxDataFrame
 
         series_repr = super(LuxSeries, self).__repr__()
+        # Default column name 0 causes errors
+        if self.name is None:
+            self.name = " "
         ldf = LuxDataFrame(self)
 
         try:
@@ -102,7 +117,7 @@ class LuxSeries(pd.Series):
                 ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")
                 ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
 
-                if len(ldf._recommendation) > 0:
+                if len(ldf.recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
                     button = widgets.Button(
                         description="Toggle Pandas/Lux",
@@ -137,12 +152,13 @@ class LuxSeries(pd.Series):
 
         except (KeyboardInterrupt, SystemExit):
             raise
-        except:
+        except Exception:
             warnings.warn(
                 "\nUnexpected error in rendering Lux widget and recommendations. "
-                "Falling back to Pandas display.\n\n"
-                "Please report this issue on Github: https://github.com/lux-org/lux/issues ",
+                "Falling back to Pandas display.\n"
+                "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
                 stacklevel=2,
             )
-            print(series_repr)
+            warnings.warn(traceback.format_exc())
+            display(self.display_pandas())
         return ""
