@@ -16,6 +16,7 @@ import pandas as pd
 import lux
 import warnings
 import traceback
+import numpy as np
 
 
 class LuxSeries(pd.Series):
@@ -45,14 +46,14 @@ class LuxSeries(pd.Series):
     def _constructor_expanddim(self):
         from lux.core.frame import LuxDataFrame
 
-        def f(*args, **kwargs):
-            df = LuxDataFrame(*args, **kwargs)
-            for attr in self._metadata:
-                df.__dict__[attr] = getattr(self, attr, None)
-            return df
+        # def f(*args, **kwargs):
+        #     df = LuxDataFrame(*args, **kwargs)
+        #     for attr in self._metadata:
+        #         df.__dict__[attr] = getattr(self, attr, None)
+        #     return df
 
-        f._get_axis_number = super(LuxSeries, self)._get_axis_number
-        return f
+        # f._get_axis_number = super(LuxSeries, self)._get_axis_number
+        return LuxDataFrame
 
     def to_pandas(self):
         import lux.core
@@ -75,7 +76,8 @@ class LuxSeries(pd.Series):
         ldf = LuxDataFrame(self)
 
         try:
-            if ldf._pandas_only:
+            is_dtype_series = all(isinstance(val, np.dtype) for val in self.values)
+            if ldf._pandas_only or is_dtype_series:
                 print(series_repr)
                 ldf._pandas_only = False
             else:
