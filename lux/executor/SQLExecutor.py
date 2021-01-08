@@ -49,6 +49,7 @@ class SQLExecutor(Executor):
                 SQLExecutor.execute_aggregate(view, ldf)
             elif view.mark == "histogram":
                 SQLExecutor.execute_binning(view, ldf)
+            view._vis_data.set_SQL_table_name(ldf.table_name)
         # this is weird, somewhere in the SQL executor the lux.config.executor is being set to a PandasExecutor
         # temporary fix here
         # lux.config.executor = SQLExecutor()
@@ -103,6 +104,7 @@ class SQLExecutor(Executor):
         data = pandas.read_sql(query, lux.config.SQLconnection)
         view._vis_data = utils.pandas_to_lux(data)
         view._vis_data.length = list(length_query["length"])[0]
+        view._vis_data.set_SQL_table_name(ldf.table_name)
 
         ldf._message.add_unique(
             f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
@@ -322,6 +324,7 @@ class SQLExecutor(Executor):
             view._vis_data = view._vis_data.reset_index()
             view._vis_data = view._vis_data.drop(columns="index")
             view._vis_data.length = list(length_query["length"])[0]
+            view._vis_data.set_SQL_table_name(ldf.table_name)
 
     @staticmethod
     def execute_binning(view: Vis, ldf: LuxDataFrame):
@@ -404,6 +407,7 @@ class SQLExecutor(Executor):
         )
         view._vis_data = utils.pandas_to_lux(view.data)
         view._vis_data.length = list(length_query["length"])[0]
+        view._vis_data.set_SQL_table_name(ldf.table_name)
 
     @staticmethod
     def execute_2D_binning(view: Vis, ldf: LuxDataFrame):
@@ -499,6 +503,7 @@ class SQLExecutor(Executor):
         output = pandas.concat(bin_count_data)
         output = output.drop(["width_bucket"], axis=1).to_pandas()
         view._vis_data = utils.pandas_to_lux(output)
+        view._vis_data.set_SQL_table_name(ldf.table_name)
 
     @staticmethod
     def execute_filter(view: Vis):
@@ -563,15 +568,11 @@ class SQLExecutor(Executor):
         self.get_SQL_attributes(ldf)
         for attr in list(ldf.columns):
             ldf[attr] = None
-        ldf.data_type_lookup = {}
         ldf.data_type = {}
         #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this
         #####      in the initialization and do it just once
         self.compute_data_type(ldf)
         self.compute_stats(ldf)
-        ldf.data_model_lookup = {}
-        ldf.data_model = {}
-        self.compute_data_model(ldf)
 
     def get_SQL_attributes(self, ldf: LuxDataFrame):
         """
@@ -624,7 +625,7 @@ class SQLExecutor(Executor):
         self.get_unique_values(ldf)
         # ldf.get_cardinality()
         for attribute in ldf.columns:
-            if ldf.data_type_lookup[attribute] == "quantitative":
+            if ldf.data_type[attribute] == "quantitative":
                 min_max_query = pandas.read_sql(
                     "SELECT MIN({}) as min, MAX({}) as max FROM {}".format(
                         attribute, attribute, ldf.table_name
@@ -698,7 +699,7 @@ class SQLExecutor(Executor):
         -------
         None
         """
-        data_type_lookup = {}
+        data_type = {}
         sql_dtypes = {}
         self.get_cardinality(ldf)
         if "." in ldf.table_name:
@@ -714,17 +715,9 @@ class SQLExecutor(Executor):
 
             sql_dtypes[attr] = datatype
 
-        data_type = {
-            "quantitative": [],
-            "ordinal": [],
-            "nominal": [],
-            "temporal": [],
-            "id": [],
-        }
         for attr in list(ldf.columns):
             if str(attr).lower() in ["month", "year"]:
-                data_type_lookup[attr] = "temporal"
-                data_type["temporal"].append(attr)
+                data_type[attr] = "temporal"
             elif sql_dtypes[attr] in [
                 "character",
                 "character varying",
@@ -732,8 +725,7 @@ class SQLExecutor(Executor):
                 "uuid",
                 "text",
             ]:
-                data_type_lookup[attr] = "nominal"
-                data_type["nominal"].append(attr)
+                data_type[attr] = "nominal"
             elif sql_dtypes[attr] in [
                 "integer",
                 "numeric",
@@ -745,36 +737,11 @@ class SQLExecutor(Executor):
                 "serial",
             ]:
                 if ldf.cardinality[attr] < 13:
-                    data_type_lookup[attr] = "nominal"
-                    data_type["nominal"].append(attr)
+                    data_type[attr] = "nominal"
                 elif check_if_id_like(ldf, attr):
-                    ldf.data_type_lookup[attr] = "id"
+                    ldf.data_type[attr] = "id"
                 else:
-                    data_type_lookup[attr] = "quantitative"
-                    data_type["quantitative"].append(attr)
+                    data_type[attr] = "quantitative"
             elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
-                data_type_lookup[attr] = "temporal"
-                data_type["temporal"].append(attr)
-        ldf.data_type_lookup = data_type_lookup
+                data_type[attr] = "temporal"
         ldf.data_type = data_type
-
-    def compute_data_model(self, ldf: LuxDataFrame):
-        """
-        Function which computes the data models for each variable within the specified Lux DataFrame's SQL table.
-        Also creates a reverse look up table for variables' data models.
-        Populates the metadata parameters of the specified Lux DataFrame.
-
-        Parameters
-        ----------
-        ldf: lux.LuxDataFrame
-            lux.LuxDataFrame object whose metadata will be calculated
-
-        Returns
-        -------
-        None
-        """
-        ldf.data_model = {
-            "measure": ldf.data_type["quantitative"],
-            "dimension": ldf.data_type["ordinal"] + ldf.data_type["nominal"] + ldf.data_type["temporal"],
-        }
-        ldf.data_model_lookup = lux.config.executor.reverseMapping(ldf.data_model)

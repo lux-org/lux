@@ -117,7 +117,7 @@ class LuxDataFrame(pd.DataFrame):
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
             if len(self) > 0 or lux.config.executor.name == "SQLExecutor":
-                lux.config.executor.compute_stats(self)
+                # lux.config.executor.compute_stats(self)
                 lux.config.executor.compute_dataset_metadata(self)
                 self._infer_structure()
                 self._metadata_fresh = True
@@ -292,103 +292,110 @@ class LuxDataFrame(pd.DataFrame):
     ########## SQL Metadata, type, model schema ###########
     #######################################################
 
+    def set_SQL_table_name(self, t_name):
+        self.table_name = t_name
+
     def set_SQL_table(self, t_name):
         self.table_name = t_name
-        self.compute_SQL_dataset_metadata()
+        lux.config.executor.compute_dataset_metadata(self)
+        # self.compute_SQL_dataset_metadata()
 
-    def compute_SQL_dataset_metadata(self):
-        self.get_SQL_attributes()
-        for attr in list(self.columns):
-            self[attr] = None
-        self.data_type = {}
-        #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this
-        #####      in the initialization and do it just once
-        self.compute_SQL_data_type()
-        self.compute_SQL_stats()
+    # def compute_SQL_dataset_metadata(self):
+    #     self.get_SQL_attributes()
+    #     for attr in list(self.columns):
+    #         self[attr] = None
+    #     self.data_type = {}
+    #     #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this
+    #     #####      in the initialization and do it just once
+    #     self.compute_SQL_data_type()
+    #     self.compute_SQL_stats()
 
-    def compute_SQL_stats(self):
-        # precompute statistics
-        self.unique_values = {}
-        self._min_max = {}
+    # def compute_SQL_stats(self):
+    #     # precompute statistics
+    #     self.unique_values = {}
+    #     self._min_max = {}
 
-        self.get_SQL_unique_values()
-        # self.get_SQL_cardinality()
-        for attribute in self.columns:
-            if self.data_type[attribute] == "quantitative":
-                self._min_max[attribute] = (
-                    self[attribute].min(),
-                    self[attribute].max(),
-                )
+    #     self.get_SQL_unique_values()
+    #     # self.get_SQL_cardinality()
+    #     for attribute in self.columns:
+    #         if self.data_type[attribute] == "quantitative":
+    #             self._min_max[attribute] = (
+    #                 self[attribute].min(),
+    #                 self[attribute].max(),
+    #             )
 
-    def get_SQL_attributes(self):
-        if "." in self.table_name:
-            table_name = self.table_name[self.table_name.index(".") + 1 :]
-        else:
-            table_name = self.table_name
-        query = f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'"
-        attributes = list(pd.read_sql(query, lux.config.SQLconnection)["column_name"])
-        for attr in attributes:
-            self[attr] = None
+    # def get_SQL_attributes(self):
+    #     if "." in self.table_name:
+    #         table_name = self.table_name[self.table_name.index(".") + 1 :]
+    #     else:
+    #         table_name = self.table_name
+    #     query = f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'"
+    #     attributes = list(pd.read_sql(query, lux.config.SQLconnection)["column_name"])
+    #     for attr in attributes:
+    #         self[attr] = None
 
-    def get_SQL_cardinality(self):
-        cardinality = {}
-        for attr in list(self.columns):
-            card_query = pd.read_sql(
-                f"SELECT Count(Distinct({attr})) FROM {self.table_name}",
-                lux.config.SQLconnection,
-            )
-            cardinality[attr] = list(card_query["count"])[0]
-        self.cardinality = cardinality
+    # def get_SQL_cardinality(self):
+    #     cardinality = {}
+    #     for attr in list(self.columns):
+    #         card_query = pd.read_sql(
+    #             f"SELECT Count(Distinct({attr})) FROM {self.table_name}",
+    #             lux.config.SQLconnection,
+    #         )
+    #         cardinality[attr] = list(card_query["count"])[0]
+    #     self.cardinality = cardinality
 
-    def get_SQL_unique_values(self):
-        unique_vals = {}
-        for attr in list(self.columns):
-            unique_query = pd.read_sql(
-                f"SELECT Distinct({attr}) FROM {self.table_name}",
-                lux.config.SQLconnection,
-            )
-            unique_vals[attr] = list(unique_query[attr])
-        self.unique_values = unique_vals
+    # def get_SQL_unique_values(self):
+    #     unique_vals = {}
+    #     for attr in list(self.columns):
+    #         unique_query = pd.read_sql(
+    #             f"SELECT Distinct({attr}) FROM {self.table_name}",
+    #             lux.config.SQLconnection,
+    #         )
+    #         unique_vals[attr] = list(unique_query[attr])
+    #     self.unique_values = unique_vals
 
-    def compute_SQL_data_type(self):
-        data_type = {}
-        sql_dtypes = {}
-        self.get_SQL_cardinality()
-        if "." in self.table_name:
-            table_name = self.table_name[self.table_name.index(".") + 1 :]
-        else:
-            table_name = self.table_name
-        # get the data types of the attributes in the SQL table
-        for attr in list(self.columns):
-            query = f"SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' AND COLUMN_NAME = '{attr}'"
-            datatype = list(pd.read_sql(query, lux.config.SQLconnection)["data_type"])[0]
-            sql_dtypes[attr] = datatype
+    # def compute_SQL_data_type(self):
+    #     data_type = {}
+    #     sql_dtypes = {}
+    #     self.get_SQL_cardinality()
+    #     if "." in self.table_name:
+    #         table_name = self.table_name[self.table_name.index(".") + 1 :]
+    #     else:
+    #         table_name = self.table_name
+    #     # get the data types of the attributes in the SQL table
+    #     for attr in list(self.columns):
+    #         query = f"SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' AND COLUMN_NAME = '{attr}'"
+    #         datatype = list(pd.read_sql(query, lux.config.SQLconnection)["data_type"])[0]
+    #         sql_dtypes[attr] = datatype
 
-        for attr in list(self.columns):
-            if str(attr).lower() in ["month", "year"]:
-                data_type[attr] = "temporal"
-            elif sql_dtypes[attr] in [
-                "character",
-                "character varying",
-                "boolean",
-                "uuid",
-                "text",
-            ]:
-                data_type[attr] = "nominal"
-            elif sql_dtypes[attr] in [
-                "integer",
-                "real",
-                "smallint",
-                "smallserial",
-                "serial",
-            ]:
-                if self.cardinality[attr] < 13:
-                    data_type[attr] = "nominal"
-                else:
-                    data_type[attr] = "quantitative"
-            elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
-                data_type[attr] = "temporal"
-        self.data_type = data_type
+    #     for attr in list(self.columns):
+    #         if str(attr).lower() in ["month", "year"]:
+    #             data_type[attr] = "temporal"
+    #         elif sql_dtypes[attr] in [
+    #             "character",
+    #             "character varying",
+    #             "boolean",
+    #             "uuid",
+    #             "text",
+    #         ]:
+    #             data_type[attr] = "nominal"
+    #         elif sql_dtypes[attr] in [
+    #             "integer",
+    #             "numeric",
+    #             "decimal",
+    #             "bigint",
+    #             "real",
+    #             "smallint",
+    #             "smallserial",
+    #             "serial",
+    #         ]:
+    #             if self.cardinality[attr] < 13:
+    #                 data_type[attr] = "nominal"
+    #             else:
+    #                 data_type[attr] = "quantitative"
+    #         elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
+    #             data_type[attr] = "temporal"
+    #     self.data_type = data_type
 
     def _append_rec(self, rec_infolist, recommendations: Dict):
         if recommendations["collection"] is not None and len(recommendations["collection"]) > 0:
