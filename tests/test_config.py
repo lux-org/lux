@@ -42,9 +42,9 @@ def register_new_action(validator: bool = True):
         return False
 
     if validator:
-        lux.register_action("bars", random_categorical, contain_horsepower)
+        lux.config.register_action("bars", random_categorical, contain_horsepower)
     else:
-        lux.register_action("bars", random_categorical)
+        lux.config.register_action("bars", random_categorical)
     return df
 
 
@@ -93,8 +93,8 @@ def test_no_validator():
 
 def test_invalid_function(global_var):
     df = pd.read_csv("lux/data/car.csv")
-    with pytest.raises(ValueError, match="Value must be a callable"):
-        lux.register_action("bars", "not a Callable")
+    with pytest.raises(ValueError, match="Action must be a callable"):
+        lux.config.register_action("bars", "not a Callable")
 
 
 def test_invalid_validator(global_var):
@@ -112,8 +112,8 @@ def test_invalid_validator(global_var):
             "collection": vlist,
         }
 
-    with pytest.raises(ValueError, match="Value must be a callable"):
-        lux.register_action("bars", random_categorical, "not a Callable")
+    with pytest.raises(ValueError, match="Display condition must be a callable"):
+        lux.config.register_action("bars", random_categorical, "not a Callable")
 
 
 def test_remove_action():
@@ -128,7 +128,7 @@ def test_remove_action():
         len(df.recommendation["bars"]) > 0,
         "Bars should be rendered after it has been registered with correct intent.",
     )
-    lux.remove_action("bars")
+    lux.config.remove_action("bars")
     df._repr_html_()
     assert (
         "bars" not in df.recommendation,
@@ -138,29 +138,29 @@ def test_remove_action():
 
 
 def test_remove_invalid_action(global_var):
-    df = pytest.car_df
-    with pytest.raises(ValueError, match="Option 'bars' has not been registered"):
-        lux.remove_action("bars")
-
-
-def test_remove_default_actions(global_var):
-    # df = pytest.car_df
     df = pd.read_csv("lux/data/car.csv")
+    with pytest.raises(ValueError, match="Option 'bars' has not been registered"):
+        lux.config.remove_action("bars")
+
+
+# TODO: This test does not pass in pytest but is working in Jupyter notebook.
+def test_remove_default_actions(global_var):
+    df = pytest.car_df
     df._repr_html_()
 
-    lux.remove_action("distribution")
+    lux.config.remove_action("distribution")
     df._repr_html_()
     assert "Distribution" not in df.recommendation
 
-    lux.remove_action("occurrence")
+    lux.config.remove_action("occurrence")
     df._repr_html_()
     assert "Occurrence" not in df.recommendation
 
-    lux.remove_action("temporal")
+    lux.config.remove_action("temporal")
     df._repr_html_()
     assert "Temporal" not in df.recommendation
 
-    lux.remove_action("correlation")
+    lux.config.remove_action("correlation")
     df._repr_html_()
     assert "Correlation" not in df.recommendation
 
@@ -178,6 +178,10 @@ def test_remove_default_actions(global_var):
     )
     assert len(df.recommendation["bars"]) > 0
     df.clear_intent()
+
+    from lux.action.default import register_default_actions
+
+    register_default_actions()
 
 
 def test_set_default_plot_config():

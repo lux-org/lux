@@ -90,11 +90,11 @@ class PandasExecutor(Executor):
             # Select relevant data based on attribute information
             attributes = set([])
             for clause in vis._inferred_intent:
-                if clause.attribute:
-                    if clause.attribute != "Record":
-                        attributes.add(clause.attribute)
+                if clause.attribute != "Record":
+                    attributes.add(clause.attribute)
             # TODO: Add some type of cap size on Nrows ?
             vis._vis_data = vis.data[list(attributes)]
+
             if vis.mark == "bar" or vis.mark == "line":
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
@@ -156,22 +156,29 @@ class PandasExecutor(Executor):
             color_cardinality = 1
         if measure_attr != "":
             if measure_attr.attribute == "Record":
+                # need to get the index name so that we can rename the index column to "Record"
+                # if there is no index, default to "index"
+                index_name = vis.data.index.name
+                if index_name == None:
+                    index_name = "index"
+
                 vis._vis_data = vis.data.reset_index()
                 # if color is specified, need to group by groupby_attr and color_attr
-
                 if has_color:
                     vis._vis_data = (
                         vis.data.groupby([groupby_attr.attribute, color_attr.attribute], dropna=False)
                         .count()
                         .reset_index()
+                        .rename(columns={index_name: "Record"})
                     )
-                    vis._vis_data = vis.data.rename(columns={"index": "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, "Record"]]
                 else:
                     vis._vis_data = (
-                        vis.data.groupby(groupby_attr.attribute, dropna=False).count().reset_index()
+                        vis.data.groupby(groupby_attr.attribute, dropna=False)
+                        .count()
+                        .reset_index()
+                        .rename(columns={index_name: "Record"})
                     )
-                    vis._vis_data = vis.data.rename(columns={"index": "Record"})
                     vis._vis_data = vis.data[[groupby_attr.attribute, "Record"]]
             else:
                 # if color is specified, need to group by groupby_attr and color_attr
@@ -376,12 +383,8 @@ class PandasExecutor(Executor):
     ############ Metadata: data type, model #############
     #######################################################
     def compute_dataset_metadata(self, ldf: LuxDataFrame):
-        ldf.data_type_lookup = {}
         ldf.data_type = {}
         self.compute_data_type(ldf)
-        ldf.data_model_lookup = {}
-        ldf.data_model = {}
-        self.compute_data_model(ldf)
 
     def compute_data_type(self, ldf: LuxDataFrame):
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
@@ -389,51 +392,48 @@ class PandasExecutor(Executor):
         for attr in list(ldf.columns):
             temporal_var_list = ["month", "year", "day", "date", "time"]
             if is_datetime(ldf[attr]):
-                ldf.data_type_lookup[attr] = "temporal"
+                ldf.data_type[attr] = "temporal"
             elif self._is_datetime_string(ldf[attr]):
-                ldf.data_type_lookup[attr] = "temporal"
+                ldf.data_type[attr] = "temporal"
             elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
-                ldf.data_type_lookup[attr] = "temporal"
+                ldf.data_type[attr] = "temporal"
             elif str(attr).lower() in temporal_var_list:
-                ldf.data_type_lookup[attr] = "temporal"
+                ldf.data_type[attr] = "temporal"
             elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                 # int columns gets coerced into floats if contain NaN
                 convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
                 if convertible2int and ldf.cardinality[attr] != len(ldf) and ldf.cardinality[attr] < 20:
-                    ldf.data_type_lookup[attr] = "nominal"
+                    ldf.data_type[attr] = "nominal"
                 else:
-                    ldf.data_type_lookup[attr] = "quantitative"
+                    ldf.data_type[attr] = "quantitative"
             elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
                 # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                 if ldf.pre_aggregated:
                     if ldf.cardinality[attr] == len(ldf):
-                        ldf.data_type_lookup[attr] = "nominal"
+                        ldf.data_type[attr] = "nominal"
                 if ldf.cardinality[attr] / len(ldf) < 0.4 and ldf.cardinality[attr] < 20:
-                    ldf.data_type_lookup[attr] = "nominal"
+                    ldf.data_type[attr] = "nominal"
                 else:
-                    ldf.data_type_lookup[attr] = "quantitative"
+                    ldf.data_type[attr] = "quantitative"
                 if check_if_id_like(ldf, attr):
-                    ldf.data_type_lookup[attr] = "id"
+                    ldf.data_type[attr] = "id"
             # Eliminate this clause because a single NaN value can cause the dtype to be object
             elif pd.api.types.is_string_dtype(ldf.dtypes[attr]):
                 if check_if_id_like(ldf, attr):
-                    ldf.data_type_lookup[attr] = "id"
+                    ldf.data_type[attr] = "id"
                 else:
-                    ldf.data_type_lookup[attr] = "nominal"
+                    ldf.data_type[attr] = "nominal"
             # check if attribute is any type of datetime dtype
             elif is_datetime_series(ldf.dtypes[attr]):
-                ldf.data_type_lookup[attr] = "temporal"
+                ldf.data_type[attr] = "temporal"
             else:
-                ldf.data_type_lookup[attr] = "nominal"
-        # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
-        #   if self.cardinality[attr]>50:
-        if ldf.index.dtype != "int64" and ldf.index.name:
-            ldf.data_type_lookup[ldf.index.name] = "nominal"
-        ldf.data_type = self.mapping(ldf.data_type_lookup)
+                ldf.data_type[attr] = "nominal"
+        if not pd.api.types.is_integer_dtype(ldf.index) and ldf.index.name:
+            ldf.data_type[ldf.index.name] = "nominal"
 
         non_datetime_attrs = []
         for attr in ldf.columns:
-            if ldf.data_type_lookup[attr] == "temporal" and not is_datetime(ldf[attr]):
+            if ldf.data_type[attr] == "temporal" and not is_datetime(ldf[attr]):
                 non_datetime_attrs.append(attr)
         warn_msg = ""
         if len(non_datetime_attrs) == 1:
@@ -470,13 +470,6 @@ class PandasExecutor(Executor):
                 return True
         return False
 
-    def compute_data_model(self, ldf: LuxDataFrame):
-        ldf.data_model = {
-            "measure": ldf.data_type["quantitative"],
-            "dimension": ldf.data_type["nominal"] + ldf.data_type["temporal"] + ldf.data_type["id"],
-        }
-        ldf.data_model_lookup = self.reverseMapping(ldf.data_model)
-
     def compute_stats(self, ldf: LuxDataFrame):
         # precompute statistics
         ldf.unique_values = {}
@@ -494,21 +487,15 @@ class PandasExecutor(Executor):
             ldf.unique_values[attribute_repr] = list(ldf[attribute_repr].unique())
             ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
 
-            # commenting this optimization out to make sure I can filter by cardinality when showing recommended vis
-
-            # if ldf.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
-            #     ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
-            #     ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
-            # else:
-            #     ldf.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
-
-            if ldf.dtypes[attribute] == "float64" or ldf.dtypes[attribute] == "int64":
+            if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(
+                ldf.dtypes[attribute]
+            ):
                 ldf._min_max[attribute_repr] = (
                     ldf[attribute].min(),
                     ldf[attribute].max(),
                 )
 
-        if ldf.index.dtype != "int64":
+        if not pd.api.types.is_integer_dtype(ldf.index):
             index_column_name = ldf.index.name
             ldf.unique_values[index_column_name] = list(ldf.index)
             ldf.cardinality[index_column_name] = len(ldf.index)

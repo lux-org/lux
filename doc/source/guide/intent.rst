@@ -107,8 +107,9 @@ Note that since there are three different visualizations that is generated based
       :alt: add screenshot
 
     You can specify to Lux that you are interested in learning more about colleges in New England. 
-    In the resulting Filter action, we see that Lux suggests visualizations in other `Region`s as recommendations.
-    
+
+    In the resulting Filter action, we see that Lux suggests visualizations in other `Region` as recommendations.
+
     .. code-block:: python
         
         df.intent = ["Region=New England"]
