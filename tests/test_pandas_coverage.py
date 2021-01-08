@@ -15,6 +15,7 @@
 from .context import lux
 import pytest
 import pandas as pd
+import numpy as np
 
 ###################
 # DataFrame Tests #
@@ -678,3 +679,11 @@ def test_read_sas(global_var):
     df._repr_html_()
     assert list(df.recommendation.keys()) == ["Correlation", "Distribution", "Temporal"]
     assert len(df.data_type) == 6
+
+
+def test_read_multi_dtype(global_var):
+    url = "https://github.com/jinimukh/lux-datasets/blob/master/data/kaggle_survey_2020_responses.csv?raw=true"
+    df = pd.read_csv(url)
+    df = df[["Time from Start to Finish (seconds)", "Q1", "Q2"]]
+    df._repr_html_()
+    # if this does not create an exception, the test has passed.
