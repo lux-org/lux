@@ -38,12 +38,12 @@ class ScatterChart(AltairChart):
         x_attr = self.vis.get_attr_by_channel("x")[0]
         y_attr = self.vis.get_attr_by_channel("y")[0]
 
-        x_attr_abv = x_attr.attribute
-        y_attr_abv = y_attr.attribute
+        x_attr_abv = str(x_attr.attribute)
+        y_attr_abv = str(y_attr.attribute)
 
-        if len(x_attr.attribute) > 25:
+        if len(x_attr_abv) > 25:
             x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
-        if len(y_attr.attribute) > 25:
+        if len(y_attr_abv) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
 
         x_min = self.vis.min_max[x_attr.attribute][0]
@@ -52,21 +52,23 @@ class ScatterChart(AltairChart):
         y_min = self.vis.min_max[y_attr.attribute][0]
         y_max = self.vis.min_max[y_attr.attribute][1]
 
-        x_attr.attribute = x_attr.attribute.replace(".", "")
-        y_attr.attribute = y_attr.attribute.replace(".", "")
-
+        if isinstance(x_attr.attribute, str):
+            x_attr.attribute = x_attr.attribute.replace(".", "")
+        if isinstance(y_attr.attribute, str):
+            y_attr.attribute = y_attr.attribute.replace(".", "")
+        self.data = AltairChart.sanitize_dataframe(self.data)
         chart = (
             alt.Chart(self.data)
             .mark_circle()
             .encode(
                 x=alt.X(
-                    x_attr.attribute,
+                    str(x_attr.attribute),
                     scale=alt.Scale(domain=(x_min, x_max)),
                     type=x_attr.data_type,
                     axis=alt.Axis(title=x_attr_abv),
                 ),
                 y=alt.Y(
-                    y_attr.attribute,
+                    str(y_attr.attribute),
                     scale=alt.Scale(domain=(y_min, y_max)),
                     type=y_attr.data_type,
                     axis=alt.Axis(title=y_attr_abv),

@@ -91,7 +91,7 @@ def add_filter(ldf):
     else:
         intended_attrs = ", ".join(
             [
-                clause.attribute
+                str(clause.attribute)
                 for clause in ldf._intent
                 if clause.value == "" and clause.attribute != "Record"
             ]

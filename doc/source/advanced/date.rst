@@ -98,7 +98,7 @@ Below we look at an example stocks dataset that also has `date` field with each 
 
 .. code-block:: python
 	
-	df = pd.read_csv("../../lux/data/stocks.csv")
+	df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/stocks.csv?raw=true")
 
 	df.dtypes
 

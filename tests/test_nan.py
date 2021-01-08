@@ -22,11 +22,13 @@ from lux.vis.Vis import Vis
 
 def test_nan_column(global_var):
     df = pytest.college_df
+    old_geo = df["Geography"]
     df["Geography"] = np.nan
     df._repr_html_()
     for visList in df.recommendation.keys():
         for vis in df.recommendation[visList]:
             assert vis.get_attr_by_attr_name("Geography") == []
+    df["Geography"] = old_geo
 
 
 def test_nan_data_type_detection():

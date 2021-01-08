@@ -11,6 +11,10 @@ RegisteredOption = namedtuple("RegisteredOption", "name action display_condition
 
 
 class Config:
+    """
+    Class for Lux configurations applied globally across entire session
+    """
+
     def __init__(self):
         self._default_display = "pandas"
         self.renderer = "altair"
@@ -29,6 +33,12 @@ class Config:
 
     @property
     def sampling_cap(self):
+        """
+        Parameters
+        ----------
+        sample_number : int
+            Cap on the number of rows to sample. Must be larger than _sampling_start
+        """
         return self._sampling_cap
 
     @sampling_cap.setter
@@ -37,7 +47,7 @@ class Config:
         Parameters
         ----------
         sample_number : int
-                Cap on the number of rows to sample. Must be larger than _sampling_start
+            Cap on the number of rows to sample. Must be larger than _sampling_start
         """
         if type(sample_number) == int:
             assert sample_number >= self._sampling_start
@@ -50,6 +60,13 @@ class Config:
 
     @property
     def sampling_start(self):
+        """
+        Parameters
+        ----------
+        sample_number : int
+            Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
+
+        """
         return self._sampling_start
 
     @sampling_start.setter
@@ -58,7 +75,7 @@ class Config:
         Parameters
         ----------
         sample_number : int
-                Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
+            Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
 
         """
         if type(sample_number) == int:
@@ -72,6 +89,12 @@ class Config:
 
     @property
     def sampling(self):
+        """
+        Parameters
+        ----------
+        sample_flag : bool
+            Whether or not sampling will occur.
+        """
         return self._sampling_flag
 
     @sampling.setter
@@ -80,7 +103,7 @@ class Config:
         Parameters
         ----------
         sample_flag : bool
-                Whether or not sampling will occur.
+            Whether or not sampling will occur.
         """
         if type(sample_flag) == bool:
             self._sampling_flag = sample_flag
@@ -92,6 +115,12 @@ class Config:
 
     @property
     def heatmap(self):
+        """
+        Parameters
+        ----------
+        heatmap_flag : bool
+            Whether or not a heatmap will be used instead of a scatter plot.
+        """
         return self._heatmap_flag
 
     @heatmap.setter
@@ -100,7 +129,7 @@ class Config:
         Parameters
         ----------
         heatmap_flag : bool
-                Whether or not a heatmap will be used instead of a scatter plot.
+            Whether or not a heatmap will be used instead of a scatter plot.
         """
         if type(heatmap_flag) == bool:
             self._heatmap_flag = heatmap_flag
@@ -112,6 +141,13 @@ class Config:
 
     @property
     def default_display(self):
+        """
+        Set the widget display to show Pandas by default or Lux by default
+        Parameters
+        ----------
+        type : str
+            Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
+        """
         return self._default_display
 
     @default_display.setter
@@ -121,7 +157,7 @@ class Config:
         Parameters
         ----------
         type : str
-                Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
+            Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
         """
         if type.lower() == "lux":
             self._default_display = "lux"
@@ -184,18 +220,13 @@ class Config:
         self.update_actions["flag"] = True
 
     def set_SQL_connection(self, connection):
-        from lux.executor.SQLExecutor import SQLExecutor
-        from lux.executor.PandasExecutor import PandasExecutor
+        """
+        Sets SQL connection to a database
 
-        import pkgutil
-
-        if pkgutil.find_loader("psycopg2") is None:
-            raise ImportError(
-                "psycopg2 is not installed. Run `pip install psycopg2' to install psycopg2 to enable the Postgres connection."
-            )
-        else:
-            import psycopg2
-
+        Parameters:
+            connection : SQLAlchemy connectable, str, or sqlite3 connection
+                For more information, `see here <https://docs.sqlalchemy.org/en/13/core/connections.html>`__
+        """
         self.SQLconnection = connection
         if connection != "":
             self.executor = SQLExecutor()

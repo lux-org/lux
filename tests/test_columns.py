@@ -121,3 +121,13 @@ def test_abbrev_agg():
     test = pd.DataFrame(dataset)
     vis = Vis([long_var, "normal"], test).to_Altair()
     assert "axis=alt.Axis(title='Mean of Lorem ipsum dol...')" in vis
+
+
+def test_int_columns(global_var):
+    df = pd.read_csv("lux/data/college.csv")
+    df.columns = range(len(df.columns))
+    assert list(df.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
+    df.intent = [8, 3]
+    assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]
+    df.intent = [0]
+    assert list(df.recommendation.keys()) == ["Enhance", "Filter"]

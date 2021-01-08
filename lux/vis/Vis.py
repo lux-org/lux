@@ -49,9 +49,9 @@ class Vis:
                 if hasattr(clause, "attribute"):
                     if clause.attribute != "":
                         if clause.aggregation != "" and clause.aggregation is not None:
-                            attribute = clause._aggregation_name.upper() + "(" + clause.attribute + ")"
+                            attribute = f"{clause._aggregation_name.upper()}({clause.attribute})"
                         elif clause.bin_size > 0:
-                            attribute = "BIN(" + clause.attribute + ")"
+                            attribute = f"BIN({clause.attribute})"
                         else:
                             attribute = clause.attribute
                         if clause.channel == "x":
@@ -64,7 +64,7 @@ class Vis:
             channels.extend(additional_channels)
             str_channels = ""
             for channel in channels:
-                str_channels += channel[0] + ": " + channel[1] + ", "
+                str_channels += f"{channel[0]}: {channel[1]}, "
 
             if filter_intents:
                 return f"<Vis  ({str_channels[:-2]} -- [{filter_intents.attribute}{filter_intents.filter_op}{filter_intents.value}]) mark: {self._mark}, score: {self.score} >"
@@ -335,5 +335,8 @@ class Vis:
 
         for i in range(len(self._intent)):
             clause = self._intent[i]
-            if type(clause) != Clause and ("|" in clause or type(clause) == list or "?" in clause):
+            if isinstance(clause, str):
+                if "|" in clause or "?" in clause:
+                    raise TypeError(syntaxMsg)
+            if isinstance(clause, list):
                 raise TypeError(syntaxMsg)

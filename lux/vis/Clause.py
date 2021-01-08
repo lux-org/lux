@@ -116,7 +116,7 @@ class Clause:
         if isinstance(self.attribute, list):
             clauseStr = "|".join(self.attribute)
         elif self.value == "":
-            clauseStr = self.attribute
+            clauseStr = str(self.attribute)
         else:
             clauseStr = f"{self.attribute}{self.filter_op}{self.value}"
         return clauseStr
@@ -126,23 +126,23 @@ class Clause:
         if self.description != "":
             attributes.append(f"         description: {self.description}")
         if self.channel != "":
-            attributes.append("         channel: " + self.channel)
-        if len(self.attribute) != 0:
-            attributes.append("         attribute: " + str(self.attribute))
+            attributes.append(f"         channel: {self.channel}")
+        if self.attribute != "":
+            attributes.append(f"         attribute: {str(self.attribute)}")
         if self.filter_op != "=":
             attributes.append(f"         filter_op: {str(self.filter_op)}")
         if self.aggregation != "" and self.aggregation is not None:
             attributes.append("         aggregation: " + self._aggregation_name)
         if self.value != "" or len(self.value) != 0:
-            attributes.append("         value: " + str(self.value))
+            attributes.append(f"         value: {str(self.value)}")
         if self.data_model != "":
-            attributes.append("         data_model: " + self.data_model)
+            attributes.append(f"         data_model: {self.data_model}")
         if len(self.data_type) != 0:
-            attributes.append("         data_type: " + str(self.data_type))
-        if self.bin_size != None:
-            attributes.append("         bin_size: " + str(self.bin_size))
+            attributes.append(f"         data_type: {str(self.data_type)}")
+        if self.bin_size != 0:
+            attributes.append(f"         bin_size: {str(self.bin_size)}")
         if len(self.exclude) != 0:
-            attributes.append("         exclude: " + str(self.exclude))
+            attributes.append(f"         exclude: {str(self.exclude)}")
         attributes[0] = "<Clause" + attributes[0][7:]
         attributes[len(attributes) - 1] += " >"
         return ",\n".join(attributes)

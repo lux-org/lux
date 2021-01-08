@@ -2,23 +2,22 @@
 Configuration Settings 
 ***********************
 
-In Lux, users can customize various global settings to configure the behavior of Lux through :py:mod:`lux.config.Config`. This page documents some of the configurations that you can apply in Lux.
+In Lux, users can customize various global settings to configure the behavior of Lux through :py:class:`lux.config.Config`. This page documents some of the configurations that you can apply in Lux.
 
 
 Change the default display of Lux
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We can set the `default_display` of the global class 'Config' to change the default form of output. In the following block, we set it to 'lux,' therefore the VisList will display first.
+We can set the :code:`default_display` to change whether the Pandas table or Lux widget is displayed by default. In the following block, we set the default display to 'lux', therefore the Lux widget will display first.
 
 .. code-block:: python
 
-    lux.config.default_display = "lux" # Set Lux as default display
+    lux.config.default_display = "lux" 
     df
 
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/display-1.png?raw=true
   :width: 700
   :align: center
-  :alt: Retrieves a single attribute from Lux's Action Manager using its defined id.
 
 We can set the default_display back to 'pandas,' which would allow for the dataframe object to display first. You can still toggle to Lux/Pandas respectively using the 'Toggle' button.
 
@@ -30,7 +29,6 @@ We can set the default_display back to 'pandas,' which would allow for the dataf
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/display-2.png?raw=true
   :width: 700
   :align: center
-  :alt: Retrieves a single attribute from Lux's Action Manager using its defined id.
 
 If you try to set the default_display to anything other than 'lux' or 'pandas,' a warning will be shown, and the display will default to the previous setting.
 
@@ -42,7 +40,6 @@ If you try to set the default_display to anything other than 'lux' or 'pandas,' 
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/display-3.png?raw=true
   :width: 700
   :align: center
-  :alt: Retrieves a single attribute from Lux's Action Manager using its defined id.
 
 Change the sampling parameters of Lux
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,3 +69,42 @@ We can disable this feature and revert back to using a scatter plot by running t
 .. code-block:: python
 
     lux.config.heatmap = False
+
+
+Default Renderer
+~~~~~~~~~~~~~~~~~
+
+Charts in Lux are rendered using `Altair <https://altair-viz.github.io/>`__. We are working on supporting plotting via `matplotlib <https://matplotlib.org/>`__ and other plotting libraries.
+
+To change the default renderer, run the following code block:
+
+.. code-block:: python
+
+    lux.config.renderer = "matplotlib"
+
+Plot Configurations
+~~~~~~~~~~~~~~~~~~~
+
+Altair supports plot configurations to be applied on top of the generated graphs. To set a default plot configuration, first write a function that can take in a `chart` and returns a `chart`. For example:
+
+.. code-block:: python
+
+    def change_color_add_title(chart):
+        chart = chart.configure_mark(color="green") # change mark color to green
+        chart.title = "Custom Title" # add title to chart
+        return chart
+
+Then, set the `plot_config` to this function so that this function is applied to every plot generated.
+
+.. code-block:: python
+
+    lux.config.plot_config = change_color_add_title
+
+The above results in the following changes:
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/style-2.png?raw=true
+  :width: 600
+  :align: center
+
+See `this page <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ for more details.
+

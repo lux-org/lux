@@ -16,9 +16,14 @@ import pandas as pd
 import lux
 import warnings
 import traceback
+import numpy as np
 
 
 class LuxSeries(pd.Series):
+    """
+    A subclass of pd.Series that supports all 1-D Series operations
+    """
+
     _metadata = [
         "_intent",
         "data_type",
@@ -45,22 +50,26 @@ class LuxSeries(pd.Series):
     def _constructor_expanddim(self):
         from lux.core.frame import LuxDataFrame
 
-        def f(*args, **kwargs):
-            df = LuxDataFrame(*args, **kwargs)
-            for attr in self._metadata:
-                df.__dict__[attr] = getattr(self, attr, None)
-            return df
+        # def f(*args, **kwargs):
+        #     df = LuxDataFrame(*args, **kwargs)
+        #     for attr in self._metadata:
+        #         df.__dict__[attr] = getattr(self, attr, None)
+        #     return df
 
-        f._get_axis_number = super(LuxSeries, self)._get_axis_number
-        return f
+        # f._get_axis_number = super(LuxSeries, self)._get_axis_number
+        return LuxDataFrame
 
-    def to_pandas(self):
+    def to_pandas(self) -> pd.Series:
+        """
+        Convert Lux Series to Pandas Series
+
+        Returns
+        -------
+        pd.Series
+        """
         import lux.core
 
         return lux.core.originalSeries(self, copy=False)
-
-    def display_pandas(self):
-        return self.to_pandas()
 
     def __repr__(self):
         from IPython.display import display
@@ -75,7 +84,8 @@ class LuxSeries(pd.Series):
         ldf = LuxDataFrame(self)
 
         try:
-            if ldf._pandas_only:
+            is_dtype_series = all(isinstance(val, np.dtype) for val in self.values)
+            if ldf._pandas_only or is_dtype_series:
                 print(series_repr)
                 ldf._pandas_only = False
             else:
@@ -154,5 +164,5 @@ class LuxSeries(pd.Series):
                 stacklevel=2,
             )
             warnings.warn(traceback.format_exc())
-            display(self.display_pandas())
+            display(self.to_pandas())
         return ""
