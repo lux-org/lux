@@ -42,8 +42,8 @@ def generalize(ldf):
     filters = utils.get_filter_specs(ldf._intent)
 
     fltr_str = [fltr.attribute + fltr.filter_op + str(fltr.value) for fltr in filters]
-    attr_str = [clause.attribute for clause in attributes]
-    intended_attrs = '<p class="highlight-intent">' + ", ".join(attr_str + fltr_str) + "</p>"
+    attr_str = [str(clause.attribute) for clause in attributes]
+    intended_attrs = f'<p class="highlight-intent">{", ".join(attr_str + fltr_str)}</p>'
 
     recommendation = {
         "action": "Generalize",
@@ -66,7 +66,7 @@ def generalize(ldf):
                         temp_vis.remove_column_from_spec(column, remove_first=True)
                         excluded_columns.append(column)
                         output.append(temp_vis)
-            elif type(columns) == str:
+            else:
                 if columns not in excluded_columns:
                     temp_vis = Vis(ldf.copy_intent(), score=1)
                     temp_vis.remove_column_from_spec(columns, remove_first=True)

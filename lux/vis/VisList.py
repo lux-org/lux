@@ -133,16 +133,17 @@ class VisList:
         for vis in self._collection:
             filter_intents = None
             for clause in vis._inferred_intent:
+                attr = str(clause.attribute)
                 if clause.value != "":
                     filter_intents = clause
 
                 if clause.aggregation != "" and clause.aggregation is not None:
-                    attribute = clause._aggregation_name.upper() + "(" + clause.attribute + ")"
+                    attribute = clause._aggregation_name.upper() + f"({attr})"
                 elif clause.bin_size > 0:
-                    attribute = "BIN(" + clause.attribute + ")"
+                    attribute = f"BIN({attr})"
                 else:
-                    attribute = clause.attribute
-
+                    attribute = attr
+                attribute = str(attribute)
                 if clause.channel == "x" and len(x_channel) < len(attribute):
                     x_channel = attribute
                 if clause.channel == "y" and len(y_channel) < len(attribute):
@@ -151,9 +152,9 @@ class VisList:
                 largest_mark = len(vis.mark)
             if (
                 filter_intents
-                and len(str(filter_intents.value)) + len(filter_intents.attribute) > largest_filter
+                and len(str(filter_intents.value)) + len(str(filter_intents.attribute)) > largest_filter
             ):
-                largest_filter = len(str(filter_intents.value)) + len(filter_intents.attribute)
+                largest_filter = len(str(filter_intents.value)) + len(str(filter_intents.attribute))
         vis_repr = []
         largest_x_length = len(x_channel)
         largest_y_length = len(y_channel)
@@ -164,16 +165,16 @@ class VisList:
             y_channel = ""
             additional_channels = []
             for clause in vis._inferred_intent:
+                attr = str(clause.attribute)
                 if clause.value != "":
                     filter_intents = clause
 
                 if clause.aggregation != "" and clause.aggregation is not None and vis.mark != "scatter":
-                    attribute = clause._aggregation_name.upper() + "(" + clause.attribute + ")"
+                    attribute = clause._aggregation_name.upper() + f"({attr})"
                 elif clause.bin_size > 0:
-                    attribute = "BIN(" + clause.attribute + ")"
+                    attribute = f"BIN({attr})"
                 else:
-                    attribute = clause.attribute
-
+                    attribute = attr
                 if clause.channel == "x":
                     x_channel = attribute.ljust(largest_x_length)
                 elif clause.channel == "y":
@@ -197,7 +198,7 @@ class VisList:
             if filter_intents:
                 aligned_filter = (
                     " -- ["
-                    + filter_intents.attribute
+                    + str(filter_intents.attribute)
                     + filter_intents.filter_op
                     + str(filter_intents.value)
                     + "]"

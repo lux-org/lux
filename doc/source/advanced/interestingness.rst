@@ -1,24 +1,24 @@
-**********************
+*******************************
 Interestingness Scoring
-**********************
+*******************************
 
 In Lux, recommended visualizations are scored and ranked based on their statistical properties. 
 Lux uses various standard metrics for determining how interesting a visualization is. 
 The choice of an interestingness metric is dependent on the chart type, as shown in the following table.
 
-+----------------+---------+------------------------------------------------------------------+
-| Chart Type     | Filter? | Function                                                         |
-+================+=========+==================================================================+
-| Bar/Line Chart | ✔       | :func:`lux.interestingness.interestingness.unevenness`           |
-|                +---------+------------------------------------------------------------------+
++----------------+---------+--------------------------------------------------------------------+
+| Chart Type     | Filter? | Function                                                           |
++================+=========+====================================================================+
+| Bar/Line Chart | ✔       | :func:`lux.interestingness.interestingness.unevenness`             |
+|                +---------+--------------------------------------------------------------------+
 |                | X       | :func:`lux.interestingness.interestingness.deviation_from_overall` |
-+----------------+---------+------------------------------------------------------------------+
-| Histogram      | ✔       | :func:`lux.interestingness.interestingness.skewness`             |
-|                +---------+------------------------------------------------------------------+
++----------------+---------+--------------------------------------------------------------------+
+| Histogram      | ✔       | :func:`lux.interestingness.interestingness.skewness`               |
+|                +---------+--------------------------------------------------------------------+
 |                | X       | :func:`lux.interestingness.interestingness.deviation_from_overall` |
-+----------------+---------+------------------------------------------------------------------+
-| Scatterplot    | ✔/X     | :func:`lux.interestingness.interestingness.monotonicity`         |
-+----------------+---------+------------------------------------------------------------------+
++----------------+---------+--------------------------------------------------------------------+
+| Scatterplot    | ✔/X     | :func:`lux.interestingness.interestingness.monotonicity`           |
++----------------+---------+--------------------------------------------------------------------+
 
 Bar Chart Interestingness
 =========================
@@ -30,7 +30,7 @@ Bar charts without filters: Unevenness
 
 A chart is scored higher if it is more uneven, indicating high variation 
 in the individual bar values in the chart. The score is computed based 
-on the difference between the value of the bar chart .. math::`V` and the flat uniform distribution .. math::`V_{flat}`.
+on the difference between the value of the bar chart :math:`V` and the flat uniform distribution :math:`V_{flat}`.
 The difference is captured via the Euclidean distance (L2 norm).
 
 
@@ -42,6 +42,7 @@ The difference is captured via the Euclidean distance (L2 norm).
 .. Example: "Occurrence" recommendation
 
 .. _barWithFilter:
+
 Bar charts with filters: Deviation from Overall
 -----------------------------------------------
 
@@ -77,6 +78,7 @@ The skewness is computed based on `scipy.stats.skew <https://docs.scipy.org/doc/
 
 
 .. _histoWithFilter:
+
 Histogram with filters: Deviation from overall
 -----------------------------------------------
 
@@ -91,9 +93,10 @@ The deviation measures how different is the filtered distribution from the overa
 .. Example: "Filter" recommendation where the intent only has 1 measure.
 
 Scatterplot Interestingness
-=========================
+==============================
 
 .. _scatter:
+
 Scatterplot: Monotonicity
 -----------------------------------
 

@@ -115,4 +115,6 @@ We want to decrease the opacity of scatterplots, but keep the opacity for the ot
   :width: 700
   :align: center 
 
+.. note:: For now, if the visualization has already been rendered before, you will need to run `df.expire_recs()` to see the updated visualization.
+
 We can modify the scatterplot setting, without changing the settings for the other chart types.
