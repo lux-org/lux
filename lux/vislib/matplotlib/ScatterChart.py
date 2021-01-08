@@ -45,43 +45,27 @@ class ScatterChart(MatplotlibChart):
             x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
-
-        x_min = self.vis.min_max[x_attr.attribute][0]
-        x_max = self.vis.min_max[x_attr.attribute][1]
-
-        y_min = self.vis.min_max[y_attr.attribute][0]
-        y_max = self.vis.min_max[y_attr.attribute][1]
-
+        
         df = pd.DataFrame(self.data)
 
-        objects = df[x_attr.attribute]
-        performance = df[y_attr.attribute]
+        x_pts = df[x_attr.attribute]
+        y_pts = df[y_attr.attribute]
 
-        self.ax.scatter(objects, performance)
+        self.ax.scatter(x_pts, y_pts)
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
         plt.tight_layout()
 
-        # Convert chart to HTML
-        import base64
-        from io import BytesIO
-
-        tmpfile = BytesIO()
-        self.fig.savefig(tmpfile, format="png")
-        chart_code = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
-        # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
-        # '<img src=\'data:image/png;base64,{}\'>
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
         self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
 
         self.code += f"fig, ax = plt.subplots()\n"
-        self.code += f"objects = df['{x_attr.attribute}']\n"
-        self.code += f"performance = df['{y_attr.attribute}']\n"
+        self.code += f"x_pts = df['{x_attr.attribute}']\n"
+        self.code += f"y_pts = df['{y_attr.attribute}']\n"
 
-        self.code += f"ax.scatter(objects, performance)\n"
+        self.code += f"ax.scatter(x_pts, y_pts)\n"
         self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
         self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
         self.code += f"fig\n"
-        return chart_code

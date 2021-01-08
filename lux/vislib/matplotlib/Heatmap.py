@@ -60,35 +60,17 @@ class Heatmap(MatplotlibChart):
         self.ax.grid(False)
         plt.tight_layout()
 
-        # Convert chart to HTML
-        import base64
-        from io import BytesIO
+        # self.code += "import matplotlib.pyplot as plt\n"
+        # self.code += "import numpy as np\n"
+        # self.code += "from math import nan\n"
+        # self.code += f"df = pd.pivot_table({str(self.data.to_dict())})\n"
 
-        tmpfile = BytesIO()
-        self.fig.savefig(tmpfile, format="png")
-        chart_code = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
-        # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
-        # '<img src=\'data:image/png;base64,{}\'>
+        # self.code += f"fig, ax = plt.subplots()\n"
+        # self.code += f"objects = df['{bar_attr}']\n"
+        # self.code += f"y_pos = np.arange(len(objects))\n"
+        # self.code += f"performance = df['{measure_attr}']\n"
 
-        self.code += "import matplotlib.pyplot as plt\n"
-        self.code += "import seaborn as sns\n"
-        self.code += "from math import nan\n"
-        self.code += f"""df = pd.pivot_table(data={str(self.data.to_dict())},
-                    index='xBinStart',
-                    values='count',
-                    columns='yBinStart')\n
-		"""
-        self.code += f"df = df.apply(lambda x : np.log(x), axis=1)\n"
-
-        self.code += f"fig, ax = plt.subplots()\n"
-
-        self.code += f"""
-        ax = sns.heatmap(df,
-            cbar=False,
-            square=True,
-            cmap='Blues',
-        )\n"""
-        self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
-        self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
+        # self.code += f"ax.bar(y_pos, performance, align='center', alpha=0.5)\n"
+        # self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
+        # self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
         self.code += f"fig\n"
-        return chart_code

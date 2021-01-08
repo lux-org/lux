@@ -86,23 +86,13 @@ class BarChart(MatplotlibChart):
 
         df = pd.DataFrame(self.data)
 
-        objects = df[bar_attr].astype(str)
-        performance = df[measure_attr]
+        bars = df[bar_attr].astype(str)
+        measurements = df[measure_attr]
 
-        self.ax.barh(objects, performance, align="center")
+        self.ax.barh(bars, measurements, align="center")
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
         plt.tight_layout()
-
-        # Convert chart to HTML
-        import base64
-        from io import BytesIO
-
-        tmpfile = BytesIO()
-        self.fig.savefig(tmpfile, format="png")
-        chart_code = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
-        # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
-        # '<img src=\'data:image/png;base64,{}\'>
 
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
@@ -110,12 +100,10 @@ class BarChart(MatplotlibChart):
         self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
 
         self.code += f"fig, ax = plt.subplots()\n"
-        self.code += f"objects = df['{bar_attr}']\n"
-        self.code += f"y_pos = np.arange(len(objects))\n"
-        self.code += f"performance = df['{measure_attr}']\n"
+        self.code += f"bars = df['{bar_attr}']\n"
+        self.code += f"measurements = df['{measure_attr}']\n"
 
-        self.code += f"ax.bar(y_pos, performance, align='center', alpha=0.5)\n"
+        self.code += f"ax.bar(bars, measurements, align='center', alpha=0.5)\n"
         self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
         self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
         self.code += f"fig\n"
-        return chart_code

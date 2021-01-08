@@ -30,7 +30,7 @@ class Config:
         self._sampling_cap = 30000
         self._sampling_flag = True
         self._heatmap_flag = True
-        self._set_vislib = "vegalite"
+        self._plotting_backend = "vegalite"
 
     @property
     def sampling_cap(self):
@@ -171,11 +171,11 @@ class Config:
             )
 
     @property
-    def set_vislib(self):
-        return self._set_vislib
+    def plotting_backend(self):
+        return self._plotting_backend
 
-    @set_vislib.setter
-    def set_vislib(self, type: str) -> None:
+    @plotting_backend.setter
+    def plotting_backend(self, type: str) -> None:
         """
         Set the widget display to show Vegalite by default or Matplotlib by default
         Parameters
@@ -183,13 +183,13 @@ class Config:
         type : str
                 Default display type, can take either the string `vegalite` or `matplotlib` (regardless of capitalization)
         """
-        if type.lower() == "vegalite":
-            self._set_vislib = "vegalite"
+        if type.lower() == "vegalite" or type.lower() == "altair":
+            self._plotting_backend = "vegalite"
         elif type.lower() == "matplotlib":
-            self._set_vislib = "matplotlib"
+            self._plotting_backend = "matplotlib"
         else:
             warnings.warn(
-                "Unsupported vislib type. Vislib should either be `vegalite` or `matplotlib`.",
+                "Unsupported plotting backend. Lux currently only support 'altair', 'vegalite', or 'matplotlib'",
                 stacklevel=2,
             )
 

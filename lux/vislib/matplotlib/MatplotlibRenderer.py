@@ -87,6 +87,13 @@ class MatplotlibRenderer:
             chart = None
             return chart
         if chart:
+            import base64
+            from io import BytesIO
+
+            tmpfile = BytesIO()
+            fig.savefig(tmpfile, format="png")
+            chart.chart = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
+            plt.close()
             if self.output_type == "matplotlib":
                 return {"config": chart.chart, "vislib": "matplotlib"}
             if self.output_type == "matplotlib_code":

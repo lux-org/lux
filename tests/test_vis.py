@@ -197,3 +197,66 @@ def test_text_not_overridden():
     vis._repr_html_()
     code = vis.to_Altair()
     assert 'color = "#ff8e04"' in code
+
+def test_matplotlib_default_actions_registered(global_var):
+    df = pytest.car_df
+    lux.config.plotting_backend = "vegalite"
+    df._repr_html_()
+    # Histogram Chart
+    assert "Distribution" in df.recommendation
+    assert len(df.recommendation["Distribution"]) > 0
+
+    # Occurrence Chart
+    assert "Occurrence" in df.recommendation
+    assert len(df.recommendation["Occurrence"]) > 0
+
+    # Line Chart
+    assert "Temporal" in df.recommendation
+    assert len(df.recommendation["Temporal"]) > 0
+
+    # Scatter Chart
+    assert "Correlation" in df.recommendation
+    assert len(df.recommendation["Correlation"]) > 0
+
+    lux.config.plotting_backend = "matplotlib"
+    df._repr_html_()
+    # Histogram Chart
+    assert "Distribution" in df.recommendation
+    assert len(df.recommendation["Distribution"]) > 0
+
+    # Occurrence Chart
+    assert "Occurrence" in df.recommendation
+    assert len(df.recommendation["Occurrence"]) > 0
+
+    # Line Chart
+    assert "Temporal" in df.recommendation
+    assert len(df.recommendation["Temporal"]) > 0
+
+    # Scatter Chart
+    assert "Correlation" in df.recommendation
+    assert len(df.recommendation["Correlation"]) > 0
+
+def test_matplotlib_heatmap_flag_config():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    lux.config.plotting_backend = "vegalite"
+    df._repr_html_()
+    # Heatmap Chart
+    assert df.recommendation["Correlation"][0]._postbin
+    lux.config.heatmap = False
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = df.copy()
+    assert not df.recommendation["Correlation"][0]._postbin
+    lux.config.heatmap = True
+
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    lux.config.plotting_backend = "matplotlib"
+    df._repr_html_()
+    # Heatmap Chart
+    assert df.recommendation["Correlation"][0]._postbin
+    lux.config.heatmap = False
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = df.copy()
+    assert not df.recommendation["Correlation"][0]._postbin
+    lux.config.heatmap = True
+    lux.config.plotting_backend = "vegalite"
+    

@@ -35,7 +35,7 @@ class MatplotlibChart:
         self.ax = ax
         # ----- START self.code modification -----
         self.code = ""
-        self.chart = self.initialize_chart()
+        self.initialize_chart()
         # self.add_tooltip()
         # self.encode_color()
         # self.add_title()

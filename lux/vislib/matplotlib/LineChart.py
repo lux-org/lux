@@ -56,10 +56,10 @@ class LineChart(MatplotlibChart):
 
         df = pd.DataFrame(self.data)
 
-        objects = df[x_attr.attribute]
-        performance = df[y_attr.attribute]
+        x_pts = df[x_attr.attribute]
+        y_pts = df[y_attr.attribute]
 
-        self.ax.plot(objects, performance)
+        self.ax.plot(x_pts, y_pts)
 
         x_label = ""
         y_label = ""
@@ -77,27 +77,16 @@ class LineChart(MatplotlibChart):
             y_label = y_attr_abv
         plt.tight_layout()
 
-        # Convert chart to HTML
-        import base64
-        from io import BytesIO
-
-        tmpfile = BytesIO()
-        self.fig.savefig(tmpfile, format="png")
-        chart_code = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
-        # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
-        # '<img src=\'data:image/png;base64,{}\'>
-
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
         self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
 
         self.code += f"fig, ax = plt.subplots()\n"
-        self.code += f"objects = df['{x_attr.attribute}']\n"
-        self.code += f"performance = df['{y_attr.attribute}']\n"
+        self.code += f"x_pts = df['{x_attr.attribute}']\n"
+        self.code += f"y_pts = df['{y_attr.attribute}']\n"
 
-        self.code += f"ax.plot(objects, performance)\n"
+        self.code += f"ax.plot(x_pts, y_pts)\n"
         self.code += f"ax.set_xlabel('{x_label}')\n"
         self.code += f"ax.set_ylabel('{y_label}')\n"
         self.code += f"fig\n"
-        return chart_code

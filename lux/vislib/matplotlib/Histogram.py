@@ -58,7 +58,7 @@ class Histogram(MatplotlibChart):
         objects = df[msr_attr.attribute]
 
         counts, bins = np.histogram(self.data)
-        self.ax.hist(bins[:-1], bins, weights=counts, range=(x_min, x_max))
+        self.ax.hist(bins[:-1], bins, weights=counts, range=(x_min, x_max), rwidth=0.6)
 
         x_label = ""
         y_label = ""
@@ -73,16 +73,6 @@ class Histogram(MatplotlibChart):
         self.ax.set_ylabel(y_label)
         plt.tight_layout()
 
-        # Convert chart to HTML
-        import base64
-        from io import BytesIO
-
-        tmpfile = BytesIO()
-        self.fig.savefig(tmpfile, format="png")
-        chart_code = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
-        # Inside chartGallery.tsx change VegaLite component to be adaptable to different rendering mechanism (e.g, img)
-        # '<img src=\'data:image/png;base64,{}\'>
-
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
@@ -96,4 +86,3 @@ class Histogram(MatplotlibChart):
         self.code += f"ax.set_xlabel('{x_label}')\n"
         self.code += f"ax.set_ylabel('{y_label}')\n"
         self.code += f"fig\n"
-        return chart_code
