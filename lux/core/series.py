@@ -15,15 +15,18 @@
 import pandas as pd
 import lux
 import warnings
+import traceback
+import numpy as np
 
 
 class LuxSeries(pd.Series):
+    """
+    A subclass of pd.Series that supports all 1-D Series operations
+    """
+
     _metadata = [
         "_intent",
-        "data_type_lookup",
         "data_type",
-        "data_model_lookup",
-        "data_model",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -47,14 +50,26 @@ class LuxSeries(pd.Series):
     def _constructor_expanddim(self):
         from lux.core.frame import LuxDataFrame
 
-        def f(*args, **kwargs):
-            df = LuxDataFrame(*args, **kwargs)
-            for attr in self._metadata:
-                df.__dict__[attr] = getattr(self, attr, None)
-            return df
+        # def f(*args, **kwargs):
+        #     df = LuxDataFrame(*args, **kwargs)
+        #     for attr in self._metadata:
+        #         df.__dict__[attr] = getattr(self, attr, None)
+        #     return df
 
-        f._get_axis_number = super(LuxSeries, self)._get_axis_number
-        return f
+        # f._get_axis_number = super(LuxSeries, self)._get_axis_number
+        return LuxDataFrame
+
+    def to_pandas(self) -> pd.Series:
+        """
+        Convert Lux Series to Pandas Series
+
+        Returns
+        -------
+        pd.Series
+        """
+        import lux.core
+
+        return lux.core.originalSeries(self, copy=False)
 
     def __repr__(self):
         from IPython.display import display
@@ -63,10 +78,14 @@ class LuxSeries(pd.Series):
         from lux.core.frame import LuxDataFrame
 
         series_repr = super(LuxSeries, self).__repr__()
+        # Default column name 0 causes errors
+        if self.name is None:
+            self.name = " "
         ldf = LuxDataFrame(self)
 
         try:
-            if ldf._pandas_only:
+            is_dtype_series = all(isinstance(val, np.dtype) for val in self.values)
+            if ldf._pandas_only or is_dtype_series:
                 print(series_repr)
                 ldf._pandas_only = False
             else:
@@ -137,12 +156,13 @@ class LuxSeries(pd.Series):
 
         except (KeyboardInterrupt, SystemExit):
             raise
-        except:
+        except Exception:
             warnings.warn(
                 "\nUnexpected error in rendering Lux widget and recommendations. "
-                "Falling back to Pandas display.\n\n"
-                "Please report this issue on Github: https://github.com/lux-org/lux/issues ",
+                "Falling back to Pandas display.\n"
+                "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
                 stacklevel=2,
             )
-            print(series_repr)
+            warnings.warn(traceback.format_exc())
+            display(self.to_pandas())
         return ""

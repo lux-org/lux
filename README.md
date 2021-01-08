@@ -11,7 +11,7 @@
     <a href='https://lux-api.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/lux-api/badge/?version=latest' alt='Documentation Status'  align="center"/>
     </a>
-    <a href='https://lux-project.slack.com/join/shared_invite/zt-iwg84wfb-fBPaGTBBZfkb9arziy3W~g'>
+    <a href='https://lux-project.slack.com/join/shared_invite/zt-k2q5u9s7-m6hv4VUAyqYX6xjMmezrqw#/'>
         <img src='https://img.shields.io/static/v1?label=chat&logo=slack&message=Slack&color=brightgreen' alt='Slack'  align="center"/>
     </a>
     <a href='https://forms.gle/XKv3ejrshkCi3FJE6'>
@@ -40,10 +40,10 @@ import lux
 import pandas as pd
 ```
 
-Then, Lux can be used as-is, without modifying any of your existing Pandas code. Here, we use Pandas's [read_csv](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html) command to load in a [dataset of colleges](https://collegescorecard.ed.gov/data/documentation/) and their properties.
+Then, Lux can be used as-is, without modifying any of your existing Pandas code. Here, we use Pandas's [read_csv](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html) command to load in a [dataset of colleges](https://github.com/lux-org/lux-datasets/blob/master/data/college.csv) and their properties.
 
 ```python    
-    df = pd.read_csv("college.csv")
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/college.csv")
     df
 ```
 
@@ -171,5 +171,5 @@ Other additional resources:
 - Sign up for the early-user [mailing list](https://forms.gle/XKv3ejrshkCi3FJE6) to stay tuned for upcoming releases, updates, or user studies. 
 - Visit [ReadTheDoc](https://lux-api.readthedocs.io/en/latest/) for more detailed documentation.
 - Try out these hands-on [exercises](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/exercise) or [tutorials](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial) on [Binder](https://mybinder.org/v2/gh/lux-org/lux-binder/master). Or clone and run [lux-binder](https://github.com/lux-org/lux-binder) locally.
-- Join our community [Slack](https://lux-project.slack.com/join/shared_invite/zt-iwg84wfb-fBPaGTBBZfkb9arziy3W~g) to discuss and ask questions.
+- Join our community [Slack](https://lux-project.slack.com/join/shared_invite/zt-k2q5u9s7-m6hv4VUAyqYX6xjMmezrqw#/) to discuss and ask questions.
 - Report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues). 

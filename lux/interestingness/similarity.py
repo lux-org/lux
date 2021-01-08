@@ -17,70 +17,7 @@ import pandas as pd
 import math
 import numpy as np
 from lux.vis.VisList import VisList
-
-
-def similar_pattern(ldf, intent, topK=-1):
-    """
-    Generates visualizations with similar patterns to a query visualization.
-
-    Parameters
-    ----------
-    ldf : lux.core.frame
-        LuxDataFrame with underspecified intent.
-
-    intent: list[lux.Clause]
-        intent for specifying the visual query for the similarity search.
-
-    topK: int
-        number of visual recommendations to return.
-
-    Returns
-    -------
-    recommendations : Dict[str,obj]
-        object with a collection of visualizations that result from the Similarity action
-    """
-    row_specs = list(filter(lambda x: x.value != "", intent))
-    if len(row_specs) == 1:
-        search_space_vc = VisList(ldf.current_vis.collection.copy(), ldf)
-
-        query_vc = VisList(intent, ldf)
-        query_vis = query_vc[0]
-        preprocess(query_vis)
-        # for loop to create assign euclidean distance
-        recommendation = {
-            "action": "Similarity",
-            "description": "Show other charts that are visually similar to the Current vis.",
-        }
-        for vis in search_space_vc:
-            preprocess(vis)
-            vis.score = euclidean_dist(query_vis, vis)
-        search_space_vc.normalize_score(invert_order=True)
-        if topK != -1:
-            search_space_vc = search_space_vc.topK(topK)
-        recommendation["collection"] = search_space_vc
-        return recommendation
-    else:
-        print("Query needs to have 1 row value")
-
-
-def aggregate(vis):
-    """
-    Aggregates data values on the y axis so that the vis is a time series
-
-    Parameters
-    ----------
-    vis : lux.vis.Vis
-        vis that represents the candidate visualization
-    Returns
-    -------
-    None
-    """
-    if vis.get_attr_by_channel("x") and vis.get_attr_by_channel("y"):
-
-        xAxis = vis.get_attr_by_channel("x")[0].attribute
-        yAxis = vis.get_attr_by_channel("y")[0].attribute
-
-        vis.data = vis.data[[xAxis, yAxis]].groupby(xAxis, as_index=False).agg({yAxis: "mean"}).copy()
+from lux.utils.utils import get_filter_specs
 
 
 def interpolate(vis, length):
@@ -204,6 +141,4 @@ def preprocess(vis):
     -------
     None
     """
-    aggregate(vis)
-    interpolate(vis, 100)
     normalize(vis)

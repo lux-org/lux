@@ -19,6 +19,7 @@ from typing import List
 from lux.utils.date_utils import is_datetime_series, is_datetime_string
 import warnings
 import lux
+import lux.utils.utils
 
 
 class Validator:
@@ -56,9 +57,7 @@ class Validator:
 
         def validate_clause(clause):
             warn_msg = ""
-            if not (
-                (clause.attribute and clause.attribute == "?") or (clause.value and clause.value == "?")
-            ):
+            if not (clause.attribute == "?" or clause.value == "?" or clause.attribute == ""):
                 if isinstance(clause.attribute, list):
                     for attr in clause.attribute:
                         if attr not in list(ldf.columns):
@@ -68,7 +67,9 @@ class Validator:
                 else:
                     if clause.attribute != "Record":
                         # we don't value check datetime since datetime can take filter values that don't exactly match the exact TimeStamp representation
-                        if clause.attribute and not is_datetime_string(clause.attribute):
+                        if isinstance(clause.attribute, str) and not is_datetime_string(
+                            clause.attribute
+                        ):
                             if not clause.attribute in list(ldf.columns):
                                 search_val = clause.attribute
                                 match_attr = False
@@ -79,16 +80,18 @@ class Validator:
                                     warn_msg = f"\n- The input '{search_val}' looks like a value that belongs to the '{match_attr}' attribute. \n  Please specify the value fully, as something like {match_attr}={search_val}."
                                 else:
                                     warn_msg = f"\n- The input attribute '{clause.attribute}' does not exist in the DataFrame. \n  Please check your input intent for typos."
-                        if clause.value and clause.attribute and clause.filter_op == "=":
-                            series = ldf[clause.attribute]
-                            if not is_datetime_series(series):
-                                if isinstance(clause.value, list):
-                                    vals = clause.value
-                                else:
-                                    vals = [clause.value]
-                                for val in vals:
-                                    if val not in series.values:
-                                        warn_msg = f"\n- The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
+                        if clause.value != "" and clause.attribute != "" and clause.filter_op == "=":
+                            # Skip check for NaN filter values
+                            if not lux.utils.utils.like_nan(clause.value):
+                                series = ldf[clause.attribute]
+                                if not is_datetime_series(series):
+                                    if isinstance(clause.value, list):
+                                        vals = clause.value
+                                    else:
+                                        vals = [clause.value]
+                                    for val in vals:
+                                        if val not in series.values:
+                                            warn_msg = f"\n- The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
             return warn_msg
 
         warn_msg = ""

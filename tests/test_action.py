@@ -197,3 +197,64 @@ def test_year_filter_value(global_var):
         "T00:00:00.000000000" not in vis.to_Altair()
     ), "Year filter title contains extraneous string, not displayed as summarized string"
     df.clear_intent()
+
+
+def test_similarity(global_var):
+    df = pytest.car_df
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    df.set_intent(
+        [
+            lux.Clause("Year", channel="x"),
+            lux.Clause("Displacement", channel="y"),
+            lux.Clause("Origin=USA"),
+        ]
+    )
+    df._repr_html_()
+    assert len(df.recommendation["Similarity"]) == 2
+    ranked_list = df.recommendation["Similarity"]
+
+    japan_vis = list(
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Japan",
+            ranked_list,
+        )
+    )[0]
+    europe_vis = list(
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Europe",
+            ranked_list,
+        )
+    )[0]
+    assert japan_vis.score > europe_vis.score
+    df.clear_intent()
+
+
+def test_similarity2():
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/real_estate_tutorial.csv"
+    )
+
+    df["Month"] = pd.to_datetime(df["Month"], format="%m")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+
+    df.intent = [
+        lux.Clause("Year"),
+        lux.Clause("PctForeclosured"),
+        lux.Clause("City=Crofton"),
+    ]
+
+    ranked_list = df.recommendation["Similarity"]
+
+    morrisville_vis = list(
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Morrisville",
+            ranked_list,
+        )
+    )[0]
+    watertown_vis = list(
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Watertown",
+            ranked_list,
+        )
+    )[0]
+    assert morrisville_vis.score > watertown_vis.score
