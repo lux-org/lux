@@ -21,7 +21,8 @@ from lux.history.history import History
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
-from lux.executor.Executor import *
+
+# from lux.executor.Executor import *
 import warnings
 import traceback
 import lux
@@ -36,7 +37,7 @@ class LuxDataFrame(pd.DataFrame):
     _metadata = [
         "_intent",
         "_inferred_intent",
-        "data_type_lookup",
+        "data_type",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -75,7 +76,7 @@ class LuxDataFrame(pd.DataFrame):
         self._message = Message()
         self._pandas_only = False
         # Metadata
-        self.data_type_lookup = None
+        self.data_type = None
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
@@ -111,6 +112,9 @@ class LuxDataFrame(pd.DataFrame):
                 self._metadata_fresh = True
 
     def expire_recs(self):
+        """
+        Expires and resets all recommendations
+        """
         self._recs_fresh = False
         self._recommendation = {}
         self.current_vis = None
@@ -119,9 +123,11 @@ class LuxDataFrame(pd.DataFrame):
         self._sampled = None
 
     def expire_metadata(self):
-        # Set metadata as null
+        """
+        Expire all saved metadata to trigger a recomputation the next time the data is required.
+        """
         self._metadata_fresh = False
-        self.data_type_lookup = None
+        self.data_type = None
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
@@ -129,7 +135,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def compute_data_type_from_lookup(self):
         return Executor.mapping(Executor, self.data_type_lookup)
-    
+
     def compute_data_model(self):
         data_type = self.compute_data_type_from_lookup()
         data_model = {
@@ -168,7 +174,7 @@ class LuxDataFrame(pd.DataFrame):
     def _infer_structure(self):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels != 1
-        not_int_index_flag = self.index.dtype != "int64"
+        not_int_index_flag = not pd.api.types.is_integer_dtype(self.index)
         small_df_flag = len(self) < 100
         self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
         if "Number of Records" in self.columns:
@@ -179,6 +185,19 @@ class LuxDataFrame(pd.DataFrame):
 
     @property
     def intent(self):
+        """
+        Main function to set the intent of the dataframe.
+        The intent input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
+
+        Parameters
+        ----------
+        intent : List[str,Clause]
+                intent list, can be a mix of string shorthand or a lux.Clause object
+
+        Notes
+        -----
+                :doc:`../guide/intent`
+        """
         return self._intent
 
     @intent.setter
@@ -200,19 +219,6 @@ class LuxDataFrame(pd.DataFrame):
         self.expire_recs()
 
     def set_intent(self, intent: List[Union[str, Clause]]):
-        """
-        Main function to set the intent of the dataframe.
-        The intent input goes through the parser, so that the string inputs are parsed into a lux.Clause object.
-
-        Parameters
-        ----------
-        intent : List[str,Clause]
-                intent list, can be a mix of string shorthand or a lux.Clause object
-
-        Notes
-        -----
-                :doc:`../guide/clause`
-        """
         self.expire_recs()
         self._intent = intent
         self._parse_validate_compile_intent()
@@ -239,11 +245,12 @@ class LuxDataFrame(pd.DataFrame):
 
     def set_intent_as_vis(self, vis: Vis):
         """
-        Set intent of the dataframe as the Vis
+        Set intent of the dataframe based on the intent of a Vis
 
         Parameters
         ----------
         vis : Vis
+            Input Vis object
         """
         self.expire_recs()
         self._intent = vis._inferred_intent
@@ -300,7 +307,7 @@ class LuxDataFrame(pd.DataFrame):
         self.get_SQL_attributes()
         for attr in list(self.columns):
             self[attr] = None
-        self.data_type_lookup = {}
+        self.data_type = {}
         #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this
         #####      in the initialization and do it just once
         self.compute_SQL_data_type()
@@ -314,7 +321,7 @@ class LuxDataFrame(pd.DataFrame):
         self.get_SQL_unique_values()
         # self.get_SQL_cardinality()
         for attribute in self.columns:
-            if self.data_type_lookup[attribute] == "quantitative":
+            if self.data_type[attribute] == "quantitative":
                 self._min_max[attribute] = (
                     self[attribute].min(),
                     self[attribute].max(),
@@ -351,7 +358,7 @@ class LuxDataFrame(pd.DataFrame):
         self.unique_values = unique_vals
 
     def compute_SQL_data_type(self):
-        data_type_lookup = {}
+        data_type = {}
         sql_dtypes = {}
         self.get_SQL_cardinality()
         if "." in self.table_name:
@@ -366,7 +373,7 @@ class LuxDataFrame(pd.DataFrame):
 
         for attr in list(self.columns):
             if str(attr).lower() in ["month", "year"]:
-                data_type_lookup[attr] = "temporal"
+                data_type[attr] = "temporal"
             elif sql_dtypes[attr] in [
                 "character",
                 "character varying",
@@ -374,7 +381,7 @@ class LuxDataFrame(pd.DataFrame):
                 "uuid",
                 "text",
             ]:
-                data_type_lookup[attr] = "nominal"
+                data_type[attr] = "nominal"
             elif sql_dtypes[attr] in [
                 "integer",
                 "real",
@@ -383,12 +390,12 @@ class LuxDataFrame(pd.DataFrame):
                 "serial",
             ]:
                 if self.cardinality[attr] < 13:
-                    data_type_lookup[attr] = "nominal"
+                    data_type[attr] = "nominal"
                 else:
-                    data_type_lookup[attr] = "quantitative"
+                    data_type[attr] = "quantitative"
             elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
-                data_type_lookup[attr] = "temporal"
-        self.data_type_lookup = data_type_lookup
+                data_type[attr] = "temporal"
+        self.data_type = data_type
 
     def _append_rec(self, rec_infolist, recommendations: Dict):
         if recommendations["collection"] is not None and len(recommendations["collection"]) > 0:
@@ -397,7 +404,7 @@ class LuxDataFrame(pd.DataFrame):
     def maintain_recs(self):
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
-        if lux.update_actions["flag"] == True:
+        if lux.config.update_actions["flag"] == True:
             self._recs_fresh = False
         show_prev = False  # flag indicating whether rec_df is showing previous df or current self
         if self._prev is not None:
@@ -414,9 +421,9 @@ class LuxDataFrame(pd.DataFrame):
             rec_df._message = Message()
         # Add warning message if there exist ID fields
         id_fields_str = ""
-        data_type = rec_df.compute_data_type_from_lookup()
-        if len(data_type["id"]) > 0:
-            for id_field in data_type["id"]:
+        inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
+        if len(inverted_data_type["id"]) > 0:
+            for id_field in inverted_data_type["id"]:
                 id_fields_str += f"<code>{id_field}</code>, "
             id_fields_str = id_fields_str[:-2]
             rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
@@ -425,50 +432,23 @@ class LuxDataFrame(pd.DataFrame):
         # Check that recs has not yet been computed
         if not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh:
             rec_infolist = []
-            from lux.action.custom import custom
-            from lux.action.custom import custom_actions
-            from lux.action.correlation import correlation
-            from lux.action.univariate import univariate
-            from lux.action.enhance import enhance
-            from lux.action.filter import filter
-            from lux.action.generalize import generalize
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
 
+            # TODO: Rewrite these as register action inside default actions
             if rec_df.pre_aggregated:
                 if rec_df.columns.name is not None:
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
             else:
-                if rec_df._recommendation == {}:
-                    # display conditions for default actions
-                    no_vis = lambda ldf: (ldf.current_vis is None) or (
-                        ldf.current_vis is not None and len(ldf.current_vis) == 0
-                    )
-                    one_current_vis = (
-                        lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
-                    )
-                    multiple_current_vis = (
-                        lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
-                    )
-
-                    # globally register default actions
-                    lux.register_action("correlation", correlation, no_vis)
-                    lux.register_action("distribution", univariate, no_vis, "quantitative")
-                    lux.register_action("occurrence", univariate, no_vis, "nominal")
-                    lux.register_action("temporal", univariate, no_vis, "temporal")
-
-                    lux.register_action("Enhance", enhance, one_current_vis)
-                    lux.register_action("Filter", filter, one_current_vis)
-                    lux.register_action("Generalize", generalize, one_current_vis)
-
-                    lux.register_action("Custom", custom, multiple_current_vis)
+                # if rec_df._recommendation == {}:
+                from lux.action.custom import custom_actions
 
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
                 for rec in custom_action_collection:
                     rec_df._append_rec(rec_infolist, rec)
-                lux.update_actions["flag"] = False
+                lux.config.update_actions["flag"] = False
 
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
@@ -501,7 +481,9 @@ class LuxDataFrame(pd.DataFrame):
         -----
         Convert the _selectedVisIdxs dictionary into a programmable VisList
         Example _selectedVisIdxs :
-                {'Correlation': [0, 2], 'Occurrence': [1]}
+
+            {'Correlation': [0, 2], 'Occurrence': [1]}
+
         indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Occurrence` tab is selected.
 
         Returns
@@ -693,27 +675,38 @@ class LuxDataFrame(pd.DataFrame):
         Generate a LuxWidget based on the LuxDataFrame
 
         Structure of widgetJSON:
+
         {
-                'current_vis': {},
-                'recommendation': [
-                        {
-                                'action': 'Correlation',
-                                'description': "some description",
-                                'vspec': [
-                                        {Vega-Lite spec for vis 1},
-                                        {Vega-Lite spec for vis 2},
-                                        ...
-                                ]
-                        },
-                        ... repeat for other actions
-                ]
+
+            'current_vis': {},
+            'recommendation': [
+
+                {
+
+                    'action': 'Correlation',
+                    'description': "some description",
+                    'vspec': [
+
+                            {Vega-Lite spec for vis 1},
+                            {Vega-Lite spec for vis 2},
+                            ...
+
+                    ]
+
+                },
+                ... repeat for other actions
+
+            ]
+
         }
+
         Parameters
         ----------
         renderer : str, optional
                 Choice of visualization rendering library, by default "altair"
         input_current_vis : lux.LuxDataFrame, optional
                 User-specified current vis to override default Current Vis, by default
+
         """
         check_import_lux_widget()
         import luxwidget
@@ -873,6 +866,7 @@ class LuxDataFrame(pd.DataFrame):
         with open(filename, "w") as fp:
             fp.write(rendered_template)
             print(f"Saved HTML to {filename}")
+
     # Overridden Pandas Functions
     def head(self, n: int = 5):
         self._prev = self

@@ -9,14 +9,13 @@ lux.core.frame module
 
 .. automodule:: lux.core.frame
    :members:
-   :undoc-members:
-   :show-inheritance:
+   :exclude-members: head, describe, info, tail
+   
 
 
-Module contents
----------------
-
-.. automodule:: lux.core
+lux.core.series module
+-----------------------
+   
+.. automodule:: lux.core.series
    :members:
-   :undoc-members:
-   :show-inheritance:
+
