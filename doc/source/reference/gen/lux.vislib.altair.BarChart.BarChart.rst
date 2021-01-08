@@ -20,6 +20,7 @@ lux.vislib.altair.BarChart.BarChart
       ~BarChart.apply_default_config
       ~BarChart.encode_color
       ~BarChart.initialize_chart
+      ~BarChart.sanitize_dataframe
    
    
 

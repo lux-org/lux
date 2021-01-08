@@ -19,6 +19,7 @@ lux.vislib.altair.ScatterChart.ScatterChart
       ~ScatterChart.apply_default_config
       ~ScatterChart.encode_color
       ~ScatterChart.initialize_chart
+      ~ScatterChart.sanitize_dataframe
    
    
 

@@ -14,6 +14,8 @@ lux.\_config.config.Config
    .. autosummary::
    
       ~Config.__init__
+      ~Config.register_action
+      ~Config.remove_action
       ~Config.set_SQL_connection
       ~Config.set_executor_type
    
@@ -30,5 +32,7 @@ lux.\_config.config.Config
       ~Config.sampling
       ~Config.sampling_cap
       ~Config.sampling_start
+      ~Config.sort
+      ~Config.topk
    
    

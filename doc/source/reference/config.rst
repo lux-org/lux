@@ -108,3 +108,35 @@ The above results in the following changes:
 
 See `this page <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ for more details.
 
+Modify Sorting and Ranking in Recommendations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In Lux, we select a small subset of visualizations to display in each action tab to avoid displaying too many charts at once. 
+Certain recommendation categories ranks and selects the top K most interesting visualizations to display.
+You can modify the sorting order and selection cutoff via :code:`lux.config`.
+By default, the recommendations are sorted in a :code:`"descending"` order based on their interestingness score, you can reverse the ordering by setting the sort order as:
+
+.. code-block:: python 
+
+    lux.config.sort = "ascending"
+
+To turn off the sorting of visualizations based on its score completely and ensure that the visualizations show up in the same order across all dataframes, you can set the sorting as "none":
+
+.. code-block:: python 
+
+    lux.config.sort = "none"
+
+For recommendation actions that generate a lot of visualizations, we select the cutoff criteria as the top 15 visualizations. If you would like to see only see the top 6 visualizations, you can set:
+
+.. code-block:: python 
+
+    lux.config.topk = 6
+
+If you would like to turn off the selection criteria completely and display everything, you can turn off the top K selection by:
+
+.. code-block:: python 
+
+    lux.config.topk = False
+
+Beware that this may generate large numbers of visualizations (e.g., for 10 quantitative variables, this will generate 45 scatterplots in the Correlation action!)
+
