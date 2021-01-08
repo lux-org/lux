@@ -37,8 +37,8 @@ def enhance(ldf):
     # Collect variables that already exist in the intent
     attr_specs = list(filter(lambda x: x.value == "" and x.attribute != "Record", ldf._intent))
     fltr_str = [fltr.attribute + fltr.filter_op + str(fltr.value) for fltr in filters]
-    attr_str = [clause.attribute for clause in attr_specs]
-    intended_attrs = '<p class="highlight-intent">' + ", ".join(attr_str + fltr_str) + "</p>"
+    attr_str = [str(clause.attribute) for clause in attr_specs]
+    intended_attrs = f'<p class="highlight-intent">{", ".join(attr_str + fltr_str)}</p>'
     if len(attr_specs) == 1:
         recommendation = {
             "action": "Enhance",

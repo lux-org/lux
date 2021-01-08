@@ -90,11 +90,11 @@ class PandasExecutor(Executor):
             # Select relevant data based on attribute information
             attributes = set([])
             for clause in vis._inferred_intent:
-                if clause.attribute:
-                    if clause.attribute != "Record":
-                        attributes.add(clause.attribute)
+                if clause.attribute != "Record":
+                    attributes.add(clause.attribute)
             # TODO: Add some type of cap size on Nrows ?
             vis._vis_data = vis.data[list(attributes)]
+
             if vis.mark == "bar" or vis.mark == "line":
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
@@ -428,9 +428,7 @@ class PandasExecutor(Executor):
                 ldf.data_type[attr] = "temporal"
             else:
                 ldf.data_type[attr] = "nominal"
-        # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
-        #   if self.cardinality[attr]>50:
-        if ldf.index.dtype != "int64" and ldf.index.name:
+        if not pd.api.types.is_integer_dtype(ldf.index) and ldf.index.name:
             ldf.data_type[ldf.index.name] = "nominal"
 
         non_datetime_attrs = []
@@ -489,21 +487,15 @@ class PandasExecutor(Executor):
             ldf.unique_values[attribute_repr] = list(ldf[attribute_repr].unique())
             ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
 
-            # commenting this optimization out to make sure I can filter by cardinality when showing recommended vis
-
-            # if ldf.dtypes[attribute] != "float64":# and not pd.api.types.is_datetime64_ns_dtype(self.dtypes[attribute]):
-            #     ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
-            #     ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
-            # else:
-            #     ldf.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
-
-            if ldf.dtypes[attribute] == "float64" or ldf.dtypes[attribute] == "int64":
+            if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(
+                ldf.dtypes[attribute]
+            ):
                 ldf._min_max[attribute_repr] = (
                     ldf[attribute].min(),
                     ldf[attribute].max(),
                 )
 
-        if ldf.index.dtype != "int64":
+        if not pd.api.types.is_integer_dtype(ldf.index):
             index_column_name = ldf.index.name
             ldf.unique_values[index_column_name] = list(ldf.index)
             ldf.cardinality[index_column_name] = len(ldf.index)
