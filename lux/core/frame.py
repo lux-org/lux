@@ -135,7 +135,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def compute_data_type_from_lookup(self):
         return Executor.mapping(Executor, self.data_type_lookup)
-    
+
     def compute_data_model(self):
         data_type = self.compute_data_type_from_lookup()
         data_model = {
@@ -866,6 +866,7 @@ class LuxDataFrame(pd.DataFrame):
         with open(filename, "w") as fp:
             fp.write(rendered_template)
             print(f"Saved HTML to {filename}")
+
     # Overridden Pandas Functions
     def head(self, n: int = 5):
         self._prev = self
