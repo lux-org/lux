@@ -117,7 +117,7 @@ class LuxDataFrame(pd.DataFrame):
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
             if len(self) > 0 or lux.config.executor.name == "SQLExecutor":
-                # lux.config.executor.compute_stats(self)
+                lux.config.executor.compute_stats(self)
                 lux.config.executor.compute_dataset_metadata(self)
                 self._infer_structure()
                 self._metadata_fresh = True
@@ -172,7 +172,7 @@ class LuxDataFrame(pd.DataFrame):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels != 1
         not_int_index_flag = not pd.api.types.is_integer_dtype(self.index)
-        small_df_flag = len(self) < 100
+        small_df_flag = len(self) < 100 and lux.config.executor.name == "PandasExecutor"
         self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
         if "Number of Records" in self.columns:
             self.pre_aggregated = True

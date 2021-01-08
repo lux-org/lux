@@ -229,8 +229,12 @@ class Config:
         """
         self.SQLconnection = connection
         if connection != "":
+            from lux.executor.SQLExecutor import SQLExecutor
+
             self.executor = SQLExecutor()
         else:
+            from lux.executor.PandasExecutor import PandasExecutor
+
             self.executor = PandasExecutor()
 
     def set_executor_type(self, exe):
