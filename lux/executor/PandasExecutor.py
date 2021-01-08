@@ -239,19 +239,19 @@ class PandasExecutor(Executor):
                             len(list(vis.data[groupby_attr.attribute])) == N_unique_vals
                         ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
 
-            vis._vis_data = vis.data.dropna(subset=[measure_attr.attribute])
+            vis._vis_data = vis._vis_data.dropna(subset=[measure_attr.attribute])
             try:
-                vis._vis_data = vis.data.sort_values(by=groupby_attr.attribute, ascending=True)
+                vis._vis_data = vis._vis_data.sort_values(by=groupby_attr.attribute, ascending=True)
             except TypeError:
                 warnings.warn(
                     f"""\nLux detects that the attribute '{groupby_attr.attribute}' maybe of mixed type.
                 \n The following visualizations use 
                 \n\tdf['{groupby_attr.attribute}'] = df['{groupby_attr.attribute}'].astype(str)\n"""
                 )
-                vis._vis_data[groupby_attr.attribute] = vis.data[groupby_attr.attribute].astype(str)
+                vis._vis_data[groupby_attr.attribute] = vis._vis_data[groupby_attr.attribute].astype(str)
                 vis._vis_data = vis._vis_data.sort_values(by=groupby_attr.attribute, ascending=True)
-            vis._vis_data = vis.data.reset_index()
-            vis._vis_data = vis.data.drop(columns="index")
+            vis._vis_data = vis._vis_data.reset_index()
+            vis._vis_data = vis._vis_data.drop(columns="index")
 
     @staticmethod
     def execute_binning(vis: Vis):
