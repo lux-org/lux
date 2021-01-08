@@ -89,15 +89,15 @@ class LineChart(MatplotlibChart):
 
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
-
+        self.code += "from math import nan\n"
         self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
 
         self.code += f"fig, ax = plt.subplots()\n"
         self.code += f"objects = df['{x_attr.attribute}']\n"
-        self.code += f"y_pos = np.arrange(len(objects))\n"
         self.code += f"performance = df['{y_attr.attribute}']\n"
 
         self.code += f"ax.plot(objects, performance)\n"
         self.code += f"ax.set_xlabel('{x_label}')\n"
         self.code += f"ax.set_ylabel('{y_label}')\n"
+        self.code += f"fig\n"
         return chart_code

@@ -72,7 +72,7 @@ class Heatmap(MatplotlibChart):
 
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import seaborn as sns\n"
-
+        self.code += "from math import nan\n"
         self.code += f"""df = pd.pivot_table(data={str(self.data.to_dict())},
                     index='xBinStart',
                     values='count',
@@ -90,4 +90,5 @@ class Heatmap(MatplotlibChart):
         )\n"""
         self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
         self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
+        self.code += f"fig\n"
         return chart_code

@@ -106,15 +106,16 @@ class BarChart(MatplotlibChart):
 
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
-
+        self.code += "from math import nan\n"
         self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
 
         self.code += f"fig, ax = plt.subplots()\n"
         self.code += f"objects = df['{bar_attr}']\n"
-        self.code += f"y_pos = np.arrange(len(objects))\n"
+        self.code += f"y_pos = np.arange(len(objects))\n"
         self.code += f"performance = df['{measure_attr}']\n"
 
         self.code += f"ax.bar(y_pos, performance, align='center', alpha=0.5)\n"
         self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
         self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
+        self.code += f"fig\n"
         return chart_code

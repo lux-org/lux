@@ -85,7 +85,7 @@ class Histogram(MatplotlibChart):
 
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
-
+        self.code += "from math import nan\n"
         self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
 
         self.code += f"fig, ax = plt.subplots()\n"
@@ -95,4 +95,5 @@ class Histogram(MatplotlibChart):
         self.code += f"ax.hist(bins[:-1], bins, weights=counts, range=('{x_min}', '{x_max}'))\n"
         self.code += f"ax.set_xlabel('{x_label}')\n"
         self.code += f"ax.set_ylabel('{y_label}')\n"
+        self.code += f"fig\n"
         return chart_code
