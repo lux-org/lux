@@ -177,11 +177,11 @@ class Config:
     @set_vislib.setter
     def set_vislib(self, type: str) -> None:
         """
-        Set the widget display to show Pandas by default or Lux by default
+        Set the widget display to show Vegalite by default or Matplotlib by default
         Parameters
         ----------
         type : str
-                Default display type, can take either the string `lux` or `pandas` (regardless of capitalization)
+                Default display type, can take either the string `vegalite` or `matplotlib` (regardless of capitalization)
         """
         if type.lower() == "vegalite":
             self._set_vislib = "vegalite"

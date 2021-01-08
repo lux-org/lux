@@ -41,6 +41,42 @@ If you try to set the default_display to anything other than 'lux' or 'pandas,' 
   :width: 700
   :align: center
 
+Change the vislib type of Lux
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We can set the :code:`set_vislib` to change whether output type is Vegalite or Matplotlib chart. In the following block, we set the vislib to 'matplotlib', therefore the Lux widget will display Matplotlib rendered charts.
+
+.. code-block:: python
+
+    lux.config.set_vislib = "matplotlib" 
+    df
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/vislib-1.png?raw=true
+  :width: 700
+  :align: center
+
+We can set the vislib back to 'vegalite,' which would allow for Vegalite rendered chart to display.
+
+.. code-block:: python
+
+    lux.config.set_vislib = "vegalite" # Set Vegalite as vislib type
+    df
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/display-1.png?raw=true
+  :width: 700
+  :align: center
+
+If you try to set the :code:`set_vislib` to anything other than 'matplotlib' or 'vegalite,' a warning will be shown, and the display will default to the previous setting.
+
+.. code-block:: python
+    
+    lux.config.set_vislib = "notvegalite" # Throw an warning
+    df
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/vislib-2.png?raw=true
+  :width: 700
+  :align: center
+
 Change the sampling parameters of Lux
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

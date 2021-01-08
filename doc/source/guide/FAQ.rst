@@ -35,6 +35,20 @@ How do I set the Lux widgets to show up on default?
     .. code-block:: python
     
         lux.config.default_display = "pandas"
+
+How do I change the output type of my display? 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  By default, we show the Vegalite display. The :code:`set_vislib` property allows users to change the setting to a Matplotlib display: 
+
+    .. code-block:: python
+    
+        lux.config.set_vislib = "matplotlib"
+    
+  To switch back to Vegalite as the output type: 
+
+    .. code-block:: python
+    
+        lux.config.set_vislib = "vegalite"
   
 I want to change the opacity of my chart, add title, change chart font size, etc. How do I modify chart settings?
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

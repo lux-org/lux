@@ -67,6 +67,7 @@ class MatplotlibRenderer:
                 ):
                     vis.data[attr] = vis.data[attr].astype(str)
         plt.ioff()
+        plt.rcParams.update({'font.size': 12})
         fig, ax = plt.subplots(figsize=(4.5, 4))
         ax.set_axisbelow(True)
         ax.grid(color="#dddddd")
