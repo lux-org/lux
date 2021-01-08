@@ -104,13 +104,8 @@ def test_refresh_inplace():
 
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     df.maintain_metadata()
-<<<<<<< HEAD
-    data_type = df.compute_data_type_from_lookup()
-    assert data_type["temporal"][0] == "date"
-=======
     inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
     assert inverted_data_type["temporal"][0] == "date"
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
 
     vis.refresh_source(df)
     assert vis.mark == "line"

@@ -45,26 +45,6 @@ def test_rename_inplace(global_var):
 
     assert df.data_type["Name"] == new_df.data_type["Car Name"]
 
-<<<<<<< HEAD
-    data_type = df.compute_data_type_from_lookup()
-    new_data_type = new_df.compute_data_type_from_lookup()
-
-    assert data_type != new_data_type
-
-    assert data_type["nominal"][0] == "Name"
-    assert new_data_type["nominal"][0] == "Car Name"
-
-    data_model_lookup = df.compute_data_model_lookup()
-    new_data_model_lookup = new_df.compute_data_model_lookup()
-
-    assert data_model_lookup != new_data_model_lookup
-
-    assert data_model_lookup["Name"] == new_data_model_lookup["Car Name"]
-
-    data_model = df.compute_data_model()
-    new_data_model = new_df.compute_data_model()
-
-=======
     inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
     new_inverted_data_type = lux.config.executor.invert_data_type(new_df.data_type)
 
@@ -83,7 +63,6 @@ def test_rename_inplace(global_var):
     data_model = lux.config.executor.compute_data_model(df.data_type)
     new_data_model = lux.config.executor.compute_data_model(new_df.data_type)
 
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
     assert data_model != new_data_model
 
     assert data_model["dimension"][0] == "Name"
@@ -105,28 +84,6 @@ def test_rename(global_var):
 
     assert df.data_type["Name"] == new_df.data_type["Car Name"]
 
-<<<<<<< HEAD
-    data_type = df.compute_data_type_from_lookup()
-    new_data_type = new_df.compute_data_type_from_lookup()
-
-    assert data_type != new_data_type
-
-    assert data_type["nominal"][0] == "Name"
-    assert new_data_type["nominal"][0] == "Car Name"
-
-    data_model_lookup = df.compute_data_model_lookup()
-    new_data_model_lookup = new_df.compute_data_model_lookup()
-
-    assert data_model_lookup != new_data_model_lookup
-
-    assert data_model_lookup["Name"] == new_data_model_lookup["Car Name"]
-
-    data_model = df.compute_data_model()
-    new_data_model = new_df.compute_data_model()
-
-    assert data_model != new_data_model
-
-=======
     inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
     new_inverted_data_type = lux.config.executor.invert_data_type(new_df.data_type)
 
@@ -147,7 +104,6 @@ def test_rename(global_var):
 
     assert data_model != new_data_model
 
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
     assert data_model["dimension"][0] == "Name"
     assert new_data_model["dimension"][0] == "Car Name"
 
@@ -624,11 +580,7 @@ def test_df_to_series(global_var):
     df["Weight"]._metadata
     assert df["Weight"]._metadata == [
         "_intent",
-<<<<<<< HEAD
-        "data_type_lookup",
-=======
         "data_type",
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -656,11 +608,7 @@ def test_value_counts(global_var):
     assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
     assert df["Weight"]._metadata == [
         "_intent",
-<<<<<<< HEAD
-        "data_type_lookup",
-=======
         "data_type",
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -687,11 +635,7 @@ def test_str_replace(global_var):
     assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
     assert df["Brand"]._metadata == [
         "_intent",
-<<<<<<< HEAD
-        "data_type_lookup",
-=======
         "data_type",
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
         "unique_values",
         "cardinality",
         "_rec_info",

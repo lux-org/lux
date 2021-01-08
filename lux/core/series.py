@@ -26,11 +26,7 @@ class LuxSeries(pd.Series):
 
     _metadata = [
         "_intent",
-<<<<<<< HEAD
-        "data_type_lookup",
-=======
         "data_type",
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
         "unique_values",
         "cardinality",
         "_rec_info",

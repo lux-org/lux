@@ -21,12 +21,8 @@ from lux.history.history import History
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
-<<<<<<< HEAD
-from lux.executor.Executor import *
-=======
 
 # from lux.executor.Executor import *
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
 import warnings
 import traceback
 import lux
@@ -41,11 +37,7 @@ class LuxDataFrame(pd.DataFrame):
     _metadata = [
         "_intent",
         "_inferred_intent",
-<<<<<<< HEAD
-        "data_type_lookup",
-=======
         "data_type",
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -84,11 +76,7 @@ class LuxDataFrame(pd.DataFrame):
         self._message = Message()
         self._pandas_only = False
         # Metadata
-<<<<<<< HEAD
-        self.data_type_lookup = None
-=======
         self.data_type = None
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
@@ -139,11 +127,7 @@ class LuxDataFrame(pd.DataFrame):
         Expire all saved metadata to trigger a recomputation the next time the data is required.
         """
         self._metadata_fresh = False
-<<<<<<< HEAD
-        self.data_type_lookup = None
-=======
         self.data_type = None
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
@@ -323,11 +307,7 @@ class LuxDataFrame(pd.DataFrame):
         self.get_SQL_attributes()
         for attr in list(self.columns):
             self[attr] = None
-<<<<<<< HEAD
-        self.data_type_lookup = {}
-=======
         self.data_type = {}
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
         #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this
         #####      in the initialization and do it just once
         self.compute_SQL_data_type()
@@ -393,11 +373,7 @@ class LuxDataFrame(pd.DataFrame):
 
         for attr in list(self.columns):
             if str(attr).lower() in ["month", "year"]:
-<<<<<<< HEAD
-                data_type_lookup[attr] = "temporal"
-=======
                 data_type[attr] = "temporal"
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
             elif sql_dtypes[attr] in [
                 "character",
                 "character varying",
@@ -405,11 +381,7 @@ class LuxDataFrame(pd.DataFrame):
                 "uuid",
                 "text",
             ]:
-<<<<<<< HEAD
-                data_type_lookup[attr] = "nominal"
-=======
                 data_type[attr] = "nominal"
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
             elif sql_dtypes[attr] in [
                 "integer",
                 "real",
@@ -418,21 +390,12 @@ class LuxDataFrame(pd.DataFrame):
                 "serial",
             ]:
                 if self.cardinality[attr] < 13:
-<<<<<<< HEAD
-                    data_type_lookup[attr] = "nominal"
-                else:
-                    data_type_lookup[attr] = "quantitative"
-            elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
-                data_type_lookup[attr] = "temporal"
-        self.data_type_lookup = data_type_lookup
-=======
                     data_type[attr] = "nominal"
                 else:
                     data_type[attr] = "quantitative"
             elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
                 data_type[attr] = "temporal"
         self.data_type = data_type
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
 
     def _append_rec(self, rec_infolist, recommendations: Dict):
         if recommendations["collection"] is not None and len(recommendations["collection"]) > 0:
@@ -458,15 +421,9 @@ class LuxDataFrame(pd.DataFrame):
             rec_df._message = Message()
         # Add warning message if there exist ID fields
         id_fields_str = ""
-<<<<<<< HEAD
-        data_type = rec_df.compute_data_type_from_lookup()
-        if len(data_type["id"]) > 0:
-            for id_field in data_type["id"]:
-=======
         inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
         if len(inverted_data_type["id"]) > 0:
             for id_field in inverted_data_type["id"]:
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
                 id_fields_str += f"<code>{id_field}</code>, "
             id_fields_str = id_fields_str[:-2]
             rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")

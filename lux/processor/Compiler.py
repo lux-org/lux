@@ -445,13 +445,8 @@ class Compiler:
         import copy
         from lux.utils.utils import convert_to_list
 
-<<<<<<< HEAD
-        data_type = ldf.compute_data_type_from_lookup()
-        data_model = ldf.compute_data_model()
-=======
         inverted_data_type = lux.config.executor.invert_data_type(ldf.data_type)
         data_model = lux.config.executor.compute_data_model(ldf.data_type)
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
 
         intent = {"attributes": [], "filters": []}
         for clause in _inferred_intent:
@@ -460,11 +455,7 @@ class Compiler:
                 if clause.attribute == "?":
                     options = set(list(ldf.columns))  # all attributes
                     if clause.data_type != "":
-<<<<<<< HEAD
-                        options = options.intersection(set(data_type[clause.data_type]))
-=======
                         options = options.intersection(set(inverted_data_type[clause.data_type]))
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
                     if clause.data_model != "":
                         options = options.intersection(set(data_model[clause.data_model]))
                     options = list(options)

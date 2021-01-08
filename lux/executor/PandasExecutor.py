@@ -383,11 +383,7 @@ class PandasExecutor(Executor):
     ############ Metadata: data type, model #############
     #######################################################
     def compute_dataset_metadata(self, ldf: LuxDataFrame):
-<<<<<<< HEAD
-        ldf.data_type_lookup = {}
-=======
         ldf.data_type = {}
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
         self.compute_data_type(ldf)
 
     def compute_data_type(self, ldf: LuxDataFrame):
