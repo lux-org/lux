@@ -159,11 +159,7 @@ class Compiler:
         # TODO: copy might not be neccesary
         from lux.utils.date_utils import is_datetime_string
 
-<<<<<<< HEAD
-        data_model_lookup = ldf.compute_data_model_lookup()
-=======
         data_model_lookup = lux.config.executor.compute_data_model_lookup(ldf.data_type)
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
 
         for vis in vlist:
             for clause in vis._inferred_intent:

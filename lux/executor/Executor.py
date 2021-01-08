@@ -55,14 +55,12 @@ class Executor:
     # def compute_data_model(self):
     #     return NotImplemented
 
-    @staticmethod
     def mapping(self, rmap):
         group_map = {}
         for val in ["quantitative", "id", "nominal", "temporal"]:
             group_map[val] = list(filter(lambda x: rmap[x] == val, rmap))
         return group_map
 
-    @staticmethod
     def reverseMapping(self, map):
         reverse_map = {}
         for valKey in map:

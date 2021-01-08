@@ -427,17 +427,9 @@ class PandasExecutor(Executor):
             elif is_datetime_series(ldf.dtypes[attr]):
                 ldf.data_type[attr] = "temporal"
             else:
-<<<<<<< HEAD
-                ldf.data_type_lookup[attr] = "nominal"
-        # for attr in list(df.dtypes[df.dtypes=="int64"].keys()):
-        #   if self.cardinality[attr]>50:
-        if ldf.index.dtype != "int64" and ldf.index.name:
-            ldf.data_type_lookup[ldf.index.name] = "nominal"
-=======
                 ldf.data_type[attr] = "nominal"
         if not pd.api.types.is_integer_dtype(ldf.index) and ldf.index.name:
             ldf.data_type[ldf.index.name] = "nominal"
->>>>>>> 3393b9ff5c240c624250a900f4aa68ec7caa994c
 
         non_datetime_attrs = []
         for attr in ldf.columns:
