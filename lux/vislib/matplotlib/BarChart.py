@@ -103,7 +103,7 @@ class BarChart(MatplotlibChart):
         self.code += f"bars = df['{bar_attr}']\n"
         self.code += f"measurements = df['{measure_attr}']\n"
 
-        self.code += f"ax.bar(bars, measurements, align='center', alpha=0.5)\n"
+        self.code += f"ax.barh(bars, measurements, align='center')\n"
         self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
         self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
         self.code += f"fig\n"

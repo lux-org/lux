@@ -60,17 +60,19 @@ class Heatmap(MatplotlibChart):
         self.ax.grid(False)
         plt.tight_layout()
 
-        # self.code += "import matplotlib.pyplot as plt\n"
-        # self.code += "import numpy as np\n"
-        # self.code += "from math import nan\n"
-        # self.code += f"df = pd.pivot_table({str(self.data.to_dict())})\n"
+        self.code += "import matplotlib.pyplot as plt\n"
+        self.code += "import numpy as np\n"
+        self.code += "from math import nan\n"
+        self.code += f"df = pd.pivot_table({str(self.data.to_dict())}, index='xBinStart', values='count', columns='yBinStart')\n"
+        self.code += f"df = df.apply(lambda x: np.log(x), axis=1)\n"
+        self.code += f"df = df.values\n"
 
-        # self.code += f"fig, ax = plt.subplots()\n"
-        # self.code += f"objects = df['{bar_attr}']\n"
-        # self.code += f"y_pos = np.arange(len(objects))\n"
-        # self.code += f"performance = df['{measure_attr}']\n"
+        self.code += f"fig, ax = plt.subplots()\n"
+        self.code += f"plt.imshow(df, cmap='Blues')\n"
+        self.code += f"ax.set_aspect('auto')\n"
+        self.code += f"plt.gca().invert_yaxis()\n"
 
-        # self.code += f"ax.bar(y_pos, performance, align='center', alpha=0.5)\n"
-        # self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
-        # self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
+        self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
+        self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
+        self.code += f"ax.grid(False)\n"
         self.code += f"fig\n"

@@ -47,18 +47,15 @@ class Histogram(MatplotlibChart):
         x_min = self.vis.min_max[msr_attr.attribute][0]
         x_max = self.vis.min_max[msr_attr.attribute][1]
 
-        # msr_attr.attribute = msr_attr.attribute.replace(".", "")
-
-        x_range = abs(max(self.vis.data[msr_attr.attribute]) - min(self.vis.data[msr_attr.attribute]))
-        plot_range = abs(x_max - x_min)
-        markbar = x_range / plot_range * 12
+        markbar = abs(x_max - x_min) / 12
 
         df = pd.DataFrame(self.data)
 
-        objects = df[msr_attr.attribute]
+        bars = df[msr_attr.attribute]
+        measurements = df['Number of Records']
 
-        counts, bins = np.histogram(self.data)
-        self.ax.hist(bins[:-1], bins, weights=counts, range=(x_min, x_max), rwidth=0.6)
+        self.ax.bar(bars, measurements, width=markbar)
+        self.ax.set_xlim(x_min, x_max)
 
         x_label = ""
         y_label = ""
@@ -79,10 +76,10 @@ class Histogram(MatplotlibChart):
         self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
 
         self.code += f"fig, ax = plt.subplots()\n"
-        self.code += f"objects = df['{msr_attr.attribute}']\n"
+        self.code += f"bars = df['{msr_attr.attribute}']\n"
+        self.code += f"measurements = df['Number of Records']\n"
 
-        self.code += f"counts, bins = np.histogram({str(self.data.to_dict())})\n"
-        self.code += f"ax.hist(bins[:-1], bins, weights=counts, range=('{x_min}', '{x_max}'))\n"
+        self.code += f"ax.bar(bars, measurements, width={markbar})\n"
         self.code += f"ax.set_xlabel('{x_label}')\n"
         self.code += f"ax.set_ylabel('{y_label}')\n"
         self.code += f"fig\n"
