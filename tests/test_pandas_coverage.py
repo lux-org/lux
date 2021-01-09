@@ -605,7 +605,7 @@ def test_value_counts(global_var):
     assert df.cardinality is not None
     series = df["Weight"]
     series.value_counts()
-    assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
+    assert type(df["Brand"].value_counts()) == lux.core.series.LuxSeries
     assert df["Weight"]._metadata == [
         "_intent",
         "data_type",
@@ -652,12 +652,6 @@ def test_str_replace(global_var):
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Brand", "Pandas Series original `name` property not retained."
-
-
-def test_value_counts(global_var):
-    df = pd.read_csv("lux/data/car.csv")
-    df._repr_html_()
-    assert type(df["Brand"].value_counts()) == lux.core.series.LuxSeries
 
 
 ################
