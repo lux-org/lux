@@ -656,12 +656,6 @@ def test_str_replace(global_var):
     assert series.name == "Brand", "Pandas Series original `name` property not retained."
 
 
-def test_value_counts(global_var):
-    df = pd.read_csv("lux/data/car.csv")
-    df._repr_html_()
-    assert type(df["Brand"].value_counts()) == lux.core.series.LuxSeries
-
-
 ################
 # Read Tests #
 ################
