@@ -16,6 +16,7 @@ from .context import lux
 import pytest
 import pandas as pd
 import numpy as np
+import warnings
 
 ###################
 # DataFrame Tests #
@@ -682,7 +683,13 @@ def test_read_sas(global_var):
 
 
 def test_read_multi_dtype(global_var):
-    url = "https://github.com/lux-org/lux-datasets/blob/master/data/kaggle_survey_truncated?raw=true"
-    df = pd.read_csv(url)
-    df._repr_html_()
-    # if this does not create an exception, the test has passed.
+    url = "https://github.com/jinimukh/lux-datasets/blob/master/data/car-data.xls?raw=true"
+    df = pd.read_excel(url)
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        df._repr_html_()
+        assert len(w) != 0, "warnings not generated"
+        assert "df['Car Type'] = df['Car Type'].astype(str)" in str(w[-1].message)
+
+
+
