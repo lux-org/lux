@@ -14,7 +14,6 @@ lux.vis.VisList.VisList
    .. autosummary::
    
       ~VisList.__init__
-      ~VisList.bottomK
       ~VisList.get
       ~VisList.map
       ~VisList.normalize_score
@@ -23,8 +22,8 @@ lux.vis.VisList.VisList
       ~VisList.remove_index
       ~VisList.set
       ~VisList.set_intent
+      ~VisList.showK
       ~VisList.sort
-      ~VisList.topK
    
    
 

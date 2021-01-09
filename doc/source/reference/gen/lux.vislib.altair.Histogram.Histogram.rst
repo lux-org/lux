@@ -19,6 +19,7 @@ lux.vislib.altair.Histogram.Histogram
       ~Histogram.apply_default_config
       ~Histogram.encode_color
       ~Histogram.initialize_chart
+      ~Histogram.sanitize_dataframe
    
    
 
