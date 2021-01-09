@@ -4,7 +4,7 @@ python:
 install:
   - pip install -r requirements-dev.txt
   - pip freeze
-  - pip install parso==0.8.1
+  - pip install jupyter-client==6.1.6
   - pip install git+https://github.com/lux-org/lux-widget
 # command to run tests
 script:
