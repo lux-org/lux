@@ -682,8 +682,7 @@ def test_read_sas(global_var):
 
 
 def test_read_multi_dtype(global_var):
-    url = "https://github.com/jinimukh/lux-datasets/blob/master/data/kaggle_survey_2020_responses.csv?raw=true"
+    url = "https://github.com/lux-org/lux-datasets/blob/master/data/kaggle_survey_truncated?raw=true"
     df = pd.read_csv(url)
-    df = df[["Time from Start to Finish (seconds)", "Q1", "Q2"]]
     df._repr_html_()
     # if this does not create an exception, the test has passed.
