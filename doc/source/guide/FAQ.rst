@@ -36,15 +36,15 @@ How do I set the Lux widgets to show up on default?
     
         lux.config.default_display = "pandas"
 
-How do I change the output type of my display? 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  By default, we show the Vegalite display. The :code:`plotting_backend` property allows users to change the setting to a Matplotlib display: 
+How do I change the plotting library used for visualization?
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  By default, we make use of `Altair <https://altair-viz.github.io/>`__ to generate `Vega-Lite <https://vega.github.io/vega-lite>`__ visualizations. We can modify the :code:`plotting_backend` config property to use `Matplotlib <https://matplotlib.org/>`__ as the plotting library instead: 
 
     .. code-block:: python
     
         lux.config.plotting_backend = "matplotlib"
     
-  To switch back to Vegalite as the output type: 
+  To switch back to Vega-Lite: 
 
     .. code-block:: python
     
