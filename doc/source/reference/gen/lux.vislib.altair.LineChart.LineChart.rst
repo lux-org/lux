@@ -19,6 +19,7 @@ lux.vislib.altair.LineChart.LineChart
       ~LineChart.apply_default_config
       ~LineChart.encode_color
       ~LineChart.initialize_chart
+      ~LineChart.sanitize_dataframe
    
    
 

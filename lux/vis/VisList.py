@@ -233,18 +233,22 @@ class VisList:
         # remove the items that have invalid (-1) score
         if remove_invalid:
             self._collection = list(filter(lambda x: x.score != -1, self._collection))
+        if lux.config.sort == "none":
+            return
+        elif lux.config.sort == "ascending":
+            descending = False
+        elif lux.config.sort == "descending":
+            descending = True
         # sort in-place by “score” by default if available, otherwise user-specified field to sort by
         self._collection.sort(key=lambda x: x.score, reverse=descending)
 
-    def topK(self, k):
-        # sort and truncate list to first K items
-        self.sort(remove_invalid=True)
-        return VisList(self._collection[:k])
-
-    def bottomK(self, k):
-        # sort and truncate list to first K items
-        self.sort(descending=False, remove_invalid=True)
-        return VisList(self._collection[:k])
+    def showK(self):
+        k = lux.config.topk
+        if k == False:
+            return self
+        elif isinstance(k, int):
+            k = abs(k)
+            return VisList(self._collection[:k])
 
     def normalize_score(self, invert_order=False):
         max_score = max(list(self.get("score")))
