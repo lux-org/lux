@@ -2,7 +2,6 @@ language: python
 python:
   - "3.7"
 install:
-  - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
   - pip install git+https://github.com/lux-org/lux-widget
 # command to run tests
