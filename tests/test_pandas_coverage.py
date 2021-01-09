@@ -690,6 +690,3 @@ def test_read_multi_dtype(global_var):
         df._repr_html_()
         assert len(w) != 0, "warnings not generated"
         assert "df['Car Type'] = df['Car Type'].astype(str)" in str(w[-1].message)
-
-
-
