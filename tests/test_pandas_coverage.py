@@ -683,7 +683,7 @@ def test_read_sas(global_var):
 
 
 def test_read_multi_dtype(global_var):
-    url = "https://github.com/jinimukh/lux-datasets/blob/master/data/car-data.xls?raw=true"
+    url = "https://github.com/lux-org/lux-datasets/blob/master/data/car-data.xls?raw=true"
     df = pd.read_excel(url)
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
