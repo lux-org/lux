@@ -685,8 +685,6 @@ def test_read_sas(global_var):
 def test_read_multi_dtype(global_var):
     url = "https://github.com/lux-org/lux-datasets/blob/master/data/car-data.xls?raw=true"
     df = pd.read_excel(url)
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
+    with pytest.warns(UserWarning, match="mixed type") as w:
         df._repr_html_()
-        assert len(w) != 0, "warnings not generated"
         assert "df['Car Type'] = df['Car Type'].astype(str)" in str(w[-1].message)

@@ -244,9 +244,9 @@ class PandasExecutor(Executor):
                 vis._vis_data = vis._vis_data.sort_values(by=groupby_attr.attribute, ascending=True)
             except TypeError:
                 warnings.warn(
-                    f"""\nLux detects that the attribute '{groupby_attr.attribute}' maybe of mixed type.
-                \n The following visualizations use 
-                \n\tdf['{groupby_attr.attribute}'] = df['{groupby_attr.attribute}'].astype(str)\n"""
+                    f"\nLux detects that the attribute '{groupby_attr.attribute}' maybe contain mixed type."
+                    + f"\nTo visualize this attribute, you may want to convert the '{groupby_attr.attribute}' into a uniform type as follows:"
+                    + f"\n\tdf['{groupby_attr.attribute}'] = df['{groupby_attr.attribute}'].astype(str)"
                 )
                 vis._vis_data[groupby_attr.attribute] = vis._vis_data[groupby_attr.attribute].astype(str)
                 vis._vis_data = vis._vis_data.sort_values(by=groupby_attr.attribute, ascending=True)
