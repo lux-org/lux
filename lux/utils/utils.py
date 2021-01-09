@@ -57,12 +57,17 @@ def check_import_lux_widget():
 
 
 def get_agg_title(clause):
+    attr = str(clause.attribute)
     if clause.aggregation is None:
-        return f"{clause.attribute}"
-    elif clause.attribute == "Record":
+        if len(attr) > 25:
+            return attr[:15] + "..." + attr[-10:]
+        return f"{attr}"
+    elif attr == "Record":
         return f"Number of Records"
     else:
-        return f"{clause._aggregation_name.capitalize()} of {clause.attribute}"
+        if len(attr) > 15:
+            return f"{clause._aggregation_name.capitalize()} of {attr[:15]}..."
+        return f"{clause._aggregation_name.capitalize()} of {attr}"
 
 
 def check_if_id_like(df, attribute):
