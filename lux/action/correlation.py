@@ -76,7 +76,8 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
     if ignore_rec_flag:
         recommendation["collection"] = []
         return recommendation
-    vlist = vlist.topK(15)
+    vlist.sort()
+    vlist = vlist.showK()
     recommendation["collection"] = vlist
     return recommendation
 

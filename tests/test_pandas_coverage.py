@@ -15,6 +15,8 @@
 from .context import lux
 import pytest
 import pandas as pd
+import numpy as np
+import warnings
 
 ###################
 # DataFrame Tests #
@@ -605,7 +607,7 @@ def test_value_counts(global_var):
     assert df.cardinality is not None
     series = df["Weight"]
     series.value_counts()
-    assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
+    assert type(df["Brand"].value_counts()) == lux.core.series.LuxSeries
     assert df["Weight"]._metadata == [
         "_intent",
         "data_type",

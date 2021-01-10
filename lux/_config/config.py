@@ -3,7 +3,8 @@ This config file was largely borrowed from Pandas config.py set_action functiona
 For more resources, see https://github.com/pandas-dev/pandas/blob/master/pandas/_config
 """
 from collections import namedtuple
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterable, List, Optional, Union
+import lux
 import warnings
 import lux
 

@@ -29,7 +29,8 @@ def register_new_action(validator: bool = True):
         vlist = VisList(intent, ldf)
         for vis in vlist:
             vis.score = 10
-        vlist = vlist.topK(15)
+        vlist.sort()
+        vlist = vlist.showK()
         return {
             "action": "bars",
             "description": "Random list of Bar charts",
@@ -106,7 +107,8 @@ def test_invalid_validator(global_var):
         vlist = VisList(intent, ldf)
         for vis in vlist:
             vis.score = 10
-        vlist = vlist.topK(15)
+        vlist.sort()
+        vlist = vlist.showK()
         return {
             "action": "bars",
             "description": "Random list of Bar charts",
