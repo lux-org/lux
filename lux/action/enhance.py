@@ -66,6 +66,7 @@ def enhance(ldf):
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
 
-    vlist = vlist.topK(15)
+    vlist.sort()
+    vlist = vlist.showK()
     recommendation["collection"] = vlist
     return recommendation

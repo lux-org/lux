@@ -33,5 +33,7 @@ lux.\_config.config.Config
       ~Config.sampling
       ~Config.sampling_cap
       ~Config.sampling_start
+      ~Config.sort
+      ~Config.topk
    
    
