@@ -6,7 +6,6 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 import lux
 import warnings
-import lux
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
@@ -31,6 +30,55 @@ class Config:
         self._sampling_cap = 30000
         self._sampling_flag = True
         self._heatmap_flag = True
+        self._topk = 15
+        self._sort = "descending"
+
+    @property
+    def topk(self):
+        return self._topk
+
+    @topk.setter
+    def topk(self, k: Union[int, bool]):
+        """
+        Setting parameter to display top k visualizations in each action
+
+        Parameters
+        ----------
+        k : Union[int,bool]
+            False: if display all visualizations (no top-k)
+            k: number of visualizations to display
+        """
+        if isinstance(k, int) or isinstance(k, bool):
+            self._topk = k
+        else:
+            warnings.warn(
+                "Parameter to lux.config.topk must be an integer or a boolean.",
+                stacklevel=2,
+            )
+
+    @property
+    def sort(self):
+        return self._sort
+
+    @sort.setter
+    def sort(self, flag: Union[str]):
+        """
+        Setting parameter to determine sort order of each action
+
+        Parameters
+        ----------
+        flag : Union[str]
+            "none", "ascending","descending"
+            No sorting, sort by ascending order, sort by descending order
+        """
+        flag = flag.lower()
+        if isinstance(flag, str) and flag in ["none", "ascending", "descending"]:
+            self._sort = flag
+        else:
+            warnings.warn(
+                "Parameter to lux.config.sort must be one of the following: 'none', 'ascending', or 'descending'.",
+                stacklevel=2,
+            )
 
     @property
     def sampling_cap(self):
@@ -228,15 +276,8 @@ class Config:
             connection : SQLAlchemy connectable, str, or sqlite3 connection
                 For more information, `see here <https://docs.sqlalchemy.org/en/13/core/connections.html>`__
         """
+        self.set_executor_type("SQL")
         self.SQLconnection = connection
-        if connection != "":
-            from lux.executor.SQLExecutor import SQLExecutor
-
-            self.executor = SQLExecutor()
-        else:
-            from lux.executor.PandasExecutor import PandasExecutor
-
-            self.executor = PandasExecutor()
 
     def set_executor_type(self, exe):
         if exe == "SQL":
@@ -253,7 +294,6 @@ class Config:
             self.executor = SQLExecutor()
         elif exe == "Pandas":
             from lux.executor.PandasExecutor import PandasExecutor
-
             self.SQLconnection = ""
             self.executor = PandasExecutor()
 
