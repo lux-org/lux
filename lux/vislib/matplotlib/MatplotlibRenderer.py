@@ -86,6 +86,7 @@ class MatplotlibRenderer:
             chart = None
             return chart
         if chart:
+            plt.tight_layout()
             tmpfile = BytesIO()
             chart.fig.savefig(tmpfile, format="png")
             chart.chart = base64.b64encode(tmpfile.getvalue()).decode("utf-8")

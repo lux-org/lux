@@ -13,7 +13,6 @@
 #  limitations under the License.
 
 import pandas as pd
-from lux.utils.date_utils import compute_date_granularity
 
 
 class MatplotlibChart:
@@ -38,7 +37,7 @@ class MatplotlibChart:
         self.initialize_chart()
         # self.add_tooltip()
         # self.encode_color()
-        # self.add_title()
+        self.add_title()
         # self.apply_default_config()
 
         # ----- END self.code modification -----
@@ -56,7 +55,9 @@ class MatplotlibChart:
         return NotImplemented
 
     def add_title(self):
-        return NotImplemented
+        chart_title = self.vis.title
+        if chart_title:
+            self.ax.set_title(chart_title)
 
     def initialize_chart(self):
         return NotImplemented

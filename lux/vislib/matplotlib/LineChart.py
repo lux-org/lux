@@ -93,7 +93,6 @@ class LineChart(MatplotlibChart):
             self.ax.set_ylabel(y_attr_abv)
             x_label = agg_title
             y_label = y_attr_abv
-        plt.tight_layout()
 
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"

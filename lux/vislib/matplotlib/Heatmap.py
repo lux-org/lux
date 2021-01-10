@@ -73,7 +73,6 @@ class Heatmap(MatplotlibChart):
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
         self.ax.grid(False)
-        plt.tight_layout()
 
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
