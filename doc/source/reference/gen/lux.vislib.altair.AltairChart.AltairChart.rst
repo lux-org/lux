@@ -19,6 +19,7 @@ lux.vislib.altair.AltairChart.AltairChart
       ~AltairChart.apply_default_config
       ~AltairChart.encode_color
       ~AltairChart.initialize_chart
+      ~AltairChart.sanitize_dataframe
    
    
 

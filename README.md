@@ -157,8 +157,7 @@ To use Lux in [Jupyter Lab](https://github.com/jupyterlab/jupyterlab), activate 
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install luxwidget
 ```
-
-Note that JupyterLab and VSCode is supported only for lux-widget version >=0.1.2, if you have an earlier version, please upgrade to the latest version of [lux-widget](https://pypi.org/project/lux-widget/). Lux currently only works with the Chrome browser. 
+Lux is only compatible with Jupyter Lab version 2.2.9 and below. Support for the recent [JupyterLab 3](https://blog.jupyter.org/jupyterlab-3-0-is-out-4f58385e25bb) will come soon. Note that JupyterLab and VSCode is supported only for lux-widget version >=0.1.2, if you have an earlier version, please upgrade to the latest version of [lux-widget](https://pypi.org/project/lux-widget/). Lux currently only works with the Chrome browser. 
 
 If you encounter issues with the installation, please refer to [this page](https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips) to troubleshoot the installation. Follow [these instructions](https://lux-api.readthedocs.io/en/latest/source/getting_started/installation.html#manual-installation-dev-setup) to set up Lux for development purposes.
 
