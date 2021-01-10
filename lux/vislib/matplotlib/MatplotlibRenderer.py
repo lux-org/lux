@@ -14,12 +14,18 @@
 
 import lux
 import pandas as pd
+from lux.executor.PandasExecutor import PandasExecutor
 from lux.vislib.matplotlib.BarChart import BarChart
 from lux.vislib.matplotlib.ScatterChart import ScatterChart
 from lux.vislib.matplotlib.LineChart import LineChart
 from lux.vislib.matplotlib.Histogram import Histogram
 from lux.vislib.matplotlib.Heatmap import Heatmap
 import matplotlib.pyplot as plt
+from lux.utils.utils import matplotlib_setup
+
+
+import base64
+from io import BytesIO
 
 
 class MatplotlibRenderer:
@@ -51,7 +57,6 @@ class MatplotlibRenderer:
         # Lazy Evaluation for 2D Binning
         if vis.mark == "scatter" and vis._postbin:
             vis._mark = "heatmap"
-            from lux.executor.PandasExecutor import PandasExecutor
 
             PandasExecutor.execute_2D_binning(vis)
         # If a column has a Period dtype, or contains Period objects, convert it back to Datetime
@@ -66,13 +71,7 @@ class MatplotlibRenderer:
                     vis.data[attr].iloc[0], pd.Interval
                 ):
                     vis.data[attr] = vis.data[attr].astype(str)
-        plt.ioff()
-        plt.rcParams.update({'font.size': 12})
-        fig, ax = plt.subplots(figsize=(4.5, 4))
-        ax.set_axisbelow(True)
-        ax.grid(color="#dddddd")
-        ax.spines["right"].set_color("#dddddd")
-        ax.spines["top"].set_color("#dddddd")
+        fig, ax = matplotlib_setup(4.5, 4)
         if vis.mark == "histogram":
             chart = Histogram(vis, fig, ax)
         elif vis.mark == "bar":
@@ -87,11 +86,8 @@ class MatplotlibRenderer:
             chart = None
             return chart
         if chart:
-            import base64
-            from io import BytesIO
-
             tmpfile = BytesIO()
-            fig.savefig(tmpfile, format="png")
+            chart.fig.savefig(tmpfile, format="png")
             chart.chart = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
             plt.close()
             if self.output_type == "matplotlib":

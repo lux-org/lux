@@ -17,6 +17,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from lux.utils.utils import get_agg_title
+import altair as alt
+from lux.utils.utils import matplotlib_setup
+
 
 
 class LineChart(MatplotlibChart):
@@ -48,10 +51,6 @@ class LineChart(MatplotlibChart):
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
 
-        # x_attr.attribute = x_attr.attribute.replace(".", "")
-        # y_attr.attribute = y_attr.attribute.replace(".", "")
-
-        # Remove NaNs only for Line Charts (offsets axis range)
         self.data = self.data.dropna(subset=[x_attr.attribute, y_attr.attribute])
 
         df = pd.DataFrame(self.data)
@@ -59,7 +58,26 @@ class LineChart(MatplotlibChart):
         x_pts = df[x_attr.attribute]
         y_pts = df[y_attr.attribute]
 
-        self.ax.plot(x_pts, y_pts)
+        color_attr = self.vis.get_attr_by_channel("color")
+        if len(color_attr) == 1:
+            self.fig, self.ax = matplotlib_setup(6,4)
+            color_attr_name = color_attr[0].attribute
+            color_attr_type = color_attr[0].data_type
+            colors = df[color_attr_name].values
+            unique = list(set(colors))
+            d_x = {}
+            d_y = {}
+            for i in unique:
+                d_x[i] = []
+                d_y[i] = []
+            for i in range(len(colors)):
+                d_x[colors[i]].append(x_pts[i])
+                d_y[colors[i]].append(y_pts[i])
+            for i in range(len(unique)):
+                self.ax.plot(d_x[unique[i]], d_y[unique[i]], label=unique[i])
+            self.ax.legend(title=color_attr_name, bbox_to_anchor=(1.05, 1), loc='upper left', ncol=1, frameon=False)
+        else:
+            self.ax.plot(x_pts, y_pts)
 
         x_label = ""
         y_label = ""

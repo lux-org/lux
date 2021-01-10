@@ -17,6 +17,9 @@ from lux.utils.utils import get_agg_title
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from lux.utils.utils import matplotlib_setup
+from matplotlib.cm import ScalarMappable
+from lux.utils.date_utils import compute_date_granularity
 
 
 class BarChart(MatplotlibChart):
@@ -89,9 +92,31 @@ class BarChart(MatplotlibChart):
         bars = df[bar_attr].astype(str)
         measurements = df[measure_attr]
 
-        self.ax.barh(bars, measurements, align="center")
+        color_attr = self.vis.get_attr_by_channel("color")
+        if len(color_attr) == 1:
+            self.fig, self.ax = matplotlib_setup(6,4)
+            color_attr_name = color_attr[0].attribute
+            color_attr_type = color_attr[0].data_type
+            colors = df[color_attr_name].values
+            unique = list(set(colors))
+            d_x = {}
+            d_y = {}
+            for i in unique:
+                d_x[i] = []
+                d_y[i] = []
+            for i in range(len(colors)):
+                d_x[colors[i]].append(bars[i])
+                d_y[colors[i]].append(measurements[i])
+            my_cmap = None
+            for i in range(len(unique)):
+                self.ax.barh(d_x[unique[i]], d_y[unique[i]], label=unique[i])
+            self.ax.legend(title=color_attr_name, bbox_to_anchor=(1.05, 1), loc='upper left', ncol=1, frameon=False)
+        else:
+            self.ax.barh(bars, measurements, align="center")
+
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
+        plt.gca().invert_yaxis()
         plt.tight_layout()
 
         self.code += "import matplotlib.pyplot as plt\n"

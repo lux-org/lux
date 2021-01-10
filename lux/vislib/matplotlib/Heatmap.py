@@ -16,6 +16,7 @@ from lux.vislib.matplotlib.MatplotlibChart import MatplotlibChart
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from lux.utils.utils import matplotlib_setup
 
 
 class Heatmap(MatplotlibChart):
@@ -46,14 +47,28 @@ class Heatmap(MatplotlibChart):
             x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
-
-        df = pd.pivot_table(data=self.data, index="xBinStart", values="count", columns="yBinStart")
-        df = df.apply(lambda x: np.log(x), axis=1)
+        
+        color_attr = self.vis.get_attr_by_channel("color")
+        df = None
+        color_attr_name = ""
+        color_map = "Blues"
+        if len(color_attr) == 1:
+            color_attr_name = color_attr[0].attribute
+            df = pd.pivot_table(data=self.data, index="xBinStart", values=color_attr_name, columns="yBinStart")
+            color_map = "viridis"
+            self.fig, self.ax = matplotlib_setup(6, 4)
+        else:
+            df = pd.pivot_table(data=self.data, index="xBinStart", values="count", columns="yBinStart")
+            df = df.apply(lambda x: np.log(x), axis=1)
         df = df.values
 
-        plt.imshow(df, cmap="Blues")
+        plt.imshow(df, cmap=color_map)
         self.ax.set_aspect("auto")
         plt.gca().invert_yaxis()
+
+        if len(color_attr) == 1:
+            cbar = plt.colorbar(label=color_attr_name)
+            cbar.outline.set_linewidth(0)
 
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)

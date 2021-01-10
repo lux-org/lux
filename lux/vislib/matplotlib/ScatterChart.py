@@ -16,6 +16,8 @@ from lux.vislib.matplotlib.MatplotlibChart import MatplotlibChart
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from lux.utils.utils import matplotlib_setup
+from matplotlib.cm import ScalarMappable
 
 
 class ScatterChart(MatplotlibChart):
@@ -51,7 +53,30 @@ class ScatterChart(MatplotlibChart):
         x_pts = df[x_attr.attribute]
         y_pts = df[y_attr.attribute]
 
-        self.ax.scatter(x_pts, y_pts)
+        color_attr = self.vis.get_attr_by_channel("color")
+        if len(color_attr) == 1:
+            self.fig, self.ax = matplotlib_setup(6,4)
+            color_attr_name = color_attr[0].attribute
+            color_attr_type = color_attr[0].data_type
+            colors = df[color_attr_name].values
+            unique = list(set(colors))
+            vals = []
+            for i in colors:
+                vals.append(unique.index(i))
+            if color_attr_type == "quantitative":
+                scatter = self.ax.scatter(x_pts, y_pts, c=vals, cmap="Blues", alpha=0.5)
+                my_cmap = plt.cm.get_cmap('Blues')
+                sm = ScalarMappable(cmap=my_cmap, norm=plt.Normalize(0,max(colors)))
+                sm.set_array([])
+
+                cbar = plt.colorbar(sm, label=color_attr_name)
+                cbar.outline.set_linewidth(0)
+            else:
+                scatter = self.ax.scatter(x_pts, y_pts, c=vals, alpha=0.5)
+                unique = [str(i) for i in unique]
+                self.ax.legend(handles=scatter.legend_elements(num=range(0, len(unique)))[0], labels=unique, title=color_attr_name, bbox_to_anchor=(1.05, 1), loc='upper left', ncol=1, frameon=False)
+        else:
+            self.ax.scatter(x_pts, y_pts, alpha=0.5)
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
         plt.tight_layout()

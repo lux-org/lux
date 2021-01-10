@@ -16,6 +16,7 @@ from typing import List, Callable, Union
 from lux.vis.Clause import Clause
 from lux.utils.utils import check_import_lux_widget
 import lux
+import warnings
 
 
 class Vis:
@@ -310,6 +311,12 @@ class Vis:
             return self.to_matplotlib()
         elif language == "matplotlib_code":
             return self.to_matplotlib_code()
+        else:
+            warnings.warn(
+                "Unsupported plotting backend. Lux currently only support 'altair', 'vegalite', or 'matplotlib'",
+                stacklevel=2,
+            )
+
 
     def refresh_source(self, ldf):  # -> Vis:
         """
