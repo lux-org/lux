@@ -53,6 +53,7 @@ lux.core.series.LuxSeries
       ~LuxSeries.cumsum
       ~LuxSeries.describe
       ~LuxSeries.diff
+      ~LuxSeries.display_pandas
       ~LuxSeries.div
       ~LuxSeries.divide
       ~LuxSeries.divmod

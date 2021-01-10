@@ -238,41 +238,6 @@ def test_heatmap_flag_config():
     lux.config.heatmap = True
 
 
-def test_topk(global_var):
-    df = pd.read_csv("lux/data/college.csv")
-    lux.config.topk = False
-    df._repr_html_()
-    assert len(df.recommendation["Correlation"]) == 45, "Turn off top K"
-    lux.config.topk = 20
-    df = pd.read_csv("lux/data/college.csv")
-    df._repr_html_()
-    assert len(df.recommendation["Correlation"]) == 20, "Show top 20"
-    for vis in df.recommendation["Correlation"]:
-        assert vis.score > 0.2
-
-
-def test_sort(global_var):
-    df = pd.read_csv("lux/data/college.csv")
-    lux.config.topk = 15
-    df._repr_html_()
-    assert len(df.recommendation["Correlation"]) == 15, "Show top 15"
-    for vis in df.recommendation["Correlation"]:
-        assert vis.score > 0.2
-    df = pd.read_csv("lux/data/college.csv")
-    lux.config.sort = "ascending"
-    df._repr_html_()
-    assert len(df.recommendation["Correlation"]) == 15, "Show bottom 15"
-    for vis in df.recommendation["Correlation"]:
-        assert vis.score < 0.2
-
-    lux.config.sort = "none"
-    df = pd.read_csv("lux/data/college.csv")
-    df._repr_html_()
-    scorelst = [x.score for x in df.recommendation["Distribution"]]
-    assert sorted(scorelst) != scorelst, "unsorted setting"
-    lux.config.sort = "descending"
-
-
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.
 # def test_plot_setting(global_var):
 # 	df = pytest.car_df
