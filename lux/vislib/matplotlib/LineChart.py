@@ -21,7 +21,6 @@ import altair as alt
 from lux.utils.utils import matplotlib_setup
 
 
-
 class LineChart(MatplotlibChart):
     """
     LineChart is a subclass of MatplotlibChart that render as a line charts.
@@ -58,9 +57,11 @@ class LineChart(MatplotlibChart):
         x_pts = df[x_attr.attribute]
         y_pts = df[y_attr.attribute]
 
+        plot_code = ""
+
         color_attr = self.vis.get_attr_by_channel("color")
         if len(color_attr) == 1:
-            self.fig, self.ax = matplotlib_setup(6,4)
+            self.fig, self.ax = matplotlib_setup(6, 4)
             color_attr_name = color_attr[0].attribute
             color_attr_type = color_attr[0].data_type
             colors = df[color_attr_name].values
@@ -75,9 +76,22 @@ class LineChart(MatplotlibChart):
                 d_y[colors[i]].append(y_pts[i])
             for i in range(len(unique)):
                 self.ax.plot(d_x[unique[i]], d_y[unique[i]], label=unique[i])
-            self.ax.legend(title=color_attr_name, bbox_to_anchor=(1.05, 1), loc='upper left', ncol=1, frameon=False)
+                plot_code += f"""ax.plot(
+                        {d_x}[{unique}[{i}]], 
+                        {d_y}[{unique}[{i}]], 
+                        label={unique}[{i}])\n"""
+            self.ax.legend(
+                title=color_attr_name, bbox_to_anchor=(1.05, 1), loc="upper left", ncol=1, frameon=False
+            )
+            plot_code += f"""ax.legend(
+                title='{color_attr_name}', 
+                bbox_to_anchor=(1.05, 1), 
+                loc='upper left', 
+                ncol=1, 
+                frameon=False)\n"""
         else:
             self.ax.plot(x_pts, y_pts)
+            plot_code += f"ax.plot(x_pts, y_pts)"
 
         x_label = ""
         y_label = ""
@@ -103,7 +117,8 @@ class LineChart(MatplotlibChart):
         self.code += f"x_pts = df['{x_attr.attribute}']\n"
         self.code += f"y_pts = df['{y_attr.attribute}']\n"
 
-        self.code += f"ax.plot(x_pts, y_pts)\n"
+        self.code += plot_code
+
         self.code += f"ax.set_xlabel('{x_label}')\n"
         self.code += f"ax.set_ylabel('{y_label}')\n"
         self.code += f"fig\n"

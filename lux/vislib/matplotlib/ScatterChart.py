@@ -47,50 +47,80 @@ class ScatterChart(MatplotlibChart):
             x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
-        
+
         df = pd.DataFrame(self.data)
 
         x_pts = df[x_attr.attribute]
         y_pts = df[y_attr.attribute]
 
+        plot_code = ""
+
         color_attr = self.vis.get_attr_by_channel("color")
         if len(color_attr) == 1:
-            self.fig, self.ax = matplotlib_setup(6,5)
+            self.fig, self.ax = matplotlib_setup(6, 5)
             color_attr_name = color_attr[0].attribute
             color_attr_type = color_attr[0].data_type
             colors = df[color_attr_name].values
+            plot_code += f"colors = df['{color_attr_name}'].values\n"
             unique = list(set(colors))
-            vals = []
-            for i in colors:
-                vals.append(unique.index(i))
+            vals = [unique.index(i) for i in colors]
             if color_attr_type == "quantitative":
-                scatter = self.ax.scatter(x_pts, y_pts, c=vals, cmap="Blues", alpha=0.5)
-                my_cmap = plt.cm.get_cmap('Blues')
-                sm = ScalarMappable(cmap=my_cmap, norm=plt.Normalize(0,max(colors)))
+                self.ax.scatter(x_pts, y_pts, c=vals, cmap="Blues", alpha=0.5)
+                plot_code += f"ax.scatter(x_pts, y_pts, c={vals}, cmap='Blues', alpha=0.5)\n"
+                my_cmap = plt.cm.get_cmap("Blues")
+                max_color = max(colors)
+                sm = ScalarMappable(cmap=my_cmap, norm=plt.Normalize(0, max_color))
                 sm.set_array([])
 
                 cbar = plt.colorbar(sm, label=color_attr_name)
                 cbar.outline.set_linewidth(0)
+                plot_code += f"my_cmap = plt.cm.get_cmap('Blues')\n"
+                plot_code += f"""sm = ScalarMappable(
+                    cmap=my_cmap, 
+                    norm=plt.Normalize(0, {max_color}))\n"""
+
+                plot_code += f"cbar = plt.colorbar(sm, label='{color_attr_name}')\n"
+                plot_code += f"cbar.outline.set_linewidth(0)\n"
             else:
                 scatter = self.ax.scatter(x_pts, y_pts, c=vals, alpha=0.5)
+                plot_code += f"scatter = ax.scatter(x_pts, y_pts, c={vals}, alpha=0.5)\n"
+
                 unique = [str(i) for i in unique]
-                self.ax.legend(handles=scatter.legend_elements(num=range(0, len(unique)))[0], labels=unique, title=color_attr_name, bbox_to_anchor=(1.05, 1), loc='upper left', ncol=1, frameon=False)
+                self.ax.legend(
+                    handles=scatter.legend_elements(num=range(0, len(unique)))[0],
+                    labels=unique,
+                    title=color_attr_name,
+                    bbox_to_anchor=(1.05, 1),
+                    loc="upper left",
+                    ncol=1,
+                    frameon=False,
+                )
+                plot_code += f"""ax.legend(
+                    handles=scatter.legend_elements(num=range(0, len({unique})))[0],
+                    labels={unique},
+                    title='{color_attr_name}', 
+                    bbox_to_anchor=(1.05, 1), 
+                    loc='upper left', 
+                    ncol=1, 
+                    frameon=False,)\n"""
         else:
             self.ax.scatter(x_pts, y_pts, alpha=0.5)
+
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
-        # plt.tight_layout()
 
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
+        self.code += "from matplotlib.cm import ScalarMappable\n"
+
         self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
 
         self.code += f"fig, ax = plt.subplots()\n"
         self.code += f"x_pts = df['{x_attr.attribute}']\n"
         self.code += f"y_pts = df['{y_attr.attribute}']\n"
 
-        self.code += f"ax.scatter(x_pts, y_pts)\n"
+        self.code += plot_code
         self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
         self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
         self.code += f"fig\n"

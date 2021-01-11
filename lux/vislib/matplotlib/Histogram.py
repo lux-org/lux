@@ -52,7 +52,7 @@ class Histogram(MatplotlibChart):
         df = pd.DataFrame(self.data)
 
         bars = df[msr_attr.attribute]
-        measurements = df['Number of Records']
+        measurements = df["Number of Records"]
 
         self.ax.bar(bars, measurements, width=markbar)
         self.ax.set_xlim(x_min, x_max)
@@ -68,7 +68,6 @@ class Histogram(MatplotlibChart):
 
         self.ax.set_xlabel(x_label)
         self.ax.set_ylabel(y_label)
-        plt.tight_layout()
 
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"

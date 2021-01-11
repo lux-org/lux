@@ -47,28 +47,44 @@ class Heatmap(MatplotlibChart):
             x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
-        
+
+        df = pd.DataFrame(self.data)
+
+        plot_code = ""
         color_attr = self.vis.get_attr_by_channel("color")
-        df = None
         color_attr_name = ""
         color_map = "Blues"
         if len(color_attr) == 1:
-            color_attr_name = color_attr[0].attribute
-            df = pd.pivot_table(data=self.data, index="xBinStart", values=color_attr_name, columns="yBinStart")
-            color_map = "viridis"
             self.fig, self.ax = matplotlib_setup(6, 4)
+            color_attr_name = color_attr[0].attribute
+            df = pd.pivot_table(data=df, index="xBinStart", values=color_attr_name, columns="yBinStart")
+            color_map = "viridis"
+            plot_code += f"""df = pd.pivot_table(
+                data=df, 
+                index='xBinStart', 
+                values='{color_attr_name}', 
+                columns='yBinStart')\n"""
         else:
-            df = pd.pivot_table(data=self.data, index="xBinStart", values="count", columns="yBinStart")
+            df = pd.pivot_table(data=df, index="xBinStart", values="count", columns="yBinStart")
             df = df.apply(lambda x: np.log(x), axis=1)
+            plot_code += f"""df = pd.pivot_table(
+                    df, 
+                    index='xBinStart', 
+                    values='count', 
+                    columns='yBinStart')\n"""
+            plot_code += f"df = df.apply(lambda x: np.log(x), axis=1)\n"
         df = df.values
 
         plt.imshow(df, cmap=color_map)
         self.ax.set_aspect("auto")
         plt.gca().invert_yaxis()
 
+        colorbar_code = ""
         if len(color_attr) == 1:
             cbar = plt.colorbar(label=color_attr_name)
             cbar.outline.set_linewidth(0)
+            colorbar_code += f"cbar = plt.colorbar(label='{color_attr_name}')\n"
+            colorbar_code += f"cbar.outline.set_linewidth(0)\n"
 
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
@@ -77,14 +93,17 @@ class Heatmap(MatplotlibChart):
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
-        self.code += f"df = pd.pivot_table({str(self.data.to_dict())}, index='xBinStart', values='count', columns='yBinStart')\n"
-        self.code += f"df = df.apply(lambda x: np.log(x), axis=1)\n"
+        self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
+
+        self.code += plot_code
         self.code += f"df = df.values\n"
 
         self.code += f"fig, ax = plt.subplots()\n"
-        self.code += f"plt.imshow(df, cmap='Blues')\n"
+        self.code += f"plt.imshow(df, cmap='{color_map}')\n"
         self.code += f"ax.set_aspect('auto')\n"
         self.code += f"plt.gca().invert_yaxis()\n"
+
+        self.code += colorbar_code
 
         self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
         self.code += f"ax.set_ylabel('{y_attr_abv}')\n"

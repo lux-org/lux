@@ -92,9 +92,11 @@ class BarChart(MatplotlibChart):
         bars = df[bar_attr].astype(str)
         measurements = df[measure_attr]
 
+        plot_code = ""
+
         color_attr = self.vis.get_attr_by_channel("color")
         if len(color_attr) == 1:
-            self.fig, self.ax = matplotlib_setup(6,4)
+            self.fig, self.ax = matplotlib_setup(6, 4)
             color_attr_name = color_attr[0].attribute
             color_attr_type = color_attr[0].data_type
             colors = df[color_attr_name].values
@@ -107,12 +109,23 @@ class BarChart(MatplotlibChart):
             for i in range(len(colors)):
                 d_x[colors[i]].append(bars[i])
                 d_y[colors[i]].append(measurements[i])
-            my_cmap = None
             for i in range(len(unique)):
                 self.ax.barh(d_x[unique[i]], d_y[unique[i]], label=unique[i])
-            self.ax.legend(title=color_attr_name, bbox_to_anchor=(1.05, 1), loc='upper left', ncol=1, frameon=False)
+                plot_code += (
+                    f"ax.barh({d_x}[{unique}[{i}]], {d_y}[{unique}[{i}]], label={unique}[{i}])\n"
+                )
+            self.ax.legend(
+                title=color_attr_name, bbox_to_anchor=(1.05, 1), loc="upper left", ncol=1, frameon=False
+            )
+            plot_code += f"""ax.legend(
+                title='{color_attr_name}', 
+                bbox_to_anchor=(1.05, 1), 
+                loc='upper left', 
+                ncol=1, 
+                frameon=False)\n"""
         else:
             self.ax.barh(bars, measurements, align="center")
+            plot_code += f"ax.barh(bars, measurements, align='center')\n"
 
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
@@ -127,7 +140,8 @@ class BarChart(MatplotlibChart):
         self.code += f"bars = df['{bar_attr}']\n"
         self.code += f"measurements = df['{measure_attr}']\n"
 
-        self.code += f"ax.barh(bars, measurements, align='center')\n"
+        self.code += plot_code
+
         self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
         self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
         self.code += f"fig\n"

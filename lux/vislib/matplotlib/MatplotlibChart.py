@@ -34,7 +34,7 @@ class MatplotlibChart:
         self.ax = ax
         # ----- START self.code modification -----
         self.code = ""
-        self.initialize_chart()
+        self.chart = self.initialize_chart()
         # self.add_tooltip()
         # self.encode_color()
         self.add_title()
@@ -58,6 +58,7 @@ class MatplotlibChart:
         chart_title = self.vis.title
         if chart_title:
             self.ax.set_title(chart_title)
+            self.code += f"ax.set_title('{chart_title}')\n"
 
     def initialize_chart(self):
         return NotImplemented
