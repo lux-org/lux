@@ -50,14 +50,16 @@ class MatplotlibChart:
         return NotImplemented
 
     def apply_default_config(self):
-        plt.rcParams.update({
-            'axes.titlesize': 15,
-            'axes.titleweight': 'bold',
-            'axes.labelsize': 13,
-            'axes.labelweight': 'bold',
-            'legend.fontsize': 13,
-            'legend.title_fontweight': 'bold'
-        })
+        plt.rcParams.update(
+            {
+                "axes.titlesize": 15,
+                "axes.titleweight": "bold",
+                "axes.labelsize": 13,
+                "axes.labelweight": "bold",
+                "legend.fontsize": 13,
+                "legend.title_fontweight": "bold",
+            }
+        )
 
     def encode_color(self):
         return NotImplemented
