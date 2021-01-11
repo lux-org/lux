@@ -53,6 +53,7 @@ class LuxDataFrame(pd.DataFrame):
         "_message",
         "_pandas_only",
         "pre_aggregated",
+        "_spec_lux_type",
     ]
 
     def __init__(self, *args, **kw):
@@ -81,6 +82,7 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = None
         self._min_max = None
         self.pre_aggregated = None
+        self._spec_lux_type = {}
         warnings.formatwarning = lux.warning_format
 
     @property
@@ -242,6 +244,26 @@ class LuxDataFrame(pd.DataFrame):
         self._intent = vis._inferred_intent
         self._parse_validate_compile_intent()
 
+    def asLuxType(self, types: dict):
+        """
+        Allows the user to specify the intended Lux Type
+
+        Parameters
+        ----------
+            types: dict
+                Dictionary that maps attribute/column name to a specified Lux Type.
+                Possible Lux Types are "nominal", "quantitative", "id", and "temporal".
+        """
+        if self._spec_lux_type == None:
+            self._spec_lux_type = types
+        else:
+            self._spec_lux_type = {**self._spec_lux_type, **types}
+
+        for t in types:
+            self.data_type[t] = types[t]
+        
+        self.expire_recs()
+
     def to_pandas(self):
         import lux.core
 
@@ -358,7 +380,9 @@ class LuxDataFrame(pd.DataFrame):
             sql_dtypes[attr] = datatype
 
         for attr in list(self.columns):
-            if str(attr).lower() in ["month", "year"]:
+            if attr in self._spec_lux_type:
+                data_type[attr] = self._spec_lux_type[attr]
+            elif str(attr).lower() in ["month", "year"]:
                 data_type[attr] = "temporal"
             elif sql_dtypes[attr] in [
                 "character",

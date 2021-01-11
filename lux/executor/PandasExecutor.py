@@ -400,44 +400,51 @@ class PandasExecutor(Executor):
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
         for attr in list(ldf.columns):
-            temporal_var_list = ["month", "year", "day", "date", "time"]
-            if is_datetime(ldf[attr]):
-                ldf.data_type[attr] = "temporal"
-            elif self._is_datetime_string(ldf[attr]):
-                ldf.data_type[attr] = "temporal"
-            elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
-                ldf.data_type[attr] = "temporal"
-            elif str(attr).lower() in temporal_var_list:
-                ldf.data_type[attr] = "temporal"
-            elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
-                # int columns gets coerced into floats if contain NaN
-                convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
-                if convertible2int and ldf.cardinality[attr] != len(ldf) and ldf.cardinality[attr] < 20:
-                    ldf.data_type[attr] = "nominal"
-                else:
-                    ldf.data_type[attr] = "quantitative"
-            elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
-                # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
-                if ldf.pre_aggregated:
-                    if ldf.cardinality[attr] == len(ldf):
-                        ldf.data_type[attr] = "nominal"
-                if ldf.cardinality[attr] / len(ldf) < 0.4 and ldf.cardinality[attr] < 20:
-                    ldf.data_type[attr] = "nominal"
-                else:
-                    ldf.data_type[attr] = "quantitative"
-                if check_if_id_like(ldf, attr):
-                    ldf.data_type[attr] = "id"
-            # Eliminate this clause because a single NaN value can cause the dtype to be object
-            elif pd.api.types.is_string_dtype(ldf.dtypes[attr]):
-                if check_if_id_like(ldf, attr):
-                    ldf.data_type[attr] = "id"
-                else:
-                    ldf.data_type[attr] = "nominal"
-            # check if attribute is any type of datetime dtype
-            elif is_datetime_series(ldf.dtypes[attr]):
-                ldf.data_type[attr] = "temporal"
+            if attr in ldf._spec_lux_type:
+                ldf.data_type[attr] = ldf._spec_lux_type[attr]
             else:
-                ldf.data_type[attr] = "nominal"
+                temporal_var_list = ["month", "year", "day", "date", "time"]
+                if is_datetime(ldf[attr]):
+                    ldf.data_type[attr] = "temporal"
+                elif self._is_datetime_string(ldf[attr]):
+                    ldf.data_type[attr] = "temporal"
+                elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
+                    ldf.data_type[attr] = "temporal"
+                elif str(attr).lower() in temporal_var_list:
+                    ldf.data_type[attr] = "temporal"
+                elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
+                    # int columns gets coerced into floats if contain NaN
+                    convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
+                    if (
+                        convertible2int
+                        and ldf.cardinality[attr] != len(ldf)
+                        and ldf.cardinality[attr] < 20
+                    ):
+                        ldf.data_type[attr] = "nominal"
+                    else:
+                        ldf.data_type[attr] = "quantitative"
+                elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
+                    # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
+                    if ldf.pre_aggregated:
+                        if ldf.cardinality[attr] == len(ldf):
+                            ldf.data_type[attr] = "nominal"
+                    if ldf.cardinality[attr] / len(ldf) < 0.4 and ldf.cardinality[attr] < 20:
+                        ldf.data_type[attr] = "nominal"
+                    else:
+                        ldf.data_type[attr] = "quantitative"
+                    if check_if_id_like(ldf, attr):
+                        ldf.data_type[attr] = "id"
+                # Eliminate this clause because a single NaN value can cause the dtype to be object
+                elif pd.api.types.is_string_dtype(ldf.dtypes[attr]):
+                    if check_if_id_like(ldf, attr):
+                        ldf.data_type[attr] = "id"
+                    else:
+                        ldf.data_type[attr] = "nominal"
+                # check if attribute is any type of datetime dtype
+                elif is_datetime_series(ldf.dtypes[attr]):
+                    ldf.data_type[attr] = "temporal"
+                else:
+                    ldf.data_type[attr] = "nominal"
         if not pd.api.types.is_integer_dtype(ldf.index) and ldf.index.name:
             ldf.data_type[ldf.index.name] = "nominal"
 
@@ -455,6 +462,7 @@ class PandasExecutor(Executor):
             for attr in non_datetime_attrs:
                 warn_msg += f"\tdf['{attr}'] = pd.to_datetime(df['{attr}'], format='<replace-with-datetime-format>')\n"
             warn_msg += "\nSee more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html"
+            warn_msg += '\nIf this is not intended to be a datetime object, you can use df.asLuxType to specify a new Lux Type. Possible options are "nominal", "quantitative", "id", and "temporal"'
             warnings.warn(warn_msg, stacklevel=2)
 
     def _is_datetime_string(self, series):
