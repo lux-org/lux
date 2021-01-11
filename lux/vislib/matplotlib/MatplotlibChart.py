@@ -54,7 +54,9 @@ class MatplotlibChart:
             'axes.titlesize': 15,
             'axes.titleweight': 'bold',
             'axes.labelsize': 13,
-            'axes.labelweight': 'bold'
+            'axes.labelweight': 'bold',
+            'legend.fontsize': 13,
+            'legend.title_fontweight': 'bold'
         })
 
     def encode_color(self):
