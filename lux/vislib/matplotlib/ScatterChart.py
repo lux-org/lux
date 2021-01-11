@@ -105,6 +105,7 @@ class ScatterChart(MatplotlibChart):
                     frameon=False,)\n"""
         else:
             self.ax.scatter(x_pts, y_pts, alpha=0.5)
+            plot_code += f"ax.scatter(x_pts, y_pts, alpha=0.5)\n"
 
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)

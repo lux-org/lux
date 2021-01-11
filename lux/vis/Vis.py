@@ -317,7 +317,6 @@ class Vis:
                 stacklevel=2,
             )
 
-
     def refresh_source(self, ldf):  # -> Vis:
         """
         Loading the source data into the Vis by instantiating the specification and

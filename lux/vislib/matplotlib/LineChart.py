@@ -88,10 +88,10 @@ class LineChart(MatplotlibChart):
                 bbox_to_anchor=(1.05, 1), 
                 loc='upper left', 
                 ncol=1, 
-                frameon=False)\n"""
+                frameon=False,)\n"""
         else:
             self.ax.plot(x_pts, y_pts)
-            plot_code += f"ax.plot(x_pts, y_pts)"
+            plot_code += f"ax.plot(x_pts, y_pts)\n"
 
         x_label = ""
         y_label = ""

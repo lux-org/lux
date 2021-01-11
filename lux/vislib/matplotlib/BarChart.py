@@ -122,7 +122,7 @@ class BarChart(MatplotlibChart):
                 bbox_to_anchor=(1.05, 1), 
                 loc='upper left', 
                 ncol=1, 
-                frameon=False)\n"""
+                frameon=False,)\n"""
         else:
             self.ax.barh(bars, measurements, align="center")
             plot_code += f"ax.barh(bars, measurements, align='center')\n"
