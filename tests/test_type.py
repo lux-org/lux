@@ -190,8 +190,11 @@ def test_float_categorical():
     for x in list(df.dtypes):
         assert x == "float64", "Source dataframe preserved as float dtype"
 
+
 def test_asLuxType():
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true")
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
+    )
     with pytest.warns(UserWarning) as w:
         df._repr_html_()
         assert "starter template that you can use" in str(w[-1].message)
@@ -204,4 +207,3 @@ def test_asLuxType():
         warnings.simplefilter("always")
         df._repr_html_()
         assert not w
-

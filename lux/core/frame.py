@@ -261,7 +261,7 @@ class LuxDataFrame(pd.DataFrame):
 
         for t in types:
             self.data_type[t] = types[t]
-        
+
         self.expire_recs()
 
     def to_pandas(self):
