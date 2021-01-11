@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 class MatplotlibChart:
@@ -34,11 +35,11 @@ class MatplotlibChart:
         self.ax = ax
         # ----- START self.code modification -----
         self.code = ""
+        self.apply_default_config()
         self.chart = self.initialize_chart()
         # self.add_tooltip()
         # self.encode_color()
         self.add_title()
-        # self.apply_default_config()
 
         # ----- END self.code modification -----
 
@@ -49,7 +50,12 @@ class MatplotlibChart:
         return NotImplemented
 
     def apply_default_config(self):
-        return NotImplemented
+        plt.rcParams.update({
+            'axes.titlesize': 15,
+            'axes.titleweight': 'bold',
+            'axes.labelsize': 13,
+            'axes.labelweight': 'bold'
+        })
 
     def encode_color(self):
         return NotImplemented
