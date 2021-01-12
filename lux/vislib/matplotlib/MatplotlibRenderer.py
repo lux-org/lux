@@ -72,6 +72,8 @@ class MatplotlibRenderer:
                 ):
                     vis.data[attr] = vis.data[attr].astype(str)
         fig, ax = matplotlib_setup(4.5, 4)
+        plt.rcParams.update({'figure.max_open_warning': 0})
+
         if vis.mark == "histogram":
             chart = Histogram(vis, fig, ax)
         elif vis.mark == "bar":
@@ -90,7 +92,7 @@ class MatplotlibRenderer:
             tmpfile = BytesIO()
             chart.fig.savefig(tmpfile, format="png")
             chart.chart = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
-            plt.close()
+            plt.cla()
             if self.output_type == "matplotlib":
                 return {"config": chart.chart, "vislib": "matplotlib"}
             if self.output_type == "matplotlib_code":
