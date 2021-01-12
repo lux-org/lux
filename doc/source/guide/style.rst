@@ -25,7 +25,8 @@ To change the plot configuration in Altair, we need to specify a function that t
 Let's say that we want to change all the graphical marks of the charts to green and add a custom title. We can define this `change_color_add_title` function, which configures the chart's mark as green and adds a custom title to the chart.
 
 .. code-block:: python
-	
+	lux.config.plotting_backend = "altair" # or 'vegalite'
+
 	def change_color_add_title(chart):
 	    chart = chart.configure_mark(color="green") # change mark color to green
 	    chart.title = "Custom Title" # add title to chart
@@ -40,6 +41,26 @@ We then set the global plot configuration of the dataframe by changing the :code
 We now see that the displayed visualizations adopt these new imported settings.
 
 .. image:: ../img/style-2.png
+  :width: 700
+  :align: center 
+
+Similarly, we can change the plot configurations for Matplotlib charts as well.
+The plot_config attribute for Matplotlib charts takes in both the figure and axis as parameters.
+.. code-block:: python
+	
+	lux.config.plotting_backend = "matplotlib" # or 'matplotlib_code'
+
+    def add_title(fig, ax):
+        ax.set_title("Test Title")
+        return fig, ax
+
+.. code-block:: python
+	
+	lux.config.plot_config = add_title
+
+We now see that the displayed visualizations adopt these new imported settings.
+
+.. image:: ../img/style-7.png
   :width: 700
   :align: center 
 

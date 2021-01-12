@@ -156,6 +156,27 @@ The above results in the following changes:
 
 See `this page <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ for more details.
 
+Matplotlib also supports plot configurations to be applied on top of the generated graphs. To set a default plot configuration, first write a function that can take in a `fig` and 'ax' and returns a `fig` and 'ax. For example:
+
+.. code-block:: python
+
+    def add_title(fig, ax):
+        ax.set_title("Test Title")
+        return fig, ax
+
+.. code-block:: python
+
+    lux.config.plot_config = add_title
+
+The above results in the following changes:
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/style-7.png?raw=true
+  :width: 600
+  :align: center
+
+See `this page <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ for more details.
+
+
 Modify Sorting and Ranking in Recommendations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
