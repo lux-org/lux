@@ -241,18 +241,6 @@ def test_interestingness_0_2_0(global_var):
 
     # check that top recommended filter graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Filter"][0], df) != None
-    rank1 = -1
-    rank2 = -1
-    rank3 = -1
-    for f in range(0, len(df.recommendation["Filter"])):
-        if "1973" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
-            rank1 = f
-        if "ford" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
-            rank2 = f
-        if str(df.recommendation["Filter"][f]._inferred_intent[2].value) == "USA":
-            rank3 = f
-    assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
-
     # check that top recommended Generalize graph score is not none
     assert interestingness(df.recommendation["Generalize"][0], df) != None
 
