@@ -23,7 +23,6 @@ from lux.vislib.matplotlib.Heatmap import Heatmap
 import matplotlib.pyplot as plt
 from lux.utils.utils import matplotlib_setup
 
-
 import base64
 from io import BytesIO
 
@@ -71,7 +70,7 @@ class MatplotlibRenderer:
                     vis.data[attr].iloc[0], pd.Interval
                 ):
                     vis.data[attr] = vis.data[attr].astype(str)
-        fig, ax = matplotlib_setup(4.5, 4)
+        fig, ax = lux.vislib.matplotlib.fig, lux.vislib.matplotlib.ax
         if vis.mark == "histogram":
             chart = Histogram(vis, fig, ax)
         elif vis.mark == "bar":

@@ -48,17 +48,6 @@ class MatplotlibChart:
         return NotImplemented
 
     def apply_default_config(self):
-        plt.rcParams.update({"figure.max_open_warning": 0})
-        plt.rcParams.update(
-            {
-                "axes.titlesize": 15,
-                "axes.titleweight": "bold",
-                "axes.labelsize": 13,
-                "axes.labelweight": "bold",
-                "legend.fontsize": 13,
-                "legend.title_fontsize": 13,
-            }
-        )
         self.code += """plt.rcParams.update(
             {
                 "axes.titlesize": 15,
