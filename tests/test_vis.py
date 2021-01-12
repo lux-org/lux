@@ -153,7 +153,10 @@ def test_vis_list_custom_title_override(global_var):
 
     vcLst = []
     for attribute in ["Sport", "Year", "Height", "HostRegion", "SportType"]:
-        vis = Vis([lux.Clause("Weight"), lux.Clause(attribute)], title="overriding dummy title",)
+        vis = Vis(
+            [lux.Clause("Weight"), lux.Clause(attribute)],
+            title="overriding dummy title",
+        )
         vcLst.append(vis)
     vlist = VisList(vcLst, df)
     for v in vlist:
@@ -211,6 +214,7 @@ def test_bar_chart(global_var):
         in vis_code
     )
 
+    lux.config.plot_config = None
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Origin", "Acceleration"], df)
     vis_code = vis.to_matplotlib_code()
