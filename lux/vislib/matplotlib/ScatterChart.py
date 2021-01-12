@@ -57,7 +57,7 @@ class ScatterChart(MatplotlibChart):
 
         color_attr = self.vis.get_attr_by_channel("color")
         if len(color_attr) == 1:
-            self.fig, self.ax = matplotlib_setup(6, 5)
+            self.fig, self.ax = matplotlib_setup(6.5, 5)
             color_attr_name = color_attr[0].attribute
             color_attr_type = color_attr[0].data_type
             colors = df[color_attr_name].values

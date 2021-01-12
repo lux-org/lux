@@ -74,6 +74,7 @@ class BarChart(MatplotlibChart):
                 horizontalalignment="right",
                 transform=self.ax.transAxes,
                 fontsize=11,
+                fontweight='bold',
                 color="#ff8e04",
             )
 
@@ -89,7 +90,7 @@ class BarChart(MatplotlibChart):
 
         df = pd.DataFrame(self.data)
 
-        bars = df[bar_attr].astype(str)
+        bars = df[bar_attr].astype(str).str[:10] + "..."
         measurements = df[measure_attr]
 
         plot_code = ""
@@ -129,6 +130,7 @@ class BarChart(MatplotlibChart):
 
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
+        self.ax.tick_params(length=6, width=2)
         plt.gca().invert_yaxis()
 
         self.code += "import matplotlib.pyplot as plt\n"

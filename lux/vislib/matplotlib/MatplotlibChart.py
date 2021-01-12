@@ -35,11 +35,12 @@ class MatplotlibChart:
         self.ax = ax
         # ----- START self.code modification -----
         self.code = ""
-        self.apply_default_config()
         self.chart = self.initialize_chart()
         # self.add_tooltip()
         # self.encode_color()
         self.add_title()
+        self.apply_default_config()
+
 
         # ----- END self.code modification -----
 
@@ -57,7 +58,7 @@ class MatplotlibChart:
                 "axes.labelsize": 13,
                 "axes.labelweight": "bold",
                 "legend.fontsize": 13,
-                "legend.title_fontweight": "bold",
+                "legend.title_fontsize": 14,
             }
         )
 
