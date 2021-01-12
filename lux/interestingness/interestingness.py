@@ -316,7 +316,7 @@ def mutual_information(v_x: list, v_y: list) -> int:
 def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> int:
     """
     Monotonicity measures there is a monotonic trend in the scatterplot, whether linear or not.
-    This score is computed as the square of the Spearman correlation coefficient, which is the Pearson correlation on the ranks of x and y.
+    This score is computed as the Pearson's correlation on the ranks of x and y.
     See "Graph-Theoretic Scagnostics", Wilkinson et al 2005: https://research.tableau.com/sites/default/files/Wilkinson_Infovis-05.pdf
     Parameters
     ----------
@@ -332,7 +332,7 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
     int
             Score describing the strength of monotonic relationship in vis
     """
-    from scipy.stats import spearmanr
+    from scipy.stats import pearsonr
 
     msr1 = attr_specs[0].attribute
     msr2 = attr_specs[1].attribute
@@ -347,7 +347,7 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
     with warnings.catch_warnings():
         warnings.filterwarnings("error")
         try:
-            score = (spearmanr(v_x, v_y)[0]) ** 2
+            score = np.abs(pearsonr(v_x, v_y)[0])
         except (RuntimeWarning):
             # RuntimeWarning: invalid value encountered in true_divide (occurs when v_x and v_y are uniform, stdev in denominator is zero, leading to spearman's correlation as nan), ignore these cases.
             score = -1
