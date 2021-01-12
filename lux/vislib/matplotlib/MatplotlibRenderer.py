@@ -72,8 +72,6 @@ class MatplotlibRenderer:
                 ):
                     vis.data[attr] = vis.data[attr].astype(str)
         fig, ax = matplotlib_setup(4.5, 4)
-        plt.rcParams.update({'figure.max_open_warning': 0})
-
         if vis.mark == "histogram":
             chart = Histogram(vis, fig, ax)
         elif vis.mark == "bar":

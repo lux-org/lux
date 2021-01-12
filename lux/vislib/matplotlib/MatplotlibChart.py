@@ -35,12 +35,9 @@ class MatplotlibChart:
         self.ax = ax
         # ----- START self.code modification -----
         self.code = ""
-        self.chart = self.initialize_chart()
-        # self.add_tooltip()
-        # self.encode_color()
-        self.add_title()
         self.apply_default_config()
-
+        self.chart = self.initialize_chart()
+        self.add_title()
 
         # ----- END self.code modification -----
 
@@ -51,6 +48,7 @@ class MatplotlibChart:
         return NotImplemented
 
     def apply_default_config(self):
+        plt.rcParams.update({"figure.max_open_warning": 0})
         plt.rcParams.update(
             {
                 "axes.titlesize": 15,
@@ -58,9 +56,19 @@ class MatplotlibChart:
                 "axes.labelsize": 13,
                 "axes.labelweight": "bold",
                 "legend.fontsize": 13,
-                "legend.title_fontsize": 14,
+                "legend.title_fontsize": 13,
             }
         )
+        self.code += """plt.rcParams.update(
+            {
+                "axes.titlesize": 15,
+                "axes.titleweight": "bold",
+                "axes.labelsize": 13,
+                "axes.labelweight": "bold",
+                "legend.fontsize": 13,
+                "legend.title_fontsize": 13,
+            }
+        )"""
 
     def encode_color(self):
         return NotImplemented
@@ -68,8 +76,8 @@ class MatplotlibChart:
     def add_title(self):
         chart_title = self.vis.title
         if chart_title:
-            self.ax.set_title(chart_title)
-            self.code += f"ax.set_title('{chart_title}')\n"
+            self.ax.set_title(chart_title, fontsize=15)
+            self.code += f"ax.set_title('{chart_title}', fontsize=15)\n"
 
     def initialize_chart(self):
         return NotImplemented

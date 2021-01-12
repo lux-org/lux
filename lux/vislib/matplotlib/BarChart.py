@@ -74,7 +74,7 @@ class BarChart(MatplotlibChart):
                 horizontalalignment="right",
                 transform=self.ax.transAxes,
                 fontsize=11,
-                fontweight='bold',
+                fontweight="bold",
                 color="#ff8e04",
             )
 
@@ -90,7 +90,8 @@ class BarChart(MatplotlibChart):
 
         df = pd.DataFrame(self.data)
 
-        bars = df[bar_attr].astype(str).str[:10] + "..."
+        # bars = df[bar_attr].astype(str).str[:10]
+        bars = df[bar_attr].apply(lambda x: str(x)[:10] + "..." if len(str(x)) > 10 else str(x))
         measurements = df[measure_attr]
 
         plot_code = ""

@@ -82,7 +82,7 @@ class ScatterChart(MatplotlibChart):
                 plot_code += f"cbar = plt.colorbar(sm, label='{color_attr_name}')\n"
                 plot_code += f"cbar.outline.set_linewidth(0)\n"
             else:
-                scatter = self.ax.scatter(x_pts, y_pts, c=vals, alpha=0.5)
+                scatter = self.ax.scatter(x_pts, y_pts, c=vals, cmap="Set1", alpha=0.5)
                 plot_code += f"scatter = ax.scatter(x_pts, y_pts, c={vals}, alpha=0.5)\n"
 
                 unique = [str(i) for i in unique]
