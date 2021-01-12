@@ -124,4 +124,3 @@ class ScatterChart(MatplotlibChart):
         self.code += plot_code
         self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
         self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
-        self.code += f"fig\n"

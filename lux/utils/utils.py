@@ -108,7 +108,6 @@ def like_nan(val):
 
 def matplotlib_setup(w, h):
     plt.ioff()
-    plt.rcParams.update({"font.size": 12})
     fig, ax = plt.subplots(figsize=(w, h))
     ax.set_axisbelow(True)
     ax.grid(color="#dddddd")

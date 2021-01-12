@@ -86,7 +86,9 @@ class AltairRenderer:
             chart = None
 
         if chart:
-            if lux.config.plot_config:
+            if lux.config.plot_config and (
+                lux.config.plotting_backend == "vegalite" or lux.config.plotting_backend == "altair"
+            ):
                 chart.chart = lux.config.plot_config(chart.chart)
             if self.output_type == "VegaLite":
                 chart_dict = chart.chart.to_dict()
@@ -124,8 +126,7 @@ class AltairRenderer:
                     found_variable = "df"
                 if standalone:
                     chart.code = chart.code.replace(
-                        "placeholder_variable",
-                        f"pd.DataFrame({str(vis.data.to_dict())})",
+                        "placeholder_variable", f"pd.DataFrame({str(vis.data.to_dict())})",
                     )
                 else:
                     # TODO: Placeholder (need to read dynamically via locals())

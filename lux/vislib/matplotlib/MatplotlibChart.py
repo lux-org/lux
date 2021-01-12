@@ -57,7 +57,7 @@ class MatplotlibChart:
                 "legend.fontsize": 13,
                 "legend.title_fontsize": 13,
             }
-        )"""
+        )\n"""
 
     def encode_color(self):
         return NotImplemented

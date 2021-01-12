@@ -81,4 +81,3 @@ class Histogram(MatplotlibChart):
         self.code += f"ax.bar(bars, measurements, width={markbar})\n"
         self.code += f"ax.set_xlabel('{x_label}')\n"
         self.code += f"ax.set_ylabel('{y_label}')\n"
-        self.code += f"fig\n"

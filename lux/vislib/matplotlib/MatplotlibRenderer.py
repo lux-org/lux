@@ -70,7 +70,7 @@ class MatplotlibRenderer:
                     vis.data[attr].iloc[0], pd.Interval
                 ):
                     vis.data[attr] = vis.data[attr].astype(str)
-        fig, ax = lux.vislib.matplotlib.fig, lux.vislib.matplotlib.ax
+        fig, ax = matplotlib_setup(4.5, 4)
         if vis.mark == "histogram":
             chart = Histogram(vis, fig, ax)
         elif vis.mark == "bar":
@@ -86,11 +86,25 @@ class MatplotlibRenderer:
             return chart
         if chart:
             plt.tight_layout()
+            if lux.config.plot_config and (
+                lux.config.plotting_backend == "matplotlib"
+                or lux.config.plotting_backend == "matplotlib_code"
+            ):
+                chart.fig, chart.ax = lux.config.plot_config(chart.fig, chart.ax)
+            plt.tight_layout()
             tmpfile = BytesIO()
             chart.fig.savefig(tmpfile, format="png")
             chart.chart = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
-            plt.cla()
+            plt.clf()
             if self.output_type == "matplotlib":
                 return {"config": chart.chart, "vislib": "matplotlib"}
             if self.output_type == "matplotlib_code":
+                if lux.config.plot_config:
+                    import inspect
+
+                    chart.code += "\n".join(
+                        inspect.getsource(lux.config.plot_config).split("\n    ")[1:-1]
+                    )
+                chart.code += "\nfig"
+                chart.code = chart.code.replace("\n\t\t", "\n")
                 return chart.code

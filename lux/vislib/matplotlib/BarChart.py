@@ -130,7 +130,6 @@ class BarChart(MatplotlibChart):
 
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
-        self.ax.tick_params(length=6, width=2)
         plt.gca().invert_yaxis()
 
         self.code += "import matplotlib.pyplot as plt\n"
@@ -146,4 +145,3 @@ class BarChart(MatplotlibChart):
 
         self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
         self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
-        self.code += f"fig\n"
