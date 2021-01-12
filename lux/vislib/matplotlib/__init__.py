@@ -15,7 +15,7 @@
 from lux.utils.utils import matplotlib_setup
 import matplotlib.pyplot as plt
 
-# plt.rcParams.update({"figure.max_open_warning": 0})
+plt.rcParams.update({"figure.max_open_warning": 0})
 plt.rcParams.update(
     {
         "axes.titlesize": 15,
