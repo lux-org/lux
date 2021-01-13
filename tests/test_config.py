@@ -28,7 +28,8 @@ def register_new_action(validator: bool = True):
         vlist = VisList(intent, ldf)
         for vis in vlist:
             vis.score = 10
-        vlist = vlist.topK(15)
+        vlist.sort()
+        vlist = vlist.showK()
         return {
             "action": "bars",
             "description": "Random list of Bar charts",
@@ -105,7 +106,8 @@ def test_invalid_validator(global_var):
         vlist = VisList(intent, ldf)
         for vis in vlist:
             vis.score = 10
-        vlist = vlist.topK(15)
+        vlist.sort()
+        vlist = vlist.showK()
         return {
             "action": "bars",
             "description": "Random list of Bar charts",
@@ -233,6 +235,41 @@ def test_heatmap_flag_config():
     df = df.copy()
     assert not df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True
+
+
+def test_topk(global_var):
+    df = pd.read_csv("lux/data/college.csv")
+    lux.config.topk = False
+    df._repr_html_()
+    assert len(df.recommendation["Correlation"]) == 45, "Turn off top K"
+    lux.config.topk = 20
+    df = pd.read_csv("lux/data/college.csv")
+    df._repr_html_()
+    assert len(df.recommendation["Correlation"]) == 20, "Show top 20"
+    for vis in df.recommendation["Correlation"]:
+        assert vis.score > 0.2
+
+
+def test_sort(global_var):
+    df = pd.read_csv("lux/data/college.csv")
+    lux.config.topk = 15
+    df._repr_html_()
+    assert len(df.recommendation["Correlation"]) == 15, "Show top 15"
+    for vis in df.recommendation["Correlation"]:
+        assert vis.score > 0.5
+    df = pd.read_csv("lux/data/college.csv")
+    lux.config.sort = "ascending"
+    df._repr_html_()
+    assert len(df.recommendation["Correlation"]) == 15, "Show bottom 15"
+    for vis in df.recommendation["Correlation"]:
+        assert vis.score < 0.35
+
+    lux.config.sort = "none"
+    df = pd.read_csv("lux/data/college.csv")
+    df._repr_html_()
+    scorelst = [x.score for x in df.recommendation["Distribution"]]
+    assert sorted(scorelst) != scorelst, "unsorted setting"
+    lux.config.sort = "descending"
 
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.
