@@ -411,7 +411,7 @@ def test_colored_heatmap_chart(global_var):
     assert "plt.colorbar(label='availability_365')" in vis_code
 
 
-def test_matplotlib_default_actions_registered(global_var):
+def test_vegalite_default_actions_registered(global_var):
     df = pytest.car_df
     lux.config.plotting_backend = "vegalite"
     df._repr_html_()
@@ -431,6 +431,8 @@ def test_matplotlib_default_actions_registered(global_var):
     assert "Correlation" in df.recommendation
     assert len(df.recommendation["Correlation"]) > 0
 
+
+def test_matplotlib_default_actions_registered(global_var):
     lux.config.plotting_backend = "matplotlib"
     df._repr_html_()
     # Histogram Chart
@@ -450,7 +452,7 @@ def test_matplotlib_default_actions_registered(global_var):
     assert len(df.recommendation["Correlation"]) > 0
 
 
-def test_matplotlib_heatmap_flag_config():
+def test_vegalite_heatmap_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "vegalite"
     df._repr_html_()
@@ -462,6 +464,7 @@ def test_matplotlib_heatmap_flag_config():
     assert not df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True
 
+def test_matplotlib_heatmap_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "matplotlib"
     df._repr_html_()
