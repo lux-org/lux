@@ -96,7 +96,7 @@ class MatplotlibRenderer:
             chart.fig.savefig(tmpfile, format="png")
             chart.chart = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
             plt.clf()
-            plt.close('all')
+            plt.close("all")
             if self.output_type == "matplotlib":
                 return {"config": chart.chart, "vislib": "matplotlib"}
             if self.output_type == "matplotlib_code":
