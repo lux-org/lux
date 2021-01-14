@@ -462,7 +462,8 @@ class PandasExecutor(Executor):
             for attr in non_datetime_attrs:
                 warn_msg += f"\tdf['{attr}'] = pd.to_datetime(df['{attr}'], format='<replace-with-datetime-format>')\n"
             warn_msg += "\nSee more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html"
-            warn_msg += '\nIf this is not intended to be a datetime object, you can use df.set_data_type to specify a new Lux Type. Possible options are "nominal", "quantitative", "id", and "temporal"'
+            warn_msg += f"\nIf {attr} is not a temporal attribute, please use override Lux's automatically detected type:"
+            warn_msg += f"\n\tdf.set_data_type({{'{attr}':'quantitative'}})"
             warnings.warn(warn_msg, stacklevel=2)
 
     def _is_datetime_string(self, series):
