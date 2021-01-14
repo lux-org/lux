@@ -400,8 +400,8 @@ class PandasExecutor(Executor):
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
         for attr in list(ldf.columns):
-            if attr in ldf._spec_lux_type:
-                ldf.data_type[attr] = ldf._spec_lux_type[attr]
+            if attr in ldf._type_override:
+                ldf.data_type[attr] = ldf._type_override[attr]
             else:
                 temporal_var_list = ["month", "year", "day", "date", "time"]
                 if is_datetime(ldf[attr]):

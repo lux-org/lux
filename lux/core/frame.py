@@ -53,7 +53,7 @@ class LuxDataFrame(pd.DataFrame):
         "_message",
         "_pandas_only",
         "pre_aggregated",
-        "_spec_lux_type",
+        "_type_override",
     ]
 
     def __init__(self, *args, **kw):
@@ -82,7 +82,7 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = None
         self._min_max = None
         self.pre_aggregated = None
-        self._spec_lux_type = {}
+        self._type_override = {}
         warnings.formatwarning = lux.warning_format
 
     @property
@@ -244,7 +244,7 @@ class LuxDataFrame(pd.DataFrame):
         self._intent = vis._inferred_intent
         self._parse_validate_compile_intent()
 
-    def asLuxType(self, types: dict):
+    def set_data_type(self, types: dict):
         """
         Allows the user to specify the intended Lux Type
 
@@ -254,12 +254,19 @@ class LuxDataFrame(pd.DataFrame):
                 Dictionary that maps attribute/column name to a specified Lux Type.
                 Possible Lux Types are "nominal", "quantitative", "id", and "temporal".
         """
-        if self._spec_lux_type == None:
-            self._spec_lux_type = types
+        if self._type_override == None:
+            self._type_override = types
         else:
-            self._spec_lux_type = {**self._spec_lux_type, **types}
+            self._type_override = {**self._type_override, **types}
+
+        if not self.data_type:
+            self.maintain_metadata()
 
         for t in types:
+            if types[t] not in ["nominal", "quantitative", "id", "temporal"]:
+                raise ValueError(
+                    f'User has selected invalid data type for attributet {t}. Valid data types are ["nominal", "quantitative", "id", "temporal"]'
+                )
             self.data_type[t] = types[t]
 
         self.expire_recs()
@@ -380,8 +387,8 @@ class LuxDataFrame(pd.DataFrame):
             sql_dtypes[attr] = datatype
 
         for attr in list(self.columns):
-            if attr in self._spec_lux_type:
-                data_type[attr] = self._spec_lux_type[attr]
+            if attr in self._type_override:
+                data_type[attr] = self._type_override[attr]
             elif str(attr).lower() in ["month", "year"]:
                 data_type[attr] = "temporal"
             elif sql_dtypes[attr] in [
