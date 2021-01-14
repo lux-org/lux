@@ -198,7 +198,7 @@ def test_set_data_type():
     with pytest.warns(UserWarning) as w:
         df._repr_html_()
         assert "starter template that you can use" in str(w[-1].message)
-        assert "df.asLuxType" in str(w[-1].message)
+        assert "df.set_data_type" in str(w[-1].message)
 
     df.set_data_type({"Month": "nominal", "Year": "nominal"})
     assert df.data_type["Month"] == "nominal"
