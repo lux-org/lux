@@ -143,8 +143,6 @@ class LuxDataFrame(pd.DataFrame):
         return ret_value
 
     def _set_axis(self, axis, labels):
-        print("HII")
-        print(axis)
         super(LuxDataFrame, self)._set_axis(axis, labels)
         self.expire_metadata()
         self.expire_recs()

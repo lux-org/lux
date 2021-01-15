@@ -52,7 +52,7 @@ def column_group(ldf):
                             aggregation=None,
                         ),
                         lux.Clause(
-                            attribute=str(attribute),
+                            attribute=attribute,
                             data_type="quantitative",
                             data_model="measure",
                             aggregation=None,
