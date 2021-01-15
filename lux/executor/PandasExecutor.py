@@ -20,7 +20,6 @@ from lux.executor.Executor import Executor
 from lux.utils import utils
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
-from lux.utils.date_utils import is_datetime_series
 import warnings
 import lux
 
@@ -212,10 +211,7 @@ class PandasExecutor(Executor):
                             }
                         )
                         vis._vis_data = vis.data.merge(
-                            df,
-                            on=[columns[0], columns[1]],
-                            how="right",
-                            suffixes=["", "_right"],
+                            df, on=[columns[0], columns[1]], how="right", suffixes=["", "_right"],
                         )
                         for col in columns[2:]:
                             vis.data[col] = vis.data[col].fillna(0)  # Triggers __setitem__
@@ -363,10 +359,7 @@ class PandasExecutor(Executor):
                 if color_attr.data_type == "nominal":
                     # Compute mode and count. Mode aggregates each cell by taking the majority vote for the category variable. In cases where there is ties across categories, pick the first item (.iat[0])
                     result = groups.agg(
-                        [
-                            ("count", "count"),
-                            (color_attr.attribute, lambda x: pd.Series.mode(x).iat[0]),
-                        ]
+                        [("count", "count"), (color_attr.attribute, lambda x: pd.Series.mode(x).iat[0]),]
                     ).reset_index()
                 elif color_attr.data_type == "quantitative":
                     # Compute the average of all values in the bin
@@ -396,6 +389,8 @@ class PandasExecutor(Executor):
         ldf.data_type = {}
         self.compute_data_type(ldf)
 
+    
+
     def compute_data_type(self, ldf: LuxDataFrame):
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
@@ -408,6 +403,8 @@ class PandasExecutor(Executor):
             elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
                 ldf.data_type[attr] = "temporal"
             elif str(attr).lower() in temporal_var_list:
+                ldf.data_type[attr] = "temporal"
+            elif self._is_datetime_number(ldf[attr]):
                 ldf.data_type[attr] = "temporal"
             elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                 # int columns gets coerced into floats if contain NaN
@@ -473,8 +470,20 @@ class PandasExecutor(Executor):
                 except Exception as e:
                     return False
 
+            print(datetime_col)
             if datetime_col is not None:
                 return True
+        return False
+
+    @staticmethod
+    def _is_datetime_number(series):
+        if series.dtype == int:
+            try:
+                temp = series.astype(str)
+                pd.to_datetime(temp)
+                return True
+            except Exception:
+                return False
         return False
 
     def compute_stats(self, ldf: LuxDataFrame):
