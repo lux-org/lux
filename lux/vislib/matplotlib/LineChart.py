@@ -111,7 +111,6 @@ class LineChart(MatplotlibChart):
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
-        self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
 
         self.code += f"fig, ax = plt.subplots()\n"
         self.code += f"x_pts = df['{x_attr.attribute}']\n"

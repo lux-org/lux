@@ -82,27 +82,31 @@ class ScatterChart(MatplotlibChart):
                 plot_code += f"cbar = plt.colorbar(sm, label='{color_attr_name}')\n"
                 plot_code += f"cbar.outline.set_linewidth(0)\n"
             else:
-                scatter = self.ax.scatter(x_pts, y_pts, c=vals, cmap="Set1", alpha=0.5)
-                plot_code += f"scatter = ax.scatter(x_pts, y_pts, c={vals}, alpha=0.5)\n"
+                scatter = self.ax.scatter(x_pts, y_pts, c=vals, cmap="Set1")
+                plot_code += f"scatter = ax.scatter(x_pts, y_pts, c={vals}, cmap='Set1')\n"
 
                 unique = [str(i) for i in unique]
-                self.ax.legend(
+                leg = self.ax.legend(
                     handles=scatter.legend_elements(num=range(0, len(unique)))[0],
                     labels=unique,
                     title=color_attr_name,
+                    markerscale=2.0,
                     bbox_to_anchor=(1.05, 1),
                     loc="upper left",
                     ncol=1,
                     frameon=False,
                 )
+                scatter.set_alpha(0.5)
                 plot_code += f"""ax.legend(
                     handles=scatter.legend_elements(num=range(0, len({unique})))[0],
                     labels={unique},
                     title='{color_attr_name}', 
+                    markerscale=2.,
                     bbox_to_anchor=(1.05, 1), 
                     loc='upper left', 
                     ncol=1, 
                     frameon=False,)\n"""
+                plot_code += "scatter.set_alpha(0.5)\n"
         else:
             self.ax.scatter(x_pts, y_pts, alpha=0.5)
             plot_code += f"ax.scatter(x_pts, y_pts, alpha=0.5)\n"
@@ -114,8 +118,6 @@ class ScatterChart(MatplotlibChart):
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
         self.code += "from matplotlib.cm import ScalarMappable\n"
-
-        self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
 
         self.code += f"fig, ax = plt.subplots()\n"
         self.code += f"x_pts = df['{x_attr.attribute}']\n"

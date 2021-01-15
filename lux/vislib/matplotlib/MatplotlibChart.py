@@ -50,12 +50,15 @@ class MatplotlibChart:
     def apply_default_config(self):
         self.code += """plt.rcParams.update(
             {
-                "axes.titlesize": 15,
+                "axes.titlesize": 20,
                 "axes.titleweight": "bold",
-                "axes.labelsize": 13,
                 "axes.labelweight": "bold",
-                "legend.fontsize": 13,
-                "legend.title_fontsize": 13,
+                "axes.labelsize": 16,
+                "legend.fontsize": 14,
+                "legend.title_fontsize": 15,
+                # "font.family": "DejaVu Sans",
+                "xtick.labelsize": 13,
+                "ytick.labelsize": 13,
             }
         )\n"""
 
@@ -65,8 +68,8 @@ class MatplotlibChart:
     def add_title(self):
         chart_title = self.vis.title
         if chart_title:
-            self.ax.set_title(chart_title, fontsize=15)
-            self.code += f"ax.set_title('{chart_title}', fontsize=15)\n"
+            self.ax.set_title(chart_title)
+            self.code += f"ax.set_title('{chart_title}')\n"
 
     def initialize_chart(self):
         return NotImplemented

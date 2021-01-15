@@ -21,9 +21,9 @@ plt.rcParams.update(
         "axes.titlesize": 15,
         "axes.titleweight": "bold",
         "axes.labelweight": "bold",
-        "legend.fontsize": 14,
-        "legend.title_fontsize": 15,
-        "font.family": "Helvetica",
+        "axes.labelsize": 13,
+        "legend.fontsize": 13,
+        "legend.title_fontsize": 13,
         "xtick.labelsize": 13,
         "ytick.labelsize": 13,
     }
