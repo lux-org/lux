@@ -37,7 +37,7 @@ class LuxDataFrame(pd.DataFrame):
     _metadata = [
         "_intent",
         "_inferred_intent",
-        "data_type",
+        "_data_type",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -76,7 +76,7 @@ class LuxDataFrame(pd.DataFrame):
         self._message = Message()
         self._pandas_only = False
         # Metadata
-        self.data_type = None
+        self._data_type = None
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
@@ -100,6 +100,12 @@ class LuxDataFrame(pd.DataFrame):
     @property
     def history(self):
         return self._history
+
+    @property
+    def data_type(self):
+        if not self._data_type:
+            self.maintain_metadata
+        return self._data_type
 
     def maintain_metadata(self):
         # Check that metadata has not yet been computed
@@ -127,7 +133,7 @@ class LuxDataFrame(pd.DataFrame):
         Expire all saved metadata to trigger a recomputation the next time the data is required.
         """
         self._metadata_fresh = False
-        self.data_type = None
+        self._data_type = None
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
@@ -293,7 +299,7 @@ class LuxDataFrame(pd.DataFrame):
         self.get_SQL_attributes()
         for attr in list(self.columns):
             self[attr] = None
-        self.data_type = {}
+        self._data_type = {}
         #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this
         #####      in the initialization and do it just once
         self.compute_SQL_data_type()
@@ -381,7 +387,7 @@ class LuxDataFrame(pd.DataFrame):
                     data_type[attr] = "quantitative"
             elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
                 data_type[attr] = "temporal"
-        self.data_type = data_type
+        self._data_type = data_type
 
     def _append_rec(self, rec_infolist, recommendations: Dict):
         if recommendations["collection"] is not None and len(recommendations["collection"]) > 0:
