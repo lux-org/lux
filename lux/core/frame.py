@@ -313,7 +313,7 @@ class LuxDataFrame(pd.DataFrame):
         self.get_SQL_unique_values()
         # self.get_SQL_cardinality()
         for attribute in self.columns:
-            if self.data_type[attribute] == "quantitative":
+            if self._data_type[attribute] == "quantitative":
                 self._min_max[attribute] = (
                     self[attribute].min(),
                     self[attribute].max(),
