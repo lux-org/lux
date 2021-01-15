@@ -389,13 +389,11 @@ class PandasExecutor(Executor):
         ldf.data_type = {}
         self.compute_data_type(ldf)
 
-    
-
     def compute_data_type(self, ldf: LuxDataFrame):
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
         for attr in list(ldf.columns):
-            temporal_var_list = ["month", "year", "day", "date", "time"]
+            temporal_var_list = ["month", "year", "day", "date", "time", "weekday"]
             if is_datetime(ldf[attr]):
                 ldf.data_type[attr] = "temporal"
             elif self._is_datetime_string(ldf[attr]):
