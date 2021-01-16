@@ -162,9 +162,12 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         else:
             return -1
     except:
-        # Supress interestingness related issues
-        warnings.warn(f"An error occurred when computing interestingness for: {vis}")
-        return -1
+        if not lux.config.interestingness_fallback:
+            raise
+        else:
+            # Supress interestingness related issues
+            warnings.warn(f"An error occurred when computing interestingness for: {vis}")
+            return -1
 
 
 def get_filtered_size(filter_specs, ldf):
