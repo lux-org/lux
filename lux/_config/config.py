@@ -32,6 +32,8 @@ class Config:
         self._heatmap_flag = True
         self._topk = 15
         self._sort = "descending"
+        self._pandas_fallback = True
+        self._interestingness_fallback = True
 
     @property
     def topk(self):
@@ -76,6 +78,47 @@ class Config:
         else:
             warnings.warn(
                 "Parameter to lux.config.sort must be one of the following: 'none', 'ascending', or 'descending'.",
+                stacklevel=2,
+            )
+
+    @property
+    def pandas_fallback(self):
+        return self._pandas_fallback
+
+    @pandas_fallback.setter
+    def pandas_fallback(self, fallback: bool) -> None:
+        """
+        Parameters
+        ----------
+        fallback : bool
+            If an error occurs, whether or not to raise an exception or fallback to default Pandas.
+        """
+        if type(fallback) == bool:
+            self._pandas_fallback = fallback
+        else:
+            warnings.warn(
+                "The flag for Pandas fallback must be a boolean.",
+                stacklevel=2,
+            )
+
+    @property
+    def interestingness_fallback(self):
+        return self._interestingness_fallback
+
+    @interestingness_fallback.setter
+    def interestingness_fallback(self, fallback: bool) -> None:
+        """
+        Parameters
+        ----------
+        fallback : bool
+            If an error occurs while calculating interestingness, whether or not
+            to raise an exception or fallback to default Pandas.
+        """
+        if type(fallback) == bool:
+            self._interestingness_fallback = fallback
+        else:
+            warnings.warn(
+                "The flag for interestingness fallback must be a boolean.",
                 stacklevel=2,
             )
 
