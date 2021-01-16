@@ -104,7 +104,7 @@ class LuxDataFrame(pd.DataFrame):
     @property
     def data_type(self):
         if not self._data_type:
-            self.maintain_metadata
+            self.maintain_metadata()
         return self._data_type
 
     def maintain_metadata(self):
