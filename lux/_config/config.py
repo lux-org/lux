@@ -112,7 +112,7 @@ class Config:
         Parameters
         ----------
         fallback : bool
-            If an error occurs while calculating interestingness, whether or not 
+            If an error occurs while calculating interestingness, whether or not
             to raise an exception or fallback to default Pandas.
         """
         if type(fallback) == bool:
