@@ -20,7 +20,6 @@ from lux.executor.Executor import Executor
 from lux.utils import utils
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
-from lux.utils.date_utils import is_datetime_series
 import warnings
 import lux
 
@@ -400,7 +399,7 @@ class PandasExecutor(Executor):
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
         for attr in list(ldf.columns):
-            temporal_var_list = ["month", "year", "day", "date", "time"]
+            temporal_var_list = ["month", "year", "day", "date", "time", "weekday"]
             if is_datetime(ldf[attr]):
                 ldf.data_type[attr] = "temporal"
             elif self._is_datetime_string(ldf[attr]):
@@ -408,6 +407,8 @@ class PandasExecutor(Executor):
             elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
                 ldf.data_type[attr] = "temporal"
             elif str(attr).lower() in temporal_var_list:
+                ldf.data_type[attr] = "temporal"
+            elif self._is_datetime_number(ldf[attr]):
                 ldf.data_type[attr] = "temporal"
             elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                 # int columns gets coerced into floats if contain NaN
@@ -472,9 +473,19 @@ class PandasExecutor(Executor):
                     datetime_col = pd.to_datetime(series)
                 except Exception as e:
                     return False
-
             if datetime_col is not None:
                 return True
+        return False
+
+    @staticmethod
+    def _is_datetime_number(series):
+        if series.dtype == int:
+            try:
+                temp = series.astype(str)
+                pd.to_datetime(temp)
+                return True
+            except Exception:
+                return False
         return False
 
     def compute_stats(self, ldf: LuxDataFrame):
