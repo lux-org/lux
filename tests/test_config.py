@@ -205,7 +205,7 @@ def test_set_default_plot_config():
 def test_sampling_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df._repr_html_()
-    assert df.recommendation["Correlation"][0].data.shape[0] < 48895
+    assert df.recommendation["Correlation"][0].data.shape[0] == 30000
     lux.config.sampling = False
     df = df.copy()
     df._repr_html_()
