@@ -650,14 +650,17 @@ class LuxDataFrame(pd.DataFrame):
         except (KeyboardInterrupt, SystemExit):
             raise
         except Exception:
-            warnings.warn(
-                "\nUnexpected error in rendering Lux widget and recommendations. "
-                "Falling back to Pandas display.\n"
-                "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
-                stacklevel=2,
-            )
-            warnings.warn(traceback.format_exc())
-            display(self.display_pandas())
+            if lux.config.pandas_fallback:
+                warnings.warn(
+                    "\nUnexpected error in rendering Lux widget and recommendations. "
+                    "Falling back to Pandas display.\n"
+                    "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
+                    stacklevel=2,
+                )
+                warnings.warn(traceback.format_exc())
+                display(self.display_pandas())
+            else:
+                raise
 
     def display_pandas(self):
         return self.to_pandas()
