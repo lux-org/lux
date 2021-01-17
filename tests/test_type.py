@@ -197,13 +197,13 @@ def test_id_with_label():
     df.maintain_metadata()
     assert df.data_type ==  {'Date': 'temporal', 'State': 'nominal', 'Value': 'quantitative'}
 
-"""def test_ID_random():
-    Tests whether a ID column not satisfying other properties of an ID gets recognized.
+def test_ID_random():
+    """Tests whether a ID column not satisfying other properties of an ID gets recognized."""
     values = [{"ID":random.randint(0, 1000), "A": 6.0, "B": 1.0, "C": 1.0, "D": 3.0, "E": 2.0, "F": 5.0} for x in range(1000)]
     df = pd.DataFrame(values)
     df.maintain_metadata()
     assert df.data_type == {'ID': 'quantitative', 
-                            'A': 'nominal', 'B': 'nominal', 'C': 'nominal', 'D': 'nominal', 'E': 'nominal', 'F': 'nominal'}"""
+                            'A': 'nominal', 'B': 'nominal', 'C': 'nominal', 'D': 'nominal', 'E': 'nominal', 'F': 'nominal'}
 
 def test_ID():
     """Tests different ways of writing id"""
@@ -232,4 +232,17 @@ def test_id_music_data():
                             'unique_num': 'id', 'instrumentalness': 'quantitative', 'key': 'nominal', 'liveness': 'quantitative', 
                             'loudness': 'quantitative', 'mode': 'nominal', 'name': 'nominal', 'popularity': 'quantitative', 
                             'release_date': 'temporal', 'speechiness': 'quantitative', 'tempo': 'quantitative'}
+
+def test_id_absenteeism_data():
+    """ Tests in a different dataset if a column not named as an ID is recognized as an identification.
+        Reference: https://www.kaggle.com/yamaerenay/spotify-dataset-19212020-160k-tracks
+    """
+    df = pd.read_csv("lux/data/absenteeism.csv")
+    df.maintain_metadata()
+    assert df.data_type == {'ID': 'quantitative', 'Reason for absence': 'quantitative', 'Month of absence': 'nominal', 'Day of the week': 'nominal', 
+    						'Seasons': 'nominal', 'Transportation expense': 'quantitative', 'Distance from Residence to Work': 'quantitative', 'Service time': 'nominal', 
+    						'Age': 'quantitative', 'Work load Average/day ': 'quantitative', 'Hit target': 'nominal', 'Disciplinary failure': 'nominal', 'Education': 'nominal', 
+    						'Son': 'nominal', 'Social drinker': 'nominal', 'Social smoker': 'nominal', 'Pet': 'nominal', 'Weight': 'quantitative', 'Height': 'nominal',
+     						'Body mass index': 'nominal', 'Absenteeism time in hours': 'nominal'}
+
 
