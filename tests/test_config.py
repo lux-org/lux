@@ -205,7 +205,7 @@ def test_set_default_plot_config():
 def test_sampling_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df._repr_html_()
-    assert df.recommendation["Correlation"][0].data.shape[0] == 30000
+    assert df.recommendation["Correlation"][0].data.shape[0] < 48895
     lux.config.sampling = False
     df = df.copy()
     df._repr_html_()
@@ -232,7 +232,7 @@ def test_heatmap_flag_config():
     assert df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = False
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
-    df = df.copy()
+    df._repr_html_()
     assert not df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True
 
