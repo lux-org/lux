@@ -252,13 +252,20 @@ class LuxDataFrame(pd.DataFrame):
 
     def set_data_type(self, types: dict):
         """
-        Allows the user to specify the intended Lux Type
+        Set the data type for a particular attribute in the dataframe
+        overriding the automatically-detected type inferred by Lux
 
         Parameters
         ----------
-            types: dict
-                Dictionary that maps attribute/column name to a specified Lux Type.
-                Possible Lux Types are "nominal", "quantitative", "id", and "temporal".
+        types: dict
+            Dictionary that maps attribute/column name to a specified Lux Type.
+            Possible options: "nominal", "quantitative", "id", and "temporal".
+
+        Example
+        ----------
+        df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/absenteeism.csv")
+        df.set_data_type({"ID":"id",
+                          "Reason for absence":"nominal"})
         """
         if self._type_override == None:
             self._type_override = types
@@ -268,12 +275,12 @@ class LuxDataFrame(pd.DataFrame):
         if not self.data_type:
             self.maintain_metadata()
 
-        for t in types:
-            if types[t] not in ["nominal", "quantitative", "id", "temporal"]:
+        for attr in types:
+            if types[attr] not in ["nominal", "quantitative", "id", "temporal"]:
                 raise ValueError(
-                    f'User has selected invalid data type for attributet {t}. Valid data types are ["nominal", "quantitative", "id", "temporal"]'
+                    f'Invalid data type option specified for {attr}. Please use one of the following supported types: ["nominal", "quantitative", "id", "temporal"]'
                 )
-            self.data_type[t] = types[t]
+            self.data_type[attr] = types[attr]
 
         self.expire_recs()
 
