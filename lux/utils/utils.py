@@ -76,7 +76,7 @@ def check_if_id_like(df, attribute):
     # Strong signals
     # so that aggregated reset_index fields don't get misclassified
     high_cardinality = df.cardinality[attribute] > 500
-    attribute_contain_id = re.search(r"id", str(attribute)) is not None
+    attribute_contain_id = re.search(r"id|ID|iD|Id", str(attribute)) is not None
     almost_all_vals_unique = df.cardinality[attribute] >= 0.98 * len(df)
     is_string = pd.api.types.is_string_dtype(df[attribute])
     if is_string:
@@ -92,8 +92,13 @@ def check_if_id_like(df, attribute):
             and str_length_uniformity
         )
     else:
+        if len(df) >= 2:
+            diff = df[attribute].diff()
+            evenly_spaced = all(diff.loc[1:] == diff.loc[1])
+        else:
+            evenly_spaced = True
         # TODO: Could probably add some type of entropy measure (since the binned id fields are usually very even)
-        return high_cardinality and (attribute_contain_id or almost_all_vals_unique)
+        return high_cardinality and (attribute_contain_id or almost_all_vals_unique or evenly_spaced)
 
 
 def like_nan(val):
