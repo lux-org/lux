@@ -16,11 +16,12 @@ from .context import lux
 import pytest
 import random
 import pandas as pd
+import warnings
 
 
 # Suite of test that checks if data_type inferred correctly by Lux
 def test_check_cars():
-    df = pd.read_csv("lux/data/car.csv")
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/car.csv?raw=true")
     df.maintain_metadata()
     assert df.data_type["Name"] == "nominal"
     assert df.data_type["MilesPerGal"] == "quantitative"
@@ -192,7 +193,7 @@ def test_float_categorical():
 
 def test_id_with_label():
     df = pd.read_csv(
-        "lux/data/state_timeseries.csv"
+        "https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true"
     )
     df.maintain_metadata()
     assert df.data_type ==  {'Date': 'temporal', 'State': 'nominal', 'Value': 'quantitative'}
@@ -216,7 +217,7 @@ def test_id_aug_test():
     """Tests in a different dataset 
        Reference: https://www.kaggle.com/arashnic/hr-analytics-job-change-of-data-scientists
     """
-    df = pd.read_csv("lux/data/aug_test.csv")
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/aug_test.csv?raw=true")
     df.maintain_metadata()
     assert df.data_type == {'enrollee_id': 'id', 'city': 'nominal', 'city_development_index': 'quantitative', 'gender': 'nominal', 'relevent_experience': 'nominal', 'enrolled_university': 'nominal', 'education_level': 'nominal', 'major_discipline': 'nominal', 'experience': 'nominal', 'company_size': 'nominal', 
                             'company_type': 'nominal', 'last_new_job': 'nominal', 'training_hours': 'quantitative'}
@@ -225,7 +226,7 @@ def test_id_music_data():
     """ Tests in a different dataset if a column not named as an ID is recognized as an identification.
         Reference: https://www.kaggle.com/yamaerenay/spotify-dataset-19212020-160k-tracks
     """
-    df = pd.read_csv("lux/data/music_data.csv")
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/music_data.csv?raw=true")
     df.maintain_metadata()
     assert df.data_type == {'valence': 'quantitative', 'year': 'temporal', 'acousticness': 'quantitative', 'artists': 'nominal', 
                             'danceability': 'quantitative', 'duration_ms': 'quantitative', 'energy': 'quantitative', 'explicit': 'nominal', 
@@ -234,10 +235,8 @@ def test_id_music_data():
                             'release_date': 'temporal', 'speechiness': 'quantitative', 'tempo': 'quantitative'}
 
 def test_id_absenteeism_data():
-    """ Tests in a different dataset if a column not named as an ID is recognized as an identification.
-        Reference: https://www.kaggle.com/yamaerenay/spotify-dataset-19212020-160k-tracks
-    """
-    df = pd.read_csv("lux/data/absenteeism.csv")
+	""" Tests whether an id named column is not recognized because even though it is named an id, it is not with its nature. """
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/absenteeism.csv?raw=true")
     df.maintain_metadata()
     assert df.data_type == {'ID': 'quantitative', 'Reason for absence': 'quantitative', 'Month of absence': 'nominal', 'Day of the week': 'nominal', 
     						'Seasons': 'nominal', 'Transportation expense': 'quantitative', 'Distance from Residence to Work': 'quantitative', 'Service time': 'nominal', 
@@ -245,4 +244,35 @@ def test_id_absenteeism_data():
     						'Son': 'nominal', 'Social drinker': 'nominal', 'Social smoker': 'nominal', 'Pet': 'nominal', 'Weight': 'quantitative', 'Height': 'nominal',
      						'Body mass index': 'nominal', 'Absenteeism time in hours': 'nominal'}
 
+def test_set_data_type():
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
+    )
+    with pytest.warns(UserWarning) as w:
+        df._repr_html_()
+        assert "starter template that you can use" in str(w[-1].message)
+        assert "df.set_data_type" in str(w[-1].message)
 
+    df.set_data_type({"Month": "nominal", "Year": "nominal"})
+    assert df.data_type["Month"] == "nominal"
+    assert df.data_type["Year"] == "nominal"
+    with warnings.catch_warnings() as w:
+        warnings.simplefilter("always")
+        df._repr_html_()
+        assert not w
+
+
+def test_set_data_type_invalid():
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
+    )
+    with pytest.raises(ValueError):
+        df.set_data_type({"Month": "nomnal", "Year": "nomnal"})
+
+
+def test_set_wrong_data_type():
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
+    )
+    df.set_data_type({"Year": "quantitative"})
+    assert df.data_type["Year"] == "quantitative"

@@ -342,9 +342,9 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
 
     if ignore_identity and msr1 == msr2:  # remove if measures are the same
         return -1
-    vis._vis_data = vis.data.dropna()
-    v_x = vis.data[msr1]
-    v_y = vis.data[msr2]
+    vxy = vis.data.dropna()
+    v_x = vxy[msr1]
+    v_y = vxy[msr2]
 
     import warnings
 

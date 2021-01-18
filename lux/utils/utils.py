@@ -97,8 +97,10 @@ def check_if_id_like(df, attribute):
             evenly_spaced = all(diff.loc[1:] == diff.loc[1])
         else:
             evenly_spaced = True
-        # TODO: Could probably add some type of entropy measure (since the binned id fields are usually very even)
-        return high_cardinality and (attribute_contain_id or almost_all_vals_unique or evenly_spaced)
+        if attribute_contain_id:
+            almost_all_vals_unique = df.cardinality[attribute] >= 0.75 * len(df)
+            return high_cardinality and (almost_all_vals_unique or evenly_spaced)
+        return high_cardinality and (almost_all_vals_unique or evenly_spaced)
 
 
 def like_nan(val):
