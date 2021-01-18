@@ -53,6 +53,7 @@ class LuxDataFrame(pd.DataFrame):
         "_message",
         "_pandas_only",
         "pre_aggregated",
+        "_type_override",
     ]
 
     def __init__(self, *args, **kw):
@@ -81,6 +82,7 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = None
         self._min_max = None
         self.pre_aggregated = None
+        self._type_override = {}
         warnings.formatwarning = lux.warning_format
 
     @property
@@ -248,6 +250,40 @@ class LuxDataFrame(pd.DataFrame):
         self._intent = vis._inferred_intent
         self._parse_validate_compile_intent()
 
+    def set_data_type(self, types: dict):
+        """
+        Set the data type for a particular attribute in the dataframe
+        overriding the automatically-detected type inferred by Lux
+
+        Parameters
+        ----------
+        types: dict
+            Dictionary that maps attribute/column name to a specified Lux Type.
+            Possible options: "nominal", "quantitative", "id", and "temporal".
+
+        Example
+        ----------
+        df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/absenteeism.csv")
+        df.set_data_type({"ID":"id",
+                          "Reason for absence":"nominal"})
+        """
+        if self._type_override == None:
+            self._type_override = types
+        else:
+            self._type_override = {**self._type_override, **types}
+
+        if not self.data_type:
+            self.maintain_metadata()
+
+        for attr in types:
+            if types[attr] not in ["nominal", "quantitative", "id", "temporal"]:
+                raise ValueError(
+                    f'Invalid data type option specified for {attr}. Please use one of the following supported types: ["nominal", "quantitative", "id", "temporal"]'
+                )
+            self.data_type[attr] = types[attr]
+
+        self.expire_recs()
+
     def to_pandas(self):
         import lux.core
 
@@ -364,7 +400,9 @@ class LuxDataFrame(pd.DataFrame):
             sql_dtypes[attr] = datatype
 
         for attr in list(self.columns):
-            if str(attr).lower() in ["month", "year"]:
+            if attr in self._type_override:
+                data_type[attr] = self._type_override[attr]
+            elif str(attr).lower() in ["month", "year"]:
                 data_type[attr] = "temporal"
             elif sql_dtypes[attr] in [
                 "character",
