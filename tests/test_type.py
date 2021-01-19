@@ -312,8 +312,8 @@ def test_id_music_data():
     Reference: https://www.kaggle.com/yamaerenay/spotify-dataset-19212020-160k-tracks
     """
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/spotify.csv?raw=true")
-    df['unique_num'] = df['id']
-    df.drop(columns=['id'])
+    df["unique_num"] = df["id"]
+    df.drop(columns=["id"])
     df.maintain_metadata()
     assert df.data_type == {
         "valence": "quantitative",
@@ -335,7 +335,7 @@ def test_id_music_data():
         "release_date": "temporal",
         "speechiness": "quantitative",
         "tempo": "quantitative",
-        "id": "id"
+        "id": "id",
     }
 
 
