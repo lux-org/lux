@@ -294,6 +294,7 @@ class Config:
             self.executor = SQLExecutor()
         elif exe == "Pandas":
             from lux.executor.PandasExecutor import PandasExecutor
+
             self.SQLconnection = ""
             self.executor = PandasExecutor()
 
