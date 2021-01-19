@@ -680,3 +680,11 @@ def test_read_sas(global_var):
     df._repr_html_()
     assert list(df.recommendation.keys()) == ["Correlation", "Distribution", "Temporal"]
     assert len(df.data_type) == 6
+
+
+def test_read_multi_dtype(global_var):
+    url = "https://github.com/lux-org/lux-datasets/blob/master/data/car-data.xls?raw=true"
+    df = pd.read_excel(url)
+    with pytest.warns(UserWarning, match="mixed type") as w:
+        df._repr_html_()
+        assert "df['Car Type'] = df['Car Type'].astype(str)" in str(w[-1].message)
