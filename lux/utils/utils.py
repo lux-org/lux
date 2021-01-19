@@ -93,8 +93,9 @@ def check_if_id_like(df, attribute):
         )
     else:
         if len(df) >= 2:
-            diff = df[attribute].diff()
-            evenly_spaced = all(diff.loc[1:] == diff.loc[1])
+            series = df[attribute]
+            diff = series.diff()
+            evenly_spaced = all(diff.iloc[1:] == diff.iloc[1])
         else:
             evenly_spaced = True
         if attribute_contain_id:
