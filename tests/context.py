@@ -18,3 +18,6 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import lux
+
+lux.config.interestingness_fallback = False
+lux.config.pandas_fallback = False

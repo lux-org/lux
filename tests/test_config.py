@@ -232,7 +232,7 @@ def test_heatmap_flag_config():
     assert df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = False
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
-    df = df.copy()
+    df._repr_html_()
     assert not df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True
 
@@ -256,13 +256,13 @@ def test_sort(global_var):
     df._repr_html_()
     assert len(df.recommendation["Correlation"]) == 15, "Show top 15"
     for vis in df.recommendation["Correlation"]:
-        assert vis.score > 0.2
+        assert vis.score > 0.5
     df = pd.read_csv("lux/data/college.csv")
     lux.config.sort = "ascending"
     df._repr_html_()
     assert len(df.recommendation["Correlation"]) == 15, "Show bottom 15"
     for vis in df.recommendation["Correlation"]:
-        assert vis.score < 0.2
+        assert vis.score < 0.35
 
     lux.config.sort = "none"
     df = pd.read_csv("lux/data/college.csv")
@@ -274,17 +274,17 @@ def test_sort(global_var):
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.
 # def test_plot_setting(global_var):
-# 	df = pytest.car_df
-# 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')
-# 	def change_color_add_title(chart):
-# 		chart = chart.configure_mark(color="green") # change mark color to green
-# 		chart.title = "Custom Title" # add title to chart
-# 		return chart
+#   df = pytest.car_df
+#   df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+#   def change_color_add_title(chart):
+#       chart = chart.configure_mark(color="green") # change mark color to green
+#       chart.title = "Custom Title" # add title to chart
+#       return chart
 
-# 	df.plot_config = change_color_add_title
+#   df.plot_config = change_color_add_title
 
-# 	df._repr_html_()
+#   df._repr_html_()
 
-# 	vis_code = df.recommendation["Correlation"][0].to_Altair()
-# 	print (vis_code)
-# 	assert 'chart = chart.configure_mark(color="green")' in vis_code, "Exported chart does not have additional plot style setting."
+#   vis_code = df.recommendation["Correlation"][0].to_Altair()
+#   print (vis_code)
+#   assert 'chart = chart.configure_mark(color="green")' in vis_code, "Exported chart does not have additional plot style setting."
