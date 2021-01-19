@@ -239,55 +239,126 @@ def test_set_wrong_data_type():
     df.set_data_type({"Year": "quantitative"})
     assert df.data_type["Year"] == "quantitative"
 
+
 def test_id_with_label():
     df = pd.read_csv(
         "https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true"
     )
     df.maintain_metadata()
-    assert df.data_type ==  {'Date': 'temporal', 'State': 'nominal', 'Value': 'quantitative'}
+    assert df.data_type == {"Date": "temporal", "State": "nominal", "Value": "quantitative"}
+
 
 def test_ID_random():
     """Tests whether a ID column not satisfying other properties of an ID gets recognized."""
-    values = [{"ID":random.randint(0, 1000), "A": 6.0, "B": 1.0, "C": 1.0, "D": 3.0, "E": 2.0, "F": 5.0} for x in range(1000)]
+    values = [
+        {"ID": random.randint(0, 1000), "A": 6.0, "B": 1.0, "C": 1.0, "D": 3.0, "E": 2.0, "F": 5.0}
+        for x in range(1000)
+    ]
     df = pd.DataFrame(values)
     df.maintain_metadata()
-    assert df.data_type == {'ID': 'quantitative', 
-                            'A': 'nominal', 'B': 'nominal', 'C': 'nominal', 'D': 'nominal', 'E': 'nominal', 'F': 'nominal'}
+    assert df.data_type == {
+        "ID": "quantitative",
+        "A": "nominal",
+        "B": "nominal",
+        "C": "nominal",
+        "D": "nominal",
+        "E": "nominal",
+        "F": "nominal",
+    }
+
 
 def test_ID():
     """Tests different ways of writing id"""
-    values = [{"ID":x, "A": 6.0, "B": 1.0, "C": 1.0, "D": 3.0, "E": 2.0, "F": 5.0} for x in range(1000)]
+    values = [{"ID": x, "A": 6.0, "B": 1.0, "C": 1.0, "D": 3.0, "E": 2.0, "F": 5.0} for x in range(1000)]
     df = pd.DataFrame(values)
     df.maintain_metadata()
-    assert df.data_type == {'ID': 'id', 'A': 'nominal', 'B': 'nominal', 'C': 'nominal', 'D': 'nominal', 'E': 'nominal', 'F': 'nominal'}
+    assert df.data_type == {
+        "ID": "id",
+        "A": "nominal",
+        "B": "nominal",
+        "C": "nominal",
+        "D": "nominal",
+        "E": "nominal",
+        "F": "nominal",
+    }
+
 
 def test_id_aug_test():
-    """Tests in a different dataset 
-       Reference: https://www.kaggle.com/arashnic/hr-analytics-job-change-of-data-scientists
+    """Tests in a different dataset
+    Reference: https://www.kaggle.com/arashnic/hr-analytics-job-change-of-data-scientists
     """
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/aug_test.csv?raw=true")
     df.maintain_metadata()
-    assert df.data_type == {'enrollee_id': 'id', 'city': 'nominal', 'city_development_index': 'quantitative', 'gender': 'nominal', 'relevent_experience': 'nominal', 'enrolled_university': 'nominal', 'education_level': 'nominal', 'major_discipline': 'nominal', 'experience': 'nominal', 'company_size': 'nominal', 
-                            'company_type': 'nominal', 'last_new_job': 'nominal', 'training_hours': 'quantitative'}
+    assert df.data_type == {
+        "enrollee_id": "id",
+        "city": "nominal",
+        "city_development_index": "quantitative",
+        "gender": "nominal",
+        "relevent_experience": "nominal",
+        "enrolled_university": "nominal",
+        "education_level": "nominal",
+        "major_discipline": "nominal",
+        "experience": "nominal",
+        "company_size": "nominal",
+        "company_type": "nominal",
+        "last_new_job": "nominal",
+        "training_hours": "quantitative",
+    }
+
 
 def test_id_music_data():
-    """ Tests in a different dataset if a column not named as an ID is recognized as an identification.
-        Reference: https://www.kaggle.com/yamaerenay/spotify-dataset-19212020-160k-tracks
+    """Tests in a different dataset if a column not named as an ID is recognized as an identification.
+    Reference: https://www.kaggle.com/yamaerenay/spotify-dataset-19212020-160k-tracks
     """
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/spotify.csv?raw=true")
     df.maintain_metadata()
-    assert df.data_type == {'valence': 'quantitative', 'year': 'temporal', 'acousticness': 'quantitative', 'artists': 'nominal', 
-                            'danceability': 'quantitative', 'duration_ms': 'quantitative', 'energy': 'quantitative', 'explicit': 'nominal', 
-                            'unique_num': 'id', 'instrumentalness': 'quantitative', 'key': 'nominal', 'liveness': 'quantitative', 
-                            'loudness': 'quantitative', 'mode': 'nominal', 'name': 'nominal', 'popularity': 'quantitative', 
-                            'release_date': 'temporal', 'speechiness': 'quantitative', 'tempo': 'quantitative'}
+    assert df.data_type == {
+        "valence": "quantitative",
+        "year": "temporal",
+        "acousticness": "quantitative",
+        "artists": "nominal",
+        "danceability": "quantitative",
+        "duration_ms": "quantitative",
+        "energy": "quantitative",
+        "explicit": "nominal",
+        "unique_num": "id",
+        "instrumentalness": "quantitative",
+        "key": "nominal",
+        "liveness": "quantitative",
+        "loudness": "quantitative",
+        "mode": "nominal",
+        "name": "nominal",
+        "popularity": "quantitative",
+        "release_date": "temporal",
+        "speechiness": "quantitative",
+        "tempo": "quantitative",
+    }
+
 
 def test_id_absenteeism_data():
-	""" Tests whether an id named column is not recognized because even though it is named an id, it is not with its nature. """
+    """ Tests whether an id named column is not recognized because even though it is named an id, it is not with its nature. """
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/absenteeism.csv?raw=true")
     df.maintain_metadata()
-    assert df.data_type == {'ID': 'quantitative', 'Reason for absence': 'quantitative', 'Month of absence': 'nominal', 'Day of the week': 'nominal', 
-    						'Seasons': 'nominal', 'Transportation expense': 'quantitative', 'Distance from Residence to Work': 'quantitative', 'Service time': 'nominal', 
-    						'Age': 'quantitative', 'Work load Average/day ': 'quantitative', 'Hit target': 'nominal', 'Disciplinary failure': 'nominal', 'Education': 'nominal', 
-    						'Son': 'nominal', 'Social drinker': 'nominal', 'Social smoker': 'nominal', 'Pet': 'nominal', 'Weight': 'quantitative', 'Height': 'nominal',
-     						'Body mass index': 'nominal', 'Absenteeism time in hours': 'nominal'}
+    assert df.data_type == {
+        "ID": "quantitative",
+        "Reason for absence": "quantitative",
+        "Month of absence": "nominal",
+        "Day of the week": "nominal",
+        "Seasons": "nominal",
+        "Transportation expense": "quantitative",
+        "Distance from Residence to Work": "quantitative",
+        "Service time": "nominal",
+        "Age": "quantitative",
+        "Work load Average/day ": "quantitative",
+        "Hit target": "nominal",
+        "Disciplinary failure": "nominal",
+        "Education": "nominal",
+        "Son": "nominal",
+        "Social drinker": "nominal",
+        "Social smoker": "nominal",
+        "Pet": "nominal",
+        "Weight": "quantitative",
+        "Height": "nominal",
+        "Body mass index": "nominal",
+        "Absenteeism time in hours": "nominal",
+    }
