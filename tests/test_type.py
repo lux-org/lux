@@ -20,7 +20,7 @@ import warnings
 
 # Suite of test that checks if data_type inferred correctly by Lux
 def test_check_cars():
-    df = pd.read_csv("car.csv")
+    df = pd.read_csv("lux/data/car.csv")
     df.maintain_metadata()
     assert df.data_type["Name"] == "nominal"
     assert df.data_type["MilesPerGal"] == "quantitative"
@@ -151,7 +151,7 @@ def test_check_stock():
 
 
 def test_check_college():
-    df = pd.read_csv("college.csv")
+    df = pd.read_csv("lux/data/college.csv")
     df.maintain_metadata()
     assert df.data_type == {
         "Name": "nominal",
