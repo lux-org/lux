@@ -232,7 +232,7 @@ def test_heatmap_flag_config():
     assert df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = False
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
-    df = df.copy()
+    df._repr_html_()
     assert not df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True
 
@@ -256,13 +256,13 @@ def test_sort(global_var):
     df._repr_html_()
     assert len(df.recommendation["Correlation"]) == 15, "Show top 15"
     for vis in df.recommendation["Correlation"]:
-        assert vis.score > 0.2
+        assert vis.score > 0.5
     df = pd.read_csv("lux/data/college.csv")
     lux.config.sort = "ascending"
     df._repr_html_()
     assert len(df.recommendation["Correlation"]) == 15, "Show bottom 15"
     for vis in df.recommendation["Correlation"]:
-        assert vis.score < 0.2
+        assert vis.score < 0.35
 
     lux.config.sort = "none"
     df = pd.read_csv("lux/data/college.csv")
