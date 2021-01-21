@@ -62,6 +62,45 @@ If you try to set the default_display to anything other than 'lux' or 'pandas,' 
   :width: 700
   :align: center
 
+Change plotting backend for rendering visualizations in Lux
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We can set the :code:`plotting_backend` config to change the plotting library used for rendering the visualizations in Lux. 
+This is often useful not just for stylizing plot aesthetics, but also to change the code generated when `exporting a visualization <https://lux-api.readthedocs.io/en/latest/source/guide/export.html>`__.
+For example, if you are more familiar with `matplotlib <https://matplotlib.org/>`__ , you may want to use a matplotlib plotting backend so that you can make use of the exported visualization code. In the following code, we set the plotting backend to 'matplotlib', and Lux will display the Matplotlib rendered charts.
+
+.. code-block:: python
+
+    lux.config.plotting_backend = "matplotlib" 
+    df
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/vislib-1.png?raw=true
+  :width: 700
+  :align: center
+
+We can set the vislib back to the default 'vegalite,' which uses Vega-Lite to render the displayed chart.
+
+.. code-block:: python
+
+    lux.config.plotting_backend = "vegalite" 
+    df
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/display-1.png?raw=true
+  :width: 700
+  :align: center
+
+Lux currently only support Vega-Lite and matplotlib, and we plan to add support for other plotting libraries in the future. If you try to set the :code:`plotting_backend` to anything other than 'matplotlib' or 'vegalite', a warning will be shown, and the display will default to the previous setting.
+
+.. code-block:: python
+    
+    lux.config.plotting_backend = "notvegalite" # Throw an warning
+    df
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/vislib-2.png?raw=true
+
+  :width: 700
+  :align: center
+
 Change the sampling parameters of Lux
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -91,20 +130,8 @@ We can disable this feature and revert back to using a scatter plot by running t
 
     lux.config.heatmap = False
 
-
-Default Renderer
-~~~~~~~~~~~~~~~~~
-
-Charts in Lux are rendered using `Altair <https://altair-viz.github.io/>`__. We are working on supporting plotting via `matplotlib <https://matplotlib.org/>`__ and other plotting libraries.
-
-To change the default renderer, run the following code block:
-
-.. code-block:: python
-
-    lux.config.renderer = "matplotlib"
-
-Plot Configurations
-~~~~~~~~~~~~~~~~~~~
+Changing the plot styling
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Altair supports plot configurations to be applied on top of the generated graphs. To set a default plot configuration, first write a function that can take in a `chart` and returns a `chart`. For example:
 
@@ -128,6 +155,27 @@ The above results in the following changes:
   :align: center
 
 See `this page <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ for more details.
+
+Matplotlib also supports plot configurations to be applied on top of the generated graphs. To set a default plot configuration, first write a function that can take in a `fig` and 'ax' and returns a `fig` and 'ax. For example:
+
+.. code-block:: python
+
+    def add_title(fig, ax):
+        ax.set_title("Test Title")
+        return fig, ax
+
+.. code-block:: python
+
+    lux.config.plot_config = add_title
+
+The above results in the following changes:
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/style-7.png?raw=true
+  :width: 600
+  :align: center
+
+See `this page <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ for more details.
+
 
 Modify Sorting and Ranking in Recommendations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

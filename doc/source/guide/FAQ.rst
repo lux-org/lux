@@ -35,6 +35,20 @@ How do I set the Lux widgets to show up on default?
     .. code-block:: python
     
         lux.config.default_display = "pandas"
+
+How do I change the plotting library used for visualization?
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  By default, we make use of `Altair <https://altair-viz.github.io/>`__ to generate `Vega-Lite <https://vega.github.io/vega-lite>`__ visualizations. We can modify the :code:`plotting_backend` config property to use `Matplotlib <https://matplotlib.org/>`__ as the plotting library instead: 
+
+    .. code-block:: python
+    
+        lux.config.plotting_backend = "matplotlib"
+    
+  To switch back to Vega-Lite: 
+
+    .. code-block:: python
+    
+        lux.config.plotting_backend = "vegalite"
   
 I want to change the opacity of my chart, add title, change chart font size, etc. How do I modify chart settings?
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
