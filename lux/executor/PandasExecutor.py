@@ -488,7 +488,7 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def _is_datetime_number(series):
-        if series.dtype == int:
+        if series.dtype == int or "int" in str(series.dtype):
             try:
                 temp = series.astype(str)
                 pd.to_datetime(temp)
