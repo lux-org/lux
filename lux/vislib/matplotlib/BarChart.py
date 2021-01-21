@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 from lux.utils.utils import matplotlib_setup
 from matplotlib.cm import ScalarMappable
 from lux.utils.date_utils import compute_date_granularity
+from matplotlib.ticker import MaxNLocator
 
 
 class BarChart(MatplotlibChart):
@@ -90,7 +91,7 @@ class BarChart(MatplotlibChart):
 
         df = pd.DataFrame(self.data)
 
-        bars = df[bar_attr].apply(lambda x: str(x)[:10] + "..." if len(str(x)) > 10 else str(x))
+        bars = df[bar_attr].apply(lambda x: str(x))
         measurements = df[measure_attr]
 
         plot_code = ""
@@ -128,6 +129,10 @@ class BarChart(MatplotlibChart):
             self.ax.barh(bars, measurements, align="center")
             plot_code += f"ax.barh(bars, measurements, align='center')\n"
 
+        y_ticks_abbev = df[bar_attr].apply(lambda x: str(x)[:10] + "..." if len(str(x)) > 10 else str(x))
+        self.ax.set_yticks(bars)
+        self.ax.set_yticklabels(y_ticks_abbev)
+
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
         plt.gca().invert_yaxis()
@@ -135,7 +140,6 @@ class BarChart(MatplotlibChart):
         self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
-        # self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
 
         self.code += f"fig, ax = plt.subplots()\n"
         self.code += f"bars = df['{bar_attr}']\n"
