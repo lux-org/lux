@@ -582,7 +582,7 @@ class SQLExecutor(Executor):
         self.get_SQL_attributes(ldf)
         for attr in list(ldf.columns):
             ldf[attr] = None
-        ldf.data_type = {}
+        ldf._data_type = {}
         #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this
         #####      in the initialization and do it just once
         self.compute_data_type(ldf)
@@ -639,7 +639,7 @@ class SQLExecutor(Executor):
         self.get_unique_values(ldf)
         # ldf.get_cardinality()
         for attribute in ldf.columns:
-            if ldf.data_type[attribute] == "quantitative":
+            if ldf._data_type[attribute] == "quantitative":
                 min_max_query = pandas.read_sql(
                     'SELECT MIN("{}") as min, MAX("{}") as max FROM {}'.format(
                         attribute, attribute, ldf.table_name
@@ -753,9 +753,9 @@ class SQLExecutor(Executor):
                 if ldf.cardinality[attr] < 13:
                     data_type[attr] = "nominal"
                 elif check_if_id_like(ldf, attr):
-                    ldf.data_type[attr] = "id"
+                    ldf._data_type[attr] = "id"
                 else:
                     data_type[attr] = "quantitative"
             elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
                 data_type[attr] = "temporal"
-        ldf.data_type = data_type
+        ldf._data_type = data_type
