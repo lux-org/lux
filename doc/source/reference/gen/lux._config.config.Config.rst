@@ -29,6 +29,7 @@ lux.\_config.config.Config
    
       ~Config.default_display
       ~Config.heatmap
+      ~Config.plotting_backend
       ~Config.sampling
       ~Config.sampling_cap
       ~Config.sampling_start

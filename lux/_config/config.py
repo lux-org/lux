@@ -17,7 +17,6 @@ class Config:
 
     def __init__(self):
         self._default_display = "pandas"
-        self.renderer = "altair"
         self.plot_config = None
         self.SQLconnection = ""
         self.executor = None
@@ -30,6 +29,7 @@ class Config:
         self._sampling_cap = 30000
         self._sampling_flag = True
         self._heatmap_flag = True
+        self._plotting_backend = "vegalite"
         self._topk = 15
         self._sort = "descending"
         self._pandas_fallback = True
@@ -258,6 +258,29 @@ class Config:
         else:
             warnings.warn(
                 "Unsupported display type. Default display option should either be `lux` or `pandas`.",
+                stacklevel=2,
+            )
+
+    @property
+    def plotting_backend(self):
+        return self._plotting_backend
+
+    @plotting_backend.setter
+    def plotting_backend(self, type: str) -> None:
+        """
+        Set the widget display to show Vegalite by default or Matplotlib by default
+        Parameters
+        ----------
+        type : str
+                Default display type, can take either the string `vegalite` or `matplotlib` (regardless of capitalization)
+        """
+        if type.lower() == "vegalite" or type.lower() == "altair":
+            self._plotting_backend = "vegalite"
+        elif type.lower() == "matplotlib":
+            self._plotting_backend = "matplotlib"
+        else:
+            warnings.warn(
+                "Unsupported plotting backend. Lux currently only support 'altair', 'vegalite', or 'matplotlib'",
                 stacklevel=2,
             )
 
