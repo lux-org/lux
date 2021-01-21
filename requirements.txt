@@ -3,6 +3,7 @@ altair>=4.0.0
 numpy>=1.16.5
 pandas>=1.1.0
 scikit-learn>=0.22
+matplotlib>=3.0.0
 # Install only to use SQLExecutor
 # psycopg2>=2.8.5
 # psycopg2-binary>=2.8.5

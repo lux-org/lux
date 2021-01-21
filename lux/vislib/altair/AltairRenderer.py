@@ -86,7 +86,9 @@ class AltairRenderer:
             chart = None
 
         if chart:
-            if lux.config.plot_config:
+            if lux.config.plot_config and (
+                lux.config.plotting_backend == "vegalite" or lux.config.plotting_backend == "altair"
+            ):
                 chart.chart = lux.config.plot_config(chart.chart)
             if self.output_type == "VegaLite":
                 chart_dict = chart.chart.to_dict()
@@ -94,6 +96,7 @@ class AltairRenderer:
                 # chart["data"] =  { "values": vis.data.to_dict(orient='records') }
                 # chart_dict["width"] = 160
                 # chart_dict["height"] = 150
+                chart_dict["vislib"] = "vegalite"
                 return chart_dict
             elif self.output_type == "Altair":
                 import inspect
