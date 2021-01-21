@@ -433,6 +433,7 @@ def test_vegalite_default_actions_registered(global_var):
 
 
 def test_matplotlib_default_actions_registered(global_var):
+    df = pytest.car_df
     lux.config.plotting_backend = "matplotlib"
     df._repr_html_()
     # Histogram Chart
