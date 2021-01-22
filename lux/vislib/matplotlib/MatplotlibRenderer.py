@@ -90,7 +90,7 @@ class MatplotlibRenderer:
                 lux.config.plotting_backend == "matplotlib"
                 or lux.config.plotting_backend == "matplotlib_code"
             ):
-                chart.fig, chart.ax = lux.config.plotting_style(chart.fig, chart.ax)
+                chart.ax = lux.config.plotting_style(chart.fig, chart.ax)
             plt.tight_layout()
             tmpfile = BytesIO()
             chart.fig.savefig(tmpfile, format="png")

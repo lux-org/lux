@@ -160,13 +160,24 @@ Matplotlib also supports plot configurations to be applied on top of the generat
 
 .. code-block:: python
 
+    lux.config.plotting_backend = "matplotlib"
+
     def add_title(fig, ax):
-        ax.set_title("Test Title")
+        ax.set_title("Custom Title")
         return fig, ax
 
 .. code-block:: python
 
     lux.config.plotting_style = add_title
+
+Moreover, we can set the color and other figure styles using rcParams attribute of plots.
+
+.. code-block:: python
+
+	import matplotlib.pyplot as plt
+	import matplotlib
+
+	plt.rcParams['axes.prop_cycle'] = matplotlib.cycler(color='g')
 
 The above results in the following changes:
 
