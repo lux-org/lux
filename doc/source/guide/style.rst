@@ -4,7 +4,7 @@ Styling Custom Plot Settings
 
 .. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder/blob/master/tutorial/4-chart-settings.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial/4-chart-settings.ipynb>`_]
 
-In the last tutorial, we saw how :code:`Vis` objects could be exported into visualization code for further editing. What if we want to change the chart settings for *all* the visualizations displayed in the widget. In Lux, we can change the chart settings and aesthetics by specifying the :code:`plotting_style`.
+In the last tutorial, we saw how :code:`Vis` objects could be exported into visualization code for further editing. What if we want to change the chart settings for *all* the visualizations displayed in the widget. In Lux, we can change the chart settings and aesthetics by inputting global custom plot settings the :code:`plotting_style`.
 
 Example #1 : Changing Color and Title of all charts
 ---------------------------------------------------
@@ -25,7 +25,6 @@ To change the plot configuration in Altair, we need to specify a function that t
 Let's say that we want to change all the graphical marks of the charts to green and add a custom title. We can define this `change_color_add_title` function, which configures the chart's mark as green and adds a custom title to the chart.
 
 .. code-block:: python
-
 	lux.config.plotting_backend = "altair" # or 'vegalite'
 
 	def change_color_add_title(chart):
@@ -33,7 +32,7 @@ Let's say that we want to change all the graphical marks of the charts to green 
 	    chart.title = "Custom Title" # add title to chart
 	    return chart
 
-We then set the global plot configuration of the dataframe by changing :code:`lux.config.plotting_style`. With the added :code:`plotting_style`, Lux runs this user-defined function after every `Vis` is rendered to a chart, allow the user-defined function to override any existing default chart settings.
+We then set the global plot configuration of the dataframe by changing the :code:`plotting_style` property. With the added plotting_style, Lux runs this user-defined function after every `Vis` is rendered to a chart, allow the user-defined function to override any existing default chart settings.
 
 .. code-block:: python
 	
@@ -46,19 +45,30 @@ We now see that the displayed visualizations adopt these new imported settings.
   :align: center 
 
 Similarly, we can change the plot configurations for Matplotlib charts as well.
-The plotting_style attribute for Matplotlib charts takes in both the figure and axis as parameters.
-
+The plotting_style attribute for Matplotlib charts takes in both the `fig` and `ax` as parameters.
+`fig` handles figure width and other plot size attributes. `ax` supports changing the chart title and other plot labels and configurations.
 .. code-block:: python
 	
-    lux.config.plotting_backend = "matplotlib" # or 'matplotlib_code'
+	lux.config.plotting_backend = "matplotlib" # or 'matplotlib_code'
 
-    def add_title(fig, ax):
-        ax.set_title("Test Title")
+    def change_width_add_title(fig, ax):
+		fig.set_figwidth(7)
+        ax.set_title("Custom Title")
         return fig, ax
 
 .. code-block:: python
 	
-	lux.config.plotting_style = add_title
+	lux.config.plotting_style = change_width_add_title
+
+Moreover, we can set the color and other figure styles using the rcParams attribute of pyplot.
+
+.. code-block:: python
+
+	import matplotlib.pyplot as plt
+	import matplotlib
+
+	plt.rcParams['axes.prop_cycle'] = matplotlib.cycler(color='g')
+
 
 We now see that the displayed visualizations adopt these new imported settings.
 
@@ -131,7 +141,7 @@ We want to decrease the opacity of scatterplots, but keep the opacity for the ot
 
 .. code-block:: python
 	
-	lux.config.plot_config = changeOpacityScatterOnly
+	lux.config.plotting_style = changeOpacityScatterOnly
 	df
 
 .. image:: ../img/style-6.png

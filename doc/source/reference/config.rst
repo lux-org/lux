@@ -156,21 +156,22 @@ The above results in the following changes:
 
 See `this page <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ for more details.
 
-Matplotlib also supports plot configurations to be applied on top of the generated graphs. To set a default plot configuration, first write a function that can take in a `fig` and `ax` and returns a `fig` and `ax`. For example:
-
+Matplotlib also supports plot configurations to be applied on top of the generated graphs. To set a default plot configuration, first write a function that can take in a `fig` and `ax` and returns a `fig` and `ax`.
+`fig` handles figure width and other plot size attributes. `ax` supports changing the chart title and other plot labels and configurations. For example:
 .. code-block:: python
+	
+	lux.config.plotting_backend = "matplotlib" # or 'matplotlib_code'
 
-    lux.config.plotting_backend = "matplotlib"
-
-    def add_title(fig, ax):
+    def change_width_add_title(fig, ax):
+		fig.set_figwidth(7)
         ax.set_title("Custom Title")
         return fig, ax
 
 .. code-block:: python
+	
+	lux.config.plotting_style = change_width_add_title
 
-    lux.config.plotting_style = add_title
-
-Moreover, we can set the color and other figure styles using rcParams attribute of plots.
+Moreover, we can set the color and other figure styles using the rcParams attribute of pyplot.
 
 .. code-block:: python
 
