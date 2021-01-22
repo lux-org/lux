@@ -142,11 +142,11 @@ Altair supports plot configurations to be applied on top of the generated graphs
         chart.title = "Custom Title" # add title to chart
         return chart
 
-Then, set the `plot_config` to this function so that this function is applied to every plot generated.
+Then, set the `plotting_style` to this function so that this function is applied to every plot generated.
 
 .. code-block:: python
 
-    lux.config.plot_config = change_color_add_title
+    lux.config.plotting_style = change_color_add_title
 
 The above results in the following changes:
 
@@ -166,7 +166,7 @@ Matplotlib also supports plot configurations to be applied on top of the generat
 
 .. code-block:: python
 
-    lux.config.plot_config = add_title
+    lux.config.plotting_style = add_title
 
 The above results in the following changes:
 

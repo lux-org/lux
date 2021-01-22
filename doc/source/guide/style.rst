@@ -4,7 +4,7 @@ Styling Custom Plot Settings
 
 .. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder/blob/master/tutorial/4-chart-settings.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial/4-chart-settings.ipynb>`_]
 
-In the last tutorial, we saw how :code:`Vis` objects could be exported into visualization code for further editing. What if we want to change the chart settings for *all* the visualizations displayed in the widget. In Lux, we can change the chart settings and aesthetics by inputting global custom plot settings the :code:`plot_config`.
+In the last tutorial, we saw how :code:`Vis` objects could be exported into visualization code for further editing. What if we want to change the chart settings for *all* the visualizations displayed in the widget. In Lux, we can change the chart settings and aesthetics by inputting global custom plot settings the :code:`plotting_style`.
 
 Example #1 : Changing Color and Title of all charts
 ---------------------------------------------------
@@ -32,11 +32,11 @@ Let's say that we want to change all the graphical marks of the charts to green 
 	    chart.title = "Custom Title" # add title to chart
 	    return chart
 
-We then set the global plot configuration of the dataframe by changing the :code:`plot_config` property. With the added plot_config, Lux runs this user-defined function after every `Vis` is rendered to a chart, allow the user-defined function to override any existing default chart settings.
+We then set the global plot configuration of the dataframe by changing the :code:`plotting_style` property. With the added plotting_style, Lux runs this user-defined function after every `Vis` is rendered to a chart, allow the user-defined function to override any existing default chart settings.
 
 .. code-block:: python
 	
-	lux.config.plot_config = change_color_add_title
+	lux.config.plotting_style = change_color_add_title
 
 We now see that the displayed visualizations adopt these new imported settings.
 
@@ -45,7 +45,7 @@ We now see that the displayed visualizations adopt these new imported settings.
   :align: center 
 
 Similarly, we can change the plot configurations for Matplotlib charts as well.
-The plot_config attribute for Matplotlib charts takes in both the figure and axis as parameters.
+The plotting_style attribute for Matplotlib charts takes in both the figure and axis as parameters.
 .. code-block:: python
 	
 	lux.config.plotting_backend = "matplotlib" # or 'matplotlib_code'
@@ -56,7 +56,7 @@ The plot_config attribute for Matplotlib charts takes in both the figure and axi
 
 .. code-block:: python
 	
-	lux.config.plot_config = add_title
+	lux.config.plotting_style = add_title
 
 We now see that the displayed visualizations adopt these new imported settings.
 

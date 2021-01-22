@@ -52,7 +52,7 @@ How do I change the plotting library used for visualization?
   
 I want to change the opacity of my chart, add title, change chart font size, etc. How do I modify chart settings?
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  To add custom plot settings to the recommendations, you can set the :code:`lux.config.plot_config` property. See `this tutorial <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ on how to configure chart properties. Lux currently only support chart modifications in Altair.
+  To add custom plot settings to the recommendations, you can set the :code:`lux.config.plotting_style` property. See `this tutorial <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ on how to configure chart properties. Lux supports chart modifications in Altair and Matplotlib.
 
 How do I change aggregation functions, binning, or axis channels to non-default values?
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
