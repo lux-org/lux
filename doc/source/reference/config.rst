@@ -156,7 +156,7 @@ The above results in the following changes:
 
 See `this page <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ for more details.
 
-Matplotlib also supports plot configurations to be applied on top of the generated graphs. To set a default plot configuration, first write a function that can take in a `fig` and 'ax' and returns a `fig` and 'ax. For example:
+Matplotlib also supports plot configurations to be applied on top of the generated graphs. To set a default plot configuration, first write a function that can take in a `fig` and `ax` and returns a `fig` and `ax`. For example:
 
 .. code-block:: python
 
