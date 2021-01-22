@@ -13,7 +13,6 @@
 #  limitations under the License.
 import pandas as pd
 import matplotlib.pyplot as plt
-import lux
 
 
 def convert_to_list(x):
