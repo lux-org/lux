@@ -33,7 +33,7 @@ Let's say that we want to change all the graphical marks of the charts to green 
 	    chart.title = "Custom Title" # add title to chart
 	    return chart
 
-We then set the global plot configuration of the dataframe by changing the :code:`plotting_style` property. With the added plotting_style, Lux runs this user-defined function after every `Vis` is rendered to a chart, allow the user-defined function to override any existing default chart settings.
+We then set the global plot configuration of the dataframe by changing :code:`lux.config.plotting_style`. With the added :code:`plotting_style`, Lux runs this user-defined function after every `Vis` is rendered to a chart, allow the user-defined function to override any existing default chart settings.
 
 .. code-block:: python
 	
