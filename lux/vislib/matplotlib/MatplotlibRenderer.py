@@ -86,11 +86,11 @@ class MatplotlibRenderer:
             return chart
         if chart:
             plt.tight_layout()
-            if lux.config.plot_config and (
+            if lux.config.plotting_style and (
                 lux.config.plotting_backend == "matplotlib"
                 or lux.config.plotting_backend == "matplotlib_code"
             ):
-                chart.fig, chart.ax = lux.config.plot_config(chart.fig, chart.ax)
+                chart.fig, chart.ax = lux.config.plotting_style(chart.fig, chart.ax)
             plt.tight_layout()
             tmpfile = BytesIO()
             chart.fig.savefig(tmpfile, format="png")
@@ -100,11 +100,11 @@ class MatplotlibRenderer:
             if self.output_type == "matplotlib":
                 return {"config": chart.chart, "vislib": "matplotlib"}
             if self.output_type == "matplotlib_code":
-                if lux.config.plot_config:
+                if lux.config.plotting_style:
                     import inspect
 
                     chart.code += "\n".join(
-                        inspect.getsource(lux.config.plot_config).split("\n    ")[1:-1]
+                        inspect.getsource(lux.config.plotting_style).split("\n    ")[1:-1]
                     )
                 chart.code += "\nfig"
                 chart.code = chart.code.replace("\n\t\t", "\n")
