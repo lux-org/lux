@@ -15,6 +15,7 @@
 from .context import lux
 import pytest
 import pandas as pd
+import warnings
 
 
 # Suite of test that checks if data_type inferred correctly by Lux
@@ -125,6 +126,21 @@ def test_check_datetime():
     }
 
 
+def test_check_datetime_numeric_values():
+    car_df = pd.read_csv("lux/data/car.csv")
+    car_df = car_df.rename(columns={"Year": "blah"})
+    car_df.maintain_metadata()
+    assert car_df.data_type["blah"] == "temporal"
+
+    spotify_df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/spotify.csv"
+    )
+    spotify_df = spotify_df.rename(columns={"year": "blah"})
+    spotify_df.maintain_metadata()
+    assert spotify_df.data_type["blah"] == "temporal"
+    assert spotify_df.data_type["release_date"] == "temporal"
+
+
 def test_check_stock():
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/stocks.csv?raw=true")
     df.maintain_metadata()
@@ -189,3 +205,37 @@ def test_float_categorical():
     ], "Float column should be detected as categorical"
     for x in list(df.dtypes):
         assert x == "float64", "Source dataframe preserved as float dtype"
+
+
+def test_set_data_type():
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
+    )
+    with pytest.warns(UserWarning) as w:
+        df._repr_html_()
+        assert "starter template that you can use" in str(w[-1].message)
+        assert "df.set_data_type" in str(w[-1].message)
+
+    df.set_data_type({"Month": "nominal", "Year": "nominal"})
+    assert df.data_type["Month"] == "nominal"
+    assert df.data_type["Year"] == "nominal"
+    with warnings.catch_warnings() as w:
+        warnings.simplefilter("always")
+        df._repr_html_()
+        assert not w
+
+
+def test_set_data_type_invalid():
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
+    )
+    with pytest.raises(ValueError):
+        df.set_data_type({"Month": "nomnal", "Year": "nomnal"})
+
+
+def test_set_wrong_data_type():
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
+    )
+    df.set_data_type({"Year": "quantitative"})
+    assert df.data_type["Year"] == "quantitative"

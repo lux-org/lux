@@ -187,7 +187,24 @@ def test_remove_default_actions(global_var):
     register_default_actions()
 
 
+def test_matplotlib_set_default_plot_config():
+    lux.config.plotting_backend = "matplotlib"
+
+    def add_title(fig, ax):
+        ax.set_title("Test Title")
+        return fig, ax
+
+    df = pd.read_csv("lux/data/car.csv")
+    lux.config.plot_config = add_title
+    df._repr_html_()
+    title_addition = 'ax.set_title("Test Title")'
+    exported_code_str = df.recommendation["Correlation"][0].to_Altair()
+    assert title_addition in exported_code_str
+
+
 def test_set_default_plot_config():
+    lux.config.plotting_backend = "vegalite"
+
     def change_color_make_transparent_add_title(chart):
         chart = chart.configure_mark(color="green", opacity=0.2)
         chart.title = "Test Title"
@@ -233,9 +250,44 @@ def test_heatmap_flag_config():
     assert df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = False
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
-    df = df.copy()
+    df._repr_html_()
     assert not df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True
+
+
+def test_topk(global_var):
+    df = pd.read_csv("lux/data/college.csv")
+    lux.config.topk = False
+    df._repr_html_()
+    assert len(df.recommendation["Correlation"]) == 45, "Turn off top K"
+    lux.config.topk = 20
+    df = pd.read_csv("lux/data/college.csv")
+    df._repr_html_()
+    assert len(df.recommendation["Correlation"]) == 20, "Show top 20"
+    for vis in df.recommendation["Correlation"]:
+        assert vis.score > 0.2
+
+
+def test_sort(global_var):
+    df = pd.read_csv("lux/data/college.csv")
+    lux.config.topk = 15
+    df._repr_html_()
+    assert len(df.recommendation["Correlation"]) == 15, "Show top 15"
+    for vis in df.recommendation["Correlation"]:
+        assert vis.score > 0.5
+    df = pd.read_csv("lux/data/college.csv")
+    lux.config.sort = "ascending"
+    df._repr_html_()
+    assert len(df.recommendation["Correlation"]) == 15, "Show bottom 15"
+    for vis in df.recommendation["Correlation"]:
+        assert vis.score < 0.35
+
+    lux.config.sort = "none"
+    df = pd.read_csv("lux/data/college.csv")
+    df._repr_html_()
+    scorelst = [x.score for x in df.recommendation["Distribution"]]
+    assert sorted(scorelst) != scorelst, "unsorted setting"
+    lux.config.sort = "descending"
 
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.

@@ -38,7 +38,7 @@ class LuxDataFrame(pd.DataFrame):
     _metadata = [
         "_intent",
         "_inferred_intent",
-        "data_type",
+        "_data_type",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -54,6 +54,7 @@ class LuxDataFrame(pd.DataFrame):
         "_message",
         "_pandas_only",
         "pre_aggregated",
+        "_type_override",
     ]
 
     def __init__(self, *args, **kw):
@@ -82,11 +83,12 @@ class LuxDataFrame(pd.DataFrame):
         self._message = Message()
         self._pandas_only = False
         # Metadata
-        self.data_type = None
+        self._data_type = None
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
         self.pre_aggregated = None
+        self._type_override = {}
         warnings.formatwarning = lux.warning_format
 
     @property
@@ -106,6 +108,12 @@ class LuxDataFrame(pd.DataFrame):
     @property
     def history(self):
         return self._history
+
+    @property
+    def data_type(self):
+        if not self._data_type:
+            self.maintain_metadata()
+        return self._data_type
 
     def maintain_metadata(self):
         if lux.config.SQLconnection != "" and lux.config.executor.name != "SQL":
@@ -138,7 +146,7 @@ class LuxDataFrame(pd.DataFrame):
         Expire all saved metadata to trigger a recomputation the next time the data is required.
         """
         self._metadata_fresh = False
-        self.data_type = None
+        self._data_type = None
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
@@ -253,6 +261,40 @@ class LuxDataFrame(pd.DataFrame):
         self.expire_recs()
         self._intent = vis._inferred_intent
         self._parse_validate_compile_intent()
+
+    def set_data_type(self, types: dict):
+        """
+        Set the data type for a particular attribute in the dataframe
+        overriding the automatically-detected type inferred by Lux
+
+        Parameters
+        ----------
+        types: dict
+            Dictionary that maps attribute/column name to a specified Lux Type.
+            Possible options: "nominal", "quantitative", "id", and "temporal".
+
+        Example
+        ----------
+        df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/absenteeism.csv")
+        df.set_data_type({"ID":"id",
+                          "Reason for absence":"nominal"})
+        """
+        if self._type_override == None:
+            self._type_override = types
+        else:
+            self._type_override = {**self._type_override, **types}
+
+        if not self.data_type:
+            self.maintain_metadata()
+
+        for attr in types:
+            if types[attr] not in ["nominal", "quantitative", "id", "temporal"]:
+                raise ValueError(
+                    f'Invalid data type option specified for {attr}. Please use one of the following supported types: ["nominal", "quantitative", "id", "temporal"]'
+                )
+            self.data_type[attr] = types[attr]
+
+        self.expire_recs()
 
     def to_pandas(self):
         import lux.core
@@ -564,14 +606,17 @@ class LuxDataFrame(pd.DataFrame):
         except (KeyboardInterrupt, SystemExit):
             raise
         except Exception:
-            warnings.warn(
-                "\nUnexpected error in rendering Lux widget and recommendations. "
-                "Falling back to Pandas display.\n"
-                "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
-                stacklevel=2,
-            )
-            warnings.warn(traceback.format_exc())
-            display(self.display_pandas())
+            if lux.config.pandas_fallback:
+                warnings.warn(
+                    "\nUnexpected error in rendering Lux widget and recommendations. "
+                    "Falling back to Pandas display.\n"
+                    "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
+                    stacklevel=2,
+                )
+                warnings.warn(traceback.format_exc())
+                display(self.display_pandas())
+            else:
+                raise
 
     def display_pandas(self):
         return self.to_pandas()
@@ -665,7 +710,7 @@ class LuxDataFrame(pd.DataFrame):
         current_vis_spec = {}
         numVC = len(vlist)  # number of visualizations in the vis list
         if numVC == 1:
-            current_vis_spec = vlist[0].to_code(prettyOutput=False)
+            current_vis_spec = vlist[0].to_code(language=lux.config.plotting_backend, prettyOutput=False)
         elif numVC > 1:
             pass
         return current_vis_spec
@@ -680,7 +725,7 @@ class LuxDataFrame(pd.DataFrame):
             if len(rec["collection"]) > 0:
                 rec["vspec"] = []
                 for vis in rec["collection"]:
-                    chart = vis.to_code(prettyOutput=False)
+                    chart = vis.to_code(language=lux.config.plotting_backend, prettyOutput=False)
                     rec["vspec"].append(chart)
                 rec_lst.append(rec)
                 # delete since not JSON serializable

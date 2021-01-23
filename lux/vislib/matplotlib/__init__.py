@@ -12,12 +12,19 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import os
-import sys
+from lux.utils.utils import matplotlib_setup
+import matplotlib.pyplot as plt
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-import lux
-
-lux.config.interestingness_fallback = False
-lux.config.pandas_fallback = False
+plt.rcParams.update({"figure.max_open_warning": 0})
+plt.rcParams.update(
+    {
+        "axes.titlesize": 15,
+        "axes.titleweight": "bold",
+        "axes.labelweight": "bold",
+        "axes.labelsize": 13,
+        "legend.fontsize": 13,
+        "legend.title_fontsize": 13,
+        "xtick.labelsize": 13,
+        "ytick.labelsize": 13,
+    }
+)

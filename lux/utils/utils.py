@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def convert_to_list(x):
@@ -103,3 +104,13 @@ def like_nan(val):
         import math
 
         return math.isnan(val)
+
+
+def matplotlib_setup(w, h):
+    plt.ioff()
+    fig, ax = plt.subplots(figsize=(w, h))
+    ax.set_axisbelow(True)
+    ax.grid(color="#dddddd")
+    ax.spines["right"].set_color("#dddddd")
+    ax.spines["top"].set_color("#dddddd")
+    return fig, ax
