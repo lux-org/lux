@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from __future__ import annotations
+
 from lux.vislib.altair.AltairRenderer import AltairRenderer
 from lux.utils.utils import check_import_lux_widget
 from typing import List, Union, Callable, Dict
@@ -63,7 +63,7 @@ class VisList:
         self.refresh_source(self._source)
 
     @property
-    def exported(self) -> VisList:
+    def exported(self):
         """
         Get selected visualizations as exported Vis List
 
@@ -100,7 +100,7 @@ class VisList:
 
     def remove_duplicates(self) -> None:
         """
-        Removes duplicate visualizations in Vis List
+        Removes duplicate visualizations in VisList
         """
         self._collection = list(set(self._collection))
 
@@ -133,16 +133,17 @@ class VisList:
         for vis in self._collection:
             filter_intents = None
             for clause in vis._inferred_intent:
+                attr = str(clause.attribute)
                 if clause.value != "":
                     filter_intents = clause
 
                 if clause.aggregation != "" and clause.aggregation is not None:
-                    attribute = clause._aggregation_name.upper() + "(" + clause.attribute + ")"
+                    attribute = clause._aggregation_name.upper() + f"({attr})"
                 elif clause.bin_size > 0:
-                    attribute = "BIN(" + clause.attribute + ")"
+                    attribute = f"BIN({attr})"
                 else:
-                    attribute = clause.attribute
-
+                    attribute = attr
+                attribute = str(attribute)
                 if clause.channel == "x" and len(x_channel) < len(attribute):
                     x_channel = attribute
                 if clause.channel == "y" and len(y_channel) < len(attribute):
@@ -151,9 +152,9 @@ class VisList:
                 largest_mark = len(vis.mark)
             if (
                 filter_intents
-                and len(str(filter_intents.value)) + len(filter_intents.attribute) > largest_filter
+                and len(str(filter_intents.value)) + len(str(filter_intents.attribute)) > largest_filter
             ):
-                largest_filter = len(str(filter_intents.value)) + len(filter_intents.attribute)
+                largest_filter = len(str(filter_intents.value)) + len(str(filter_intents.attribute))
         vis_repr = []
         largest_x_length = len(x_channel)
         largest_y_length = len(y_channel)
@@ -164,16 +165,16 @@ class VisList:
             y_channel = ""
             additional_channels = []
             for clause in vis._inferred_intent:
+                attr = str(clause.attribute)
                 if clause.value != "":
                     filter_intents = clause
 
                 if clause.aggregation != "" and clause.aggregation is not None and vis.mark != "scatter":
-                    attribute = clause._aggregation_name.upper() + "(" + clause.attribute + ")"
+                    attribute = clause._aggregation_name.upper() + f"({attr})"
                 elif clause.bin_size > 0:
-                    attribute = "BIN(" + clause.attribute + ")"
+                    attribute = f"BIN({attr})"
                 else:
-                    attribute = clause.attribute
-
+                    attribute = attr
                 if clause.channel == "x":
                     x_channel = attribute.ljust(largest_x_length)
                 elif clause.channel == "y":
@@ -197,7 +198,7 @@ class VisList:
             if filter_intents:
                 aligned_filter = (
                     " -- ["
-                    + filter_intents.attribute
+                    + str(filter_intents.attribute)
                     + filter_intents.filter_op
                     + str(filter_intents.value)
                     + "]"
@@ -232,18 +233,22 @@ class VisList:
         # remove the items that have invalid (-1) score
         if remove_invalid:
             self._collection = list(filter(lambda x: x.score != -1, self._collection))
+        if lux.config.sort == "none":
+            return
+        elif lux.config.sort == "ascending":
+            descending = False
+        elif lux.config.sort == "descending":
+            descending = True
         # sort in-place by “score” by default if available, otherwise user-specified field to sort by
         self._collection.sort(key=lambda x: x.score, reverse=descending)
 
-    def topK(self, k):
-        # sort and truncate list to first K items
-        self.sort(remove_invalid=True)
-        return VisList(self._collection[:k])
-
-    def bottomK(self, k):
-        # sort and truncate list to first K items
-        self.sort(descending=False, remove_invalid=True)
-        return VisList(self._collection[:k])
+    def showK(self):
+        k = lux.config.topk
+        if k == False:
+            return self
+        elif isinstance(k, int):
+            k = abs(k)
+            return VisList(self._collection[:k])
 
     def normalize_score(self, invert_order=False):
         max_score = max(list(self.get("score")))
@@ -310,4 +315,4 @@ class VisList:
                     self._inferred_intent = Parser.parse(self._intent)
                     Validator.validate_intent(self._inferred_intent, ldf)
                     self._collection = Compiler.compile_intent(ldf, self._inferred_intent)
-                ldf.executor.execute(self._collection, ldf)
+                lux.config.executor.execute(self._collection, ldf)

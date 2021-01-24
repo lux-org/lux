@@ -14,21 +14,57 @@
 
 import pandas as pd
 from .frame import LuxDataFrame
+<<<<<<< HEAD
 from .groupby import LuxDataFrameGroupBy
+=======
+from .series import LuxSeries
+>>>>>>> upstream/master
 
 global originalDF
 # Keep variable scope of original pandas df
 originalDF = pd.core.frame.DataFrame
+originalSeries = pd.core.series.Series
 
 
 def setOption(overridePandas=True):
     if overridePandas:
         pd.DataFrame = (
             pd.io.json._json.DataFrame
-        ) = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = LuxDataFrame
-        pd.core.groupby.generic.DataFrameGroupBy = LuxDataFrameGroupBy
+        ) = (
+            pd.io.parsers.DataFrame
+        ) = (
+            pd.io.sql.DataFrame
+        ) = (
+            pd.io.excel.DataFrame
+        ) = (
+            pd.io.formats.DataFrame
+        ) = (
+            pd.io.sas.DataFrame
+        ) = (
+            pd.io.clipboards.DataFrame
+        ) = (
+            pd.io.common.DataFrame
+        ) = (
+            pd.io.feather_format.DataFrame
+        ) = (
+            pd.io.gbq.DataFrame
+        ) = (
+            pd.io.html.DataFrame
+        ) = (
+            pd.io.orc.DataFrame
+        ) = (
+            pd.io.parquet.DataFrame
+        ) = (
+            pd.io.pickle.DataFrame
+        ) = (
+            pd.io.pytables.DataFrame
+        ) = (
+            pd.io.spss.DataFrame
+        ) = pd.io.stata.DataFrame = pd.io.api.DataFrame = pd.core.frame.DataFrame = LuxDataFrame
+        pd.Series = pd.core.series.Series = LuxSeries
     else:
         pd.DataFrame = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = originalDF
+        pd.Series = originalSeries
 
 
 setOption(overridePandas=True)

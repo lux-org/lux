@@ -66,6 +66,12 @@ class AltairRenderer:
                     vis.data[attr].iloc[0], pd.Interval
                 ):
                     vis.data[attr] = vis.data[attr].astype(str)
+                if isinstance(attr, str):
+                    if "." in attr:
+                        attr_clause = vis.get_attr_by_attr_name(attr)[0]
+                        # Suppress special character ".", not displayable in Altair
+                        # attr_clause.attribute = attr_clause.attribute.replace(".", "")
+                        vis._vis_data = vis.data.rename(columns={attr: attr.replace(".", "")})
         if vis.mark == "histogram":
             chart = Histogram(vis)
         elif vis.mark == "bar":
@@ -80,7 +86,9 @@ class AltairRenderer:
             chart = None
 
         if chart:
-            if lux.config.plot_config:
+            if lux.config.plot_config and (
+                lux.config.plotting_backend == "vegalite" or lux.config.plotting_backend == "altair"
+            ):
                 chart.chart = lux.config.plot_config(chart.chart)
             if self.output_type == "VegaLite":
                 chart_dict = chart.chart.to_dict()
@@ -88,6 +96,7 @@ class AltairRenderer:
                 # chart["data"] =  { "values": vis.data.to_dict(orient='records') }
                 # chart_dict["width"] = 160
                 # chart_dict["height"] = 150
+                chart_dict["vislib"] = "vegalite"
                 return chart_dict
             elif self.output_type == "Altair":
                 import inspect

@@ -48,9 +48,7 @@ def univariate(ldf, *args):
         possible_attributes = [
             c
             for c in ldf.columns
-            if ldf.data_type_lookup[c] == "quantitative"
-            and ldf.cardinality[c] > 5
-            and c != "Number of Records"
+            if ldf.data_type[c] == "quantitative" and ldf.cardinality[c] > 5 and c != "Number of Records"
         ]
         intent = [lux.Clause(possible_attributes)]
         intent.extend(filter_specs)
@@ -84,7 +82,6 @@ def univariate(ldf, *args):
     vlist = VisList(intent, ldf)
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
-    # vlist = vlist.topK(15) # Basic visualizations should not be capped
     vlist.sort()
     recommendation["collection"] = vlist
     return recommendation

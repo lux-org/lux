@@ -15,6 +15,8 @@
 from .context import lux
 import pytest
 import pandas as pd
+import numpy as np
+import warnings
 
 ###################
 # DataFrame Tests #
@@ -41,23 +43,32 @@ def test_rename_inplace(global_var):
     # new_df is the old dataframe (df) with the new column name changed inplace
     new_df, df = df, new_df
 
-    assert df.data_type_lookup != new_df.data_type_lookup
-
-    assert df.data_type_lookup["Name"] == new_df.data_type_lookup["Car Name"]
-
     assert df.data_type != new_df.data_type
 
-    assert df.data_type["nominal"][0] == "Name"
-    assert new_df.data_type["nominal"][0] == "Car Name"
+    assert df.data_type["Name"] == new_df.data_type["Car Name"]
 
-    assert df.data_model_lookup != new_df.data_model_lookup
+    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    new_inverted_data_type = lux.config.executor.invert_data_type(new_df.data_type)
 
-    assert df.data_model_lookup["Name"] == new_df.data_model_lookup["Car Name"]
+    assert inverted_data_type != new_inverted_data_type
 
-    assert df.data_model != new_df.data_model
+    assert inverted_data_type["nominal"][0] == "Name"
+    assert new_inverted_data_type["nominal"][0] == "Car Name"
 
-    assert df.data_model["dimension"][0] == "Name"
-    assert new_df.data_model["dimension"][0] == "Car Name"
+    data_model_lookup = lux.config.executor.compute_data_model_lookup(df.data_type)
+    new_data_model_lookup = lux.config.executor.compute_data_model_lookup(new_df.data_type)
+
+    assert data_model_lookup != new_data_model_lookup
+
+    assert data_model_lookup["Name"] == new_data_model_lookup["Car Name"]
+
+    data_model = lux.config.executor.compute_data_model(df.data_type)
+    new_data_model = lux.config.executor.compute_data_model(new_df.data_type)
+
+    assert data_model != new_data_model
+
+    assert data_model["dimension"][0] == "Name"
+    assert new_data_model["dimension"][0] == "Car Name"
 
     assert list(df.unique_values.values()) == list(new_df.unique_values.values())
     assert list(df.cardinality.values()) == list(new_df.cardinality.values())
@@ -71,23 +82,32 @@ def test_rename(global_var):
     df._repr_html_()
     new_df = df.rename(columns={"Name": "Car Name"}, inplace=False)
     new_df._repr_html_()
-    assert df.data_type_lookup != new_df.data_type_lookup
-
-    assert df.data_type_lookup["Name"] == new_df.data_type_lookup["Car Name"]
-
     assert df.data_type != new_df.data_type
 
-    assert df.data_type["nominal"][0] == "Name"
-    assert new_df.data_type["nominal"][0] == "Car Name"
+    assert df.data_type["Name"] == new_df.data_type["Car Name"]
 
-    assert df.data_model_lookup != new_df.data_model_lookup
+    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    new_inverted_data_type = lux.config.executor.invert_data_type(new_df.data_type)
 
-    assert df.data_model_lookup["Name"] == new_df.data_model_lookup["Car Name"]
+    assert inverted_data_type != new_inverted_data_type
 
-    assert df.data_model != new_df.data_model
+    assert inverted_data_type["nominal"][0] == "Name"
+    assert new_inverted_data_type["nominal"][0] == "Car Name"
 
-    assert df.data_model["dimension"][0] == "Name"
-    assert new_df.data_model["dimension"][0] == "Car Name"
+    data_model_lookup = lux.config.executor.compute_data_model_lookup(df.data_type)
+    new_data_model_lookup = lux.config.executor.compute_data_model_lookup(new_df.data_type)
+
+    assert data_model_lookup != new_data_model_lookup
+
+    assert data_model_lookup["Name"] == new_data_model_lookup["Car Name"]
+
+    data_model = lux.config.executor.compute_data_model(df.data_type)
+    new_data_model = lux.config.executor.compute_data_model(new_df.data_type)
+
+    assert data_model != new_data_model
+
+    assert data_model["dimension"][0] == "Name"
+    assert new_data_model["dimension"][0] == "Car Name"
 
     assert list(df.unique_values.values()) == list(new_df.unique_values.values())
     assert list(df.cardinality.values()) == list(new_df.cardinality.values())
@@ -147,11 +167,28 @@ def test_groupby_agg(global_var):
 
 def test_groupby_agg_big(global_var):
     df = pd.read_csv("lux/data/car.csv")
-    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.groupby("Brand").agg(sum)
     new_df._repr_html_()
     assert list(new_df.recommendation.keys()) == ["Column Groups"]
-    assert len(new_df.cardinality) == 7
+    assert len(new_df.cardinality) == 8
+    year_vis = list(
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("Year") != [],
+            new_df.recommendation["Column Groups"],
+        )
+    )[0]
+    assert year_vis.mark == "bar"
+    assert year_vis.get_attr_by_channel("x")[0].attribute == "Year"
+    new_df = new_df.T
+    new_df._repr_html_()
+    year_vis = list(
+        filter(
+            lambda vis: vis.get_attr_by_attr_name("Year") != [],
+            new_df.recommendation["Row Groups"],
+        )
+    )[0]
+    assert year_vis.mark == "bar"
+    assert year_vis.get_attr_by_channel("x")[0].attribute == "Year"
 
 
 def test_qcut(global_var):
@@ -292,7 +329,7 @@ def test_change_dtype(global_var):
         "Occurrence",
         "Temporal",
     ]
-    assert len(df.data_type_lookup) == 10
+    assert len(df.data_type) == 10
 
 
 def test_get_dummies(global_var):
@@ -306,7 +343,7 @@ def test_get_dummies(global_var):
         "Occurrence",
         "Temporal",
     ]
-    assert len(new_df.data_type_lookup) == 339
+    assert len(new_df.data_type) == 339
 
 
 def test_drop(global_var):
@@ -474,6 +511,62 @@ def compare_vis(vis1, vis2):
     assert vis1.score == vis2.score
 
 
+def test_index(global_var):
+    # testing set_index and reset_index functions
+    # setting a column as an index should remove it from the dataframe's column list
+    # and change the dataframe's index name parameter
+    df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+
+    df = df.set_index(["Name"])
+    # if this assert fails, then the index column has not properly been removed from the dataframe's column and registered as an index
+    assert "Name" not in df.columns and df.index.name == "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+    df = df.reset_index()
+    assert "Name" in df.columns and df.index.name != "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+
+    df.set_index(["Name"], inplace=True)
+    assert "Name" not in df.columns and df.index.name == "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+    df.reset_index(inplace=True)
+    assert "Name" in df.columns and df.index.name != "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+
+    df = df.set_index(["Name"])
+    assert "Name" not in df.columns and df.index.name == "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+    df = df.reset_index(drop=True)
+    assert "Name" not in df.columns and df.index.name != "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+
+
+def test_index_col(global_var):
+    df = pd.read_csv("lux/data/car.csv", index_col="Name")
+    # if this assert fails, then the index column has not properly been removed from the dataframe's column and registered as an index
+    assert "Name" not in df.columns and df.index.name == "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+    df = df.reset_index()
+    assert "Name" in df.columns and df.index.name != "Name"
+    df._repr_html_()
+    assert len(df.recommendation) > 0
+
+    # this case is not yet addressed, need to have a check that eliminates bar charts with duplicate column names
+    # df = df.set_index(["Name"], drop=False)
+    # assert "Name" not in df.columns and df.index.name == "Name"
+    # df._repr_html_()
+    # assert len(df.recommendation) > 0
+    # df = df.reset_index(drop=True)
+    # assert "Name" not in df.columns and df.index.name != "Name"
+
+
 ################
 # Series Tests #
 ################
@@ -489,10 +582,7 @@ def test_df_to_series(global_var):
     df["Weight"]._metadata
     assert df["Weight"]._metadata == [
         "_intent",
-        "data_type_lookup",
         "data_type",
-        "data_model_lookup",
-        "data_model",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -517,13 +607,10 @@ def test_value_counts(global_var):
     assert df.cardinality is not None
     series = df["Weight"]
     series.value_counts()
-    assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
+    assert type(df["Brand"].value_counts()) == lux.core.series.LuxSeries
     assert df["Weight"]._metadata == [
         "_intent",
-        "data_type_lookup",
         "data_type",
-        "data_model_lookup",
-        "data_model",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -550,10 +637,7 @@ def test_str_replace(global_var):
     assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
     assert df["Brand"]._metadata == [
         "_intent",
-        "data_type_lookup",
         "data_type",
-        "data_model_lookup",
-        "data_model",
         "unique_values",
         "cardinality",
         "_rec_info",
@@ -587,7 +671,7 @@ def test_read_json(global_var):
         "Occurrence",
         "Temporal",
     ]
-    assert len(df.data_type_lookup) == 10
+    assert len(df.data_type) == 10
 
 
 def test_read_sas(global_var):
@@ -595,4 +679,12 @@ def test_read_sas(global_var):
     df = pd.read_sas(url, format="sas7bdat")
     df._repr_html_()
     assert list(df.recommendation.keys()) == ["Correlation", "Distribution", "Temporal"]
-    assert len(df.data_type_lookup) == 6
+    assert len(df.data_type) == 6
+
+
+def test_read_multi_dtype(global_var):
+    url = "https://github.com/lux-org/lux-datasets/blob/master/data/car-data.xls?raw=true"
+    df = pd.read_excel(url)
+    with pytest.warns(UserWarning, match="mixed type") as w:
+        df._repr_html_()
+        assert "df['Car Type'] = df['Car Type'].astype(str)" in str(w[-1].message)

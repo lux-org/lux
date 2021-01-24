@@ -10,7 +10,7 @@ lux.action.column\_group module
 .. automodule:: lux.action.column_group
    :members:
    :undoc-members:
-   :show-inheritance:
+
 
 lux.action.correlation module
 -----------------------------
@@ -18,7 +18,7 @@ lux.action.correlation module
 .. automodule:: lux.action.correlation
    :members:
    :undoc-members:
-   :show-inheritance:
+
 
 lux.action.custom module
 ------------------------
@@ -26,7 +26,6 @@ lux.action.custom module
 .. automodule:: lux.action.custom
    :members:
    :undoc-members:
-   :show-inheritance:
 
 lux.action.enhance module
 -------------------------
@@ -34,7 +33,6 @@ lux.action.enhance module
 .. automodule:: lux.action.enhance
    :members:
    :undoc-members:
-   :show-inheritance:
 
 lux.action.filter module
 ------------------------
@@ -42,7 +40,6 @@ lux.action.filter module
 .. automodule:: lux.action.filter
    :members:
    :undoc-members:
-   :show-inheritance:
 
 lux.action.generalize module
 ----------------------------
@@ -50,7 +47,6 @@ lux.action.generalize module
 .. automodule:: lux.action.generalize
    :members:
    :undoc-members:
-   :show-inheritance:
 
 lux.action.row\_group module
 ----------------------------
@@ -58,15 +54,6 @@ lux.action.row\_group module
 .. automodule:: lux.action.row_group
    :members:
    :undoc-members:
-   :show-inheritance:
-
-lux.action.similarity module
-----------------------------
-
-.. automodule:: lux.action.similarity
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 lux.action.univariate module
 ----------------------------
@@ -74,7 +61,6 @@ lux.action.univariate module
 .. automodule:: lux.action.univariate
    :members:
    :undoc-members:
-   :show-inheritance:
 
 
 Module contents
@@ -83,4 +69,3 @@ Module contents
 .. automodule:: lux.action
    :members:
    :undoc-members:
-   :show-inheritance:

@@ -15,21 +15,22 @@
 from .context import lux
 import pytest
 import pandas as pd
+import warnings
 
 
 # Suite of test that checks if data_type inferred correctly by Lux
 def test_check_cars():
     df = pd.read_csv("lux/data/car.csv")
     df.maintain_metadata()
-    assert df.data_type_lookup["Name"] == "nominal"
-    assert df.data_type_lookup["MilesPerGal"] == "quantitative"
-    assert df.data_type_lookup["Cylinders"] == "nominal"
-    assert df.data_type_lookup["Displacement"] == "quantitative"
-    assert df.data_type_lookup["Horsepower"] == "quantitative"
-    assert df.data_type_lookup["Weight"] == "quantitative"
-    assert df.data_type_lookup["Acceleration"] == "quantitative"
-    assert df.data_type_lookup["Year"] == "temporal"
-    assert df.data_type_lookup["Origin"] == "nominal"
+    assert df.data_type["Name"] == "nominal"
+    assert df.data_type["MilesPerGal"] == "quantitative"
+    assert df.data_type["Cylinders"] == "nominal"
+    assert df.data_type["Displacement"] == "quantitative"
+    assert df.data_type["Horsepower"] == "quantitative"
+    assert df.data_type["Weight"] == "quantitative"
+    assert df.data_type["Acceleration"] == "quantitative"
+    assert df.data_type["Year"] == "temporal"
+    assert df.data_type["Origin"] == "nominal"
 
 
 def test_check_int_id():
@@ -37,7 +38,8 @@ def test_check_int_id():
         "https://github.com/lux-org/lux-datasets/blob/master/data/instacart_sample.csv?raw=true"
     )
     df._repr_html_()
-    assert len(df.data_type["id"]) == 3
+    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    assert len(inverted_data_type["id"]) == 3
     assert (
         "<code>order_id</code>, <code>product_id</code>, <code>user_id</code> is not visualized since it resembles an ID field."
         in df._message.to_html()
@@ -57,7 +59,7 @@ def test_check_hpi():
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/hpi.csv?raw=true")
     df.maintain_metadata()
 
-    assert df.data_type_lookup == {
+    assert df.data_type == {
         "HPIRank": "quantitative",
         "Country": "nominal",
         "SubRegion": "nominal",
@@ -77,7 +79,7 @@ def test_check_hpi():
 def test_check_airbnb():
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/airbnb_nyc.csv?raw=true")
     df.maintain_metadata()
-    assert df.data_type_lookup == {
+    assert df.data_type == {
         "id": "id",
         "name": "nominal",
         "host_id": "id",
@@ -111,7 +113,7 @@ def test_check_datetime():
         }
     )
     df.maintain_metadata()
-    assert df.data_type_lookup == {
+    assert df.data_type == {
         "a": "temporal",
         "b": "temporal",
         "c": "temporal",
@@ -123,10 +125,25 @@ def test_check_datetime():
     }
 
 
+def test_check_datetime_numeric_values():
+    car_df = pd.read_csv("lux/data/car.csv")
+    car_df = car_df.rename(columns={"Year": "blah"})
+    car_df.maintain_metadata()
+    assert car_df.data_type["blah"] == "temporal"
+
+    spotify_df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/spotify.csv"
+    )
+    spotify_df = spotify_df.rename(columns={"year": "blah"})
+    spotify_df.maintain_metadata()
+    assert spotify_df.data_type["blah"] == "temporal"
+    assert spotify_df.data_type["release_date"] == "temporal"
+
+
 def test_check_stock():
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/stocks.csv?raw=true")
     df.maintain_metadata()
-    assert df.data_type_lookup == {
+    assert df.data_type == {
         "symbol": "nominal",
         "monthdate": "temporal",
         "price": "quantitative",
@@ -136,7 +153,7 @@ def test_check_stock():
 def test_check_college():
     df = pd.read_csv("lux/data/college.csv")
     df.maintain_metadata()
-    assert df.data_type_lookup == {
+    assert df.data_type == {
         "Name": "nominal",
         "PredominantDegree": "nominal",
         "HighestDegree": "nominal",
@@ -154,3 +171,70 @@ def test_check_college():
         "MedianFamilyIncome": "quantitative",
         "MedianEarnings": "quantitative",
     }
+
+
+def test_float_categorical():
+    values = [
+        {"A": 6.0, "B": 1.0, "C": 1.0, "D": 3.0, "E": 2.0, "F": 5.0},
+        {"A": 5.0, "B": 2.0, "C": 2.0, "D": 2.0, "E": 2.0, "F": 3.0},
+        {"A": 3.0, "B": 6.0, "C": 3.0, "D": 3.0, "E": 2.0, "F": 5.0},
+        {"A": 6.0, "B": 3.0, "C": 3.0, "D": 2.0, "E": 2.0, "F": 2.0},
+        {"A": 7.0, "B": 4.0, "C": 2.0, "D": 2.0, "E": 2.0, "F": 4.0},
+        {"A": 5.0, "B": 3.0, "C": 6.0, "D": 3.0, "E": 3.0, "F": 4.0},
+        {"A": 3.0, "B": 4.0, "C": 3.0, "D": 6.0, "E": 5.0, "F": 5.0},
+        {"A": 3.0, "B": 3.0, "C": 2.0, "D": 2.0, "E": 4.0, "F": 5.0},
+        {"A": 3.0, "B": 2.0, "C": 2.0, "D": 2.0, "E": 2.0, "F": 4.0},
+        {"A": 1.0, "B": 2.0, "C": 2.0, "D": 2.0, "E": 2.0, "F": 6.0},
+        {"A": 3.0, "B": 3.0, "C": 2.0, "D": 3.0, "E": 3.0, "F": 5.0},
+        {"A": 7.0, "B": 1.0, "C": 1.0, "D": 2.0, "E": 2.0, "F": 3.0},
+        {"A": 6.0, "B": 2.0, "C": 2.0, "D": 2.0, "E": 2.0, "F": 3.0},
+        {"A": 2.0, "B": 3.0, "C": 2.0, "D": 3.0, "E": 3.0, "F": 4.0},
+        {"A": 6.0, "B": 2.0, "C": 3.0, "D": 3.0, "E": 3.0, "F": 5.0},
+    ]
+    df = pd.DataFrame(values)
+    df.maintain_metadata()
+    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    assert inverted_data_type["nominal"] == [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+    ], "Float column should be detected as categorical"
+    for x in list(df.dtypes):
+        assert x == "float64", "Source dataframe preserved as float dtype"
+
+
+def test_set_data_type():
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
+    )
+    with pytest.warns(UserWarning) as w:
+        df._repr_html_()
+        assert "starter template that you can use" in str(w[-1].message)
+        assert "df.set_data_type" in str(w[-1].message)
+
+    df.set_data_type({"Month": "nominal", "Year": "nominal"})
+    assert df.data_type["Month"] == "nominal"
+    assert df.data_type["Year"] == "nominal"
+    with warnings.catch_warnings() as w:
+        warnings.simplefilter("always")
+        df._repr_html_()
+        assert not w
+
+
+def test_set_data_type_invalid():
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
+    )
+    with pytest.raises(ValueError):
+        df.set_data_type({"Month": "nomnal", "Year": "nomnal"})
+
+
+def test_set_wrong_data_type():
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
+    )
+    df.set_data_type({"Year": "quantitative"})
+    assert df.data_type["Year"] == "quantitative"

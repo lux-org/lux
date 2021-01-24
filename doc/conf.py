@@ -63,7 +63,7 @@ extensions = [
     "sphinx_automodapi.automodsumm",
 ]
 
-autodoc_default_flags = ["members", "inherited-members"]
+autodoc_default_flags = ["members", "no-undoc-members"]
 autodoc_member_order = "groupwise"
 autosummary_generate = True
 numpydoc_show_class_members = False

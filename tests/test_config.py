@@ -28,7 +28,8 @@ def register_new_action(validator: bool = True):
         vlist = VisList(intent, ldf)
         for vis in vlist:
             vis.score = 10
-        vlist = vlist.topK(15)
+        vlist.sort()
+        vlist = vlist.showK()
         return {
             "action": "bars",
             "description": "Random list of Bar charts",
@@ -42,9 +43,9 @@ def register_new_action(validator: bool = True):
         return False
 
     if validator:
-        lux.register_action("bars", random_categorical, contain_horsepower)
+        lux.config.register_action("bars", random_categorical, contain_horsepower)
     else:
-        lux.register_action("bars", random_categorical)
+        lux.config.register_action("bars", random_categorical)
     return df
 
 
@@ -93,8 +94,8 @@ def test_no_validator():
 
 def test_invalid_function(global_var):
     df = pd.read_csv("lux/data/car.csv")
-    with pytest.raises(ValueError, match="Value must be a callable"):
-        lux.register_action("bars", "not a Callable")
+    with pytest.raises(ValueError, match="Action must be a callable"):
+        lux.config.register_action("bars", "not a Callable")
 
 
 def test_invalid_validator(global_var):
@@ -105,15 +106,16 @@ def test_invalid_validator(global_var):
         vlist = VisList(intent, ldf)
         for vis in vlist:
             vis.score = 10
-        vlist = vlist.topK(15)
+        vlist.sort()
+        vlist = vlist.showK()
         return {
             "action": "bars",
             "description": "Random list of Bar charts",
             "collection": vlist,
         }
 
-    with pytest.raises(ValueError, match="Value must be a callable"):
-        lux.register_action("bars", random_categorical, "not a Callable")
+    with pytest.raises(ValueError, match="Display condition must be a callable"):
+        lux.config.register_action("bars", random_categorical, "not a Callable")
 
 
 def test_remove_action():
@@ -128,7 +130,7 @@ def test_remove_action():
         len(df.recommendation["bars"]) > 0,
         "Bars should be rendered after it has been registered with correct intent.",
     )
-    lux.remove_action("bars")
+    lux.config.remove_action("bars")
     df._repr_html_()
     assert (
         "bars" not in df.recommendation,
@@ -138,29 +140,29 @@ def test_remove_action():
 
 
 def test_remove_invalid_action(global_var):
-    df = pytest.car_df
-    with pytest.raises(ValueError, match="Option 'bars' has not been registered"):
-        lux.remove_action("bars")
-
-
-def test_remove_default_actions(global_var):
-    # df = pytest.car_df
     df = pd.read_csv("lux/data/car.csv")
+    with pytest.raises(ValueError, match="Option 'bars' has not been registered"):
+        lux.config.remove_action("bars")
+
+
+# TODO: This test does not pass in pytest but is working in Jupyter notebook.
+def test_remove_default_actions(global_var):
+    df = pytest.car_df
     df._repr_html_()
 
-    lux.remove_action("distribution")
+    lux.config.remove_action("distribution")
     df._repr_html_()
     assert "Distribution" not in df.recommendation
 
-    lux.remove_action("occurrence")
+    lux.config.remove_action("occurrence")
     df._repr_html_()
     assert "Occurrence" not in df.recommendation
 
-    lux.remove_action("temporal")
+    lux.config.remove_action("temporal")
     df._repr_html_()
     assert "Temporal" not in df.recommendation
 
-    lux.remove_action("correlation")
+    lux.config.remove_action("correlation")
     df._repr_html_()
     assert "Correlation" not in df.recommendation
 
@@ -179,8 +181,29 @@ def test_remove_default_actions(global_var):
     assert len(df.recommendation["bars"]) > 0
     df.clear_intent()
 
+    from lux.action.default import register_default_actions
+
+    register_default_actions()
+
+
+def test_matplotlib_set_default_plot_config():
+    lux.config.plotting_backend = "matplotlib"
+
+    def add_title(fig, ax):
+        ax.set_title("Test Title")
+        return fig, ax
+
+    df = pd.read_csv("lux/data/car.csv")
+    lux.config.plot_config = add_title
+    df._repr_html_()
+    title_addition = 'ax.set_title("Test Title")'
+    exported_code_str = df.recommendation["Correlation"][0].to_Altair()
+    assert title_addition in exported_code_str
+
 
 def test_set_default_plot_config():
+    lux.config.plotting_backend = "vegalite"
+
     def change_color_make_transparent_add_title(chart):
         chart = chart.configure_mark(color="green", opacity=0.2)
         chart.title = "Test Title"
@@ -194,6 +217,76 @@ def test_set_default_plot_config():
     exported_code_str = df.recommendation["Correlation"][0].to_Altair()
     assert config_mark_addition in exported_code_str
     assert title_addition in exported_code_str
+
+
+def test_sampling_flag_config():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df._repr_html_()
+    assert df.recommendation["Correlation"][0].data.shape[0] == 30000
+    lux.config.sampling = False
+    df = df.copy()
+    df._repr_html_()
+    assert df.recommendation["Correlation"][0].data.shape[0] == 48895
+    lux.config.sampling = True
+
+
+def test_sampling_parameters_config():
+    df = pd.read_csv("lux/data/car.csv")
+    df._repr_html_()
+    assert df.recommendation["Correlation"][0].data.shape[0] == 392
+    lux.config.sampling_start = 50
+    lux.config.sampling_cap = 100
+    df = pd.read_csv("lux/data/car.csv")
+    df._repr_html_()
+    assert df.recommendation["Correlation"][0].data.shape[0] == 100
+    lux.config.sampling_cap = 30000
+    lux.config.sampling_start = 10000
+
+
+def test_heatmap_flag_config():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df._repr_html_()
+    assert df.recommendation["Correlation"][0]._postbin
+    lux.config.heatmap = False
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df._repr_html_()
+    assert not df.recommendation["Correlation"][0]._postbin
+    lux.config.heatmap = True
+
+
+def test_topk(global_var):
+    df = pd.read_csv("lux/data/college.csv")
+    lux.config.topk = False
+    df._repr_html_()
+    assert len(df.recommendation["Correlation"]) == 45, "Turn off top K"
+    lux.config.topk = 20
+    df = pd.read_csv("lux/data/college.csv")
+    df._repr_html_()
+    assert len(df.recommendation["Correlation"]) == 20, "Show top 20"
+    for vis in df.recommendation["Correlation"]:
+        assert vis.score > 0.2
+
+
+def test_sort(global_var):
+    df = pd.read_csv("lux/data/college.csv")
+    lux.config.topk = 15
+    df._repr_html_()
+    assert len(df.recommendation["Correlation"]) == 15, "Show top 15"
+    for vis in df.recommendation["Correlation"]:
+        assert vis.score > 0.5
+    df = pd.read_csv("lux/data/college.csv")
+    lux.config.sort = "ascending"
+    df._repr_html_()
+    assert len(df.recommendation["Correlation"]) == 15, "Show bottom 15"
+    for vis in df.recommendation["Correlation"]:
+        assert vis.score < 0.35
+
+    lux.config.sort = "none"
+    df = pd.read_csv("lux/data/college.csv")
+    df._repr_html_()
+    scorelst = [x.score for x in df.recommendation["Distribution"]]
+    assert sorted(scorelst) != scorelst, "unsorted setting"
+    lux.config.sort = "descending"
 
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.

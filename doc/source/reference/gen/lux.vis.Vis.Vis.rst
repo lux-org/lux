@@ -22,10 +22,12 @@ lux.vis.Vis.Vis
       ~Vis.refresh_source
       ~Vis.remove_column_from_spec
       ~Vis.remove_filter_from_spec
-      ~Vis.to_code
       ~Vis.set_intent
       ~Vis.to_Altair
       ~Vis.to_VegaLite
+      ~Vis.to_code
+      ~Vis.to_matplotlib
+      ~Vis.to_matplotlib_code
    
    
 

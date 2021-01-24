@@ -18,6 +18,7 @@ from lux.vis.Vis import Vis
 from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 from lux.utils import date_utils
+from lux.utils import utils
 import pandas as pd
 import numpy as np
 import warnings
@@ -158,6 +159,8 @@ class Compiler:
         # TODO: copy might not be neccesary
         from lux.utils.date_utils import is_datetime_string
 
+        data_model_lookup = lux.config.executor.compute_data_model_lookup(ldf.data_type)
+
         for vis in vlist:
             for clause in vis._inferred_intent:
                 if clause.description == "?":
@@ -166,11 +169,11 @@ class Compiler:
                 # and not is_datetime_string(clause.attribute):
                 if clause.attribute != "" and clause.attribute != "Record":
                     if clause.data_type == "":
-                        clause.data_type = ldf.data_type_lookup[clause.attribute]
+                        clause.data_type = ldf.data_type[clause.attribute]
                     if clause.data_type == "id":
                         clause.data_type = "nominal"
                     if clause.data_model == "":
-                        clause.data_model = ldf.data_model_lookup[clause.attribute]
+                        clause.data_model = data_model_lookup[clause.attribute]
                 if clause.value != "":
                     # If user provided title for Vis, then don't override.
                     if vis.title == "":
@@ -179,12 +182,25 @@ class Compiler:
                         else:
                             chart_title = clause.value
                         vis.title = f"{clause.attribute} {clause.filter_op} {chart_title}"
+            vis._ndim = 0
+            vis._nmsr = 0
+
+            for clause in vis._inferred_intent:
+                if clause.value == "":
+                    if clause.data_model == "dimension":
+                        vis._ndim += 1
+                    elif clause.data_model == "measure" and clause.attribute != "Record":
+                        vis._nmsr += 1
 
     @staticmethod
     def remove_all_invalid(vis_collection: VisList) -> VisList:
         """
         Given an expanded vis list, remove all visualizations that are invalid.
-        Currently, the invalid visualizations are ones that contain two of the same attribute, no more than two temporal attributes, or overlapping attributes (same filter attribute and visualized attribute).
+        Currently, the invalid visualizations are ones that do not contain:
+        - two of the same attribute,
+        - more than two temporal attributes,
+        - no overlapping attributes (same filter attribute and visualized attribute),
+        - more than 1 temporal attribute with 2 or more measures
         Parameters
         ----------
         vis_collection : list[lux.vis.Vis]
@@ -203,7 +219,11 @@ class Compiler:
                 if clause.data_type == "temporal":
                     num_temporal_specs += 1
             all_distinct_specs = 0 == len(vis._inferred_intent) - len(attribute_set)
-            if num_temporal_specs < 2 and all_distinct_specs:
+            if (
+                num_temporal_specs < 2
+                and all_distinct_specs
+                and not (vis._nmsr == 2 and num_temporal_specs == 1)
+            ):
                 new_vc.append(vis)
             # else:
             # 	warnings.warn("\nThere is more than one duplicate attribute specified in the intent.\nPlease check your intent specification again.")
@@ -235,17 +255,11 @@ class Compiler:
         https://doi.org/10.1109/TVCG.2007.70594
         """
         # Count number of measures and dimensions
-        ndim = 0
-        nmsr = 0
-        filters = []
-        for clause in vis._inferred_intent:
-            if clause.value == "":
-                if clause.data_model == "dimension":
-                    ndim += 1
-                elif clause.data_model == "measure" and clause.attribute != "Record":
-                    nmsr += 1
-            else:  # preserve to add back to _inferred_intent later
-                filters.append(clause)
+        ndim = vis._ndim
+        nmsr = vis._nmsr
+        # preserve to add back to _inferred_intent later
+        filters = utils.get_filter_specs(vis._inferred_intent)
+
         # Helper function (TODO: Move this into utils)
         def line_or_bar(ldf, dimension: Clause, measure: Clause):
             dim_type = dimension.data_type
@@ -427,6 +441,9 @@ class Compiler:
         import copy
         from lux.utils.utils import convert_to_list
 
+        inverted_data_type = lux.config.executor.invert_data_type(ldf.data_type)
+        data_model = lux.config.executor.compute_data_model(ldf.data_type)
+
         intent = {"attributes": [], "filters": []}
         for clause in _inferred_intent:
             spec_options = []
@@ -434,9 +451,9 @@ class Compiler:
                 if clause.attribute == "?":
                     options = set(list(ldf.columns))  # all attributes
                     if clause.data_type != "":
-                        options = options.intersection(set(ldf.data_type[clause.data_type]))
+                        options = options.intersection(set(inverted_data_type[clause.data_type]))
                     if clause.data_model != "":
-                        options = options.intersection(set(ldf.data_model[clause.data_model]))
+                        options = options.intersection(set(data_model[clause.data_model]))
                     options = list(options)
                 else:
                     options = convert_to_list(clause.attribute)
