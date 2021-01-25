@@ -26,7 +26,7 @@ def column_group(ldf):
     recommendation = {
         "action": "Column Groups",
         "description": "Shows charts of possible visualizations with respect to the column-wise index.",
-        "longDescription" : "Shows charts of possible visualizations with respect to the column-wise index.",
+        "longDescription": "Shows charts of possible visualizations with respect to the column-wise index.",
     }
     collection = []
     ldf_flat = ldf

@@ -49,7 +49,7 @@ def add_filter(ldf):
             recommendation = {
                 "action": "Filter",
                 "description": f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative value.",
-                "longDescription" : f"Swap out the filter value for {fltr.attribute} to other possible values, while keeping all else the same. Visualizations are ranked based on interestingness",
+                "longDescription": f"Swap out the filter value for {fltr.attribute} to other possible values, while keeping all else the same. Visualizations are ranked based on interestingness",
             }
             unique_values = ldf.unique_values[fltr.attribute]
             filter_values.append(fltr.value)
@@ -65,7 +65,7 @@ def add_filter(ldf):
             recommendation = {
                 "action": "Filter",
                 "description": f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative inequality operation.",
-                "longDescription" : f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative inequality operation.",
+                "longDescription": f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative inequality operation.",
             }
 
             def get_complementary_ops(fltr_op):
@@ -101,7 +101,7 @@ def add_filter(ldf):
         recommendation = {
             "action": "Filter",
             "description": f"Applying filters to the <p class='highlight-intent'>{intended_attrs}</p> intent.",
-            "longDescription": f"Adding any filter while keeping the attributes on the x and y axes fixed. Visualizations are ranked based on interestingness"
+            "longDescription": f"Adding any filter while keeping the attributes on the x and y axes fixed. Visualizations are ranked based on interestingness",
         }
         categorical_vars = []
         for col in list(ldf.columns):
@@ -125,7 +125,7 @@ def add_filter(ldf):
         recommendation = {
             "action": "Similarity",
             "description": "Show other charts that are visually similar to the Current vis.",
-            "longDescription": "Show other charts that are visually similar to the Current vis."
+            "longDescription": "Show other charts that are visually similar to the Current vis.",
         }
         last = get_filter_specs(ldf.intent)[-1]
         output = ldf.intent.copy()[0:-1]
