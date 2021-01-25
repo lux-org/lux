@@ -26,6 +26,7 @@ def row_group(ldf):
     recommendation = {
         "action": "Row Groups",
         "description": "Shows charts of possible visualizations with respect to the row-wise index.",
+        "longDescription" : "Shows charts of possible visualizations with respect to the row-wise index.",
     }
     collection = []
 

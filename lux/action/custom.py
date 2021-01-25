@@ -36,6 +36,7 @@ def custom(ldf):
     recommendation = {
         "action": "Current Vis",
         "description": "Shows the list of visualizations generated based on user specified intent",
+        "longDescription" : "Shows the list of visualizations generated based on user specified intent",
     }
 
     recommendation["collection"] = ldf.current_vis
