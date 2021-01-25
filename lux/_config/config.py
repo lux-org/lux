@@ -17,7 +17,7 @@ class Config:
 
     def __init__(self):
         self._default_display = "pandas"
-        self.plot_config = None
+        self.plotting_style = None
         self.SQLconnection = ""
         self.executor = None
         # holds registered option metadata
