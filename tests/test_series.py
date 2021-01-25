@@ -27,20 +27,24 @@ def test_df_to_series():
     print(df["Weight"]._metadata)
     assert df["Weight"]._metadata == [
         "_intent",
-        "data_type",
+        "_inferred_intent",
+        "_data_type",
         "unique_values",
         "cardinality",
         "_rec_info",
-        "_pandas_only",
         "_min_max",
-        "plot_config",
         "_current_vis",
         "_widget",
         "_recommendation",
         "_prev",
         "_history",
         "_saved_export",
-        "name",
+        "_sampled",
+        "_toggle_pandas_display",
+        "_message",
+        "_pandas_only",
+        "pre_aggregated",
+        "_type_override",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."

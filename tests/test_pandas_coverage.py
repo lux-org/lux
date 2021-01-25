@@ -582,20 +582,24 @@ def test_df_to_series(global_var):
     df["Weight"]._metadata
     assert df["Weight"]._metadata == [
         "_intent",
-        "data_type",
+        "_inferred_intent",
+        "_data_type",
         "unique_values",
         "cardinality",
         "_rec_info",
-        "_pandas_only",
         "_min_max",
-        "plot_config",
         "_current_vis",
         "_widget",
         "_recommendation",
         "_prev",
         "_history",
         "_saved_export",
-        "name",
+        "_sampled",
+        "_toggle_pandas_display",
+        "_message",
+        "_pandas_only",
+        "pre_aggregated",
+        "_type_override",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
@@ -610,20 +614,24 @@ def test_value_counts(global_var):
     assert type(df["Brand"].value_counts()) == lux.core.series.LuxSeries
     assert df["Weight"]._metadata == [
         "_intent",
-        "data_type",
+        "_inferred_intent",
+        "_data_type",
         "unique_values",
         "cardinality",
         "_rec_info",
-        "_pandas_only",
         "_min_max",
-        "plot_config",
         "_current_vis",
         "_widget",
         "_recommendation",
         "_prev",
         "_history",
         "_saved_export",
-        "name",
+        "_sampled",
+        "_toggle_pandas_display",
+        "_message",
+        "_pandas_only",
+        "pre_aggregated",
+        "_type_override",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
@@ -637,20 +645,24 @@ def test_str_replace(global_var):
     assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
     assert df["Brand"]._metadata == [
         "_intent",
-        "data_type",
+        "_inferred_intent",
+        "_data_type",
         "unique_values",
         "cardinality",
         "_rec_info",
-        "_pandas_only",
         "_min_max",
-        "plot_config",
         "_current_vis",
         "_widget",
         "_recommendation",
         "_prev",
         "_history",
         "_saved_export",
-        "name",
+        "_sampled",
+        "_toggle_pandas_display",
+        "_message",
+        "_pandas_only",
+        "pre_aggregated",
+        "_type_override",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Brand", "Pandas Series original `name` property not retained."

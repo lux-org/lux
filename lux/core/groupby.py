@@ -33,4 +33,10 @@ class LuxDataFrameGroupBy(pd.core.groupby.generic.DataFrameGroupBy):
             ret_val.__dict__[attr] = getattr(self, attr, None)
         return ret_val
 
+    def __getitem__(self, *args, **kwargs):
+        ret_val = super(LuxDataFrameGroupBy, self).__getitem__(*args, **kwargs)
+        for attr in self._metadata:
+            ret_val.__dict__[attr] = getattr(self, attr, None)
+        return ret_val
+    
     agg = aggregate
