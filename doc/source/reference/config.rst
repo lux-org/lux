@@ -26,8 +26,8 @@ In Lux, users can customize various global settings to configure the behavior of
             df # recommendations generated for the first time with config
 
 
-Change the default display of Lux
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Change the default display 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We can set the :code:`default_display` to change whether the Pandas table or Lux widget is displayed by default. In the following block, we set the default display to 'lux', therefore the Lux widget will display first.
 
@@ -101,8 +101,8 @@ Lux currently only support Vega-Lite and matplotlib, and we plan to add support 
   :width: 700
   :align: center
 
-Change the sampling parameters of Lux
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Change the sampling parameters 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To speed up the visualization processing, by default, Lux performs random sampling on datasets with more than 10000 rows. For datasets over 30000 rows, Lux will randomly sample 30000 rows from the dataset.
 
@@ -130,10 +130,11 @@ We can disable this feature and revert back to using a scatter plot by running t
 
     lux.config.heatmap = False
 
-Changing the plot styling
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Changing the plotting style
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Altair supports plot configurations to be applied on top of the generated graphs. To set a default plot configuration, first write a function that can take in a `chart` and returns a `chart`. For example:
+In Lux, we can change the chart settings and aesthetics by inputting global custom plot settings the :code:`plotting_style`.
+For charts rendered in Altair (default), we can change the plotting style by writing a function that takes a `AltairChart <https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html>`_ object as input and output. For example:
 
 .. code-block:: python
 
@@ -154,37 +155,17 @@ The above results in the following changes:
   :width: 600
   :align: center
 
-See `this page <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ for more details.
-
 Matplotlib also supports plot configurations to be applied on top of the generated graphs. To set a default plot configuration, first write a function that can take in a `fig` and `ax` and returns a `fig` and `ax`.
 `fig` handles figure width and other plot size attributes. `ax` supports changing the chart title and other plot labels and configurations. For example:
+
 .. code-block:: python
-	
-	lux.config.plotting_backend = "matplotlib" # or 'matplotlib_code'
 
     def change_width_add_title(fig, ax):
-		fig.set_figwidth(7)
-        ax.set_title("Custom Title")
+        fig.set_figwidth(7) # change figure width
+        ax.set_title("Custom Title") # add title to chart
         return fig, ax
 
-.. code-block:: python
-	
-	lux.config.plotting_style = change_width_add_title
-
-Moreover, we can set the color and other figure styles using the rcParams attribute of pyplot.
-
-.. code-block:: python
-
-	import matplotlib.pyplot as plt
-	import matplotlib
-
-	plt.rcParams['axes.prop_cycle'] = matplotlib.cycler(color='g')
-
-The above results in the following changes:
-
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/style-7.png?raw=true
-  :width: 600
-  :align: center
+    lux.config.plotting_style = change_width_add_title
 
 See `this page <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ for more details.
 
@@ -220,4 +201,3 @@ If you would like to turn off the selection criteria completely and display ever
     lux.config.topk = False
 
 Beware that this may generate large numbers of visualizations (e.g., for 10 quantitative variables, this will generate 45 scatterplots in the Correlation action!)
-
