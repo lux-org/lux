@@ -100,7 +100,6 @@ def check_if_id_like(df, attribute):
             evenly_spaced = True
         if attribute_contain_id:
             almost_all_vals_unique = df.cardinality[attribute] >= 0.75 * len(df)
-            return high_cardinality and (almost_all_vals_unique or evenly_spaced)
         return high_cardinality and (almost_all_vals_unique or evenly_spaced)
 
 
