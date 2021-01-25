@@ -25,12 +25,12 @@ To change the plot configuration in Altair, we need to specify a function that t
 Let's say that we want to change all the graphical marks of the charts to green and add a custom title. We can define this `change_color_add_title` function, which configures the chart's mark as green and adds a custom title to the chart.
 
 .. code-block:: python
-	lux.config.plotting_backend = "altair" # or 'vegalite'
 
-	def change_color_add_title(chart):
-	    chart = chart.configure_mark(color="green") # change mark color to green
-	    chart.title = "Custom Title" # add title to chart
-	    return chart
+    lux.config.plotting_backend = "altair"
+    def change_color_add_title(chart):
+        chart = chart.configure_mark(color="green") # change mark color to green
+        chart.title = "Custom Title" # add title to chart
+        return chart
 
 We then set the global plot configuration of the dataframe by changing the :code:`plotting_style` property. With the added plotting_style, Lux runs this user-defined function after every `Vis` is rendered to a chart, allow the user-defined function to override any existing default chart settings.
 
@@ -47,12 +47,12 @@ We now see that the displayed visualizations adopt these new imported settings.
 Similarly, we can change the plot configurations for Matplotlib charts as well.
 The plotting_style attribute for Matplotlib charts takes in both the `fig` and `ax` as parameters.
 `fig` handles figure width and other plot size attributes. `ax` supports changing the chart title and other plot labels and configurations.
+
 .. code-block:: python
 	
-	lux.config.plotting_backend = "matplotlib" # or 'matplotlib_code'
-
+    lux.config.plotting_backend = "matplotlib"
     def change_width_add_title(fig, ax):
-		fig.set_figwidth(7)
+        fig.set_figwidth(7)
         ax.set_title("Custom Title")
         return fig, ax
 
