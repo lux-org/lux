@@ -186,7 +186,7 @@ def test_remove_default_actions(global_var):
     register_default_actions()
 
 
-def test_matplotlib_set_default_plot_config():
+def test_matplotlib_set_default_plotting_style():
     lux.config.plotting_backend = "matplotlib"
 
     def add_title(fig, ax):
@@ -194,14 +194,14 @@ def test_matplotlib_set_default_plot_config():
         return fig, ax
 
     df = pd.read_csv("lux/data/car.csv")
-    lux.config.plot_config = add_title
+    lux.config.plotting_style = add_title
     df._repr_html_()
     title_addition = 'ax.set_title("Test Title")'
     exported_code_str = df.recommendation["Correlation"][0].to_Altair()
     assert title_addition in exported_code_str
 
 
-def test_set_default_plot_config():
+def test_set_default_plotting_style():
     lux.config.plotting_backend = "vegalite"
 
     def change_color_make_transparent_add_title(chart):
@@ -210,7 +210,7 @@ def test_set_default_plot_config():
         return chart
 
     df = pd.read_csv("lux/data/car.csv")
-    lux.config.plot_config = change_color_make_transparent_add_title
+    lux.config.plotting_style = change_color_make_transparent_add_title
     df._repr_html_()
     config_mark_addition = 'chart = chart.configure_mark(color="green", opacity=0.2)'
     title_addition = 'chart.title = "Test Title"'
