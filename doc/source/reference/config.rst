@@ -25,6 +25,7 @@ In Lux, users can customize various global settings to configure the behavior of
             lux.config.SOME_SETTING = "..."
             df # recommendations generated for the first time with config
 
+.. contents::
 
 Change the default display 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
