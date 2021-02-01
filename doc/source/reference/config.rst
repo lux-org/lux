@@ -4,6 +4,8 @@ Configuration Settings
 
 In Lux, users can customize various global settings to configure the behavior of Lux through :py:class:`lux.config.Config`. These configurations are applied across all dataframes in the session. This page documents some of the configurations that you can apply in Lux.
 
+.. contents:: :local:
+
 .. note::
 
     Lux caches past generated recommendations, so if you have already printed the dataframe in the past, the recommendations would not be regenerated with the new config properties. In order for the config properties to apply, you would need to explicitly expire the recommendations as such:
@@ -25,7 +27,7 @@ In Lux, users can customize various global settings to configure the behavior of
             lux.config.SOME_SETTING = "..."
             df # recommendations generated for the first time with config
 
-.. contents::
+
 
 Change the default display 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
