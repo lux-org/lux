@@ -35,10 +35,24 @@ How do I set the Lux widgets to show up on default?
     .. code-block:: python
     
         lux.config.default_display = "pandas"
+
+How do I change the plotting library used for visualization?
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  By default, we make use of `Altair <https://altair-viz.github.io/>`__ to generate `Vega-Lite <https://vega.github.io/vega-lite>`__ visualizations. We can modify the :code:`plotting_backend` config property to use `Matplotlib <https://matplotlib.org/>`__ as the plotting library instead: 
+
+    .. code-block:: python
+    
+        lux.config.plotting_backend = "matplotlib"
+    
+  To switch back to Vega-Lite: 
+
+    .. code-block:: python
+    
+        lux.config.plotting_backend = "vegalite"
   
 I want to change the opacity of my chart, add title, change chart font size, etc. How do I modify chart settings?
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  To add custom plot settings to the recommendations, you can set the :code:`lux.config.plot_config` property. See `this tutorial <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ on how to configure chart properties. Lux currently only support chart modifications in Altair.
+  To add custom plot settings to the recommendations, you can set the :code:`lux.config.plotting_style` property. See `this tutorial <https://lux-api.readthedocs.io/en/latest/source/guide/style.html>`__ on how to configure chart properties. Lux supports chart modifications in Altair and Matplotlib.
 
 How do I change aggregation functions, binning, or axis channels to non-default values?
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
