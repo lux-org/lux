@@ -32,7 +32,7 @@ class LuxSeries(pd.Series):
         "_rec_info",
         "_pandas_only",
         "_min_max",
-        "plot_config",
+        "plotting_style",
         "_current_vis",
         "_widget",
         "_recommendation",
@@ -84,8 +84,13 @@ class LuxSeries(pd.Series):
         ldf = LuxDataFrame(self)
 
         try:
+            # Ignore recommendations when Series a results of:
+            # 1) Values of the series are of dtype objects (df.dtypes)
             is_dtype_series = all(isinstance(val, np.dtype) for val in self.values)
-            if ldf._pandas_only or is_dtype_series:
+            # 2) Mixed type, often a result of a "row" acting as a series (df.iterrows, df.iloc[0])
+            # Tolerant for NaNs + 1 type
+            mixed_dtype = len(set([type(val) for val in self.values])) > 2
+            if ldf._pandas_only or is_dtype_series or mixed_dtype:
                 print(series_repr)
                 ldf._pandas_only = False
             else:

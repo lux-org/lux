@@ -153,7 +153,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
                 chi2_score = chi2_contingency(contingency_tbl)[0] * 0.9 ** (
                     color_cardinality + groupby_cardinality
                 )
-                score = min(0.10, chi2_score)
+                score = min(0.01, chi2_score)
             except (ValueError, KeyError):
                 # ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in a category having no counts
                 score = -1
@@ -162,9 +162,12 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         else:
             return -1
     except:
-        # Supress interestingness related issues
-        warnings.warn(f"An error occurred when computing interestingness for: {vis}")
-        return -1
+        if lux.config.interestingness_fallback:
+            # Supress interestingness related issues
+            warnings.warn(f"An error occurred when computing interestingness for: {vis}")
+            return -1
+        else:
+            raise
 
 
 def get_filtered_size(filter_specs, ldf):
@@ -316,7 +319,7 @@ def mutual_information(v_x: list, v_y: list) -> int:
 def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> int:
     """
     Monotonicity measures there is a monotonic trend in the scatterplot, whether linear or not.
-    This score is computed as the square of the Spearman correlation coefficient, which is the Pearson correlation on the ranks of x and y.
+    This score is computed as the Pearson's correlation on the ranks of x and y.
     See "Graph-Theoretic Scagnostics", Wilkinson et al 2005: https://research.tableau.com/sites/default/files/Wilkinson_Infovis-05.pdf
     Parameters
     ----------
@@ -332,22 +335,23 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
     int
             Score describing the strength of monotonic relationship in vis
     """
-    from scipy.stats import spearmanr
+    from scipy.stats import pearsonr
 
     msr1 = attr_specs[0].attribute
     msr2 = attr_specs[1].attribute
 
     if ignore_identity and msr1 == msr2:  # remove if measures are the same
         return -1
-    v_x = vis.data[msr1]
-    v_y = vis.data[msr2]
+    vxy = vis.data.dropna()
+    v_x = vxy[msr1]
+    v_y = vxy[msr2]
 
     import warnings
 
     with warnings.catch_warnings():
         warnings.filterwarnings("error")
         try:
-            score = (spearmanr(v_x, v_y)[0]) ** 2
+            score = np.abs(pearsonr(v_x, v_y)[0])
         except (RuntimeWarning):
             # RuntimeWarning: invalid value encountered in true_divide (occurs when v_x and v_y are uniform, stdev in denominator is zero, leading to spearman's correlation as nan), ignore these cases.
             score = -1
@@ -356,5 +360,3 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
         return -1
     else:
         return score
-    # import scipy.stats
-    # return abs(scipy.stats.pearsonr(v_x,v_y)[0])

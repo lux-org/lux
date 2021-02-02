@@ -59,30 +59,23 @@ def test_period_selection(global_var):
 def test_period_filter(global_var):
     ldf = pd.read_csv("lux/data/car.csv")
     ldf["Year"] = pd.to_datetime(ldf["Year"], format="%Y")
-
     ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq="A")
 
-    ldf.set_intent([lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")])
+    from lux.vis.Vis import Vis
 
-    lux.config.executor.execute(ldf.current_vis, ldf)
-    ldf._repr_html_()
-
-    assert isinstance(ldf.recommendation["Filter"][2]._inferred_intent[2].value, pd.Period)
+    vis = Vis(["Acceleration", "Horsepower", "Year=1972"], ldf)
+    assert ldf.data_type["Year"] == "temporal"
+    assert isinstance(vis._inferred_intent[2].value, str)
 
 
 def test_period_to_altair(global_var):
-    chart = None
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
-
     df["Year"] = pd.DatetimeIndex(df["Year"]).to_period(freq="A")
+    from lux.vis.Vis import Vis
 
-    df.set_intent([lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")])
-
-    lux.config.executor.execute(df.current_vis, df)
-    df._repr_html_()
-
-    exported_code = df.recommendation["Filter"][2].to_Altair()
+    vis = Vis(["Acceleration", "Horsepower", "Year=1972"], df)
+    exported_code = vis.to_Altair()
 
     assert "Year = 1972" in exported_code
 

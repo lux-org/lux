@@ -23,6 +23,9 @@
     <a href="https://codecov.io/gh/lux-org/lux">
         <img src="https://codecov.io/gh/lux-org/lux/branch/master/graph/badge.svg" align="center" alt='CodeCov'/>
     </a>
+    <a href='https://twitter.com/intent/follow?original_referer=https%3A%2F%2Fpublish.twitter.com%2F&ref_src=twsrc%5Etfw&screen_name=lux_api&tw_p=followbutton'>
+        <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/lux_api?label=%40lux_api&style=social" alt='Twitter' align="center"/>
+    </a>
 </p>
 
 Lux is a Python library that makes data science easier by automating aspects of the data exploration process. Lux facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Visualizations are displayed via [an interactive widget](https://github.com/lux-org/lux-widget) that allow users to quickly browse through large collections of visualizations directly within their Jupyter notebooks.
@@ -157,8 +160,7 @@ To use Lux in [Jupyter Lab](https://github.com/jupyterlab/jupyterlab), activate 
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install luxwidget
 ```
-
-Note that JupyterLab and VSCode is supported only for lux-widget version >=0.1.2, if you have an earlier version, please upgrade to the latest version of [lux-widget](https://pypi.org/project/lux-widget/). Lux currently only works with the Chrome browser. 
+Lux is only compatible with Jupyter Lab version 2.2.9 and below. Support for the recent [JupyterLab 3](https://blog.jupyter.org/jupyterlab-3-0-is-out-4f58385e25bb) will come soon. Note that JupyterLab and VSCode is supported only for lux-widget version >=0.1.2, if you have an earlier version, please upgrade to the latest version of [lux-widget](https://pypi.org/project/lux-widget/). Lux currently only works with the Chrome browser. 
 
 If you encounter issues with the installation, please refer to [this page](https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips) to troubleshoot the installation. Follow [these instructions](https://lux-api.readthedocs.io/en/latest/source/getting_started/installation.html#manual-installation-dev-setup) to set up Lux for development purposes.
 

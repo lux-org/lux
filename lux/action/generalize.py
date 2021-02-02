@@ -93,5 +93,6 @@ def generalize(ldf):
 
     vlist.remove_duplicates()
     vlist.sort(remove_invalid=True)
+    vlist._collection = list(filter(lambda x: x.score != -1, vlist._collection))
     recommendation["collection"] = vlist
     return recommendation

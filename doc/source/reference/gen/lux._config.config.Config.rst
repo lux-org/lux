@@ -14,6 +14,8 @@ lux.\_config.config.Config
    .. autosummary::
    
       ~Config.__init__
+      ~Config.register_action
+      ~Config.remove_action
       ~Config.set_SQL_connection
       ~Config.set_executor_type
    
@@ -27,8 +29,13 @@ lux.\_config.config.Config
    
       ~Config.default_display
       ~Config.heatmap
+      ~Config.interestingness_fallback
+      ~Config.pandas_fallback
+      ~Config.plotting_backend
       ~Config.sampling
       ~Config.sampling_cap
       ~Config.sampling_start
+      ~Config.sort
+      ~Config.topk
    
    

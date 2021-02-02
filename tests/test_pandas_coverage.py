@@ -15,6 +15,8 @@
 from .context import lux
 import pytest
 import pandas as pd
+import numpy as np
+import warnings
 
 ###################
 # DataFrame Tests #
@@ -586,7 +588,7 @@ def test_df_to_series(global_var):
         "_rec_info",
         "_pandas_only",
         "_min_max",
-        "plot_config",
+        "plotting_style",
         "_current_vis",
         "_widget",
         "_recommendation",
@@ -605,7 +607,7 @@ def test_value_counts(global_var):
     assert df.cardinality is not None
     series = df["Weight"]
     series.value_counts()
-    assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
+    assert type(df["Brand"].value_counts()) == lux.core.series.LuxSeries
     assert df["Weight"]._metadata == [
         "_intent",
         "data_type",
@@ -614,7 +616,7 @@ def test_value_counts(global_var):
         "_rec_info",
         "_pandas_only",
         "_min_max",
-        "plot_config",
+        "plotting_style",
         "_current_vis",
         "_widget",
         "_recommendation",
@@ -641,7 +643,7 @@ def test_str_replace(global_var):
         "_rec_info",
         "_pandas_only",
         "_min_max",
-        "plot_config",
+        "plotting_style",
         "_current_vis",
         "_widget",
         "_recommendation",
@@ -678,3 +680,11 @@ def test_read_sas(global_var):
     df._repr_html_()
     assert list(df.recommendation.keys()) == ["Correlation", "Distribution", "Temporal"]
     assert len(df.data_type) == 6
+
+
+def test_read_multi_dtype(global_var):
+    url = "https://github.com/lux-org/lux-datasets/blob/master/data/car-data.xls?raw=true"
+    df = pd.read_excel(url)
+    with pytest.warns(UserWarning, match="mixed type") as w:
+        df._repr_html_()
+        assert "df['Car Type'] = df['Car Type'].astype(str)" in str(w[-1].message)
