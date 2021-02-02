@@ -48,6 +48,7 @@ class MatplotlibChart:
         return NotImplemented
 
     def apply_default_config(self):
+        self.code += "import matplotlib.pyplot as plt\n"
         self.code += """plt.rcParams.update(
             {
                 "axes.titlesize": 20,
