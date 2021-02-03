@@ -162,6 +162,8 @@ Matplotlib also supports plot configurations to be applied on top of the generat
 `fig` handles figure width and other plot size attributes. `ax` supports changing the chart title and other plot labels and configurations. For example:
 
 .. code-block:: python
+	
+    lux.config.plotting_backend = "matplotlib"
 
     def change_width_add_title(fig, ax):
         fig.set_figwidth(7) # change figure width

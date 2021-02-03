@@ -69,7 +69,6 @@ class Histogram(MatplotlibChart):
         self.ax.set_xlabel(x_label)
         self.ax.set_ylabel(y_label)
 
-        self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
         self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"

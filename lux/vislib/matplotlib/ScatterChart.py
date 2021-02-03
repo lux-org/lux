@@ -114,7 +114,6 @@ class ScatterChart(MatplotlibChart):
         self.ax.set_xlabel(x_attr_abv)
         self.ax.set_ylabel(y_attr_abv)
 
-        self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
         self.code += "from matplotlib.cm import ScalarMappable\n"
