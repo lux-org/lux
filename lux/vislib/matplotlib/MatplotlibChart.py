@@ -57,7 +57,6 @@ class MatplotlibChart:
                 "axes.labelsize": 16,
                 "legend.fontsize": 14,
                 "legend.title_fontsize": 15,
-                # "font.family": "DejaVu Sans",
                 "xtick.labelsize": 13,
                 "ytick.labelsize": 13,
             }
