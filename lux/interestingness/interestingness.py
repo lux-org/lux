@@ -153,7 +153,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
                 chi2_score = chi2_contingency(contingency_tbl)[0] * 0.9 ** (
                     color_cardinality + groupby_cardinality
                 )
-                score = min(0.10, chi2_score)
+                score = min(0.01, chi2_score)
             except (ValueError, KeyError):
                 # ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in a category having no counts
                 score = -1
@@ -162,9 +162,12 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         else:
             return -1
     except:
-        # Supress interestingness related issues
-        warnings.warn(f"An error occurred when computing interestingness for: {vis}")
-        return -1
+        if lux.config.interestingness_fallback:
+            # Supress interestingness related issues
+            warnings.warn(f"An error occurred when computing interestingness for: {vis}")
+            return -1
+        else:
+            raise
 
 
 def get_filtered_size(filter_specs, ldf):
@@ -339,8 +342,9 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
 
     if ignore_identity and msr1 == msr2:  # remove if measures are the same
         return -1
-    v_x = vis.data[msr1]
-    v_y = vis.data[msr2]
+    vxy = vis.data.dropna()
+    v_x = vxy[msr1]
+    v_y = vxy[msr2]
 
     import warnings
 
@@ -356,5 +360,3 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
         return -1
     else:
         return score
-    # import scipy.stats
-    # return abs(scipy.stats.pearsonr(v_x,v_y)[0])

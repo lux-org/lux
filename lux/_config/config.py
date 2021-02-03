@@ -17,8 +17,7 @@ class Config:
 
     def __init__(self):
         self._default_display = "pandas"
-        self.renderer = "altair"
-        self.plot_config = None
+        self.plotting_style = None
         self.SQLconnection = ""
         self.executor = None
         # holds registered option metadata
@@ -30,8 +29,11 @@ class Config:
         self._sampling_cap = 30000
         self._sampling_flag = True
         self._heatmap_flag = True
+        self._plotting_backend = "vegalite"
         self._topk = 15
         self._sort = "descending"
+        self._pandas_fallback = True
+        self._interestingness_fallback = True
 
     @property
     def topk(self):
@@ -77,6 +79,47 @@ class Config:
         else:
             warnings.warn(
                 "Parameter to lux.config.sort must be one of the following: 'none', 'ascending', or 'descending'.",
+                stacklevel=2,
+            )
+
+    @property
+    def pandas_fallback(self):
+        return self._pandas_fallback
+
+    @pandas_fallback.setter
+    def pandas_fallback(self, fallback: bool) -> None:
+        """
+        Parameters
+        ----------
+        fallback : bool
+            If an error occurs, whether or not to raise an exception or fallback to default Pandas.
+        """
+        if type(fallback) == bool:
+            self._pandas_fallback = fallback
+        else:
+            warnings.warn(
+                "The flag for Pandas fallback must be a boolean.",
+                stacklevel=2,
+            )
+
+    @property
+    def interestingness_fallback(self):
+        return self._interestingness_fallback
+
+    @interestingness_fallback.setter
+    def interestingness_fallback(self, fallback: bool) -> None:
+        """
+        Parameters
+        ----------
+        fallback : bool
+            If an error occurs while calculating interestingness, whether or not
+            to raise an exception or fallback to default Pandas.
+        """
+        if type(fallback) == bool:
+            self._interestingness_fallback = fallback
+        else:
+            warnings.warn(
+                "The flag for interestingness fallback must be a boolean.",
                 stacklevel=2,
             )
 
@@ -215,6 +258,29 @@ class Config:
         else:
             warnings.warn(
                 "Unsupported display type. Default display option should either be `lux` or `pandas`.",
+                stacklevel=2,
+            )
+
+    @property
+    def plotting_backend(self):
+        return self._plotting_backend
+
+    @plotting_backend.setter
+    def plotting_backend(self, type: str) -> None:
+        """
+        Set the widget display to show Vegalite by default or Matplotlib by default
+        Parameters
+        ----------
+        type : str
+                Default display type, can take either the string `vegalite` or `matplotlib` (regardless of capitalization)
+        """
+        if type.lower() == "vegalite" or type.lower() == "altair":
+            self._plotting_backend = "vegalite"
+        elif type.lower() == "matplotlib":
+            self._plotting_backend = "matplotlib"
+        else:
+            warnings.warn(
+                "Unsupported plotting backend. Lux currently only support 'altair', 'vegalite', or 'matplotlib'",
                 stacklevel=2,
             )
 
