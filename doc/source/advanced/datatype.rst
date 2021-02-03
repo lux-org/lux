@@ -68,6 +68,7 @@ Here, specifying intent as the temporal variable, the `Temporal` tab reflects a 
 
 ID
 ---
+The ID data type is chosen for any column that looks like an ID and shouldn't be plotted. For example, zip code, user ID, etc.
 
 
 Changing the Inferred Data Type
