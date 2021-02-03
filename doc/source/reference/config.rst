@@ -163,7 +163,7 @@ Matplotlib also supports plot configurations to be applied on top of the generat
 
 .. code-block:: python
 	
-	lux.config.plotting_backend = "matplotlib" # or 'matplotlib_code'
+    lux.config.plotting_backend = "matplotlib"
 
     def change_width_add_title(fig, ax):
         fig.set_figwidth(7) # change figure width
