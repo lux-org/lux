@@ -11,7 +11,7 @@ Currently, Lux supports four data types:
 * Nominal
 * ID
 
-Note that these data types are different from Pandas `dtype`. These data types are automatically inferred based on the `dataframe` inputted.
+Note that these data types are different from Pandas `dtype`. These data types are automatically inferred based on the input `dataframe`.
 The following code snippet shows what data types were inferred:
 
 .. code-block:: python
@@ -22,7 +22,7 @@ The following code snippet shows what data types were inferred:
 
 Quantitative
 ------------
-The Quantitative data type is used when there is a count or measure of a certain attribute. 
+The quantitative data type is used when there is a count or measure of a certain attribute. 
 In the example above, the column `AcceptanceRate` is quantitative because it is a measure. 
 Also, any aggregate such as means and medians will be categorized as quantitative. 
 Usually, Lux is able to compute Correlations between two quantitative columns or show the distribution of each column.
@@ -34,7 +34,7 @@ Usually, Lux is able to compute Correlations between two quantitative columns or
 
 Nominal
 --------
-The Nominal data type is for categorical data. 
+Unordered, categorical attributes are detected as nominal data types. 
 For example, `PredominantDegree` is nominal because rather than being an explicit measure, it describes an attribute. 
 In this case, there are three possible values: `Associate`, `Bachelor's`, and `Certificate`.
 Lux displays these variables under the `Occurrence` tab as bar charts for the number of occurrences. 
@@ -47,7 +47,7 @@ Upon more granular searches by specifying intent, stacked bar charts comparing t
 
 Temporal
 --------
-The Temporal Data Type is used when Lux thinks based on either the format of the data passed in or the title of the column that the data in that column is time-sensitive.
+The temporal data type is used when Lux thinks based on either the format of the data passed in or the title of the column that the data in that column is time-sensitive.
 Here is an example where temporal data is detected:
 
 .. code-block:: python
@@ -73,7 +73,7 @@ The ID data type is chosen for any column that looks like an ID and shouldn't be
 
 Changing the Inferred Data Type
 -------------------------------
-Sometimes, Lux incorrectly identifies the correct data. Here is an example:
+Lux attempts to infer the data type information for every column in the dataframe. However, sometimes there is ambiguity in how the data should be modelled, as a result, Lux can incorrectly label a column with wrong data type. For example:
 
 .. code-block:: python
 
