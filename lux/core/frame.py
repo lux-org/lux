@@ -174,8 +174,9 @@ class LuxDataFrame(pd.DataFrame):
         if "Number of Records" in self.columns:
             self.pre_aggregated = True
         very_small_df_flag = len(self) <= 10
-        if very_small_df_flag:
-            self.pre_aggregated = True
+        self.pre_aggregated = "groupby" in [event.name for event in self.history]     
+        # if very_small_df_flag:
+        #     self.pre_aggregated = True
 
     @property
     def intent(self):
@@ -929,4 +930,5 @@ class LuxDataFrame(pd.DataFrame):
         groupby_obj = super(LuxDataFrame, self).groupby(*args, **kwargs)
         for attr in self._metadata:
             groupby_obj.__dict__[attr] = getattr(self, attr, None)
+        self.pre_aggregated = True
         return groupby_obj
