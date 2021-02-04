@@ -434,7 +434,7 @@ def test_vegalite_default_actions_registered(global_var):
 
 def test_matplotlib_default_actions_registered(global_var):
     lux.config.plotting_backend = "matplotlib"
-    df = pytest.car_df
+    df = pd.read_csv("lux/data/car.csv")
     df._repr_html_()
     # Histogram Chart
     assert "Distribution" in df.recommendation
