@@ -76,7 +76,7 @@ def test_remove_identity(global_var):
 
 
 def test_refresh_collection(global_var):
-    df = pytest.car_df
+    df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df.set_intent([lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")])
     df._repr_html_()
@@ -224,7 +224,7 @@ def test_bar_chart(global_var):
 
 
 def test_colored_bar_chart(global_var):
-    df = pytest.car_df
+    df = pd.read_csv("lux/data/car.csv")
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Cylinders", "Acceleration", "Origin"], df)
     vis_code = vis.to_Altair()
@@ -315,7 +315,7 @@ def test_line_chart(global_var):
 
 
 def test_colored_line_chart(global_var):
-    df = pytest.car_df
+    df = pd.read_csv("lux/data/car.csv")
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Year", "Acceleration", "Origin"], df)
     vis_code = vis.to_Altair()
@@ -412,7 +412,7 @@ def test_colored_heatmap_chart(global_var):
 
 
 def test_vegalite_default_actions_registered(global_var):
-    df = pytest.car_df
+    df = pd.read_csv("lux/data/car.csv")
     lux.config.plotting_backend = "vegalite"
     df._repr_html_()
     # Histogram Chart
