@@ -48,6 +48,7 @@ class MatplotlibChart:
         return NotImplemented
 
     def apply_default_config(self):
+        self.code += "import matplotlib.pyplot as plt\n"
         self.code += """plt.rcParams.update(
             {
                 "axes.titlesize": 20,
@@ -56,7 +57,6 @@ class MatplotlibChart:
                 "axes.labelsize": 16,
                 "legend.fontsize": 14,
                 "legend.title_fontsize": 15,
-                # "font.family": "DejaVu Sans",
                 "xtick.labelsize": 13,
                 "ytick.labelsize": 13,
             }
