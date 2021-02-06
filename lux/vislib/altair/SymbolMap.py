@@ -60,6 +60,7 @@ class SymbolMap(AltairChart):
 
         secondary_feature = self.get_secondary_feature()
         background = self.get_background(secondary_feature)
+        geographical_name = self.get_geographical_name(secondary_feature)
         points = (
             alt.Chart(self.data)
             .transform_aggregate(
@@ -76,7 +77,7 @@ class SymbolMap(AltairChart):
                 color=alt.value("steelblue"),
                 tooltip=[f"{secondary_feature}:N", "count:Q"],
             )
-            .properties(title="Number of Records across US")
+            .properties(title=f"Number of Records across {geographical_name}")
         )
         chart = background + points
         # Setting tooltip as non-null
@@ -108,7 +109,8 @@ class SymbolMap(AltairChart):
         """Returns background projection based on secondary feature."""
         from vega_datasets import data
 
-        maps = {"state": (alt.topo_feature(data.us_10m.url, feature="states"), "albersUsa")}
+        maps = {"state": (alt.topo_feature(data.us_10m.url, feature="states"), "albersUsa"),
+                "country": (alt.topo_feature(data.world_110m.url, feature='countries'), "equirectangular")}
         assert feature in maps
         height = 175
         return (
@@ -117,6 +119,12 @@ class SymbolMap(AltairChart):
             .properties(width=int(height * (5 / 3)), height=height)
             .project(maps[feature][1])
         )
+    
+    def get_geographical_name(self, feature): 
+        """Returns geographical location label based on secondary feature."""
+        maps = {"state": "United States",
+                "country": "World"}
+        return maps[feature]   
 
     def encode_color(self):
         # Setting tooltip as non-null

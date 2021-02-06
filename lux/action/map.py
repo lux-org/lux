@@ -91,7 +91,7 @@ def check_transpose_not_computed(vlist: VisList, a: str, b: str):
 
 def has_secondary_geographical_attribute(vis):
     assert len(vis.intent) == 3
-    secondary_attributes = {"state"}
+    secondary_attributes = {"state", "country"}
     color = vis.intent[2].get_attr()
     if color in secondary_attributes:
         return True
