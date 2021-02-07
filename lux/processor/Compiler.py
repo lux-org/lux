@@ -172,7 +172,7 @@ class Compiler:
                         clause.data_type = ldf.data_type[clause.attribute]
                     if clause.data_type == "id":
                         clause.data_type = "nominal"
-                    if clause.data_type == "geoshape":
+                    if clause.data_type == "geographical":
                         clause.data_type = "quantitative"
                     if clause.data_model == "":
                         clause.data_model = data_model_lookup[clause.attribute]

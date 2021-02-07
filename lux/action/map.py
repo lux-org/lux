@@ -41,7 +41,7 @@ def geomap(ldf, ignore_transpose: bool = True):
     possible_attributes = [
         c
         for c in ldf.columns
-        if ldf.data_type[c] == "geoshape" and ldf.cardinality[c] > 5 and c != "Number of Records"
+        if ldf.data_type[c] == "geographical" and ldf.cardinality[c] > 5 and c != "Number of Records"
     ]
     recommendation = {
         "action": "Geographic",
@@ -50,7 +50,7 @@ def geomap(ldf, ignore_transpose: bool = True):
 
     if len(ldf) < 5 or len(possible_attributes) < 2:
         ignore_rec_flag = True
-    if ignore_rec_flag or not valid_geoshape(possible_attributes):
+    if ignore_rec_flag or not valid_geographical(possible_attributes):
         recommendation["collection"] = []
         return recommendation
 
@@ -61,7 +61,7 @@ def geomap(ldf, ignore_transpose: bool = True):
     for i in range(len(vlist)):
         vis = vlist[i]
         if has_secondary_geographical_attribute(vis):
-            vis._mark = "geoshape"
+            vis._mark = "geographical"
             measures = vis.get_attr_by_data_model("measure")
             msr1, msr2 = measures[0].attribute, measures[1].attribute
             check_transpose = (
@@ -98,11 +98,13 @@ def has_secondary_geographical_attribute(vis):
     return False
 
 
-def valid_geoshape(possible_attributes):
+def valid_geographical(possible_attributes):
     lat, long = {"latitude", "lat"}, {"longitude", "long"}
     possible_attributes = set(possible_attributes)
     has_lat, has_long = (
         len(lat.intersection(possible_attributes)) > 0,
         len(long.intersection(possible_attributes)) > 0,
     )
-    return True if has_lat and has_long else False
+    var = True if has_lat and has_long and len(possible_attributes) == 2 else False
+    print(var, possible_attributes)
+    return var

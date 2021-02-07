@@ -430,9 +430,9 @@ def test_vegalite_default_actions_registered(global_var):
 
 
 def test_vegalite_default_actions_registered_2(global_var):
-    from vega_datasets import data
-
-    df = data.airports()
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/altair-viz/vega_datasets/master/vega_datasets/_data/airports.csv"
+    )
     lux.config.plotting_backend = "vegalite"
 
     # Symbol Map
@@ -479,6 +479,7 @@ def test_vegalite_heatmap_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df = df.copy()
     assert not df.recommendation["Correlation"][0]._postbin
+    assert "Geographic" not in df.recommendation
     lux.config.heatmap = True
 
 

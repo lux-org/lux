@@ -408,7 +408,7 @@ class PandasExecutor(Executor):
                 elif self._is_datetime_number(ldf[attr]):
                     ldf._data_type[attr] = "temporal"
                 elif self._is_geographical_attribute(ldf[attr]):
-                    ldf._data_type[attr] = "geoshape"
+                    ldf._data_type[attr] = "geographical"
                 elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                     # int columns gets coerced into floats if contain NaN
                     convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())

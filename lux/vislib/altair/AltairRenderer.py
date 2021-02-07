@@ -83,7 +83,7 @@ class AltairRenderer:
             chart = LineChart(vis)
         elif vis.mark == "heatmap":
             chart = Heatmap(vis)
-        elif vis.mark == "geoshape":
+        elif vis.mark == "geographical":
             chart = SymbolMap(vis)
         else:
             chart = None

@@ -87,8 +87,8 @@ def test_check_airbnb():
         "host_name": "nominal",
         "neighbourhood_group": "nominal",
         "neighbourhood": "nominal",
-        "latitude": "geoshape",
-        "longitude": "geoshape",
+        "latitude": "geographical",
+        "longitude": "geographical",
         "room_type": "nominal",
         "price": "quantitative",
         "minimum_nights": "quantitative",
@@ -99,18 +99,20 @@ def test_check_airbnb():
         "availability_365": "quantitative",
     }
 
+
 def test_check_airports():
-    from vega_datasets import data
-    df = data.airports()
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/altair-viz/vega_datasets/master/vega_datasets/_data/airports.csv"
+    )
     df.maintain_metadata()
     assert df.data_type == {
-        'iata': 'id',
-        'name': 'nominal',
-        'city': 'nominal',
-        'state': 'nominal',
-        'country': 'nominal',
-        'latitude': 'geoshape',
-        'longitude': 'geoshape'
+        "iata": "id",
+        "name": "nominal",
+        "city": "nominal",
+        "state": "nominal",
+        "country": "nominal",
+        "latitude": "geographical",
+        "longitude": "geographical",
     }
 
 
