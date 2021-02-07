@@ -68,7 +68,8 @@ def interpolate(vis, length):
                         yVals[count - 1] + (interpolated_x - xVals[count - 1]) / x_diff * yDiff
                     )
             vis.data = pd.DataFrame(
-                list(zip(interpolated_x_vals, interpolated_y_vals)), columns=[xAxis, yAxis],
+                list(zip(interpolated_x_vals, interpolated_y_vals)),
+                columns=[xAxis, yAxis],
             )
 
 
