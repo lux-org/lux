@@ -353,8 +353,8 @@ class PandasExecutor(Executor):
             x_attr = vis.get_attr_by_channel("x")[0].attribute
             y_attr = vis.get_attr_by_channel("y")[0].attribute
 
-            vis._vis_data["xBin"] = pd.cut(vis._vis_data[x_attr], bins=40)
-            vis._vis_data["yBin"] = pd.cut(vis._vis_data[y_attr], bins=40)
+            vis._vis_data["xBin"] = pd.cut(vis._vis_data[x_attr], bins=lux.config.heatmap_bin_size)
+            vis._vis_data["yBin"] = pd.cut(vis._vis_data[y_attr], bins=lux.config.heatmap_bin_size)
 
             color_attr = vis.get_attr_by_channel("color")
             if len(color_attr) > 0:

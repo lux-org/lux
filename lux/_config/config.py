@@ -17,7 +17,7 @@ class Config:
 
     def __init__(self):
         self._default_display = "pandas"
-        self.plot_config = None
+        self.plotting_style = None
         self.SQLconnection = ""
         self.executor = None
         # holds registered option metadata
@@ -34,6 +34,7 @@ class Config:
         self._sort = "descending"
         self._pandas_fallback = True
         self._interestingness_fallback = True
+        self.heatmap_bin_size = 40
 
     @property
     def topk(self):

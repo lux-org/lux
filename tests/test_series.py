@@ -33,6 +33,7 @@ def test_df_to_series():
         "cardinality",
         "_rec_info",
         "_min_max",
+        "plotting_style",
         "_current_vis",
         "_widget",
         "_recommendation",

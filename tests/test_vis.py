@@ -214,7 +214,7 @@ def test_bar_chart(global_var):
         in vis_code
     )
 
-    lux.config.plot_config = None
+    lux.config.plotting_style = None
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Origin", "Acceleration"], df)
     vis_code = vis.to_matplotlib_code()

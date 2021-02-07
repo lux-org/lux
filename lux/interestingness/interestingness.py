@@ -153,7 +153,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
                 chi2_score = chi2_contingency(contingency_tbl)[0] * 0.9 ** (
                     color_cardinality + groupby_cardinality
                 )
-                score = min(0.10, chi2_score)
+                score = min(0.01, chi2_score)
             except (ValueError, KeyError):
                 # ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in a category having no counts
                 score = -1
