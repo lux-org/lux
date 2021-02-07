@@ -20,6 +20,7 @@ from lux.vislib.altair.ScatterChart import ScatterChart
 from lux.vislib.altair.LineChart import LineChart
 from lux.vislib.altair.Histogram import Histogram
 from lux.vislib.altair.Heatmap import Heatmap
+from lux.vislib.altair.SymbolMap import SymbolMap
 
 
 class AltairRenderer:
@@ -82,6 +83,8 @@ class AltairRenderer:
             chart = LineChart(vis)
         elif vis.mark == "heatmap":
             chart = Heatmap(vis)
+        elif vis.mark == "geoshape":
+            chart = SymbolMap(vis)
         else:
             chart = None
 
@@ -126,8 +129,7 @@ class AltairRenderer:
                     found_variable = "df"
                 if standalone:
                     chart.code = chart.code.replace(
-                        "placeholder_variable",
-                        f"pd.DataFrame({str(vis.data.to_dict())})",
+                        "placeholder_variable", f"pd.DataFrame({str(vis.data.to_dict())})",
                     )
                 else:
                     # TODO: Placeholder (need to read dynamically via locals())

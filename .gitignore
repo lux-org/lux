@@ -1,4 +1,5 @@
 *.pyc
+test.ipynb
 .ipynb_checkpoints/
 .vscode/
 doc/_build

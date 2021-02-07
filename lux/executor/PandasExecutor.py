@@ -211,10 +211,7 @@ class PandasExecutor(Executor):
                             }
                         )
                         vis._vis_data = vis.data.merge(
-                            df,
-                            on=[columns[0], columns[1]],
-                            how="right",
-                            suffixes=["", "_right"],
+                            df, on=[columns[0], columns[1]], how="right", suffixes=["", "_right"],
                         )
                         for col in columns[2:]:
                             vis.data[col] = vis.data[col].fillna(0)  # Triggers __setitem__
@@ -362,10 +359,7 @@ class PandasExecutor(Executor):
                 if color_attr.data_type == "nominal":
                     # Compute mode and count. Mode aggregates each cell by taking the majority vote for the category variable. In cases where there is ties across categories, pick the first item (.iat[0])
                     result = groups.agg(
-                        [
-                            ("count", "count"),
-                            (color_attr.attribute, lambda x: pd.Series.mode(x).iat[0]),
-                        ]
+                        [("count", "count"), (color_attr.attribute, lambda x: pd.Series.mode(x).iat[0]),]
                     ).reset_index()
                 elif color_attr.data_type == "quantitative":
                     # Compute the average of all values in the bin
@@ -413,6 +407,8 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "temporal"
                 elif self._is_datetime_number(ldf[attr]):
                     ldf._data_type[attr] = "temporal"
+                elif self._is_geographical_attribute(ldf[attr]):
+                    ldf._data_type[attr] = "geoshape"
                 elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                     # int columns gets coerced into floats if contain NaN
                     convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
@@ -495,6 +491,15 @@ class PandasExecutor(Executor):
                 return True
             except Exception:
                 return False
+        return False
+
+    @staticmethod
+    def _is_geographical_attribute(series):
+        # run detection algorithm
+        geographical_var_list = ["longitude", "latitude"]
+        name = str(series.name).lower()
+        if name in geographical_var_list:
+            return True
         return False
 
     def compute_stats(self, ldf: LuxDataFrame):

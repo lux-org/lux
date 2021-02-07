@@ -74,7 +74,6 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
             return 1 - euclidean_dist(query_vis, vis)
 
         # Line/Bar Chart
-        # print("r:", n_record, "m:", n_msr, "d:",n_dim)
         if n_dim == 1 and (n_msr == 0 or n_msr == 1):
             if v_size < 2:
                 return -1
@@ -113,6 +112,8 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
             if v_size < 10:
                 return -1
             color_attr = vis.get_attr_by_channel("color")[0].attribute
+            if vis.mark == "geoshape":
+                return vis.data[dimension_lst[0].get_attr()].nunique()
 
             C = ldf.cardinality[color_attr]
             if C < 40:
@@ -198,11 +199,7 @@ def weighted_correlation(x, y, w):
 
 
 def deviation_from_overall(
-    vis: Vis,
-    ldf: LuxDataFrame,
-    filter_specs: list,
-    msr_attribute: str,
-    exclude_nan: bool = True,
+    vis: Vis, ldf: LuxDataFrame, filter_specs: list, msr_attribute: str, exclude_nan: bool = True,
 ) -> int:
     """
     Difference in bar chart/histogram shape from overall chart

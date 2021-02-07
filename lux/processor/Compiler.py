@@ -172,6 +172,8 @@ class Compiler:
                         clause.data_type = ldf.data_type[clause.attribute]
                     if clause.data_type == "id":
                         clause.data_type = "nominal"
+                    if clause.data_type == "geoshape":
+                        clause.data_type = "quantitative"
                     if clause.data_model == "":
                         clause.data_model = data_model_lookup[clause.attribute]
                 if clause.value != "":
@@ -277,10 +279,7 @@ class Compiler:
         # ShowMe logic + additional heuristics
         # count_col = Clause( attribute="count()", data_model="measure")
         count_col = Clause(
-            attribute="Record",
-            aggregation="count",
-            data_model="measure",
-            data_type="quantitative",
+            attribute="Record", aggregation="count", data_model="measure", data_type="quantitative",
         )
         auto_channel = {}
         if ndim == 0 and nmsr == 1:
@@ -471,9 +470,7 @@ class Compiler:
                         options = ldf.unique_values[attr]
                         specInd = _inferred_intent.index(clause)
                         _inferred_intent[specInd] = Clause(
-                            attribute=clause.attribute,
-                            filter_op="=",
-                            value=list(options),
+                            attribute=clause.attribute, filter_op="=", value=list(options),
                         )
                     else:
                         options.extend(convert_to_list(clause.value))

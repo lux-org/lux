@@ -161,13 +161,11 @@ class SQLExecutor(Executor):
             else:
                 bin_centers = np.array([(attr_min + attr_min + bin_width) / 2])
             bin_centers = np.append(
-                bin_centers,
-                np.mean(np.vstack([upper_edges[0:-1], upper_edges[1:]]), axis=0),
+                bin_centers, np.mean(np.vstack([upper_edges[0:-1], upper_edges[1:]]), axis=0),
             )
             if attr_type == int:
                 bin_centers = np.append(
-                    bin_centers,
-                    math.ceil((upper_edges[len(upper_edges) - 1] + attr_max) / 2),
+                    bin_centers, math.ceil((upper_edges[len(upper_edges) - 1] + attr_max) / 2),
                 )
             else:
                 bin_centers = np.append(bin_centers, (upper_edges[len(upper_edges) - 1] + attr_max) / 2)
