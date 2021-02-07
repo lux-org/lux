@@ -33,6 +33,18 @@ class LuxDataFrameGroupBy(pd.core.groupby.generic.DataFrameGroupBy):
             ret_val.__dict__[attr] = getattr(self, attr, None)
         return ret_val
 
+    def _cython_agg_general(self, *args, **kwargs):
+        ret_val = super(LuxDataFrameGroupBy, self)._cython_agg_general(*args, **kwargs)
+        for attr in self._metadata:
+            ret_val.__dict__[attr] = getattr(self, attr, None)
+        return ret_val
+
+    def get_group(self, *args, **kwargs):
+        ret_val = super(LuxDataFrameGroupBy, self).get_group(*args, **kwargs)
+        ret_val.pre_aggregated = False
+        return ret_val
+
+
     def __getitem__(self, *args, **kwargs):
         ret_val = super(LuxDataFrameGroupBy, self).__getitem__(*args, **kwargs)
         for attr in self._metadata:

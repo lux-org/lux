@@ -170,13 +170,14 @@ class LuxDataFrame(pd.DataFrame):
         is_multi_index_flag = self.index.nlevels != 1
         not_int_index_flag = not pd.api.types.is_integer_dtype(self.index)
         small_df_flag = len(self) < 100
-        self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
-        if "Number of Records" in self.columns:
-            self.pre_aggregated = True
-        very_small_df_flag = len(self) <= 10
-        self.pre_aggregated = "groupby" in [event.name for event in self.history]     
-        # if very_small_df_flag:
-        #     self.pre_aggregated = True
+        if self.pre_aggregated == None:
+            self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
+            if "Number of Records" in self.columns:
+                self.pre_aggregated = True
+            very_small_df_flag = len(self) <= 10
+            self.pre_aggregated = "groupby" in [event.name for event in self.history]     
+            # if very_small_df_flag:
+            #     self.pre_aggregated = True
 
     @property
     def intent(self):
