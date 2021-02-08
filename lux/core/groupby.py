@@ -44,6 +44,11 @@ class LuxDataFrameGroupBy(pd.core.groupby.generic.DataFrameGroupBy):
         ret_val.pre_aggregated = False
         return ret_val
 
+    def filter(self, *args, **kwargs):
+        ret_val = super(LuxDataFrameGroupBy, self).filter(*args, **kwargs)
+        ret_val.pre_aggregated = False
+        return ret_val
+
 
     def __getitem__(self, *args, **kwargs):
         ret_val = super(LuxDataFrameGroupBy, self).__getitem__(*args, **kwargs)
