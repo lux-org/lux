@@ -13,3 +13,7 @@ build/
 .idea/
 tests/.coverage
 tests/coverage.xml
+
+# local 
+myNotes.md
+TEST.ipynb

@@ -22,6 +22,8 @@ from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
 
+from lux.implicit.utils import import_module_by_path
+
 # from lux.executor.Executor import *
 import warnings
 import traceback
@@ -432,6 +434,9 @@ class LuxDataFrame(pd.DataFrame):
             rec_infolist.append(recommendations)
 
     def maintain_recs(self):
+
+        print("[WILL LOGS] maintain_recs")
+
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
         if lux.config.update_actions["flag"] == True:
@@ -590,6 +595,9 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import display, clear_output
         from lux.processor.Compiler import Compiler
 
+        print("[WILL LOGS] set_intent_on_click called: ")
+        print("[WILL LOGS] the widget's userCode: ", self._widget.userCode)
+
         intent_action = list(self._widget.selectedIntentIndex.keys())[0]
         vis = self._recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
         self.set_intent_as_vis(vis)
@@ -602,10 +610,26 @@ class LuxDataFrame(pd.DataFrame):
             clear_output()
             display(self._widget)
 
-        self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
+        self._widget.observe(self.remove_deleted_recs, names="deletedIndices") # NOTE observe syncs with frontend
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+        # self._widget.observe(self.analyze_user_code, names="userCode")  # do I need to add userCode here idk
 
+    '''
+    Since observe above, this is called when self._widget.userCode updates
+    '''
+    def analyze_user_code(self, change):
+        # Will TODO perform program analysis on the users code here
+        print("[WILL LOGS] In analyze_user_code called. userCode:  ", self._widget.userCode)
+
+        # take the code and analyze
+
+        # use this to set the intent
+
+
+    # NOTE: this seems like the "main" function
+    # NOTE: what calls this?? -- Will
     def _repr_html_(self):
+        print("[WILL LOGS] _repr_html_ called")
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
@@ -651,6 +675,8 @@ class LuxDataFrame(pd.DataFrame):
                 # Observers(callback_function, listen_to_this_variable)
                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
                 self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+                self._widget.observe(self.analyze_user_code, names="userCode")
+
 
                 if len(self._recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
@@ -742,10 +768,12 @@ class LuxDataFrame(pd.DataFrame):
 
         """
         check_import_lux_widget()
-        import luxwidget
+        import luxwidget # NOTE code from other repo 
+
+        print("[WILL LOGS] render_widget")
 
         widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
-        return luxwidget.LuxWidget(
+        return luxwidget.LuxWidget( # widget
             currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
             intent=LuxDataFrame.intent_to_string(self._intent),
@@ -785,6 +813,8 @@ class LuxDataFrame(pd.DataFrame):
         # Recommended Collection
         recCollection = LuxDataFrame.rec_to_JSON(rec_infolist)
         widget_spec["recommendation"].extend(recCollection)
+
+        # Will TODO implicit recs need to be added here I think....
         return widget_spec
 
     @staticmethod

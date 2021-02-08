@@ -1,0 +1,142 @@
+import pandas as pd
+import numpy as np
+import tokenize
+import altair as alt
+
+from utils import import_module_by_path, get_dfs_from_mod
+
+def get_recent_history(f_name, df_names, column_name_dict):
+    all_cols = set()
+    for l in column_name_dict.values():
+        all_cols.update(l)
+    
+    # static items
+    ignore_tokens = [60, 61, 4,0]
+    funcs = ["value_counts", "crosstab", "describe", "unique", "query", "groupby", "agg"] # filter
+
+    f_calls = []
+    col_refs = {}
+
+    with tokenize.open(f_name) as f:
+        tokens = tokenize.generate_tokens(f.readline)
+
+        curr_line = 1
+        curr_df = None
+        rec_cols = []
+        for token in tokens:
+            if token.type not in ignore_tokens:
+                this_line = token.start[0]
+                this_str = token.string.replace('"', "")
+
+                if this_line != curr_line:
+                    curr_df = None
+                    rec_cols = []
+                    curr_line = this_line
+
+                if token.type in [1, 3]: # string or name
+                    #print("This is a string, ", this_str)
+                    if not curr_df and this_str in df_names:
+                        curr_df = this_str
+                    elif this_str in funcs:
+                        t = (curr_df, rec_cols, this_str)
+                        f_calls.append(t)
+                    elif this_str in all_cols:
+                        rec_cols.append(this_str)
+                        if this_str in col_refs: 
+                            col_refs[this_str] += 1
+                        else:
+                            col_refs[this_str] = 1
+
+                #print(f"Type {token.type}.{token.exact_type}:\t\t{token.start} - {token.end} \t{token.string}\t\t\t{token.line}")
+    
+    return f_calls, col_refs
+
+'''
+In: array of function calls from oldest to newest, each of form (df_name, col_names, f_name)
+
+TODO
+- use other columns to suggest other visualizations
+- use distribution of column access as additional encodings
+- rec multiple vis instead of just 1
+
+'''
+def get_vis_off_recent_func(f_calls, all_df_dict):
+    # match function case
+    last_call = f_calls[-1]
+    df_name, col_names, f_name = last_call
+    df = all_df_dict[df_name]
+
+#     print("Last call: ", last_call)
+  
+    if not len(col_names) and f_name != "describe":
+        raise ValueError(f"No column names associated with the function call {f_name}")
+
+    if f_name == "value_counts" or f_name == "unique":
+        # greedy select first column
+        vis = alt.Chart(df)\
+            .mark_bar()\
+            .encode(x=col_names[0], y="count()")
+    
+    elif f_name == "crosstab":
+        df = df.reset_index()
+        col_names = list(df.columns)
+        
+        vis = alt.Chart(df).transform_fold(
+                col_names[1:],
+            ).mark_rect().encode(
+            alt.X("key:N"),
+            alt.Y(f"{col_names[0]}:O"),
+            alt.Color('value:Q', scale=alt.Scale(scheme="blues")))
+    
+    elif f_name == "describe":
+        numeric_cols = list(df.dtypes[(df.dtypes == "float64") | (df.dtypes == "int64")].index)
+        _facets = []
+        for c in numeric_cols:
+            _facets.append(alt.Chart(df).mark_boxplot().encode(y=f"{c}:Q"))
+        vis = alt.hconcat(*_facets)
+
+    elif f_name == "query":
+        # TODO do this, not supporting most selection types rn 
+        vis = None
+
+    elif f_name == "groupby" or f_name == "agg":
+        # TODO do this better -- find out which function is being called on each column 
+        df = df.reset_index()
+        if type(df.columns) == pd.core.indexes.multi.MultiIndex:
+#             print("Is multi")
+            nc = [' '.join(col).strip() for col in df.columns.values]
+            df.columns = nc
+            col_names =  nc
+
+        vis = alt.Chart(df).transform_fold(
+            col_names[1:],
+        ).mark_point().encode( # TODO change this mark type depending on what the dtype is 
+            x=col_names[0],
+            y='value:Q',
+            color='key:N'
+        )
+    
+    else:
+        raise ValueError(f"[ERROR] Unable to match vis for {f_name}")
+        vis = None
+
+    return vis 
+
+def recommend(f_name):
+    # load module to get access to state
+    mod = import_module_by_path(f_name)
+    
+    # parse file to see what dataframes I have
+    all_df_dict = get_dfs_from_mod(mod)
+    
+    # col names and df names
+    df_names = list(all_df_dict.keys())
+    col_name_dict = {d:list(all_df_dict[d].columns) for d in df_names}
+    
+    # build distribution over variables accessed in that df (with regex)
+    f_calls, col_refs = get_recent_history(f_name, df_names, col_name_dict)
+    
+    # match that to a vis case
+    vis = get_vis_off_recent_func(f_calls, all_df_dict)
+
+    return vis
