@@ -413,6 +413,8 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "temporal"
                 elif self._is_datetime_number(ldf[attr]):
                     ldf._data_type[attr] = "temporal"
+                elif self._is_geographical_attribute(ldf[attr]):
+                    ldf._data_type[attr] = "geoshape"
                 elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                     # int columns gets coerced into floats if contain NaN
                     convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
@@ -495,6 +497,15 @@ class PandasExecutor(Executor):
                 return True
             except Exception:
                 return False
+        return False
+
+    @staticmethod
+    def _is_geographical_attribute(series):
+        # run detection algorithm
+        geographical_var_list = ["longitude", "latitude"]
+        name = str(series.name).lower()
+        if name in geographical_var_list:
+            return True
         return False
 
     def compute_stats(self, ldf: LuxDataFrame):
