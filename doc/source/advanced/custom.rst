@@ -43,7 +43,7 @@ Let's define a custom function to generate the recommendations on the dataframe.
     def G10_mean_difference(ldf):
     # Define a VisList of quantitative distribution between G10 and non-G10 countries
         intent = [lux.Clause("?",data_type="quantitative"),lux.Clause("G10")]
-        vlist = VisList(intent,df)
+        vlist = VisList(intent,ldf)
 
         # Score each Vis based on the how different G10 and non-G10 bars are
         for vis in vlist:
