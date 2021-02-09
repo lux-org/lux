@@ -33,44 +33,46 @@ Here, we first generate a VisList that looks at how various quantitative attribu
         a = vis.data.iloc[0,1]
         b = vis.data.iloc[1,1]
         vis.score = (b-a)/a
-    vlist = vlist.topK(15)
+    lux.config.topK = 15
+    vlist = vlist.showK()
 
 Let's define a custom function to generate the recommendations on the dataframe. In this example, we will use G10 to generate a VisList to calculate the percentage change of means Between G10 v.s. non-G10 countries.
 
 .. code-block:: python
 
     def G10_mean_difference(ldf):
-      # Define a VisList of quantitative distribution between G10 and non-G10 countries
-      intent = [lux.Clause("?",data_type="quantitative"),lux.Clause("G10")]
-      vlist = VisList(intent,df)
+    # Define a VisList of quantitative distribution between G10 and non-G10 countries
+        intent = [lux.Clause("?",data_type="quantitative"),lux.Clause("G10")]
+        vlist = VisList(intent,ldf)
 
-      # Score each Vis based on the how different G10 and non-G10 bars are
-      for vis in vlist:
-          a = vis.data.iloc[0,1]
-          b = vis.data.iloc[1,1]
-          vis.score = (b-a)/a
-      vlist = vlist.topK(15)
-      return {"action":"G10", "description": "Percentage Change of Means Between G10 v.s. non-G10 countries", "collection": vlist}
+        # Score each Vis based on the how different G10 and non-G10 bars are
+        for vis in vlist:
+            a = vis.data.iloc[0,1]
+            b = vis.data.iloc[1,1]
+            vis.score = (b-a)/a
+        lux.config.topK = 15
+        vlist = vlist.showK()
+        return {"action":"G10", "description": "Percentage Change of Means Between G10 v.s. non-G10 countries", "collection": vlist}
 
 In the code below, we define a display condition function to determine whether or not we want to generate recommendations for the custom action. In this example, we simply check if we are using the HPI dataset to generate recommendations for the custom action `G10`.
 
 .. code-block:: python
 
     def is_G10_hpi_dataset(df):
-      try: 
-          return all(df.columns == ['HPIRank', 'Country', 'SubRegion', 'AverageLifeExpectancy',
-         'AverageWellBeing', 'HappyLifeYears', 'Footprint',
-         'InequalityOfOutcomes', 'InequalityAdjustedLifeExpectancy',
-         'InequalityAdjustedWellbeing', 'HappyPlanetIndex', 'GDPPerCapita',
-         'Population', 'G10'])
-      except: 
-          return False
+        try: 
+            return all(df.columns == ['HPIRank', 'Country', 'SubRegion', 'AverageLifeExpectancy',
+            'AverageWellBeing', 'HappyLifeYears', 'Footprint',
+            'InequalityOfOutcomes', 'InequalityAdjustedLifeExpectancy',
+            'InequalityAdjustedWellbeing', 'HappyPlanetIndex', 'GDPPerCapita',
+            'Population', 'G10'])
+        except: 
+            return False
 
 To register the `G10` action in Lux, we apply the `register_action` function, which takes a name and action as inputs, as well as a display condition and additional arguments as optional parameters.
 
 .. code-block:: python
     
-    lux.register_action("G10", G10_mean_difference, is_G10_hpi_dataset)
+    lux.config.register_action("G10", G10_mean_difference, is_G10_hpi_dataset)
 
 After registering the action, the G10 recomendation action is automatically generated when we display the Lux dataframe again.
 
@@ -105,13 +107,13 @@ You can inspect a list of actions that are currently registered in the Lux Actio
 
 .. code-block:: python
     
-    lux.actions.__getactions__()
+    lux.config.actions
 
 You can also get a single action attribute by calling this function with the action's name.
 
 .. code-block:: python
 
-    lux.actions.__getattr__("G10")
+    lux.config.actions.get("G10")
 
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-2.png?raw=true
   :width: 700
@@ -125,7 +127,7 @@ Let's say that we are no longer in looking at the `G10` action, the `remove_acti
 
 .. code-block:: python
     
-    lux.remove_action("G10")
+    lux.config.remove_action("G10")
 
 After removing the action, when we print the dataframe again, the `G10` action is no longer displayed.
 
