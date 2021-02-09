@@ -33,7 +33,7 @@ def test_df_to_series():
         "_rec_info",
         "_pandas_only",
         "_min_max",
-        "plot_config",
+        "plotting_style",
         "_current_vis",
         "_widget",
         "_recommendation",

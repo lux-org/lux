@@ -11,7 +11,7 @@
     <a href='https://lux-api.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/lux-api/badge/?version=latest' alt='Documentation Status'  align="center"/>
     </a>
-    <a href='https://lux-project.slack.com/join/shared_invite/zt-k2q5u9s7-m6hv4VUAyqYX6xjMmezrqw#/'>
+    <a href='https://lux-project.slack.com/join/shared_invite/zt-lilu4e87-TM4EDTq9HWzlDRycFsrkLg'>
         <img src='https://img.shields.io/static/v1?label=chat&logo=slack&message=Slack&color=brightgreen' alt='Slack'  align="center"/>
     </a>
     <a href='https://forms.gle/XKv3ejrshkCi3FJE6'>
@@ -22,6 +22,9 @@
     </a>
     <a href="https://codecov.io/gh/lux-org/lux">
         <img src="https://codecov.io/gh/lux-org/lux/branch/master/graph/badge.svg" align="center" alt='CodeCov'/>
+    </a>
+    <a href='https://twitter.com/intent/follow?original_referer=https%3A%2F%2Fpublish.twitter.com%2F&ref_src=twsrc%5Etfw&screen_name=lux_api&tw_p=followbutton'>
+        <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/lux_api?label=%40lux_api&style=social" alt='Twitter' align="center"/>
     </a>
 </p>
 
@@ -170,5 +173,5 @@ Other additional resources:
 - Sign up for the early-user [mailing list](https://forms.gle/XKv3ejrshkCi3FJE6) to stay tuned for upcoming releases, updates, or user studies. 
 - Visit [ReadTheDoc](https://lux-api.readthedocs.io/en/latest/) for more detailed documentation.
 - Try out these hands-on [exercises](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/exercise) or [tutorials](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial) on [Binder](https://mybinder.org/v2/gh/lux-org/lux-binder/master). Or clone and run [lux-binder](https://github.com/lux-org/lux-binder) locally.
-- Join our community [Slack](https://lux-project.slack.com/join/shared_invite/zt-k2q5u9s7-m6hv4VUAyqYX6xjMmezrqw#/) to discuss and ask questions.
+- Join our community [Slack](https://lux-project.slack.com/join/shared_invite/zt-lilu4e87-TM4EDTq9HWzlDRycFsrkLg) to discuss and ask questions.
 - Report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues). 
