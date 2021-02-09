@@ -153,7 +153,10 @@ def test_vis_list_custom_title_override(global_var):
 
     vcLst = []
     for attribute in ["Sport", "Year", "Height", "HostRegion", "SportType"]:
-        vis = Vis([lux.Clause("Weight"), lux.Clause(attribute)], title="overriding dummy title",)
+        vis = Vis(
+            [lux.Clause("Weight"), lux.Clause(attribute)],
+            title="overriding dummy title",
+        )
         vcLst.append(vis)
     vlist = VisList(vcLst, df)
     for v in vlist:

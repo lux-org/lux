@@ -99,18 +99,20 @@ def test_check_airbnb():
         "availability_365": "quantitative",
     }
 
+
 def test_check_airports():
     from vega_datasets import data
+
     df = data.airports()
     df.maintain_metadata()
     assert df.data_type == {
-        'iata': 'id',
-        'name': 'nominal',
-        'city': 'nominal',
-        'state': 'nominal',
-        'country': 'nominal',
-        'latitude': 'geoshape',
-        'longitude': 'geoshape'
+        "iata": "id",
+        "name": "nominal",
+        "city": "nominal",
+        "state": "nominal",
+        "country": "nominal",
+        "latitude": "geoshape",
+        "longitude": "geoshape",
     }
 
 
