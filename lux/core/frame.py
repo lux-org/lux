@@ -175,7 +175,7 @@ class LuxDataFrame(pd.DataFrame):
             if "Number of Records" in self.columns:
                 self.pre_aggregated = True
             very_small_df_flag = len(self) <= 10
-            self.pre_aggregated = "groupby" in [event.name for event in self.history]     
+            self.pre_aggregated = "groupby" in [event.name for event in self.history]
             # if very_small_df_flag:
             #     self.pre_aggregated = True
 
@@ -924,10 +924,10 @@ class LuxDataFrame(pd.DataFrame):
         return super(LuxDataFrame, self).describe(*args, **kwargs)
 
     def groupby(self, *args, **kwargs):
-        if 'history' not in kwargs or ('history' in kwargs and kwargs['history']):
+        if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
             self._history.append_event("groupby", *args, **kwargs)
-        if 'history' in kwargs:
-            del kwargs['history']
+        if "history" in kwargs:
+            del kwargs["history"]
         groupby_obj = super(LuxDataFrame, self).groupby(*args, **kwargs)
         for attr in self._metadata:
             groupby_obj.__dict__[attr] = getattr(self, attr, None)

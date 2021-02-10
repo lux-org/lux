@@ -16,37 +16,42 @@ from .context import lux
 import pytest
 import pandas as pd
 
+
 def test_agg(global_var):
-	df = pd.read_csv("lux/data/car.csv")
-	df._repr_html_()
-	new_df = df[["Horsepower", "Brand"]].groupby("Brand").agg(sum)
-	new_df._repr_html_()
-	assert new_df.history[0].name == 'groupby'
+    df = pd.read_csv("lux/data/car.csv")
+    df._repr_html_()
+    new_df = df[["Horsepower", "Brand"]].groupby("Brand").agg(sum)
+    new_df._repr_html_()
+    assert new_df.history[0].name == "groupby"
+
 
 def test_shortcut_agg(global_var):
-	df = pd.read_csv("lux/data/car.csv")
-	df._repr_html_()
-	new_df = df[["MilesPerGal", "Brand"]].groupby("Brand").sum()
-	new_df._repr_html_()
-	assert new_df.history[0].name == 'groupby'
+    df = pd.read_csv("lux/data/car.csv")
+    df._repr_html_()
+    new_df = df[["MilesPerGal", "Brand"]].groupby("Brand").sum()
+    new_df._repr_html_()
+    assert new_df.history[0].name == "groupby"
+
 
 def test_agg_mean(global_var):
-	df = pd.read_csv("lux/data/car.csv")
-	df._repr_html_()
-	new_df = df.groupby("Origin").mean()
-	new_df._repr_html_()
-	assert new_df.history[0].name == 'groupby'
+    df = pd.read_csv("lux/data/car.csv")
+    df._repr_html_()
+    new_df = df.groupby("Origin").mean()
+    new_df._repr_html_()
+    assert new_df.history[0].name == "groupby"
+
 
 def test_agg_size(global_var):
-	df = pd.read_csv("lux/data/car.csv")
-	df._repr_html_()
-	new_df = df.groupby("Brand").size()
-	new_df._repr_html_()
-	assert new_df.history[0].name == 'groupby'
+    df = pd.read_csv("lux/data/car.csv")
+    df._repr_html_()
+    new_df = df.groupby("Brand").size().to_frame()
+    new_df._repr_html_()
+    assert new_df.history[0].name == "groupby"
+
 
 def test_filter(global_var):
-	df = pd.read_csv("lux/data/car.csv")
-	df._repr_html_()
-	new_df = df.groupby("Origin").filter(lambda x: x['Weight'].mean() > 3000)
-	new_df._repr_html_()
-	assert new_df.history[0].name == 'groupby'
+    df = pd.read_csv("lux/data/car.csv")
+    df._repr_html_()
+    new_df = df.groupby("Origin").filter(lambda x: x["Weight"].mean() > 3000)
+    new_df._repr_html_()
+    assert new_df.history[0].name == "groupby"

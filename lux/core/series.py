@@ -17,6 +17,8 @@ import lux
 import warnings
 import traceback
 import numpy as np
+from lux.history.history import History
+from lux.utils.message import Message
 
 
 class LuxSeries(pd.Series):
@@ -47,6 +49,26 @@ class LuxSeries(pd.Series):
         "_type_override",
     ]
 
+    _default_metadata = {
+        "_intent": list,
+        "_inferred_intent": list,
+        "_current_vis": list,
+        "_recommendation": list,
+        "_toggle_pandas_display": lambda: True,
+        "_pandas_only": lambda: False,
+        "_type_override": dict,
+        "_history": History,
+        "_message": Message,
+    }
+
+    def __init__(self, *args, **kw):
+        super(LuxSeries, self).__init__(*args, **kw)
+        for attr in self._metadata:
+            if attr in self._default_metadata:
+                self.__dict__[attr] = self._default_metadata[attr]()
+            else:
+                self.__dict__[attr] = None
+
     @property
     def _constructor(self):
         return LuxSeries
@@ -55,14 +77,18 @@ class LuxSeries(pd.Series):
     def _constructor_expanddim(self):
         from lux.core.frame import LuxDataFrame
 
-        # def f(*args, **kwargs):
-        #     df = LuxDataFrame(*args, **kwargs)
-        #     for attr in self._metadata:
-        #         df.__dict__[attr] = getattr(self, attr, None)
-        #     return df
+        def f(*args, **kwargs):
+            df = LuxDataFrame(*args, **kwargs)
+            for attr in self._metadata:
+                if attr in self._default_metadata:
+                    default = self._default_metadata[attr]
+                else:
+                    default = None
+                df.__dict__[attr] = getattr(self, attr, default)
+            return df
 
-        # f._get_axis_number = super(LuxSeries, self)._get_axis_number
-        return LuxDataFrame
+        f._get_axis_number = LuxDataFrame._get_axis_number
+        return f
 
     def to_pandas(self) -> pd.Series:
         """

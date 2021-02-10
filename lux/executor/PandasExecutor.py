@@ -166,7 +166,9 @@ class PandasExecutor(Executor):
 
                 if has_color:
                     vis._vis_data = (
-                        vis.data.groupby([groupby_attr.attribute, color_attr.attribute], dropna=False, history=False)
+                        vis.data.groupby(
+                            [groupby_attr.attribute, color_attr.attribute], dropna=False, history=False
+                        )
                         .count()
                         .reset_index()
                         .rename(columns={index_name: "Record"})
@@ -187,7 +189,9 @@ class PandasExecutor(Executor):
                         [groupby_attr.attribute, color_attr.attribute], dropna=False, history=False
                     )
                 else:
-                    groupby_result = vis.data.groupby(groupby_attr.attribute, dropna=False, history=False)
+                    groupby_result = vis.data.groupby(
+                        groupby_attr.attribute, dropna=False, history=False
+                    )
                 groupby_result = groupby_result.agg(agg_func)
                 intermediate = groupby_result.reset_index()
                 vis._vis_data = intermediate.__finalize__(vis.data)

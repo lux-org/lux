@@ -87,7 +87,7 @@ def test_row_column_group(global_var):
     tseries[tseries.columns.max()] = tseries[tseries.columns.max()].fillna(tseries.max(axis=1))
     tseries = tseries.interpolate("zero", axis=1)
     tseries._repr_html_()
-    assert list(tseries.recommendation.keys()) == ['Temporal']
+    assert list(tseries.recommendation.keys()) == ["Temporal"]
 
 
 def test_groupby(global_var):
