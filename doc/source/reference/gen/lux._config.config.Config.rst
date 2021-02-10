@@ -29,6 +29,8 @@ lux.\_config.config.Config
    
       ~Config.default_display
       ~Config.heatmap
+      ~Config.interestingness_fallback
+      ~Config.pandas_fallback
       ~Config.plotting_backend
       ~Config.sampling
       ~Config.sampling_cap

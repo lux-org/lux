@@ -137,7 +137,6 @@ class BarChart(MatplotlibChart):
         self.ax.set_ylabel(y_attr_abv)
         plt.gca().invert_yaxis()
 
-        self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
 
