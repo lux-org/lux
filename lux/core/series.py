@@ -80,11 +80,11 @@ class LuxSeries(pd.Series):
         def f(*args, **kwargs):
             df = LuxDataFrame(*args, **kwargs)
             for attr in self._metadata:
-                if attr in self._default_metadata:
-                    default = self._default_metadata[attr]
-                else:
-                    default = None
-                df.__dict__[attr] = getattr(self, attr, default)
+                # if attr in self._default_metadata:
+                #     default = self._default_metadata[attr]
+                # else:
+                #     default = None
+                df.__dict__[attr] = getattr(self, attr, None)
             return df
 
         f._get_axis_number = LuxDataFrame._get_axis_number
