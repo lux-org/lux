@@ -340,7 +340,7 @@ class LuxDataFrame(pd.DataFrame):
     #######################################################
 
     def set_SQL_table(self, t_name):
-        #function that ties the Lux Dataframe to a SQL database table
+        # function that ties the Lux Dataframe to a SQL database table
         if self.table_name != "":
             warnings.warn(
                 f"\nThis dataframe is already tied to a database table. Please create a new Lux dataframe and connect it to your table '{t_name}'.",
@@ -349,15 +349,16 @@ class LuxDataFrame(pd.DataFrame):
         else:
             self.table_name = t_name
         import psycopg2
+
         try:
             lux.config.executor.compute_dataset_metadata(self)
         except Exception as error:
             error_str = str(error)
-            if f"relation \"{t_name}\" does not exist" in error_str:
+            if f'relation "{t_name}" does not exist' in error_str:
                 warnings.warn(
-                f"\nThe table '{t_name}' does not exist in your database./",
-                stacklevel=2,
-            )
+                    f"\nThe table '{t_name}' does not exist in your database./",
+                    stacklevel=2,
+                )
 
     def _append_rec(self, rec_infolist, recommendations: Dict):
         if recommendations["collection"] is not None and len(recommendations["collection"]) > 0:

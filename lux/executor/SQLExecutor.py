@@ -489,10 +489,14 @@ class SQLExecutor(Executor):
                     '"' + x_attribute.attribute + '"' + " >= " + "'" + str(lower_bound) + "'"
                 )
             upper_bound = x_upper_edges[c]
-            if c == len(y_upper_edges)-1:
-                upper_bound_clause = '"' + x_attribute.attribute + '"' + " <= " + "'" + str(upper_bound) + "'"
+            if c == len(y_upper_edges) - 1:
+                upper_bound_clause = (
+                    '"' + x_attribute.attribute + '"' + " <= " + "'" + str(upper_bound) + "'"
+                )
             else:
-                upper_bound_clause = '"' + x_attribute.attribute + '"' + " < " + "'" + str(upper_bound) + "'"
+                upper_bound_clause = (
+                    '"' + x_attribute.attribute + '"' + " < " + "'" + str(upper_bound) + "'"
+                )
             bin_where_clause = bin_where_clause + lower_bound_clause + " AND " + upper_bound_clause
 
             # bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket(\"{}\", '{}') FROM {} {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(
@@ -502,9 +506,9 @@ class SQLExecutor(Executor):
             #     bin_where_clause,
             # )
 
-            bin_count_query = "SELECT width_bucket(\"{}\", {}) as width_bucket, count(*) FROM {} {} GROUP BY width_bucket".format(
+            bin_count_query = 'SELECT width_bucket("{}", {}) as width_bucket, count(*) FROM {} {} GROUP BY width_bucket'.format(
                 y_attribute.attribute,
-                str(y_attr_min) + "," + str(y_attr_max) + "," + str(num_bins-1),
+                str(y_attr_min) + "," + str(y_attr_max) + "," + str(num_bins - 1),
                 ldf.table_name,
                 bin_where_clause,
             )
@@ -515,10 +519,10 @@ class SQLExecutor(Executor):
                 curr_column_data["xBinStart"] = lower_bound
                 curr_column_data["xBinEnd"] = upper_bound
                 curr_column_data["yBinStart"] = curr_column_data.apply(
-                    lambda row: float(y_upper_edges[int(row["width_bucket"])-1]) - y_bin_width, axis=1
+                    lambda row: float(y_upper_edges[int(row["width_bucket"]) - 1]) - y_bin_width, axis=1
                 )
                 curr_column_data["yBinEnd"] = curr_column_data.apply(
-                    lambda row: float(y_upper_edges[int(row["width_bucket"])-1]), axis=1
+                    lambda row: float(y_upper_edges[int(row["width_bucket"]) - 1]), axis=1
                 )
                 bin_count_data.append(curr_column_data)
         output = pandas.concat(bin_count_data)
