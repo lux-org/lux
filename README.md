@@ -46,8 +46,8 @@ import pandas as pd
 Then, Lux can be used as-is, without modifying any of your existing Pandas code. Here, we use Pandas's [read_csv](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html) command to load in a [dataset of colleges](https://github.com/lux-org/lux-datasets/blob/master/data/college.csv) and their properties.
 
 ```python    
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/college.csv")
-    df
+df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/college.csv")
+df
 ```
 
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/basicDemo.gif?raw=true"
@@ -67,8 +67,8 @@ In addition to dataframe visualizations at every step in the exploration, you ca
 For example, we might be interested in the attributes `AverageCost` and `SATAverage`.
 
 ```python
-    df.intent = ["AverageCost","SATAverage"]
-    df
+df.intent = ["AverageCost","SATAverage"]
+df
 ```
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/contextRec.gif?raw=true"
      alt="Next-step Recommendations Based on User Context"
@@ -105,8 +105,8 @@ Learn more about how to save and export visualizations [here](https://lux-api.re
 We've seen how `Vis`s are automatically generated as part of the recommendations. Users can also create their own Vis via the same syntax as specifying the intent. Lux is built on the philosophy that users should always be able to visualize anything they want, without having to think about *how* the visualization should look like. Lux automatically determines the mark and channel mappings based on a set of [best practices](http://hosteddocs.ittoolbox.com/fourshowmeautomaticpresentations.pdf). The visualizations are rendered via [Altair](https://github.com/altair-viz/altair/tree/master/altair) into [Vega-Lite](https://github.com/vega/vega-lite) specifications.
 
 ```python    
-    from lux.vis.Vis import Vis
-    Vis(["Region=New England","MedianEarnings"],df)
+from lux.vis.Vis import Vis
+Vis(["Region=New England","MedianEarnings"],df)
 ```    
 
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/view.png?raw=true"
@@ -120,8 +120,8 @@ Lux provides a powerful abstraction for working with collections of visualizatio
 For example, we might be interested in looking at how the `AverageCost` distribution differs across different `Region`s.
 
 ```python    
-    from lux.vis.VisList import VisList
-    VisList(["Region=?","AverageCost"],df)
+from lux.vis.VisList import VisList
+VisList(["Region=?","AverageCost"],df)
 ```    
 
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/visList.gif?raw=true"
@@ -136,7 +136,7 @@ To find out more about other features in Lux, see the complete documentation on 
 To get started, Lux can be installed through [PyPI](https://pypi.org/project/lux-api/). 
 
 ```bash
-    pip install lux-api
+pip install lux-api
 ```
 
 This installation includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). 
@@ -146,8 +146,8 @@ This installation includes the Lux Jupyter widget frontend, [lux-widget](https:/
 To use Lux in [Jupyter notebook](https://github.com/jupyter/notebook) or [VSCode](https://code.visualstudio.com/docs/python/jupyter-support), activate the notebook extension:
 
 ```bash
-    jupyter nbextension install --py luxwidget
-    jupyter nbextension enable --py luxwidget
+jupyter nbextension install --py luxwidget
+jupyter nbextension enable --py luxwidget
 ```
 
 If the installation happens correctly, you should see two `- Validating: OK` after executing the two lines above.
@@ -157,8 +157,8 @@ If the installation happens correctly, you should see two `- Validating: OK` aft
 To use Lux in [Jupyter Lab](https://github.com/jupyterlab/jupyterlab), activate the lab extension:
 
 ```bash
-    jupyter labextension install @jupyter-widgets/jupyterlab-manager
-    jupyter labextension install luxwidget
+jupyter labextension install @jupyter-widgets/jupyterlab-manager
+jupyter labextension install luxwidget
 ```
 Lux is only compatible with Jupyter Lab version 2.2.9 and below. Support for the recent [JupyterLab 3](https://blog.jupyter.org/jupyterlab-3-0-is-out-4f58385e25bb) will come soon. Note that JupyterLab and VSCode is supported only for lux-widget version >=0.1.2, if you have an earlier version, please upgrade to the latest version of [lux-widget](https://pypi.org/project/lux-widget/). Lux currently only works with the Chrome browser. 
 
