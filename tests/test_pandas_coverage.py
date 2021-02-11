@@ -405,7 +405,7 @@ def test_loc(global_var):
     assert len(new_df.cardinality) == 6
     new_df = df.loc[0:10, "Displacement":"Origin"]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
+    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence", "Temporal"]
     assert len(new_df.cardinality) == 6
     new_df = df.loc[0:10, "Displacement":"Horsepower"]
     new_df._ipython_display_()
@@ -434,7 +434,7 @@ def test_iloc(global_var):
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:9]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
+    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence", "Temporal"]
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:5]
     new_df._ipython_display_()
