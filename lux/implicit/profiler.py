@@ -1,15 +1,59 @@
 import pandas as pd
-import numpy as np
 import tokenize
+import io
 import altair as alt
 
-from utils import import_module_by_path, get_dfs_from_mod
+from lux.implicit.utils import get_nb_data_info
 
-def get_recent_history(f_name, df_names, column_name_dict):
-    all_cols = set()
-    for l in column_name_dict.values():
-        all_cols.update(l)
+def get_implicit_intent(userCode):
+    """
+    MAIN METHOD:
+
+    Takes in string of user code and analyzes.
+    Returns 
+
+    f_calls: array of function calls most recent last. [(df_name, [columns], 'value_counts'), ...]
+	col_refs: dict of {col_name: num_refs}
+    """
     
+    print("Beginning PA...")
+    # get vars from kernel
+    df_name_dict = get_nb_data_info()
+    df_names = list(df_name_dict.keys())
+
+    all_cols = set()
+    for l in df_name_dict.values(): all_cols.update(l)
+
+    print("all_cols: ", all_cols)
+
+    
+    # build distribution over variables accessed in that df (with regex)
+    try:
+        f_calls, col_refs = get_recent_history(userCode, df_names, all_cols)
+    
+    except Exception as e:
+        f_calls = [("", [], "")]
+        col_refs = []
+
+        print("PA FAILED!\n", e)
+
+    print(f"PA complete. \n\tf_calls: {f_calls}\n\tcol_refs: {col_refs}")
+
+    
+    # match that to a vis case
+    # vis = get_vis_off_recent_func(f_calls, all_df_dict) # TODO use this in Lux rec
+
+    return f_calls, col_refs
+
+
+def get_recent_history(userCodeString, df_names, all_cols): # TODO this is not working!!! it's not picking up on the column names in the code 
+    """
+    Perform Program Analysis.
+
+    In: Takes in a string and tokenizes the input as valid python code. 
+    Out: returns the function calls and accessed columns in order
+    """
+
     # static items
     ignore_tokens = [60, 61, 4,0]
     funcs = ["value_counts", "crosstab", "describe", "unique", "query", "groupby", "agg"] # filter
@@ -17,50 +61,55 @@ def get_recent_history(f_name, df_names, column_name_dict):
     f_calls = []
     col_refs = {}
 
-    with tokenize.open(f_name) as f:
-        tokens = tokenize.generate_tokens(f.readline)
+    # tokenize
+    buf = io.StringIO(userCodeString)
+    tokens = tokenize.generate_tokens(buf.readline)
 
-        curr_line = 1
-        curr_df = None
-        rec_cols = []
-        for token in tokens:
-            if token.type not in ignore_tokens:
-                this_line = token.start[0]
-                this_str = token.string.replace('"', "")
+    curr_line = 1
+    curr_df = None
+    rec_cols = []
+    for token in tokens:
+        if token.type not in ignore_tokens:
+            this_line = token.start[0]
+            this_str = token.string.replace('"', "")
 
-                if this_line != curr_line:
-                    curr_df = None
-                    rec_cols = []
-                    curr_line = this_line
+            if this_line != curr_line:
+                curr_df = None
+                rec_cols = []
+                curr_line = this_line
 
-                if token.type in [1, 3]: # string or name
-                    #print("This is a string, ", this_str)
-                    if not curr_df and this_str in df_names:
-                        curr_df = this_str
-                    elif this_str in funcs:
-                        t = (curr_df, rec_cols, this_str)
-                        f_calls.append(t)
-                    elif this_str in all_cols:
-                        rec_cols.append(this_str)
-                        if this_str in col_refs: 
-                            col_refs[this_str] += 1
-                        else:
-                            col_refs[this_str] = 1
+            if token.type in [1, 3]: # string or name
+                #print("This is a string, ", this_str)
+                if not curr_df and this_str in df_names:
+                    curr_df = this_str
+                elif this_str in funcs:
+                    t = (curr_df, rec_cols, this_str)
+                    f_calls.append(t)
+                elif this_str in all_cols:
+                    rec_cols.append(this_str)
+                    if this_str in col_refs: 
+                        col_refs[this_str] += 1
+                    else:
+                        col_refs[this_str] = 1
 
-                #print(f"Type {token.type}.{token.exact_type}:\t\t{token.start} - {token.end} \t{token.string}\t\t\t{token.line}")
+            #print(f"Type {token.type}.{token.exact_type}:\t\t{token.start} - {token.end} \t{token.string}\t\t\t{token.line}")
     
     return f_calls, col_refs
 
-'''
-In: array of function calls from oldest to newest, each of form (df_name, col_names, f_name)
 
-TODO
-- use other columns to suggest other visualizations
-- use distribution of column access as additional encodings
-- rec multiple vis instead of just 1
-
-'''
 def get_vis_off_recent_func(f_calls, all_df_dict):
+    '''
+    In: array of function calls from oldest to newest, each of form (df_name, [col_names], f_name)
+
+    TODO
+    - use other columns to suggest other visualizations
+    - use distribution of column access as additional encodings
+    - rec multiple vis instead of just 1
+
+    - Do this in Lux rec rather than here (using intent)...
+
+    '''
+
     # match function case
     last_call = f_calls[-1]
     df_name, col_names, f_name = last_call
@@ -121,22 +170,3 @@ def get_vis_off_recent_func(f_calls, all_df_dict):
         vis = None
 
     return vis 
-
-def recommend(f_name):
-    # load module to get access to state
-    mod = import_module_by_path(f_name)
-    
-    # parse file to see what dataframes I have
-    all_df_dict = get_dfs_from_mod(mod)
-    
-    # col names and df names
-    df_names = list(all_df_dict.keys())
-    col_name_dict = {d:list(all_df_dict[d].columns) for d in df_names}
-    
-    # build distribution over variables accessed in that df (with regex)
-    f_calls, col_refs = get_recent_history(f_name, df_names, col_name_dict)
-    
-    # match that to a vis case
-    vis = get_vis_off_recent_func(f_calls, all_df_dict)
-
-    return vis

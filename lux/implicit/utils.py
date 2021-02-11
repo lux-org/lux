@@ -1,39 +1,82 @@
-import os
-import importlib.util
-import pandas as pd
+#
+# Code inspo from https://github.com/lckr/jupyterlab-variableInspector/blob/master/src/inspectorscripts.ts
+# Utils for implicit intents
+#
+from IPython import get_ipython
+
+def get_nb_data_info():
+    shell = get_ipython()
+
+    run_code = """
+    from IPython import get_ipython
+    from IPython.core.magics.namespace import NamespaceMagics
+
+    import sys
+
+    _nms = NamespaceMagics()
+    _Jupyter = get_ipython()
+    _nms.shell = _Jupyter.kernel.shell
+    __pd, __lux = None, None
+
+    def _check_imports():
+        global __pd, __lux
+        
+        if 'pandas' in sys.modules:
+            import pandas as __pd
+        
+        if 'lux' in sys.modules:
+            import lux as __lux
 
 
-'''
-from https://stackoverflow.com/questions/4383571/importing-files-from-different-folder?page=2&tab=votes#tab-top
+    def get_colnames(x):
+        print('Getting col name for ', x)
+        obj = eval(x)
+        if __lux and (isinstance(obj, __lux.core.frame.LuxDataFrame) or isinstance(obj, __pd.DataFrame)):
+            colnames = list(obj.columns)
+        
+        elif __lux and (isinstance(obj, __lux.core.series.LuxSeries) or isinstance(obj, __pd.Series)): 
+            colnames = [obj.name]
+        
+        else:
+            print('No column names available.')
+            colnames = []
+        
+        print(colnames)
+        return colnames
 
-Will likely need to change for diff environments...
+    def keep(v):
+        try: 
+            obj = eval(v)
+            if __pd and __pd is not None and (
+                isinstance(obj, __pd.DataFrame)
+                or isinstance(obj, __pd.Series)):
+                return True
 
-# This works if at same level of directory (f_name cant have .py at end)
-# import importlib
-# mod = importlib.import_module(f_name)
+            if __lux and __lux is not None and (
+                isinstance(obj, __lux.core.frame.LuxDataFrame)
+                or isinstance(obj, __lux.core.series.LuxSeries)):
+                # print('is lux')
 
-'''
-def import_module_by_path(path):
-    name = os.path.splitext(os.path.basename(path))[0]
-                            
-    spec = importlib.util.spec_from_file_location(name, path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+                return True
 
-'''
-In ipynb this can be done with 
-%who_ls to get variable names then check types to see which are df
+            return False
 
-'''
-def get_dfs_from_mod(mod):
-    dfs = {}
-    
-    for item in dir(mod):
-        if not item.startswith("__"):
-            a = getattr(mod, item)
-            
-            if type(a) == pd.DataFrame: # TODO may want this to also include series or other dtypes
-                dfs[item] = a
-    
-    return dfs
+        except Exception as e:
+            print('Excepted in keep...', e)
+            return False
+
+    def get_dfs_and_columns():
+        _check_imports()
+        
+        all_mods = _nms.who_ls()
+        
+        d = {_v:get_colnames(_v) for _v in all_mods if keep(_v)}
+        
+        return d
+
+    get_dfs_and_columns()
+    """
+
+    result = shell.run_cell(run_code).result 
+
+    return result

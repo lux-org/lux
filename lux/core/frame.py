@@ -22,7 +22,7 @@ from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
 
-from lux.implicit.utils import import_module_by_path
+from lux.implicit.profiler import get_implicit_intent
 
 # from lux.executor.Executor import *
 import warnings
@@ -435,7 +435,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def maintain_recs(self):
 
-        print("[WILL LOGS] maintain_recs")
+        print("maintain_recs")
 
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
@@ -595,8 +595,7 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import display, clear_output
         from lux.processor.Compiler import Compiler
 
-        print("[WILL LOGS] set_intent_on_click called: ")
-        print("[WILL LOGS] the widget's userCode: ", self._widget.userCode)
+        print("set_intent_on_click called: ")
 
         intent_action = list(self._widget.selectedIntentIndex.keys())[0]
         vis = self._recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
@@ -619,17 +618,29 @@ class LuxDataFrame(pd.DataFrame):
     '''
     def analyze_user_code(self, change):
         # Will TODO perform program analysis on the users code here
-        print("[WILL LOGS] In analyze_user_code called. userCode:  ", self._widget.userCode)
+        if self._widget and self.widget.userCode:
+            print("In analyze_user_code called. userCode:  ", self._widget.userCode)
 
-        # take the code and analyze
+            # take the code and analyze
+            f_calls, col_refs = get_implicit_intent(self._widget.userCode)
 
-        # use this to set the intent
+            # TODO use this to set the intent, come up with weighting over time
+            last_call = f_calls[-1]
+            df_name, col_names, f_name = last_call
+
+            trimmed_cols = col_names[:3]
+            if len(trimmed_cols):
+                self.set_intent(trimmed_cols)
+                print("Intent set.")
+            else:
+                print("Cols were empty. Intent not set")
+
 
 
     # NOTE: this seems like the "main" function
     # NOTE: what calls this?? -- Will
     def _repr_html_(self):
-        print("[WILL LOGS] _repr_html_ called")
+        print("_repr_html_ called")
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
@@ -770,7 +781,7 @@ class LuxDataFrame(pd.DataFrame):
         check_import_lux_widget()
         import luxwidget # NOTE code from other repo 
 
-        print("[WILL LOGS] render_widget")
+        print("render_widget")
 
         widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
         return luxwidget.LuxWidget( # widget
