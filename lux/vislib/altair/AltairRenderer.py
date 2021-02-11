@@ -20,6 +20,7 @@ from lux.vislib.altair.ScatterChart import ScatterChart
 from lux.vislib.altair.LineChart import LineChart
 from lux.vislib.altair.Histogram import Histogram
 from lux.vislib.altair.Heatmap import Heatmap
+from lux.vislib.altair.SymbolMap import SymbolMap
 
 
 class AltairRenderer:
@@ -50,9 +51,9 @@ class AltairRenderer:
         """
         # Lazy Evaluation for 2D Binning
         if vis.mark == "scatter" and vis._postbin:
-            vis._mark = "heatmap"
-
-            lux.config.executor.execute_2D_binning(vis)
+            if lux.config.executor.name == "PandasExecutor":
+                vis._mark = "heatmap"
+                lux.config.executor.execute_2D_binning(vis)
         # If a column has a Period dtype, or contains Period objects, convert it back to Datetime
         if vis.data is not None:
             for attr in list(vis.data.columns):
@@ -81,14 +82,16 @@ class AltairRenderer:
             chart = LineChart(vis)
         elif vis.mark == "heatmap":
             chart = Heatmap(vis)
+        elif vis.mark == "geoshape":
+            chart = SymbolMap(vis)
         else:
             chart = None
 
         if chart:
-            if lux.config.plot_config and (
+            if lux.config.plotting_style and (
                 lux.config.plotting_backend == "vegalite" or lux.config.plotting_backend == "altair"
             ):
-                chart.chart = lux.config.plot_config(chart.chart)
+                chart.chart = lux.config.plotting_style(chart.chart)
             if self.output_type == "VegaLite":
                 chart_dict = chart.chart.to_dict()
                 # this is a bit of a work around because altair must take a pandas dataframe and we can only generate a luxDataFrame
@@ -100,9 +103,9 @@ class AltairRenderer:
             elif self.output_type == "Altair":
                 import inspect
 
-                if lux.config.plot_config:
+                if lux.config.plotting_style:
                     chart.code += "\n".join(
-                        inspect.getsource(lux.config.plot_config).split("\n    ")[1:-1]
+                        inspect.getsource(lux.config.plotting_style).split("\n    ")[1:-1]
                     )
                 chart.code += "\nchart"
                 chart.code = chart.code.replace("\n\t\t", "\n")

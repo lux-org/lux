@@ -49,7 +49,6 @@ class SQLExecutor(Executor):
                 SQLExecutor.execute_aggregate(view, ldf)
             elif view.mark == "histogram":
                 SQLExecutor.execute_binning(view, ldf)
-            view._vis_data.set_SQL_table_name(ldf.table_name)
         # this is weird, somewhere in the SQL executor the lux.config.executor is being set to a PandasExecutor
         # temporary fix here
         # lux.config.executor = SQLExecutor()
@@ -108,7 +107,6 @@ class SQLExecutor(Executor):
         data = pandas.read_sql(query, lux.config.SQLconnection)
         view._vis_data = utils.pandas_to_lux(data)
         view._vis_data.length = list(length_query["length"])[0]
-        view._vis_data.set_SQL_table_name(ldf.table_name)
 
         ldf._message.add_unique(
             f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
@@ -334,7 +332,6 @@ class SQLExecutor(Executor):
             view._vis_data = view._vis_data.reset_index()
             view._vis_data = view._vis_data.drop(columns="index")
             view._vis_data.length = list(length_query["length"])[0]
-            view._vis_data.set_SQL_table_name(ldf.table_name)
 
     @staticmethod
     def execute_binning(view: Vis, ldf: LuxDataFrame):
@@ -417,7 +414,6 @@ class SQLExecutor(Executor):
         )
         view._vis_data = utils.pandas_to_lux(view.data)
         view._vis_data.length = list(length_query["length"])[0]
-        view._vis_data.set_SQL_table_name(ldf.table_name)
 
     @staticmethod
     def execute_2D_binning(view: Vis, ldf: LuxDataFrame):
@@ -457,7 +453,7 @@ class SQLExecutor(Executor):
 
         x_upper_edges = []
         y_upper_edges = []
-        for e in range(1, num_bins):
+        for e in range(0, num_bins):
             x_curr_edge = x_attr_min + e * x_bin_width
             y_curr_edge = y_attr_min + e * y_bin_width
             # get upper edges for x attribute bins
@@ -493,31 +489,45 @@ class SQLExecutor(Executor):
                     '"' + x_attribute.attribute + '"' + " >= " + "'" + str(lower_bound) + "'"
                 )
             upper_bound = x_upper_edges[c]
-            upper_bound_clause = '"' + x_attribute.attribute + '"' + " < " + "'" + str(upper_bound) + "'"
+            if c == len(y_upper_edges) - 1:
+                upper_bound_clause = (
+                    '"' + x_attribute.attribute + '"' + " <= " + "'" + str(upper_bound) + "'"
+                )
+            else:
+                upper_bound_clause = (
+                    '"' + x_attribute.attribute + '"' + " < " + "'" + str(upper_bound) + "'"
+                )
             bin_where_clause = bin_where_clause + lower_bound_clause + " AND " + upper_bound_clause
 
-            bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket(\"{}\", '{}') FROM {} {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(
+            # bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket(\"{}\", '{}') FROM {} {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(
+            #     y_attribute.attribute,
+            #     "{" + y_upper_edges_string + "}",
+            #     ldf.table_name,
+            #     bin_where_clause,
+            # )
+
+            bin_count_query = 'SELECT width_bucket("{}", {}) as width_bucket, count(*) FROM {} {} GROUP BY width_bucket'.format(
                 y_attribute.attribute,
-                "{" + y_upper_edges_string + "}",
+                str(y_attr_min) + "," + str(y_attr_max) + "," + str(num_bins - 1),
                 ldf.table_name,
                 bin_where_clause,
             )
+
             curr_column_data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
             curr_column_data = curr_column_data[curr_column_data["width_bucket"] != num_bins - 1]
             if len(curr_column_data) > 0:
                 curr_column_data["xBinStart"] = lower_bound
                 curr_column_data["xBinEnd"] = upper_bound
                 curr_column_data["yBinStart"] = curr_column_data.apply(
-                    lambda row: float(y_upper_edges[int(row["width_bucket"])]) - y_bin_width, axis=1
+                    lambda row: float(y_upper_edges[int(row["width_bucket"]) - 1]) - y_bin_width, axis=1
                 )
                 curr_column_data["yBinEnd"] = curr_column_data.apply(
-                    lambda row: float(y_upper_edges[int(row["width_bucket"])]), axis=1
+                    lambda row: float(y_upper_edges[int(row["width_bucket"]) - 1]), axis=1
                 )
                 bin_count_data.append(curr_column_data)
         output = pandas.concat(bin_count_data)
         output = output.drop(["width_bucket"], axis=1).to_pandas()
         view._vis_data = utils.pandas_to_lux(output)
-        view._vis_data.set_SQL_table_name(ldf.table_name)
 
     @staticmethod
     def execute_filter(view: Vis):

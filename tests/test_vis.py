@@ -214,7 +214,7 @@ def test_bar_chart(global_var):
         in vis_code
     )
 
-    lux.config.plot_config = None
+    lux.config.plotting_style = None
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Origin", "Acceleration"], df)
     vis_code = vis.to_matplotlib_code()
@@ -432,9 +432,29 @@ def test_vegalite_default_actions_registered(global_var):
     assert len(df.recommendation["Correlation"]) > 0
 
 
+def test_vegalite_default_actions_registered_2(global_var):
+    from vega_datasets import data
+
+    df = data.airports()
+    lux.config.plotting_backend = "vegalite"
+
+    # Symbol Map
+    assert "Geographic" in df.recommendation
+    assert len(df.recommendation["Geographic"]) > 0
+
+    # Occurrence Chart
+    assert "Occurrence" in df.recommendation
+    assert len(df.recommendation["Occurrence"]) > 0
+
+    # Scatter Chart
+    assert "Correlation" in df.recommendation
+    assert len(df.recommendation["Correlation"]) > 0
+
+
 def test_matplotlib_default_actions_registered(global_var):
     df = pytest.car_df
     lux.config.plotting_backend = "matplotlib"
+    df = pytest.car_df
     df._repr_html_()
     # Histogram Chart
     assert "Distribution" in df.recommendation
