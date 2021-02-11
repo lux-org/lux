@@ -45,8 +45,7 @@ def get_implicit_intent(userCode):
 
     return f_calls, col_refs
 
-
-def get_recent_history(userCodeString, df_names, all_cols): # TODO this is not working!!! it's not picking up on the column names in the code 
+def get_recent_history(userCodeString, df_names, all_cols):
     """
     Perform Program Analysis.
 
@@ -71,7 +70,9 @@ def get_recent_history(userCodeString, df_names, all_cols): # TODO this is not w
     for token in tokens:
         if token.type not in ignore_tokens:
             this_line = token.start[0]
+            # get rid of quotes so can match to col names and df names
             this_str = token.string.replace('"', "")
+            this_str = this_str.replace("'", "")
 
             if this_line != curr_line:
                 curr_df = None
@@ -79,7 +80,6 @@ def get_recent_history(userCodeString, df_names, all_cols): # TODO this is not w
                 curr_line = this_line
 
             if token.type in [1, 3]: # string or name
-                #print("This is a string, ", this_str)
                 if not curr_df and this_str in df_names:
                     curr_df = this_str
                 elif this_str in funcs:

@@ -617,18 +617,21 @@ class LuxDataFrame(pd.DataFrame):
     Since observe above, this is called when self._widget.userCode updates
     '''
     def analyze_user_code(self, change):
-        # Will TODO perform program analysis on the users code here
+        # perform program analysis on the users code here
         if self._widget and self.widget.userCode:
             print("In analyze_user_code called. userCode:  ", self._widget.userCode)
 
             # take the code and analyze
             f_calls, col_refs = get_implicit_intent(self._widget.userCode)
 
-            # TODO use this to set the intent, come up with weighting over time
-            last_call = f_calls[-1]
-            df_name, col_names, f_name = last_call
-
-            trimmed_cols = col_names[:3]
+            ### Set Intent
+            # sorts col_names by number of refs and takes top 3
+            # TODO: need to check that the top columns are actually on THIS df or will error when setting intent
+            # TODO: incorporate notion of time decay
+            _cols = list(col_refs.items())
+            _cols.sort(key=lambda tup: tup[1], reverse=True)
+            trimmed_cols = [i[0] for i in _cols][:3]
+            
             if len(trimmed_cols):
                 self.set_intent(trimmed_cols)
                 print("Intent set.")
