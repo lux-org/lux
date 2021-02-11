@@ -66,16 +66,6 @@ def univariate(ldf, *args):
             "action": "Occurrence",
             "description": "Show frequency of occurrence for <p class='highlight-descriptor'>categorical</p> attributes.",
         }
-    elif data_type_constraint == "temporal":
-        intent = [lux.Clause("?", data_type="temporal")]
-        intent.extend(filter_specs)
-        recommendation = {
-            "action": "Temporal",
-            "description": "Show trends over <p class='highlight-descriptor'>time-related</p> attributes.",
-        }
-        # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
-        if len(ldf) < 3:
-            ignore_rec_flag = True
     if ignore_rec_flag:
         recommendation["collection"] = []
         return recommendation
