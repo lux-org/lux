@@ -144,10 +144,10 @@ This installation includes the Lux Jupyter widget frontend, [lux-widget](https:/
 To install with conda:
 
 ```bash
-    # only required if you have not added conda-forge to your channels yet
-    conda config --add channels conda-forge
+# only required if you have not added conda-forge to your channels yet
+conda config --add channels conda-forge
 
-    conda instaa lux-api
+conda instaa lux-api
 ```
 
 ## Setup in Jupyter Notebook, VSCode
