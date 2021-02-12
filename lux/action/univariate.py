@@ -55,7 +55,7 @@ def univariate(ldf, *args):
         recommendation = {
             "action": "Distribution",
             "description": "Show univariate histograms of <p class='highlight-descriptor'>quantitative</p>  attributes.",
-            "longDescription": "Distribution displays univariate histogram distributions of all quantitative attributes (e.g., Horsepower, Displacement). Visualizations are ranked from most to least skewed.",
+            "long_description": "Distribution displays univariate histogram distributions of all quantitative attributes (e.g., Horsepower, Displacement). Visualizations are ranked from most to least skewed.",
         }
         # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
         if len(ldf) < 5:
@@ -66,7 +66,7 @@ def univariate(ldf, *args):
         recommendation = {
             "action": "Occurrence",
             "description": "Show frequency of occurrence for <p class='highlight-descriptor'>categorical</p> attributes.",
-            "longDescription": "Occurence displays bar charts of counts for all categorical attributes (e.g., HighestDegree, FundingModel). Visualizations are ranked from most to least uneven across the bars. ",
+            "long_description": "Occurence displays bar charts of counts for all categorical attributes (e.g., HighestDegree, FundingModel). Visualizations are ranked from most to least uneven across the bars. ",
         }
     elif data_type_constraint == "temporal":
         intent = [lux.Clause("?", data_type="temporal")]
@@ -74,7 +74,7 @@ def univariate(ldf, *args):
         recommendation = {
             "action": "Temporal",
             "description": "Show trends over <p class='highlight-descriptor'>time-related</p> attributes.",
-            "longDescription": "Temporal displays line charts for all attributes related to datetimes in the dataframe.",
+            "long_description": "Temporal displays line charts for all attributes related to datetimes in the dataframe.",
         }
         # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
         if len(ldf) < 3:

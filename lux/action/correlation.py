@@ -51,7 +51,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
     recommendation = {
         "action": "Correlation",
         "description": "Show relationships between two <p class='highlight-descriptor'>quantitative</p> attributes.",
-        "longDescription": "Correlation searches through all pairwise relationship between two quantitative attributes \
+        "long_description": "Correlation searches through all pairwise relationship between two quantitative attributes \
             (e.g., age, capital-gain). The visualizations are ranked from most to least linearly correlated based on \
                 their Pearson’s correlation score. We display the top 15 visualizations here.",
     }

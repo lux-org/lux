@@ -43,13 +43,13 @@ def enhance(ldf):
         recommendation = {
             "action": "Enhance",
             "description": f"Augmenting current {intended_attrs} intent with additional attribute.",
-            "longDescription": f"Enhance adds an additional attribute displaying how {intended_attrs} changes with respect to other attributes. Visualizations are ranked based on interestingness. The top 15 visualizations are displayed.",
+            "long_description": f"Enhance adds an additional attribute displaying how {intended_attrs} changes with respect to other attributes. Visualizations are ranked based on interestingness. The top 15 visualizations are displayed.",
         }
     elif len(attr_specs) == 2:
         recommendation = {
             "action": "Enhance",
             "description": f"Further breaking down current {intended_attrs} intent by additional attribute.",
-            "longDescription": f"Enhance adds an additional attribute as the color to break down the {intended_attrs} distribution",
+            "long_description": f"Enhance adds an additional attribute as the color to break down the {intended_attrs} distribution",
         }
     # if there are too many column attributes, return don't generate Enhance recommendations
     elif len(attr_specs) > 2:
