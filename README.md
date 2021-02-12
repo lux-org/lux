@@ -147,7 +147,7 @@ To install with conda:
 # only required if you have not added conda-forge to your channels yet
 conda config --add channels conda-forge
 
-conda instaa lux-api
+conda install lux-api
 ```
 
 ## Setup in Jupyter Notebook, VSCode
