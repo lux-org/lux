@@ -22,8 +22,6 @@ from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
 
-from lux.implicit.profiler import get_implicit_intent
-
 # from lux.executor.Executor import *
 import warnings
 import traceback
@@ -70,6 +68,8 @@ class LuxDataFrame(pd.DataFrame):
         self._prev = None
         self._widget = None
         super(LuxDataFrame, self).__init__(*args, **kw)
+
+        # TODO update lux.config.code_tracker with the names of the recently added df here
 
         self.table_name = ""
         lux.config.executor = PandasExecutor()
@@ -613,38 +613,6 @@ class LuxDataFrame(pd.DataFrame):
 
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices") # NOTE observe syncs with frontend
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
-        # self._widget.observe(self.analyze_user_code, names="userCode")  # do I need to add userCode here idk
-
-    '''
-    Since observe above, this is called when self._widget.userCode updates
-    '''
-    def analyze_user_code(self, change):
-        # perform program analysis on the users code here
-        if self._widget and self.widget.userCode:
-            print("In analyze_user_code called. userCode:  ", self._widget.userCode)
-
-            print("Config col refs: ", lux.config.code_tracker.col_refs)
-            print("all code...")
-            print(lux.config.code_tracker.get_all_code())
-            
-
-            # # take the code and analyze
-            # f_calls, col_refs = get_implicit_intent(self._widget.userCode)
-
-            # ### Set Intent
-            # # sorts col_names by number of refs and takes top 3
-            # # TODO: need to check that the top columns are actually on THIS df or will error when setting intent
-            # # TODO: incorporate notion of time decay
-            # _cols = list(col_refs.items())
-            # _cols.sort(key=lambda tup: tup[1], reverse=True)
-            # trimmed_cols = [i[0] for i in _cols][:3]
-            
-            # if len(trimmed_cols):
-            #     self.set_intent(trimmed_cols)
-            #     print("Intent set.")
-            # else:
-            #     print("Cols were empty. Intent not set")
-
 
 
     # NOTE: this seems like the "main" function
@@ -696,7 +664,6 @@ class LuxDataFrame(pd.DataFrame):
                 # Observers(callback_function, listen_to_this_variable)
                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
                 self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
-                self._widget.observe(self.analyze_user_code, names="userCode")
 
 
                 if len(self._recommendation) > 0:

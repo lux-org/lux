@@ -1,17 +1,20 @@
 from IPython import get_ipython
-from lux.implicit.profiler import get_implicit_intent
+from lux.implicit.profiler import get_recent_funcs_cols
 
 class CodeTracker():
 
     def __init__(self):
-        self.shell = get_ipython()
-        self.code_history = [] # list of tuples (exec_count, code_string)
-        self.f_calls = [("", [""], "")]
-        self.col_refs = {}
-        self.implicit_intent = []
+        
+        # state
+        self.code_history = []              # list of tuples (exec_count, code_string)
+        self.f_calls = [("", [""], "")]     # (df_name, [cols], func_name)
+        self.col_refs = {}                  # {col_name: num_refs}
+        #self.implicit_intent = []
         self.df_info = {}
         self.getting_info_flag = False
 
+        # inits
+        self.shell = get_ipython()
         self.init_watching()
     
     def init_watching(self):
@@ -33,10 +36,12 @@ class CodeTracker():
             self.code_history.append( (result.execution_count, result.info.raw_cell) )
 
             # run analyis code
-            f_calls, col_refs = get_implicit_intent(self.get_all_code(), self.get_nb_df_info())
+            f_calls, col_refs = get_recent_funcs_cols(self.get_all_code(), self.get_nb_df_info())
             self.f_calls = f_calls
             self.col_refs = col_refs
             self.getting_info_flag = False
+
+            # TODO set a flag or call something so that the LDFs update and know the implicit recs have changed
     
     def get_all_code(self):
         """ returns all the previously executed code as one string """
@@ -45,6 +50,23 @@ class CodeTracker():
         one_str = "\n".join(just_strings)
 
         return one_str
+    
+    def get_implicit_intent(self, df_name=None):
+        """ returns LIST of columns"""
+        # TODO incorporate time decay notion here where decreased with each subsequent cell execution
+        
+        if self.col_refs:
+            _cols = list(self.col_refs.items())
+
+            if df_name and (df_name in self.df_info): # filter to only cols from this df
+                _this_df_cols = self.df_info[df_name]
+                _cols = [item for item in _cols if (item[0] in _this_df_cols)]
+
+            _cols.sort(key=lambda tup: tup[1], reverse=True)
+            trimmed_cols = [i[0] for i in _cols]
+
+            return trimmed_cols
+
 
     # TODO does this really need to be run every time? Maybe can store when 
     # BUG this prints out the result to the user's notebook which is annoying since it has to be read too..

@@ -6,6 +6,7 @@ def register_default_actions():
     from lux.action.enhance import enhance
     from lux.action.filter import add_filter
     from lux.action.generalize import generalize
+    from lux.action.implicit import implicit_vis
 
     # display conditions for default actions
     no_vis = lambda ldf: (ldf.current_vis is None) or (
@@ -13,6 +14,7 @@ def register_default_actions():
     )
     one_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
     multiple_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
+    always_show = lambda ldf: True
 
     # globally register default actions
     lux.config.register_action("correlation", correlation, no_vis)
@@ -26,4 +28,4 @@ def register_default_actions():
 
     lux.config.register_action("Custom", custom, multiple_current_vis)
 
-    # Will TODO add action here 
+    lux.config.register_action("Implicit", implicit_vis, always_show)

@@ -3,9 +3,8 @@ import tokenize
 import io
 import altair as alt
 
-def get_implicit_intent(userCode, df_name_dict):
+def get_recent_funcs_cols(userCode, df_name_dict):
     """
-    MAIN METHOD:
     Takes in string of user code and analyzes.
 
     Parameters
@@ -15,7 +14,7 @@ def get_implicit_intent(userCode, df_name_dict):
 
     Returns
     ----------
-    same as get_recent_history() below
+    same as analyze_recent_history() below
     """
     
     #print("Beginning PA...")
@@ -28,7 +27,7 @@ def get_implicit_intent(userCode, df_name_dict):
     
     # build distribution over variables accessed in that df (with regex)
     try:
-        f_calls, col_refs = get_recent_history(userCode, df_names, all_cols)
+        f_calls, col_refs = analyze_recent_history(userCode, df_names, all_cols)
     
     except Exception as e:
         print("PA FAILED!\n", e)
@@ -45,7 +44,7 @@ def get_implicit_intent(userCode, df_name_dict):
 
    
 
-def get_recent_history(userCodeString, df_names, all_cols):
+def analyze_recent_history(userCodeString, df_names, all_cols):
     """
     Takes in a string and tokenizes the input as valid python code to perform program analysis
 
@@ -64,6 +63,7 @@ def get_recent_history(userCodeString, df_names, all_cols):
     ----------
     f_calls: LIST 
         Function calls most recent last. [(df_name, [columns], 'value_counts'), ...]
+        TODO should convert this to named tuple 
 	
     col_refs: DICT 
         {col_name: num_refs}
