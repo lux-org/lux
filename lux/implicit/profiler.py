@@ -3,28 +3,27 @@ import tokenize
 import io
 import altair as alt
 
-from lux.implicit.utils import get_nb_data_info
-
-def get_implicit_intent(userCode):
+def get_implicit_intent(userCode, df_name_dict):
     """
     MAIN METHOD:
-
     Takes in string of user code and analyzes.
-    Returns 
 
-    f_calls: array of function calls most recent last. [(df_name, [columns], 'value_counts'), ...]
-	col_refs: dict of {col_name: num_refs}
+    Parameters
+    ----------
+    userCode: STRING 
+        All of the user's python code in one string.
+
+    Returns
+    ----------
+    same as get_recent_history() below
     """
     
-    print("Beginning PA...")
-    # get vars from kernel
-    df_name_dict = get_nb_data_info()
+    #print("Beginning PA...")
+    
     df_names = list(df_name_dict.keys())
 
     all_cols = set()
     for l in df_name_dict.values(): all_cols.update(l)
-
-    print("all_cols: ", all_cols)
 
     
     # build distribution over variables accessed in that df (with regex)
@@ -32,25 +31,42 @@ def get_implicit_intent(userCode):
         f_calls, col_refs = get_recent_history(userCode, df_names, all_cols)
     
     except Exception as e:
+        print("PA FAILED!\n", e)
         f_calls = [("", [], "")]
         col_refs = []
 
-        print("PA FAILED!\n", e)
 
-    print(f"PA complete. \n\tf_calls: {f_calls}\n\tcol_refs: {col_refs}")
+    #print(f"PA complete. \n\tf_calls: {f_calls}\n\tcol_refs: {col_refs}")
 
-    
     # match that to a vis case
     # vis = get_vis_off_recent_func(f_calls, all_df_dict) # TODO use this in Lux rec
 
     return f_calls, col_refs
 
+   
+
 def get_recent_history(userCodeString, df_names, all_cols):
     """
-    Perform Program Analysis.
+    Takes in a string and tokenizes the input as valid python code to perform program analysis
 
-    In: Takes in a string and tokenizes the input as valid python code. 
-    Out: returns the function calls and accessed columns in order
+    Parameters
+    ----------
+    userCodeString: STRING 
+        The user's python code
+    
+    df_names: LIST 
+        Names of all lux df objects in the user's session
+    
+    all_cols: SET 
+        Column names from all dataframes in session
+
+    Returns
+    ----------
+    f_calls: LIST 
+        Function calls most recent last. [(df_name, [columns], 'value_counts'), ...]
+	
+    col_refs: DICT 
+        {col_name: num_refs}
     """
 
     # static items

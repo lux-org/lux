@@ -25,3 +25,5 @@ def register_default_actions():
     lux.config.register_action("Generalize", generalize, one_current_vis)
 
     lux.config.register_action("Custom", custom, multiple_current_vis)
+
+    # Will TODO add action here 

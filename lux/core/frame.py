@@ -87,6 +87,8 @@ class LuxDataFrame(pd.DataFrame):
         self._type_override = {}
         warnings.formatwarning = lux.warning_format
 
+        # BUG: this gets called a lot of times?
+
     @property
     def _constructor(self):
         return LuxDataFrame
@@ -621,22 +623,27 @@ class LuxDataFrame(pd.DataFrame):
         if self._widget and self.widget.userCode:
             print("In analyze_user_code called. userCode:  ", self._widget.userCode)
 
-            # take the code and analyze
-            f_calls, col_refs = get_implicit_intent(self._widget.userCode)
-
-            ### Set Intent
-            # sorts col_names by number of refs and takes top 3
-            # TODO: need to check that the top columns are actually on THIS df or will error when setting intent
-            # TODO: incorporate notion of time decay
-            _cols = list(col_refs.items())
-            _cols.sort(key=lambda tup: tup[1], reverse=True)
-            trimmed_cols = [i[0] for i in _cols][:3]
+            print("Config col refs: ", lux.config.code_tracker.col_refs)
+            print("all code...")
+            print(lux.config.code_tracker.get_all_code())
             
-            if len(trimmed_cols):
-                self.set_intent(trimmed_cols)
-                print("Intent set.")
-            else:
-                print("Cols were empty. Intent not set")
+
+            # # take the code and analyze
+            # f_calls, col_refs = get_implicit_intent(self._widget.userCode)
+
+            # ### Set Intent
+            # # sorts col_names by number of refs and takes top 3
+            # # TODO: need to check that the top columns are actually on THIS df or will error when setting intent
+            # # TODO: incorporate notion of time decay
+            # _cols = list(col_refs.items())
+            # _cols.sort(key=lambda tup: tup[1], reverse=True)
+            # trimmed_cols = [i[0] for i in _cols][:3]
+            
+            # if len(trimmed_cols):
+            #     self.set_intent(trimmed_cols)
+            #     print("Intent set.")
+            # else:
+            #     print("Cols were empty. Intent not set")
 
 
 
