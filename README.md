@@ -139,7 +139,16 @@ To get started, Lux can be installed through [PyPI](https://pypi.org/project/lux
     pip install lux-api
 ```
 
-This installation includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). 
+This installation includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/).
+
+To install with conda:
+
+```bash
+    # only required if you have not added conda-forge to your channels yet
+    conda config --add channels conda-forge
+
+    conda instaa lux-api
+```
 
 ## Setup in Jupyter Notebook, VSCode
 
