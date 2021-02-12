@@ -34,6 +34,7 @@ class Config:
         self._sort = "descending"
         self._pandas_fallback = True
         self._interestingness_fallback = True
+        self.heatmap_bin_size = 40
 
     @property
     def topk(self):

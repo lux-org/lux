@@ -4,6 +4,8 @@ Configuration Settings
 
 In Lux, users can customize various global settings to configure the behavior of Lux through :py:class:`lux.config.Config`. These configurations are applied across all dataframes in the session. This page documents some of the configurations that you can apply in Lux.
 
+.. contents:: :local:
+
 .. note::
 
     Lux caches past generated recommendations, so if you have already printed the dataframe in the past, the recommendations would not be regenerated with the new config properties. In order for the config properties to apply, you would need to explicitly expire the recommendations as such:
@@ -24,6 +26,7 @@ In Lux, users can customize various global settings to configure the behavior of
             df = pd.read_csv("..")
             lux.config.SOME_SETTING = "..."
             df # recommendations generated for the first time with config
+
 
 
 Change the default display 
@@ -159,6 +162,8 @@ Matplotlib also supports plot configurations to be applied on top of the generat
 `fig` handles figure width and other plot size attributes. `ax` supports changing the chart title and other plot labels and configurations. For example:
 
 .. code-block:: python
+	
+    lux.config.plotting_backend = "matplotlib"
 
     def change_width_add_title(fig, ax):
         fig.set_figwidth(7) # change figure width
@@ -201,3 +206,14 @@ If you would like to turn off the selection criteria completely and display ever
     lux.config.topk = False
 
 Beware that this may generate large numbers of visualizations (e.g., for 10 quantitative variables, this will generate 45 scatterplots in the Correlation action!)
+
+Changing heatmap bin resolution
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In Lux, large scatterplots are displayed as heatmaps that are 40x40 by default. You can increase or decrease the heatmap resolution NxN by changing the bin size N:
+
+.. code-block:: python 
+
+    lux.config.heatmap_bin_size = 100
+
+This generates heatmap visualizations that are binned into a 100x100 grid. 

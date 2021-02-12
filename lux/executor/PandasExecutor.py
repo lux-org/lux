@@ -352,8 +352,8 @@ class PandasExecutor(Executor):
             x_attr = vis.get_attr_by_channel("x")[0].attribute
             y_attr = vis.get_attr_by_channel("y")[0].attribute
 
-            vis._vis_data["xBin"] = pd.cut(vis._vis_data[x_attr], bins=40)
-            vis._vis_data["yBin"] = pd.cut(vis._vis_data[y_attr], bins=40)
+            vis._vis_data["xBin"] = pd.cut(vis._vis_data[x_attr], bins=lux.config.heatmap_bin_size)
+            vis._vis_data["yBin"] = pd.cut(vis._vis_data[y_attr], bins=lux.config.heatmap_bin_size)
 
             color_attr = vis.get_attr_by_channel("color")
             if len(color_attr) > 0:
@@ -413,6 +413,8 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "temporal"
                 elif self._is_datetime_number(ldf[attr]):
                     ldf._data_type[attr] = "temporal"
+                elif self._is_geographical_attribute(ldf[attr]):
+                    ldf._data_type[attr] = "geoshape"
                 elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                     # int columns gets coerced into floats if contain NaN
                     convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
@@ -495,6 +497,15 @@ class PandasExecutor(Executor):
                 return True
             except Exception:
                 return False
+        return False
+
+    @staticmethod
+    def _is_geographical_attribute(series):
+        # run detection algorithm
+        geographical_var_list = ["longitude", "latitude"]
+        name = str(series.name).lower()
+        if name in geographical_var_list:
+            return True
         return False
 
     def compute_stats(self, ldf: LuxDataFrame):
