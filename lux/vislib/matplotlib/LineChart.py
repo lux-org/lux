@@ -108,7 +108,6 @@ class LineChart(MatplotlibChart):
             x_label = agg_title
             y_label = y_attr_abv
 
-        self.code += "import matplotlib.pyplot as plt\n"
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
 

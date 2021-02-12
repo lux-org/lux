@@ -162,6 +162,8 @@ Matplotlib also supports plot configurations to be applied on top of the generat
 `fig` handles figure width and other plot size attributes. `ax` supports changing the chart title and other plot labels and configurations. For example:
 
 .. code-block:: python
+	
+    lux.config.plotting_backend = "matplotlib"
 
     def change_width_add_title(fig, ax):
         fig.set_figwidth(7) # change figure width
@@ -204,3 +206,14 @@ If you would like to turn off the selection criteria completely and display ever
     lux.config.topk = False
 
 Beware that this may generate large numbers of visualizations (e.g., for 10 quantitative variables, this will generate 45 scatterplots in the Correlation action!)
+
+Changing heatmap bin resolution
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In Lux, large scatterplots are displayed as heatmaps that are 40x40 by default. You can increase or decrease the heatmap resolution NxN by changing the bin size N:
+
+.. code-block:: python 
+
+    lux.config.heatmap_bin_size = 100
+
+This generates heatmap visualizations that are binned into a 100x100 grid. 
