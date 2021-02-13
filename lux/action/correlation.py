@@ -48,11 +48,16 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
     ]
     intent.extend(filter_specs)
     vlist = VisList(intent, ldf)
+    examples = ""
+    if len(vlist) > 1:
+        measures = vlist[0].get_attr_by_data_model("measure")
+        if len(measures) >= 2:
+            examples = f" (e.g., {measures[0].attribute}, {measures[1].attribute})"
     recommendation = {
         "action": "Correlation",
         "description": "Show relationships between two <p class='highlight-descriptor'>quantitative</p> attributes.",
-        "long_description": "Correlation searches through all pairwise relationship between two quantitative attributes \
-            (e.g., age, capital-gain). The visualizations are ranked from most to least linearly correlated based on \
+        "long_description": f"Correlation searches through all pairwise relationship between two quantitative attributes\
+            {examples}. The visualizations are ranked from most to least linearly correlated based on \
                 their Pearson’s correlation score. We display the top 15 visualizations here.",
     }
     ignore_rec_flag = False
