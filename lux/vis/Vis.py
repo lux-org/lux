@@ -16,6 +16,7 @@ from typing import List, Callable, Union
 from lux.vis.Clause import Clause
 from lux.utils.utils import check_import_lux_widget
 import lux
+import warnings
 
 
 class Vis:
@@ -236,6 +237,36 @@ class Vis:
         self._code = renderer.create_vis(self, standalone)
         return self._code
 
+    def to_matplotlib(self) -> str:
+        """
+        Generate minimal Matplotlib code to visualize the Vis
+
+        Returns
+        -------
+        str
+                String version of the Matplotlib code. Need to print out the string to apply formatting.
+        """
+        from lux.vislib.matplotlib.MatplotlibRenderer import MatplotlibRenderer
+
+        renderer = MatplotlibRenderer(output_type="matplotlib")
+        self._code = renderer.create_vis(self)
+        return self._code
+
+    def to_matplotlib_code(self) -> str:
+        """
+        Generate minimal Matplotlib code to visualize the Vis
+
+        Returns
+        -------
+        str
+                String version of the Matplotlib code. Need to print out the string to apply formatting.
+        """
+        from lux.vislib.matplotlib.MatplotlibRenderer import MatplotlibRenderer
+
+        renderer = MatplotlibRenderer(output_type="matplotlib_code")
+        self._code = renderer.create_vis(self)
+        return self._code
+
     def to_VegaLite(self, prettyOutput=True) -> Union[dict, str]:
         """
         Generate minimal Vega-Lite code to visualize the Vis
@@ -276,6 +307,15 @@ class Vis:
             return self.to_VegaLite(**kwargs)
         elif language == "altair":
             return self.to_Altair(**kwargs)
+        elif language == "matplotlib":
+            return self.to_matplotlib()
+        elif language == "matplotlib_code":
+            return self.to_matplotlib_code()
+        else:
+            warnings.warn(
+                "Unsupported plotting backend. Lux currently only support 'altair', 'vegalite', or 'matplotlib'",
+                stacklevel=2,
+            )
 
     def refresh_source(self, ldf):  # -> Vis:
         """

@@ -74,7 +74,6 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
             return 1 - euclidean_dist(query_vis, vis)
 
         # Line/Bar Chart
-        # print("r:", n_record, "m:", n_msr, "d:",n_dim)
         if n_dim == 1 and (n_msr == 0 or n_msr == 1):
             if v_size < 2:
                 return -1
@@ -113,6 +112,8 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
             if v_size < 10:
                 return -1
             color_attr = vis.get_attr_by_channel("color")[0].attribute
+            if vis.mark == "geoshape":
+                return vis.data[dimension_lst[0].get_attr()].nunique()
 
             C = ldf.cardinality[color_attr]
             if C < 40:
@@ -153,7 +154,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
                 chi2_score = chi2_contingency(contingency_tbl)[0] * 0.9 ** (
                     color_cardinality + groupby_cardinality
                 )
-                score = min(0.10, chi2_score)
+                score = min(0.01, chi2_score)
             except (ValueError, KeyError):
                 # ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in a category having no counts
                 score = -1
@@ -342,9 +343,9 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
 
     if ignore_identity and msr1 == msr2:  # remove if measures are the same
         return -1
-    vis._vis_data = vis.data.dropna()
-    v_x = vis.data[msr1]
-    v_y = vis.data[msr2]
+    vxy = vis.data.dropna()
+    v_x = vxy[msr1]
+    v_y = vxy[msr2]
 
     import warnings
 
