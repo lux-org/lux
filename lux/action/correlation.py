@@ -58,7 +58,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
         "description": "Show relationships between two <p class='highlight-descriptor'>quantitative</p> attributes.",
         "long_description": f"Correlation searches through all pairwise relationship between two quantitative attributes\
             {examples}. The visualizations are ranked from most to least linearly correlated based on \
-                their Pearson’s correlation score. We display the top 15 visualizations here.",
+                their Pearson’s correlation score.",
     }
     ignore_rec_flag = False
     # Doesn't make sense to compute correlation if less than 4 data values
