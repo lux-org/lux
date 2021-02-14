@@ -21,7 +21,7 @@ from lux.interestingness.interestingness import interestingness
 
 # The following test cases are labelled for vis with <Ndim, Nmsr, Nfilter>
 def test_interestingness_1_0_0(global_var):
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Origin")])
@@ -59,7 +59,7 @@ def test_interestingness_1_0_0(global_var):
 
 
 def test_interestingness_1_0_1(global_var):
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
@@ -73,7 +73,7 @@ def test_interestingness_1_0_1(global_var):
 
 
 def test_interestingness_0_1_0(global_var):
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower")])
@@ -117,7 +117,7 @@ def test_interestingness_0_1_0(global_var):
 
 
 def test_interestingness_0_1_1(global_var):
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
@@ -132,7 +132,7 @@ def test_interestingness_0_1_1(global_var):
 
 
 def test_interestingness_1_1_0(global_var):
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Year")])
@@ -162,7 +162,7 @@ def test_interestingness_1_1_0(global_var):
 
 
 def test_interestingness_1_1_1(global_var):
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
@@ -217,7 +217,7 @@ def test_interestingness_1_2_0(global_var):
 
 
 def test_interestingness_0_2_0(global_var):
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Acceleration")])
@@ -246,7 +246,7 @@ def test_interestingness_0_2_0(global_var):
 
 
 def test_interestingness_0_2_1(global_var):
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(

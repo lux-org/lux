@@ -91,7 +91,7 @@ def test_row_column_group(global_var):
 
 
 def test_groupby(global_var):
-    df = pd.read_csv("lux/data/college.csv")
+    df = pytest.college_df
     groupbyResult = df.groupby("Region").sum()
     groupbyResult._repr_html_()
     assert list(groupbyResult.recommendation.keys()) == ["Column Groups"]
@@ -167,7 +167,7 @@ def test_crosstab():
 def test_custom_aggregation(global_var):
     import numpy as np
 
-    df = pd.read_csv("lux/data/college.csv")
+    df = pytest.college_df
     df.set_intent(["HighestDegree", lux.Clause("AverageCost", aggregation=np.ptp)])
     df._repr_html_()
     assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]

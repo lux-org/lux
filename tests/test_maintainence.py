@@ -71,7 +71,7 @@ def test_metadata_column_group_reset_df(global_var):
 
 
 def test_recs_inplace_operation(global_var):
-    df = pd.read_csv("lux/data/car.csv")
+    df = pytest.college_df
     df._repr_html_()
     assert df._recs_fresh == True, "Failed to maintain recommendation after display df"
     assert len(df.recommendation["Occurrence"]) == 4

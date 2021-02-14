@@ -36,7 +36,7 @@ def test_head_tail(global_var):
 
 
 def test_describe(global_var):
-    df = pd.read_csv("lux/data/college.csv")
+    df = pytest.college_df
     summary = df.describe()
     summary._repr_html_()
     assert len(summary.columns) == 10
