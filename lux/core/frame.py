@@ -924,12 +924,16 @@ class LuxDataFrame(pd.DataFrame):
         return super(LuxDataFrame, self).describe(*args, **kwargs)
 
     def groupby(self, *args, **kwargs):
+        history_flag = False
         if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
-            self._history.append_event("groupby", *args, **kwargs)
+            history_flag = True
         if "history" in kwargs:
             del kwargs["history"]
         groupby_obj = super(LuxDataFrame, self).groupby(*args, **kwargs)
         for attr in self._metadata:
             groupby_obj.__dict__[attr] = getattr(self, attr, None)
-        self.pre_aggregated = True
+        if history_flag:
+            groupby_obj._history = groupby_obj._history.copy()
+            groupby_obj._history.append_event("groupby", *args, **kwargs)
+        groupby_obj.pre_aggregated = True
         return groupby_obj
