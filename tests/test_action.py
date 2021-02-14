@@ -171,6 +171,7 @@ def test_custom_aggregation(global_var):
     df.set_intent(["HighestDegree", lux.Clause("AverageCost", aggregation=np.ptp)])
     df._repr_html_()
     assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]
+    df.clear_intent()
 
 
 def test_year_filter_value(global_var):
