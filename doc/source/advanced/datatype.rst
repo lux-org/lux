@@ -2,7 +2,7 @@
 Defining Data Types
 ***********************************
 
-.. note:: You can follow along this tutorial in a Jupyter notebook. 
+.. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder/blob/master/tutorial/9-datatype.ipynb?>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial/9-datatype.ipynb?raw=true>`_]
 
 .. contents:: :local:
 
@@ -28,19 +28,19 @@ The following code snippet shows what data types were inferred:
   df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/college.csv?raw=true")
   df.data_type
 
-.. image:: https://github.com/jinimukh/lux-resources/blob/datatype/doc_img/datatype-4.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-4.png?raw=true
   :width: 300
   :align: center
 
 Quantitative
 ------------
 Quantitative data is used to describe numerical data. 
-The is usually used when Lux detects that there is a count or measure of a certain attribute. 
+This data type is typically assigned when Lux detects that there is a count or measure of a certain attribute.
 In the example above, the column `AcceptanceRate` is quantitative because it is a measure. 
 Also, any aggregate such as means and medians will be categorized as quantitative. 
-Usually, Lux is able to compute Correlations between two quantitative columns and display them via scatterplots/heatmaps.
+Lux is able to compute Correlations between two quantitative columns and display them via scatterplots/heatmaps.
 
-.. image:: https://github.com/jinimukh/lux-resources/blob/datatype/doc_img/datatype-1.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-1.png?raw=true
   :width: 700
   :align: center
   :alt: Displays correlation of quantitative variables.
@@ -54,7 +54,7 @@ Lux displays these variables under the `Occurrence` tab as bar charts for the nu
 When two nominal variables are specified in an intent, a stacked bar chart is used to compare the two variables.
 
 
-.. image:: https://github.com/jinimukh/lux-resources/blob/datatype/doc_img/datatype-2.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-2.png?raw=true
   :width: 700
   :align: center
   :alt: Displays bar chart for nominal variables.
@@ -75,7 +75,7 @@ Here is an example where temporal data is detected:
 
 Here, specifying intent as the temporal variable, the `Temporal` tab reflects a line graph of the records and time.
 
-.. image:: https://github.com/jinimukh/lux-resources/blob/datatype/doc_img/datatype-3.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-3.png?raw=true
   :width: 700
   :align: center
   :alt: Displays line graph for temporal variables.
@@ -90,7 +90,7 @@ For example, in the code snipped below, we see that the column `enrolee_id` has 
   df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/aug_test.csv?raw=true")
   df
 
-.. image:: https://github.com/jinimukh/lux-resources/blob/datatype/doc_img/datatype-5.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-5.png?raw=true
   :width: 700
   :align: center
 
@@ -103,7 +103,7 @@ Lux attempts to infer the data type information for every column in the datafram
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/communities.csv?raw=true")
     df.data_type
 
-.. image:: https://github.com/jinimukh/lux-resources/blob/datatype/doc_img/datatype-6.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-6.png?raw=true
   :width: 300
   :align: center
 
@@ -120,12 +120,12 @@ To change the inferred data type, use the method below:
 Lux will now interpret the `state` column as a `nominal` variable. 
 To make sure, we can always check using `df.data_type` which outputs the following results
 
-.. image:: https://github.com/jinimukh/lux-resources/blob/datatype/doc_img/datatype-7.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-7.png?raw=true
   :width: 300
   :align: center
 
 Now, the `state` column behaves like a `nominal` column as shown below:
 
-.. image:: https://github.com/jinimukh/lux-resources/blob/datatype/doc_img/datatype-8.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-8.png?raw=true
   :width: 700
   :align: center
