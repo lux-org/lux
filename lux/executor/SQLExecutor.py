@@ -38,7 +38,13 @@ class SQLExecutor(Executor):
             if view.mark == "":
                 view.refresh_source(ldf)
             elif view.mark == "scatter":
-                if len(view.get_attr_by_channel("color")) == 1:
+                where_clause, filterVars = SQLExecutor.execute_filter(view)
+                length_query = pandas.read_sql(
+                    "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
+                    lux.config.SQLconnection
+                )
+                view_data_length = list(length_query["length"])[0]
+                if len(view.get_attr_by_channel("color")) == 1 or view_data_length <= 10000000:
                     # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
                     has_color = True
                     SQLExecutor.execute_scatter(view, ldf)
@@ -49,9 +55,6 @@ class SQLExecutor(Executor):
                 SQLExecutor.execute_aggregate(view, ldf)
             elif view.mark == "histogram":
                 SQLExecutor.execute_binning(view, ldf)
-        # this is weird, somewhere in the SQL executor the lux.config.executor is being set to a PandasExecutor
-        # temporary fix here
-        # lux.config.executor = SQLExecutor()
 
     @staticmethod
     def execute_scatter(view: Vis, ldf: LuxDataFrame):
@@ -100,7 +103,7 @@ class SQLExecutor(Executor):
                 lux.config.SQLconnection,
             )["count"]
         )[0]
-        if row_count > 10000:
+        if row_count > lux.config.sampling_cap:
             query = f"SELECT {required_variables} FROM {ldf.table_name} {where_clause} ORDER BY random() LIMIT 10000"
         else:
             query = "SELECT {} FROM {} {}".format(required_variables, ldf.table_name, where_clause)
@@ -381,39 +384,41 @@ class SQLExecutor(Executor):
             where_clause,
         )
         bin_count_data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
+        if not bin_count_data["width_bucket"].isnull().values.any():
+            # np.histogram breaks if data contain NaN
 
-        # counts,binEdges = np.histogram(ldf[bin_attribute.attribute],bins=bin_attribute.bin_size)
-        # binEdges of size N+1, so need to compute binCenter as the bin location
-        upper_edges = [float(i) for i in upper_edges.split(",")]
-        if attr_type == int:
-            bin_centers = np.array([math.ceil((attr_min + attr_min + bin_width) / 2)])
-        else:
-            bin_centers = np.array([(attr_min + attr_min + bin_width) / 2])
-        bin_centers = np.append(
-            bin_centers,
-            np.mean(np.vstack([upper_edges[0:-1], upper_edges[1:]]), axis=0),
-        )
-        if attr_type == int:
+            # counts,binEdges = np.histogram(ldf[bin_attribute.attribute],bins=bin_attribute.bin_size)
+            # binEdges of size N+1, so need to compute binCenter as the bin location
+            upper_edges = [float(i) for i in upper_edges.split(",")]
+            if attr_type == int:
+                bin_centers = np.array([math.ceil((attr_min + attr_min + bin_width) / 2)])
+            else:
+                bin_centers = np.array([(attr_min + attr_min + bin_width) / 2])
             bin_centers = np.append(
                 bin_centers,
-                math.ceil((upper_edges[len(upper_edges) - 1] + attr_max) / 2),
+                np.mean(np.vstack([upper_edges[0:-1], upper_edges[1:]]), axis=0),
             )
-        else:
-            bin_centers = np.append(bin_centers, (upper_edges[len(upper_edges) - 1] + attr_max) / 2)
+            if attr_type == int:
+                bin_centers = np.append(
+                    bin_centers,
+                    math.ceil((upper_edges[len(upper_edges) - 1] + attr_max) / 2),
+                )
+            else:
+                bin_centers = np.append(bin_centers, (upper_edges[len(upper_edges) - 1] + attr_max) / 2)
 
-        if len(bin_centers) > len(bin_count_data):
-            bucket_lables = bin_count_data["width_bucket"].unique()
-            for i in range(0, len(bin_centers)):
-                if i not in bucket_lables:
-                    bin_count_data = bin_count_data.append(
-                        pandas.DataFrame([[i, 0]], columns=bin_count_data.columns)
-                    )
-        view._vis_data = pandas.DataFrame(
-            np.array([bin_centers, list(bin_count_data["count"])]).T,
-            columns=[bin_attribute.attribute, "Number of Records"],
-        )
-        view._vis_data = utils.pandas_to_lux(view.data)
-        view._vis_data.length = list(length_query["length"])[0]
+            if len(bin_centers) > len(bin_count_data):
+                bucket_lables = bin_count_data["width_bucket"].unique()
+                for i in range(0, len(bin_centers)):
+                    if i not in bucket_lables:
+                        bin_count_data = bin_count_data.append(
+                            pandas.DataFrame([[i, 0]], columns=bin_count_data.columns)
+                        )
+            view._vis_data = pandas.DataFrame(
+                np.array([bin_centers, list(bin_count_data["count"])]).T,
+                columns=[bin_attribute.attribute, "Number of Records"],
+            )
+            view._vis_data = utils.pandas_to_lux(view.data)
+            view._vis_data.length = list(length_query["length"])[0]
 
     @staticmethod
     def execute_2D_binning(view: Vis, ldf: LuxDataFrame):
@@ -565,6 +570,24 @@ class SQLExecutor(Executor):
                 )
                 if filters[f].attribute not in filter_vars:
                     filter_vars.append(filters[f].attribute)
+
+        attributes = utils.get_attrs_specs(view._inferred_intent)
+
+        #need to ensure that no null values are included in the data
+        #null values breaks binning queries
+        for a in attributes:
+            if a.attribute != "Record":
+                if where_clause == []:
+                    where_clause.append("WHERE")
+                else:
+                    where_clause.append("AND")
+                where_clause.extend(
+                    [
+                        '"' + str(a.attribute) + '"',
+                        "IS NOT NULL",
+                    ]
+                )
+
         if where_clause == []:
             return ("", [])
         else:
