@@ -46,12 +46,6 @@ class SymbolMap(AltairChart):
         if len(y_attr_abv) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
 
-        x_min = self.vis.min_max[x_attr.attribute][0]
-        x_max = self.vis.min_max[x_attr.attribute][1]
-
-        y_min = self.vis.min_max[y_attr.attribute][0]
-        y_max = self.vis.min_max[y_attr.attribute][1]
-
         if isinstance(x_attr.attribute, str):
             x_attr.attribute = x_attr.attribute.replace(".", "")
         if isinstance(y_attr.attribute, str):
@@ -59,9 +53,62 @@ class SymbolMap(AltairChart):
         self.data = AltairChart.sanitize_dataframe(self.data)
 
         secondary_feature = self.get_secondary_feature()
+        quantitative_feature = self.get_quantitative_feature()
+        # print(self.data[quantitative_feature])
         background = self.get_background(secondary_feature)
         geographical_name = self.get_geographical_name(secondary_feature)
-        points = (
+        # mean_acc='mean(Acceleration)'
+        if (quantitative_feature): 
+            points = (
+                alt.Chart(self.data)
+                .transform_aggregate(
+                    latitude=f"mean({y_attr_abv})",
+                    longitude=f"mean({x_attr_abv})",
+                    mean=f"mean({quantitative_feature})",
+                    groupby=[secondary_feature],
+                )
+                .mark_circle()
+                .encode(
+                    longitude=f"{x_attr_abv}:Q",
+                    latitude=f"{y_attr_abv}:Q",
+                    size=alt.Size("mean:Q", title=f"Average of {quantitative_feature}"),
+                    color=alt.value("steelblue"),
+                    tooltip=[f"{secondary_feature}:N", "mean:Q"],
+                )
+                .properties(title=f"Mean of {quantitative_feature} across {geographical_name}")
+            )
+        else: 
+            points = (
+                alt.Chart(self.data)
+                .transform_aggregate(
+                    latitude=f"mean({y_attr_abv})",
+                    longitude=f"mean({x_attr_abv})",
+                    count="count()",
+                    groupby=[secondary_feature],
+                )
+                .mark_circle()
+                .encode(
+                    longitude=f"{x_attr_abv}:Q",
+                    latitude=f"{y_attr_abv}:Q",
+                    size=alt.Size("count:Q", title="Number of Records"),
+                    color=alt.value("steelblue"),
+                    tooltip=[f"{secondary_feature}:N", "count:Q"],
+                )
+                .properties(title=f"Number of Records across {geographical_name}")
+            )
+
+        chart = background + points
+        # Setting tooltip as non-null
+        # chart = chart.configure_mark(tooltip=alt.TooltipContent("encoding"))
+
+        ######################################
+        ## Constructing Altair Code String ##
+        #####################################
+
+        self.code += "import altair as alt\n"
+        dfname = "placeholder_variable"
+        self.code += f"""
+		points = (
             alt.Chart(self.data)
             .transform_aggregate(
                 latitude=f"mean({y_attr_abv})",
@@ -79,31 +126,22 @@ class SymbolMap(AltairChart):
             )
             .properties(title=f"Number of Records across {geographical_name}")
         )
-        chart = background + points
-        # Setting tooltip as non-null
-        # chart = chart.configure_mark(tooltip=alt.TooltipContent("encoding"))
-
-        ######################################
-        ## Constructing Altair Code String ##
-        #####################################
-
-        self.code += "import altair as alt\n"
-        dfname = "placeholder_variable"
-        self.code += f"""
-		chart = alt.Chart({dfname}).mark_circle().encode(
-		    x=alt.X('{x_attr.attribute}',scale=alt.Scale(domain=({x_min}, {x_max})),type='{x_attr.data_type}', axis=alt.Axis(title='{x_attr_abv}')),
-		    y=alt.Y('{y_attr.attribute}',scale=alt.Scale(domain=({y_min}, {y_max})),type='{y_attr.data_type}', axis=alt.Axis(title='{y_attr_abv}'))
-		)
-		chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
-		chart = chart.interactive() # Enable Zooming and Panning
 		"""
         return chart
 
     def get_secondary_feature(self):
         """Returns secondary feature for aggregating lat/long coordinates."""
-        assert len(self.vis.intent) == 3
+        assert len(self.vis.intent) >= 3
         feature = self.vis.intent[2].get_attr()
         return feature
+    
+    def get_quantitative_feature(self):
+        """Returns quantitative feature for aggregating lat/long coordinates."""
+        if len(self.vis.intent) == 4:
+            feature = self.vis.intent[3].get_attr()
+            return feature
+        else: 
+            return None
 
     def get_background(self, feature):
         """Returns background projection based on secondary feature."""
