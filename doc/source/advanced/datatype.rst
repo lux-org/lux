@@ -108,7 +108,7 @@ Lux attempts to infer the data type information for every column in the datafram
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-6.png?raw=true
   :width: 300
 
-Lux incorrectly assumes that :code:`state` is an :code:`quantitative` column because the column seems to be made of numbers. 
+Lux incorrectly assumes that :code:`state` is a :code:`quantitative` column because the column seems to be made of numbers. 
 The visualizations reflect this inference:
 
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-13.png?raw=true
