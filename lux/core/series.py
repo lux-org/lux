@@ -202,3 +202,16 @@ class LuxSeries(pd.Series):
             warnings.warn(traceback.format_exc())
             display(self.to_pandas())
         return ""
+
+    @property
+    def recommendation(self):
+        from lux.core.frame import LuxDataFrame
+
+        if self.name is None:
+            self.name = " "
+        ldf = LuxDataFrame(self)
+
+        if self._recommendation is not None and self._recommendation == {}:
+            ldf.maintain_metadata()
+            ldf.maintain_recs()
+        return ldf._recommendation
