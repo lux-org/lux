@@ -635,6 +635,23 @@ class LuxDataFrame(pd.DataFrame):
                     )
                     display(self.display_pandas())
                     return
+
+                pandas_output = widgets.Output()
+                self.output = widgets.Output()
+                
+                with pandas_output:
+                    display(self.display_pandas())
+                with self.output:
+                    display(widgets.HTML(value="Loading widget..."))
+
+                tab_contents = ['Pandas', 'Lux']
+                children = [pandas_output, self.output]
+                tab = widgets.Tab()
+                tab.children = children
+                for i in range(len(tab_contents)):
+                    tab.set_title(i, tab_contents[i])
+                display(tab)
+
                 self.maintain_metadata()
 
                 if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
@@ -656,41 +673,53 @@ class LuxDataFrame(pd.DataFrame):
 
                 if len(self._recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
-                    button = widgets.Button(
-                        description="Toggle Pandas/Lux",
-                        layout=widgets.Layout(width="140px", top="5px"),
-                    )
-                    self.output = widgets.Output()
+                    # button = widgets.Button(
+                    #     description="Toggle Pandas/Lux",
+                    #     layout=widgets.Layout(width="140px", top="5px"),
+                    # )
+
+                    # self.output = widgets.Output()
+
+                    # self.output = widgets.Output()
+                    # children.append(self.output)
+                    # tab.children = children
+
+                    with self.output:
+                        clear_output()
+                        display(self._widget)
+
                     # box.children = [button,output]
                     # output.children = [button]
                     # display(box)
-                    display(button, self.output)
+                    # display(button, self.output)
 
-                    def on_button_clicked(b):
-                        with self.output:
-                            if b:
-                                self._toggle_pandas_display = not self._toggle_pandas_display
-                            clear_output()
-                            if self._toggle_pandas_display:
-                                display(self.display_pandas())
-                            else:
-                                # b.layout.display = "none"
-                                display(self._widget)
-                                # b.layout.display = "inline-block"
+                    # def on_button_clicked(b):
+                    #     with self.output:
+                    #         if b:
+                    #             self._toggle_pandas_display = not self._toggle_pandas_display
+                    #         clear_output()
+                    #         if self._toggle_pandas_display:
+                    #             display(self.display_pandas())
+                    #         else:
+                    #             # b.layout.display = "none"
+                    #             display(self._widget)
+                    #             # b.layout.display = "inline-block"
 
-                    button.on_click(on_button_clicked)
-                    on_button_clicked(None)
+                    # button.on_click(on_button_clicked)
+                    # on_button_clicked(None)
                 else:
                     warnings.warn(
                         "\nLux defaults to Pandas when there are no valid actions defined.",
                         stacklevel=2,
                     )
+                    clear_output()
                     display(self.display_pandas())
 
         except (KeyboardInterrupt, SystemExit):
             raise
         except Exception:
             if lux.config.pandas_fallback:
+                clear_output()
                 warnings.warn(
                     "\nUnexpected error in rendering Lux widget and recommendations. "
                     "Falling back to Pandas display.\n"
@@ -701,6 +730,7 @@ class LuxDataFrame(pd.DataFrame):
                 display(self.display_pandas())
             else:
                 raise
+
 
     def display_pandas(self):
         return self.to_pandas()
