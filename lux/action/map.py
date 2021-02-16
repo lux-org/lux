@@ -54,7 +54,12 @@ def geomap(ldf, ignore_transpose: bool = True):
         recommendation["collection"] = []
         return recommendation
 
-    intent = [lux.Clause(attribute="latitude", data_model="measure", channel="x"), lux.Clause(attribute="longitude", data_model="measure", channel="y"), lux.Clause("?"), lux.Clause("?", data_model="measure")]
+    intent = [
+        lux.Clause(attribute="latitude", data_model="measure", channel="x"),
+        lux.Clause(attribute="longitude", data_model="measure", channel="y"),
+        lux.Clause("?"),
+        lux.Clause("?", data_model="measure"),
+    ]
 
     vlist = VisList(intent, ldf)
     for i in range(len(vlist)):
@@ -70,6 +75,7 @@ def geomap(ldf, ignore_transpose: bool = True):
     vlist.sort()
     recommendation["collection"] = vlist
     return recommendation
+
 
 def has_secondary_geographical_attribute(vis):
     assert len(vis.intent) >= 3

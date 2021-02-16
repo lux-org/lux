@@ -433,9 +433,12 @@ def test_vegalite_default_actions_registered(global_var):
 
 
 def test_vegalite_default_actions_registered_2(global_var):
+    import numpy as np
+    
     df = pd.read_csv(
         "https://raw.githubusercontent.com/altair-viz/vega_datasets/master/vega_datasets/_data/airports.csv"
     )
+    df['magnitude'] = np.random.randint(0,20, size=len(df))
     lux.config.plotting_backend = "vegalite"
 
     # Symbol Map

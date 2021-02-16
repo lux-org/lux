@@ -58,7 +58,7 @@ class SymbolMap(AltairChart):
         background = self.get_background(secondary_feature)
         geographical_name = self.get_geographical_name(secondary_feature)
         # mean_acc='mean(Acceleration)'
-        if (quantitative_feature): 
+        if quantitative_feature:
             points = (
                 alt.Chart(self.data)
                 .transform_aggregate(
@@ -77,7 +77,7 @@ class SymbolMap(AltairChart):
                 )
                 .properties(title=f"Mean of {quantitative_feature} across {geographical_name}")
             )
-        else: 
+        else:
             points = (
                 alt.Chart(self.data)
                 .transform_aggregate(
@@ -134,13 +134,13 @@ class SymbolMap(AltairChart):
         assert len(self.vis.intent) >= 3
         feature = self.vis.intent[2].get_attr()
         return feature
-    
+
     def get_quantitative_feature(self):
         """Returns quantitative feature for aggregating lat/long coordinates."""
         if len(self.vis.intent) == 4:
             feature = self.vis.intent[3].get_attr()
             return feature
-        else: 
+        else:
             return None
 
     def get_background(self, feature):
