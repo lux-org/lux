@@ -75,4 +75,4 @@ This generates all the HTML documentation files in `doc/_build/html/`. The confi
 
 # Updating the Conda Recipe
 
-In order to update the conda recipe on conda forge, you can follow the steps [here](https://conda-forge.org/#update_recipe). Conda recipes can be updated when either a new dependency is needed or when the version number needs to be updated. 
+In order to update the conda recipe on conda forge, you can follow the steps [here](https://conda-forge.org/#update_recipe). The conda recipe needs to be updated when either a new dependency is added or when the version number needs to be updated in the case of a new release. 
