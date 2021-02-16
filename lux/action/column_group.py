@@ -26,7 +26,7 @@ def column_group(ldf):
     recommendation = {
         "action": "Column Groups",
         "description": "Shows charts of possible visualizations with respect to the column-wise index.",
-        "long_description": "Shows charts of possible visualizations with respect to the column-wise index.",
+        "long_description": 'Shows charts of possible visualizations with respect to the column-wise index.  <a href="https://lux-api.readthedocs.io/en/latest/source/advanced/indexgroup.html" target="_blank">More details</a>',
     }
     collection = []
     ldf_flat = ldf
