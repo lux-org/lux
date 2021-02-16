@@ -13,7 +13,6 @@ In Lux, data types convey the high-level, semantic roles for each attribute, suc
 
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-4.png?raw=true
   :width: 300
-  :align: center
 
 
 Supported Data Types
@@ -34,11 +33,18 @@ Quantitative
 ------------
 Quantitative data is used to describe numerical measures. 
 This data type is typically assigned when Lux a numerical column consisting of floats or integers has large numbers of distinct values.
-In the example above, the column `AcceptanceRate` is detected as an quantitative attribute. 
+In the example above, the column :code:`AcceptanceRate` is detected as an quantitative attribute. 
 
-By default, Lux displays the `Correlation` action, displaying the relationship between two quantitative columns as scatterplots or heatmaps.
+By default, Lux displays the :code:`Correlation` action, displaying the relationship between two :code:`quantitative` columns as scatterplots or heatmaps.
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-1.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-9.png?raw=true
+  :width: 700
+  :align: center
+  :alt: Displays correlation of quantitative variables.
+
+Lux also shows the `Distribution` action, displaying the distribution of each :code:`quantitative` attributes.
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-10.png?raw=true
   :width: 700
   :align: center
   :alt: Displays correlation of quantitative variables.
@@ -46,10 +52,10 @@ By default, Lux displays the `Correlation` action, displaying the relationship b
 Nominal
 --------
 Nominal data types describes unordered, categorical attributes.
-For example, the attribute `PredominantDegree` is nominal because it contains only three distinct values: `Associate`, `Bachelor's`, and `Certificate`.
-Below: Lux displays the occurence counts of nominal variables under the `Occurrence` action as bar charts. 
+For example, the attribute :code:`PredominantDegree` is nominal because it contains only three distinct values: :code:`Associate`, :code:`Bachelor's`, and :code:`Certificate`.
+Below: Lux displays the occurence counts of nominal variables under the :code:`Occurrence` action as bar charts. 
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-2.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-11.png?raw=true
   :width: 700
   :align: center
   :alt: Displays bar chart for nominal variables.
@@ -58,7 +64,7 @@ Temporal
 --------
 Temporal data types describe time-related attributes, such as dates and timestamps. 
 Lux infers that an attribute is temporal based on the data format, content, and name of the column. 
-For example, the `Year` attribute is detected as a temporal data type in this example:
+For example, the :code:`Year` attribute is detected as a temporal data type in this example:
 
 .. code-block:: python
 
@@ -66,9 +72,9 @@ For example, the `Year` attribute is detected as a temporal data type in this ex
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df
 
-Here, the `Temporal` tab reflects a line graph of the records and time.
+Here, the :code:`Temporal` tab reflects a line graph of the records and time.
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-3.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-12.png?raw=true
   :width: 700
   :align: center
   :alt: Displays line graph for temporal variables.
@@ -79,7 +85,7 @@ ID
 ---
 ID data type describes identifier columns, such as zip code, product or user ID.
 Typically, columns that are detected as ID data type do not contain a lot of useful information and should not be plotted. 
-For example, in the code snipped below, we see that the column `enrolee_id` has numerical data, it is categorized as an `ID` data type, so no visualizations correspond to it.
+For example, in the code snipped below, we see that the column :code:`enrolee_id` has numerical data, it is categorized as an :code:`ID` data type, so no visualizations correspond to it.
 
 .. code-block:: python
 
@@ -101,11 +107,15 @@ Lux attempts to infer the data type information for every column in the datafram
 
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-6.png?raw=true
   :width: 300
-  :align: center
 
-Lux incorrectly assumes that `state` is an `quantitative` column because the column seems to be made of numbers. 
+Lux incorrectly assumes that :code:`state` is an :code:`quantitative` column because the column seems to be made of numbers. 
+The visualizations reflect this inference:
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-13.png?raw=true
+  :width: 400
+
 However, in reality, the column contains numbers that map to particular states. 
-In this case, the `state` column is probably better suited as a `nominal` column. 
+In this case, the :code:`state` column is probably better suited as a :code:`nominal` column. 
 To change the inferred data type, use the :code:`set_data_type` method: 
 
 .. code-block:: python
@@ -113,15 +123,13 @@ To change the inferred data type, use the :code:`set_data_type` method:
     df.set_data_type({"state":"nominal"})
 
 The user specified data type information overrides the Lux-detected type information.
-From now on, Lux will interpret the `state` column as a `nominal` variable. 
+From now on, Lux will interpret the :code:`state` column as a :code:`nominal` variable. 
 We can validate this by inspecting :code:`df.data_type`:
 
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-7.png?raw=true
   :width: 300
-  :align: center
 
-Now, the `state` column behaves like a `nominal` column as shown below:
+Now, the :code:`state` column behaves like a :code:`nominal` column as shown below:
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-8.png?raw=true
-  :width: 700
-  :align: center
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-14.png?raw=true
+  :width: 400
