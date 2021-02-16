@@ -42,7 +42,7 @@ By default, Lux displays the :code:`Correlation` action, displaying the relation
   :align: center
   :alt: Displays correlation of quantitative variables.
 
-Lux also shows the `Distribution` action, displaying the distribution of each :code:`quantitative` attributes.
+Lux also shows the :code:`Distribution` action, displaying the distribution of each :code:`quantitative` attributes.
 
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-10.png?raw=true
   :width: 700
