@@ -497,4 +497,3 @@ def test_matplotlib_heatmap_flag_config():
     assert not df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True
     lux.config.plotting_backend = "vegalite"
-
