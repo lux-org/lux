@@ -108,7 +108,7 @@ def analyze_recent_history(userCodeString, df_names, all_cols):
                     else:
                         col_refs[this_str] = 1
 
-            #print(f"Type {token.type}.{token.exact_type}:\t\t{token.start} - {token.end} \t{token.string}\t\t\t{token.line}")
+            # print(f"Type {token.type}.{token.exact_type}:\t\t{token.start} - {token.end} \t{token.string}\t\t\t{token.line}")
     
     return f_calls, col_refs
 

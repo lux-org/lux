@@ -34,19 +34,26 @@ def implicit_vis(ldf):
 
     col_names = lux.config.code_tracker.get_implicit_intent()
 
-    i_vis_list = []
+    if col_names:
+        # make sure columns are in this df! 
+        col_names = [c for c in col_names if (c in ldf.columns)]
 
-    # first get univariate dists
-    for col in col_names:
-        vis = Vis( [lux.Clause(col)] )
-        i_vis_list.append(vis)
-    
-    # then bimodal 
-    for col_one, col_two in itertools.combinations(col_names, 2):
-        vis = Vis( [ lux.Clause(col_one), lux.Clause(col_two) ] )
-        i_vis_list.append(vis)
+        i_vis_list = []
+
+        # first get univariate dists
+        for col in col_names:
+            vis = Vis( [lux.Clause(col)] )
+            i_vis_list.append(vis)
         
-    lux_vis = VisList(i_vis_list, ldf)
+        # then bimodal 
+        for col_one, col_two in itertools.combinations(col_names, 2):
+            vis = Vis( [ lux.Clause(col_one), lux.Clause(col_two) ] )
+            i_vis_list.append(vis)
+            
+        lux_vis = VisList(i_vis_list, ldf)
+    
+    else:
+        lux_vis = []
     
     # for vis in i_vis_list:
     #     vis.score = interestingness(vis, ldf)

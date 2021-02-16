@@ -1,5 +1,6 @@
 from IPython import get_ipython
 from lux.implicit.profiler import get_recent_funcs_cols
+import lux
 
 class CodeTracker():
 
@@ -42,6 +43,7 @@ class CodeTracker():
             self.getting_info_flag = False
 
             # TODO set a flag or call something so that the LDFs update and know the implicit recs have changed
+            lux.config.update_actions["flag"] = True
     
     def get_all_code(self):
         """ returns all the previously executed code as one string """
@@ -54,6 +56,7 @@ class CodeTracker():
     def get_implicit_intent(self, df_name=None):
         """ returns LIST of columns"""
         # TODO incorporate time decay notion here where decreased with each subsequent cell execution
+        # can return tuples of (col_name, score) to send to lux and have ranking of vis
         
         if self.col_refs:
             _cols = list(self.col_refs.items())

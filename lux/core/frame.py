@@ -437,8 +437,6 @@ class LuxDataFrame(pd.DataFrame):
 
     def maintain_recs(self):
 
-        print("maintain_recs")
-
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
         if lux.config.update_actions["flag"] == True:
@@ -597,8 +595,6 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import display, clear_output
         from lux.processor.Compiler import Compiler
 
-        print("set_intent_on_click called: ")
-
         intent_action = list(self._widget.selectedIntentIndex.keys())[0]
         vis = self._recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
         self.set_intent_as_vis(vis)
@@ -618,7 +614,6 @@ class LuxDataFrame(pd.DataFrame):
     # NOTE: this seems like the "main" function
     # NOTE: what calls this?? -- Will
     def _repr_html_(self):
-        print("_repr_html_ called")
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
@@ -757,8 +752,6 @@ class LuxDataFrame(pd.DataFrame):
         """
         check_import_lux_widget()
         import luxwidget # NOTE code from other repo 
-
-        print("render_widget")
 
         widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
         return luxwidget.LuxWidget( # widget
