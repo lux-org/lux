@@ -170,12 +170,14 @@ class LuxDataFrame(pd.DataFrame):
         is_multi_index_flag = self.index.nlevels != 1
         not_int_index_flag = not pd.api.types.is_integer_dtype(self.index)
         small_df_flag = len(self) < 100
-        self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
-        if "Number of Records" in self.columns:
-            self.pre_aggregated = True
-        very_small_df_flag = len(self) <= 10
-        if very_small_df_flag:
-            self.pre_aggregated = True
+        if self.pre_aggregated == None:
+            self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
+            if "Number of Records" in self.columns:
+                self.pre_aggregated = True
+            very_small_df_flag = len(self) <= 10
+            self.pre_aggregated = "groupby" in [event.name for event in self.history]
+            # if very_small_df_flag:
+            #     self.pre_aggregated = True
 
     @property
     def intent(self):
@@ -920,3 +922,18 @@ class LuxDataFrame(pd.DataFrame):
         self._pandas_only = True
         self._history.append_event("describe", *args, **kwargs)
         return super(LuxDataFrame, self).describe(*args, **kwargs)
+
+    def groupby(self, *args, **kwargs):
+        history_flag = False
+        if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
+            history_flag = True
+        if "history" in kwargs:
+            del kwargs["history"]
+        groupby_obj = super(LuxDataFrame, self).groupby(*args, **kwargs)
+        for attr in self._metadata:
+            groupby_obj.__dict__[attr] = getattr(self, attr, None)
+        if history_flag:
+            groupby_obj._history = groupby_obj._history.copy()
+            groupby_obj._history.append_event("groupby", *args, **kwargs)
+        groupby_obj.pre_aggregated = True
+        return groupby_obj

@@ -49,10 +49,10 @@ def column_group(ldf):
                             attribute=index_column_name,
                             data_type="nominal",
                             data_model="dimension",
-                            aggregation=None,
+                            aggregation="",
                         ),
                         lux.Clause(
-                            attribute=str(attribute),
+                            attribute=attribute,
                             data_type="quantitative",
                             data_model="measure",
                             aggregation=None,
