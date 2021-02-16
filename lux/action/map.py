@@ -54,8 +54,7 @@ def geomap(ldf, ignore_transpose: bool = True):
         recommendation["collection"] = []
         return recommendation
 
-    intent = [lux.Clause("?", data_model="measure"), lux.Clause("?", data_model="measure")]
-    intent.append("?")
+    intent = [lux.Clause(attribute="latitude", data_model="measure"), lux.Clause(attribute="longitude", data_model="measure"), lux.Clause("?")]
 
     vlist = VisList(intent, ldf)
     for i in range(len(vlist)):
@@ -64,30 +63,13 @@ def geomap(ldf, ignore_transpose: bool = True):
             vis._mark = "geographical"
             measures = vis.get_attr_by_data_model("measure")
             msr1, msr2 = measures[0].attribute, measures[1].attribute
-            check_transpose = (
-                check_transpose_not_computed(vlist, msr1, msr2) if ignore_transpose else True
-            )
-            vis.score = interestingness(vis, ldf) if check_transpose else -1
+            vis.score = interestingness(vis, ldf)
         else:
             vis.score = -1
 
     vlist.sort()
     recommendation["collection"] = vlist
     return recommendation
-
-
-def check_transpose_not_computed(vlist: VisList, a: str, b: str):
-    transpose_exist = list(
-        filter(
-            lambda x: (x._inferred_intent[0].attribute == b) and (x._inferred_intent[1].attribute == a),
-            vlist,
-        )
-    )
-    if len(transpose_exist) > 0:
-        return transpose_exist[0].score == -1
-    else:
-        return False
-
 
 def has_secondary_geographical_attribute(vis):
     assert len(vis.intent) == 3
@@ -99,12 +81,11 @@ def has_secondary_geographical_attribute(vis):
 
 
 def valid_geographical(possible_attributes):
-    lat, long = {"latitude", "lat"}, {"longitude", "long"}
+    lat, long = {"latitude"}, {"longitude"}
     possible_attributes = set(possible_attributes)
     has_lat, has_long = (
         len(lat.intersection(possible_attributes)) > 0,
         len(long.intersection(possible_attributes)) > 0,
     )
     var = True if has_lat and has_long and len(possible_attributes) == 2 else False
-    print(var, possible_attributes)
     return var
