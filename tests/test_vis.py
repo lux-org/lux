@@ -498,16 +498,3 @@ def test_matplotlib_heatmap_flag_config():
     lux.config.heatmap = True
     lux.config.plotting_backend = "vegalite"
 
-
-def test_series_recommendation():
-    lux.config.plotting_backend = "matplotlib"
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
-    df.plot_config = None
-    df = df["YearsAtCompany"] / df["TotalWorkingYears"]
-    assert len(df.recommendation["Distribution"]) > 0
-
-    lux.config.plotting_backend = "vegalite"
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
-    df.plot_config = None
-    df = df["YearsAtCompany"] / df["TotalWorkingYears"]
-    assert len(df.recommendation["Distribution"]) > 0
