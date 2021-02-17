@@ -77,7 +77,7 @@ def test_series_recommendation():
 def test_unnamed_column():
     lux.config.plotting_backend = "matplotlib"
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
-    df.plot_config = None
+    lux.config.plotting_style = None
     series = df["YearsAtCompany"] / df["TotalWorkingYears"]
     series.__repr__()
     axis_title = "Series (binned)"
