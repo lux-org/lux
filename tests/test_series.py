@@ -65,3 +65,10 @@ def test_print_iterrow(global_var):
             print(row)
             break
         assert len(w) == 0, "Warning displayed when printing iterrow"
+
+
+def test_series_recommendation():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
+    df.plot_config = None
+    df = df["YearsAtCompany"] / df["TotalWorkingYears"]
+    assert len(df.recommendation["Distribution"]) > 0, "Recommendation property empty for LuxSeries"
