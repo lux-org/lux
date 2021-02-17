@@ -48,6 +48,7 @@ def generalize(ldf):
     recommendation = {
         "action": "Generalize",
         "description": f"Remove an attribute or filter from {intended_attrs}.",
+        "long_description": f"Remove one aspect of the Current Vis. We can either remove an attribute or filter from {intended_attrs}.",
     }
     # to observe a more general trend
     # if we do no have enough column attributes or too many, return no vis.
