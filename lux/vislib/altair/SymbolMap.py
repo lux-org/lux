@@ -143,11 +143,11 @@ class SymbolMap(AltairChart):
 
     def get_background(self, feature):
         """Returns background projection based on secondary feature."""
-        from vega_datasets import data
-
+        us_url = "https://cdn.jsdelivr.net/npm/vega-datasets@v1.29.0/data/us-10m.json"
+        world_url = "https://cdn.jsdelivr.net/npm/vega-datasets@v1.29.0/data/world-110m.json"
         maps = {
-            "state": (alt.topo_feature(data.us_10m.url, feature="states"), "albersUsa"),
-            "country": (alt.topo_feature(data.world_110m.url, feature="countries"), "equirectangular"),
+            "state": (alt.topo_feature(us_url, feature="states"), "albersUsa"),
+            "country": (alt.topo_feature(world_url, feature="countries"), "equirectangular"),
         }
         assert feature in maps
         height = 175

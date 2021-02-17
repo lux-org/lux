@@ -74,6 +74,7 @@ def geomap(ldf, ignore_transpose: bool = True):
 
     vlist.sort()
     recommendation["collection"] = vlist
+    print(recommendation)
     return recommendation
 
 

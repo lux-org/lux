@@ -20,6 +20,7 @@ from lux.vislib.altair.ScatterChart import ScatterChart
 from lux.vislib.altair.LineChart import LineChart
 from lux.vislib.altair.Histogram import Histogram
 from lux.vislib.altair.Heatmap import Heatmap
+from lux.vislib.altair.SymbolMap import SymbolMap
 
 
 class AltairRenderer:
