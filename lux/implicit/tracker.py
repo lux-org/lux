@@ -22,7 +22,8 @@ class CodeTracker():
         """
         Start watching. For more info: https://ipython.readthedocs.io/en/stable/config/callbacks.html
         """
-        self.shell.events.register('post_run_cell', self.post_run_cell)
+        if self.shell:
+            self.shell.events.register('post_run_cell', self.post_run_cell)
         #print("CodeTracker: Shell watching init success.")
 
     def post_run_cell(self, result):
@@ -150,10 +151,12 @@ class CodeTracker():
 
         get_dfs_and_columns()
         """
-
-        result = self.shell.run_cell(run_code).result 
-        self.df_info = result
-
+        if self.shell:
+            result = self.shell.run_cell(run_code).result 
+            self.df_info = result
+        else:
+            result = None 
+            
         return result
     
     
