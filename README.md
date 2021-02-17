@@ -3,7 +3,12 @@ With Program Analysis -- Development version.
 
 See below for install instructions
 
-## Setting up Build and Installation Process
+## Easy install
+`pip install git+https://github.com/willeppy/lux.git`
+
+Then you can run `import lux` in jupyter environments. Note this wont work outside of ipython envs.
+
+## Set up locally for dev purposes
 
 
 ```bash
@@ -31,7 +36,7 @@ It is often useful to test your code changes via Jupyter notebook. To debug your
 
 For example, you can have a test notebook `test.ipynb` that imports. Note that when you do `import lux` at this path, it imports the local lux/ module instead of your global installation (either system-wide or in your virtual environment).
 
-__*NOTE*__: if you run a notebook in another directory and import lux it will import the lux version from pip and NOT this one since this the other version is installed by lux-widget and this version isnt on pip yet.
+__*NOTE*__: if you run a notebook in another directory and import lux it will import the lux version from pip and NOT your local dev version. Run `lux.__path__` to see where your package is being imported from.
 
 ```
 lux/
