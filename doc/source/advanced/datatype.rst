@@ -108,28 +108,27 @@ Lux attempts to infer the data type information for every column in the datafram
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-6.png?raw=true
   :width: 300
 
-Lux incorrectly assumes that :code:`state` is a :code:`quantitative` column because the column seems to be made of numbers. 
-The visualizations reflect this inference:
+Lux incorrectly assumes that :code:`state` is a :code:`quantitative` column because the column seems to be made of numbers. If we plot a visualization based on state, a histogram is displayed:
 
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-13.png?raw=true
-  :width: 400
+  :width: 250
 
-However, in reality, the column contains numbers that map to particular states. 
-In this case, the :code:`state` column is probably better suited as a :code:`nominal` column. 
+However, in reality, :code:`state` does not represent numbers with any meaningful relationship since the numbers discretely map to individual states. 
+In this case, the :code:`state` column is better suited as a :code:`nominal` column. 
 To change the inferred data type, use the :code:`set_data_type` method: 
 
 .. code-block:: python
 
     df.set_data_type({"state":"nominal"})
 
-The user specified data type information overrides the Lux-detected type information.
-From now on, Lux will interpret the :code:`state` column as a :code:`nominal` variable. 
+The user specified data type information overrides the lux-detected data type.
+From now on, Lux will interpret the :code:`state` column as :code:`nominal`. 
 We can validate this by inspecting :code:`df.data_type`:
 
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-7.png?raw=true
   :width: 300
 
-Now, the :code:`state` column behaves like a :code:`nominal` column as shown below:
+Now, when we plot the same visualization again, the :code:`nominal` :code:`state` column is displayed as a bar chart visualization. This bar chart visualization shows that state 6, 34, and 48 has the largest number of records, an insight that was hidden away in the binned histogram when the data type was misdetected.
 
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/datatype-14.png?raw=true
-  :width: 400
+  :width: 250
