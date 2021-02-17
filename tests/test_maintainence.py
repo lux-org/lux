@@ -71,13 +71,13 @@ def test_metadata_column_group_reset_df(global_var):
 
 
 def test_recs_inplace_operation(global_var):
-    df = pytest.car_df
+    df = pytest.college_df
     df._repr_html_()
     assert df._recs_fresh == True, "Failed to maintain recommendation after display df"
-    assert len(df.recommendation["Occurrence"]) == 4
+    assert len(df.recommendation["Occurrence"]) == 6
     df.drop(columns=["Name"], inplace=True)
     assert "Name" not in df.columns, "Failed to perform `drop` operation in-place"
     assert df._recs_fresh == False, "Failed to maintain recommendation after in-place Pandas operation"
     df._repr_html_()
-    assert len(df.recommendation["Occurrence"]) == 3
+    assert len(df.recommendation["Occurrence"]) == 5
     assert df._recs_fresh == True, "Failed to maintain recommendation after display df"

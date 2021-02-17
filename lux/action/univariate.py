@@ -52,19 +52,32 @@ def univariate(ldf, *args):
         ]
         intent = [lux.Clause(possible_attributes)]
         intent.extend(filter_specs)
+        examples = ""
+        if len(possible_attributes) >= 1:
+            examples = f" (e.g., {possible_attributes[0]})"
         recommendation = {
             "action": "Distribution",
             "description": "Show univariate histograms of <p class='highlight-descriptor'>quantitative</p>  attributes.",
+            "long_description": f"Distribution displays univariate histogram distributions of all quantitative attributes{examples}. Visualizations are ranked from most to least skewed.",
         }
         # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
         if len(ldf) < 5:
             ignore_rec_flag = True
     elif data_type_constraint == "nominal":
+        possible_attributes = [
+            c
+            for c in ldf.columns
+            if ldf.data_type[c] == "nominal" and ldf.cardinality[c] > 5 and c != "Number of Records"
+        ]
+        examples = ""
+        if len(possible_attributes) >= 1:
+            examples = f" (e.g., {possible_attributes[0]})"
         intent = [lux.Clause("?", data_type="nominal")]
         intent.extend(filter_specs)
         recommendation = {
             "action": "Occurrence",
             "description": "Show frequency of occurrence for <p class='highlight-descriptor'>categorical</p> attributes.",
+            "long_description": f"Occurence displays bar charts of counts for all categorical attributes{examples}. Visualizations are ranked from most to least uneven across the bars. ",
         }
     elif data_type_constraint == "temporal":
         intent = [lux.Clause("?", data_type="temporal")]
@@ -72,6 +85,7 @@ def univariate(ldf, *args):
         recommendation = {
             "action": "Temporal",
             "description": "Show trends over <p class='highlight-descriptor'>time-related</p> attributes.",
+            "long_description": "Temporal displays line charts for all attributes related to datetimes in the dataframe.",
         }
         # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
         if len(ldf) < 3:

@@ -87,7 +87,7 @@ def test_row_column_group(global_var):
     tseries[tseries.columns.max()] = tseries[tseries.columns.max()].fillna(tseries.max(axis=1))
     tseries = tseries.interpolate("zero", axis=1)
     tseries._repr_html_()
-    assert list(tseries.recommendation.keys()) == ["Row Groups", "Column Groups"]
+    assert list(tseries.recommendation.keys()) == ["Temporal"]
 
 
 def test_groupby(global_var):
@@ -171,6 +171,7 @@ def test_custom_aggregation(global_var):
     df.set_intent(["HighestDegree", lux.Clause("AverageCost", aggregation=np.ptp)])
     df._repr_html_()
     assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]
+    df.clear_intent()
 
 
 def test_year_filter_value(global_var):

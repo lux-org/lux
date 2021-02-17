@@ -43,3 +43,8 @@ class History:
     def append_event(self, name, *args, **kwargs):
         event = Event(name, *args, **kwargs)
         self._events.append(event)
+
+    def copy(self):
+        history_copy = History()
+        history_copy._events.extend(self._events)
+        return history_copy
