@@ -54,10 +54,8 @@ class SymbolMap(AltairChart):
 
         secondary_feature = self.get_secondary_feature()
         quantitative_feature = self.get_quantitative_feature()
-        # print(self.data[quantitative_feature])
         background = self.get_background(secondary_feature)
         geographical_name = self.get_geographical_name(secondary_feature)
-        # mean_acc='mean(Acceleration)'
         if quantitative_feature:
             points = (
                 alt.Chart(self.data)
