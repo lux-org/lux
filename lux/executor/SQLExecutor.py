@@ -355,8 +355,8 @@ class SQLExecutor(Executor):
         bin_attribute = list(filter(lambda x: x.bin_size != 0, view._inferred_intent))[0]
 
         num_bins = bin_attribute.bin_size
-        attr_min = min(ldf.unique_values[bin_attribute.attribute])
-        attr_max = max(ldf.unique_values[bin_attribute.attribute])
+        attr_min = ldf._min_max[bin_attribute.attribute][0]
+        attr_max = ldf._min_max[bin_attribute.attribute][1]
         attr_type = type(ldf.unique_values[bin_attribute.attribute][0])
 
         # get filters if available
@@ -377,12 +377,13 @@ class SQLExecutor(Executor):
                 upper_edges.append(str(curr_edge))
         upper_edges = ",".join(upper_edges)
         view_filter, filter_vars = SQLExecutor.execute_filter(view)
-        bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket(\"{}\", '{}') FROM {} {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(
+        bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket(CAST (\"{}\" AS FLOAT), '{}') FROM {} {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(
             bin_attribute.attribute,
             "{" + upper_edges + "}",
             ldf.table_name,
             where_clause,
         )
+        print(bin_count_query)
         bin_count_data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
         if not bin_count_data["width_bucket"].isnull().values.any():
             # np.histogram breaks if data contain NaN
@@ -511,7 +512,7 @@ class SQLExecutor(Executor):
             #     bin_where_clause,
             # )
 
-            bin_count_query = 'SELECT width_bucket("{}", {}) as width_bucket, count(*) FROM {} {} GROUP BY width_bucket'.format(
+            bin_count_query = 'SELECT width_bucket(CAST ("{}" AS FLOAT), {}) as width_bucket, count(*) FROM {} {} GROUP BY width_bucket'.format(
                 y_attribute.attribute,
                 str(y_attr_min) + "," + str(y_attr_max) + "," + str(num_bins - 1),
                 ldf.table_name,
