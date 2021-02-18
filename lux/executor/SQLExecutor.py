@@ -383,7 +383,7 @@ class SQLExecutor(Executor):
             ldf.table_name,
             where_clause,
         )
-        print(bin_count_query)
+
         bin_count_data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
         if not bin_count_data["width_bucket"].isnull().values.any():
             # np.histogram breaks if data contain NaN
