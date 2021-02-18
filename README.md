@@ -4,7 +4,11 @@ With Program Analysis -- Development version.
 See below for install instructions
 
 ## Easy install
-`pip install git+https://github.com/willeppy/lux.git`
+```
+pip install git+https://github.com/willeppy/lux.git
+jupyter labextension install @jupyter-widgets/jupyterlab-manager
+jupyter labextension install luxwidget
+```
 
 Then you can run `import lux` in jupyter environments. Note this wont work outside of ipython envs.
 
