@@ -41,7 +41,7 @@ class SQLExecutor(Executor):
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
                 length_query = pandas.read_sql(
                     "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
-                    lux.config.SQLconnection
+                    lux.config.SQLconnection,
                 )
                 view_data_length = list(length_query["length"])[0]
                 if len(view.get_attr_by_channel("color")) == 1 or view_data_length <= 10000000:
@@ -574,8 +574,8 @@ class SQLExecutor(Executor):
 
         attributes = utils.get_attrs_specs(view._inferred_intent)
 
-        #need to ensure that no null values are included in the data
-        #null values breaks binning queries
+        # need to ensure that no null values are included in the data
+        # null values breaks binning queries
         for a in attributes:
             if a.attribute != "Record":
                 if where_clause == []:
