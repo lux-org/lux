@@ -21,6 +21,12 @@ from lux.history.history import History
 from lux.utils.message import Message
 
 
+from lux.vis.VisList import VisList
+from lux.history.history import History
+from lux.utils.message import Message
+from lux.utils.utils import check_import_lux_widget
+from typing import Dict, Union, List, Callable
+
 class LuxSeries(pd.Series):
     """
     A subclass of pd.Series that supports all 1-D Series operations
@@ -68,6 +74,7 @@ class LuxSeries(pd.Series):
                 self.__dict__[attr] = self._default_metadata[attr]()
             else:
                 self.__dict__[attr] = None
+        self._widget = None
 
     @property
     def _constructor(self):
@@ -157,6 +164,9 @@ class LuxSeries(pd.Series):
                 ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")
                 ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
 
+                self._widget = ldf._widget
+                self._recommendation = ldf.recommendation
+
                 if len(ldf.recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
                     button = widgets.Button(
@@ -205,13 +215,82 @@ class LuxSeries(pd.Series):
 
     @property
     def recommendation(self):
-        from lux.core.frame import LuxDataFrame
+        return self._recommendation
 
-        if self.name is None:
-            self.name = " "
-        ldf = LuxDataFrame(self)
+    @property
+    def exported(self) -> Union[Dict[str, VisList], VisList]:
+        """
+        Get selected visualizations as exported Vis List
 
-        if self._recommendation is not None and self._recommendation == {}:
-            ldf.maintain_metadata()
-            ldf.maintain_recs()
-        return ldf._recommendation
+        Notes
+        -----
+        Convert the _selectedVisIdxs dictionary into a programmable VisList
+        Example _selectedVisIdxs :
+
+            {'Correlation': [0, 2], 'Occurrence': [1]}
+
+        indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Occurrence` tab is selected.
+
+        Returns
+        -------
+        Union[Dict[str,VisList], VisList]
+                When there are no exported vis, return empty list -> []
+                When all the exported vis is from the same tab, return a VisList of selected visualizations. -> VisList(v1, v2...)
+                When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisList. -> {"Enhance": VisList(v1, v2...), "Filter": VisList(v5, v7...), ..}
+        """
+        if self._widget is None:
+            warnings.warn(
+                "\nNo widget attached to the dataframe."
+                "Please assign dataframe to an output variable.\n"
+                "See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips",
+                stacklevel=2,
+            )
+            return []
+        exported_vis_lst = self._widget._selectedVisIdxs
+        exported_vis = []
+        if exported_vis_lst == {}:
+            if self._saved_export:
+                return self._saved_export
+            warnings.warn(
+                "\nNo visualization selected to export.\n"
+                "See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips",
+                stacklevel=2,
+            )
+            return []
+        if len(exported_vis_lst) == 1 and "currentVis" in exported_vis_lst:
+            return self.current_vis
+        elif len(exported_vis_lst) > 1:
+            exported_vis = {}
+            if "currentVis" in exported_vis_lst:
+                exported_vis["Current Vis"] = self.current_vis
+            for export_action in exported_vis_lst:
+                if export_action != "currentVis":
+                    exported_vis[export_action] = VisList(
+                        list(
+                            map(
+                                self._recommendation[export_action].__getitem__,
+                                exported_vis_lst[export_action],
+                            )
+                        )
+                    )
+            return exported_vis
+        elif len(exported_vis_lst) == 1 and ("currentVis" not in exported_vis_lst):
+            export_action = list(exported_vis_lst.keys())[0]
+            exported_vis = VisList(
+                list(
+                    map(
+                        self._recommendation[export_action].__getitem__,
+                        exported_vis_lst[export_action],
+                    )
+                )
+            )
+            self._saved_export = exported_vis
+            return exported_vis
+        else:
+            warnings.warn(
+                "\nNo visualization selected to export.\n"
+                "See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips",
+                stacklevel=2,
+            )
+            return []
+            

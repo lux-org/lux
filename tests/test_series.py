@@ -89,3 +89,4 @@ def test_unnamed_column():
     series.__repr__()
     exported_code_str = series.recommendation["Distribution"][0].to_Altair()
     assert axis_title in exported_code_str, "Unnamed column should have 'Series' as placeholder"
+    
