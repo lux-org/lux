@@ -19,12 +19,7 @@ import traceback
 import numpy as np
 from lux.history.history import History
 from lux.utils.message import Message
-
-
 from lux.vis.VisList import VisList
-from lux.history.history import History
-from lux.utils.message import Message
-from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
 
 
