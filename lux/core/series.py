@@ -27,6 +27,7 @@ from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
 
+
 class LuxSeries(pd.Series):
     """
     A subclass of pd.Series that supports all 1-D Series operations
@@ -292,4 +293,3 @@ class LuxSeries(pd.Series):
                 stacklevel=2,
             )
             return []
-
