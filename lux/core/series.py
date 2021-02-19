@@ -160,7 +160,6 @@ class LuxSeries(pd.Series):
                 ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
 
                 self._widget = ldf._widget
-                self._recommendation = ldf.recommendation
 
                 if len(ldf.recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
@@ -210,7 +209,15 @@ class LuxSeries(pd.Series):
 
     @property
     def recommendation(self):
-        return self._recommendation
+        from lux.core.frame import LuxDataFrame
+
+        if self.name is None:
+            self.name = " "
+        ldf = LuxDataFrame(self)
+
+        ldf.maintain_metadata()
+        ldf.maintain_recs()
+        return ldf._recommendation
 
     @property
     def exported(self) -> Union[Dict[str, VisList], VisList]:
