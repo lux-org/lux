@@ -74,7 +74,6 @@ class LuxSeries(pd.Series):
                 self.__dict__[attr] = self._default_metadata[attr]()
             else:
                 self.__dict__[attr] = None
-        self._widget = None
 
     @property
     def _constructor(self):
@@ -293,4 +292,4 @@ class LuxSeries(pd.Series):
                 stacklevel=2,
             )
             return []
-            
+
