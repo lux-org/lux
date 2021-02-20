@@ -469,14 +469,14 @@ class SQLExecutor(Executor):
             y_attribute.attribute,
             "{" + y_upper_edges_string + "}",
             ldf.table_name,
-            where_clause
+            where_clause,
         )
 
-        #data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
-        
+        # data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
+
         data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
-        #data = data[data["width_bucket1"] != num_bins - 1]
-        #data = data[data["width_bucket2"] != num_bins - 1]
+        # data = data[data["width_bucket1"] != num_bins - 1]
+        # data = data[data["width_bucket2"] != num_bins - 1]
         if len(data) > 0:
             data["xBinStart"] = data.apply(
                 lambda row: float(x_upper_edges[int(row["width_bucket1"]) - 1]) - x_bin_width, axis=1
