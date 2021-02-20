@@ -148,7 +148,7 @@ def test_filter():
     filter_output = SQLExecutor.execute_filter(vis)
     assert (
         filter_output[0]
-        == 'WHERE "origin" = \'USA\' AND "year" IS NOT NULL AND "horsepower" IS NOT NULL'
+        == 'WHERE "origin" = \'USA\''
     )
     assert filter_output[1] == ["origin"]
 
@@ -167,7 +167,7 @@ def test_inequalityfilter():
     )
     vis._vis_data = sql_df
     filter_output = SQLExecutor.execute_filter(vis)
-    assert filter_output[0] == 'WHERE "horsepower" > \'50\' AND "milespergal" IS NOT NULL'
+    assert filter_output[0] == 'WHERE "horsepower" > \'50\''
     assert filter_output[1] == ["horsepower"]
 
     intent = [
@@ -177,7 +177,7 @@ def test_inequalityfilter():
     vis = Vis(intent, sql_df)
     vis._vis_data = sql_df
     filter_output = SQLExecutor.execute_filter(vis)
-    assert filter_output[0] == 'WHERE "horsepower" <= \'100\' AND "milespergal" IS NOT NULL'
+    assert filter_output[0] == 'WHERE "horsepower" <= \'100\''
     assert filter_output[1] == ["horsepower"]
 
 
