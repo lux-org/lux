@@ -52,7 +52,6 @@ class LuxDataFrame(pd.DataFrame):
         "_toggle_pandas_display",
         "_message",
         "_pandas_only",
-        "_recs_fresh",
         "pre_aggregated",
         "_type_override",
     ]
@@ -84,7 +83,7 @@ class LuxDataFrame(pd.DataFrame):
         self._min_max = None
         self.pre_aggregated = None
         self._type_override = {}
-        self._recs_fresh = False
+        # self._recs_fresh = False
         warnings.formatwarning = lux.warning_format
 
     @property
