@@ -121,7 +121,7 @@ class LuxSeries(pd.Series):
             # 2) Mixed type, often a result of a "row" acting as a series (df.iterrows, df.iloc[0])
             # Tolerant for NaNs + 1 type
             mixed_dtype = len(set([type(val) for val in self.values])) > 2
-            if ldf._pandas_only:
+            if ldf._pandas_only or is_dtype_series or mixed_dtype:
                 print(series_repr)
                 ldf._pandas_only = False
             else:
@@ -156,7 +156,6 @@ class LuxSeries(pd.Series):
                     self._toggle_pandas_display = True
 
                 # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-                ldf.show_prev = False
                 ldf.maintain_recs()
 
                 # Observers(callback_function, listen_to_this_variable)
