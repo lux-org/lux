@@ -52,6 +52,7 @@ class LuxDataFrame(pd.DataFrame):
         "_toggle_pandas_display",
         "_message",
         "_pandas_only",
+        "_recs_fresh",
         "pre_aggregated",
         "_type_override",
     ]
@@ -83,6 +84,7 @@ class LuxDataFrame(pd.DataFrame):
         self._min_max = None
         self.pre_aggregated = None
         self._type_override = {}
+        self._recs_fresh = False
         warnings.formatwarning = lux.warning_format
 
     @property
@@ -174,10 +176,7 @@ class LuxDataFrame(pd.DataFrame):
             self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
             if "Number of Records" in self.columns:
                 self.pre_aggregated = True
-            very_small_df_flag = len(self) <= 10
             self.pre_aggregated = "groupby" in [event.name for event in self.history]
-            # if very_small_df_flag:
-            #     self.pre_aggregated = True
 
     @property
     def intent(self):
@@ -462,7 +461,7 @@ class LuxDataFrame(pd.DataFrame):
         rec_df._prev = None  # reset _prev
 
         # Check that recs has not yet been computed
-        if not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh:
+        if not (hasattr(rec_df, "_recs_fresh") and rec_df._recs_fresh):
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
@@ -490,10 +489,17 @@ class LuxDataFrame(pd.DataFrame):
                 if len(vlist) > 0:
                     rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
+            if len(self) < 5:
+                rec_df._message.add(f"Lux could not compute any actions because the DataFrame is too small (less than 5 data points).")
+            for column in rec_df.columns:
+                if self.data_type.get(column) != "temporal" and self.cardinality.get(column) == 1:
+                    rec_df._message.add(
+                        f"Lux could not visualize the column {column} because it has less than 5 unique values.")
             self._widget = rec_df.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
             self._widget = rec_df.render_widget()
+        
         self._recs_fresh = True
 
     #######################################################
@@ -654,38 +660,29 @@ class LuxDataFrame(pd.DataFrame):
                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
                 self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
-                if len(self._recommendation) > 0:
-                    # box = widgets.Box(layout=widgets.Layout(display='inline'))
-                    button = widgets.Button(
-                        description="Toggle Pandas/Lux",
-                        layout=widgets.Layout(width="140px", top="5px"),
-                    )
-                    self.output = widgets.Output()
-                    # box.children = [button,output]
-                    # output.children = [button]
-                    # display(box)
-                    display(button, self.output)
 
-                    def on_button_clicked(b):
-                        with self.output:
-                            if b:
-                                self._toggle_pandas_display = not self._toggle_pandas_display
-                            clear_output()
-                            if self._toggle_pandas_display:
-                                display(self.display_pandas())
-                            else:
-                                # b.layout.display = "none"
-                                display(self._widget)
-                                # b.layout.display = "inline-block"
+                button = widgets.Button(
+                    description="Toggle Pandas/Lux",
+                    layout=widgets.Layout(width="140px", top="5px"),
+                )
+                self.output = widgets.Output()
+                display(button, self.output)
 
-                    button.on_click(on_button_clicked)
-                    on_button_clicked(None)
-                else:
-                    warnings.warn(
-                        "\nLux defaults to Pandas when there are no valid actions defined.",
-                        stacklevel=2,
-                    )
-                    display(self.display_pandas())
+                def on_button_clicked(b):
+                    with self.output:
+                        if b:
+                            self._toggle_pandas_display = not self._toggle_pandas_display
+                        clear_output()
+                        if self._toggle_pandas_display:
+                            display(self.display_pandas())
+                        else:
+                            # b.layout.display = "none"
+                            display(self._widget)
+                            # b.layout.display = "inline-block"
+
+                button.on_click(on_button_clicked)
+                on_button_clicked(None)
+
 
         except (KeyboardInterrupt, SystemExit):
             raise

@@ -121,10 +121,16 @@ class LuxSeries(pd.Series):
             # 2) Mixed type, often a result of a "row" acting as a series (df.iterrows, df.iloc[0])
             # Tolerant for NaNs + 1 type
             mixed_dtype = len(set([type(val) for val in self.values])) > 2
-            if ldf._pandas_only or is_dtype_series or mixed_dtype:
+            if ldf._pandas_only:
                 print(series_repr)
                 ldf._pandas_only = False
             else:
+                if is_dtype_series:
+                    ldf._message.add("Lux could not compute any actions because the Series provided has a cardinality of 1.")
+                    ldf.expire_recs()
+                if mixed_dtype:
+                    ldf._message.add("Lux could not compute any actions because the Series provided has mixed dtype.")
+                    ldf.expire_recs()
                 if self.index.nlevels >= 2:
                     warnings.warn(
                         "\nLux does not currently support series "
@@ -135,7 +141,6 @@ class LuxSeries(pd.Series):
                     )
                     print(series_repr)
                     return ""
-
                 if len(self) <= 0:
                     warnings.warn(
                         "\nLux can not operate on an empty series.\nPlease check your input again.\n",
@@ -151,44 +156,38 @@ class LuxSeries(pd.Series):
                     self._toggle_pandas_display = True
 
                 # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+                ldf.show_prev = False
                 ldf.maintain_recs()
 
                 # Observers(callback_function, listen_to_this_variable)
                 ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")
                 ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
 
-                if len(ldf.recommendation) > 0:
-                    # box = widgets.Box(layout=widgets.Layout(display='inline'))
-                    button = widgets.Button(
-                        description="Toggle Pandas/Lux",
-                        layout=widgets.Layout(width="140px", top="5px"),
-                    )
-                    ldf.output = widgets.Output()
-                    # box.children = [button,output]
-                    # output.children = [button]
-                    # display(box)
-                    display(button, ldf.output)
+                # box = widgets.Box(layout=widgets.Layout(display='inline'))
+                button = widgets.Button(
+                    description="Toggle Pandas/Lux",
+                    layout=widgets.Layout(width="140px", top="5px"),
+                )
+                ldf.output = widgets.Output()
+                # box.children = [button,output]
+                # output.children = [button]
+                # display(box)
+                display(button, ldf.output)
 
-                    def on_button_clicked(b):
-                        with ldf.output:
-                            if b:
-                                self._toggle_pandas_display = not self._toggle_pandas_display
-                            clear_output()
-                            if self._toggle_pandas_display:
-                                print(series_repr)
-                            else:
-                                # b.layout.display = "none"
-                                display(ldf._widget)
-                                # b.layout.display = "inline-block"
+                def on_button_clicked(b):
+                    with ldf.output:
+                        if b:
+                            self._toggle_pandas_display = not self._toggle_pandas_display
+                        clear_output()
+                        if self._toggle_pandas_display:
+                            print(series_repr)
+                        else:
+                            # b.layout.display = "none"
+                            display(ldf._widget)
+                            # b.layout.display = "inline-block"
 
-                    button.on_click(on_button_clicked)
-                    on_button_clicked(None)
-                else:
-                    warnings.warn(
-                        "\nLux defaults to Pandas when there are no valid actions defined.",
-                        stacklevel=2,
-                    )
-                    print(series_repr)
+                button.on_click(on_button_clicked)
+                on_button_clicked(None)
 
         except (KeyboardInterrupt, SystemExit):
             raise
