@@ -126,7 +126,6 @@ class LuxDataFrame(pd.DataFrame):
         """
         self._recs_fresh = False
         self._recommendation = {}
-        self.current_vis = None
         self._widget = None
         self._rec_info = None
         self._sampled = None
