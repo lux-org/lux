@@ -125,12 +125,6 @@ class LuxSeries(pd.Series):
                 print(series_repr)
                 ldf._pandas_only = False
             else:
-                if is_dtype_series:
-                    ldf._message.add("Lux could not compute any actions because the Series provided has a cardinality of 1.")
-                    ldf.expire_recs()
-                if mixed_dtype:
-                    ldf._message.add("Lux could not compute any actions because the Series provided has mixed dtype.")
-                    ldf.expire_recs()
                 if self.index.nlevels >= 2:
                     warnings.warn(
                         "\nLux does not currently support series "
