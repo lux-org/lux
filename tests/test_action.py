@@ -259,3 +259,18 @@ def test_similarity2():
         )
     )[0]
     assert morrisville_vis.score > watertown_vis.score
+
+
+def test_intent_retained():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
+    df.intent = ["Attrition"]
+    df._repr_html_()
+
+    df["%WorkingYearsAtCompany"] = df["YearsAtCompany"] / df["TotalWorkingYears"]
+    assert df.current_vis != None
+    assert df.intent != None
+    assert df._recs_fresh == False
+    assert df._metadata_fresh == False
+
+    df._repr_html_()
+    assert list(df.recommendation.keys()) == ["Enhance", "Filter"]
