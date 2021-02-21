@@ -44,7 +44,7 @@ class SQLExecutor(Executor):
                     lux.config.SQLconnection,
                 )
                 view_data_length = list(length_query["length"])[0]
-                if len(view.get_attr_by_channel("color")) == 1 or view_data_length <= 10000000:
+                if len(view.get_attr_by_channel("color")) == 1 or view_data_length <= 1000:
                     # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
                     has_color = True
                     SQLExecutor.execute_scatter(view, ldf)
@@ -90,7 +90,6 @@ class SQLExecutor(Executor):
             lux.config.SQLconnection,
         )
 
-        # SQLExecutor.execute_2D_binning(view, ldf)
         def add_quotes(var_name):
             return '"' + var_name + '"'
 
@@ -383,7 +382,7 @@ class SQLExecutor(Executor):
             ldf.table_name,
             where_clause,
         )
-        print(bin_count_query)
+
         bin_count_data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
         if not bin_count_data["width_bucket"].isnull().values.any():
             # np.histogram breaks if data contain NaN
@@ -423,25 +422,13 @@ class SQLExecutor(Executor):
 
     @staticmethod
     def execute_2D_binning(view: Vis, ldf: LuxDataFrame):
-        """
-        Binning of data points for generating 2D heatmaps
-        Parameters
-        ----------
-        vis: lux.Vis
-            lux.Vis object that represents a visualization
-        ldf : lux.core.frame
-            LuxDataFrame with specified intent.
-        Returns
-        -------
-        None
-        """
         import numpy as np
 
         x_attribute = list(filter(lambda x: x.channel == "x", view._inferred_intent))[0]
 
         y_attribute = list(filter(lambda x: x.channel == "y", view._inferred_intent))[0]
 
-        num_bins = 40
+        num_bins = lux.config.heatmap_bin_size
         x_attr_min = ldf._min_max[x_attribute.attribute][0]
         x_attr_max = ldf._min_max[x_attribute.attribute][1]
         x_attr_type = type(ldf.unique_values[x_attribute.attribute][0])
@@ -475,65 +462,35 @@ class SQLExecutor(Executor):
         x_upper_edges_string = [str(int) for int in x_upper_edges]
         x_upper_edges_string = ",".join(x_upper_edges_string)
         y_upper_edges_string = ",".join(y_upper_edges)
-        # view_filter, filter_vars = SQLExecutor.execute_filter(view)
 
-        # create a new where clause that will include the filter for each x axis bin
-        bin_count_data = []
-        for c in range(0, len(y_upper_edges)):
-            if len(where_clause) > 1:
-                bin_where_clause = where_clause + " AND "
-            else:
-                bin_where_clause = "WHERE "
-            if c == 0:
-                lower_bound = x_attr_min
-                lower_bound_clause = (
-                    '"' + x_attribute.attribute + '"' + " >= " + "'" + str(lower_bound) + "'"
-                )
-            else:
-                lower_bound = x_upper_edges[c - 1]
-                lower_bound_clause = (
-                    '"' + x_attribute.attribute + '"' + " >= " + "'" + str(lower_bound) + "'"
-                )
-            upper_bound = x_upper_edges[c]
-            if c == len(y_upper_edges) - 1:
-                upper_bound_clause = (
-                    '"' + x_attribute.attribute + '"' + " <= " + "'" + str(upper_bound) + "'"
-                )
-            else:
-                upper_bound_clause = (
-                    '"' + x_attribute.attribute + '"' + " < " + "'" + str(upper_bound) + "'"
-                )
-            bin_where_clause = bin_where_clause + lower_bound_clause + " AND " + upper_bound_clause
+        bin_count_query = "SELECT width_bucket1, width_bucket2, count(*) FROM (SELECT width_bucket(CAST (\"{}\" AS FLOAT), '{}') as width_bucket1, width_bucket(CAST (\"{}\" AS FLOAT), '{}') as width_bucket2 FROM {} {}) as foo GROUP BY width_bucket1, width_bucket2".format(
+            x_attribute.attribute,
+            "{" + x_upper_edges_string + "}",
+            y_attribute.attribute,
+            "{" + y_upper_edges_string + "}",
+            ldf.table_name,
+            where_clause,
+        )
 
-            # bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket(\"{}\", '{}') FROM {} {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(
-            #     y_attribute.attribute,
-            #     "{" + y_upper_edges_string + "}",
-            #     ldf.table_name,
-            #     bin_where_clause,
-            # )
+        # data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
 
-            bin_count_query = 'SELECT width_bucket(CAST ("{}" AS FLOAT), {}) as width_bucket, count(*) FROM {} {} GROUP BY width_bucket'.format(
-                y_attribute.attribute,
-                str(y_attr_min) + "," + str(y_attr_max) + "," + str(num_bins - 1),
-                ldf.table_name,
-                bin_where_clause,
+        data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
+        # data = data[data["width_bucket1"] != num_bins - 1]
+        # data = data[data["width_bucket2"] != num_bins - 1]
+        if len(data) > 0:
+            data["xBinStart"] = data.apply(
+                lambda row: float(x_upper_edges[int(row["width_bucket1"]) - 1]) - x_bin_width, axis=1
             )
-
-            curr_column_data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
-            curr_column_data = curr_column_data[curr_column_data["width_bucket"] != num_bins - 1]
-            if len(curr_column_data) > 0:
-                curr_column_data["xBinStart"] = lower_bound
-                curr_column_data["xBinEnd"] = upper_bound
-                curr_column_data["yBinStart"] = curr_column_data.apply(
-                    lambda row: float(y_upper_edges[int(row["width_bucket"]) - 1]) - y_bin_width, axis=1
-                )
-                curr_column_data["yBinEnd"] = curr_column_data.apply(
-                    lambda row: float(y_upper_edges[int(row["width_bucket"]) - 1]), axis=1
-                )
-                bin_count_data.append(curr_column_data)
-        output = pandas.concat(bin_count_data)
-        output = output.drop(["width_bucket"], axis=1).to_pandas()
-        view._vis_data = utils.pandas_to_lux(output)
+            data["xBinEnd"] = data.apply(
+                lambda row: float(x_upper_edges[int(row["width_bucket1"]) - 1]), axis=1
+            )
+            data["yBinStart"] = data.apply(
+                lambda row: float(y_upper_edges[int(row["width_bucket2"]) - 1]) - y_bin_width, axis=1
+            )
+            data["yBinEnd"] = data.apply(
+                lambda row: float(y_upper_edges[int(row["width_bucket2"]) - 1]), axis=1
+            )
+        view._vis_data = utils.pandas_to_lux(data)
 
     @staticmethod
     def execute_filter(view: Vis):
@@ -576,18 +533,18 @@ class SQLExecutor(Executor):
 
         # need to ensure that no null values are included in the data
         # null values breaks binning queries
-        for a in attributes:
-            if a.attribute != "Record":
-                if where_clause == []:
-                    where_clause.append("WHERE")
-                else:
-                    where_clause.append("AND")
-                where_clause.extend(
-                    [
-                        '"' + str(a.attribute) + '"',
-                        "IS NOT NULL",
-                    ]
-                )
+        # for a in attributes:
+        #     if a.attribute != "Record":
+        #         if where_clause == []:
+        #             where_clause.append("WHERE")
+        #         else:
+        #             where_clause.append("AND")
+        #         where_clause.extend(
+        #             [
+        #                 '"' + str(a.attribute) + '"',
+        #                 "IS NOT NULL",
+        #             ]
+        #         )
 
         if where_clause == []:
             return ("", [])
