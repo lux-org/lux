@@ -114,9 +114,7 @@ def like_nan(val):
 
 
 def like_geo(val):
-    if isinstance(val, str):
-        return val.lower() in {"state", "country"}
-    return False
+    return isinstance(val, str) and val.lower() in {"state", "country"}
 
 
 def matplotlib_setup(w, h):

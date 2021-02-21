@@ -497,9 +497,7 @@ class PandasExecutor(Executor):
     def _is_geographical_attribute(series):
         # run detection algorithm
         name = str(series.name).lower()
-        if utils.like_geo(name):
-            return True
-        return False
+        return utils.like_geo(name)
 
     @staticmethod
     def _is_datetime_number(series):
