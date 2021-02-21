@@ -635,11 +635,13 @@ class LuxDataFrame(pd.DataFrame):
                     display(self.display_pandas())
                     return
 
+                # Displaying initial pandas frame before computing widget
                 pandas_output = widgets.Output()
                 self.output = widgets.Output()
                 
                 with pandas_output:
                     display(self.display_pandas())
+
                 with self.output:
                     display(widgets.HTML(value="Loading widget..."))
 
@@ -647,8 +649,10 @@ class LuxDataFrame(pd.DataFrame):
                 children = [pandas_output, self.output]
                 tab = widgets.Tab()
                 tab.children = children
+
                 for i in range(len(tab_contents)):
                     tab.set_title(i, tab_contents[i])
+
                 display(tab)
 
                 self.maintain_metadata()
@@ -671,41 +675,10 @@ class LuxDataFrame(pd.DataFrame):
                 self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
                 if len(self._recommendation) > 0:
-                    # box = widgets.Box(layout=widgets.Layout(display='inline'))
-                    # button = widgets.Button(
-                    #     description="Toggle Pandas/Lux",
-                    #     layout=widgets.Layout(width="140px", top="5px"),
-                    # )
-
-                    # self.output = widgets.Output()
-
-                    # self.output = widgets.Output()
-                    # children.append(self.output)
-                    # tab.children = children
-
                     with self.output:
                         clear_output()
                         display(self._widget)
 
-                    # box.children = [button,output]
-                    # output.children = [button]
-                    # display(box)
-                    # display(button, self.output)
-
-                    # def on_button_clicked(b):
-                    #     with self.output:
-                    #         if b:
-                    #             self._toggle_pandas_display = not self._toggle_pandas_display
-                    #         clear_output()
-                    #         if self._toggle_pandas_display:
-                    #             display(self.display_pandas())
-                    #         else:
-                    #             # b.layout.display = "none"
-                    #             display(self._widget)
-                    #             # b.layout.display = "inline-block"
-
-                    # button.on_click(on_button_clicked)
-                    # on_button_clicked(None)
                 else:
                     warnings.warn(
                         "\nLux defaults to Pandas when there are no valid actions defined.",
