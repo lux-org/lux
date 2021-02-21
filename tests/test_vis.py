@@ -442,8 +442,8 @@ def test_vegalite_default_actions_registered_2(global_var):
     lux.config.plotting_backend = "vegalite"
 
     # Symbol Map
-    assert "Geographic" in df.recommendation
-    assert len(df.recommendation["Geographic"]) > 0
+    assert "Geographical" in df.recommendation
+    assert len(df.recommendation["Geographical"]) > 0
 
     # Occurrence Chart
     assert "Occurrence" in df.recommendation
@@ -485,7 +485,7 @@ def test_vegalite_heatmap_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df = df.copy()
     assert not df.recommendation["Correlation"][0]._postbin
-    assert "Geographic" not in df.recommendation
+    assert "Geographical" not in df.recommendation
     lux.config.heatmap = True
 
 

@@ -62,7 +62,7 @@ def test_check_hpi():
 
     assert df.data_type == {
         "HPIRank": "quantitative",
-        "Country": "nominal",
+        "Country": "geographical",
         "SubRegion": "nominal",
         "AverageLifeExpectancy": "quantitative",
         "AverageWellBeing": "quantitative",
@@ -87,8 +87,8 @@ def test_check_airbnb():
         "host_name": "nominal",
         "neighbourhood_group": "nominal",
         "neighbourhood": "nominal",
-        "latitude": "geographical",
-        "longitude": "geographical",
+        "latitude": "quantitative",
+        "longitude": "quantitative",
         "room_type": "nominal",
         "price": "quantitative",
         "minimum_nights": "quantitative",
@@ -109,10 +109,10 @@ def test_check_airports():
         "iata": "id",
         "name": "nominal",
         "city": "nominal",
-        "state": "nominal",
-        "country": "nominal",
-        "latitude": "geographical",
-        "longitude": "geographical",
+        "state": "geographical",
+        "country": "geographical",
+        "latitude": "quantitative",
+        "longitude": "quantitative",
     }
 
 
@@ -262,7 +262,7 @@ def test_id_with_label():
         "https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true"
     )
     df.maintain_metadata()
-    assert df.data_type == {"Date": "temporal", "State": "nominal", "Value": "quantitative"}
+    assert df.data_type == {"Date": "temporal", "State": "geographical", "Value": "quantitative"}
 
 
 def test_ID_random():

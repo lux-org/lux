@@ -78,6 +78,8 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
             if v_size < 2:
                 return -1
 
+            if vis.mark == "geographical":
+                return n_distinct(vis, dimension_lst, measure_lst)
             if n_filter == 0:
                 return unevenness(vis, ldf, measure_lst, dimension_lst)
             elif n_filter == 1:
@@ -112,9 +114,6 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
             if v_size < 10:
                 return -1
             color_attr = vis.get_attr_by_channel("color")[0].attribute
-            if vis.mark == "geographical":
-                return vis.data[dimension_lst[0].get_attr()].nunique()
-
             C = ldf.cardinality[color_attr]
             if C < 40:
                 return 1 / C
@@ -365,3 +364,9 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
         return -1
     else:
         return score
+
+
+def n_distinct(vis: Vis, dimension_lst: list, measure_lst: list) -> int:
+    if measure_lst[0].get_attr() in {"longitude", "latitude"}:
+        return -1
+    return vis.data[dimension_lst[0].get_attr()].nunique()

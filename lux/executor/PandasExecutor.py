@@ -94,7 +94,7 @@ class PandasExecutor(Executor):
             # TODO: Add some type of cap size on Nrows ?
             vis._vis_data = vis.data[list(attributes)]
 
-            if vis.mark == "bar" or vis.mark == "line":
+            if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
                 PandasExecutor.execute_binning(vis)
@@ -496,9 +496,8 @@ class PandasExecutor(Executor):
     @staticmethod
     def _is_geographical_attribute(series):
         # run detection algorithm
-        geographical_var_list = ["longitude", "latitude"]
         name = str(series.name).lower()
-        if name in geographical_var_list:
+        if utils.like_geo(name):
             return True
         return False
 

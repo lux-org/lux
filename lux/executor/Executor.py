@@ -74,10 +74,11 @@ class Executor:
     def compute_data_model(self, data_type):
         data_type_inverted = self.invert_data_type(data_type)
         data_model = {
-            "measure": data_type_inverted["quantitative"] + data_type_inverted["geographical"],
+            "measure": data_type_inverted["quantitative"],
             "dimension": data_type_inverted["nominal"]
             + data_type_inverted["temporal"]
-            + data_type_inverted["id"],
+            + data_type_inverted["id"]
+            + data_type_inverted["geographical"],
         }
         return data_model
 

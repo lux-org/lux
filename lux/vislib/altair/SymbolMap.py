@@ -14,19 +14,24 @@
 
 from lux.vislib.altair.AltairChart import AltairChart
 import altair as alt
+import us
+import pycountry
 
 alt.data_transformers.disable_max_rows()
 
 
 class SymbolMap(AltairChart):
     """
-    SymbolMap is a subclass of AltairChart that renders proportional symbol maps.
+    SymbolMap is a subclass of AltairChart that renders choropleth maps.
     All rendering properties for proportional symbol maps are set here.
 
     See Also
     --------
     altair-viz.github.io
     """
+
+    us_url = "https://cdn.jsdelivr.net/npm/vega-datasets@v1.29.0/data/us-10m.json"
+    world_url = "https://cdn.jsdelivr.net/npm/vega-datasets@v1.29.0/data/world-110m.json"
 
     def __init__(self, dobj):
         super().__init__(dobj)
@@ -41,6 +46,11 @@ class SymbolMap(AltairChart):
         x_attr_abv = str(x_attr.attribute)
         y_attr_abv = str(y_attr.attribute)
 
+        background = self.get_background(x_attr_abv.lower())
+        geographical_name = self.get_geographical_name(x_attr_abv.lower())
+        geo_map, map_type, map_translation = self.get_geomap(x_attr_abv.lower())
+        self.data[x_attr_abv] = self.data[x_attr_abv].apply(map_translation)
+
         if len(x_attr_abv) > 25:
             x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
         if len(y_attr_abv) > 25:
@@ -50,54 +60,25 @@ class SymbolMap(AltairChart):
             x_attr.attribute = x_attr.attribute.replace(".", "")
         if isinstance(y_attr.attribute, str):
             y_attr.attribute = y_attr.attribute.replace(".", "")
-        self.data = AltairChart.sanitize_dataframe(self.data)
 
-        secondary_feature = self.get_secondary_feature()
-        quantitative_feature = self.get_quantitative_feature()
-        background = self.get_background(secondary_feature)
-        geographical_name = self.get_geographical_name(secondary_feature)
-        if quantitative_feature:
-            points = (
-                alt.Chart(self.data)
-                .transform_aggregate(
-                    latitude=f"mean({y_attr_abv})",
-                    longitude=f"mean({x_attr_abv})",
-                    mean=f"mean({quantitative_feature})",
-                    groupby=[secondary_feature],
-                )
-                .mark_circle()
-                .encode(
-                    longitude=f"{x_attr_abv}:Q",
-                    latitude=f"{y_attr_abv}:Q",
-                    size=alt.Size("mean:Q", title=f"Average of {quantitative_feature}"),
-                    color=alt.value("steelblue"),
-                    tooltip=[f"{secondary_feature}:N", "mean:Q"],
-                )
-                .properties(title=f"Mean of {quantitative_feature} across {geographical_name}")
+        self.data = AltairChart.sanitize_dataframe(self.data)
+        height = 175
+        width = int(height * (5 / 3))
+
+        points = (
+            alt.Chart(geo_map)
+            .mark_geoshape()
+            .encode(
+                color=f"{y_attr_abv}:Q",
             )
-        else:
-            points = (
-                alt.Chart(self.data)
-                .transform_aggregate(
-                    latitude=f"mean({y_attr_abv})",
-                    longitude=f"mean({x_attr_abv})",
-                    count="count()",
-                    groupby=[secondary_feature],
-                )
-                .mark_circle()
-                .encode(
-                    longitude=f"{x_attr_abv}:Q",
-                    latitude=f"{y_attr_abv}:Q",
-                    size=alt.Size("count:Q", title="Number of Records"),
-                    color=alt.value("steelblue"),
-                    tooltip=[f"{secondary_feature}:N", "count:Q"],
-                )
-                .properties(title=f"Number of Records across {geographical_name}")
+            .transform_lookup(lookup="id", from_=alt.LookupData(self.data, x_attr_abv, [y_attr_abv]))
+            .project(type=map_type)
+            .properties(
+                width=width, height=height, title=f"Mean of {y_attr_abv} across {geographical_name}"
             )
+        )
 
         chart = background + points
-        # Setting tooltip as non-null
-        # chart = chart.configure_mark(tooltip=alt.TooltipContent("encoding"))
 
         ######################################
         ## Constructing Altair Code String ##
@@ -106,48 +87,26 @@ class SymbolMap(AltairChart):
         self.code += "import altair as alt\n"
         dfname = "placeholder_variable"
         self.code += f"""
-		points = (
-            alt.Chart(self.data)
-            .transform_aggregate(
-                latitude=f"mean({y_attr_abv})",
-                longitude=f"mean({x_attr_abv})",
-                count="count()",
-                groupby=[secondary_feature],
-            )
-            .mark_circle()
-            .encode(
-                longitude=f"{x_attr_abv}:Q",
-                latitude=f"{y_attr_abv}:Q",
-                size=alt.Size("count:Q", title="Number of Records"),
-                color=alt.value("steelblue"),
-                tooltip=[f"{secondary_feature}:N", "count:Q"],
-            )
-            .properties(title=f"Number of Records across {geographical_name}")
+		points = alt.Chart(geo_map).mark_geoshape().encode(
+            color='{y_attr_abv}:Q',
+        ).transform_lookup(
+            lookup='id',
+            from_=alt.LookupData(self.data, x_attr_abv, [y_attr_abv])
+        ).project(
+            type=map_type
+        ).properties(
+            width=width,
+            height=height,
+            title="Mean of {y_attr_abv} across {geographical_name}"
         )
 		"""
         return chart
 
-    def get_secondary_feature(self):
-        """Returns secondary feature for aggregating lat/long coordinates."""
-        assert len(self.vis.intent) >= 3
-        feature = self.vis.intent[2].get_attr()
-        return feature
-
-    def get_quantitative_feature(self):
-        """Returns quantitative feature for aggregating lat/long coordinates."""
-        if len(self.vis.intent) == 4:
-            feature = self.vis.intent[3].get_attr()
-            return feature
-        else:
-            return None
-
     def get_background(self, feature):
-        """Returns background projection based on secondary feature."""
-        us_url = "https://cdn.jsdelivr.net/npm/vega-datasets@v1.29.0/data/us-10m.json"
-        world_url = "https://cdn.jsdelivr.net/npm/vega-datasets@v1.29.0/data/world-110m.json"
+        """Returns background projection based on geographic feature."""
         maps = {
-            "state": (alt.topo_feature(us_url, feature="states"), "albersUsa"),
-            "country": (alt.topo_feature(world_url, feature="countries"), "equirectangular"),
+            "state": (alt.topo_feature(SymbolMap.us_url, feature="states"), "albersUsa"),
+            "country": (alt.topo_feature(SymbolMap.world_url, feature="countries"), "equirectangular"),
         }
         assert feature in maps
         height = 175
@@ -157,6 +116,42 @@ class SymbolMap(AltairChart):
             .properties(width=int(height * (5 / 3)), height=height)
             .project(maps[feature][1])
         )
+
+    def get_geomap(self, feature):
+        """Returns topological encoding, topological style,
+        and translation function based on geographic feature"""
+        maps = {
+            "state": (
+                alt.topo_feature(SymbolMap.us_url, feature="states"),
+                "albersUsa",
+                self.get_us_fips_code,
+            ),
+            "country": (
+                alt.topo_feature(SymbolMap.world_url, feature="countries"),
+                "equirectangular",
+                self.get_country_iso_code,
+            ),
+        }
+        assert feature in maps
+        return maps[feature]
+
+    def get_us_fips_code(self, attribute):
+        """Returns FIPS code given a US state"""
+        if not isinstance(attribute, str):
+            return attribute
+        try:
+            return us.states.lookup(attribute).fips
+        except:
+            return attribute
+
+    def get_country_iso_code(self, attribute):
+        """Returns country ISO code given a country"""
+        if not isinstance(attribute, str):
+            return attribute
+        try:
+            return pycountry.countries.lookup(attribute).numeric
+        except:
+            return attribute
 
     def get_geographical_name(self, feature):
         """Returns geographical location label based on secondary feature."""
