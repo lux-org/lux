@@ -118,7 +118,8 @@ class AltairChart:
     @classmethod
     def sanitize_dataframe(self, df):
         for attr in df.columns:
-            if pd.api.types.is_float_dtype(df[attr].dtype):  # Check if dtype is unrecognized by Altair
+            # Check if dtype is unrecognized by Altair (#247)
+            if str(df[attr].dtype) == "Float64":
                 df[attr] = df[attr].astype(np.float64)
 
             # Altair can not visualize non-string columns

@@ -102,7 +102,6 @@ def test_interestingness_0_1_0(global_var):
         ):
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
-    
 
     # check that top recommended filter graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Filter"][0], df) != None
