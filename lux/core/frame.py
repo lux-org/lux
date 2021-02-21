@@ -27,6 +27,9 @@ import warnings
 import traceback
 import lux
 
+# from IPython.core.debugger import set_trace
+
+
 
 class LuxDataFrame(pd.DataFrame):
     """
@@ -218,7 +221,9 @@ class LuxDataFrame(pd.DataFrame):
         self.intent = []
         self.expire_recs()
 
+
     def set_intent(self, intent: List[Union[str, Clause]]):
+        # set_trace()
         self.expire_recs()
         self._intent = intent
         self._parse_validate_compile_intent()

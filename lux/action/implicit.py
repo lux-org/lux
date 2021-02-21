@@ -16,6 +16,7 @@ from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 import lux
 import itertools
+import numpy as np
 
 def implicit_vis(ldf):
     """
@@ -54,6 +55,8 @@ def implicit_vis(ldf):
     
     else:
         lux_vis = []
+
+    numeric_cols = list(ldf.select_dtypes(include= np.number).columns)
     
     # for vis in i_vis_list:
     #     vis.score = interestingness(vis, ldf)
@@ -62,6 +65,9 @@ def implicit_vis(ldf):
     recommendation = {
         "action": "Implicit",
         "description": "Show visualizations based off your recent <p class='highlight-descriptor'>code history</p>.",
+        "long_description": """Implicit displays charts based off of your recent <b>code</b> analysis. \n
+        Lux analyzes the code you have been writing in jupyter then looks for functions, columns, 
+        etc that you have been accessing or manipulating to provide recommendations.""",
         "collection": lux_vis
     }
     

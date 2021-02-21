@@ -55,8 +55,20 @@ class Validator:
 
         """
 
-        def validate_clause(clause):
+        def validate_clause(clause, g_mark_type):
             warn_msg = ""
+
+            # check that specified vis types are consistent 
+
+            # TODO move this list of valid vis somewhere dynamic 
+            if clause.mark_type and clause.mark_type not in ['histogram', 'bar', 'scatter', 'line', 'heatmap', 'boxplot']:
+                warn_msg = "\n -Vis type must be in ['histogram', 'bar', 'scatter', 'line', 'heatmap', 'boxplot']"
+            elif not g_mark_type and clause.mark_type:
+                g_mark_type = clause.mark_type
+            elif g_mark_type and clause.mark_type:
+                if g_mark_type != clause.mark_type:
+                    warn_msg = f"\n- Intents must all have same vis type specified. {g_mark_type} != {clause.mark_type}"
+
             if not (clause.attribute == "?" or clause.value == "?" or clause.attribute == ""):
                 if isinstance(clause.attribute, list):
                     for attr in clause.attribute:
@@ -92,17 +104,24 @@ class Validator:
                                     for val in vals:
                                         if val not in series.values:
                                             warn_msg = f"\n- The input value '{val}' does not exist for the attribute '{clause.attribute}' for the DataFrame."
-            return warn_msg
+            return warn_msg, g_mark_type
 
         warn_msg = ""
+        first_mark_type = ""
         for clause in intent:
             if type(clause) is list:
                 for s in clause:
-                    warn_msg += validate_clause(s)
+                    warn_msg_new, mark_type = validate_clause(s, first_mark_type)
+                    warn_msg += warn_msg_new
+                    first_mark_type = mark_type
             else:
-                warn_msg += validate_clause(clause)
+                warn_msg_new, mark_type = validate_clause(clause, first_mark_type)
+                warn_msg += warn_msg_new
+                first_mark_type = mark_type
         if warn_msg != "":
-            warnings.warn(
-                "\nThe following issues are ecountered when validating the parsed intent:" + warn_msg,
-                stacklevel=2,
-            )
+
+            raise ValueError("\nThe following issues are ecountered when validating the parsed intent:" + warn_msg)
+            # warnings.warn(
+            #     "\nThe following issues are ecountered when validating the parsed intent:" + warn_msg,
+            #     stacklevel=2,
+            # )

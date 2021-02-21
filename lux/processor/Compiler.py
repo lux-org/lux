@@ -24,12 +24,21 @@ import numpy as np
 import warnings
 import lux
 
+# from IPython.core.debugger import set_trace
 
 class Compiler:
     """
     Given a intent with underspecified inputs, compile the intent into fully specified visualizations for visualization.
     """
 
+    # static var for count col bc used a lot
+    count_col = Clause(
+            attribute="Record",
+            aggregation="count",
+            data_model="measure",
+            data_type="quantitative",
+        )
+    
     def __init__(self):
         self.name = "Compiler"
         warnings.formatwarning = lux.warning_format
@@ -82,6 +91,7 @@ class Compiler:
         vis_collection: list[lux.Vis]
                 vis list with compiled lux.Vis objects.
         """
+        
         if _inferred_intent:
             vis_collection = Compiler.enumerate_collection(_inferred_intent, ldf)
             # autofill data type/model information
@@ -92,8 +102,34 @@ class Compiler:
             for vis in vis_collection:
                 # autofill viz related information
                 Compiler.determine_encoding(ldf, vis)
+                        
+            vis_collection = Compiler.enforce_mark_type(_inferred_intent, vis_collection)
+
             ldf._compiled = True
             return vis_collection
+
+    @staticmethod
+    def enforce_mark_type(_inferred_intent: List[Clause], vis_collection):
+        """ 
+        Hacky way to make sure the returned vis in viscollection comply with the intent. 
+        The vis compiler default to another vis if unable to make the right one so migtht not all be the 
+        right mark.
+        """
+
+        enforce_mark = ""
+
+        for c in _inferred_intent: 
+            if c.mark_type: 
+                enforce_mark = c.mark_type
+                break
+        
+        if enforce_mark:
+            vc = list(
+                filter(lambda x: x.mark == enforce_mark, vis_collection)
+            )
+            return vc
+        
+        return vis_collection
 
     @staticmethod
     def enumerate_collection(_inferred_intent: List[Clause], ldf: LuxDataFrame) -> VisList:
@@ -231,6 +267,187 @@ class Compiler:
         return VisList(new_vc)
 
     @staticmethod
+    def fill_mark_encoding(mark_channel_clause: Clause, ldf: LuxDataFrame, vis: Vis):
+        """ 
+        User has specified mark type. Make sure is valid and try to fill in gaps 
+        
+        BUG
+        Leads to some redundancies if enumerate_collection returns different data slices that arent used
+
+        # this returns 4 of same vis, order matters tho
+        intent = [lux.Clause("Horsepower", mark_type="histogram"), lux.Clause("?", mark_type="histogram")]
+        vis = VisList(intent,df)
+        """
+
+        # set_trace()
+        auto_channel = {}
+        if vis.mark == "histogram":
+            if vis.get_attr_by_data_model("measure", exclude_record=True):
+                auto_channel = Compiler.make_histogram(vis)
+            else:
+                # raise ValueError("User specified histogram mark but df has no quantitive fields.")
+                print("User specified histogram mark but df has no quantitive fields.")
+        elif vis.mark == "bar" or vis.mark == "line":
+            if vis._ndim >= 1:
+                auto_channel = Compiler.make_line_or_bar(vis, ldf)
+            else:
+                # raise ValueError("User specified bar or line mark but df has no dimension fields. Perhaps try 'histogram' if only working with measure data types." )
+                print("User specified bar or line mark but df has no dimension fields. Perhaps try 'histogram' if only working with measure data types." )
+        elif vis.mark == "scatter":
+            if vis._nmsr >= 2:
+                auto_channel = Compiler.make_scatter(vis)
+            else:
+                # raise ValueError("User specified scatter mark but need at least 2 quantitative fields.")
+                print("User specified scatter mark but need at least 2 quantitative fields.")
+        elif vis.mark == "heatmap": 
+            if vis._nmsr >= 2: # TODO loosen this restriction 
+                auto_channel = Compiler.make_heatmap(vis)
+                # lux.config.heatmap_bin_size # TODO change this too with ldf.cardinality[dimension.attribute]
+            else:
+                # raise ValueError("User specified heatmap mark but need at least 2 quantitative fields.")
+                print("User specified heatmap mark but need at least 2 quantitative fields.")
+        elif vis.mark == "boxplot":
+            if mark_channel_clause.attribute and mark_channel_clause.data_type == "measure":
+                auto_channel["y"] = mark_channel_clause
+            elif vis.get_attr_by_data_model("measure"):
+                m_clause = vis.get_attr_by_data_model("measure")[0]
+                auto_channel["y"] = m_clause
+            else:
+                # raise ValueError("User specified Boxplot mark but df has no quantitive fields.")
+                print("User specified Boxplot mark but df has no quantitive fields.")
+        
+        return auto_channel
+    
+    @staticmethod
+    def make_histogram(vis: Vis):
+        measure = vis.get_attr_by_data_model("measure", exclude_record=True)[0]
+        if not len(vis.get_attr_by_attr_name("Record")):
+            vis._inferred_intent.append(Compiler.count_col)
+            vis._nmsr += 1
+        # If no bin specified, then default as 10
+        if measure.bin_size == 0:
+            measure.bin_size = 10
+        auto_channel = {"x": measure, "y": Compiler.count_col}
+        vis._mark = "histogram"
+
+        return auto_channel
+    
+    @staticmethod
+    def make_line_or_bar(vis: Vis, ldf: LuxDataFrame):
+        dimensions = vis.get_attr_by_data_model("dimension")
+        d1 = dimensions[0]
+        d2 = None
+        color_attr = None
+        
+        if len(dimensions) > 1:
+            d2 = dimensions[1]
+
+        if vis._nmsr == 0:
+            vis._inferred_intent.append(Compiler.count_col)
+            vis._nmsr += 1
+        
+        measure = vis.get_attr_by_data_model("measure")[0]
+        
+        if d2: # line or bar broken down by dimension
+            if ldf.cardinality[d1.attribute] < ldf.cardinality[d2.attribute]:
+                # d1.channel = "color"
+                vis.remove_column_from_spec(d1.attribute)
+                dimension = d2
+                color_attr = d1
+            else:
+                # if same attribute then remove_column_from_spec will remove both dims, we only want to remove one
+                if d1.attribute == d2.attribute:
+                    vis._inferred_intent.pop(0)
+                else:
+                    vis.remove_column_from_spec(d2.attribute)
+                dimension = d1
+                color_attr = d2
+            
+            # if not ldf.pre_aggregated: # what happens if is pre-aggregated?
+        else:
+            dimension = d1
+
+        _m, auto_channel = Compiler.line_or_bar_helper(ldf, dimension, measure)
+
+        if not vis._mark:
+            vis._mark = _m
+
+        # if override_mark:
+        #     vis._mark = override_mark
+
+        if color_attr:
+             auto_channel["color"] = color_attr
+        
+        return auto_channel
+
+    
+    @staticmethod
+    def line_or_bar_helper(ldf: LuxDataFrame, dimension: Clause, measure: Clause):
+        dim_type = dimension.data_type
+        # If no aggregation function is specified, then default as average
+        if measure.aggregation == "":
+            measure.set_aggregation("mean")
+        if dim_type == "temporal" or dim_type == "oridinal":
+            return "line", {"x": dimension, "y": measure}
+        else:  # unordered categorical
+            # if cardinality large than 5 then sort bars
+            if ldf.cardinality[dimension.attribute] > 5:
+                dimension.sort = "ascending"
+            return "bar", {"x": measure, "y": dimension}
+    
+    @staticmethod
+    def make_scatter(vis: Vis):
+        measures = vis.get_attr_by_data_model("measure")
+        dims = vis.get_attr_by_data_model("dimension")
+
+        m1 = measures[0]
+        m2 = measures[1]
+
+        m1.set_aggregation(None) # this should set in the og vis object too by reference
+        m2.set_aggregation(None)
+
+        vis._mark = "scatter"
+        auto_channel = {"x": m1, "y": m2 }
+
+        # use color if available. Prefer dimension then measure attribute 
+        if dims:
+            vis.remove_column_from_spec(dims[0])
+            auto_channel["color"] = dims[0]
+        elif len(measures) > 2:
+            m3 = measures[2]
+            auto_channel["color"] = m3
+
+        
+        return auto_channel
+    
+    @staticmethod
+    # TODO using the same metrics as scatter rn but can likely loosen
+    def make_heatmap(vis: Vis):
+        measures = vis.get_attr_by_data_model("measure")
+        dims = vis.get_attr_by_data_model("dimension")
+
+        m1 = measures[0]
+        m2 = measures[1]
+
+        m1.set_aggregation(None) # this should set in the og vis object too by reference
+        m2.set_aggregation(None)
+
+        vis._mark = "heatmap"
+        auto_channel = {"x": m1, "y": m2 }
+
+        # use color if available. Prefer dimension then measure attribute 
+        if dims:
+            vis.remove_column_from_spec(dims[0])
+            auto_channel["color"] = dims[0]
+        elif len(measures) > 2:
+            m3 = measures[2]
+            auto_channel["color"] = m3
+
+        
+        return auto_channel
+
+    
+    @staticmethod
     def determine_encoding(ldf: LuxDataFrame, vis: Vis):
         """
         Populates Vis with the appropriate mark type and channel information based on ShowMe logic
@@ -254,104 +471,45 @@ class Compiler:
         IEEE Transactions on Visualization and Computer Graphics, 13(6), 1137–1144.
         https://doi.org/10.1109/TVCG.2007.70594
         """
+
+        """
+        vis._inferred_intent has all the intent info 
+
+        """
         # Count number of measures and dimensions
         ndim = vis._ndim
         nmsr = vis._nmsr
         # preserve to add back to _inferred_intent later
         filters = utils.get_filter_specs(vis._inferred_intent)
-
-        # Helper function (TODO: Move this into utils)
-        def line_or_bar(ldf, dimension: Clause, measure: Clause):
-            dim_type = dimension.data_type
-            # If no aggregation function is specified, then default as average
-            if measure.aggregation == "":
-                measure.set_aggregation("mean")
-            if dim_type == "temporal" or dim_type == "oridinal":
-                return "line", {"x": dimension, "y": measure}
-            else:  # unordered categorical
-                # if cardinality large than 5 then sort bars
-                if ldf.cardinality[dimension.attribute] > 5:
-                    dimension.sort = "ascending"
-                return "bar", {"x": measure, "y": dimension}
-
-        # ShowMe logic + additional heuristics
-        # count_col = Clause( attribute="count()", data_model="measure")
-        count_col = Clause(
-            attribute="Record",
-            aggregation="count",
-            data_model="measure",
-            data_type="quantitative",
-        )
         auto_channel = {}
-        if ndim == 0 and nmsr == 1:
-            # Histogram with Count
-            measure = vis.get_attr_by_data_model("measure", exclude_record=True)[0]
-            if len(vis.get_attr_by_attr_name("Record")) < 0:
-                vis._inferred_intent.append(count_col)
-            # If no bin specified, then default as 10
-            if measure.bin_size == 0:
-                measure.bin_size = 10
-            auto_channel = {"x": measure, "y": count_col}
-            vis._mark = "histogram"
-        elif ndim == 1 and (nmsr == 0 or nmsr == 1):
-            # Line or Bar Chart
-            if nmsr == 0:
-                vis._inferred_intent.append(count_col)
-            dimension = vis.get_attr_by_data_model("dimension")[0]
-            measure = vis.get_attr_by_data_model("measure")[0]
-            vis._mark, auto_channel = line_or_bar(ldf, dimension, measure)
-        elif ndim == 2 and (nmsr == 0 or nmsr == 1):
-            # Line or Bar chart broken down by the dimension
-            dimensions = vis.get_attr_by_data_model("dimension")
-            d1 = dimensions[0]
-            d2 = dimensions[1]
-            if ldf.cardinality[d1.attribute] < ldf.cardinality[d2.attribute]:
-                # d1.channel = "color"
-                vis.remove_column_from_spec(d1.attribute)
-                dimension = d2
-                color_attr = d1
-            else:
-                # if same attribute then remove_column_from_spec will remove both dims, we only want to remove one
-                if d1.attribute == d2.attribute:
-                    vis._inferred_intent.pop(0)
-                else:
-                    vis.remove_column_from_spec(d2.attribute)
-                dimension = d1
-                color_attr = d2
-            # Colored Bar/Line chart with Count as default measure
-            if not ldf.pre_aggregated:
-                if nmsr == 0 and not ldf.pre_aggregated:
-                    vis._inferred_intent.append(count_col)
-                measure = vis.get_attr_by_data_model("measure")[0]
-                vis._mark, auto_channel = line_or_bar(ldf, dimension, measure)
-                auto_channel["color"] = color_attr
-        elif ndim == 0 and nmsr == 2:
-            # Scatterplot
-            vis._mark = "scatter"
-            vis._inferred_intent[0].set_aggregation(None)
-            vis._inferred_intent[1].set_aggregation(None)
-            auto_channel = {"x": vis._inferred_intent[0], "y": vis._inferred_intent[1]}
-        elif ndim == 1 and nmsr == 2:
-            # Scatterplot broken down by the dimension
-            measure = vis.get_attr_by_data_model("measure")
-            m1 = measure[0]
-            m2 = measure[1]
+        mark_channel_clause = None
+        mark_type = ""
 
-            vis._inferred_intent[0].set_aggregation(None)
-            vis._inferred_intent[1].set_aggregation(None)
+        # see if user has specified vis type 
+        for clause in vis._inferred_intent:
+            if clause.mark_type: 
+                mark_type = clause.mark_type
+                mark_channel_clause = clause
+        
+        if mark_type:
+            vis._mark = mark_type
+            auto_channel = Compiler.fill_mark_encoding(mark_channel_clause, ldf, vis)
 
-            color_attr = vis.get_attr_by_data_model("dimension")[0]
-            vis.remove_column_from_spec(color_attr)
-            vis._mark = "scatter"
-            auto_channel = {"x": m1, "y": m2, "color": color_attr}
-        elif ndim == 0 and nmsr == 3:
-            # Scatterplot with color
-            vis._mark = "scatter"
-            auto_channel = {
-                "x": vis._inferred_intent[0],
-                "y": vis._inferred_intent[1],
-                "color": vis._inferred_intent[2],
-            }
+        # ShowMe logic + additional heuristics        
+        if not auto_channel:
+            if ndim == 0 and nmsr == 1:
+                # Histogram
+                auto_channel = Compiler.make_histogram(vis)
+            
+            elif ndim == 1 or ndim == 2 and (nmsr == 0 or nmsr == 1):
+                # Line or Bar Chart
+                auto_channel = Compiler.make_line_or_bar(vis, ldf)
+            
+            elif (ndim == 0 or ndim == 1) and (nmsr == 2 or nmsr == 3):
+                # Scatterplot
+                auto_channel = Compiler.make_scatter(vis)
+            
+
         relevant_attributes = [auto_channel[channel].attribute for channel in auto_channel]
         relevant_min_max = dict(
             (attr, ldf._min_max[attr])

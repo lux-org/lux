@@ -34,6 +34,7 @@ class Clause:
         weight: float = 1,
         sort: str = "",
         exclude: typing.Union[str, list] = "",
+        mark_type: str = "",
     ):
         """
 
@@ -70,6 +71,9 @@ class Clause:
         sort : str, optional
                 Specifying whether and how the bar chart should be sorted
                 Possible values: 'ascending', 'descending', by default ""
+        mark_type: str, optional
+                What type of visualization do you want this included in. limited to 
+                Possible values: 'histogram', 'bar', 'scatter', 'line', 'heatmap', 'boxplot', default is ''
         """
         # Descriptor
         self.description = description
@@ -87,6 +91,7 @@ class Clause:
         self.weight = weight
         self.sort = sort
         self.exclude = exclude
+        self.mark_type = mark_type
 
     def get_attr(self):
         return self.attribute
@@ -127,6 +132,8 @@ class Clause:
             attributes.append(f"         description: {self.description}")
         if self.channel != "":
             attributes.append(f"         channel: {self.channel}")
+        if self.mark_type != "":
+            attributes.append(f"         mark_type: {self.mark_type}")
         if self.attribute != "":
             attributes.append(f"         attribute: {str(self.attribute)}")
         if self.filter_op != "=":
