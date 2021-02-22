@@ -472,27 +472,36 @@ class LuxDataFrame(pd.DataFrame):
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
             else:
                 # if rec_df._recommendation == {}:
-                from lux.action.custom import custom_actions
+                from lux.action.custom import custom_actions, custom_action, filter_keys
 
+                action_keys = filter_keys(rec_df)
                 # generate vis from globally registered actions and append to dataframe
-                custom_action_collection = custom_actions(rec_df)
-                for rec in custom_action_collection:
-                    rec_df._append_rec(rec_infolist, rec)
+                rec = custom_action(rec_df, action_keys[0])
+                rec_df._append_rec(rec_infolist, rec)
                 lux.config.update_actions["flag"] = False
 
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
-            for rec_info in rec_infolist:
-                action_type = rec_info["action"]
-                vlist = rec_info["collection"]
-                if len(vlist) > 0:
-                    rec_df._recommendation[action_type] = vlist
+            action_type = rec_infolist[0]["action"]
+            vlist = rec_infolist[0]["collection"]
+            if len(vlist) > 0:
+                rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
+
+            #Add empty tabs later to compute
+            for i in range (1, len(action_keys)):
+                rec_df._rec_info.append(self.generate_empty_rec(action_keys[i]))
+
             self._widget = rec_df.render_widget()
+
+            # rec_df._append_rec(rec_df._rec_info, custom_actions(rec_df))
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
             self._widget = rec_df.render_widget()
         self._recs_fresh = True
+
+    def generate_empty_rec(self, action_name):
+        return {'action': action_name, 'description': 'N/A', 'long_description': 'N/A', 'collection': []}
 
     #######################################################
     ############## LuxWidget Result Display ###############
@@ -677,6 +686,22 @@ class LuxDataFrame(pd.DataFrame):
                     with self.output:
                         clear_output()
                         display(self._widget)
+                    
+                    #Load the rest of the tabs
+                    from lux.action.custom import custom_action, filter_keys
+                    action_keys = action_keys = filter_keys(self)
+                    for action_name in action_keys:
+                        for i in range(len(self._rec_info)):
+                            if (self._rec_info[i]['action'] == action_name):
+                                self._rec_info.pop(i)
+                                break
+                        rec = custom_action(self, action_name)
+                        if (len(rec["collection"])) > 0:
+                            rec = custom_action(self, action_name)
+                            self._rec_info.insert(i, rec)
+                            new_widget = self.render_widget()
+                            self._widget.recommendations = new_widget.recommendations
+                            self._widget.loadNewTab = action_name
 
                 else:
                     warnings.warn(
@@ -701,7 +726,6 @@ class LuxDataFrame(pd.DataFrame):
                 display(self.display_pandas())
             else:
                 raise
-
 
     def display_pandas(self):
         return self.to_pandas()
@@ -807,14 +831,15 @@ class LuxDataFrame(pd.DataFrame):
 
         rec_copy = copy.deepcopy(recs)
         for idx, rec in enumerate(rec_copy):
-            if len(rec["collection"]) > 0:
-                rec["vspec"] = []
-                for vis in rec["collection"]:
-                    chart = vis.to_code(language=lux.config.plotting_backend, prettyOutput=False)
-                    rec["vspec"].append(chart)
-                rec_lst.append(rec)
-                # delete since not JSON serializable
-                del rec_lst[idx]["collection"]
+            # if len(rec["collection"]) > 0:
+            rec["vspec"] = []
+            for vis in rec["collection"]:
+                chart = vis.to_code(language=lux.config.plotting_backend, prettyOutput=False)
+                rec["vspec"].append(chart)
+            rec_lst.append(rec)
+            # delete since not JSON serializable
+            del rec_lst[idx]["collection"]
+
         return rec_lst
 
     def save_as_html(self, filename: str = "export.html") -> None:

@@ -50,7 +50,7 @@ def custom(ldf):
     return recommendation
 
 
-def custom_actions(ldf):
+def custom_actions(ldf, first_load=False):
     """
     Generates user-defined vis based on globally defined actions.
 
@@ -64,11 +64,11 @@ def custom_actions(ldf):
     recommendations : Dict[str,obj]
         object with a collection of visualizations that were previously registered.
     """
-    if len(lux.config.actions) > 0:
+    if len(lux.config.actions) > 0 and first_load:
         recommendations = []
         for action_name in lux.config.actions.keys():
             display_condition = lux.config.actions[action_name].display_condition
-            if display_condition is None or (display_condition is not None and display_condition(ldf)):
+            if (display_condition is None or (display_condition is not None and display_condition(ldf))) and action_name != "correlation":
                 args = lux.config.actions[action_name].args
                 if args:
                     recommendation = lux.config.actions[action_name].action(ldf, args)
@@ -76,5 +76,49 @@ def custom_actions(ldf):
                     recommendation = lux.config.actions[action_name].action(ldf)
                 recommendations.append(recommendation)
         return recommendations
-    else:
+    elif "correlation" in lux.config.actions.keys():
+        action_name = "correlation"
+        recommendation = []
+        display_condition = lux.config.actions[action_name].display_condition
+        args = lux.config.actions[action_name].args
+        if display_condition is None or (display_condition is not None and display_condition(ldf)):
+            if args:
+                recommendation = lux.config.actions[action_name].action(ldf, args)
+            else:
+                recommendation = lux.config.actions[action_name].action(ldf)
+        return recommendation
+    else:    
         return []
+
+def custom_action(ldf, action):
+    """
+    Generates user-defined vis based on globally defined actions.
+
+    Parameters
+    ----------
+    ldf : lux.core.frame
+        LuxDataFrame with underspecified intent.
+
+    action: action_name as string
+        e.g "Correlation"
+
+    Returns
+    -------
+    List with a collection of visualizations that were previously registered.
+    """
+    display_condition = lux.config.actions[action].display_condition
+    if (display_condition is None or (display_condition is not None and display_condition(ldf))):
+        args = lux.config.actions[action].args
+        if args:
+            recommendation = lux.config.actions[action].action(ldf, args)
+        else:
+            recommendation = lux.config.actions[action].action(ldf)
+    return recommendation
+
+def filter_keys(ldf):
+    keys = []
+    for action_name in lux.config.actions.keys():
+        display_condition = lux.config.actions[action_name].display_condition
+        if display_condition is None or (display_condition is not None and display_condition(ldf)):
+            keys.append(action_name)
+    return keys
