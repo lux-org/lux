@@ -93,14 +93,14 @@ class Histogram(AltairChart):
         if measure.channel == "x":
             self.code += f"""
 		chart = alt.Chart(visData).mark_bar().encode(
-		    alt.X('{msr_attr.attribute}', title='{axis_title}',bin=alt.Bin(binned=True), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{axis_title}'), scale=alt.Scale(domain=({x_min}, {x_max}))),
+		    alt.X('{msr_attr.attribute}', title='{axis_title}',bin=alt.Bin(), type='{msr_attr.data_type}', axis=alt.Axis(title='{axis_title}'),
 		    alt.Y("Number of Records", type="quantitative")
 		)
 		"""
         elif measure.channel == "y":
             self.code += f"""
 		chart = alt.Chart(visData).mark_bar().encode(
-		    alt.Y('{msr_attr.attribute}', title='{axis_title}',bin=alt.Bin(binned=True), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{axis_title}'), scale=alt.Scale(domain=({x_min}, {x_max}))),
+		    alt.Y('{msr_attr.attribute}', title='{axis_title}',bin=alt.Bin(), type='{msr_attr.data_type}', axis=alt.Axis(title='{axis_title}'),
 		    alt.X("Number of Records", type="quantitative")
 		)
 		"""
