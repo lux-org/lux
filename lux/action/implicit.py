@@ -35,7 +35,7 @@ def implicit_vis(ldf):
 
     col_names = lux.config.code_tracker.get_implicit_intent()
 
-    if col_names:
+    if col_names: 
         # make sure columns are in this df! 
         col_names = [c for c in col_names if (c in ldf.columns)]
 

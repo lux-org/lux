@@ -3,6 +3,9 @@ import tokenize
 import io
 import altair as alt
 
+from collections import namedtuple
+
+
 def get_recent_funcs_cols(userCode, df_name_dict):
     """
     Takes in string of user code and analyzes.
@@ -130,8 +133,6 @@ def get_vis_off_recent_func(f_calls, all_df_dict):
     last_call = f_calls[-1]
     df_name, col_names, f_name = last_call
     df = all_df_dict[df_name]
-
-#     print("Last call: ", last_call)
   
     if not len(col_names) and f_name != "describe":
         raise ValueError(f"No column names associated with the function call {f_name}")
