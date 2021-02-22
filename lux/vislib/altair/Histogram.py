@@ -52,7 +52,7 @@ class Histogram(AltairChart):
         colval = self.vis.data[msr_attr.attribute]
         x_range = abs(max(colval) - min(colval))
         plot_range = abs(x_max - x_min)
-        markbar = x_range / plot_range * 12
+        markbar = x_range / plot_range * 10
 
         self.data = AltairChart.sanitize_dataframe(self.data)
         end_attr_abv = str(msr_attr.attribute) + "_end"
@@ -87,7 +87,7 @@ class Histogram(AltairChart):
                         str(msr_attr.attribute),
                         title=axis_title,
                         bin=alt.Bin(binned=True, step=markbar),
-                        axis=alt.Axis(labelOverlap=True, title=axis_title),
+                        axis=alt.Axis(title=axis_title),
                     ),
                 )
             )
