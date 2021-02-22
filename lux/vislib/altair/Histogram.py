@@ -71,7 +71,7 @@ class Histogram(AltairChart):
                         title=axis_title,
                         bin=alt.Bin(binned=True, step=markbar),
                         type=msr_attr.data_type,
-                        axis=alt.Axis(labelOverlap=False, title=axis_title),
+                        axis=alt.Axis(title=axis_title),
                     ),
                     x2=end_attr_abv,
                     y=alt.Y("Number of Records", type="quantitative"),
