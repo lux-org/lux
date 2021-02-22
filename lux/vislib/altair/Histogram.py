@@ -57,7 +57,6 @@ class Histogram(AltairChart):
         self.data = AltairChart.sanitize_dataframe(self.data)
         end_attr_abv = str(msr_attr.attribute) + "_end"
         self.data[end_attr_abv] = self.data[str(msr_attr.attribute)].apply(lambda x: x + markbar)
-        step_size = markbar - (markbar * 0.05)
 
         axis_title = f"{msr_attr_abv} (binned)"
         if msr_attr.attribute == " ":
@@ -70,9 +69,9 @@ class Histogram(AltairChart):
                     x=alt.X(
                         str(msr_attr.attribute),
                         title=axis_title,
-                        bin=alt.Bin(binned=True, step=step_size),
+                        bin=alt.Bin(binned=True, step=markbar),
                         type=msr_attr.data_type,
-                        axis=alt.Axis(labelOverlap=True, title=axis_title),
+                        axis=alt.Axis(labelOverlap=False, title=axis_title),
                     ),
                     x2=end_attr_abv,
                     y=alt.Y("Number of Records", type="quantitative"),
@@ -81,13 +80,13 @@ class Histogram(AltairChart):
         elif measure.channel == "y":
             chart = (
                 alt.Chart(self.data)
-                .mark_bar(size=markbar)
+                .mark_bar()
                 .encode(
                     x=alt.X("Number of Records", type="quantitative"),
                     y=alt.Y(
                         str(msr_attr.attribute),
                         title=axis_title,
-                        bin=alt.Bin(binned=True),
+                        bin=alt.Bin(binned=True, step=markbar),
                         axis=alt.Axis(labelOverlap=True, title=axis_title),
                     ),
                 )
