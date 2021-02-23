@@ -111,8 +111,6 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
             if v_size < 10:
                 return -1
             color_attr = vis.get_attr_by_channel("color")[0].attribute
-            if vis.mark == "geoshape":
-                return vis.data[dimension_lst[0].get_attr()].nunique()
 
             C = ldf.cardinality[color_attr]
             if C < 40:
@@ -301,7 +299,11 @@ def unevenness(vis: Vis, ldf: LuxDataFrame, measure_lst: list, dimension_lst: li
     v = vis.data[measure_lst[0].attribute]
     v = v / v.sum()  # normalize by total to get ratio
     v = v.fillna(0)  # Some bar values may be NaN
-    C = ldf.cardinality[dimension_lst[0].attribute]
+    attr = dimension_lst[0].attribute
+    if isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
+        # If timestamp, use the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+        attr = str(attr._date_repr)
+    C = ldf.cardinality[attr]
     D = (0.9) ** C  # cardinality-based discounting factor
     v_flat = pd.Series([1 / C] * len(v))
     if is_datetime(v):

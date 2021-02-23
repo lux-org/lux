@@ -56,6 +56,7 @@ def test_interestingness_1_0_0(global_var):
         if "ford" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
             rank2 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
+    df.clear_intent()
 
 
 def test_interestingness_1_0_1(global_var):
@@ -70,6 +71,7 @@ def test_interestingness_1_0_1(global_var):
     )
     df._repr_html_()
     assert df.current_vis[0].score == 0
+    df.clear_intent()
 
 
 def test_interestingness_0_1_0(global_var):
@@ -114,6 +116,7 @@ def test_interestingness_0_1_0(global_var):
         if "1970" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
+    df.clear_intent()
 
 
 def test_interestingness_0_1_1(global_var):
@@ -129,6 +132,7 @@ def test_interestingness_0_1_1(global_var):
     df._repr_html_()
     assert interestingness(df.recommendation["Current Vis"][0], df) != None
     assert str(df.recommendation["Current Vis"][0]._inferred_intent[2].value) == "USA"
+    df.clear_intent()
 
 
 def test_interestingness_1_1_0(global_var):
@@ -159,6 +163,7 @@ def test_interestingness_1_1_0(global_var):
 
     # check that top recommended generalize graph score is not none
     assert interestingness(df.recommendation["Filter"][0], df) != None
+    df.clear_intent()
 
 
 def test_interestingness_1_1_1(global_var):
@@ -197,6 +202,7 @@ def test_interestingness_1_1_1(global_var):
 
     # check for top recommended Filter graph score is not none
     assert interestingness(df.recommendation["Filter"][0], df) != None
+    df.clear_intent()
 
 
 def test_interestingness_1_2_0(global_var):
@@ -243,6 +249,7 @@ def test_interestingness_0_2_0(global_var):
     assert interestingness(df.recommendation["Filter"][0], df) != None
     # check that top recommended Generalize graph score is not none
     assert interestingness(df.recommendation["Generalize"][0], df) != None
+    df.clear_intent()
 
 
 def test_interestingness_0_2_1(global_var):
@@ -259,6 +266,7 @@ def test_interestingness_0_2_1(global_var):
     df._repr_html_()
     # check that top recommended Generalize graph score is not none
     assert interestingness(df.recommendation["Generalize"][0], df) != None
+    df.clear_intent()
 
 
 def test_interestingness_deviation_nan():

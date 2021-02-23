@@ -87,7 +87,7 @@ def test_row_column_group(global_var):
     tseries[tseries.columns.max()] = tseries[tseries.columns.max()].fillna(tseries.max(axis=1))
     tseries = tseries.interpolate("zero", axis=1)
     tseries._repr_html_()
-    assert list(tseries.recommendation.keys()) == ["Row Groups", "Column Groups"]
+    assert list(tseries.recommendation.keys()) == ["Temporal"]
 
 
 def test_groupby(global_var):
@@ -171,6 +171,7 @@ def test_custom_aggregation(global_var):
     df.set_intent(["HighestDegree", lux.Clause("AverageCost", aggregation=np.ptp)])
     df._repr_html_()
     assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]
+    df.clear_intent()
 
 
 def test_year_filter_value(global_var):
@@ -258,3 +259,18 @@ def test_similarity2():
         )
     )[0]
     assert morrisville_vis.score > watertown_vis.score
+
+
+def test_intent_retained():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
+    df.intent = ["Attrition"]
+    df._repr_html_()
+
+    df["%WorkingYearsAtCompany"] = df["YearsAtCompany"] / df["TotalWorkingYears"]
+    assert df.current_vis != None
+    assert df.intent != None
+    assert df._recs_fresh == False
+    assert df._metadata_fresh == False
+
+    df._repr_html_()
+    assert list(df.recommendation.keys()) == ["Enhance", "Filter"]

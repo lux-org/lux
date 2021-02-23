@@ -26,6 +26,11 @@ def column_group(ldf):
     recommendation = {
         "action": "Column Groups",
         "description": "Shows charts of possible visualizations with respect to the column-wise index.",
+        "long_description": 'A column index can be thought of as an extra column that indicates the values that the user is interested in. \
+            Lux focuses on visualizing named dataframe indices, i.e., indices with a non-null name property, as a proxy of the attribute \
+                that the user is interested in or have operated on (e.g., group-by attribute). In particular, dataframes with named indices \
+                    are often pre-aggregated, so Lux visualizes exactly the values that the dataframe portrays.  \
+                        <a href="https://lux-api.readthedocs.io/en/latest/source/advanced/indexgroup.html" target="_blank">More details</a>',
     }
     collection = []
     ldf_flat = ldf
@@ -49,10 +54,10 @@ def column_group(ldf):
                             attribute=index_column_name,
                             data_type="nominal",
                             data_model="dimension",
-                            aggregation=None,
+                            aggregation="",
                         ),
                         lux.Clause(
-                            attribute=str(attribute),
+                            attribute=attribute,
                             data_type="quantitative",
                             data_model="measure",
                             aggregation=None,

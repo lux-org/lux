@@ -39,7 +39,7 @@ def test_describe(global_var):
     df = pytest.college_df
     summary = df.describe()
     summary._repr_html_()
-    assert len(summary.recommendation["Column Groups"]) == len(summary.columns) == 10
+    assert len(summary.columns) == 10
 
 
 def test_convert_dtype(global_var):
