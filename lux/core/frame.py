@@ -689,7 +689,8 @@ class LuxDataFrame(pd.DataFrame):
                     
                     #Load the rest of the tabs
                     from lux.action.custom import custom_action, filter_keys
-                    action_keys = action_keys = filter_keys(self)
+                    action_keys = filter_keys(self)
+        
                     for action_name in action_keys:
                         for i in range(len(self._rec_info)):
                             if (self._rec_info[i]['action'] == action_name):

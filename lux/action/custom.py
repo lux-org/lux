@@ -45,12 +45,11 @@ def custom(ldf):
     lux.config.executor.execute(vlist, ldf)
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
-    # ldf.clear_intent()
     vlist.sort(remove_invalid=True)
     return recommendation
 
 
-def custom_actions(ldf, first_load=False):
+def custom_actions(ldf):
     """
     Generates user-defined vis based on globally defined actions.
 
@@ -76,17 +75,6 @@ def custom_actions(ldf, first_load=False):
                     recommendation = lux.config.actions[action_name].action(ldf)
                 recommendations.append(recommendation)
         return recommendations
-    elif "correlation" in lux.config.actions.keys():
-        action_name = "correlation"
-        recommendation = []
-        display_condition = lux.config.actions[action_name].display_condition
-        args = lux.config.actions[action_name].args
-        if display_condition is None or (display_condition is not None and display_condition(ldf)):
-            if args:
-                recommendation = lux.config.actions[action_name].action(ldf, args)
-            else:
-                recommendation = lux.config.actions[action_name].action(ldf)
-        return recommendation
     else:    
         return []
 
