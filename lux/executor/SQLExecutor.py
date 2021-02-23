@@ -533,18 +533,18 @@ class SQLExecutor(Executor):
 
         # need to ensure that no null values are included in the data
         # null values breaks binning queries
-        # for a in attributes:
-        #     if a.attribute != "Record":
-        #         if where_clause == []:
-        #             where_clause.append("WHERE")
-        #         else:
-        #             where_clause.append("AND")
-        #         where_clause.extend(
-        #             [
-        #                 '"' + str(a.attribute) + '"',
-        #                 "IS NOT NULL",
-        #             ]
-        #         )
+        for a in attributes:
+            if a.attribute != "Record":
+                if where_clause == []:
+                    where_clause.append("WHERE")
+                else:
+                    where_clause.append("AND")
+                where_clause.extend(
+                    [
+                        '"' + str(a.attribute) + '"',
+                        "IS NOT NULL",
+                    ]
+                )
 
         if where_clause == []:
             return ("", [])
