@@ -49,7 +49,14 @@ class Histogram(AltairChart):
         if isinstance(msr_attr.attribute, str):
             msr_attr.attribute = msr_attr.attribute.replace(".", "")
 
+        colval = self.vis.data[msr_attr.attribute]
+        x_range = abs(max(colval) - min(colval))
+        plot_range = abs(x_max - x_min)
+        markbar = x_range / plot_range * 10
+
         self.data = AltairChart.sanitize_dataframe(self.data)
+        end_attr_abv = str(msr_attr.attribute) + "_end"
+        self.data[end_attr_abv] = self.data[str(msr_attr.attribute)].apply(lambda x: x + markbar)
 
         axis_title = f"{msr_attr_abv} (binned)"
         if msr_attr.attribute == " ":
@@ -62,10 +69,11 @@ class Histogram(AltairChart):
                     x=alt.X(
                         str(msr_attr.attribute),
                         title=axis_title,
-                        bin=alt.Bin(),
+                        bin=alt.Bin(binned=True, step=markbar),
                         type=msr_attr.data_type,
                         axis=alt.Axis(title=axis_title),
                     ),
+                    x2=end_attr_abv,
                     y=alt.Y("Number of Records", type="quantitative"),
                 )
             )
@@ -78,7 +86,7 @@ class Histogram(AltairChart):
                     y=alt.Y(
                         str(msr_attr.attribute),
                         title=axis_title,
-                        bin=alt.Bin(),
+                        bin=alt.Bin(binned=True, step=markbar),
                         axis=alt.Axis(title=axis_title),
                     ),
                 )
@@ -92,15 +100,15 @@ class Histogram(AltairChart):
         self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
         if measure.channel == "x":
             self.code += f"""
-		chart = alt.Chart(visData).mark_bar().encode(
-		    alt.X('{msr_attr.attribute}', title='{axis_title}',bin=alt.Bin(), type='{msr_attr.data_type}', axis=alt.Axis(title='{axis_title}'),
+		chart = alt.Chart(visData).mark_bar(size={markbar}).encode(
+		    alt.X('{msr_attr.attribute}', title='{axis_title}',bin=alt.Bin(binned=True), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{axis_title}'), scale=alt.Scale(domain=({x_min}, {x_max}))),
 		    alt.Y("Number of Records", type="quantitative")
 		)
 		"""
         elif measure.channel == "y":
             self.code += f"""
-		chart = alt.Chart(visData).mark_bar().encode(
-		    alt.Y('{msr_attr.attribute}', title='{axis_title}',bin=alt.Bin(), type='{msr_attr.data_type}', axis=alt.Axis(title='{axis_title}'),
+		chart = alt.Chart(visData).mark_bar(size={markbar}).encode(
+		    alt.Y('{msr_attr.attribute}', title='{axis_title}',bin=alt.Bin(binned=True), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{axis_title}'), scale=alt.Scale(domain=({x_min}, {x_max}))),
 		    alt.X("Number of Records", type="quantitative")
 		)
 		"""
