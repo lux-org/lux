@@ -100,7 +100,7 @@ class ScatterChart(MatplotlibChart):
                 else:
                     self.fig, self.ax = matplotlib_setup(7, 5)
                     set_fig_code = "fig, ax = plt.subplots(7, 5)\n"
-                
+
                 cmap = "Set1"
                 if len(unique) > 9:
                     cmap = "tab20c"
