@@ -245,4 +245,3 @@ class LuxSeries(pd.Series):
                 When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisList. -> {"Enhance": VisList(v1, v2...), "Filter": VisList(v5, v7...), ..}
         """
         return self._ldf.exported
-        
