@@ -57,7 +57,6 @@ class ScatterChart(MatplotlibChart):
 
         color_attr = self.vis.get_attr_by_channel("color")
         if len(color_attr) == 1:
-            self.fig, self.ax = matplotlib_setup(6, 5)
             color_attr_name = color_attr[0].attribute
             color_attr_type = color_attr[0].data_type
             colors = df[color_attr_name].values
@@ -65,6 +64,7 @@ class ScatterChart(MatplotlibChart):
             unique = list(set(colors))
             vals = [unique.index(i) for i in colors]
             if color_attr_type == "quantitative":
+                self.fig, self.ax = matplotlib_setup(7, 5)
                 self.ax.scatter(x_pts, y_pts, c=vals, cmap="Blues", alpha=0.5)
                 plot_code += f"ax.scatter(x_pts, y_pts, c={vals}, cmap='Blues', alpha=0.5)\n"
                 my_cmap = plt.cm.get_cmap("Blues")
@@ -82,6 +82,7 @@ class ScatterChart(MatplotlibChart):
                 plot_code += f"cbar = plt.colorbar(sm, label='{color_attr_name}')\n"
                 plot_code += f"cbar.outline.set_linewidth(0)\n"
             else:
+                self.fig, self.ax = matplotlib_setup(9, 5)
                 scatter = self.ax.scatter(x_pts, y_pts, c=vals, cmap="Set1")
                 plot_code += f"scatter = ax.scatter(x_pts, y_pts, c={vals}, cmap='Set1')\n"
 
