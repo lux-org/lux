@@ -6,7 +6,7 @@ def register_default_actions():
     from lux.action.enhance import enhance
     from lux.action.filter import add_filter
     from lux.action.generalize import generalize
-    from lux.action.implicit import implicit_vis
+    from lux.action.implicit_tab import implicit_tab
 
     # display conditions for default actions
     no_vis = lambda ldf: (ldf.current_vis is None) or (
@@ -28,4 +28,4 @@ def register_default_actions():
 
     lux.config.register_action("Custom", custom, multiple_current_vis)
 
-    lux.config.register_action("Implicit", implicit_vis, always_show)
+    lux.config.register_action("Implicit", implicit_tab, always_show)

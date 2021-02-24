@@ -114,6 +114,7 @@ class LuxSeries(pd.Series):
             self.name = " "
         ldf = LuxDataFrame(self)
 
+
         try:
             # Ignore recommendations when Series a results of:
             # 1) Values of the series are of dtype objects (df.dtypes)

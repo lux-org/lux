@@ -2,12 +2,12 @@ import numpy as np
 import ast 
 from collections import namedtuple
 
-CodeHistoryItem = namedtuple("CodeHistoryItem", "df_name cols f_name f_arg_dict")
+CodeHistoryItem = namedtuple("CodeHistoryItem", "df_name cols f_name f_arg_dict ex_order code_str")
 
 # from IPython.core.debugger import set_trace
 
 class Analyzer(ast.NodeVisitor):
-    def __init__(self, df_meta):
+    def __init__(self, df_meta, code_str):
         """
         df_meta: DICT 
             Names of all lux df objects in the user's session
@@ -20,7 +20,8 @@ class Analyzer(ast.NodeVisitor):
         self.func_kws = ["value_counts", "unique", "crosstab", "describe",  "query", "groupby", "agg", "filter", "loc"] # do I want drop here?
         self.history = []
         self.ex_count = 0
-    
+        self.code_str_tokens = code_str.split("\n")
+
     ####
     #### Override NodeVisitor funcs to handle types of nodes ####
     ####
@@ -28,23 +29,19 @@ class Analyzer(ast.NodeVisitor):
         pass
     
     def visit_Attribute(self, node):
-        print(f"[{self.ex_count}] Attr:  {ast.dump(node, indent=4)}")
         self.handle_attr_or_subs(node)
         self.ex_count += 1
         
     def visit_Subscript(self, node):
-        print(f"[{self.ex_count}] Subscript:  {ast.dump(node, indent=4)}")
         self.handle_attr_or_subs(node)
         self.ex_count += 1
         
     def visit_Call(self, node):
-        print(f"[{self.ex_count}] Call:  {ast.dump(node, indent=4)}")
         self.handle_call(node)
         self.ex_count += 1
         #self.generic_visit(node)
     
     def visit_Assign(self, node):
-        print(f"[{self.ex_count}] Assign:  {ast.dump(node, indent=4)}")
         self.handle_assign(node)
         self.ex_count += 1
         #self.generic_visit(node)
@@ -89,12 +86,11 @@ class Analyzer(ast.NodeVisitor):
                         _f_args = hist_item.f_arg_dict
 
                 this_c = list(self.df_meta[df_key].intersection(col_list))
-
-                h = CodeHistoryItem(df_key, this_c, _f_name, _f_args)
+                
+                h = CodeHistoryItem(df_key, this_c, _f_name, _f_args, self.ex_count, self.get_code_string(node))
                 this_h.append(h)
         
-        self.history.extend(call_h)
-        self.history.extend(this_h)
+        self.add_to_history(call_h + this_h)
 
     def handle_attr_or_subs(self, node, lh=True):
         df_name, cols = self.get_df_col(node)
@@ -102,11 +98,11 @@ class Analyzer(ast.NodeVisitor):
 
         if df_name in self.df_meta:       
             cols = list(self.df_meta[df_name].intersection(cols)) 
-            h = CodeHistoryItem(df_name, cols, "", {})
+            h = CodeHistoryItem(df_name, cols, "", {}, self.ex_count, self.get_code_string(node))
             this_h.append(h)
         
         if lh:
-            self.history.extend(this_h)
+            self.add_to_history(this_h)
 
         return this_h
     
@@ -154,17 +150,18 @@ class Analyzer(ast.NodeVisitor):
                     query_param = arg_dict["args"][0]
                     cols = [s for s in query_param.split() if s in self.df_meta[df_name]]
                 
-                h = CodeHistoryItem(df_name, cols, func_name, arg_dict)
+                h = CodeHistoryItem(df_name, cols, func_name, arg_dict, self.ex_count, self.get_code_string(call_node))
                 this_h.append(h)
                 
                 # if other columns are referenced in df_s that are not in df_name 
                 for _other_df, _other_c in df_s.items():
                     if _other_df in self.df_meta:
                         this_c = list(self.df_meta[_other_df].intersection(_other_c))
-                        h = CodeHistoryItem(_other_df, this_c, func_name, arg_dict)
+                        h = CodeHistoryItem(_other_df, this_c, func_name, arg_dict, self.ex_count, self.get_code_string(call_node))
                         this_h.append(h)
         if lh:
-            self.history.extend(this_h)
+            self.add_to_history(this_h)
+
         return this_h
         
        
@@ -216,7 +213,7 @@ class Analyzer(ast.NodeVisitor):
         return arg_dict, df_s
     
     ####
-    #### Util funcs for parsing data from nodes 
+    #### Utils funcs for parsing data from nodes 
     ####
     def parse_dict(self, node):
         if type(node) != ast.Dict: return 
@@ -263,6 +260,7 @@ class Analyzer(ast.NodeVisitor):
         
         return v_str, slice_str
 
+    # TODO this will always be a filter I think...
     def parse_compare(self, comp_node):
         if type(comp_node) != ast.Compare: return
         d = {}
@@ -302,13 +300,28 @@ class Analyzer(ast.NodeVisitor):
             
             return str_list
     
+    ####
+    #### Utils funcs for state management etc
+    ####
+
     def dict_add_extend(self, dict_name, key, vals): 
         if key in dict_name:
             dict_name[key].extend(vals)
         else:
             dict_name[key] = vals
-
-
-tree = ast.parse(code_str)
-analyzer = Analyzer(name_dict)
-analyzer.visit(tree)
+    
+    def add_to_history(self, h_items):
+        if type(h_items) != list:
+            h_items = [h_items]
+        
+        # only add items that have columns or a function reference
+        for h in h_items:
+            if h.df_name and (h.cols or h.f_name):
+                self.history.extend([h]) 
+    
+    def get_code_string(self, node):
+        code_s = ""
+        if len(self.code_str_tokens) > node.lineno - 1:
+            code_s = self.code_str_tokens[node.lineno - 1]
+        
+        return code_s

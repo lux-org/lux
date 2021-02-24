@@ -17,6 +17,7 @@ from lux.vis.VisList import VisList
 import lux
 from lux.utils import utils
 
+from IPython.core.debugger import set_trace
 
 def univariate(ldf, *args):
     """
@@ -37,6 +38,7 @@ def univariate(ldf, *args):
     """
     import numpy as np
 
+
     if len(args) == 0:
         data_type_constraint = "quantitative"
     else:
@@ -44,11 +46,11 @@ def univariate(ldf, *args):
 
     filter_specs = utils.get_filter_specs(ldf._intent)
     ignore_rec_flag = False
-    if data_type_constraint == "quantitative":
+    if data_type_constraint == "quantitative": # this should use pre aggregated somehow imo
         possible_attributes = [
             c
             for c in ldf.columns
-            if ldf.data_type[c] == "quantitative" and ldf.cardinality[c] > 5 and c != "Number of Records"
+            if ldf.data_type[c] == "quantitative" and ldf.cardinality[c] >= 1 and c != "Number of Records" # WILL changed this threshold so can get vc recs
         ]
         intent = [lux.Clause(possible_attributes)]
         intent.extend(filter_specs)
@@ -61,13 +63,13 @@ def univariate(ldf, *args):
             "long_description": f"Distribution displays univariate histogram distributions of all quantitative attributes{examples}. Visualizations are ranked from most to least skewed.",
         }
         # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
-        if len(ldf) < 5:
+        if len(ldf) < 1:
             ignore_rec_flag = True
     elif data_type_constraint == "nominal":
         possible_attributes = [
             c
             for c in ldf.columns
-            if ldf.data_type[c] == "nominal" and ldf.cardinality[c] > 5 and c != "Number of Records"
+            if ldf.data_type[c] == "nominal" and ldf.cardinality[c] >= 1 and c != "Number of Records"
         ]
         examples = ""
         if len(possible_attributes) >= 1:

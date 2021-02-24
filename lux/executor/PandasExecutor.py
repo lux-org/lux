@@ -432,7 +432,7 @@ class PandasExecutor(Executor):
                 elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
                     # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                     if ldf.pre_aggregated:
-                        if ldf.cardinality[attr] == len(ldf):
+                        if ldf.cardinality[attr] == len(ldf): # TODO why does this make sense?
                             ldf._data_type[attr] = "nominal"
                     if ldf.cardinality[attr] / len(ldf) < 0.4 and ldf.cardinality[attr] < 20:
                         ldf._data_type[attr] = "nominal"

@@ -1,15 +1,21 @@
 from IPython import get_ipython
-from lux.implicit.profiler import get_recent_funcs_cols
+from lux.implicit.ast_profiler import Analyzer
 import lux
+import ast
+from collections import namedtuple
+import numpy as np
+
+CodeTrackerItem = namedtuple("CodeTrackerItem", "exec_order code")
+
+from IPython.core.debugger import set_trace
 
 class CodeTracker():
 
     def __init__(self):
         
         # state
-        self.code_history = []              # list of tuples (exec_count, code_string)
-        self.f_calls = [("", [""], "")]     # (df_name, [cols], func_name)
-        self.col_refs = {}                  # {col_name: num_refs}
+        self.code_history = []            # list of CodeTrackerItem(exec_count, code_string)
+        self.parsed_history = []          # list of CodeHistoryItem(df_name, cols, f_name, f_arg_dict)
         #self.implicit_intent = []
         self.df_info = {}
         self.getting_info_flag = False
@@ -17,6 +23,10 @@ class CodeTracker():
         # inits
         self.shell = get_ipython()
         self.init_watching()
+        self.curr_time = 0
+        self.signal_weights = np.array([])
+        self.time_decay = 0.9
+        
     
     def init_watching(self):
         """
@@ -35,41 +45,94 @@ class CodeTracker():
         """
 
         if result.success and not self.getting_info_flag:
-            self.code_history.append( (result.execution_count, result.info.raw_cell) )
+            # could use result.execution_count maybe as well
+            self.code_history.append( CodeTrackerItem(self.curr_time, result.info.raw_cell) )
 
-            # run analyis code
-            f_calls, col_refs = get_recent_funcs_cols(self.get_all_code(), self.get_nb_df_info())
-            self.f_calls = f_calls
-            self.col_refs = col_refs
+
+            # run analyis code ONLY on new code
+            code_str = result.info.raw_cell
+            tree = ast.parse(code_str) # self.get_all_code()
+            name_dict = self.get_nb_df_info()
+            analyzer = Analyzer(name_dict, code_str)
+            analyzer.visit(tree)
+
+            # update weights
+            n_new_signals = len(analyzer.history)
+
+            if n_new_signals > 0:
+                self.signal_weights *= self.time_decay
+                
+                if n_new_signals == 1:
+                    code_weights = [1]
+                else:
+                    if self.signal_weights:
+                        min_new_w = max(self.signal_weights)
+                    else:
+                        min_new_w = .9
+                    num_new_weights = analyzer.history[-1].ex_order + 1 # get the max which will be last
+                    code_weights = np.linspace(start = min_new_w, stop = 1, num= num_new_weights)
+                
+                w0 = [code_weights[item.ex_order] for item in analyzer.history]
+                self.signal_weights = np.append(self.signal_weights, w0) # add new weights for new signals
+
+                # save new signals 
+                self.parsed_history.extend( analyzer.history)
+
+                assert len(self.parsed_history) == len(self.signal_weights)
+            
+            # clean up
             self.getting_info_flag = False
-
-            # TODO set a flag or call something so that the LDFs update and know the implicit recs have changed
+            # set a flag or call something so that the LDFs update and know the implicit recs have changed
             lux.config.update_actions["flag"] = True
     
-    def get_all_code(self):
+    def get_all_code(self, time_thresh=0):
         """ returns all the previously executed code as one string """
 
-        just_strings = [c[1] for c in self.code_history]
+        _filtered = list(filter(lambda a: a.exec_order >= time_thresh, self.code_history))
+        just_strings = [item.code for item in _filtered]
         one_str = "\n".join(just_strings)
 
         return one_str
     
-    def get_implicit_intent(self, df_name=None):
+    def get_implicit_intent(self, f_df_name):
         """ returns LIST of columns"""
-        # TODO incorporate time decay notion here where decreased with each subsequent cell execution
-        # can return tuples of (col_name, score) to send to lux and have ranking of vis
+        # TODO aggregate time here or make it just cleaner?
+        # TODO maybe need to use id here instead of name
         
-        if self.col_refs:
-            _cols = list(self.col_refs.items())
+        if self.parsed_history:
 
-            if df_name and (df_name in self.df_info): # filter to only cols from this df
-                _this_df_cols = self.df_info[df_name]
-                _cols = [item for item in _cols if (item[0] in _this_df_cols)]
+            # filter to only this df and the weights 
+            mask = [item.df_name == f_df_name for item in self.parsed_history]
+            weights = self.signal_weights[mask]
+            signals = list(filter(lambda a: a.df_name == f_df_name, self.parsed_history))
 
-            _cols.sort(key=lambda tup: tup[1], reverse=True)
-            trimmed_cols = [i[0] for i in _cols]
+            order = np.argsort(-1 * weights) # order so that highest is first 
 
-            return trimmed_cols
+            l = []
+            for i in order:
+                l.append(signals[i])
+            
+            return signals 
+
+            # generate 
+            # cols = []
+            # if f_df_name not in self.df_info:
+            #     self.get_nb_df_info()
+            
+            # if f_df_name in self.df_info:
+            #     cols = self.df_info[f_df_name]
+            
+            # col_totals = {}
+            # for c in cols: 
+            #     _total = 0
+            #     for s, w in zip(signals, weights):
+            #         if c in s.cols:
+            #             _total += w 
+
+
+
+        
+       
 
 
     # TODO does this really need to be run every time? Maybe can store when 

@@ -24,7 +24,7 @@ import numpy as np
 import warnings
 import lux
 
-# from IPython.core.debugger import set_trace
+from IPython.core.debugger import set_trace
 
 class Compiler:
     """
@@ -61,6 +61,7 @@ class Compiler:
         Vis
             Compiled Vis object
         """
+        #set_trace()
         if vis:
             # autofill data type/model information
             Compiler.populate_data_type_model(ldf, [vis])
