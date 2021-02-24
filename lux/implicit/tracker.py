@@ -1,13 +1,17 @@
-from IPython import get_ipython
-from lux.implicit.ast_profiler import Analyzer
-import lux
 import ast
 from collections import namedtuple
 import numpy as np
+import pandas as pd
+
+from IPython import get_ipython
+from IPython.core.magics.namespace import NamespaceMagics
+
+from lux.implicit.ast_profiler import Analyzer
+import lux
 
 CodeTrackerItem = namedtuple("CodeTrackerItem", "exec_order code")
 
-from IPython.core.debugger import set_trace
+# from IPython.core.debugger import set_trace
 
 class CodeTracker():
 
@@ -26,6 +30,9 @@ class CodeTracker():
         self.curr_time = 0
         self.signal_weights = np.array([])
         self.time_decay = 0.9
+
+        self._nms = NamespaceMagics()
+        self._nms.shell = self.shell #.kernel.shell
         
     
     def init_watching(self):
@@ -47,7 +54,6 @@ class CodeTracker():
         if result.success and not self.getting_info_flag:
             # could use result.execution_count maybe as well
             self.code_history.append( CodeTrackerItem(self.curr_time, result.info.raw_cell) )
-
 
             # run analyis code ONLY on new code
             code_str = result.info.raw_cell
@@ -130,13 +136,28 @@ class CodeTracker():
             #             _total += w 
 
 
+    def get_colnames(self, x):
+        obj = self.shell.ev(x)
+        if isinstance(obj, lux.core.frame.LuxDataFrame) or isinstance(obj, pd.DataFrame):
+            colnames = list(obj.columns)
+        elif isinstance(obj, lux.core.series.LuxSeries) or isinstance(obj, pd.Series): 
+            colnames = [obj.name]
+        else:
+            colnames = []
+        return colnames
 
-        
-       
+    def keep(self, v):
+        try: 
+            obj = self.shell.ev(v)
+            if isinstance(obj, pd.DataFrame) or isinstance(obj, pd.Series):
+                return True
+            if isinstance(obj, lux.core.frame.LuxDataFrame) or isinstance(obj, lux.core.series.LuxSeries):
+                return True
+            return False
+        except Exception as e:
+            #print('Excepted in keep...', e)
+            return False
 
-
-    # TODO does this really need to be run every time? Maybe can store when 
-    # BUG this prints out the result to the user's notebook which is annoying since it has to be read too..
     def get_nb_df_info(self):
         """ 
         Gets the names of dfs and their columns
@@ -145,81 +166,12 @@ class CodeTracker():
         returns dict of {df_name: [col_name, ...]}
         """
         self.getting_info_flag = True
-
-        run_code = """
-        from IPython import get_ipython
-        from IPython.core.magics.namespace import NamespaceMagics
-
-        import sys
-
-        _nms = NamespaceMagics()
-        _Jupyter = get_ipython()
-        _nms.shell = _Jupyter.kernel.shell
-        __pd, __lux = None, None
-
-        def _check_imports():
-            global __pd, __lux
-            
-            if 'pandas' in sys.modules:
-                import pandas as __pd
-            
-            if 'lux' in sys.modules:
-                import lux as __lux
-
-
-        def get_colnames(x):
-            #print('Getting col name for ', x)
-            obj = eval(x)
-            if __lux and (isinstance(obj, __lux.core.frame.LuxDataFrame) or isinstance(obj, __pd.DataFrame)):
-                colnames = list(obj.columns)
-            
-            elif __lux and (isinstance(obj, __lux.core.series.LuxSeries) or isinstance(obj, __pd.Series)): 
-                colnames = [obj.name]
-            
-            else:
-                #print('No column names available.')
-                colnames = []
-            
-            #print(colnames)
-            return colnames
-
-        def keep(v):
-            try: 
-                obj = eval(v)
-                if __pd and __pd is not None and (
-                    isinstance(obj, __pd.DataFrame)
-                    or isinstance(obj, __pd.Series)):
-                    return True
-
-                if __lux and __lux is not None and (
-                    isinstance(obj, __lux.core.frame.LuxDataFrame)
-                    or isinstance(obj, __lux.core.series.LuxSeries)):
-
-                    return True
-
-                return False
-
-            except Exception as e:
-                #print('Excepted in keep...', e)
-                return False
-
-        def get_dfs_and_columns():
-            _check_imports()
-            
-            all_mods = _nms.who_ls()
-            
-            d = {_v:get_colnames(_v) for _v in all_mods if keep(_v)}
-            
-            return d
-
-        get_dfs_and_columns()
-        """
+        d = None
+        
         if self.shell:
-            result = self.shell.run_cell(run_code).result 
-            self.df_info = result
-        else:
-            result = None 
+            # get dfs and cols 
+            all_mods = self._nms.who_ls()
+            d = {_v:self.get_colnames(_v) for _v in all_mods if self.keep(_v)}
+            self.df_info = d
             
-        return result
-    
-    
+        return d
