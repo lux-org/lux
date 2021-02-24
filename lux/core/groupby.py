@@ -23,6 +23,7 @@ class LuxDataFrameGroupBy(pd.core.groupby.generic.DataFrameGroupBy):
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
+        "name"
     ]
 
     def __init__(self, *args, **kwargs):
@@ -60,14 +61,15 @@ class LuxDataFrameGroupBy(pd.core.groupby.generic.DataFrameGroupBy):
         ret_val.pre_aggregated = False  # Returned LuxDataFrame isn't pre_aggregated
         return ret_val
 
-    def size(self, *args, **kwargs):
-        ret_val = super(LuxDataFrameGroupBy, self).size(*args, **kwargs)
+    def apply(self, *args, **kwargs):
+        ret_val = super(LuxDataFrameGroupBy, self).apply(*args, **kwargs)
         for attr in self._metadata:
             ret_val.__dict__[attr] = getattr(self, attr, None)
+        ret_val.pre_aggregated = False  # Returned LuxDataFrame isn't pre_aggregated
         return ret_val
 
-    def __getitem__(self, *args, **kwargs):
-        ret_val = super(LuxDataFrameGroupBy, self).__getitem__(*args, **kwargs)
+    def size(self, *args, **kwargs):
+        ret_val = super(LuxDataFrameGroupBy, self).size(*args, **kwargs)
         for attr in self._metadata:
             ret_val.__dict__[attr] = getattr(self, attr, None)
         return ret_val
