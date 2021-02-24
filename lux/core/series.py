@@ -115,6 +115,7 @@ class LuxSeries(pd.Series):
         if self.name is None:
             self.name = " "
         ldf = LuxDataFrame(self)
+        self._ldf = ldf
 
         try:
             # Ignore recommendations when Series a results of:
@@ -160,6 +161,7 @@ class LuxSeries(pd.Series):
                 ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
 
                 self._widget = ldf._widget
+                self._recommendation = ldf._recommendation
 
                 if len(ldf.recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
@@ -211,13 +213,15 @@ class LuxSeries(pd.Series):
     def recommendation(self):
         from lux.core.frame import LuxDataFrame
 
-        if self.name is None:
-            self.name = " "
-        ldf = LuxDataFrame(self)
+        if self._recommendation is not None and self._recommendation == {}:
+            if self.name is None:
+                self.name = " "
+            ldf = LuxDataFrame(self)
 
-        ldf.maintain_metadata()
-        ldf.maintain_recs()
-        return ldf._recommendation
+            ldf.maintain_metadata()
+            ldf.maintain_recs()
+            self._recommendation = ldf._recommendation
+        return self._recommendation
 
     @property
     def exported(self) -> Union[Dict[str, VisList], VisList]:
@@ -240,58 +244,5 @@ class LuxSeries(pd.Series):
                 When all the exported vis is from the same tab, return a VisList of selected visualizations. -> VisList(v1, v2...)
                 When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisList. -> {"Enhance": VisList(v1, v2...), "Filter": VisList(v5, v7...), ..}
         """
-        if self._widget is None:
-            warnings.warn(
-                "\nNo widget attached to the dataframe."
-                "Please assign dataframe to an output variable.\n"
-                "See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips",
-                stacklevel=2,
-            )
-            return []
-        exported_vis_lst = self._widget._selectedVisIdxs
-        exported_vis = []
-        if exported_vis_lst == {}:
-            if self._saved_export:
-                return self._saved_export
-            warnings.warn(
-                "\nNo visualization selected to export.\n"
-                "See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips",
-                stacklevel=2,
-            )
-            return []
-        if len(exported_vis_lst) == 1 and "currentVis" in exported_vis_lst:
-            return self.current_vis
-        elif len(exported_vis_lst) > 1:
-            exported_vis = {}
-            if "currentVis" in exported_vis_lst:
-                exported_vis["Current Vis"] = self.current_vis
-            for export_action in exported_vis_lst:
-                if export_action != "currentVis":
-                    exported_vis[export_action] = VisList(
-                        list(
-                            map(
-                                self._recommendation[export_action].__getitem__,
-                                exported_vis_lst[export_action],
-                            )
-                        )
-                    )
-            return exported_vis
-        elif len(exported_vis_lst) == 1 and ("currentVis" not in exported_vis_lst):
-            export_action = list(exported_vis_lst.keys())[0]
-            exported_vis = VisList(
-                list(
-                    map(
-                        self._recommendation[export_action].__getitem__,
-                        exported_vis_lst[export_action],
-                    )
-                )
-            )
-            self._saved_export = exported_vis
-            return exported_vis
-        else:
-            warnings.warn(
-                "\nNo visualization selected to export.\n"
-                "See more: https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips",
-                stacklevel=2,
-            )
-            return []
+        return self._ldf.exported
+        
