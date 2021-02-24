@@ -47,7 +47,7 @@ class LuxSeries(pd.Series):
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
-        "name"
+        "name",
     ]
 
     _default_metadata = {
@@ -110,12 +110,12 @@ class LuxSeries(pd.Series):
         from lux.core.frame import LuxDataFrame
 
         series_repr = super(LuxSeries, self).__repr__()
-        
+
         ldf = LuxDataFrame(self)
-        
+
         # Default column name 0 causes errors
         if self.name is None:
-            ldf = ldf.rename(columns={0:" "})
+            ldf = ldf.rename(columns={0: " "})
 
         try:
             # Ignore recommendations when Series a results of:

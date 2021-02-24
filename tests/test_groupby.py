@@ -61,10 +61,11 @@ def test_filter(global_var):
     assert new_df.history[0].name == "groupby"
     assert not new_df.pre_aggregated
 
+
 def test_get_group(global_var):
     df = pytest.car_df
     df._repr_html_()
     new_df = df.groupby("Origin").get_group("Japan")
     new_df._repr_html_()
     assert new_df.history[0].name == "groupby"
-    assert not new_df.pre_aggregated 
+    assert not new_df.pre_aggregated

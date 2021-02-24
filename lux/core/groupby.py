@@ -23,7 +23,6 @@ class LuxDataFrameGroupBy(pd.core.groupby.generic.DataFrameGroupBy):
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
-        "name"
     ]
 
     def __init__(self, *args, **kwargs):
