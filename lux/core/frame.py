@@ -82,6 +82,7 @@ class LuxDataFrame(pd.DataFrame):
         self.cardinality = None
         self._min_max = None
         self.pre_aggregated = None
+        print("WHATS UP")
         self._type_override = {}
         warnings.formatwarning = lux.warning_format
 
