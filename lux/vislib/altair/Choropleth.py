@@ -46,9 +46,9 @@ class Choropleth(AltairChart):
         x_attr_abv = str(x_attr.attribute)
         y_attr_abv = str(y_attr.attribute)
 
-        background = self.get_background(x_attr_abv.lower())
+        background, background_str = self.get_background(x_attr_abv.lower())
         geographical_name = self.get_geographical_name(x_attr_abv.lower())
-        geo_map, map_type, map_translation = self.get_geomap(x_attr_abv.lower())
+        geo_map, geo_map_str, map_type, map_translation = self.get_geomap(x_attr_abv.lower())
         self.data[x_attr_abv] = self.data[x_attr_abv].apply(map_translation)
 
         if len(x_attr_abv) > 25:
@@ -86,36 +86,50 @@ class Choropleth(AltairChart):
 
         self.code += "import altair as alt\n"
         dfname = "placeholder_variable"
-        self.code += f"""
-		points = alt.Chart(geo_map).mark_geoshape().encode(
-            color='{y_attr_abv}:Q',
-        ).transform_lookup(
-            lookup='id',
-            from_=alt.LookupData(self.data, x_attr_abv, [y_attr_abv])
-        ).project(
-            type=map_type
-        ).properties(
-            width=width,
-            height=height,
-            title="Mean of {y_attr_abv} across {geographical_name}"
-        )
+        self.code += f"""nan=float('nan')
+df = pd.DataFrame({str(self.data.to_dict())})
+background = {background_str}
+
+		points = alt.Chart({geo_map_str}).mark_geoshape().encode(
+    color='{y_attr_abv}:Q',
+).transform_lookup(
+    lookup='id',
+    from_=alt.LookupData({dfname}, "{x_attr_abv}", ["{y_attr_abv}"])
+).project(
+    type="{map_type}"
+).properties(
+    width={width},
+    height={height},
+    title="Mean of {y_attr_abv} across {geographical_name}"
+)
+chart = background + points
 		"""
         return chart
 
     def get_background(self, feature):
         """Returns background projection based on geographic feature."""
         maps = {
-            "state": (alt.topo_feature(Choropleth.us_url, feature="states"), "albersUsa"),
-            "country": (alt.topo_feature(Choropleth.world_url, feature="countries"), "equirectangular"),
+            "state": (
+                alt.topo_feature(Choropleth.us_url, feature="states"),
+                "albersUsa",
+                f"alt.topo_feature('{Choropleth.us_url}', feature='states')",
+            ),
+            "country": (
+                alt.topo_feature(Choropleth.world_url, feature="countries"),
+                "equirectangular",
+                f"alt.topo_feature('{Choropleth.world_url}', feature='countries')",
+            ),
         }
         assert feature in maps
         height = 175
-        return (
+        background = (
             alt.Chart(maps[feature][0])
             .mark_geoshape(fill="lightgray", stroke="white")
             .properties(width=int(height * (5 / 3)), height=height)
             .project(maps[feature][1])
         )
+        background_str = f"(alt.Chart({maps[feature][2]}).mark_geoshape(fill='lightgray', stroke='white').properties(width=int({height} * (5 / 3)), height={height}).project('{maps[feature][1]}'))"
+        return background, background_str
 
     def get_geomap(self, feature):
         """Returns topological encoding, topological style,
@@ -123,11 +137,13 @@ class Choropleth(AltairChart):
         maps = {
             "state": (
                 alt.topo_feature(Choropleth.us_url, feature="states"),
+                f"alt.topo_feature('{Choropleth.us_url}', feature='states')",
                 "albersUsa",
                 self.get_us_fips_code,
             ),
             "country": (
                 alt.topo_feature(Choropleth.world_url, feature="countries"),
+                f"alt.topo_feature('{Choropleth.world_url}', feature='countries')",
                 "equirectangular",
                 self.get_country_iso_code,
             ),
