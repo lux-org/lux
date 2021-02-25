@@ -519,11 +519,13 @@ class SQLExecutor(Executor):
                     where_clause.append("WHERE")
                 else:
                     where_clause.append("AND")
+                curr_value = str(filters[f].value)
+                curr_value = curr_value.replace("'", "''")
                 where_clause.extend(
                     [
                         '"' + str(filters[f].attribute) + '"',
                         str(filters[f].filter_op),
-                        "'" + str(filters[f].value) + "'",
+                        "'" + curr_value + "'",
                     ]
                 )
                 if filters[f].attribute not in filter_vars:

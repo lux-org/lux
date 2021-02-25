@@ -40,6 +40,7 @@ def test_df_to_series():
         "_prev",
         "_history",
         "_saved_export",
+        "name",
         "_sampled",
         "_toggle_pandas_display",
         "_message",
