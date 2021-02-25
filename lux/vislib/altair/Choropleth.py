@@ -15,14 +15,14 @@
 from lux.vislib.altair.AltairChart import AltairChart
 import altair as alt
 import us
-import pycountry
+from iso3166 import countries
 
 alt.data_transformers.disable_max_rows()
 
 
-class SymbolMap(AltairChart):
+class Choropleth(AltairChart):
     """
-    SymbolMap is a subclass of AltairChart that renders choropleth maps.
+    Choropleth is a subclass of AltairChart that renders choropleth maps.
     All rendering properties for proportional symbol maps are set here.
 
     See Also
@@ -105,8 +105,8 @@ class SymbolMap(AltairChart):
     def get_background(self, feature):
         """Returns background projection based on geographic feature."""
         maps = {
-            "state": (alt.topo_feature(SymbolMap.us_url, feature="states"), "albersUsa"),
-            "country": (alt.topo_feature(SymbolMap.world_url, feature="countries"), "equirectangular"),
+            "state": (alt.topo_feature(Choropleth.us_url, feature="states"), "albersUsa"),
+            "country": (alt.topo_feature(Choropleth.world_url, feature="countries"), "equirectangular"),
         }
         assert feature in maps
         height = 175
@@ -122,12 +122,12 @@ class SymbolMap(AltairChart):
         and translation function based on geographic feature"""
         maps = {
             "state": (
-                alt.topo_feature(SymbolMap.us_url, feature="states"),
+                alt.topo_feature(Choropleth.us_url, feature="states"),
                 "albersUsa",
                 self.get_us_fips_code,
             ),
             "country": (
-                alt.topo_feature(SymbolMap.world_url, feature="countries"),
+                alt.topo_feature(Choropleth.world_url, feature="countries"),
                 "equirectangular",
                 self.get_country_iso_code,
             ),
@@ -149,7 +149,7 @@ class SymbolMap(AltairChart):
         if not isinstance(attribute, str):
             return attribute
         try:
-            return pycountry.countries.lookup(attribute).numeric
+            return countries.get(attribute).numeric
         except:
             return attribute
 

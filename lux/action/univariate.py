@@ -92,7 +92,7 @@ def univariate(ldf, *args):
         intent.extend(filter_specs)
         recommendation = {
             "action": "Geographical",
-            "description": "Show choropleth symbol maps of <p class='highlight-descriptor'>geographic</p> attributes",
+            "description": "Show choropleth maps of <p class='highlight-descriptor'>geographic</p> attributes",
             "long_description": f"Occurence displays choropleths of averages for some geographic attribute{examples}. Visualizations are ranked by diversity of the geographic attribute.",
         }
     elif data_type_constraint == "temporal":
