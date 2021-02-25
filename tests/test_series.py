@@ -46,6 +46,7 @@ def test_df_to_series():
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
+        "name"
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
