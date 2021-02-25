@@ -61,7 +61,6 @@ class LuxDataFrameGroupBy(pd.core.groupby.generic.DataFrameGroupBy):
         return ret_val
 
     def apply(self, *args, **kwargs):
-        print("HII")
         ret_val = super(LuxDataFrameGroupBy, self).apply(*args, **kwargs)
         for attr in self._metadata:
             ret_val.__dict__[attr] = getattr(self, attr, None)
