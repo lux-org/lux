@@ -27,11 +27,11 @@ def test_df_to_series():
     print(df["Weight"]._metadata)
     assert df["Weight"]._metadata == [
         "_intent",
-        "data_type",
+        "_inferred_intent",
+        "_data_type",
         "unique_values",
         "cardinality",
         "_rec_info",
-        "_pandas_only",
         "_min_max",
         "plotting_style",
         "_current_vis",
@@ -41,6 +41,12 @@ def test_df_to_series():
         "_history",
         "_saved_export",
         "name",
+        "_sampled",
+        "_toggle_pandas_display",
+        "_message",
+        "_pandas_only",
+        "pre_aggregated",
+        "_type_override",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
@@ -60,3 +66,27 @@ def test_print_iterrow(global_var):
             print(row)
             break
         assert len(w) == 0, "Warning displayed when printing iterrow"
+
+
+def test_series_recommendation():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
+    df.plot_config = None
+    df = df["YearsAtCompany"] / df["TotalWorkingYears"]
+    assert len(df.recommendation["Distribution"]) > 0, "Recommendation property empty for LuxSeries"
+
+
+def test_unnamed_column():
+    lux.config.plotting_backend = "matplotlib"
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
+    lux.config.plotting_style = None
+    series = df["YearsAtCompany"] / df["TotalWorkingYears"]
+    series.__repr__()
+    axis_title = "Series (binned)"
+    exported_code_str = series.recommendation["Distribution"][0].to_matplotlib_code()
+    assert axis_title in exported_code_str, "Unnamed column should have 'Series' as placeholder"
+
+    lux.config.plotting_backend = "vegalite"
+    series = df["YearsAtCompany"] / df["TotalWorkingYears"]
+    series.__repr__()
+    exported_code_str = series.recommendation["Distribution"][0].to_Altair()
+    assert axis_title in exported_code_str, "Unnamed column should have 'Series' as placeholder"

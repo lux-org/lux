@@ -315,7 +315,7 @@ def test_line_chart(global_var):
 
 
 def test_colored_line_chart(global_var):
-    df = pytest.car_df
+    df = pd.read_csv("lux/data/car.csv")
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Year", "Acceleration", "Origin"], df)
     vis_code = vis.to_Altair()
@@ -426,25 +426,6 @@ def test_vegalite_default_actions_registered(global_var):
     # Line Chart
     assert "Temporal" in df.recommendation
     assert len(df.recommendation["Temporal"]) > 0
-
-    # Scatter Chart
-    assert "Correlation" in df.recommendation
-    assert len(df.recommendation["Correlation"]) > 0
-
-
-def test_vegalite_default_actions_registered_2(global_var):
-    from vega_datasets import data
-
-    df = data.airports()
-    lux.config.plotting_backend = "vegalite"
-
-    # Symbol Map
-    assert "Geographic" in df.recommendation
-    assert len(df.recommendation["Geographic"]) > 0
-
-    # Occurrence Chart
-    assert "Occurrence" in df.recommendation
-    assert len(df.recommendation["Occurrence"]) > 0
 
     # Scatter Chart
     assert "Correlation" in df.recommendation

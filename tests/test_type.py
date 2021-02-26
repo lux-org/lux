@@ -88,8 +88,8 @@ def test_check_airbnb():
         "host_name": "nominal",
         "neighbourhood_group": "nominal",
         "neighbourhood": "nominal",
-        "latitude": "geoshape",
-        "longitude": "geoshape",
+        "latitude": "quantitative",
+        "longitude": "quantitative",
         "room_type": "nominal",
         "price": "quantitative",
         "minimum_nights": "quantitative",
@@ -98,22 +98,6 @@ def test_check_airbnb():
         "reviews_per_month": "quantitative",
         "calculated_host_listings_count": "quantitative",
         "availability_365": "quantitative",
-    }
-
-
-def test_check_airports():
-    from vega_datasets import data
-
-    df = data.airports()
-    df.maintain_metadata()
-    assert df.data_type == {
-        "iata": "id",
-        "name": "nominal",
-        "city": "nominal",
-        "state": "nominal",
-        "country": "nominal",
-        "latitude": "geoshape",
-        "longitude": "geoshape",
     }
 
 
