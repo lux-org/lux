@@ -32,7 +32,7 @@ Lux is a Python library that makes data science easier by automating aspects of 
 
 Here is a [1-min video](https://www.youtube.com/watch?v=qmnYP-LmbNU) introducing Lux, and [slides](http://dorisjunglinlee.com/files/Zillow_07_2020_Slide.pdf) from a more extended talk.
 
-Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/demo/cars_demo.ipynb)! 
+Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/demo/employee_demo.ipynb)! 
 
 # Getting Started
 
@@ -139,7 +139,13 @@ To get started, Lux can be installed through [PyPI](https://pypi.org/project/lux
 pip install lux-api
 ```
 
-This installation includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). 
+If you use [conda](https://docs.conda.io/en/latest/), you can install Lux via:
+
+```bash
+conda install -c conda-forge lux-api
+```
+
+Both the PyPI and conda installation include includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). 
 
 ## Setup in Jupyter Notebook, VSCode
 

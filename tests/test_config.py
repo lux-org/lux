@@ -52,6 +52,7 @@ def register_new_action(validator: bool = True):
 
 def test_default_actions_registered(global_var):
     df = pytest.car_df
+    lux.config.set_executor_type("Pandas")
     df._repr_html_()
     assert "Distribution" in df.recommendation
     assert len(df.recommendation["Distribution"]) > 0

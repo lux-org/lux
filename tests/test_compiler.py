@@ -30,6 +30,7 @@ def test_underspecified_no_vis(global_var, test_recs):
     df.set_intent([lux.Clause(attribute="Origin", filter_op="=", value="USA")])
     test_recs(df, no_vis_actions)
     assert len(df.current_vis) == 0
+    df.clear_intent()
 
     # test for sql executor
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
@@ -338,6 +339,7 @@ def test_autoencoding_scatter(global_var):
                 lux.Clause(attribute="Weight", channel="x"),
             ]
         )
+    df.clear_intent()
 
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     sql_df = pd.DataFrame()
@@ -500,6 +502,7 @@ def test_autoencoding_line_chart(global_var):
                 lux.Clause(attribute="Acceleration", channel="x"),
             ]
         )
+    df.clear_intent()
 
     # test for sql executor
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
@@ -651,6 +654,7 @@ def test_populate_options(global_var):
         list(col_set),
         ["Acceleration", "Weight", "Horsepower", "MilesPerGal", "Displacement"],
     )
+    df.clear_intent()
 
     # test for sql executor
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
@@ -694,6 +698,7 @@ def test_remove_all_invalid(global_var):
     )
     df._repr_html_()
     assert len(df.current_vis) == 0
+    df.clear_intent()
 
     # test for sql executor
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
