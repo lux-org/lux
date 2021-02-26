@@ -36,28 +36,36 @@ def implicit_tab(ldf):
     """
 
     # TODO get this df name from somwehere or start using ids maybe?
-    signals_ranked = lux.config.code_tracker.get_implicit_intent("df")
+    most_recent_signal, col_list = lux.config.code_tracker.get_implicit_intent("df")
     str_desc = "Recommendedations based off this code: <br/>"
+    lux_vis = []
 
-    if signals_ranked:
+    if most_recent_signal:
         lux_vis = VisList([], ldf)
 
-        for i, s in enumerate(signals_ranked):
-            vl = generate_vis_from_signal(s, ldf)
-            
-            if vl:
-                lux_vis._collection.extend(vl._collection)
-
-            str_desc += f"[{i}] {s.code_str} <br/>"
+        # get vis for most recent 
+        vl = generate_vis_from_signal(most_recent_signal, ldf)
+        if vl:
+            lux_vis._collection.extend(vl._collection)
+            str_desc += f"> {most_recent_signal.code_str} <br/>"
         
-        #lux_vis.refresh_source(ldf)
+        # get vis for columns
+        if col_list:
+            col_vis_l = []
+            #max_score = len(col_vis_l)
+            for i, c in enumerate(col_list):
+                col_v = Vis( [lux.Clause(c)] )
+                #col_v.score = max_score - i
+                col_vis_l.append(col_v)
+                str_desc += f"> ...lines with {c}... <br/>"
+            
+            vl_2 = VisList(col_vis_l, ldf)
+            lux_vis._collection.extend(vl_2._collection)
+        
+        lux_vis.remove_duplicates()
+        lux_vis.sort()
 
-    
-    else:
-        lux_vis = []
 
-    numeric_cols = list(ldf.select_dtypes(include= np.number).columns)
-    
     # for vis in i_vis_list:
     #     vis.score = interestingness(vis, ldf)
     # vlist.sort()
@@ -98,6 +106,8 @@ def generate_vis_from_signal(signal, ldf):
 
     elif signal.f_name == "describe":
         vis_list = VisList([lux.Clause("?", mark_type="boxplot")], ldf)
+        for v in vis_list:
+            v.score = 100
 
     elif signal.f_name == "query" or signal.f_name == "filter" or signal.f_name == "loc":
         ...

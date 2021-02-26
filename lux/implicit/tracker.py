@@ -71,7 +71,7 @@ class CodeTracker():
                 if n_new_signals == 1:
                     code_weights = [1]
                 else:
-                    if self.signal_weights:
+                    if len(self.signal_weights) > 0:
                         min_new_w = max(self.signal_weights)
                     else:
                         min_new_w = .9
@@ -84,10 +84,10 @@ class CodeTracker():
                 # save new signals 
                 self.parsed_history.extend( analyzer.history)
 
-                assert len(self.parsed_history) == len(self.signal_weights)
+                #assert len(self.parsed_history) == len(self.signal_weights)
             
             # clean up
-            self.getting_info_flag = False
+            self.getting_info_flag = False # TODO this might not be necessary anymore 
             # set a flag or call something so that the LDFs update and know the implicit recs have changed
             lux.config.update_actions["flag"] = True
     
@@ -105,37 +105,47 @@ class CodeTracker():
         # TODO aggregate time here or make it just cleaner?
         # TODO maybe need to use id here instead of name
         
-        if self.parsed_history:
+        most_recent_signal = None
+        col_list = []
 
+        if self.parsed_history:
             # filter to only this df and the weights 
             mask = [item.df_name == f_df_name for item in self.parsed_history]
             weights = self.signal_weights[mask]
             signals = list(filter(lambda a: a.df_name == f_df_name, self.parsed_history))
 
-            order = np.argsort(-1 * weights) # order so that highest is first 
+            # get signal and cols over time
+            most_recent_signal = signals[-1]
+            col_list = self.get_weighted_col_order(signals[:-1], weights)
 
-            l = []
-            for i in order:
-                l.append(signals[i])
-            
-            return signals 
+        return most_recent_signal, col_list
+    
+    def get_weighted_col_order(self, signals, weights, col_thresh = .25):
+        """ 
+        Take in list of CodeTrackerItem signals and weights
+        Return list of col names sorted from highest to lowest importance
+        """
+        col_dict = {}
 
-            # generate 
-            # cols = []
-            # if f_df_name not in self.df_info:
-            #     self.get_nb_df_info()
-            
-            # if f_df_name in self.df_info:
-            #     cols = self.df_info[f_df_name]
-            
-            # col_totals = {}
-            # for c in cols: 
-            #     _total = 0
-            #     for s, w in zip(signals, weights):
-            #         if c in s.cols:
-            #             _total += w 
+        for s, w in zip(signals, weights):
+            cols = s.cols 
+            for c in cols:
+                if c in col_dict:
+                    col_dict[c] += w 
+                else:
+                    col_dict[c] = w
+        
+        l = []
+        if col_dict:
+            l = list(col_dict.items())
+            l.sort(key=lambda x: x[1], reverse=True)
+            l = [i[0] for i in l if i[1] > col_thresh]
+        
+        return l
 
-
+    ###
+    ### Utils for getting df and column names from NB 
+    ###
     def get_colnames(self, x):
         obj = self.shell.ev(x)
         if isinstance(obj, lux.core.frame.LuxDataFrame) or isinstance(obj, pd.DataFrame):

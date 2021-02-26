@@ -197,10 +197,11 @@ class Analyzer(ast.NodeVisitor):
                 args.extend(all_items)
             else:
                 v = self.parse_value(a)
-                if type(v) == str: v = [v]
-                args.extend(v)
-                if df_name:
-                    df_s[df_name] = v
+                if v:
+                    if type(v) == str: v = [v]
+                    args.extend(v)
+                    if df_name:
+                        df_s[df_name] = v
         
         if args:
             arg_dict["args"] = args
