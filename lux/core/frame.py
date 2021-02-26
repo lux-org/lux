@@ -77,7 +77,7 @@ class LuxDataFrame(pd.DataFrame):
         self._message = Message()
         self._pandas_only = False
         # Metadata
-        self._data_type = None
+        self._data_type = {}
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
@@ -449,13 +449,20 @@ class LuxDataFrame(pd.DataFrame):
             rec_df = self
             rec_df._message = Message()
         # Add warning message if there exist ID fields
-        id_fields_str = ""
-        inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
-        if len(inverted_data_type["id"]) > 0:
-            for id_field in inverted_data_type["id"]:
-                id_fields_str += f"<code>{id_field}</code>, "
-            id_fields_str = id_fields_str[:-2]
-            rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
+        if (len(rec_df) == 0):
+            rec_df._message.add(
+                f"Lux cannot operate on empty DataFrames or Series; Lux requires at least 5 data points to suggest visualizations.")
+        elif (len(rec_df)<5):
+            rec_df._message.add(
+                f"Lux could not compute any actions because the DataFrame or Series is too small (less than 5 data points).")
+        else:
+            id_fields_str = ""
+            inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
+            if len(inverted_data_type["id"]) > 0:
+                for id_field in inverted_data_type["id"]:
+                    id_fields_str += f"<code>{id_field}</code>, "
+                id_fields_str = id_fields_str[:-2]
+                rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
         rec_df._prev = None  # reset _prev
 
         # Check that recs has not yet been computed
@@ -487,12 +494,6 @@ class LuxDataFrame(pd.DataFrame):
                 if len(vlist) > 0:
                     rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
-            if len(self) < 5:
-                rec_df._message.add(f"Lux could not compute any actions because the DataFrame is too small (less than 5 data points).")
-            for column in rec_df.columns:
-                if self.data_type.get(column) != "temporal" and self.cardinality.get(column) == 1:
-                    rec_df._message.add(
-                        f"Lux could not visualize the column {column} because it has less than 5 unique values.")
             self._widget = rec_df.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
