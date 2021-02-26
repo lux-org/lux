@@ -120,7 +120,9 @@ class LuxSeries(pd.Series):
         try:
             # Ignore recommendations when Series a results of:
             # 1) Values of the series are of dtype objects (df.dtypes)
-            is_dtype_series = all(isinstance(val, np.dtype) for val in self.values) and len(self.values)!=0
+            is_dtype_series = (
+                all(isinstance(val, np.dtype) for val in self.values) and len(self.values) != 0
+            )
             # 2) Mixed type, often a result of a "row" acting as a series (df.iterrows, df.iloc[0])
             # Tolerant for NaNs + 1 type
             mixed_dtype = len(set([type(val) for val in self.values])) > 2

@@ -449,12 +449,14 @@ class LuxDataFrame(pd.DataFrame):
             rec_df = self
             rec_df._message = Message()
         # Add warning message if there exist ID fields
-        if (len(rec_df) == 0):
+        if len(rec_df) == 0:
             rec_df._message.add(
-                f"Lux cannot operate on empty DataFrames or Series; Lux requires at least 5 data points to suggest visualizations.")
-        elif (len(rec_df)<5):
+                f"Lux cannot operate on empty DataFrames or Series; Lux requires at least 5 data points to suggest visualizations."
+            )
+        elif len(rec_df) < 5:
             rec_df._message.add(
-                f"Lux could not compute any actions because the DataFrame or Series is too small (less than 5 data points).")
+                f"Lux could not compute any actions because the DataFrame or Series is too small (less than 5 data points)."
+            )
         else:
             id_fields_str = ""
             inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
@@ -498,7 +500,7 @@ class LuxDataFrame(pd.DataFrame):
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
             self._widget = rec_df.render_widget()
-        
+
         self._recs_fresh = True
 
     #######################################################
@@ -659,7 +661,6 @@ class LuxDataFrame(pd.DataFrame):
                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
                 self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
-
                 button = widgets.Button(
                     description="Toggle Pandas/Lux",
                     layout=widgets.Layout(width="140px", top="5px"),
@@ -681,7 +682,6 @@ class LuxDataFrame(pd.DataFrame):
 
                 button.on_click(on_button_clicked)
                 on_button_clicked(None)
-
 
         except (KeyboardInterrupt, SystemExit):
             raise
