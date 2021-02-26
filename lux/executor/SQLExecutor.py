@@ -61,7 +61,7 @@ class SQLExecutor(Executor):
                     lux.config.SQLconnection,
                 )
                 view_data_length = list(length_query["length"])[0]
-                if len(view.get_attr_by_channel("color")) == 1 or view_data_length <= 1000:
+                if len(view.get_attr_by_channel("color")) == 1 or view_data_length < 5000:
                     # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
                     has_color = True
                     SQLExecutor.execute_scatter(view, ldf)
