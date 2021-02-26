@@ -25,6 +25,20 @@ class SQLExecutor(Executor):
         return f"<SQLExecutor>"
 
     @staticmethod
+    def execute_sampling(ldf: LuxDataFrame):
+        SAMPLE_FLAG = lux.config.sampling
+        SAMPLE_START = lux.config.sampling_start
+        SAMPLE_CAP = lux.config.sampling_cap
+        SAMPLE_FRAC = 0.2
+
+        length_query = pandas.read_sql(
+                    "SELECT COUNT(*) as length FROM {}".format(ldf.table_name),
+                    lux.config.SQLconnection,
+                )
+        limit = int(list(length_query["length"])[0])*SAMPLE_FRAC
+        ldf._sampled = pandas.read_sql("SELECT * from {} LIMIT {}".format(ldf.table_name, str(limit)), lux.config.SQLconnection)
+
+    @staticmethod
     def execute(view_collection: VisList, ldf: LuxDataFrame):
         """
         Given a VisList, fetch the data required to render the view
@@ -35,9 +49,12 @@ class SQLExecutor(Executor):
 
         for view in view_collection:
             # choose execution method depending on vis mark type
+
+            #when mark is empty, deal with lazy execution by filling the data with a small sample of the dataframe
             if view.mark == "":
-                view.refresh_source(ldf)
-            elif view.mark == "scatter":
+                SQLExecutor.execute_sampling(ldf)
+                view._vis_data = ldf._sampled
+            if view.mark == "scatter":
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
                 length_query = pandas.read_sql(
                     "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
