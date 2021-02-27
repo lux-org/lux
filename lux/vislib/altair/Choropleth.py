@@ -156,7 +156,7 @@ chart = background + points
         if not isinstance(attribute, str):
             return attribute
         try:
-            return us.states.lookup(attribute).fips
+            return int(us.states.lookup(attribute).fips)
         except:
             return attribute
 
@@ -165,7 +165,7 @@ chart = background + points
         if not isinstance(attribute, str):
             return attribute
         try:
-            return countries.get(attribute).numeric
+            return int(countries.get(attribute).numeric)
         except:
             return attribute
 
