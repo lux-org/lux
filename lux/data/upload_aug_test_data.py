@@ -38,6 +38,7 @@ for line in urllib.request.urlopen(target_url):
     decoded = line.decode("utf-8")
     if "enrollee_id,city,city_development_index" not in decoded:
         cur.execute(
-            "INSERT INTO aug_test_table VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", decoded.split(",")
+            "INSERT INTO aug_test_table VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            decoded.split(","),
         )
 conn.commit()
