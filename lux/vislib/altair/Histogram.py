@@ -22,7 +22,6 @@ class Histogram(AltairChart):
     """
     Histogram is a subclass of AltairChart that render as a histograms.
     All rendering properties for histograms are set here.
-
     See Also
     --------
     altair-viz.github.io
@@ -50,9 +49,7 @@ class Histogram(AltairChart):
             msr_attr.attribute = msr_attr.attribute.replace(".", "")
 
         colval = self.vis.data[msr_attr.attribute]
-        x_range = abs(max(colval) - min(colval))
-        plot_range = abs(x_max - x_min)
-        markbar = x_range / plot_range * 10
+        markbar = self.get_bin_size(msr_attr.attribute)
 
         self.data = AltairChart.sanitize_dataframe(self.data)
         end_attr_abv = str(msr_attr.attribute) + "_end"
@@ -69,9 +66,10 @@ class Histogram(AltairChart):
                     x=alt.X(
                         str(msr_attr.attribute),
                         title=axis_title,
-                        bin=alt.Bin(binned=True, step=markbar),
+                        bin=alt.Bin(binned=True),
                         type=msr_attr.data_type,
                         axis=alt.Axis(title=axis_title),
+                        scale=alt.Scale(domain=[x_min, x_max]),
                     ),
                     x2=end_attr_abv,
                     y=alt.Y("Number of Records", type="quantitative"),
@@ -113,3 +111,17 @@ class Histogram(AltairChart):
 		)
 		"""
         return chart
+
+    def get_bin_size(self, attribute):
+        """
+        Helper function that returns optimal bin size via Freedman Diaconis's Rule
+        Source: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
+        """
+        import math
+
+        num_pts = len(self.data[attribute])
+        Q1 = self.data[attribute].quantile(0.25)
+        Q3 = self.data[attribute].quantile(0.75)
+        IQR = Q3 - Q1
+        size = 2 * IQR * (num_pts ** -1 / 3)
+        return size * 3
