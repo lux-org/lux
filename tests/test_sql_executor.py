@@ -229,3 +229,12 @@ def test_exclude_attribute():
         assert vis.get_attr_by_channel("x")[0].attribute != "name"
         assert vis.get_attr_by_channel("y")[0].attribute != "Year"
         assert vis.get_attr_by_channel("y")[0].attribute != "Year"
+
+def test_null_values():
+    #checks that the SQLExecutor has filtered out any None or Null values from its metadata
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
+    sql_df = lux.LuxDataFrame()
+    lux.config.set_SQL_connection(connection)
+    sql_df.set_SQL_table("aug_test_table")
+
+    assert None not in sql_df.unique_values['enrolled_university']

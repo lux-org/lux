@@ -677,7 +677,7 @@ class SQLExecutor(Executor):
         """
         cardinality = {}
         for attr in list(ldf.columns):
-            card_query = 'SELECT Count(Distinct("{}")) FROM {}'.format(attr, ldf.table_name)
+            card_query = 'SELECT Count(Distinct("{}")) FROM {} WHERE "{}" IS NOT NULL'.format(attr, ldf.table_name, attr)
             card_data = pandas.read_sql(
                 card_query,
                 lux.config.SQLconnection,
@@ -701,7 +701,7 @@ class SQLExecutor(Executor):
         """
         unique_vals = {}
         for attr in list(ldf.columns):
-            unique_query = 'SELECT Distinct("{}") FROM {}'.format(attr, ldf.table_name)
+            unique_query = 'SELECT Distinct("{}") FROM {} WHERE "{}" IS NOT NULL'.format(attr, ldf.table_name, attr)
             unique_data = pandas.read_sql(
                 unique_query,
                 lux.config.SQLconnection,
