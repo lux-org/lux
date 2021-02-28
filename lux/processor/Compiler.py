@@ -324,7 +324,7 @@ class Compiler:
         measure = vis.get_attr_by_data_model("measure", exclude_record=True)[0]
         if not len(vis.get_attr_by_attr_name("Record")):
             vis._inferred_intent.append(Compiler.count_col)
-            vis._nmsr += 1
+            #vis._nmsr += 1
         # If no bin specified, then default as 10
         if measure.bin_size == 0:
             measure.bin_size = 10
@@ -345,7 +345,7 @@ class Compiler:
 
         if vis._nmsr == 0:
             vis._inferred_intent.append(Compiler.count_col)
-            vis._nmsr += 1
+            #vis._nmsr += 1
         
         measure = vis.get_attr_by_data_model("measure")[0]
         

@@ -96,6 +96,7 @@ def univariate(ldf, *args):
         recommendation["collection"] = []
         return recommendation
     vlist = VisList(intent, ldf)
+    # set_trace()
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
     vlist.sort()
