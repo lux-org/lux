@@ -61,7 +61,6 @@ class Compiler:
         Vis
             Compiled Vis object
         """
-        #set_trace()
         if vis:
             # autofill data type/model information
             Compiler.populate_data_type_model(ldf, [vis])
@@ -92,7 +91,6 @@ class Compiler:
         vis_collection: list[lux.Vis]
                 vis list with compiled lux.Vis objects.
         """
-        
         if _inferred_intent:
             vis_collection = Compiler.enumerate_collection(_inferred_intent, ldf)
             # autofill data type/model information
@@ -105,12 +103,13 @@ class Compiler:
                 Compiler.determine_encoding(ldf, vis)
                         
             vis_collection = Compiler.enforce_mark_type(_inferred_intent, vis_collection)
+            vis_collection.remove_duplicates() # BUG this doesnt remove dups where the intent may look different but vis is the same
 
             ldf._compiled = True
             return vis_collection
 
     @staticmethod
-    def enforce_mark_type(_inferred_intent: List[Clause], vis_collection):
+    def enforce_mark_type(_inferred_intent: List[Clause], vis_collection: VisList) -> VisList:
         """ 
         Hacky way to make sure the returned vis in viscollection comply with the intent. 
         The vis compiler default to another vis if unable to make the right one so migtht not all be the 
@@ -125,12 +124,11 @@ class Compiler:
                 break
         
         if enforce_mark:
-            vc = list(
+            vis_collection = list(
                 filter(lambda x: x.mark == enforce_mark, vis_collection)
             )
-            return vc
         
-        return vis_collection
+        return VisList(vis_collection)
 
     @staticmethod
     def enumerate_collection(_inferred_intent: List[Clause], ldf: LuxDataFrame) -> VisList:
@@ -285,37 +283,26 @@ class Compiler:
         if vis.mark == "histogram":
             if vis.get_attr_by_data_model("measure", exclude_record=True):
                 auto_channel = Compiler.make_histogram(vis)
-            else:
-                # raise ValueError("User specified histogram mark but df has no quantitive fields.")
-                print("User specified histogram mark but df has no quantitive fields.")
+        
         elif vis.mark == "bar" or vis.mark == "line":
             if vis._ndim >= 1:
                 auto_channel = Compiler.make_line_or_bar(vis, ldf)
-            else:
-                # raise ValueError("User specified bar or line mark but df has no dimension fields. Perhaps try 'histogram' if only working with measure data types." )
-                print("User specified bar or line mark but df has no dimension fields. Perhaps try 'histogram' if only working with measure data types." )
+        
         elif vis.mark == "scatter":
             if vis._nmsr >= 2:
                 auto_channel = Compiler.make_scatter(vis)
-            else:
-                # raise ValueError("User specified scatter mark but need at least 2 quantitative fields.")
-                print("User specified scatter mark but need at least 2 quantitative fields.")
+        
         elif vis.mark == "heatmap": 
             if vis._nmsr >= 2: # TODO loosen this restriction 
                 auto_channel = Compiler.make_heatmap(vis)
                 # lux.config.heatmap_bin_size # TODO change this too with ldf.cardinality[dimension.attribute]
-            else:
-                # raise ValueError("User specified heatmap mark but need at least 2 quantitative fields.")
-                print("User specified heatmap mark but need at least 2 quantitative fields.")
+        
         elif vis.mark == "boxplot":
             if mark_channel_clause.attribute and mark_channel_clause.data_type == "measure":
                 auto_channel["y"] = mark_channel_clause
             elif vis.get_attr_by_data_model("measure"):
                 m_clause = vis.get_attr_by_data_model("measure")[0]
                 auto_channel["y"] = m_clause
-            else:
-                # raise ValueError("User specified Boxplot mark but df has no quantitive fields.")
-                print("User specified Boxplot mark but df has no quantitive fields.")
         
         return auto_channel
     
@@ -444,9 +431,7 @@ class Compiler:
             m3 = measures[2]
             auto_channel["color"] = m3
 
-        
         return auto_channel
-
     
     @staticmethod
     def determine_encoding(ldf: LuxDataFrame, vis: Vis):

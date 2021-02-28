@@ -36,7 +36,7 @@ def implicit_tab(ldf):
     """
 
     # TODO get this df name from somwehere or start using ids maybe?
-    most_recent_signal, col_list = lux.config.code_tracker.get_implicit_intent("df")
+    most_recent_signal, col_list = lux.config.code_tracker.get_implicit_intent(id(ldf))
     str_desc = "Recommendedations based off this code: <br/>"
     lux_vis = []
 

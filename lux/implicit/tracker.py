@@ -23,6 +23,8 @@ class CodeTracker():
         #self.implicit_intent = []
         self.df_info = {}
         self.getting_info_flag = False
+        self.name_to_id = {}               # df_name: id()
+        self.id_to_names = {}              # id(): [df_name, ...], for edge case where multiple vars ref same object 
 
         # inits
         self.shell = get_ipython()
@@ -100,19 +102,19 @@ class CodeTracker():
 
         return one_str
     
-    def get_implicit_intent(self, f_df_name):
+    def get_implicit_intent(self, df_id):
         """ returns LIST of columns"""
-        # TODO aggregate time here or make it just cleaner?
-        # TODO maybe need to use id here instead of name
         
         most_recent_signal = None
         col_list = []
 
-        if self.parsed_history:
+        if self.parsed_history and df_id in self.id_to_names:
+            df_names = self.id_to_names[df_id]
+
             # filter to only this df and the weights 
-            mask = [item.df_name == f_df_name for item in self.parsed_history]
+            mask = [item.df_name in df_names for item in self.parsed_history]
             weights = self.signal_weights[mask]
-            signals = list(filter(lambda a: a.df_name == f_df_name, self.parsed_history))
+            signals = list(filter(lambda a: a.df_name in df_names, self.parsed_history))
 
             # get signal and cols over time
             most_recent_signal = signals[-1]
@@ -165,8 +167,25 @@ class CodeTracker():
                 return True
             return False
         except Exception as e:
-            #print('Excepted in keep...', e)
             return False
+    
+    def get_name_to_id_map(self, names):
+        m = {}
+        for n in names:
+            m[n] = self.shell.ev(f"id({n})")
+        return m
+    
+    def create_inverse_map(self, d):
+        """ take a dict and make reverse map of value: [key_1, key_2,...] """
+        _d = {}
+
+        for k,v in d.items():
+            if v in _d:
+                _d[v].append(k)
+            else:
+                _d[v] = [k]
+        
+        return _d
 
     def get_nb_df_info(self):
         """ 
@@ -183,5 +202,8 @@ class CodeTracker():
             all_mods = self._nms.who_ls()
             d = {_v:self.get_colnames(_v) for _v in all_mods if self.keep(_v)}
             self.df_info = d
+
+            self.name_to_id = self.get_name_to_id_map(d.keys())
+            self.id_to_names = self.create_inverse_map(self.name_to_id)
             
         return d
