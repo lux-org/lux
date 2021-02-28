@@ -143,3 +143,5 @@ def test_name_column(global_var):
         "Temporal",
     ]
     assert len(new_df.recommendation["Correlation"])
+    assert new_df["name"][0] != None
+    assert (new_df["name"].unique() != None)[0]
