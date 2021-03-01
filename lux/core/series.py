@@ -140,13 +140,6 @@ class LuxSeries(pd.Series):
                     )
                     print(series_repr)
                     return ""
-                # if len(self) <= 0:
-                #     warnings.warn(
-                #         "\nLux can not operate on an empty series.\nPlease check your input again.\n",
-                #         stacklevel=2,
-                #     )
-                #     print(series_repr)
-                #     return ""
                 ldf.maintain_metadata()
 
                 if lux.config.default_display == "lux":
@@ -155,7 +148,7 @@ class LuxSeries(pd.Series):
                     self._toggle_pandas_display = True
 
                 # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-                ldf.maintain_recs()
+                ldf.maintain_recs(is_series=True)
 
                 # Observers(callback_function, listen_to_this_variable)
                 ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")

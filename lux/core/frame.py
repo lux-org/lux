@@ -429,7 +429,7 @@ class LuxDataFrame(pd.DataFrame):
         if recommendations["collection"] is not None and len(recommendations["collection"]) > 0:
             rec_infolist.append(recommendations)
 
-    def maintain_recs(self):
+    def maintain_recs(self, is_series=False):
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
         if lux.config.update_actions["flag"] == True:
@@ -449,13 +449,19 @@ class LuxDataFrame(pd.DataFrame):
             rec_df._message = Message()
         # Add warning message if there exist ID fields
         if len(rec_df) == 0:
-            rec_df._message.add(
-                f"Lux cannot operate on empty DataFrames or Series; Lux requires at least 5 data points to suggest visualizations."
-            )
+            if is_series:
+                rec_df._message.add(
+                    f"Lux cannot operate on an empty Series."
+                )
+            else:
+                rec_df._message.add(
+                    f"Lux cannot operate on an empty DataFrame."
+                )
         elif len(rec_df) < 5:
-            rec_df._message.add(
-                f"Lux could not compute any actions because the DataFrame or Series is too small (less than 5 data points)."
-            )
+            if is_series:
+                rec_df._message.add(f"The Series is too small to visualize. To generate visualizations in Lux, the Series must contain at least 5 rows.")
+            else:
+                rec_df._message.add(f"The DataFrame is too small to visualize. To generate visualizations in Lux, the DataFrame must contain at least 5 rows.")
         else:
             id_fields_str = ""
             inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
@@ -629,14 +635,6 @@ class LuxDataFrame(pd.DataFrame):
                         "with hierarchical indexes.\n"
                         "Please convert the dataframe into a flat "
                         "table via `pandas.DataFrame.reset_index`.\n",
-                        stacklevel=2,
-                    )
-                    display(self.display_pandas())
-                    return
-
-                if len(self) <= 0:
-                    warnings.warn(
-                        "\nLux can not operate on an empty dataframe.\nPlease check your input again.\n",
                         stacklevel=2,
                     )
                     display(self.display_pandas())

@@ -30,13 +30,6 @@ def test_export_b4_widget_created(global_var):
     with pytest.warns(UserWarning, match="No widget attached to the dataframe"):
         df.exported
 
-
-def test_bad_filter(global_var):
-    df = pytest.college_df
-    with pytest.warns(UserWarning, match="Lux can not operate on an empty dataframe"):
-        df[df["Region"] == "asdfgh"]._repr_html_()
-
-
 def test_multi_vis(global_var):
     df = pytest.college_df
     multivis_msg = "The intent that you specified corresponds to more than one visualization."
