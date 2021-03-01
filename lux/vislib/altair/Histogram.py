@@ -118,10 +118,9 @@ class Histogram(AltairChart):
         Source: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
         """
         import math
-
-        num_pts = len(self.data[attribute])
-        Q1 = self.data[attribute].quantile(0.25)
-        Q3 = self.data[attribute].quantile(0.75)
-        IQR = Q3 - Q1
+        import numpy as np
+        data = np.asarray(self.data[attribute])
+        num_pts = data.size
+        IQR = np.subtract(*np.percentile(data, [75, 25]))
         size = 2 * IQR * (num_pts ** -1 / 3)
-        return size * 3
+        return size * 3.5
