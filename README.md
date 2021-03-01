@@ -11,7 +11,7 @@
     <a href='https://lux-api.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/lux-api/badge/?version=latest' alt='Documentation Status'  align="center"/>
     </a>
-    <a href='https://lux-project.slack.com/join/shared_invite/zt-k2q5u9s7-m6hv4VUAyqYX6xjMmezrqw#/'>
+    <a href='https://lux-project.slack.com/join/shared_invite/zt-lilu4e87-TM4EDTq9HWzlDRycFsrkLg'>
         <img src='https://img.shields.io/static/v1?label=chat&logo=slack&message=Slack&color=brightgreen' alt='Slack'  align="center"/>
     </a>
     <a href='https://forms.gle/XKv3ejrshkCi3FJE6'>
@@ -23,13 +23,16 @@
     <a href="https://codecov.io/gh/lux-org/lux">
         <img src="https://codecov.io/gh/lux-org/lux/branch/master/graph/badge.svg" align="center" alt='CodeCov'/>
     </a>
+    <a href='https://twitter.com/intent/follow?original_referer=https%3A%2F%2Fpublish.twitter.com%2F&ref_src=twsrc%5Etfw&screen_name=lux_api&tw_p=followbutton'>
+        <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/lux_api?label=%40lux_api&style=social" alt='Twitter' align="center"/>
+    </a>
 </p>
 
 Lux is a Python library that makes data science easier by automating aspects of the data exploration process. Lux facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Visualizations are displayed via [an interactive widget](https://github.com/lux-org/lux-widget) that allow users to quickly browse through large collections of visualizations directly within their Jupyter notebooks.
 
 Here is a [1-min video](https://www.youtube.com/watch?v=qmnYP-LmbNU) introducing Lux, and [slides](http://dorisjunglinlee.com/files/Zillow_07_2020_Slide.pdf) from a more extended talk.
 
-Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/demo/cars_demo.ipynb)! 
+Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/demo/employee_demo.ipynb)! 
 
 # Getting Started
 
@@ -43,8 +46,8 @@ import pandas as pd
 Then, Lux can be used as-is, without modifying any of your existing Pandas code. Here, we use Pandas's [read_csv](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html) command to load in a [dataset of colleges](https://github.com/lux-org/lux-datasets/blob/master/data/college.csv) and their properties.
 
 ```python    
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/college.csv")
-    df
+df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/college.csv")
+df
 ```
 
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/basicDemo.gif?raw=true"
@@ -64,8 +67,8 @@ In addition to dataframe visualizations at every step in the exploration, you ca
 For example, we might be interested in the attributes `AverageCost` and `SATAverage`.
 
 ```python
-    df.intent = ["AverageCost","SATAverage"]
-    df
+df.intent = ["AverageCost","SATAverage"]
+df
 ```
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/contextRec.gif?raw=true"
      alt="Next-step Recommendations Based on User Context"
@@ -102,8 +105,8 @@ Learn more about how to save and export visualizations [here](https://lux-api.re
 We've seen how `Vis`s are automatically generated as part of the recommendations. Users can also create their own Vis via the same syntax as specifying the intent. Lux is built on the philosophy that users should always be able to visualize anything they want, without having to think about *how* the visualization should look like. Lux automatically determines the mark and channel mappings based on a set of [best practices](http://hosteddocs.ittoolbox.com/fourshowmeautomaticpresentations.pdf). The visualizations are rendered via [Altair](https://github.com/altair-viz/altair/tree/master/altair) into [Vega-Lite](https://github.com/vega/vega-lite) specifications.
 
 ```python    
-    from lux.vis.Vis import Vis
-    Vis(["Region=New England","MedianEarnings"],df)
+from lux.vis.Vis import Vis
+Vis(["Region=New England","MedianEarnings"],df)
 ```    
 
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/view.png?raw=true"
@@ -117,8 +120,8 @@ Lux provides a powerful abstraction for working with collections of visualizatio
 For example, we might be interested in looking at how the `AverageCost` distribution differs across different `Region`s.
 
 ```python    
-    from lux.vis.VisList import VisList
-    VisList(["Region=?","AverageCost"],df)
+from lux.vis.VisList import VisList
+VisList(["Region=?","AverageCost"],df)
 ```    
 
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/visList.gif?raw=true"
@@ -133,18 +136,24 @@ To find out more about other features in Lux, see the complete documentation on 
 To get started, Lux can be installed through [PyPI](https://pypi.org/project/lux-api/). 
 
 ```bash
-    pip install lux-api
+pip install lux-api
 ```
 
-This installation includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). 
+If you use [conda](https://docs.conda.io/en/latest/), you can install Lux via:
+
+```bash
+conda install -c conda-forge lux-api
+```
+
+Both the PyPI and conda installation include includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). 
 
 ## Setup in Jupyter Notebook, VSCode
 
 To use Lux in [Jupyter notebook](https://github.com/jupyter/notebook) or [VSCode](https://code.visualstudio.com/docs/python/jupyter-support), activate the notebook extension:
 
 ```bash
-    jupyter nbextension install --py luxwidget
-    jupyter nbextension enable --py luxwidget
+jupyter nbextension install --py luxwidget
+jupyter nbextension enable --py luxwidget
 ```
 
 If the installation happens correctly, you should see two `- Validating: OK` after executing the two lines above.
@@ -154,8 +163,8 @@ If the installation happens correctly, you should see two `- Validating: OK` aft
 To use Lux in [Jupyter Lab](https://github.com/jupyterlab/jupyterlab), activate the lab extension:
 
 ```bash
-    jupyter labextension install @jupyter-widgets/jupyterlab-manager
-    jupyter labextension install luxwidget
+jupyter labextension install @jupyter-widgets/jupyterlab-manager
+jupyter labextension install luxwidget
 ```
 Lux is only compatible with Jupyter Lab version 2.2.9 and below. Support for the recent [JupyterLab 3](https://blog.jupyter.org/jupyterlab-3-0-is-out-4f58385e25bb) will come soon. Note that JupyterLab and VSCode is supported only for lux-widget version >=0.1.2, if you have an earlier version, please upgrade to the latest version of [lux-widget](https://pypi.org/project/lux-widget/). Lux currently only works with the Chrome browser. 
 
@@ -170,5 +179,5 @@ Other additional resources:
 - Sign up for the early-user [mailing list](https://forms.gle/XKv3ejrshkCi3FJE6) to stay tuned for upcoming releases, updates, or user studies. 
 - Visit [ReadTheDoc](https://lux-api.readthedocs.io/en/latest/) for more detailed documentation.
 - Try out these hands-on [exercises](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/exercise) or [tutorials](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial) on [Binder](https://mybinder.org/v2/gh/lux-org/lux-binder/master). Or clone and run [lux-binder](https://github.com/lux-org/lux-binder) locally.
-- Join our community [Slack](https://lux-project.slack.com/join/shared_invite/zt-k2q5u9s7-m6hv4VUAyqYX6xjMmezrqw#/) to discuss and ask questions.
+- Join our community [Slack](https://lux-project.slack.com/join/shared_invite/zt-lilu4e87-TM4EDTq9HWzlDRycFsrkLg) to discuss and ask questions.
 - Report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues). 

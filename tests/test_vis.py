@@ -315,7 +315,7 @@ def test_line_chart(global_var):
 
 
 def test_colored_line_chart(global_var):
-    df = pytest.car_df
+    df = pd.read_csv("lux/data/car.csv")
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Year", "Acceleration", "Origin"], df)
     vis_code = vis.to_Altair()

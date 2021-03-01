@@ -45,6 +45,7 @@ This website contains pages that overview of the basic and advanced functionalit
    source/advanced/architecture
    source/advanced/interestingness
    source/advanced/executor
+   source/advanced/datatype
 
 .. toctree::
    :maxdepth: 1
