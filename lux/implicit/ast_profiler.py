@@ -279,7 +279,7 @@ class Analyzer(ast.NodeVisitor):
             if type(filt) != list: filt = [filt]
             cols.extend(d[df_name]) # NOTE ignoring the case where inner compare is different like df_A[df_B.col > 1]
         
-        elif (type(subs_node.slice) == ast.BinOp) & (type(subs_node.slice.left) == ast.Compare) & (type(subs_node.slice.right) == ast.Compare): # Filter df[(left) & (right)]
+        elif (type(subs_node.slice) == ast.BinOp) and (type(subs_node.slice.left) == ast.Compare) and (type(subs_node.slice.right) == ast.Compare): # Filter df[(left) & (right)]
             # TODO turn this into recusive function to parse var length expressions
             d_l, filt_l = self.parse_compare(subs_node.slice.left)
             d_r, filt_r = self.parse_compare(subs_node.slice.right)
@@ -297,7 +297,8 @@ class Analyzer(ast.NodeVisitor):
         else: # slice will be constant or name if single item
             _cols = self.parse_value(subs_node.slice)
             if not cols: cols = []
-            else: cols.extend(_cols)
+            if type(_cols) == str: _cols = [_cols]
+            cols.extend(_cols)
         
         return df_name, cols, filt
 

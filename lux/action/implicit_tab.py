@@ -15,18 +15,15 @@
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.vis.CustomVis import CustomVis
+from lux.implicit.ast_profiler import ColFilter
 
 import lux
 import itertools
 import numpy as np
 from collections import namedtuple
-
 import altair as alt
 
 from IPython.core.debugger import set_trace
-
-# ColFilter = namedtuple("ColFilter", "df_name col_name comp val")
-from lux.implicit.ast_profiler import ColFilter
 
 def implicit_tab(ldf):
     """
@@ -42,8 +39,6 @@ def implicit_tab(ldf):
     recommendations : Dict[str,obj]
             object with a collection of visualizations that result from the Implicit action.
     """
-    #set_trace()
-    # TODO get this df name from somwehere or start using ids maybe?
     most_recent_signal, col_list = lux.config.code_tracker.get_implicit_intent(id(ldf))
     str_desc = "Recommendedations based off this code: <br/>"
     lux_vis = []
@@ -94,7 +89,6 @@ def generate_vis_from_signal(signal, ldf):
     """
      "df_name cols f_name f_arg_dict ex_order"
     """
-    # set_trace()
     vis_list = []
     if signal.f_name == "value_counts" or signal.f_name == "unique":
         
@@ -121,11 +115,12 @@ def generate_vis_from_signal(signal, ldf):
             v.score = 100
 
     elif signal.f_name == "subs_filter" or signal.f_name == "filter" or signal.f_name == "loc": # or query
+        #set_trace()
         filts = signal.f_arg_dict["filts"]
         alt_v = plot_filter(ldf, filts)
-        cv = CustomVis(alt_v)
-        vis_list = [cv]
-        # vis_list = VisList( [cv], ldf )
+        if alt_v:
+            cv = CustomVis(alt_v)
+            vis_list = [cv]
 
     elif signal.f_name == "groupby" or signal.f_name == "agg":
         ...
@@ -139,17 +134,23 @@ def generate_vis_from_signal(signal, ldf):
     
 
 
-def plot_filter(data_source, col_filters):
+def plot_filter(ldf, col_filters):
     """
     data_source = df
     col_filters = [ColFilter, ...]
     """
+    alt.X('Acceleration', type='quantitative'),
+    alt.Y('Miles_per_Gallon', type='quantitative')
+
     chart = None
     if len(col_filters) == 1:
         this_filter = col_filters[0]
+
+        x_d_type = ldf.data_type[this_filter.col_name]
+        _bin = (x_d_type == "quantitative")
         
-        chart = alt.Chart(data_source).mark_bar().encode(
-          x= str(this_filter.col_name), # TODO bin this if quant
+        chart = alt.Chart(ldf).mark_bar().encode(
+          x= alt.X(this_filter.col_name, type=x_d_type, bin=_bin),
           y=f"count({this_filter.col_name}):Q",
           color=alt.condition(
               fill_condition(col_filters),
@@ -158,10 +159,15 @@ def plot_filter(data_source, col_filters):
           )
         )
     
-    elif len(col_filters) == 2: # this looks bad when both are categorical
-        chart = alt.Chart(data_source).mark_tick().encode(
-          x= str(col_filters[0].col_name),
-          y= str(col_filters[1].col_name),
+    elif len(col_filters) == 3: # this looks bad when both are categorical
+        x_d_type = ldf.data_type[col_filters[0].col_name]
+        y_d_type = ldf.data_type[col_filters[2].col_name]
+        x_bin = (x_d_type == "quantitative")
+        y_bin = (y_d_type == "quantitative")
+        
+        chart = alt.Chart(ldf).mark_point().encode(
+          x= alt.X(col_filters[0].col_name, type=x_d_type, bin=x_bin),
+          y= alt.Y(col_filters[2].col_name, type=y_d_type, bin=y_bin),
           color=alt.condition(
               fill_condition(col_filters),
               alt.value("steelblue"), 
