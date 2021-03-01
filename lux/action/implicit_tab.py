@@ -14,15 +14,23 @@
 
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
+from lux.vis.CustomVis import CustomVis
+
 import lux
 import itertools
 import numpy as np
+from collections import namedtuple
+
+import altair as alt
 
 from IPython.core.debugger import set_trace
 
+# ColFilter = namedtuple("ColFilter", "df_name col_name comp val")
+from lux.implicit.ast_profiler import ColFilter
+
 def implicit_tab(ldf):
     """
-    Generates bar chart distributions of different attributes in the dataframe.
+    Generates vis based off recent implicit actions.
 
     Parameters
     ----------
@@ -32,9 +40,9 @@ def implicit_tab(ldf):
     Returns
     -------
     recommendations : Dict[str,obj]
-            object with a collection of visualizations that result from the Distribution action.
+            object with a collection of visualizations that result from the Implicit action.
     """
-
+    #set_trace()
     # TODO get this df name from somwehere or start using ids maybe?
     most_recent_signal, col_list = lux.config.code_tracker.get_implicit_intent(id(ldf))
     str_desc = "Recommendedations based off this code: <br/>"
@@ -46,7 +54,10 @@ def implicit_tab(ldf):
         # get vis for most recent 
         vl = generate_vis_from_signal(most_recent_signal, ldf)
         if vl:
-            lux_vis._collection.extend(vl._collection)
+            if type(vl) == VisList:
+                lux_vis._collection.extend(vl._collection)
+            else: # type is list
+                lux_vis._collection.extend(vl)
             str_desc += f"> {most_recent_signal.code_str} <br/>"
         
         # get vis for columns
@@ -109,8 +120,12 @@ def generate_vis_from_signal(signal, ldf):
         for v in vis_list:
             v.score = 100
 
-    elif signal.f_name == "query" or signal.f_name == "filter" or signal.f_name == "loc":
-        ...
+    elif signal.f_name == "subs_filter" or signal.f_name == "filter" or signal.f_name == "loc": # or query
+        filts = signal.f_arg_dict["filts"]
+        alt_v = plot_filter(ldf, filts)
+        cv = CustomVis(alt_v)
+        vis_list = [cv]
+        # vis_list = VisList( [cv], ldf )
 
     elif signal.f_name == "groupby" or signal.f_name == "agg":
         ...
@@ -123,3 +138,47 @@ def generate_vis_from_signal(signal, ldf):
     return vis_list
     
 
+
+def plot_filter(data_source, col_filters):
+    """
+    data_source = df
+    col_filters = [ColFilter, ...]
+    """
+    chart = None
+    if len(col_filters) == 1:
+        this_filter = col_filters[0]
+        
+        chart = alt.Chart(data_source).mark_bar().encode(
+          x= str(this_filter.col_name), # TODO bin this if quant
+          y=f"count({this_filter.col_name}):Q",
+          color=alt.condition(
+              fill_condition(col_filters),
+              alt.value("steelblue"), 
+              alt.value("grey")  
+          )
+        )
+    
+    elif len(col_filters) == 2: # this looks bad when both are categorical
+        chart = alt.Chart(data_source).mark_tick().encode(
+          x= str(col_filters[0].col_name),
+          y= str(col_filters[1].col_name),
+          color=alt.condition(
+              fill_condition(col_filters),
+              alt.value("steelblue"), 
+              alt.value("grey")  
+          )
+        )
+    
+    if chart:
+        chart = chart.interactive()
+    
+    return chart
+
+def fill_condition(conds):
+    s = ""
+    for c in conds:
+        if type(c) == ColFilter:
+            s += f"(datum['{c.col_name}'] {c.comp} '{c.val}')"
+        else: # str with & or |
+            s += str(c)
+    return s

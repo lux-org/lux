@@ -17,6 +17,7 @@ from lux.vis.Clause import Clause
 from lux.utils.utils import check_import_lux_widget
 import lux
 import warnings
+from IPython.core.debugger import set_trace
 
 
 class Vis:
@@ -217,6 +218,7 @@ class Vis:
             self._intent = new_inferred
             self._inferred_intent = new_inferred
 
+    # NOTE I think this is what to override 
     def to_Altair(self, standalone=False) -> str:
         """
         Generate minimal Altair code to visualize the Vis
@@ -303,6 +305,7 @@ class Vis:
         spec:
             visualization specification corresponding to the Vis object
         """
+        #set_trace()
         if language == "vegalite":
             return self.to_VegaLite(**kwargs)
         elif language == "altair":
