@@ -170,7 +170,7 @@ def test_custom_aggregation(global_var):
     df = pytest.college_df
     df.set_intent(["HighestDegree", lux.Clause("AverageCost", aggregation=np.ptp)])
     df._repr_html_()
-    assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]
+    assert set(df.recommendation.keys()) == set(["Enhance", "Filter", "Generalize"])
     df.clear_intent()
 
 
@@ -273,4 +273,4 @@ def test_intent_retained():
     assert df._metadata_fresh == False
 
     df._repr_html_()
-    assert list(df.recommendation.keys()) == ["Enhance", "Filter"]
+    assert set(df.recommendation.keys()) == set(["Enhance", "Filter"])

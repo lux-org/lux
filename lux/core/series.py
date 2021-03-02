@@ -146,49 +146,53 @@ class LuxSeries(pd.Series):
                     )
                     print(series_repr)
                     return ""
-                ldf.maintain_metadata()
+
+                # Pre-displaying initial pandas frame before computing widget
+                pandas_output = widgets.Output()
+                ldf.output = widgets.Output()
+                
+                with pandas_output:
+                    display(ldf.display_pandas())
+
+                with ldf.output:
+                    display(widgets.HTML(value="Loading widget..."))
 
                 if lux.config.default_display == "lux":
-                    self._toggle_pandas_display = False
+                    tab_contents = ['Lux', 'Pandas']
+                    children = [ldf.output, pandas_output]
                 else:
-                    self._toggle_pandas_display = True
+                    tab_contents = ['Pandas', 'Lux']
+                    children = [pandas_output, ldf.output]
 
-                # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+                tab = widgets.Tab()
+                tab.children = children
+
+                for i in range(len(tab_contents)):
+                    tab.set_title(i, tab_contents[i])
+
+                display(tab)
+
+                ldf.maintain_metadata()
+
+                if ldf._intent != [] and (not hasattr(ldf, "_compiled") or not ldf._compiled):
+                    from lux.processor.Compiler import Compiler
+
+                    ldf.current_vis = Compiler.compile_intent(ldf, ldf._intent)
+
+                # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate ldf._widget)
                 ldf.maintain_recs()
 
                 # Observers(callback_function, listen_to_this_variable)
                 ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")
                 ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
 
-                self._widget = ldf._widget
-                self._recommendation = ldf._recommendation
+                if len(ldf._recommendation) > 0:
+                    with ldf.output:
+                        clear_output()
+                        display(ldf._widget)
 
-                if len(ldf.recommendation) > 0:
-                    # box = widgets.Box(layout=widgets.Layout(display='inline'))
-                    button = widgets.Button(
-                        description="Toggle Pandas/Lux",
-                        layout=widgets.Layout(width="140px", top="5px"),
-                    )
-                    ldf.output = widgets.Output()
-                    # box.children = [button,output]
-                    # output.children = [button]
-                    # display(box)
-                    display(button, ldf.output)
-
-                    def on_button_clicked(b):
-                        with ldf.output:
-                            if b:
-                                self._toggle_pandas_display = not self._toggle_pandas_display
-                            clear_output()
-                            if self._toggle_pandas_display:
-                                print(series_repr)
-                            else:
-                                # b.layout.display = "none"
-                                display(ldf._widget)
-                                # b.layout.display = "inline-block"
-
-                    button.on_click(on_button_clicked)
-                    on_button_clicked(None)
+                    if len(ldf._widget.recommendations) <= 1 and hasattr(ldf, "action_keys"):
+                        ldf.compute_remaining_actions()
                 else:
                     warnings.warn(
                         "\nLux defaults to Pandas when there are no valid actions defined.",

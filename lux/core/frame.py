@@ -476,21 +476,22 @@ class LuxDataFrame(pd.DataFrame):
 
                 self.action_keys = filter_keys(rec_df)
                 action_index = 0
+                lenOfKeys = len(self.action_keys)
                 # generate vis from globally registered actions and append to dataframe
                 # Need to iteratre through tabs that might not be computed in some cases (e.g Temporal)
-                while rec_infolist == []:
+                while rec_infolist == [] and self.action_keys and action_index < lenOfKeys:
                     rec = custom_action(rec_df, self.action_keys[action_index])
                     rec_df._append_rec(rec_infolist, rec)
                     lux.config.update_actions["flag"] = False
                     self.action_keys.pop(action_index)
-                    action_index += 1
 
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
-            action_type = rec_infolist[0]["action"]
-            vlist = rec_infolist[0]["collection"]
-            if len(vlist) > 0:
-                rec_df._recommendation[action_type] = vlist
+            for rec_info in rec_infolist:
+                action_type = rec_info["action"]
+                vlist = rec_info["collection"]
+                if len(vlist) > 0:
+                    rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
 
             self._widget = rec_df.render_widget()
@@ -685,7 +686,7 @@ class LuxDataFrame(pd.DataFrame):
                         clear_output()
                         display(self._widget)
 
-                    if len(self._widget.recommendations) <= 1:                    
+                    if len(self._widget.recommendations) <= 1 and hasattr(self, "action_keys"):
                         self.compute_remaining_actions()
 
                 else:
@@ -714,8 +715,7 @@ class LuxDataFrame(pd.DataFrame):
     
     def compute_remaining_actions(self):
         # Lazily load the rest of the tabs
-        from lux.action.custom import custom_action, filter_keys
-        action_keys = filter_keys(self)
+        from lux.action.custom import custom_action
 
         i = 1
         for action_name in self.action_keys:
@@ -725,7 +725,7 @@ class LuxDataFrame(pd.DataFrame):
 
                 vlist = self._rec_info[i]["collection"]
                 if len(vlist) > 0:
-                    self._recommendation[action_name] = vlist
+                    self._recommendation[rec["action"]] = vlist
 
                 new_widget = self.render_widget()
                 self._widget.recommendations = new_widget.recommendations
