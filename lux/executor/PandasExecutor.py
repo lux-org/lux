@@ -287,6 +287,7 @@ class PandasExecutor(Executor):
             # TODO: Should vis.data be a LuxDataFrame or a Pandas DataFrame?
             binned_result = np.array([bin_center, counts]).T
             vis._vis_data = pd.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
+            vis._bin_size = bin_edges[1] - bin_edges[0]
 
     @staticmethod
     def execute_filter(vis: Vis):

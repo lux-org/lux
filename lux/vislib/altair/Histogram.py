@@ -49,9 +49,8 @@ class Histogram(AltairChart):
         if isinstance(msr_attr.attribute, str):
             msr_attr.attribute = msr_attr.attribute.replace(".", "")
 
-        colval = self.vis.data[msr_attr.attribute]
-        markbar = get_bin_size(self.data[msr_attr.attribute])
-        # Default when IQR was too small
+        markbar = self.vis._bin_size
+        # Default when bin too small
         if markbar < (x_range / 24):
             markbar = (x_max - x_min) / 12
 
@@ -73,7 +72,7 @@ class Histogram(AltairChart):
                         bin=alt.Bin(binned=True),
                         type=msr_attr.data_type,
                         axis=alt.Axis(title=axis_title),
-                        scale=alt.Scale(domain=[x_min, x_max]),
+                        scale=alt.Scale(domain=[x_min, x_max + markbar]),
                     ),
                     x2=end_attr_abv,
                     y=alt.Y("Number of Records", type="quantitative"),

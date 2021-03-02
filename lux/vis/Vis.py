@@ -33,6 +33,7 @@ class Vis:
         self._mark = ""
         self._min_max = {}
         self._postbin = None
+        self._bin_size = None
         self.title = title
         self.score = score
         self.refresh_source(self._source)
