@@ -472,7 +472,7 @@ class LuxDataFrame(pd.DataFrame):
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
             else:
-                from lux.action.custom import custom_actions, custom_action, filter_keys
+                from lux.action.custom import custom_action, filter_keys
 
                 self.action_keys = filter_keys(rec_df)
                 action_index = 0
@@ -496,7 +496,6 @@ class LuxDataFrame(pd.DataFrame):
 
             self._widget = rec_df.render_widget()
 
-            # rec_df._append_rec(rec_df._rec_info, custom_actions(rec_df))
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
             self._widget = rec_df.render_widget()

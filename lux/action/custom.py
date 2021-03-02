@@ -48,39 +48,9 @@ def custom(ldf):
     vlist.sort(remove_invalid=True)
     return recommendation
 
-
-def custom_actions(ldf):
-    """
-    Generates user-defined vis based on globally defined actions.
-
-    Parameters
-    ----------
-    ldf : lux.core.frame
-        LuxDataFrame with underspecified intent.
-
-    Returns
-    -------
-    recommendations : Dict[str,obj]
-        object with a collection of visualizations that were previously registered.
-    """
-    if len(lux.config.actions) > 0:
-        recommendations = []
-        for action_name in lux.config.actions.keys():
-            display_condition = lux.config.actions[action_name].display_condition
-            if (display_condition is None or (display_condition is not None and display_condition(ldf))):
-                args = lux.config.actions[action_name].args
-                if args:
-                    recommendation = lux.config.actions[action_name].action(ldf, args)
-                else:
-                    recommendation = lux.config.actions[action_name].action(ldf)
-                recommendations.append(recommendation)
-        return recommendations
-    else:    
-        return []
-
 def custom_action(ldf, action):
     """
-    Computing initial custom_action for lazy streaming
+    Computing initial custom_action for lazy streaming of the rest of the actions
 
     Parameters
     ----------
@@ -92,7 +62,7 @@ def custom_action(ldf, action):
 
     Returns
     -------
-    List with a collection of visualizations.
+    One recommendation
     """
     display_condition = lux.config.actions[action].display_condition
     if (display_condition is None or (display_condition is not None and display_condition(ldf))):
