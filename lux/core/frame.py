@@ -474,11 +474,17 @@ class LuxDataFrame(pd.DataFrame):
                 # if rec_df._recommendation == {}:
                 from lux.action.custom import custom_actions, custom_action, filter_keys
 
-                action_keys = filter_keys(rec_df)
+                self.action_keys = filter_keys(rec_df)
+                action_index = 0
+
                 # generate vis from globally registered actions and append to dataframe
-                rec = custom_action(rec_df, action_keys[0])
-                rec_df._append_rec(rec_infolist, rec)
-                lux.config.update_actions["flag"] = False
+                # Need to iteratre through tabs that might not be computed in some cases (e.g Temporal)
+                while rec_infolist == []:
+                    rec = custom_action(rec_df, self.action_keys[action_index])
+                    rec_df._append_rec(rec_infolist, rec)
+                    lux.config.update_actions["flag"] = False
+                    self.action_keys.pop(action_index)
+                    action_index += 1
 
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
@@ -488,10 +494,6 @@ class LuxDataFrame(pd.DataFrame):
                 rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
 
-            #Add empty tabs later to compute
-            for i in range (1, len(action_keys)):
-                rec_df._rec_info.append(self.generate_empty_rec(action_keys[i]))
-
             self._widget = rec_df.render_widget()
 
             # rec_df._append_rec(rec_df._rec_info, custom_actions(rec_df))
@@ -499,9 +501,6 @@ class LuxDataFrame(pd.DataFrame):
         elif show_prev:
             self._widget = rec_df.render_widget()
         self._recs_fresh = True
-
-    def generate_empty_rec(self, action_name):
-        return {'action': action_name, 'description': 'N/A', 'long_description': 'N/A', 'collection': []}
 
     #######################################################
     ############## LuxWidget Result Display ###############
@@ -643,7 +642,7 @@ class LuxDataFrame(pd.DataFrame):
                     display(self.display_pandas())
                     return
 
-                # Displaying initial pandas frame before computing widget
+                # Pre-displaying initial pandas frame before computing widget
                 pandas_output = widgets.Output()
                 self.output = widgets.Output()
                 
@@ -653,8 +652,13 @@ class LuxDataFrame(pd.DataFrame):
                 with self.output:
                     display(widgets.HTML(value="Loading widget..."))
 
-                tab_contents = ['Pandas', 'Lux']
-                children = [pandas_output, self.output]
+                if lux.config.default_display == "lux":
+                    tab_contents = ['Lux', 'Pandas']
+                    children = [self.output, pandas_output]
+                else:
+                    tab_contents = ['Pandas', 'Lux']
+                    children = [pandas_output, self.output]
+
                 tab = widgets.Tab()
                 tab.children = children
 
@@ -670,11 +674,6 @@ class LuxDataFrame(pd.DataFrame):
 
                     self.current_vis = Compiler.compile_intent(self, self._intent)
 
-                if lux.config.default_display == "lux":
-                    self._toggle_pandas_display = False
-                else:
-                    self._toggle_pandas_display = True
-
                 # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
                 self.maintain_recs()
 
@@ -686,23 +685,20 @@ class LuxDataFrame(pd.DataFrame):
                     with self.output:
                         clear_output()
                         display(self._widget)
-                    
-                    #Load the rest of the tabs
-                    from lux.action.custom import custom_action, filter_keys
-                    action_keys = filter_keys(self)
-        
-                    for action_name in action_keys:
-                        for i in range(len(self._rec_info)):
-                            if (self._rec_info[i]['action'] == action_name):
-                                self._rec_info.pop(i)
-                                break
-                        rec = custom_action(self, action_name)
-                        if (len(rec["collection"])) > 0:
+
+                    if len(self._widget.recommendations) <= 1:                    
+                        # Lazily load the rest of the tabs
+                        from lux.action.custom import custom_action, filter_keys
+                        action_keys = filter_keys(self)
+
+                        for action_name in self.action_keys:
                             rec = custom_action(self, action_name)
-                            self._rec_info.insert(i, rec)
-                            new_widget = self.render_widget()
-                            self._widget.recommendations = new_widget.recommendations
-                            self._widget.loadNewTab = action_name
+                            if (len(rec["collection"])) > 0:
+                                rec = custom_action(self, action_name)
+                                self._append_rec(self._rec_info, rec)
+                                new_widget = self.render_widget()
+                                self._widget.recommendations = new_widget.recommendations
+                                self._widget.loadNewTab = action_name
 
                 else:
                     warnings.warn(
