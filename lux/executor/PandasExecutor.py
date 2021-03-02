@@ -282,11 +282,10 @@ class PandasExecutor(Executor):
             series = vis.data[bin_attr].dropna()
             # TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
             counts, bin_edges = np.histogram(series, bins=bin_attribute.bin_size)
-            # bin_edges of size N+1, so need to compute bin_center as the bin location
-            bin_center = bin_edges[0:-1]
-            # np.mean(np.vstack([bin_edges[0:-1], bin_edges[1:]]), axis=0)
+            # bin_edges of size N+1, so need to compute bin_start as the bin location
+            bin_start = bin_edges[0:-1]
             # TODO: Should vis.data be a LuxDataFrame or a Pandas DataFrame?
-            binned_result = np.array([bin_center, counts]).T
+            binned_result = np.array([bin_start, counts]).T
             vis._vis_data = pd.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
             vis._bin_size = bin_edges[1] - bin_edges[0]
 
