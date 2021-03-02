@@ -32,11 +32,13 @@ class SQLExecutor(Executor):
         SAMPLE_FRAC = 0.2
 
         length_query = pandas.read_sql(
-                    "SELECT COUNT(*) as length FROM {}".format(ldf.table_name),
-                    lux.config.SQLconnection,
-                )
-        limit = int(list(length_query["length"])[0])*SAMPLE_FRAC
-        ldf._sampled = pandas.read_sql("SELECT * from {} LIMIT {}".format(ldf.table_name, str(limit)), lux.config.SQLconnection)
+            "SELECT COUNT(*) as length FROM {}".format(ldf.table_name),
+            lux.config.SQLconnection,
+        )
+        limit = int(list(length_query["length"])[0]) * SAMPLE_FRAC
+        ldf._sampled = pandas.read_sql(
+            "SELECT * from {} LIMIT {}".format(ldf.table_name, str(limit)), lux.config.SQLconnection
+        )
 
     @staticmethod
     def execute(view_collection: VisList, ldf: LuxDataFrame):
@@ -50,7 +52,7 @@ class SQLExecutor(Executor):
         for view in view_collection:
             # choose execution method depending on vis mark type
 
-            #when mark is empty, deal with lazy execution by filling the data with a small sample of the dataframe
+            # when mark is empty, deal with lazy execution by filling the data with a small sample of the dataframe
             if view.mark == "":
                 SQLExecutor.execute_sampling(ldf)
                 view._vis_data = ldf._sampled
@@ -61,7 +63,7 @@ class SQLExecutor(Executor):
                     lux.config.SQLconnection,
                 )
                 view_data_length = list(length_query["length"])[0]
-                if len(view.get_attr_by_channel("color")) == 1 or view_data_length <= 1000:
+                if len(view.get_attr_by_channel("color")) == 1 or view_data_length < 5000:
                     # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
                     has_color = True
                     SQLExecutor.execute_scatter(view, ldf)
@@ -677,7 +679,9 @@ class SQLExecutor(Executor):
         """
         cardinality = {}
         for attr in list(ldf.columns):
-            card_query = 'SELECT Count(Distinct("{}")) FROM {}'.format(attr, ldf.table_name)
+            card_query = 'SELECT Count(Distinct("{}")) FROM {} WHERE "{}" IS NOT NULL'.format(
+                attr, ldf.table_name, attr
+            )
             card_data = pandas.read_sql(
                 card_query,
                 lux.config.SQLconnection,
@@ -701,7 +705,9 @@ class SQLExecutor(Executor):
         """
         unique_vals = {}
         for attr in list(ldf.columns):
-            unique_query = 'SELECT Distinct("{}") FROM {}'.format(attr, ldf.table_name)
+            unique_query = 'SELECT Distinct("{}") FROM {} WHERE "{}" IS NOT NULL'.format(
+                attr, ldf.table_name, attr
+            )
             unique_data = pandas.read_sql(
                 unique_query,
                 lux.config.SQLconnection,

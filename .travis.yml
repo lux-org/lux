@@ -18,6 +18,7 @@ before_script:
 # command to run tests
 script:
   - python lux/data/upload_car_data.py
+  - python lux/data/upload_aug_test_data.py
   - black --target-version py37 --line-length 105 --check .
   - python -m pytest tests/*.py
   - pytest --cov-report term --cov=lux tests/

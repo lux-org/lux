@@ -19,6 +19,8 @@ import traceback
 import numpy as np
 from lux.history.history import History
 from lux.utils.message import Message
+from lux.vis.VisList import VisList
+from typing import Dict, Union, List, Callable
 
 
 class LuxSeries(pd.Series):
@@ -48,6 +50,7 @@ class LuxSeries(pd.Series):
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
+        "name",
     ]
 
     _default_metadata = {
@@ -110,10 +113,13 @@ class LuxSeries(pd.Series):
         from lux.core.frame import LuxDataFrame
 
         series_repr = super(LuxSeries, self).__repr__()
+
+        ldf = LuxDataFrame(self)
+
         # Default column name 0 causes errors
         if self.name is None:
-            self.name = " "
-        ldf = LuxDataFrame(self)
+            ldf = ldf.rename(columns={0: " "})
+        self._ldf = ldf
 
         try:
             # Ignore recommendations when Series a results of:
@@ -157,6 +163,9 @@ class LuxSeries(pd.Series):
                 # Observers(callback_function, listen_to_this_variable)
                 ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")
                 ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
+
+                self._widget = ldf._widget
+                self._recommendation = ldf._recommendation
 
                 if len(ldf.recommendation) > 0:
                     # box = widgets.Box(layout=widgets.Layout(display='inline'))
@@ -208,11 +217,35 @@ class LuxSeries(pd.Series):
     def recommendation(self):
         from lux.core.frame import LuxDataFrame
 
-        if self.name is None:
-            self.name = " "
-        ldf = LuxDataFrame(self)
-
         if self._recommendation is not None and self._recommendation == {}:
+            if self.name is None:
+                self.name = " "
+            ldf = LuxDataFrame(self)
+
             ldf.maintain_metadata()
             ldf.maintain_recs()
-        return ldf._recommendation
+            self._recommendation = ldf._recommendation
+        return self._recommendation
+
+    @property
+    def exported(self) -> Union[Dict[str, VisList], VisList]:
+        """
+        Get selected visualizations as exported Vis List
+
+        Notes
+        -----
+        Convert the _selectedVisIdxs dictionary into a programmable VisList
+        Example _selectedVisIdxs :
+
+            {'Correlation': [0, 2], 'Occurrence': [1]}
+
+        indicating the 0th and 2nd vis from the `Correlation` tab is selected, and the 1st vis from the `Occurrence` tab is selected.
+
+        Returns
+        -------
+        Union[Dict[str,VisList], VisList]
+                When there are no exported vis, return empty list -> []
+                When all the exported vis is from the same tab, return a VisList of selected visualizations. -> VisList(v1, v2...)
+                When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisList. -> {"Enhance": VisList(v1, v2...), "Filter": VisList(v5, v7...), ..}
+        """
+        return self._ldf.exported
