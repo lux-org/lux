@@ -837,14 +837,14 @@ class LuxDataFrame(pd.DataFrame):
 
         rec_copy = copy.deepcopy(recs)
         for idx, rec in enumerate(rec_copy):
-            # if len(rec["collection"]) > 0:
-            rec["vspec"] = []
-            for vis in rec["collection"]:
-                chart = vis.to_code(language=lux.config.plotting_backend, prettyOutput=False)
-                rec["vspec"].append(chart)
-            rec_lst.append(rec)
-            # delete since not JSON serializable
-            del rec_lst[idx]["collection"]
+            if len(rec["collection"]) > 0:
+                rec["vspec"] = []
+                for vis in rec["collection"]:
+                    chart = vis.to_code(language=lux.config.plotting_backend, prettyOutput=False)
+                    rec["vspec"].append(chart)
+                rec_lst.append(rec)
+                # delete since not JSON serializable
+                del rec_lst[idx]["collection"]
 
         return rec_lst
 
