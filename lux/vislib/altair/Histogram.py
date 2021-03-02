@@ -44,12 +44,16 @@ class Histogram(AltairChart):
 
         x_min = self.vis.min_max[msr_attr.attribute][0]
         x_max = self.vis.min_max[msr_attr.attribute][1]
+        x_range = abs(x_max - x_min)
 
         if isinstance(msr_attr.attribute, str):
             msr_attr.attribute = msr_attr.attribute.replace(".", "")
 
         colval = self.vis.data[msr_attr.attribute]
         markbar = get_bin_size(self.data[msr_attr.attribute])
+        # Default when IQR was too small
+        if markbar < (x_range / 24):
+            markbar = (x_max - x_min) / 12
 
         self.data = AltairChart.sanitize_dataframe(self.data)
         end_attr_abv = str(msr_attr.attribute) + "_end"

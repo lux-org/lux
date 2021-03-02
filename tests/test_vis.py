@@ -379,7 +379,7 @@ def test_histogram_binning(global_var):
     bin_size = get_bin_size(vis.data["Height"])
     assert bin_size == 9.13
 
-    vis = Vis(["Height", "Sex=M"], df)  # filtered
+    vis = Vis(["Height", "Sex=M"], df)
     bin_size = get_bin_size(vis.data["Height"])
     assert bin_size == 8.08
 
