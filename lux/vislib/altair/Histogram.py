@@ -22,7 +22,7 @@ class Histogram(AltairChart):
     """
     Histogram is a subclass of AltairChart that render as a histograms.
     All rendering properties for histograms are set here.
-    
+
     See Also
     --------
     altair-viz.github.io
@@ -58,7 +58,6 @@ class Histogram(AltairChart):
         self.data = AltairChart.sanitize_dataframe(self.data)
         end_attr_abv = str(msr_attr.attribute) + "_end"
         self.data[end_attr_abv] = self.data[str(msr_attr.attribute)] + markbar
-        # .apply(lambda x: x + markbar) 
 
         axis_title = f"{msr_attr_abv} (binned)"
         if msr_attr.attribute == " ":
