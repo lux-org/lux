@@ -22,6 +22,7 @@ class Histogram(AltairChart):
     """
     Histogram is a subclass of AltairChart that render as a histograms.
     All rendering properties for histograms are set here.
+    
     See Also
     --------
     altair-viz.github.io
@@ -42,8 +43,7 @@ class Histogram(AltairChart):
         if len(msr_attr_abv) > 17:
             msr_attr_abv = msr_attr_abv[:10] + "..." + msr_attr_abv[-7:]
 
-        x_min = self.vis.min_max[msr_attr.attribute][0]
-        x_max = self.vis.min_max[msr_attr.attribute][1]
+        x_min, x_max = self.vis.min_max[msr_attr.attribute]
         x_range = abs(x_max - x_min)
 
         if isinstance(msr_attr.attribute, str):
@@ -57,7 +57,8 @@ class Histogram(AltairChart):
 
         self.data = AltairChart.sanitize_dataframe(self.data)
         end_attr_abv = str(msr_attr.attribute) + "_end"
-        self.data[end_attr_abv] = self.data[str(msr_attr.attribute)].apply(lambda x: x + markbar)
+        self.data[end_attr_abv] = self.data[str(msr_attr.attribute)] + markbar
+        # .apply(lambda x: x + markbar) 
 
         axis_title = f"{msr_attr_abv} (binned)"
         if msr_attr.attribute == " ":
@@ -73,7 +74,7 @@ class Histogram(AltairChart):
                         bin=alt.Bin(binned=True),
                         type=msr_attr.data_type,
                         axis=alt.Axis(title=axis_title),
-                        scale=alt.Scale(domain=[x_min, x_max + markbar]),
+                        scale=alt.Scale(domain=[x_min, x_max]),
                     ),
                     x2=end_attr_abv,
                     y=alt.Y("Number of Records", type="quantitative"),
@@ -91,6 +92,7 @@ class Histogram(AltairChart):
                         bin=alt.Bin(binned=True, step=markbar),
                         axis=alt.Axis(title=axis_title),
                     ),
+                    y2=end_attr_abv,
                 )
             )
         #####################################
