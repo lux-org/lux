@@ -3,4 +3,5 @@ init:
 test:
 	black --check .
 	python -m pytest tests/
+
 .PHONY: init test
