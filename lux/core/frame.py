@@ -484,13 +484,7 @@ class LuxDataFrame(pd.DataFrame):
                     lux.config.update_actions["flag"] = False
                     self.action_keys.pop(action_index)
                     action_index += 1
-            from IPython.display import clear_output
-            if self._intent:
-                with self.output:
-                    print(rec_infolist)
-                    clear_output()
-                import time
-                time.sleep(10)
+
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
             action_type = rec_infolist[0]["action"]
@@ -606,8 +600,8 @@ class LuxDataFrame(pd.DataFrame):
         intent_action = list(self._widget.selectedIntentIndex.keys())[0]
         vis = self._recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
         self.set_intent_as_vis(vis)
-    
         self.maintain_recs()
+        
         if len(self._widget.recommendations) <= 1:                    
             self.compute_remaining_actions() 
         
@@ -723,13 +717,21 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.custom import custom_action, filter_keys
         action_keys = filter_keys(self)
 
+        i = 1
         for action_name in self.action_keys:
             rec = custom_action(self, action_name)
             if (len(rec["collection"])) > 0:
                 self._append_rec(self._rec_info, rec)
+
+                vlist = self._rec_info[i]["collection"]
+                if len(vlist) > 0:
+                    self._recommendation[action_name] = vlist
+
                 new_widget = self.render_widget()
                 self._widget.recommendations = new_widget.recommendations
                 self._widget.loadNewTab = action_name
+
+                i += 1
 
     def display_pandas(self):
         return self.to_pandas()
