@@ -69,10 +69,10 @@ class Histogram(AltairChart):
                     x=alt.X(
                         str(msr_attr.attribute),
                         title=axis_title,
-                        bin=alt.Bin(binned=True),
+                        bin=alt.Bin(binned=True, step=markbar),
                         type=msr_attr.data_type,
                         axis=alt.Axis(title=axis_title),
-                        scale=alt.Scale(domain=[x_min, x_max + markbar]),
+                        scale=alt.Scale(domain=[x_min, x_max]),
                     ),
                     x2=end_attr_abv,
                     y=alt.Y("Number of Records", type="quantitative"),
