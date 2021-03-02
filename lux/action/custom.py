@@ -63,11 +63,11 @@ def custom_actions(ldf):
     recommendations : Dict[str,obj]
         object with a collection of visualizations that were previously registered.
     """
-    if len(lux.config.actions) > 0 and first_load:
+    if len(lux.config.actions) > 0:
         recommendations = []
         for action_name in lux.config.actions.keys():
             display_condition = lux.config.actions[action_name].display_condition
-            if (display_condition is None or (display_condition is not None and display_condition(ldf))) and action_name != "correlation":
+            if (display_condition is None or (display_condition is not None and display_condition(ldf))):
                 args = lux.config.actions[action_name].args
                 if args:
                     recommendation = lux.config.actions[action_name].action(ldf, args)
@@ -80,7 +80,7 @@ def custom_actions(ldf):
 
 def custom_action(ldf, action):
     """
-    Generates user-defined vis based on globally defined actions.
+    Computing initial custom_action for lazy streaming
 
     Parameters
     ----------
@@ -92,7 +92,7 @@ def custom_action(ldf, action):
 
     Returns
     -------
-    List with a collection of visualizations that were previously registered.
+    List with a collection of visualizations.
     """
     display_condition = lux.config.actions[action].display_condition
     if (display_condition is None or (display_condition is not None and display_condition(ldf))):

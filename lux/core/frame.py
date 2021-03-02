@@ -298,6 +298,7 @@ class LuxDataFrame(pd.DataFrame):
             self.maintain_metadata()
             self.current_vis = Compiler.compile_intent(self, self._intent)
             self.maintain_recs()
+            self.compute_remaining_actions()
         return self._recommendation
 
     @recommendation.setter
@@ -471,12 +472,10 @@ class LuxDataFrame(pd.DataFrame):
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
             else:
-                # if rec_df._recommendation == {}:
                 from lux.action.custom import custom_actions, custom_action, filter_keys
 
                 self.action_keys = filter_keys(rec_df)
                 action_index = 0
-
                 # generate vis from globally registered actions and append to dataframe
                 # Need to iteratre through tabs that might not be computed in some cases (e.g Temporal)
                 while rec_infolist == []:
@@ -485,7 +484,13 @@ class LuxDataFrame(pd.DataFrame):
                     lux.config.update_actions["flag"] = False
                     self.action_keys.pop(action_index)
                     action_index += 1
-
+            from IPython.display import clear_output
+            if self._intent:
+                with self.output:
+                    print(rec_infolist)
+                    clear_output()
+                import time
+                time.sleep(10)
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
             action_type = rec_infolist[0]["action"]
@@ -601,11 +606,11 @@ class LuxDataFrame(pd.DataFrame):
         intent_action = list(self._widget.selectedIntentIndex.keys())[0]
         vis = self._recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
         self.set_intent_as_vis(vis)
-
-        self.maintain_metadata()
-        self.current_vis = Compiler.compile_intent(self, self._intent)
+    
         self.maintain_recs()
-
+        if len(self._widget.recommendations) <= 1:                    
+            self.compute_remaining_actions() 
+        
         with self.output:
             clear_output()
             display(self._widget)
@@ -687,18 +692,7 @@ class LuxDataFrame(pd.DataFrame):
                         display(self._widget)
 
                     if len(self._widget.recommendations) <= 1:                    
-                        # Lazily load the rest of the tabs
-                        from lux.action.custom import custom_action, filter_keys
-                        action_keys = filter_keys(self)
-
-                        for action_name in self.action_keys:
-                            rec = custom_action(self, action_name)
-                            if (len(rec["collection"])) > 0:
-                                rec = custom_action(self, action_name)
-                                self._append_rec(self._rec_info, rec)
-                                new_widget = self.render_widget()
-                                self._widget.recommendations = new_widget.recommendations
-                                self._widget.loadNewTab = action_name
+                        self.compute_remaining_actions()
 
                 else:
                     warnings.warn(
@@ -723,6 +717,19 @@ class LuxDataFrame(pd.DataFrame):
                 display(self.display_pandas())
             else:
                 raise
+    
+    def compute_remaining_actions(self):
+        # Lazily load the rest of the tabs
+        from lux.action.custom import custom_action, filter_keys
+        action_keys = filter_keys(self)
+
+        for action_name in self.action_keys:
+            rec = custom_action(self, action_name)
+            if (len(rec["collection"])) > 0:
+                self._append_rec(self._rec_info, rec)
+                new_widget = self.render_widget()
+                self._widget.recommendations = new_widget.recommendations
+                self._widget.loadNewTab = action_name
 
     def display_pandas(self):
         return self.to_pandas()
@@ -852,6 +859,7 @@ class LuxDataFrame(pd.DataFrame):
         if self.widget is None:
             self.maintain_metadata()
             self.maintain_recs()
+            self.compute_remaining_actions()
 
         from ipywidgets.embed import embed_data
 
