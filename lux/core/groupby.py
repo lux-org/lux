@@ -29,7 +29,6 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         super(LuxGroupBy, self).__init__(*args, **kwargs)
 
     def aggregate(self, *args, **kwargs):
-        print("woooo")
         ret_val = super(LuxGroupBy, self).aggregate(*args, **kwargs)
         for attr in self._metadata:
             ret_val.__dict__[attr] = getattr(self, attr, None)
@@ -87,7 +86,7 @@ class LuxDataFrameGroupBy(LuxGroupBy, pd.core.groupby.generic.DataFrameGroupBy):
     def __init__(self, *args, **kwargs):
         super(LuxDataFrameGroupBy, self).__init__(*args, **kwargs)
 
-class LuxSeriesGroupBy(pd.core.groupby.generic.SeriesGroupBy, LuxGroupBy):
+class LuxSeriesGroupBy(LuxGroupBy, pd.core.groupby.generic.SeriesGroupBy):
 
     def __init__(self, *args, **kwargs):
         super(LuxSeriesGroupBy, self).__init__(*args, **kwargs)
