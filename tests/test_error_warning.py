@@ -84,4 +84,4 @@ def test_lux_warnings(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
     new_df = df.set_index(["Name", "Cylinders"])
     new_df._repr_html_()
-    assert new_df._widget.message == f'<ul><li>Lux does not currently support DataFrames with hierarchical indexes.\nPlease convert the DataFrame into a flat table via pandas.DataFrame.reset_index.</li></ul>'
+    assert new_df._widget.message == f'<ul><li>Lux does not currently support visualizations in a DataFrame with hierarchical indexes.\nPlease convert the DataFrame into a flat table via pandas.DataFrame.reset_index.</li></ul>'

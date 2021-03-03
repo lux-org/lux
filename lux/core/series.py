@@ -139,7 +139,7 @@ class LuxSeries(pd.Series):
                     self._toggle_pandas_display = True
 
                 # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-                ldf.maintain_recs(is_series=True)
+                ldf.maintain_recs(is_series="Series")
 
                 # Observers(callback_function, listen_to_this_variable)
                 ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")

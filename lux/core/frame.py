@@ -429,7 +429,7 @@ class LuxDataFrame(pd.DataFrame):
         if recommendations["collection"] is not None and len(recommendations["collection"]) > 0:
             rec_infolist.append(recommendations)
 
-    def maintain_recs(self, is_series=False):
+    def maintain_recs(self, is_series="DataFrame"):
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
         if lux.config.update_actions["flag"] == True:
@@ -449,30 +449,16 @@ class LuxDataFrame(pd.DataFrame):
             rec_df._message = Message()
         # Add warning message if there exist ID fields
         if len(rec_df) == 0:
-            if is_series:
-                rec_df._message.add(
-                    f"Lux cannot operate on an empty Series."
-                )
-            else:
-                rec_df._message.add(
-                    f"Lux cannot operate on an empty DataFrame."
+            rec_df._message.add(
+                    f"Lux cannot operate on an empty {is_series}."
                 )
         elif len(rec_df) < 5 and not rec_df.pre_aggregated:
-            if is_series:
-                rec_df._message.add(f"The Series is too small to visualize. To generate visualizations in Lux, the Series must contain at least 5 rows.")
-            else:
-                rec_df._message.add(f"The DataFrame is too small to visualize. To generate visualizations in Lux, the DataFrame must contain at least 5 rows.")
+            rec_df._message.add(f"The {is_series} is too small to visualize. To generate visualizations in Lux, the {is_series} must contain at least 5 rows.")
         elif self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-            if is_series:
-                rec_df._message.add(f"Lux does not currently support Series "
-                        "with hierarchical indexes.\n"
-                        "Please convert the Series into a flat "
-                        "table via pandas.DataFrame.reset_index.")
-            else:
-                rec_df._message.add(f"Lux does not currently support DataFrames "
-                        "with hierarchical indexes.\n"
-                        "Please convert the DataFrame into a flat "
-                        "table via pandas.DataFrame.reset_index.")
+            rec_df._message.add(f"Lux does not currently support visualizations in a {is_series} "
+                    f"with hierarchical indexes.\n"
+                    f"Please convert the {is_series} into a flat "
+                    f"table via pandas.DataFrame.reset_index.")
         else:
             id_fields_str = ""
             inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
