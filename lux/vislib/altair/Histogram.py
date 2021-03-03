@@ -48,8 +48,9 @@ class Histogram(AltairChart):
 
         if isinstance(msr_attr.attribute, str):
             msr_attr.attribute = msr_attr.attribute.replace(".", "")
+        markbar = compute_bin_width(self.data[msr_attr.attribute])
+        step = abs(self.data[msr_attr.attribute][1] - self.data[msr_attr.attribute][0])
 
-        markbar = self.vis._bin_size
         # Default when bin too small
         if markbar < (x_range / 24):
             markbar = (x_max - x_min) / 12
@@ -69,7 +70,7 @@ class Histogram(AltairChart):
                     x=alt.X(
                         str(msr_attr.attribute),
                         title=axis_title,
-                        bin=alt.Bin(binned=True, step=markbar),
+                        bin=alt.Bin(binned=True, step=step),
                         type=msr_attr.data_type,
                         axis=alt.Axis(title=axis_title),
                         scale=alt.Scale(domain=[x_min, x_max]),
@@ -117,7 +118,7 @@ class Histogram(AltairChart):
         return chart
 
 
-def get_bin_size(series):
+def compute_bin_width(series):
     """
     Helper function that returns optimal bin size via Freedman Diaconis's Rule
     Source: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule

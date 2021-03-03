@@ -17,7 +17,7 @@ import pytest
 import pandas as pd
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
-from lux.vislib.altair.Histogram import get_bin_size
+from lux.vislib.altair.Histogram import compute_bin_width
 
 
 def test_vis(global_var):
@@ -341,7 +341,7 @@ def test_histogram_chart(global_var):
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Displacement"], df)
     vis_code = vis.to_Altair()
-    expected_bin_size = get_bin_size(vis.data["Displacement"])
+    expected_bin_size = compute_bin_width(vis.data["Displacement"])
     assert "alt.Chart(visData).mark_bar" in vis_code
     assert str(expected_bin_size) in vis_code
     assert (
@@ -356,45 +356,6 @@ def test_histogram_chart(global_var):
     assert "ax.bar(bars, measurements, width=32.25)" in vis_code
     assert "ax.set_xlabel('Displacement (binned)')" in vis_code
     assert "ax.set_ylabel('Number of Records')" in vis_code
-
-
-def test_histogram_binning(global_var):
-    lux.config.plotting_backend = "vegalite"
-
-    df = pytest.car_df
-    vis = Vis(["Displacement"], df)
-    bin_size = get_bin_size(vis.data["Displacement"])
-    assert bin_size == 40.64
-
-    vis = Vis(["Horsepower"], df)
-    bin_size = get_bin_size(vis.data["Horsepower"])
-    assert bin_size == 19.32
-
-    vis = Vis(["Acceleration", "Origin=Europe"], df)
-    bin_size = get_bin_size(vis.data["Acceleration"])
-    assert bin_size == 1.32
-
-    df = pytest.olympic
-    vis = Vis(["Height"], df)
-    bin_size = get_bin_size(vis.data["Height"])
-    assert bin_size == 9.13
-
-    vis = Vis(["Height", "Sex=M"], df)
-    bin_size = get_bin_size(vis.data["Height"])
-    assert bin_size == 8.08
-
-    vis = Vis(["Height", "SportType=Water"], df)
-    bin_size = get_bin_size(vis.data["Height"])
-    assert bin_size == 5.57
-
-    df = pd.read_csv(
-        "https://github.com/covidvis/covid19-vis/blob/master/data/interventionFootprintByState.csv?raw=True",
-        index_col=0,
-    )
-    df["dateBefore"] = pd.to_datetime(df["dateBefore"], format="%Y-%M-%d")
-    vis = Vis(["severityScore"], df)
-    bin_size = get_bin_size(vis.data["severityScore"])
-    assert bin_size == 4.08
 
 
 def test_heatmap_chart(global_var):
