@@ -320,6 +320,10 @@ class LuxDataFrame(pd.DataFrame):
     def current_vis(self, current_vis: Dict):
         self._current_vis = current_vis
 
+    def __repr__(self):
+        # TODO: _repr_ gets called from _repr_html, need to get rid of this call
+        return ""
+
     #######################################################
     ########## SQL Metadata, type, model schema ###########
     #######################################################
@@ -605,6 +609,7 @@ class LuxDataFrame(pd.DataFrame):
     def _repr_html_(self):
         from IPython.display import display
         from IPython.display import clear_output
+        from IPython.display import publish_display_data
         import ipywidgets as widgets
 
         try:
@@ -659,22 +664,31 @@ class LuxDataFrame(pd.DataFrame):
                     # box.children = [button,output]
                     # output.children = [button]
                     # display(box)
+                    # display(button, self.output)
                     display(button, self.output)
 
                     def on_button_clicked(b):
-                        with self.output:
-                            if b:
-                                self._toggle_pandas_display = not self._toggle_pandas_display
-                            clear_output()
-                            if self._toggle_pandas_display:
-                                display(self.display_pandas())
-                            else:
-                                # b.layout.display = "none"
-                                display(self._widget)
-                                # b.layout.display = "inline-block"
+                        # clear_output()
+                        # print(b)
+                        clear_output()
+                        # display(b, self._widget)
+                        # clear_output()
+                        # return self._widget
+                        # with self.output:
+                        if b:
+                            self._toggle_pandas_display = not self._toggle_pandas_display
+                        # clear_output()
+                        if self._toggle_pandas_display:
+                            display(b, self.display_pandas())
+                        else:
+                            display(b, self._widget)
+                            # d = self.output.outputs[0]['data']
+                            # b.layout.display = "none"
+                            # publish_display_data(d)
+                            # b.layout.display = "inline-block"
 
                     button.on_click(on_button_clicked)
-                    on_button_clicked(None)
+                    # on_button_clicked(None)
                 else:
                     warnings.warn(
                         "\nLux defaults to Pandas when there are no valid actions defined.",
@@ -696,7 +710,8 @@ class LuxDataFrame(pd.DataFrame):
                 display(self.display_pandas())
             else:
                 raise
-
+        return super(LuxDataFrame, self)._repr_html_()
+        # return ""
     def display_pandas(self):
         return self.to_pandas()
 
