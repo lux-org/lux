@@ -130,17 +130,8 @@ class LuxSeries(pd.Series):
                 print(series_repr)
                 ldf._pandas_only = False
             else:
-                if self.index.nlevels >= 2:
-                    warnings.warn(
-                        "\nLux does not currently support series "
-                        "with hierarchical indexes.\n"
-                        "Please convert the series into a flat "
-                        "table via `pandas.DataFrame.reset_index`.\n",
-                        stacklevel=2,
-                    )
-                    print(series_repr)
-                    return ""
-                ldf.maintain_metadata()
+                if not self.index.nlevels >= 2:
+                    ldf.maintain_metadata()
 
                 if lux.config.default_display == "lux":
                     self._toggle_pandas_display = False

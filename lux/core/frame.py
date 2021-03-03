@@ -457,11 +457,22 @@ class LuxDataFrame(pd.DataFrame):
                 rec_df._message.add(
                     f"Lux cannot operate on an empty DataFrame."
                 )
-        elif len(rec_df) < 5:
+        elif len(rec_df) < 5 and not rec_df.pre_aggregated:
             if is_series:
                 rec_df._message.add(f"The Series is too small to visualize. To generate visualizations in Lux, the Series must contain at least 5 rows.")
             else:
                 rec_df._message.add(f"The DataFrame is too small to visualize. To generate visualizations in Lux, the DataFrame must contain at least 5 rows.")
+        elif self.index.nlevels >= 2 or self.columns.nlevels >= 2:
+            if is_series:
+                rec_df._message.add(f"Lux does not currently support Series "
+                        "with hierarchical indexes.\n"
+                        "Please convert the Series into a flat "
+                        "table via pandas.DataFrame.reset_index.")
+            else:
+                rec_df._message.add(f"Lux does not currently support DataFrames "
+                        "with hierarchical indexes.\n"
+                        "Please convert the DataFrame into a flat "
+                        "table via pandas.DataFrame.reset_index.")
         else:
             id_fields_str = ""
             inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
@@ -470,11 +481,12 @@ class LuxDataFrame(pd.DataFrame):
                     id_fields_str += f"<code>{id_field}</code>, "
                 id_fields_str = id_fields_str[:-2]
                 rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
+        
         rec_df._prev = None  # reset _prev
 
         # Check that recs has not yet been computed
-        if not (hasattr(rec_df, "_recs_fresh") and rec_df._recs_fresh):
-            rec_infolist = []
+        rec_infolist = []
+        if not (hasattr(rec_df, "_recs_fresh") and rec_df._recs_fresh) and not (self.index.nlevels >= 2 or self.columns.nlevels >= 2):
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
 
@@ -493,17 +505,17 @@ class LuxDataFrame(pd.DataFrame):
                     rec_df._append_rec(rec_infolist, rec)
                 lux.config.update_actions["flag"] = False
 
-            # Store _rec_info into a more user-friendly dictionary form
-            rec_df._recommendation = {}
-            for rec_info in rec_infolist:
-                action_type = rec_info["action"]
-                vlist = rec_info["collection"]
-                if len(vlist) > 0:
-                    rec_df._recommendation[action_type] = vlist
-            rec_df._rec_info = rec_infolist
-            self._widget = rec_df.render_widget()
+        # Store _rec_info into a more user-friendly dictionary form
+        rec_df._recommendation = {}
+        for rec_info in rec_infolist:
+            action_type = rec_info["action"]
+            vlist = rec_info["collection"]
+            if len(vlist) > 0:
+                rec_df._recommendation[action_type] = vlist
+        rec_df._rec_info = rec_infolist
+        self._widget = rec_df.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
-        elif show_prev:
+        if show_prev:
             self._widget = rec_df.render_widget()
 
         self._recs_fresh = True
@@ -628,17 +640,8 @@ class LuxDataFrame(pd.DataFrame):
             if self._pandas_only:
                 display(self.display_pandas())
                 self._pandas_only = False
-            else:
-                if self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-                    warnings.warn(
-                        "\nLux does not currently support dataframes "
-                        "with hierarchical indexes.\n"
-                        "Please convert the dataframe into a flat "
-                        "table via `pandas.DataFrame.reset_index`.\n",
-                        stacklevel=2,
-                    )
-                    display(self.display_pandas())
-                    return
+            # else:
+            if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
                 self.maintain_metadata()
 
                 if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
@@ -646,39 +649,39 @@ class LuxDataFrame(pd.DataFrame):
 
                     self.current_vis = Compiler.compile_intent(self, self._intent)
 
-                if lux.config.default_display == "lux":
-                    self._toggle_pandas_display = False
-                else:
-                    self._toggle_pandas_display = True
+            if lux.config.default_display == "lux":
+                self._toggle_pandas_display = False
+            else:
+                self._toggle_pandas_display = True
 
-                # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-                self.maintain_recs()
+            # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+            self.maintain_recs()
 
-                # Observers(callback_function, listen_to_this_variable)
-                self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
-                self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+            # Observers(callback_function, listen_to_this_variable)
+            self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
+            self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
-                button = widgets.Button(
-                    description="Toggle Pandas/Lux",
-                    layout=widgets.Layout(width="140px", top="5px"),
-                )
-                self.output = widgets.Output()
-                display(button, self.output)
+            button = widgets.Button(
+                description="Toggle Pandas/Lux",
+                layout=widgets.Layout(width="140px", top="5px"),
+            )
+            self.output = widgets.Output()
+            display(button, self.output)
 
-                def on_button_clicked(b):
-                    with self.output:
-                        if b:
-                            self._toggle_pandas_display = not self._toggle_pandas_display
-                        clear_output()
-                        if self._toggle_pandas_display:
-                            display(self.display_pandas())
-                        else:
-                            # b.layout.display = "none"
-                            display(self._widget)
-                            # b.layout.display = "inline-block"
+            def on_button_clicked(b):
+                with self.output:
+                    if b:
+                        self._toggle_pandas_display = not self._toggle_pandas_display
+                    clear_output()
+                    if self._toggle_pandas_display:
+                        display(self.display_pandas())
+                    else:
+                        # b.layout.display = "none"
+                        display(self._widget)
+                        # b.layout.display = "inline-block"
 
-                button.on_click(on_button_clicked)
-                on_button_clicked(None)
+            button.on_click(on_button_clicked)
+            on_button_clicked(None)
 
         except (KeyboardInterrupt, SystemExit):
             raise
