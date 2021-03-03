@@ -39,3 +39,8 @@ def test_display_VisList(global_var):
     df = pytest.car_df
     vislist = VisList(["?", "Acceleration"], df)
     vislist._repr_html_()
+
+def test_repr(global_var):
+    df = pytest.car_df
+    output = df.__repr__()
+    assert 'MilesPerGal' in output
