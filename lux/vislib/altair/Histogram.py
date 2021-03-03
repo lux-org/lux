@@ -115,18 +115,3 @@ class Histogram(AltairChart):
 		)
 		"""
         return chart
-
-
-def get_bin_size(series):
-    """
-    Helper function that returns optimal bin size via Freedman Diaconis's Rule
-    Source: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
-    """
-    import math
-    import numpy as np
-
-    data = np.asarray(series)
-    num_pts = data.size
-    IQR = np.subtract(*np.percentile(data, [75, 25]))
-    size = 2 * IQR * (num_pts ** -1 / 3)
-    return round(size * 3.5, 2)
