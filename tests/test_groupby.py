@@ -23,6 +23,7 @@ def test_agg(global_var):
     new_df = df[["Horsepower", "Brand"]].groupby("Brand").agg(sum)
     new_df._repr_html_()
     assert new_df.history[0].name == "groupby"
+    assert new_df.pre_aggregated
 
 
 def test_shortcut_agg(global_var):
@@ -31,6 +32,7 @@ def test_shortcut_agg(global_var):
     new_df = df[["MilesPerGal", "Brand"]].groupby("Brand").sum()
     new_df._repr_html_()
     assert new_df.history[0].name == "groupby"
+    assert new_df.pre_aggregated
 
 
 def test_agg_mean(global_var):
@@ -39,6 +41,7 @@ def test_agg_mean(global_var):
     new_df = df.groupby("Origin").mean()
     new_df._repr_html_()
     assert new_df.history[0].name == "groupby"
+    assert new_df.pre_aggregated
 
 
 def test_agg_size(global_var):
@@ -47,6 +50,7 @@ def test_agg_size(global_var):
     new_df = df.groupby("Brand").size().to_frame()
     new_df._repr_html_()
     assert new_df.history[0].name == "groupby"
+    assert new_df.pre_aggregated
 
 
 def test_filter(global_var):
@@ -55,3 +59,13 @@ def test_filter(global_var):
     new_df = df.groupby("Origin").filter(lambda x: x["Weight"].mean() > 3000)
     new_df._repr_html_()
     assert new_df.history[0].name == "groupby"
+    assert not new_df.pre_aggregated
+
+
+def test_get_group(global_var):
+    df = pytest.car_df
+    df._repr_html_()
+    new_df = df.groupby("Origin").get_group("Japan")
+    new_df._repr_html_()
+    assert new_df.history[0].name == "groupby"
+    assert not new_df.pre_aggregated
