@@ -78,6 +78,7 @@ def test_underspecified_single_vis(global_var, test_recs):
 # 	assert len(df.current_vis) == len([vis.get_attr_by_data_model("measure") for vis in df.current_vis]) #should be 25
 # 	test_recs(df, multiple_vis_actions)
 
+
 def test_set_intent_as_vis(global_var, test_recs):
     df = pytest.car_df
     df._repr_html_()

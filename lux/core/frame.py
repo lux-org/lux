@@ -449,16 +449,18 @@ class LuxDataFrame(pd.DataFrame):
             rec_df._message = Message()
         # Add warning message if there exist ID fields
         if len(rec_df) == 0:
-            rec_df._message.add(
-                    f"Lux cannot operate on an empty {is_series}."
-                )
+            rec_df._message.add(f"Lux cannot operate on an empty {is_series}.")
         elif len(rec_df) < 5 and not rec_df.pre_aggregated:
-            rec_df._message.add(f"The {is_series} is too small to visualize. To generate visualizations in Lux, the {is_series} must contain at least 5 rows.")
+            rec_df._message.add(
+                f"The {is_series} is too small to visualize. To generate visualizations in Lux, the {is_series} must contain at least 5 rows."
+            )
         elif self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-            rec_df._message.add(f"Lux does not currently support visualizations in a {is_series} "
-                    f"with hierarchical indexes.\n"
-                    f"Please convert the {is_series} into a flat "
-                    f"table via pandas.DataFrame.reset_index.")
+            rec_df._message.add(
+                f"Lux does not currently support visualizations in a {is_series} "
+                f"with hierarchical indexes.\n"
+                f"Please convert the {is_series} into a flat "
+                f"table via pandas.DataFrame.reset_index."
+            )
         else:
             id_fields_str = ""
             inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
@@ -467,11 +469,11 @@ class LuxDataFrame(pd.DataFrame):
                     id_fields_str += f"<code>{id_field}</code>, "
                 id_fields_str = id_fields_str[:-2]
                 rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
-        
+
         rec_df._prev = None  # reset _prev
 
         # Check that recs has not yet been computed
-        if (not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh):
+        if not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh:
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
@@ -481,8 +483,11 @@ class LuxDataFrame(pd.DataFrame):
                 if rec_df.columns.name is not None:
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
-            elif not (len(rec_df) < 5 and not rec_df.pre_aggregated) and not (self.index.nlevels >= 2 or self.columns.nlevels >= 2):
+            elif not (len(rec_df) < 5 and not rec_df.pre_aggregated) and not (
+                self.index.nlevels >= 2 or self.columns.nlevels >= 2
+            ):
                 from lux.action.custom import custom_actions
+
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
                 for rec in custom_action_collection:
