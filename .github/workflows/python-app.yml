@@ -28,7 +28,7 @@ jobs:
         pip install wheel
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
-    - name: Lint with flake8
+    - name: Lint check with black
       run: |
         black --target-version py37 --line-length 105 --check .
     - name: Test with pytest
