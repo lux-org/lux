@@ -320,10 +320,6 @@ class LuxDataFrame(pd.DataFrame):
     def current_vis(self, current_vis: Dict):
         self._current_vis = current_vis
 
-    def __repr__(self):
-        # TODO: _repr_ gets called from _repr_html, need to get rid of this call
-        return ""
-
     #######################################################
     ########## SQL Metadata, type, model schema ###########
     #######################################################
