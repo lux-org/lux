@@ -485,8 +485,8 @@ class LuxDataFrame(pd.DataFrame):
         rec_df._prev = None  # reset _prev
 
         # Check that recs has not yet been computed
-        rec_infolist = []
-        if not (hasattr(rec_df, "_recs_fresh") and rec_df._recs_fresh) and not (self.index.nlevels >= 2 or self.columns.nlevels >= 2):
+        if (not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh):
+            rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
 
@@ -495,29 +495,26 @@ class LuxDataFrame(pd.DataFrame):
                 if rec_df.columns.name is not None:
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
-            else:
-                # if rec_df._recommendation == {}:
+            elif not (len(rec_df) < 5 and not rec_df.pre_aggregated) and not (self.index.nlevels >= 2 or self.columns.nlevels >= 2):
                 from lux.action.custom import custom_actions
-
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
                 for rec in custom_action_collection:
                     rec_df._append_rec(rec_infolist, rec)
                 lux.config.update_actions["flag"] = False
 
-        # Store _rec_info into a more user-friendly dictionary form
-        rec_df._recommendation = {}
-        for rec_info in rec_infolist:
-            action_type = rec_info["action"]
-            vlist = rec_info["collection"]
-            if len(vlist) > 0:
-                rec_df._recommendation[action_type] = vlist
-        rec_df._rec_info = rec_infolist
-        self._widget = rec_df.render_widget()
-        # re-render widget for the current dataframe if previous rec is not recomputed
-        if show_prev:
+            # Store _rec_info into a more user-friendly dictionary form
+            rec_df._recommendation = {}
+            for rec_info in rec_infolist:
+                action_type = rec_info["action"]
+                vlist = rec_info["collection"]
+                if len(vlist) > 0:
+                    rec_df._recommendation[action_type] = vlist
+            rec_df._rec_info = rec_infolist
             self._widget = rec_df.render_widget()
-
+        # re-render widget for the current dataframe if previous rec is not recomputed
+        elif show_prev:
+            self._widget = rec_df.render_widget()
         self._recs_fresh = True
 
     #######################################################
