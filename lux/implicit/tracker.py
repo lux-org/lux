@@ -71,8 +71,8 @@ class CodeTracker():
 
             # run analysis 
             tree = ast.parse(code_str) # self.get_all_code()
-            name_dict = self.get_nb_df_info()
-            analyzer = Analyzer(name_dict, code_str)
+            self.update_nb_df_info()
+            analyzer = Analyzer(self.df_info, self.name_to_id, code_str)
             analyzer.visit(tree)
 
             # update weights
@@ -118,12 +118,12 @@ class CodeTracker():
         col_list = []
 
         if self.parsed_history and df_id in self.id_to_names:
-            df_names = self.id_to_names[df_id]
+            #df_names = self.id_to_names[df_id]
 
             # filter to only this df and the weights 
-            mask = [item.df_name in df_names for item in self.parsed_history]
+            mask = [item.df_id == df_id for item in self.parsed_history]
             weights = self.signal_weights[mask]
-            signals = list(filter(lambda a: a.df_name in df_names, self.parsed_history))
+            signals = list(filter(lambda a: a.df_id == df_id, self.parsed_history))
 
             # get signal and cols over time
             if signals:
@@ -197,12 +197,14 @@ class CodeTracker():
         
         return _d
 
-    def get_nb_df_info(self):
+    def update_nb_df_info(self):
         """ 
         Gets the names of dfs and their columns
         code inspo from: https://github.com/lckr/jupyterlab-variableInspector/blob/master/src/inspectorscripts.ts
 
-        returns dict of {df_name: [col_name, ...]}
+        Updates df meta info 
+
+        Returns None
         """
         d = None
         
@@ -210,9 +212,7 @@ class CodeTracker():
             # get dfs and cols 
             all_mods = self._nms.who_ls()
             d = {_v:self.get_colnames(_v) for _v in all_mods if self.keep(_v)}
+            
             self.df_info = d
-
             self.name_to_id = self.get_name_to_id_map(d.keys())
             self.id_to_names = self.create_inverse_map(self.name_to_id)
-            
-        return d

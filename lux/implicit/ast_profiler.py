@@ -2,19 +2,26 @@ import numpy as np
 import ast 
 from collections import namedtuple
 
-CodeHistoryItem = namedtuple("CodeHistoryItem", "df_name cols f_name f_arg_dict ex_order code_str")
+CodeHistoryItem = namedtuple("CodeHistoryItem", "df_name df_id cols f_name f_arg_dict ex_order code_str")
 ColFilter = namedtuple("ColFilter", "df_name col_name comp val")
 
 # from IPython.core.debugger import set_trace
 
 class Analyzer(ast.NodeVisitor):
-    def __init__(self, df_meta, code_str):
+    def __init__(self, df_meta, name_to_id, code_str):
         """
         df_meta: DICT 
             Names of all lux df objects in the user's session
             {"df_name": set([cols])}
+        
+        name_to_id: DICT
+            dfs in df_meta: id(df)
+        
+        code_str: STRING 
+            da code 
         """
         self.df_meta = df_meta
+        self.name_to_id = name_to_id
         # make sure the cols are sets 
         for k in df_meta.keys():
             df_meta[k] = set(df_meta[k])
@@ -90,14 +97,16 @@ class Analyzer(ast.NodeVisitor):
                         this_c = list(self.df_meta[df_key].intersection(col_list))
 
                         if hist_item.df_name != df_key:
-                            h = CodeHistoryItem(df_key, this_c, _f_name, _f_args, self.ex_count, self.get_code_string(node))
+                            h = CodeHistoryItem(df_key, self.get_id_key(df_key), this_c, _f_name, _f_args, self.ex_count, self.get_code_string(node))
                             this_h.append(h)
                 else:
                     this_c = list(self.df_meta[df_key].intersection(col_list))
-                    h = CodeHistoryItem(df_key, this_c, _f_name, _f_args, self.ex_count, self.get_code_string(node))
+                    h = CodeHistoryItem(df_key, self.get_id_key(df_key), this_c, _f_name, _f_args, self.ex_count, self.get_code_string(node))
                     this_h.append(h)
         
         self.add_to_history(call_h + this_h)
+    
+   
 
     def handle_attr_or_subs(self, node, lh=True):
         """
@@ -112,9 +121,9 @@ class Analyzer(ast.NodeVisitor):
             cols = list(self.df_meta[df_name].intersection(cols)) 
             
             if filts: 
-                h = CodeHistoryItem(df_name, cols, "subs_filter", {"filts": filts}, self.ex_count, self.get_code_string(node))
+                h = CodeHistoryItem(df_name, self.get_id_key(df_name), cols, "subs_filter", {"filts": filts}, self.ex_count, self.get_code_string(node))
             else:
-                h = CodeHistoryItem(df_name, cols, "", {}, self.ex_count, self.get_code_string(node))
+                h = CodeHistoryItem(df_name, self.get_id_key(df_name), cols, "", {}, self.ex_count, self.get_code_string(node))
             this_h.append(h)
         
         if lh:
@@ -166,14 +175,14 @@ class Analyzer(ast.NodeVisitor):
                     query_param = arg_dict["args"][0]
                     cols = [s for s in query_param.split() if s in self.df_meta[df_name]]
                 
-                h = CodeHistoryItem(df_name, cols, func_name, arg_dict, self.ex_count, self.get_code_string(call_node))
+                h = CodeHistoryItem(df_name, self.get_id_key(df_name), cols, func_name, arg_dict, self.ex_count, self.get_code_string(call_node))
                 this_h.append(h)
                 
                 # if other columns are referenced in df_s that are not in df_name 
                 for _other_df, _other_c in df_s.items():
                     if _other_df in self.df_meta:
                         this_c = list(self.df_meta[_other_df].intersection(_other_c))
-                        h = CodeHistoryItem(_other_df, this_c, func_name, arg_dict, self.ex_count, self.get_code_string(call_node))
+                        h = CodeHistoryItem(_other_df, self.get_id_key(_other_df), this_c, func_name, arg_dict, self.ex_count, self.get_code_string(call_node))
                         this_h.append(h)
         if lh:
             self.add_to_history(this_h)
@@ -390,3 +399,9 @@ class Analyzer(ast.NodeVisitor):
             code_s = self.code_str_tokens[node.lineno - 1]
         
         return code_s
+    
+    def get_id_key(self, df_name):
+        id_k = 0
+        if df_name in self.name_to_id:
+            id_k = self.name_to_id[df_name]
+        return id_k
