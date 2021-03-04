@@ -64,6 +64,7 @@ def custom_action(ldf, action):
     -------
     One recommendation
     """
+    recommendation = None
     display_condition = lux.config.actions[action].display_condition
     if (display_condition is None or (display_condition is not None and display_condition(ldf))):
         args = lux.config.actions[action].args
@@ -75,8 +76,10 @@ def custom_action(ldf, action):
 
 def filter_keys(ldf):
     keys = []
-    for action_name in lux.config.actions.keys():
-        display_condition = lux.config.actions[action_name].display_condition
-        if display_condition is None or (display_condition is not None and display_condition(ldf)):
-            keys.insert(0, action_name)
+    if len(ldf) > 0:
+        for action_name in lux.config.actions.keys():
+            display_condition = lux.config.actions[action_name].display_condition
+            if display_condition is None or (display_condition is not None and display_condition(ldf)):
+                keys.insert(0, action_name)
     return keys
+

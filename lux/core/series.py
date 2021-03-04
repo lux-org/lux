@@ -123,7 +123,9 @@ class LuxSeries(pd.Series):
         try:
             # Ignore recommendations when Series a results of:
             # 1) Values of the series are of dtype objects (df.dtypes)
-            is_dtype_series = all(isinstance(val, np.dtype) for val in self.values)
+            is_dtype_series = (
+                all(isinstance(val, np.dtype) for val in self.values) and len(self.values) != 0
+            )
             # 2) Mixed type, often a result of a "row" acting as a series (df.iterrows, df.iloc[0])
             # Tolerant for NaNs + 1 type
             mixed_dtype = len(set([type(val) for val in self.values])) > 2
@@ -131,24 +133,6 @@ class LuxSeries(pd.Series):
                 print(series_repr)
                 ldf._pandas_only = False
             else:
-                if self.index.nlevels >= 2:
-                    warnings.warn(
-                        "\nLux does not currently support series "
-                        "with hierarchical indexes.\n"
-                        "Please convert the series into a flat "
-                        "table via `pandas.DataFrame.reset_index`.\n",
-                        stacklevel=2,
-                    )
-                    print(series_repr)
-                    return ""
-
-                if len(self) <= 0:
-                    warnings.warn(
-                        "\nLux can not operate on an empty series.\nPlease check your input again.\n",
-                        stacklevel=2,
-                    )
-                    print(series_repr)
-                    return ""
 
                 # Pre-displaying initial pandas frame before computing widget
                 pandas_output = widgets.Output()
@@ -159,6 +143,9 @@ class LuxSeries(pd.Series):
 
                 with ldf.output:
                     display(widgets.HTML(value="Loading widget..."))
+
+                if not self.index.nlevels >= 2:
+                    ldf.maintain_metadata()
 
                 if lux.config.default_display == "lux":
                     tab_contents = ['Lux', 'Pandas']
@@ -175,15 +162,13 @@ class LuxSeries(pd.Series):
 
                 display(tab)
 
-                ldf.maintain_metadata()
-
                 if ldf._intent != [] and (not hasattr(ldf, "_compiled") or not ldf._compiled):
                     from lux.processor.Compiler import Compiler
 
                     ldf.current_vis = Compiler.compile_intent(ldf, ldf._intent)
 
-                # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate ldf._widget)
-                ldf.maintain_recs()
+                # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+                ldf.maintain_recs(is_series="Series")
 
                 # Observers(callback_function, listen_to_this_variable)
                 ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")
@@ -196,12 +181,6 @@ class LuxSeries(pd.Series):
 
                     if len(ldf._widget.recommendations) <= 1 and hasattr(ldf, "action_keys"):
                         ldf.compute_remaining_actions()
-                else:
-                    warnings.warn(
-                        "\nLux defaults to Pandas when there are no valid actions defined.",
-                        stacklevel=2,
-                    )
-                    print(series_repr)
 
         except (KeyboardInterrupt, SystemExit):
             raise
