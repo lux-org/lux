@@ -115,7 +115,6 @@ def generate_vis_from_signal(signal, ldf):
             v.score = 100
 
     elif signal.f_name == "subs_filter" or signal.f_name == "filter" or signal.f_name == "loc": # or query
-        #set_trace()
         filts = signal.f_arg_dict["filts"]
         alt_v = plot_filter(ldf, filts)
         if alt_v:

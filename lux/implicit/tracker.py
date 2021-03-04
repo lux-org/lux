@@ -25,6 +25,8 @@ class CodeTracker():
         self.name_to_id = {}               # df_name: id()
         self.id_to_names = {}              # id(): [df_name, ...], for edge case where multiple vars ref same object 
 
+        self.unanalyzed_code = []
+
         # inits
         self.shell = get_ipython()
         self.init_watching()
@@ -41,23 +43,48 @@ class CodeTracker():
         Start watching. For more info: https://ipython.readthedocs.io/en/stable/config/callbacks.html
         """
         if self.shell:
-            self.shell.events.register('post_run_cell', self.post_run_cell)
+            #self.shell.events.register('post_run_cell', self.post_run_cell)
+            self.shell.events.register('pre_run_cell', self.pre_run_cell)
         #print("CodeTracker: Shell watching init success.")
 
-    def post_run_cell(self, result):
-        """
-        Run each time a jupyter cell is executed
+    # def pre_run_cell(self, info):
+    #     print(f'Pre run cell, code: {info.raw_cell}')
+    #     set_trace()
+
+    #     try: 
+    #         self.shell.ex(info.raw_cell)
+    #         d = self.get_nb_df_info()
         
-        result.success: flag if execution errored
-        result.info.raw_cell: code that user ran
+    #     except Exception as e:
+    #         raise # if code fails to run this raises up to normal exception handler
+
+    #     x = 11
+    
+    def pre_run_cell(self, info):
         """
+        Run before each cell is executed. See if valid python and if so add to unanalyzed code
+        """
+        try: 
+            _code_str = info.raw_cell
+            ast.parse(_code_str)
 
-        if result.success:
-            # could use result.execution_count maybe as well
-            self.code_history.append( CodeTrackerItem(self.curr_time, result.info.raw_cell) )
+            self.unanalyzed_code.append(_code_str)
+        except SyntaxError:
+            pass
+    
 
-            # run analyis code ONLY on new code
-            code_str = result.info.raw_cell
+    def analyze_recent_code(self):
+        if self.unanalyzed_code: # len > 0
+            # run analyis code ONLY on new code since last analyze
+            code_str = "\n".join(self.unanalyzed_code)
+            for s in self.unanalyzed_code:
+                self.code_history.append( CodeTrackerItem(self.curr_time, s) )
+            
+            # clean up
+            self.curr_time += 1 # this is actually more of the analysis time than exec time
+            self.unanalyzed_code = []
+
+            # run analysis 
             tree = ast.parse(code_str) # self.get_all_code()
             name_dict = self.get_nb_df_info()
             analyzer = Analyzer(name_dict, code_str)
@@ -79,7 +106,7 @@ class CodeTracker():
                     num_new_weights = analyzer.history[-1].ex_order + 1 # get the max which will be last
                     code_weights = np.linspace(start = min_new_w, stop = 1, num= num_new_weights)
                 
-                w0 = [code_weights[item.ex_order] for item in analyzer.history]
+                w0 = [code_weights[i] for i in range(n_new_signals)]
                 self.signal_weights = np.append(self.signal_weights, w0) # add new weights for new signals
 
                 # save new signals 
@@ -114,8 +141,9 @@ class CodeTracker():
             signals = list(filter(lambda a: a.df_name in df_names, self.parsed_history))
 
             # get signal and cols over time
-            most_recent_signal = signals[-1]
-            col_list = self.get_weighted_col_order(signals[:-1], weights)
+            if signals:
+                most_recent_signal = signals[-1]
+                col_list = self.get_weighted_col_order(signals[:-1], weights)
 
         return most_recent_signal, col_list
     

@@ -118,6 +118,9 @@ class Vis:
         check_import_lux_widget()
         import luxwidget
 
+        # TODO this can intercept and change encoding if code says so
+        lux.config.code_tracker.analyze_recent_code()
+
         if self.data is None:
             raise Exception(
                 "No data is populated in Vis. In order to generate data required for the vis, use the 'refresh_source' function to populate the Vis with a data source (e.g., vis.refresh_source(df))."

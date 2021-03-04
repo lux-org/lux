@@ -617,14 +617,18 @@ class LuxDataFrame(pd.DataFrame):
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
 
-    # NOTE: this seems like the "main" function
-    # NOTE: what calls this?? -- Will
+    # this is called by ipython when the object is displayed in the kernel post execution
     def _repr_html_(self):
+        #set_trace()
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
 
         try:
+            # update implicit recs. Has to be run here after cell has executed
+            #  could maybe be moved to maintain_recs
+            lux.config.code_tracker.analyze_recent_code()
+
             if self._pandas_only:
                 display(self.display_pandas())
                 self._pandas_only = False
