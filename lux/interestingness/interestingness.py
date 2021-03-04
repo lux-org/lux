@@ -114,6 +114,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
             if v_size < 10:
                 return -1
             color_attr = vis.get_attr_by_channel("color")[0].attribute
+
             C = ldf.cardinality[color_attr]
             if C < 40:
                 return 1 / C
