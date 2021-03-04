@@ -17,8 +17,6 @@ from lux.vis.Clause import Clause
 from lux.utils.utils import check_import_lux_widget
 import lux
 import warnings
-from IPython.core.debugger import set_trace
-
 
 class Vis:
     """
@@ -308,7 +306,6 @@ class Vis:
         spec:
             visualization specification corresponding to the Vis object
         """
-        #set_trace()
         if language == "vegalite":
             return self.to_VegaLite(**kwargs)
         elif language == "altair":

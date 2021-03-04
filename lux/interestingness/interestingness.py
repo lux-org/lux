@@ -27,8 +27,6 @@ from lux.interestingness.similarity import preprocess, euclidean_dist
 from lux.vis.VisList import VisList
 import warnings
 
-from IPython.core.debugger import set_trace
-
 def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
     """
     Compute the interestingness score of the vis.
@@ -49,9 +47,6 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         return -1
         # raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
     try:
-        # set_trace()
-
-        # return .5
         filter_specs = utils.get_filter_specs(vis._inferred_intent)
         vis_attrs_specs = utils.get_attrs_specs(vis._inferred_intent)
         n_dim = vis._ndim

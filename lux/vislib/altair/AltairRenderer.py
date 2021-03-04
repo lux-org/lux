@@ -22,8 +22,6 @@ from lux.vislib.altair.Histogram import Histogram
 from lux.vislib.altair.Heatmap import Heatmap
 from lux.vislib.altair.BoxPlot import BoxPlot
 
-from IPython.core.debugger import set_trace
-
 
 class AltairRenderer:
     """
@@ -90,7 +88,6 @@ class AltairRenderer:
         else:
             chart = None
 
-        # set_trace()
         if chart:
             if lux.config.plotting_style and (
                 lux.config.plotting_backend == "vegalite" or lux.config.plotting_backend == "altair"

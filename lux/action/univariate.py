@@ -17,8 +17,6 @@ from lux.vis.VisList import VisList
 import lux
 from lux.utils import utils
 
-from IPython.core.debugger import set_trace
-
 def univariate(ldf, *args):
     """
     Generates bar chart distributions of different attributes in the dataframe.
@@ -96,7 +94,6 @@ def univariate(ldf, *args):
         recommendation["collection"] = []
         return recommendation
     vlist = VisList(intent, ldf)
-    # set_trace()
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
     vlist.sort()

@@ -21,8 +21,6 @@ from lux.vis.Clause import Clause
 import warnings
 import lux
 
-# from IPython.core.debugger import set_trace
-
 
 class VisList:
     """VisList is a list of Vis objects."""
@@ -299,7 +297,6 @@ class VisList:
         ----
         Function derives a new _inferred_intent by instantiating the intent specification on the new data
         """
-        # set_trace()
         if ldf is not None:
             from lux.processor.Parser import Parser
             from lux.processor.Validator import Validator

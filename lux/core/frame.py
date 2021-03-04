@@ -72,8 +72,6 @@ class LuxDataFrame(pd.DataFrame):
         self._widget = None
         super(LuxDataFrame, self).__init__(*args, **kw)
 
-        # TODO update lux.config.code_tracker with the names of the recently added df here
-
         self.table_name = ""
         lux.config.executor = PandasExecutor()
 
@@ -619,7 +617,6 @@ class LuxDataFrame(pd.DataFrame):
 
     # this is called by ipython when the object is displayed in the kernel post execution
     def _repr_html_(self):
-        #set_trace()
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets

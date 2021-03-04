@@ -278,7 +278,6 @@ class Compiler:
         vis = VisList(intent,df)
         """
 
-        # set_trace()
         auto_channel = {}
         if vis.mark == "histogram":
             if vis.get_attr_by_data_model("measure", exclude_record=True):

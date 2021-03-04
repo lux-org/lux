@@ -17,8 +17,6 @@ from lux.vis.Clause import Clause
 from lux.utils.utils import check_import_lux_widget
 import lux
 import warnings
-from IPython.core.debugger import set_trace
-
 
 class CustomVis:
     """
@@ -31,14 +29,14 @@ class CustomVis:
         self.apply_default_config()
         
     def _repr_html_(self):
-        set_trace()
-
         from IPython.display import display
 
         check_import_lux_widget()
         import luxwidget
 
         from lux.core.frame import LuxDataFrame
+
+        lux.config.code_tracker.analyze_recent_code()
 
         widget = luxwidget.LuxWidget(
             currentVis= self.to_code(),

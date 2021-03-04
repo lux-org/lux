@@ -18,14 +18,14 @@ class CodeTracker():
     def __init__(self):
         
         # state
-        self.code_history = []            # list of CodeTrackerItem(exec_count, code_string)
-        self.parsed_history = []          # list of CodeHistoryItem(df_name, cols, f_name, f_arg_dict)
+        self.code_history = []              # list of CodeTrackerItem(exec_count, code_string)
+        self.parsed_history = []            # list of CodeHistoryItem(df_name, cols, f_name, f_arg_dict)
         #self.implicit_intent = []
         self.df_info = {}
-        self.name_to_id = {}               # df_name: id()
-        self.id_to_names = {}              # id(): [df_name, ...], for edge case where multiple vars ref same object 
+        self.name_to_id = {}                # df_name: id()
+        self.id_to_names = {}               # id(): [df_name, ...], for edge case where multiple vars ref same object 
 
-        self.unanalyzed_code = []
+        self.unanalyzed_code = []           # code that hasnt been added to parsed_history yet
 
         # inits
         self.shell = get_ipython()
@@ -43,22 +43,8 @@ class CodeTracker():
         Start watching. For more info: https://ipython.readthedocs.io/en/stable/config/callbacks.html
         """
         if self.shell:
-            #self.shell.events.register('post_run_cell', self.post_run_cell)
+            
             self.shell.events.register('pre_run_cell', self.pre_run_cell)
-        #print("CodeTracker: Shell watching init success.")
-
-    # def pre_run_cell(self, info):
-    #     print(f'Pre run cell, code: {info.raw_cell}')
-    #     set_trace()
-
-    #     try: 
-    #         self.shell.ex(info.raw_cell)
-    #         d = self.get_nb_df_info()
-        
-    #     except Exception as e:
-    #         raise # if code fails to run this raises up to normal exception handler
-
-    #     x = 11
     
     def pre_run_cell(self, info):
         """
@@ -71,7 +57,6 @@ class CodeTracker():
             self.unanalyzed_code.append(_code_str)
         except SyntaxError:
             pass
-    
 
     def analyze_recent_code(self):
         if self.unanalyzed_code: # len > 0
