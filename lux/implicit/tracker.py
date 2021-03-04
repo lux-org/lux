@@ -11,7 +11,7 @@ import lux
 
 CodeTrackerItem = namedtuple("CodeTrackerItem", "exec_order code")
 
-# from IPython.core.debugger import set_trace
+from IPython.core.debugger import set_trace
 
 class CodeTracker():
 
@@ -22,7 +22,6 @@ class CodeTracker():
         self.parsed_history = []          # list of CodeHistoryItem(df_name, cols, f_name, f_arg_dict)
         #self.implicit_intent = []
         self.df_info = {}
-        self.getting_info_flag = False
         self.name_to_id = {}               # df_name: id()
         self.id_to_names = {}              # id(): [df_name, ...], for edge case where multiple vars ref same object 
 
@@ -53,7 +52,7 @@ class CodeTracker():
         result.info.raw_cell: code that user ran
         """
 
-        if result.success and not self.getting_info_flag:
+        if result.success:
             # could use result.execution_count maybe as well
             self.code_history.append( CodeTrackerItem(self.curr_time, result.info.raw_cell) )
 
@@ -88,8 +87,6 @@ class CodeTracker():
 
                 #assert len(self.parsed_history) == len(self.signal_weights)
             
-            # clean up
-            self.getting_info_flag = False # TODO this might not be necessary anymore 
             # set a flag or call something so that the LDFs update and know the implicit recs have changed
             lux.config.update_actions["flag"] = True
     
@@ -194,7 +191,6 @@ class CodeTracker():
 
         returns dict of {df_name: [col_name, ...]}
         """
-        self.getting_info_flag = True
         d = None
         
         if self.shell:
