@@ -31,14 +31,14 @@ To visualize your dataframe in Lux, simply print out the dataframe. You should s
 
     df
 
-.. image:: ../../../../lux-resources/doc_img/overview-1.gif
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/overview-1.gif?raw=true
   :width: 700
   :align: center
   :alt: click on toggle, scroll on Correlation
 
 By clicking on the Toggle button, you can now explore the data visually through Lux. You should see several categories of visualizations recommended to you by browsing through the different tabs. 
 
-.. image:: ../../../../lux-resources/doc_img/overview-2.gif
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/overview-2.gif?raw=true
   :width: 700
   :align: center
   :alt: click on Distribution and Occurrence tabs
