@@ -62,7 +62,7 @@ def test_check_hpi():
 
     assert df.data_type == {
         "HPIRank": "quantitative",
-        "Country": "nominal",
+        "Country": "geographical",
         "SubRegion": "nominal",
         "AverageLifeExpectancy": "quantitative",
         "AverageWellBeing": "quantitative",
@@ -97,6 +97,22 @@ def test_check_airbnb():
         "reviews_per_month": "quantitative",
         "calculated_host_listings_count": "quantitative",
         "availability_365": "quantitative",
+    }
+
+
+def test_check_airports():
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/altair-viz/vega_datasets/master/vega_datasets/_data/airports.csv"
+    )
+    df.maintain_metadata()
+    assert df.data_type == {
+        "iata": "id",
+        "name": "nominal",
+        "city": "nominal",
+        "state": "geographical",
+        "country": "geographical",
+        "latitude": "quantitative",
+        "longitude": "quantitative",
     }
 
 
@@ -246,7 +262,7 @@ def test_id_with_label():
         "https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true"
     )
     df.maintain_metadata()
-    assert df.data_type == {"Date": "temporal", "State": "nominal", "Value": "quantitative"}
+    assert df.data_type == {"Date": "temporal", "State": "geographical", "Value": "quantitative"}
 
 
 def test_ID_random():

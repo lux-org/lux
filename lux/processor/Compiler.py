@@ -172,6 +172,8 @@ class Compiler:
                         clause.data_type = ldf.data_type[clause.attribute]
                     if clause.data_type == "id":
                         clause.data_type = "nominal"
+                    if clause.data_type == "geographical":
+                        clause.data_type = "nominal"
                     if clause.data_model == "":
                         clause.data_model = data_model_lookup[clause.attribute]
                 if clause.value != "":
@@ -261,7 +263,7 @@ class Compiler:
         filters = utils.get_filter_specs(vis._inferred_intent)
 
         # Helper function (TODO: Move this into utils)
-        def line_or_bar(ldf, dimension: Clause, measure: Clause):
+        def line_or_bar_or_geo(ldf, dimension: Clause, measure: Clause):
             dim_type = dimension.data_type
             # If no aggregation function is specified, then default as average
             if measure.aggregation == "":
@@ -272,6 +274,8 @@ class Compiler:
                 # if cardinality large than 5 then sort bars
                 if ldf.cardinality[dimension.attribute] > 5:
                     dimension.sort = "ascending"
+                if utils.like_geo(dimension.get_attr()):
+                    return "geographical", {"x": dimension, "y": measure}
                 return "bar", {"x": measure, "y": dimension}
 
         # ShowMe logic + additional heuristics
@@ -299,7 +303,7 @@ class Compiler:
                 vis._inferred_intent.append(count_col)
             dimension = vis.get_attr_by_data_model("dimension")[0]
             measure = vis.get_attr_by_data_model("measure")[0]
-            vis._mark, auto_channel = line_or_bar(ldf, dimension, measure)
+            vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
         elif ndim == 2 and (nmsr == 0 or nmsr == 1):
             # Line or Bar chart broken down by the dimension
             dimensions = vis.get_attr_by_data_model("dimension")
@@ -323,7 +327,7 @@ class Compiler:
                 if nmsr == 0 and not ldf.pre_aggregated:
                     vis._inferred_intent.append(count_col)
                 measure = vis.get_attr_by_data_model("measure")[0]
-                vis._mark, auto_channel = line_or_bar(ldf, dimension, measure)
+                vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
                 auto_channel["color"] = color_attr
         elif ndim == 0 and nmsr == 2:
             # Scatterplot
