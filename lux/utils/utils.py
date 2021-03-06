@@ -113,6 +113,10 @@ def like_nan(val):
         return math.isnan(val)
 
 
+def like_geo(val):
+    return isinstance(val, str) and val.lower() in {"state", "country"}
+
+
 def matplotlib_setup(w, h):
     plt.ioff()
     fig, ax = plt.subplots(figsize=(w, h))
