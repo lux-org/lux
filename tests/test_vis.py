@@ -435,6 +435,28 @@ def test_vegalite_default_actions_registered(global_var):
     assert len(df.recommendation["Correlation"]) > 0
 
 
+def test_vegalite_default_actions_registered_2(global_var):
+    import numpy as np
+
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/altair-viz/vega_datasets/master/vega_datasets/_data/airports.csv"
+    )
+    df["magnitude"] = np.random.randint(0, 20, size=len(df))
+    lux.config.plotting_backend = "vegalite"
+
+    # Symbol Map
+    assert "Geographical" in df.recommendation
+    assert len(df.recommendation["Geographical"]) > 0
+
+    # Occurrence Chart
+    assert "Occurrence" in df.recommendation
+    assert len(df.recommendation["Occurrence"]) > 0
+
+    # Scatter Chart
+    assert "Correlation" in df.recommendation
+    assert len(df.recommendation["Correlation"]) > 0
+
+
 def test_matplotlib_default_actions_registered(global_var):
     lux.config.plotting_backend = "matplotlib"
     df = pytest.car_df
@@ -466,6 +488,7 @@ def test_vegalite_heatmap_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df = df.copy()
     assert not df.recommendation["Correlation"][0]._postbin
+    assert "Geographical" not in df.recommendation
     lux.config.heatmap = True
 
 

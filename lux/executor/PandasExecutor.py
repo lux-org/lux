@@ -94,7 +94,7 @@ class PandasExecutor(Executor):
             # TODO: Add some type of cap size on Nrows ?
             vis._vis_data = vis.data[list(attributes)]
 
-            if vis.mark == "bar" or vis.mark == "line":
+            if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
                 PandasExecutor.execute_binning(vis)
@@ -418,6 +418,8 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "temporal"
                 elif self._is_datetime_number(ldf[attr]):
                     ldf._data_type[attr] = "temporal"
+                elif self._is_geographical_attribute(ldf[attr]):
+                    ldf._data_type[attr] = "geographical"
                 elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                     # int columns gets coerced into floats if contain NaN
                     convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
@@ -490,6 +492,12 @@ class PandasExecutor(Executor):
             if datetime_col is not None:
                 return True
         return False
+
+    @staticmethod
+    def _is_geographical_attribute(series):
+        # run detection algorithm
+        name = str(series.name).lower()
+        return utils.like_geo(name)
 
     @staticmethod
     def _is_datetime_number(series):
