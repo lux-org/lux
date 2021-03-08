@@ -116,6 +116,7 @@ class ScatterChart(MatplotlibChart):
                     loc="upper left",
                     ncol=1,
                     frameon=False,
+                    fontsize="13",
                 )
                 scatter.set_alpha(0.5)
                 plot_code += f"""ax.legend(
@@ -126,15 +127,15 @@ class ScatterChart(MatplotlibChart):
                     bbox_to_anchor=(1.05, 1), 
                     loc='upper left', 
                     ncol=1, 
-                    frameon=False,)\n"""
+                    frameon=False,
+                    fontsize='13')\n"""
                 plot_code += "scatter.set_alpha(0.5)\n"
         else:
             set_fig_code = "fig, ax = plt.subplots(4.5, 4)\n"
             self.ax.scatter(x_pts, y_pts, alpha=0.5)
             plot_code += f"ax.scatter(x_pts, y_pts, alpha=0.5)\n"
-
-        self.ax.set_xlabel(x_attr_abv)
-        self.ax.set_ylabel(y_attr_abv)
+        self.ax.set_xlabel(x_attr_abv, fontsize="15")
+        self.ax.set_ylabel(y_attr_abv, fontsize="15")
 
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
@@ -145,5 +146,5 @@ class ScatterChart(MatplotlibChart):
         self.code += f"y_pts = df['{y_attr.attribute}']\n"
 
         self.code += plot_code
-        self.code += f"ax.set_xlabel('{x_attr_abv}')\n"
-        self.code += f"ax.set_ylabel('{y_attr_abv}')\n"
+        self.code += f"ax.set_xlabel('{x_attr_abv}', fontsize='15')\n"
+        self.code += f"ax.set_ylabel('{y_attr_abv}', fontsize='15')\n"
