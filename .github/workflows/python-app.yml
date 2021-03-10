@@ -31,10 +31,7 @@ jobs:
     - name: Lint check with black
       run: |
         black --target-version py37 --line-length 105 --check .
-    - name: Test with pytest
-      run: |
-        python -m pytest tests/*.py
-    - name: Code Coverage Report
+    - name: Test with Pytest and Code Coverage Report
       run: |
         pytest --cov-report term --cov=lux tests/
         bash <(curl -s https://codecov.io/bash)
