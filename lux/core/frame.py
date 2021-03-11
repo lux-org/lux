@@ -489,23 +489,33 @@ class LuxDataFrame(pd.DataFrame):
                 from lux.action.custom import custom_action, filter_keys
 
                 self.action_keys = filter_keys(rec_df)
-                action_index = 0
-                lenOfKeys = len(self.action_keys)
-                # generate vis from globally registered actions and append to dataframe
-                # Need to iteratre through tabs that might not be computed in some cases (e.g Temporal)
-                while rec_infolist == [] and self.action_keys and action_index < lenOfKeys:
-                    rec = custom_action(rec_df, self.action_keys[action_index])
+
+                if lux.config._streaming:
+
+                    # Compute one tab to display on initial widget
+                    rec = custom_action(rec_df, self.action_keys[0])
                     rec_df._append_rec(rec_infolist, rec)
-                    lux.config.update_actions["flag"] = False
-                    self.action_keys.pop(action_index)
+                    self.action_keys.pop(0)
+
+                    # Fill the rest of the tabs with empty (non-clickable) tabs
+                    for action_name in self.action_keys:
+                        rec = {'action': action_name.capitalize(), 'description': '', 'long_description':'', 'collection': []}
+                        rec_infolist.append(rec)
+                
+                else:
+                    for action_name in self.action_keys:
+                        rec = custom_action(rec_df, action_name)
+                        rec_df._append_rec(rec_infolist, rec)
+                    self.action_keys = []
+
+                lux.config.update_actions["flag"] = False    
 
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
             for rec_info in rec_infolist:
                 action_type = rec_info["action"]
                 vlist = rec_info["collection"]
-                if len(vlist) > 0:
-                    rec_df._recommendation[action_type] = vlist
+                rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
 
             self._widget = rec_df.render_widget()
@@ -646,12 +656,8 @@ class LuxDataFrame(pd.DataFrame):
             with self.output:
                 display(widgets.HTML(value="Loading widget..."))
 
-            if lux.config.default_display == "lux":
-                tab_contents = ['Lux', 'Pandas']
-                children = [self.output, pandas_output]
-            else:
-                tab_contents = ['Pandas', 'Lux']
-                children = [pandas_output, self.output]
+            tab_contents = ['Pandas', 'Lux']
+            children = [pandas_output, self.output]
 
             tab = widgets.Tab()
             tab.children = children
@@ -660,6 +666,9 @@ class LuxDataFrame(pd.DataFrame):
                 tab.set_title(i, tab_contents[i])
 
             display(tab)
+
+            if lux.config.default_display == "lux":
+                tab.selected_index = 1
 
             if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
                 self.maintain_metadata()
@@ -681,7 +690,7 @@ class LuxDataFrame(pd.DataFrame):
                     clear_output()
                     display(self._widget)
 
-                if len(self._widget.recommendations) <= 1 and hasattr(self, "action_keys"):
+                if hasattr(self, "action_keys"):
                     self.compute_remaining_actions()
 
         except (KeyboardInterrupt, SystemExit):
@@ -708,7 +717,8 @@ class LuxDataFrame(pd.DataFrame):
         for action_name in self.action_keys:
             rec = custom_action(self, action_name)
             if (len(rec["collection"])) > 0:
-                self._append_rec(self._rec_info, rec)
+                self._rec_info.pop(i)
+                self._rec_info.insert(i, rec)
 
                 vlist = self._rec_info[i]["collection"]
                 if len(vlist) > 0:
@@ -716,9 +726,11 @@ class LuxDataFrame(pd.DataFrame):
 
                 new_widget = self.render_widget()
                 self._widget.recommendations = new_widget.recommendations
-                self._widget.loadNewTab = action_name
+                self._widget.loadNewTab = action_name.capitalize()
 
                 i += 1
+
+        self.action_keys = []
 
     def display_pandas(self):
         return self.to_pandas()
@@ -824,14 +836,13 @@ class LuxDataFrame(pd.DataFrame):
 
         rec_copy = copy.deepcopy(recs)
         for idx, rec in enumerate(rec_copy):
-            if len(rec["collection"]) > 0:
-                rec["vspec"] = []
-                for vis in rec["collection"]:
-                    chart = vis.to_code(language=lux.config.plotting_backend, prettyOutput=False)
-                    rec["vspec"].append(chart)
-                rec_lst.append(rec)
-                # delete since not JSON serializable
-                del rec_lst[idx]["collection"]
+            rec["vspec"] = []
+            for vis in rec["collection"]:
+                chart = vis.to_code(language=lux.config.plotting_backend, prettyOutput=False)
+                rec["vspec"].append(chart)
+            rec_lst.append(rec)
+            # delete since not JSON serializable
+            del rec_lst[idx]["collection"]
 
         return rec_lst
 

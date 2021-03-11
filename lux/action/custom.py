@@ -76,10 +76,18 @@ def custom_action(ldf, action):
 
 def filter_keys(ldf):
     keys = []
+    data_types = set(ldf._data_type.values())
     if len(ldf) > 0:
         for action_name in lux.config.actions.keys():
             display_condition = lux.config.actions[action_name].display_condition
             if display_condition is None or (display_condition is not None and display_condition(ldf)):
+                if lux.config.actions[action_name].args:
+                    if not lux.config.actions[action_name].args[0] in data_types:
+                        continue
                 keys.insert(0, action_name)
+            
+    if "temporal" in keys:
+        keys[0], keys[len(keys)-2] = keys[len(keys)-2], keys[0]
+
     return keys
 
