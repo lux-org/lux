@@ -97,6 +97,9 @@ class Analyzer(ast.NodeVisitor):
                         this_c = list(self.df_meta[df_key].intersection(col_list))
 
                         if hist_item.df_name != df_key:
+                            _f_args["assign_to"] = self.get_id_key(df_key)
+                            _f_args["assign_from"] = self.get_id_key(hist_item.df_name)
+
                             h = CodeHistoryItem(df_key, self.get_id_key(df_key), this_c, _f_name, _f_args, self.ex_count, self.get_code_string(node))
                             this_h.append(h)
                 else:

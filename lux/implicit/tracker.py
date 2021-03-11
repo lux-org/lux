@@ -88,19 +88,17 @@ class CodeTracker():
                         min_new_w = max(self.signal_weights)
                     else:
                         min_new_w = .9
-                    num_new_weights = analyzer.history[-1].ex_order + 1 # get the max which will be last
-                    code_weights = np.linspace(start = min_new_w, stop = 1, num= num_new_weights)
+                    code_weights = np.linspace(start = min_new_w, stop = 1, num= len(analyzer.history))
                 
-                w0 = [code_weights[i] for i in range(n_new_signals)]
-                self.signal_weights = np.append(self.signal_weights, w0) # add new weights for new signals
+                self.signal_weights = np.append(self.signal_weights, code_weights) # add new weights for new signals
 
                 # save new signals 
                 self.parsed_history.extend( analyzer.history)
 
                 #assert len(self.parsed_history) == len(self.signal_weights)
             
-            # set a flag or call something so that the LDFs update and know the implicit recs have changed
-            lux.config.update_actions["flag"] = True
+                # set a flag or call something so that the LDFs update and know the implicit recs have changed
+                lux.config.update_actions["flag"] = True
     
     def get_all_code(self, time_thresh=0):
         """ returns all the previously executed code as one string """

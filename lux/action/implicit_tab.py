@@ -187,3 +187,22 @@ def fill_condition(conds):
         else: # str with & or |
             s += str(c)
     return s
+
+def compute_filter_diff(old_df, filt_df):
+    """
+    Assumes filt_df is a subset of old_df.
+    Create indicator the size of old_df, 1= in both, 0= only in old
+
+    TODO this still needs the columns to visualize but can be used as a flag for the color encoding
+    """
+    # filtered should always be smaller
+    if len(filt_df) > len(old_df):
+        _t = filt_df
+        filt_df = old_df
+        old_df = _t
+    
+    _d = old_df.merge(filt_df, indicator=True, how="left")
+
+    indicator = (_d._merge == "both").astype(int)
+    
+    return indicator

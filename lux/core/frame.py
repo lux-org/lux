@@ -94,6 +94,9 @@ class LuxDataFrame(pd.DataFrame):
     def _constructor(self):
         return LuxDataFrame
 
+    # 
+    # This is called when a series is returned from the df 
+    #
     @property
     def _constructor_sliced(self):
         def f(*args, **kwargs):
@@ -183,6 +186,12 @@ class LuxDataFrame(pd.DataFrame):
             self.pre_aggregated = "groupby" in [event.name for event in self.history]
             # if very_small_df_flag:
             #     self.pre_aggregated = True
+    
+    # def __getitem__(self, key):
+    #     ret_value = super(LuxDataFrame, self).__getitem__(key)
+
+    #     self.history.append_event(key)
+    #     return ret_value
 
     @property
     def intent(self):
