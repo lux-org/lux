@@ -184,7 +184,10 @@ class LuxDataFrame(pd.DataFrame):
             self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
             if "Number of Records" in self.columns:
                 self.pre_aggregated = True
-            self.pre_aggregated = "groupby" in [event.name for event in self.history] and lux.config.executor.name == "PandasExecutor"
+            self.pre_aggregated = (
+                "groupby" in [event.name for event in self.history]
+                and lux.config.executor.name == "PandasExecutor"
+            )
 
     @property
     def intent(self):
@@ -333,31 +336,6 @@ class LuxDataFrame(pd.DataFrame):
         # TODO: _repr_ gets called from _repr_html, need to get rid of this call
         return ""
 
-    #######################################################
-    ################# Database Functions ##################
-    #######################################################
-
-    def set_SQL_table(self, t_name):
-        # function that ties the Lux Dataframe to a SQL database table
-        if self.table_name != "":
-            warnings.warn(
-                f"\nThis dataframe is already tied to a database table. Please create a new Lux dataframe and connect it to your table '{t_name}'.",
-                stacklevel=2,
-            )
-        else:
-            self.table_name = t_name
-        import psycopg2
-
-        try:
-            lux.config.executor.compute_dataset_metadata(self)
-        except Exception as error:
-            error_str = str(error)
-            if f'relation "{t_name}" does not exist' in error_str:
-                warnings.warn(
-                    f"\nThe table '{t_name}' does not exist in your database./",
-                    stacklevel=2,
-                )
-
     def _append_rec(self, rec_infolist, recommendations: Dict):
         if recommendations["collection"] is not None and len(recommendations["collection"]) > 0:
             rec_infolist.append(recommendations)
@@ -416,9 +394,11 @@ class LuxDataFrame(pd.DataFrame):
                 if rec_df.columns.name is not None:
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
-            elif not (len(rec_df) < 5 and not rec_df.pre_aggregated and lux.config.executor.name == "PandasExecutor") and not (
-                self.index.nlevels >= 2 or self.columns.nlevels >= 2
-            ):
+            elif not (
+                len(rec_df) < 5
+                and not rec_df.pre_aggregated
+                and lux.config.executor.name == "PandasExecutor"
+            ) and not (self.index.nlevels >= 2 or self.columns.nlevels >= 2):
                 from lux.action.custom import custom_actions
 
                 # generate vis from globally registered actions and append to dataframe
