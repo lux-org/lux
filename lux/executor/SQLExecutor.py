@@ -1,7 +1,7 @@
 import pandas
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
-from lux.core.frame import LuxDataFrame
+from lux.core.sqltable import LuxSQLTable
 from lux.executor.Executor import Executor
 from lux.utils import utils
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
@@ -25,23 +25,29 @@ class SQLExecutor(Executor):
         return f"<SQLExecutor>"
 
     @staticmethod
-    def execute_sampling(ldf: LuxDataFrame):
+    def execute_preview(lst: LuxSQLTable):
+        lst._sampled = pandas.read_sql(
+            "SELECT * from {} LIMIT 5".format(lst.table_name), lux.config.SQLconnection
+        )
+
+    @staticmethod
+    def execute_sampling(lst: LuxSQLTable):
         SAMPLE_FLAG = lux.config.sampling
         SAMPLE_START = lux.config.sampling_start
         SAMPLE_CAP = lux.config.sampling_cap
         SAMPLE_FRAC = 0.2
 
         length_query = pandas.read_sql(
-            "SELECT COUNT(*) as length FROM {}".format(ldf.table_name),
+            "SELECT COUNT(*) as length FROM {}".format(lst.table_name),
             lux.config.SQLconnection,
         )
         limit = int(list(length_query["length"])[0]) * SAMPLE_FRAC
-        ldf._sampled = pandas.read_sql(
-            "SELECT * from {} LIMIT {}".format(ldf.table_name, str(limit)), lux.config.SQLconnection
+        lst._sampled = pandas.read_sql(
+            "SELECT * from {} LIMIT {}".format(lst.table_name, str(limit)), lux.config.SQLconnection
         )
 
     @staticmethod
-    def execute(view_collection: VisList, ldf: LuxDataFrame):
+    def execute(view_collection: VisList, lst: LuxSQLTable):
         """
         Given a VisList, fetch the data required to render the view
         1) Generate Necessary WHERE clauses
@@ -54,29 +60,29 @@ class SQLExecutor(Executor):
 
             # when mark is empty, deal with lazy execution by filling the data with a small sample of the dataframe
             if view.mark == "":
-                SQLExecutor.execute_sampling(ldf)
-                view._vis_data = ldf._sampled
+                SQLExecutor.execute_sampling(lst)
+                view._vis_data = lst._sampled
             if view.mark == "scatter":
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
                 length_query = pandas.read_sql(
-                    "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
+                    "SELECT COUNT(*) as length FROM {} {}".format(lst.table_name, where_clause),
                     lux.config.SQLconnection,
                 )
                 view_data_length = list(length_query["length"])[0]
                 if len(view.get_attr_by_channel("color")) == 1 or view_data_length < 5000:
                     # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
                     has_color = True
-                    SQLExecutor.execute_scatter(view, ldf)
+                    SQLExecutor.execute_scatter(view, lst)
                 else:
                     view._mark = "heatmap"
-                    SQLExecutor.execute_2D_binning(view, ldf)
+                    SQLExecutor.execute_2D_binning(view, lst)
             elif view.mark == "bar" or view.mark == "line":
-                SQLExecutor.execute_aggregate(view, ldf)
+                SQLExecutor.execute_aggregate(view, lst)
             elif view.mark == "histogram":
-                SQLExecutor.execute_binning(view, ldf)
+                SQLExecutor.execute_binning(view, lst)
 
     @staticmethod
-    def execute_scatter(view: Vis, ldf: LuxDataFrame):
+    def execute_scatter(view: Vis, lst: LuxSQLTable):
         """
         Given a scatterplot vis and a Lux Dataframe, fetch the data required to render the vis.
         1) Generate WHERE clause for the SQL query
@@ -89,8 +95,8 @@ class SQLExecutor(Executor):
         ----------
         vislist: list[lux.Vis]
             vis list that contains lux.Vis objects for visualization.
-        ldf : lux.core.frame
-            LuxDataFrame with specified intent.
+        lst : lux.core.frame
+            LuxSQLTable with specified intent.
 
         Returns
         -------
@@ -105,7 +111,7 @@ class SQLExecutor(Executor):
         where_clause, filterVars = SQLExecutor.execute_filter(view)
 
         length_query = pandas.read_sql(
-            "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
+            "SELECT COUNT(*) as length FROM {} {}".format(lst.table_name, where_clause),
             lux.config.SQLconnection,
         )
 
@@ -117,33 +123,33 @@ class SQLExecutor(Executor):
         required_variables = ",".join(required_variables)
         row_count = list(
             pandas.read_sql(
-                f"SELECT COUNT(*) FROM {ldf.table_name} {where_clause}",
+                f"SELECT COUNT(*) FROM {lst.table_name} {where_clause}",
                 lux.config.SQLconnection,
             )["count"]
         )[0]
         if row_count > lux.config.sampling_cap:
-            query = f"SELECT {required_variables} FROM {ldf.table_name} {where_clause} ORDER BY random() LIMIT 10000"
+            query = f"SELECT {required_variables} FROM {lst.table_name} {where_clause} ORDER BY random() LIMIT 10000"
         else:
-            query = "SELECT {} FROM {} {}".format(required_variables, ldf.table_name, where_clause)
+            query = "SELECT {} FROM {} {}".format(required_variables, lst.table_name, where_clause)
         data = pandas.read_sql(query, lux.config.SQLconnection)
         view._vis_data = utils.pandas_to_lux(data)
         view._vis_data.length = list(length_query["length"])[0]
 
-        ldf._message.add_unique(
+        lst._message.add_unique(
             f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
             priority=98,
         )
 
     @staticmethod
-    def execute_aggregate(view: Vis, ldf: LuxDataFrame, isFiltered=True):
+    def execute_aggregate(view: Vis, lst: LuxSQLTable, isFiltered=True):
         """
         Aggregate data points on an axis for bar or line charts
         Parameters
         ----------
         vis: lux.Vis
             lux.Vis object that represents a visualization
-        ldf : lux.core.frame
-            LuxDataFrame with specified intent.
+        lst : lux.core.frame
+            LuxSQLTable with specified intent.
         isFiltered: boolean
             boolean that represents whether a vis has had a filter applied to its data
         Returns
@@ -165,12 +171,12 @@ class SQLExecutor(Executor):
             groupby_attr = y_attr
             measure_attr = x_attr
             agg_func = x_attr.aggregation
-        if groupby_attr.attribute in ldf.unique_values.keys():
-            attr_unique_vals = ldf.unique_values[groupby_attr.attribute]
+        if groupby_attr.attribute in lst.unique_values.keys():
+            attr_unique_vals = lst.unique_values[groupby_attr.attribute]
         # checks if color is specified in the Vis
         if len(view.get_attr_by_channel("color")) == 1:
             color_attr = view.get_attr_by_channel("color")[0]
-            color_attr_vals = ldf.unique_values[color_attr.attribute]
+            color_attr_vals = lst.unique_values[color_attr.attribute]
             color_cardinality = len(color_attr_vals)
             # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
             has_color = True
@@ -182,7 +188,7 @@ class SQLExecutor(Executor):
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
 
                 length_query = pandas.read_sql(
-                    "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
+                    "SELECT COUNT(*) as length FROM {} {}".format(lst.table_name, where_clause),
                     lux.config.SQLconnection,
                 )
                 # generates query for colored barchart case
@@ -191,7 +197,7 @@ class SQLExecutor(Executor):
                         groupby_attr.attribute,
                         color_attr.attribute,
                         groupby_attr.attribute,
-                        ldf.table_name,
+                        lst.table_name,
                         where_clause,
                         groupby_attr.attribute,
                         color_attr.attribute,
@@ -204,7 +210,7 @@ class SQLExecutor(Executor):
                     count_query = 'SELECT "{}", COUNT("{}") FROM {} {} GROUP BY "{}"'.format(
                         groupby_attr.attribute,
                         groupby_attr.attribute,
-                        ldf.table_name,
+                        lst.table_name,
                         where_clause,
                         groupby_attr.attribute,
                     )
@@ -217,7 +223,7 @@ class SQLExecutor(Executor):
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
 
                 length_query = pandas.read_sql(
-                    "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
+                    "SELECT COUNT(*) as length FROM {} {}".format(lst.table_name, where_clause),
                     lux.config.SQLconnection,
                 )
                 # generates query for colored barchart case
@@ -229,7 +235,7 @@ class SQLExecutor(Executor):
                                 color_attr.attribute,
                                 measure_attr.attribute,
                                 measure_attr.attribute,
-                                ldf.table_name,
+                                lst.table_name,
                                 where_clause,
                                 groupby_attr.attribute,
                                 color_attr.attribute,
@@ -245,7 +251,7 @@ class SQLExecutor(Executor):
                                 color_attr.attribute,
                                 measure_attr.attribute,
                                 measure_attr.attribute,
-                                ldf.table_name,
+                                lst.table_name,
                                 where_clause,
                                 groupby_attr.attribute,
                                 color_attr.attribute,
@@ -260,7 +266,7 @@ class SQLExecutor(Executor):
                                 color_attr.attribute,
                                 measure_attr.attribute,
                                 measure_attr.attribute,
-                                ldf.table_name,
+                                lst.table_name,
                                 where_clause,
                                 groupby_attr.attribute,
                                 color_attr.attribute,
@@ -275,7 +281,7 @@ class SQLExecutor(Executor):
                             groupby_attr.attribute,
                             measure_attr.attribute,
                             measure_attr.attribute,
-                            ldf.table_name,
+                            lst.table_name,
                             where_clause,
                             groupby_attr.attribute,
                         )
@@ -286,7 +292,7 @@ class SQLExecutor(Executor):
                             groupby_attr.attribute,
                             measure_attr.attribute,
                             measure_attr.attribute,
-                            ldf.table_name,
+                            lst.table_name,
                             where_clause,
                             groupby_attr.attribute,
                         )
@@ -297,7 +303,7 @@ class SQLExecutor(Executor):
                             groupby_attr.attribute,
                             measure_attr.attribute,
                             measure_attr.attribute,
-                            ldf.table_name,
+                            lst.table_name,
                             where_clause,
                             groupby_attr.attribute,
                         )
@@ -355,15 +361,15 @@ class SQLExecutor(Executor):
             view._vis_data.length = list(length_query["length"])[0]
 
     @staticmethod
-    def execute_binning(view: Vis, ldf: LuxDataFrame):
+    def execute_binning(view: Vis, lst: LuxSQLTable):
         """
         Binning of data points for generating histograms
         Parameters
         ----------
         vis: lux.Vis
             lux.Vis object that represents a visualization
-        ldf : lux.core.frame
-            LuxDataFrame with specified intent.
+        lst : lux.core.frame
+            LuxSQLTable with specified intent.
         Returns
         -------
         None
@@ -373,15 +379,15 @@ class SQLExecutor(Executor):
         bin_attribute = list(filter(lambda x: x.bin_size != 0, view._inferred_intent))[0]
 
         num_bins = bin_attribute.bin_size
-        attr_min = ldf._min_max[bin_attribute.attribute][0]
-        attr_max = ldf._min_max[bin_attribute.attribute][1]
-        attr_type = type(ldf.unique_values[bin_attribute.attribute][0])
+        attr_min = lst._min_max[bin_attribute.attribute][0]
+        attr_max = lst._min_max[bin_attribute.attribute][1]
+        attr_type = type(lst.unique_values[bin_attribute.attribute][0])
 
         # get filters if available
         where_clause, filterVars = SQLExecutor.execute_filter(view)
 
         length_query = pandas.read_sql(
-            "SELECT COUNT(*) as length FROM {} {}".format(ldf.table_name, where_clause),
+            "SELECT COUNT(*) as length FROM {} {}".format(lst.table_name, where_clause),
             lux.config.SQLconnection,
         )
         # need to calculate the bin edges before querying for the relevant data
@@ -398,7 +404,7 @@ class SQLExecutor(Executor):
         bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket(CAST (\"{}\" AS FLOAT), '{}') FROM {} {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(
             bin_attribute.attribute,
             "{" + upper_edges + "}",
-            ldf.table_name,
+            lst.table_name,
             where_clause,
         )
 
@@ -406,7 +412,7 @@ class SQLExecutor(Executor):
         if not bin_count_data["width_bucket"].isnull().values.any():
             # np.histogram breaks if data contain NaN
 
-            # counts,binEdges = np.histogram(ldf[bin_attribute.attribute],bins=bin_attribute.bin_size)
+            # counts,binEdges = np.histogram(lst[bin_attribute.attribute],bins=bin_attribute.bin_size)
             # binEdges of size N+1, so need to compute binCenter as the bin location
             upper_edges = [float(i) for i in upper_edges.split(",")]
             if attr_type == int:
@@ -440,7 +446,7 @@ class SQLExecutor(Executor):
             view._vis_data.length = list(length_query["length"])[0]
 
     @staticmethod
-    def execute_2D_binning(view: Vis, ldf: LuxDataFrame):
+    def execute_2D_binning(view: Vis, lst: LuxSQLTable):
         import numpy as np
 
         x_attribute = list(filter(lambda x: x.channel == "x", view._inferred_intent))[0]
@@ -448,13 +454,13 @@ class SQLExecutor(Executor):
         y_attribute = list(filter(lambda x: x.channel == "y", view._inferred_intent))[0]
 
         num_bins = lux.config.heatmap_bin_size
-        x_attr_min = ldf._min_max[x_attribute.attribute][0]
-        x_attr_max = ldf._min_max[x_attribute.attribute][1]
-        x_attr_type = type(ldf.unique_values[x_attribute.attribute][0])
+        x_attr_min = lst._min_max[x_attribute.attribute][0]
+        x_attr_max = lst._min_max[x_attribute.attribute][1]
+        x_attr_type = type(lst.unique_values[x_attribute.attribute][0])
 
-        y_attr_min = ldf._min_max[y_attribute.attribute][0]
-        y_attr_max = ldf._min_max[y_attribute.attribute][1]
-        y_attr_type = type(ldf.unique_values[y_attribute.attribute][0])
+        y_attr_min = lst._min_max[y_attribute.attribute][0]
+        y_attr_max = lst._min_max[y_attribute.attribute][1]
+        y_attr_type = type(lst.unique_values[y_attribute.attribute][0])
 
         # get filters if available
         where_clause, filterVars = SQLExecutor.execute_filter(view)
@@ -487,7 +493,7 @@ class SQLExecutor(Executor):
             "{" + x_upper_edges_string + "}",
             y_attribute.attribute,
             "{" + y_upper_edges_string + "}",
-            ldf.table_name,
+            lst.table_name,
             where_clause,
         )
 
@@ -577,153 +583,152 @@ class SQLExecutor(Executor):
     ########## Metadata, type, model schema ###############
     #######################################################
 
-    def compute_dataset_metadata(self, ldf: LuxDataFrame):
+    def compute_dataset_metadata(self, lst: LuxSQLTable):
         """
         Function which computes the metadata required for the Lux recommendation system.
         Populates the metadata parameters of the specified Lux DataFrame.
 
         Parameters
         ----------
-        ldf: lux.LuxDataFrame
-            lux.LuxDataFrame object whose metadata will be calculated
+        lst: lux.LuxSQLTable
+            lux.LuxSQLTable object whose metadata will be calculated
 
         Returns
         -------
         None
         """
-        self.get_SQL_attributes(ldf)
-        for attr in list(ldf.columns):
-            ldf[attr] = None
-        ldf._data_type = {}
+        self.get_SQL_attributes(lst)
+        for attr in list(lst.columns):
+            lst[attr] = None
+        lst._data_type = {}
         #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this
         #####      in the initialization and do it just once
-        self.compute_data_type(ldf)
-        self.compute_stats(ldf)
+        self.compute_data_type(lst)
+        self.compute_stats(lst)
 
-    def get_SQL_attributes(self, ldf: LuxDataFrame):
+    def get_SQL_attributes(self, lst: LuxSQLTable):
         """
         Retrieves the names of variables within a specified Lux DataFrame's Postgres SQL table.
         Uses these variables to populate the Lux DataFrame's columns list.
 
         Parameters
         ----------
-        ldf: lux.LuxDataFrame
-            lux.LuxDataFrame object whose columns will be populated
+        lst: lux.LuxSQLTable
+            lux.LuxSQLTable object whose columns will be populated
 
         Returns
         -------
         None
         """
-        if "." in ldf.table_name:
-            table_name = ldf.table_name[self.table_name.index(".") + 1 :]
+        if "." in lst.table_name:
+            table_name = lst.table_name[self.table_name.index(".") + 1 :]
         else:
-            table_name = ldf.table_name
+            table_name = lst.table_name
         attr_query = "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{}'".format(
             table_name
         )
         attributes = list(pandas.read_sql(attr_query, lux.config.SQLconnection)["column_name"])
         for attr in attributes:
-            ldf[attr] = None
+            lst[attr] = None
 
-    def compute_stats(self, ldf: LuxDataFrame):
+    def compute_stats(self, lst: LuxSQLTable):
         """
         Function which computes the min and max values for each variable within the specified Lux DataFrame's SQL table.
         Populates the metadata parameters of the specified Lux DataFrame.
 
         Parameters
         ----------
-        ldf: lux.LuxDataFrame
-            lux.LuxDataFrame object whose metadata will be calculated
+        lst: lux.LuxSQLTable
+            lux.LuxSQLTable object whose metadata will be calculated
 
         Returns
         -------
         None
         """
         # precompute statistics
-        ldf.unique_values = {}
-        ldf._min_max = {}
+        lst.unique_values = {}
+        lst._min_max = {}
         length_query = pandas.read_sql(
-            "SELECT COUNT(*) as length FROM {}".format(ldf.table_name),
+            "SELECT COUNT(*) as length FROM {}".format(lst.table_name),
             lux.config.SQLconnection,
         )
-        ldf.length = list(length_query["length"])[0]
+        lst.length = list(length_query["length"])[0]
 
-        self.get_unique_values(ldf)
-        # ldf.get_cardinality()
-        for attribute in ldf.columns:
-            if ldf._data_type[attribute] == "quantitative":
+        self.get_unique_values(lst)
+        for attribute in lst.columns:
+            if lst._data_type[attribute] == "quantitative":
                 min_max_query = pandas.read_sql(
                     'SELECT MIN("{}") as min, MAX("{}") as max FROM {}'.format(
-                        attribute, attribute, ldf.table_name
+                        attribute, attribute, lst.table_name
                     ),
                     lux.config.SQLconnection,
                 )
-                ldf._min_max[attribute] = (
+                lst._min_max[attribute] = (
                     list(min_max_query["min"])[0],
                     list(min_max_query["max"])[0],
                 )
 
-    def get_cardinality(self, ldf: LuxDataFrame):
+    def get_cardinality(self, lst: LuxSQLTable):
         """
         Function which computes the cardinality for each variable within the specified Lux DataFrame's SQL table.
         Populates the metadata parameters of the specified Lux DataFrame.
 
         Parameters
         ----------
-        ldf: lux.LuxDataFrame
-            lux.LuxDataFrame object whose metadata will be calculated
+        lst: lux.LuxSQLTable
+            lux.LuxSQLTable object whose metadata will be calculated
 
         Returns
         -------
         None
         """
         cardinality = {}
-        for attr in list(ldf.columns):
+        for attr in list(lst.columns):
             card_query = 'SELECT Count(Distinct("{}")) FROM {} WHERE "{}" IS NOT NULL'.format(
-                attr, ldf.table_name, attr
+                attr, lst.table_name, attr
             )
             card_data = pandas.read_sql(
                 card_query,
                 lux.config.SQLconnection,
             )
             cardinality[attr] = list(card_data["count"])[0]
-        ldf.cardinality = cardinality
+        lst.cardinality = cardinality
 
-    def get_unique_values(self, ldf: LuxDataFrame):
+    def get_unique_values(self, lst: LuxSQLTable):
         """
         Function which collects the unique values for each variable within the specified Lux DataFrame's SQL table.
         Populates the metadata parameters of the specified Lux DataFrame.
 
         Parameters
         ----------
-        ldf: lux.LuxDataFrame
-            lux.LuxDataFrame object whose metadata will be calculated
+        lst: lux.LuxSQLTable
+            lux.LuxSQLTable object whose metadata will be calculated
 
         Returns
         -------
         None
         """
         unique_vals = {}
-        for attr in list(ldf.columns):
+        for attr in list(lst.columns):
             unique_query = 'SELECT Distinct("{}") FROM {} WHERE "{}" IS NOT NULL'.format(
-                attr, ldf.table_name, attr
+                attr, lst.table_name, attr
             )
             unique_data = pandas.read_sql(
                 unique_query,
                 lux.config.SQLconnection,
             )
             unique_vals[attr] = list(unique_data[attr])
-        ldf.unique_values = unique_vals
+        lst.unique_values = unique_vals
 
-    def compute_data_type(self, ldf: LuxDataFrame):
+    def compute_data_type(self, lst: LuxSQLTable):
         """
         Function which the equivalent Pandas data type of each variable within the specified Lux DataFrame's SQL table.
         Populates the metadata parameters of the specified Lux DataFrame.
 
         Parameters
         ----------
-        ldf: lux.LuxDataFrame
-            lux.LuxDataFrame object whose metadata will be calculated
+        lst: lux.LuxSQLTable
+            lux.LuxSQLTable object whose metadata will be calculated
 
         Returns
         -------
@@ -731,20 +736,20 @@ class SQLExecutor(Executor):
         """
         data_type = {}
         sql_dtypes = {}
-        self.get_cardinality(ldf)
-        if "." in ldf.table_name:
-            table_name = ldf.table_name[ldf.table_name.index(".") + 1 :]
+        self.get_cardinality(lst)
+        if "." in lst.table_name:
+            table_name = lst.table_name[lst.table_name.index(".") + 1 :]
         else:
-            table_name = ldf.table_name
+            table_name = lst.table_name
         # get the data types of the attributes in the SQL table
-        for attr in list(ldf.columns):
+        for attr in list(lst.columns):
             datatype_query = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{}' AND COLUMN_NAME = '{}'".format(
                 table_name, attr
             )
             datatype = list(pandas.read_sql(datatype_query, lux.config.SQLconnection)["data_type"])[0]
 
             sql_dtypes[attr] = datatype
-        for attr in list(ldf.columns):
+        for attr in list(lst.columns):
             if str(attr).lower() in ["month", "year"]:
                 data_type[attr] = "temporal"
             elif sql_dtypes[attr] in [
@@ -766,12 +771,12 @@ class SQLExecutor(Executor):
                 "serial",
                 "double precision",
             ]:
-                if ldf.cardinality[attr] < 13:
+                if lst.cardinality[attr] < 13:
                     data_type[attr] = "nominal"
-                elif check_if_id_like(ldf, attr):
-                    ldf._data_type[attr] = "id"
+                elif check_if_id_like(lst, attr):
+                    lst._data_type[attr] = "id"
                 else:
                     data_type[attr] = "quantitative"
             elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
                 data_type[attr] = "temporal"
-        ldf._data_type = data_type
+        lst._data_type = data_type
