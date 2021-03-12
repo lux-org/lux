@@ -20,7 +20,6 @@ from lux.vis.Vis import Vis
 
 
 def test_vary_filter_val(global_var):
-    assert true == false, "trying to get test to fail"
     df = pytest.olympic
     vis = Vis(["Height", "SportType=Ball"], df)
     df.set_intent_as_vis(vis)
