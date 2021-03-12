@@ -20,6 +20,8 @@ import numpy as np
 from lux.history.history import History
 from lux.utils.message import Message
 
+from IPython.core.debugger import set_trace
+
 
 class LuxSeries(pd.Series):
     """
@@ -219,3 +221,23 @@ class LuxSeries(pd.Series):
             ldf.maintain_metadata()
             ldf.maintain_recs()
         return ldf._recommendation
+    
+    #####################
+    ## Override Pandas ##
+    #####################
+    def value_counts(
+        self,
+        normalize: bool = False,
+        sort: bool = True,
+        ascending: bool = False,
+        bins=None,
+        dropna: bool = True,
+    ):
+        set_trace()
+        ret_value = super(LuxSeries, self).value_counts(normalize, sort, ascending, bins, dropna)
+
+        # TODO need the history here as well somehow?
+
+        print("value_counts")
+
+        return ret_value

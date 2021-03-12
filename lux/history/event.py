@@ -12,19 +12,27 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+# CodeHistoryItem = namedtuple("CodeHistoryItem", "cols f_name f_arg_dict ex_order code_str")
 
 class Event:
     """
     Event represents a single operation applied to the dataframe, with input arguments of operation recorded
     """
 
-    def __init__(self, name, *args, **kwargs):
-        self.name = name
+    def __init__(self, op_name, cols, *args, **kwargs):
+        if type(cols) != list:
+            cols = [cols]
+        
+        self.op_name = op_name
+        self.cols = cols
         self.args = args
         self.kwargs = kwargs
 
     def __repr__(self):
-        if self.args == () and self.kwargs == {}:
-            return f"<Event: {self.name}>"
-        else:
-            return f"<Event: {self.name} -- args={self.args}, kwargs={self.kwargs}>"
+        s = f"<Event: {self.op_name}"
+        if self.cols:
+            s += f", cols={self.cols}"
+        if self.args != () or self.kwargs != {}:
+            s += f", args={self.args}, kwargs={self.kwargs}"
+        s += ">"
+        return s

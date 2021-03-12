@@ -154,8 +154,14 @@ class LuxDataFrame(pd.DataFrame):
     #####################
     def __getattr__(self, name):
         ret_value = super(LuxDataFrame, self).__getattr__(name)
+        # lux 
         self.expire_metadata()
         self.expire_recs()
+
+        # history 
+        if name in self.columns:
+            self.history.append_event("col_ref", [name])
+
         return ret_value
 
     def _set_axis(self, axis, labels):
@@ -183,7 +189,7 @@ class LuxDataFrame(pd.DataFrame):
             if "Number of Records" in self.columns:
                 self.pre_aggregated = True
             very_small_df_flag = len(self) <= 10
-            self.pre_aggregated = "groupby" in [event.name for event in self.history]
+            self.pre_aggregated = "groupby" in [event.op_name for event in self.history]
             # if very_small_df_flag:
             #     self.pre_aggregated = True
     
@@ -459,7 +465,7 @@ class LuxDataFrame(pd.DataFrame):
             rec_df = self._prev
             rec_df._message = Message()
             rec_df.maintain_metadata()  # the prev dataframe may not have been printed before
-            last_event = self.history._events[-1].name
+            last_event = self.history._events[-1].op_name
             rec_df._message.add(
                 f"Lux is visualizing the previous version of the dataframe before you applied <code>{last_event}</code>."
             )
@@ -930,22 +936,22 @@ class LuxDataFrame(pd.DataFrame):
     # Overridden Pandas Functions
     def head(self, n: int = 5):
         self._prev = self
-        self._history.append_event("head", n=5)
+        self._history.append_event("head", [], n=5)
         return super(LuxDataFrame, self).head(n)
 
     def tail(self, n: int = 5):
         self._prev = self
-        self._history.append_event("tail", n=5)
+        self._history.append_event("tail", [], n=5)
         return super(LuxDataFrame, self).tail(n)
 
     def info(self, *args, **kwargs):
         self._pandas_only = True
-        self._history.append_event("info", *args, **kwargs)
+        self._history.append_event("info", [], *args, **kwargs)
         return super(LuxDataFrame, self).info(*args, **kwargs)
 
     def describe(self, *args, **kwargs):
         self._pandas_only = True
-        self._history.append_event("describe", *args, **kwargs)
+        self._history.append_event("describe", [], *args, **kwargs)
         return super(LuxDataFrame, self).describe(*args, **kwargs)
 
     def groupby(self, *args, **kwargs):
@@ -959,6 +965,6 @@ class LuxDataFrame(pd.DataFrame):
             groupby_obj.__dict__[attr] = getattr(self, attr, None)
         if history_flag:
             groupby_obj._history = groupby_obj._history.copy()
-            groupby_obj._history.append_event("groupby", *args, **kwargs)
+            groupby_obj._history.append_event("groupby", [], *args, **kwargs)
         groupby_obj.pre_aggregated = True
         return groupby_obj

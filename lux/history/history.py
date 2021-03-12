@@ -38,10 +38,10 @@ class History:
         event_repr = []
         for event in self._events:
             event_repr.append(event.__repr__())
-        return "[" + "\n".join(event_repr) + "]"
+        return "[" + ",\n".join(event_repr) + "]"
 
-    def append_event(self, name, *args, **kwargs):
-        event = Event(name, *args, **kwargs)
+    def append_event(self, op_name, cols, *args, **kwargs):
+        event = Event(op_name, cols, *args, **kwargs)
         self._events.append(event)
 
     def copy(self):
