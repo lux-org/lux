@@ -48,7 +48,7 @@ def univariate(ldf, *args):
         possible_attributes = [
             c
             for c in ldf.columns
-            if ldf.data_type[c] == "quantitative" and ldf.cardinality[c] > 5 and c != "Number of Records"
+            if ldf.data_type[c] == "quantitative" and c != "Number of Records"
         ]
         intent = [lux.Clause(possible_attributes)]
         intent.extend(filter_specs)
@@ -67,7 +67,7 @@ def univariate(ldf, *args):
         possible_attributes = [
             c
             for c in ldf.columns
-            if ldf.data_type[c] == "nominal" and ldf.cardinality[c] > 5 and c != "Number of Records"
+            if ldf.data_type[c] == "nominal" and c != "Number of Records"
         ]
         examples = ""
         if len(possible_attributes) >= 1:
@@ -83,7 +83,7 @@ def univariate(ldf, *args):
         possible_attributes = [
             c
             for c in ldf.columns
-            if ldf.data_type[c] == "geographical" and ldf.cardinality[c] > 5 and c != "Number of Records"
+            if ldf.data_type[c] == "geographical" and c != "Number of Records"
         ]
         examples = ""
         if len(possible_attributes) >= 1:
