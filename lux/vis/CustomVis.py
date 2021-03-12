@@ -36,7 +36,7 @@ class CustomVis:
 
         from lux.core.frame import LuxDataFrame
 
-        lux.config.code_tracker.analyze_recent_code()
+        #lux.config.code_tracker.analyze_recent_code()
 
         widget = luxwidget.LuxWidget(
             currentVis= self.to_code(),

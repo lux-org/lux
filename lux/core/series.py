@@ -115,7 +115,7 @@ class LuxSeries(pd.Series):
         ldf = LuxDataFrame(self)
 
         # TODO this needs to update history for the id() made immediatley above
-        lux.config.code_tracker.analyze_recent_code() 
+        #lux.config.code_tracker.analyze_recent_code() 
 
 
         try:

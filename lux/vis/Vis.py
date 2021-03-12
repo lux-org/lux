@@ -117,7 +117,7 @@ class Vis:
         import luxwidget
 
         # TODO this can intercept and change encoding if code says so
-        lux.config.code_tracker.analyze_recent_code()
+        #lux.config.code_tracker.analyze_recent_code()
 
         if self.data is None:
             raise Exception(

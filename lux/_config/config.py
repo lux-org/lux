@@ -6,7 +6,7 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 import lux
 import warnings
-from lux.implicit.tracker import CodeTracker
+# from lux.implicit.tracker import CodeTracker
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
@@ -35,7 +35,7 @@ class Config:
         self._sort = "descending"
         self._pandas_fallback = True
         self._interestingness_fallback = True
-        self._code_tracker = CodeTracker()
+        # self._code_tracker = CodeTracker()
         self.heatmap_bin_size = 40
 
     @property
@@ -365,9 +365,9 @@ class Config:
 
             self.executor = PandasExecutor()
     
-    @property
-    def code_tracker(self):
-        return self._code_tracker
+    # @property
+    # def code_tracker(self):
+    #     return self._code_tracker
 
 
 def warning_format(message, category, filename, lineno, file=None, line=None):

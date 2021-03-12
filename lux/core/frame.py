@@ -187,11 +187,11 @@ class LuxDataFrame(pd.DataFrame):
             # if very_small_df_flag:
             #     self.pre_aggregated = True
     
-    # def __getitem__(self, key):
-    #     ret_value = super(LuxDataFrame, self).__getitem__(key)
+    def __getitem__(self, key):
+        ret_value = super(LuxDataFrame, self).__getitem__(key)
 
-    #     self.history.append_event(key)
-    #     return ret_value
+        #self.history.append_event(key)
+        return ret_value
 
     @property
     def intent(self):
@@ -633,7 +633,7 @@ class LuxDataFrame(pd.DataFrame):
         try:
             # update implicit recs. Has to be run here after cell has executed
             #  could maybe be moved to maintain_recs
-            lux.config.code_tracker.analyze_recent_code()
+            #lux.config.code_tracker.analyze_recent_code()
 
             if self._pandas_only:
                 display(self.display_pandas())
