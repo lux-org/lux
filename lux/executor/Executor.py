@@ -57,7 +57,7 @@ class Executor:
 
     def mapping(self, rmap):
         group_map = {}
-        for val in ["quantitative", "id", "nominal", "temporal"]:
+        for val in ["quantitative", "id", "nominal", "temporal", "geographical"]:
             group_map[val] = list(filter(lambda x: rmap[x] == val, rmap))
         return group_map
 
@@ -77,7 +77,8 @@ class Executor:
             "measure": data_type_inverted["quantitative"],
             "dimension": data_type_inverted["nominal"]
             + data_type_inverted["temporal"]
-            + data_type_inverted["id"],
+            + data_type_inverted["id"]
+            + data_type_inverted["geographical"],
         }
         return data_model
 

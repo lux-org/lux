@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 import pandas as pd
+import numpy as np
 import altair as alt
 from lux.utils.date_utils import compute_date_granularity
 
@@ -117,6 +118,10 @@ class AltairChart:
     @classmethod
     def sanitize_dataframe(self, df):
         for attr in df.columns:
+            # Check if dtype is unrecognized by Altair (#247)
+            if str(df[attr].dtype) == "Float64":
+                df[attr] = df[attr].astype(np.float64)
+
             # Altair can not visualize non-string columns
             # convert all non-string columns in to strings
             df = df.rename(columns={attr: str(attr)})

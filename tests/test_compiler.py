@@ -29,6 +29,7 @@ def test_underspecified_no_vis(global_var, test_recs):
     df.set_intent([lux.Clause(attribute="Origin", filter_op="=", value="USA")])
     test_recs(df, no_vis_actions)
     assert len(df.current_vis) == 0
+    df.clear_intent()
 
 
 def test_underspecified_single_vis(global_var, test_recs):
@@ -76,6 +77,8 @@ def test_underspecified_single_vis(global_var, test_recs):
 # 	df.set_intent([lux.Clause(attribute ="?", data_model="measure"), lux.Clause(attribute ="?", data_model="measure")])
 # 	assert len(df.current_vis) == len([vis.get_attr_by_data_model("measure") for vis in df.current_vis]) #should be 25
 # 	test_recs(df, multiple_vis_actions)
+
+
 def test_set_intent_as_vis(global_var, test_recs):
     df = pytest.car_df
     df._repr_html_()
@@ -233,6 +236,7 @@ def test_autoencoding_scatter(global_var):
                 lux.Clause(attribute="Weight", channel="x"),
             ]
         )
+    df.clear_intent()
 
 
 def test_autoencoding_histogram(global_var):
@@ -286,6 +290,7 @@ def test_autoencoding_line_chart(global_var):
                 lux.Clause(attribute="Acceleration", channel="x"),
             ]
         )
+    df.clear_intent()
 
 
 def test_autoencoding_color_line_chart(global_var):
@@ -354,6 +359,7 @@ def test_populate_options(global_var):
         list(col_set),
         ["Acceleration", "Weight", "Horsepower", "MilesPerGal", "Displacement"],
     )
+    df.clear_intent()
 
 
 def test_remove_all_invalid(global_var):
@@ -368,6 +374,7 @@ def test_remove_all_invalid(global_var):
     )
     df._repr_html_()
     assert len(df.current_vis) == 0
+    df.clear_intent()
 
 
 def list_equal(l1, l2):
