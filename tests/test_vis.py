@@ -17,7 +17,6 @@ import pytest
 import pandas as pd
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
-from lux.vislib.altair.Histogram import compute_bin_width
 
 
 def test_vis(global_var):
@@ -341,11 +340,9 @@ def test_histogram_chart(global_var):
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Displacement"], df)
     vis_code = vis.to_Altair()
-    expected_bin_size = compute_bin_width(vis.data["Displacement"])
     assert "alt.Chart(visData).mark_bar" in vis_code
-    assert str(expected_bin_size) in vis_code
     assert (
-        "alt.X('Displacement', title='Displacement (binned)',bin=alt.Bin(binned=True), type='quantitative', axis=alt.Axis(labelOverlap=True, title='Displacement (binned)'), scale=alt.Scale(domain=(68.0, 455.0)))"
+        "alt.X('Displacement', title='Displacement (binned)',bin=alt.Bin(binned=True, step=38.7), type='quantitative', axis=alt.Axis(labelOverlap=True, title='Displacement (binned)'), scale=alt.Scale(domain=(68.0, 455.0)))"
         in vis_code
     )
     assert 'alt.Y("Number of Records", type="quantitative")' in vis_code
