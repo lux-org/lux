@@ -17,6 +17,7 @@ import pytest
 import pandas as pd
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
+from lux.vislib.altair.Histogram import compute_bin_width
 
 
 def test_vis(global_var):
@@ -340,7 +341,9 @@ def test_histogram_chart(global_var):
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Displacement"], df)
     vis_code = vis.to_Altair()
+    expected_bin_size = compute_bin_width(vis.data["Displacement"])
     assert "alt.Chart(visData).mark_bar" in vis_code
+    assert str(expected_bin_size) in vis_code
     assert (
         "alt.X('Displacement', title='Displacement (binned)',bin=alt.Bin(binned=True), type='quantitative', axis=alt.Axis(labelOverlap=True, title='Displacement (binned)'), scale=alt.Scale(domain=(68.0, 455.0)))"
         in vis_code
@@ -432,6 +435,28 @@ def test_vegalite_default_actions_registered(global_var):
     assert len(df.recommendation["Correlation"]) > 0
 
 
+def test_vegalite_default_actions_registered_2(global_var):
+    import numpy as np
+
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/altair-viz/vega_datasets/master/vega_datasets/_data/airports.csv"
+    )
+    df["magnitude"] = np.random.randint(0, 20, size=len(df))
+    lux.config.plotting_backend = "vegalite"
+
+    # Symbol Map
+    assert "Geographical" in df.recommendation
+    assert len(df.recommendation["Geographical"]) > 0
+
+    # Occurrence Chart
+    assert "Occurrence" in df.recommendation
+    assert len(df.recommendation["Occurrence"]) > 0
+
+    # Scatter Chart
+    assert "Correlation" in df.recommendation
+    assert len(df.recommendation["Correlation"]) > 0
+
+
 def test_matplotlib_default_actions_registered(global_var):
     df = pytest.car_df
     lux.config.plotting_backend = "matplotlib"
@@ -464,6 +489,7 @@ def test_vegalite_heatmap_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df = df.copy()
     assert not df.recommendation["Correlation"][0]._postbin
+    assert "Geographical" not in df.recommendation
     lux.config.heatmap = True
 
 

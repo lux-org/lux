@@ -43,18 +43,21 @@ class Histogram(AltairChart):
         if len(msr_attr_abv) > 17:
             msr_attr_abv = msr_attr_abv[:10] + "..." + msr_attr_abv[-7:]
 
-        x_min = self.vis.min_max[msr_attr.attribute][0]
-        x_max = self.vis.min_max[msr_attr.attribute][1]
+        x_min, x_max = self.vis.min_max[msr_attr.attribute]
+        x_range = abs(x_max - x_min)
 
         if isinstance(msr_attr.attribute, str):
             msr_attr.attribute = msr_attr.attribute.replace(".", "")
+        markbar = compute_bin_width(self.data[msr_attr.attribute])
+        step = abs(self.data[msr_attr.attribute][1] - self.data[msr_attr.attribute][0])
 
-        colval = self.vis.data[msr_attr.attribute]
-        x_range = abs(max(colval) - min(colval))
-        plot_range = abs(x_max - x_min)
-        markbar = x_range / plot_range * 12
+        # Default when bin too small
+        if markbar < (x_range / 24):
+            markbar = (x_max - x_min) / 12
 
         self.data = AltairChart.sanitize_dataframe(self.data)
+        end_attr_abv = str(msr_attr.attribute) + "_end"
+        self.data[end_attr_abv] = self.data[str(msr_attr.attribute)] + markbar
 
         axis_title = f"{msr_attr_abv} (binned)"
         if msr_attr.attribute == " ":
@@ -62,32 +65,33 @@ class Histogram(AltairChart):
         if measure.channel == "x":
             chart = (
                 alt.Chart(self.data)
-                .mark_bar(size=markbar)
+                .mark_bar()
                 .encode(
-                    alt.X(
+                    x=alt.X(
                         str(msr_attr.attribute),
                         title=axis_title,
-                        bin=alt.Bin(binned=True),
+                        bin=alt.Bin(binned=True, step=step),
                         type=msr_attr.data_type,
-                        axis=alt.Axis(labelOverlap=True, title=axis_title),
-                        scale=alt.Scale(domain=(x_min, x_max)),
+                        axis=alt.Axis(title=axis_title),
+                        scale=alt.Scale(domain=[x_min, x_max]),
                     ),
-                    alt.Y("Number of Records", type="quantitative"),
+                    x2=end_attr_abv,
+                    y=alt.Y("Number of Records", type="quantitative"),
                 )
             )
         elif measure.channel == "y":
             chart = (
                 alt.Chart(self.data)
-                .mark_bar(size=markbar)
+                .mark_bar()
                 .encode(
                     x=alt.X("Number of Records", type="quantitative"),
                     y=alt.Y(
                         str(msr_attr.attribute),
                         title=axis_title,
-                        bin=alt.Bin(binned=True),
-                        axis=alt.Axis(labelOverlap=True, title=axis_title),
-                        scale=alt.Scale(domain=(x_min, x_max)),
+                        bin=alt.Bin(binned=True, step=markbar),
+                        axis=alt.Axis(title=axis_title),
                     ),
+                    y2=end_attr_abv,
                 )
             )
         #####################################
@@ -112,3 +116,18 @@ class Histogram(AltairChart):
 		)
 		"""
         return chart
+
+
+def compute_bin_width(series):
+    """
+    Helper function that returns optimal bin size via Freedman Diaconis's Rule
+    Source: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
+    """
+    import math
+    import numpy as np
+
+    data = np.asarray(series)
+    num_pts = data.size
+    IQR = np.subtract(*np.percentile(data, [75, 25]))
+    size = 2 * IQR * (num_pts ** -1 / 3)
+    return round(size * 3.5, 2)

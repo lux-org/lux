@@ -64,7 +64,7 @@ def custom_actions(ldf):
     recommendations : Dict[str,obj]
         object with a collection of visualizations that were previously registered.
     """
-    if len(lux.config.actions) > 0:
+    if len(lux.config.actions) > 0 and (len(ldf) > 0 or lux.config.executor.name != "PandasExecutor"):
         recommendations = []
         for action_name in lux.config.actions.keys():
             display_condition = lux.config.actions[action_name].display_condition
