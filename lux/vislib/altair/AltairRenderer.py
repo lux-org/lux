@@ -131,6 +131,11 @@ class AltairRenderer:
                         "placeholder_variable",
                         f"pd.DataFrame({str(vis.data.to_dict())})",
                     )
+                elif lux.config.executor.name == "SQLExecutor":
+                    chart.code = chart.code.replace(
+                        "placeholder_variable",
+                        f"pd.read_sql({str(vis._query)}, lux.config.SQLconnection)",
+                    )
                 else:
                     # TODO: Placeholder (need to read dynamically via locals())
                     chart.code = chart.code.replace("placeholder_variable", found_variable)

@@ -33,6 +33,7 @@ class Vis:
         self._mark = ""
         self._min_max = {}
         self._postbin = None
+        self._query = ""
         self.title = title
         self.score = score
         self.refresh_source(self._source)
@@ -94,6 +95,10 @@ class Vis:
     @property
     def intent(self):
         return self._intent
+
+    @property
+    def query(self):
+        return self._query
 
     @intent.setter
     def intent(self, intent: List[Clause]) -> None:

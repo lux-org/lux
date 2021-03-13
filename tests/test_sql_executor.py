@@ -24,9 +24,9 @@ import psycopg2
 
 def test_lazy_execution():
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    sql_df = lux.LuxSQLTable()
+    sql_lst = lux.LuxSQLTable()
     lux.config.set_SQL_connection(connection)
-    sql_df.set_SQL_table("car")
+    sql_lst.set_SQL_table("car")
 
     intent = [
         lux.Clause(attribute="Horsepower", aggregation="mean"),
@@ -35,36 +35,36 @@ def test_lazy_execution():
     vis = Vis(intent)
     # Check data field in vis is empty before calling executor
     assert vis.data is None
-    SQLExecutor.execute([vis], sql_df)
+    SQLExecutor.execute([vis], sql_lst)
     assert type(vis.data) == lux.core.frame.LuxDataFrame
 
 
 def test_selection():
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    sql_df = lux.LuxSQLTable()
+    sql_lst = lux.LuxSQLTable()
     lux.config.set_SQL_connection(connection)
-    sql_df.set_SQL_table("car")
+    sql_lst.set_SQL_table("car")
 
     intent = [
         lux.Clause(attribute=["Horsepower", "Weight", "Acceleration"]),
         lux.Clause(attribute="Year"),
     ]
-    vislist = VisList(intent, sql_df)
+    vislist = VisList(intent, sql_lst)
     assert all([type(vis.data) == lux.core.frame.LuxDataFrame for vis in vislist])
     assert all(vislist[2].data.columns == ["Year", "Acceleration"])
 
 
 def test_aggregation():
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    sql_df = lux.LuxSQLTable()
+    sql_lst = lux.LuxSQLTable()
     lux.config.set_SQL_connection(connection)
-    sql_df.set_SQL_table("car")
+    sql_lst.set_SQL_table("car")
 
     intent = [
         lux.Clause(attribute="Horsepower", aggregation="mean"),
         lux.Clause(attribute="Origin"),
     ]
-    vis = Vis(intent, sql_df)
+    vis = Vis(intent, sql_lst)
     result_df = vis.data
     assert int(result_df[result_df["Origin"] == "USA"]["Horsepower"]) == 119
 
@@ -72,7 +72,7 @@ def test_aggregation():
         lux.Clause(attribute="Horsepower", aggregation="sum"),
         lux.Clause(attribute="Origin"),
     ]
-    vis = Vis(intent, sql_df)
+    vis = Vis(intent, sql_lst)
     result_df = vis.data
     assert int(result_df[result_df["Origin"] == "Japan"]["Horsepower"]) == 6307
 
@@ -80,7 +80,7 @@ def test_aggregation():
         lux.Clause(attribute="Horsepower", aggregation="max"),
         lux.Clause(attribute="Origin"),
     ]
-    vis = Vis(intent, sql_df)
+    vis = Vis(intent, sql_lst)
     result_df = vis.data
     assert int(result_df[result_df["Origin"] == "Europe"]["Horsepower"]) == 133
 
@@ -90,18 +90,18 @@ def test_colored_bar_chart():
     from lux.vis.Vis import Clause
 
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    sql_df = lux.LuxSQLTable()
+    sql_lst = lux.LuxSQLTable()
     lux.config.set_SQL_connection(connection)
-    sql_df.set_SQL_table("car")
+    sql_lst.set_SQL_table("car")
 
     x_clause = Clause(attribute="MilesPerGal", channel="x")
     y_clause = Clause(attribute="Origin", channel="y")
     color_clause = Clause(attribute="Cylinders", channel="color")
 
-    new_vis = Vis([x_clause, y_clause, color_clause], sql_df)
+    new_vis = Vis([x_clause, y_clause, color_clause], sql_lst)
     # make sure dimention of the data is correct
-    color_cardinality = len(sql_df.unique_values["Cylinders"])
-    group_by_cardinality = len(sql_df.unique_values["Origin"])
+    color_cardinality = len(sql_lst.unique_values["Cylinders"])
+    group_by_cardinality = len(sql_lst.unique_values["Origin"])
     assert len(new_vis.data.columns) == 3
     assert (
         len(new_vis.data) == 15 > group_by_cardinality < color_cardinality * group_by_cardinality
@@ -113,19 +113,19 @@ def test_colored_line_chart():
     from lux.vis.Vis import Clause
 
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    sql_df = lux.LuxSQLTable()
+    sql_lst = lux.LuxSQLTable()
     lux.config.set_SQL_connection(connection)
-    sql_df.set_SQL_table("car")
+    sql_lst.set_SQL_table("car")
 
     x_clause = Clause(attribute="Year", channel="x")
     y_clause = Clause(attribute="MilesPerGal", channel="y")
     color_clause = Clause(attribute="Cylinders", channel="color")
 
-    new_vis = Vis([x_clause, y_clause, color_clause], sql_df)
+    new_vis = Vis([x_clause, y_clause, color_clause], sql_lst)
 
     # make sure dimention of the data is correct
-    color_cardinality = len(sql_df.unique_values["Cylinders"])
-    group_by_cardinality = len(sql_df.unique_values["Year"])
+    color_cardinality = len(sql_lst.unique_values["Cylinders"])
+    group_by_cardinality = len(sql_lst.unique_values["Year"])
     assert len(new_vis.data.columns) == 3
     assert (
         len(new_vis.data) == 60 > group_by_cardinality < color_cardinality * group_by_cardinality
@@ -134,17 +134,17 @@ def test_colored_line_chart():
 
 def test_filter():
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    sql_df = lux.LuxSQLTable()
+    sql_lst = lux.LuxSQLTable()
     lux.config.set_SQL_connection(connection)
-    sql_df.set_SQL_table("car")
+    sql_lst.set_SQL_table("car")
 
     intent = [
         lux.Clause(attribute="Horsepower"),
         lux.Clause(attribute="Year"),
         lux.Clause(attribute="Origin", filter_op="=", value="USA"),
     ]
-    vis = Vis(intent, sql_df)
-    vis._vis_data = sql_df
+    vis = Vis(intent, sql_lst)
+    vis._vis_data = sql_lst
     filter_output = SQLExecutor.execute_filter(vis)
     assert (
         filter_output[0]
@@ -155,9 +155,9 @@ def test_filter():
 
 def test_inequalityfilter():
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    sql_df = lux.LuxSQLTable()
+    sql_lst = lux.LuxSQLTable()
     lux.config.set_SQL_connection(connection)
-    sql_df.set_SQL_table("car")
+    sql_lst.set_SQL_table("car")
 
     vis = Vis(
         [
@@ -165,7 +165,7 @@ def test_inequalityfilter():
             lux.Clause(attribute="MilesPerGal"),
         ]
     )
-    vis._vis_data = sql_df
+    vis._vis_data = sql_lst
     filter_output = SQLExecutor.execute_filter(vis)
     assert filter_output[0] == 'WHERE "Horsepower" > \'50\' AND "MilesPerGal" IS NOT NULL'
     assert filter_output[1] == ["Horsepower"]
@@ -174,8 +174,8 @@ def test_inequalityfilter():
         lux.Clause(attribute="Horsepower", filter_op="<=", value=100),
         lux.Clause(attribute="MilesPerGal"),
     ]
-    vis = Vis(intent, sql_df)
-    vis._vis_data = sql_df
+    vis = Vis(intent, sql_lst)
+    vis._vis_data = sql_lst
     filter_output = SQLExecutor.execute_filter(vis)
     assert filter_output[0] == 'WHERE "Horsepower" <= \'100\' AND "MilesPerGal" IS NOT NULL'
     assert filter_output[1] == ["Horsepower"]
@@ -183,37 +183,37 @@ def test_inequalityfilter():
 
 def test_binning():
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    sql_df = lux.LuxSQLTable()
+    sql_lst = lux.LuxSQLTable()
     lux.config.set_SQL_connection(connection)
-    sql_df.set_SQL_table("car")
+    sql_lst.set_SQL_table("car")
 
-    vis = Vis([lux.Clause(attribute="Horsepower")], sql_df)
+    vis = Vis([lux.Clause(attribute="Horsepower")], sql_lst)
     nbins = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0].bin_size
     assert len(vis.data) == nbins
 
 
 def test_record():
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    sql_df = lux.LuxSQLTable()
+    sql_lst = lux.LuxSQLTable()
     lux.config.set_SQL_connection(connection)
-    sql_df.set_SQL_table("car")
+    sql_lst.set_SQL_table("car")
 
-    vis = Vis([lux.Clause(attribute="Cylinders")], sql_df)
-    assert len(vis.data) == len(sql_df.unique_values["Cylinders"])
+    vis = Vis([lux.Clause(attribute="Cylinders")], sql_lst)
+    assert len(vis.data) == len(sql_lst.unique_values["Cylinders"])
 
 
 def test_filter_aggregation_fillzero_aligned():
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    sql_df = lux.LuxSQLTable()
+    sql_lst = lux.LuxSQLTable()
     lux.config.set_SQL_connection(connection)
-    sql_df.set_SQL_table("car")
+    sql_lst.set_SQL_table("car")
 
     intent = [
         lux.Clause(attribute="Cylinders"),
         lux.Clause(attribute="MilesPerGal"),
         lux.Clause("Origin=Japan"),
     ]
-    vis = Vis(intent, sql_df)
+    vis = Vis(intent, sql_lst)
     result = vis.data
     assert result[result["Cylinders"] == 5]["MilesPerGal"].values[0] == 0
     assert result[result["Cylinders"] == 8]["MilesPerGal"].values[0] == 0
@@ -221,12 +221,12 @@ def test_filter_aggregation_fillzero_aligned():
 
 def test_exclude_attribute():
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    sql_df = lux.LuxSQLTable()
+    sql_lst = lux.LuxSQLTable()
     lux.config.set_SQL_connection(connection)
-    sql_df.set_SQL_table("car")
+    sql_lst.set_SQL_table("car")
 
     intent = [lux.Clause("?", exclude=["Name", "Year"]), lux.Clause("Horsepower")]
-    vislist = VisList(intent, sql_df)
+    vislist = VisList(intent, sql_lst)
     for vis in vislist:
         assert vis.get_attr_by_channel("x")[0].attribute != "Year"
         assert vis.get_attr_by_channel("x")[0].attribute != "name"
@@ -237,8 +237,8 @@ def test_exclude_attribute():
 def test_null_values():
     # checks that the SQLExecutor has filtered out any None or Null values from its metadata
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    sql_df = lux.LuxSQLTable()
+    sql_lst = lux.LuxSQLTable()
     lux.config.set_SQL_connection(connection)
-    sql_df.set_SQL_table("aug_test_table")
+    sql_lst.set_SQL_table("aug_test_table")
 
-    assert None not in sql_df.unique_values["enrolled_university"]
+    assert None not in sql_lst.unique_values["enrolled_university"]
