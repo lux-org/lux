@@ -3,7 +3,8 @@ from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
-from lux.utils import utils
+from lux.utils import utils, date_utils
+from lux.utils.date_utils import check_if_sql_date_like
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
 import lux
 
@@ -724,7 +725,7 @@ class SQLExecutor(Executor):
         None
         """
         data_type = {}
-        sql_dtypes = {}
+
         self.get_cardinality(ldf)
         if "." in ldf.table_name:
             table_name = ldf.table_name[ldf.table_name.index(".") + 1 :]
@@ -737,19 +738,15 @@ class SQLExecutor(Executor):
             )
             datatype = list(pandas.read_sql(datatype_query, lux.config.SQLconnection)["data_type"])[0]
 
-            sql_dtypes[attr] = datatype
-        for attr in list(ldf.columns):
-            if str(attr).lower() in ["month", "year"]:
-                data_type[attr] = "temporal"
-            elif sql_dtypes[attr] in [
+            if datatype in {
                 "character",
                 "character varying",
                 "boolean",
                 "uuid",
                 "text",
-            ]:
+            }:
                 data_type[attr] = "nominal"
-            elif sql_dtypes[attr] in [
+            elif datatype in {
                 "integer",
                 "numeric",
                 "decimal",
@@ -759,13 +756,13 @@ class SQLExecutor(Executor):
                 "smallserial",
                 "serial",
                 "double precision",
-            ]:
+            }:
                 if ldf.cardinality[attr] < 13:
                     data_type[attr] = "nominal"
                 elif check_if_id_like(ldf, attr):
-                    ldf._data_type[attr] = "id"
+                    data_type[attr] = "id" 
                 else:
                     data_type[attr] = "quantitative"
-            elif "time" in sql_dtypes[attr] or "date" in sql_dtypes[attr]:
+            elif (str(attr).lower() in ["month", "year"] or "time" in datatype or "date" in datatype):
                 data_type[attr] = "temporal"
         ldf._data_type = data_type
