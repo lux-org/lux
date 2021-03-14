@@ -75,7 +75,10 @@ def custom_action(ldf, action):
             recommendation = lux.config.actions[action].action(ldf)
     return recommendation
 
-
+"""
+Filters out actions before beginning computations so we know which tabs to display.
+Logic to filter out actions in lux/action/default.py
+"""
 def filter_keys(ldf):
     keys = []
     data_types = set(ldf._data_type.values())
@@ -88,6 +91,7 @@ def filter_keys(ldf):
                         continue
                 keys.append(action_name)
 
+    # Pushing back correlation and geographical actions for performance reasons
     if "correlation" in keys:
         keys.pop(keys.index("correlation"))
         keys.append("correlation")
