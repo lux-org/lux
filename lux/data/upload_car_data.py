@@ -2,12 +2,18 @@ import pandas as pd
 import psycopg2
 import csv
 
+from sqlalchemy import create_engine
+
+data = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.csv")
+engine = create_engine("postgresql://postgres:lux@localhost:5432")
+data.to_sql(name="car", con=engine, if_exists="replace", index=False)
+
 conn = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
 cur = conn.cursor()
 cur.execute(
     """
-	DROP TABLE IF EXISTS cars
-	"""
+    DROP TABLE IF EXISTS cars
+    """
 )
 # create car table in postgres database
 cur.execute(
