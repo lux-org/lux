@@ -15,12 +15,39 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.7
       uses: actions/setup-python@v2
       with:
         python-version: 3.7
+    - name: Set up Postgres Database
+      run: |
+        psql -c "ALTER USER postgres WITH PASSWORD 'lux';" -U postgres 
+        psql -c "ALTER USER postgres WITH SUPERUSER;" -U postgres
+        psql -c "ALTER DATABASE postgres OWNER TO travis;"
+        psql -c "DROP schema public cascade;" -U postgres
+        psql -c "CREATE schema public;" -U postgres
+        psql -c "CREATE DATABASE postgres;" -U postgres
+    - name: Upload data to Postgres
+      run: |
+        python -m lux/data/upload_car_data.py
+        python -m lux/data/upload_aug_test_data.py
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
