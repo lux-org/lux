@@ -17,6 +17,7 @@ from lux.interestingness.interestingness import interestingness
 from lux.processor.Compiler import Compiler
 from lux.utils import utils
 
+
 def enhance(ldf):
     """
     Given a set of vis, generates possible visualizations when an additional attribute is added to the current vis.

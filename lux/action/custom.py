@@ -48,6 +48,7 @@ def custom(ldf):
     vlist.sort(remove_invalid=True)
     return recommendation
 
+
 def custom_action(ldf, action):
     """
     Computing initial custom_action for lazy streaming of the rest of the actions
@@ -66,13 +67,14 @@ def custom_action(ldf, action):
     """
     recommendation = None
     display_condition = lux.config.actions[action].display_condition
-    if (display_condition is None or (display_condition is not None and display_condition(ldf))):
+    if display_condition is None or (display_condition is not None and display_condition(ldf)):
         args = lux.config.actions[action].args
         if args:
             recommendation = lux.config.actions[action].action(ldf, args)
         else:
             recommendation = lux.config.actions[action].action(ldf)
     return recommendation
+
 
 def filter_keys(ldf):
     keys = []
@@ -85,14 +87,13 @@ def filter_keys(ldf):
                     if not lux.config.actions[action_name].args[0] in data_types:
                         continue
                 keys.append(action_name)
-            
-    if 'correlation' in keys:
-        keys.pop(keys.index('correlation'))
-        keys.append('correlation')
 
-    if 'geographical' in keys:
-        keys.pop(keys.index('geographical'))
-        keys.append('geographical')
+    if "correlation" in keys:
+        keys.pop(keys.index("correlation"))
+        keys.append("correlation")
+
+    if "geographical" in keys:
+        keys.pop(keys.index("geographical"))
+        keys.append("geographical")
 
     return keys
-

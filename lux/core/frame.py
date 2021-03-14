@@ -478,6 +478,7 @@ class LuxDataFrame(pd.DataFrame):
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
+
             # TODO: Rewrite these as register action inside default actions
             if rec_df.pre_aggregated:
                 if rec_df.columns.name is not None:
@@ -499,7 +500,12 @@ class LuxDataFrame(pd.DataFrame):
 
                         # Fill the rest of the tabs with empty (non-clickable) tabs
                         for action_name in self.action_keys:
-                            rec = {'action': action_name.capitalize(), 'description': '', 'long_description':'', 'collection': []}
+                            rec = {
+                                "action": action_name.capitalize(),
+                                "description": "",
+                                "long_description": "",
+                                "collection": [],
+                            }
                             rec_infolist.append(rec)
                 else:
                     for action_name in self.action_keys:
@@ -507,7 +513,7 @@ class LuxDataFrame(pd.DataFrame):
                         rec_df._append_rec(rec_infolist, rec)
                     self.action_keys = []
 
-                lux.config.update_actions["flag"] = False    
+                lux.config.update_actions["flag"] = False
 
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
@@ -624,10 +630,10 @@ class LuxDataFrame(pd.DataFrame):
         vis = self._recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
         self.set_intent_as_vis(vis)
         self.maintain_recs()
-        
-        if len(self._widget.recommendations) <= 1:                    
-            self.compute_remaining_actions() 
-        
+
+        if len(self._widget.recommendations) <= 1:
+            self.compute_remaining_actions()
+
         with self.output:
             clear_output()
             display(self._widget)
@@ -648,7 +654,7 @@ class LuxDataFrame(pd.DataFrame):
             # Pre-displaying initial pandas frame before computing widget
             pandas_output = widgets.Output()
             self.output = widgets.Output()
-            
+
             with pandas_output:
                 display(self.display_pandas())
 
@@ -657,7 +663,7 @@ class LuxDataFrame(pd.DataFrame):
                 # This is displayed to override the CSS of the original Tabs
                 display(self._widget)
 
-            tab_contents = ['Pandas', 'Lux']
+            tab_contents = ["Pandas", "Lux"]
             children = [pandas_output, self.output]
 
             tab = widgets.Tab()
@@ -709,10 +715,11 @@ class LuxDataFrame(pd.DataFrame):
                 display(self.display_pandas())
             else:
                 raise
-    
+
     def compute_remaining_actions(self):
         # Lazily load the rest of the tabs
         from lux.action.custom import custom_action
+
         i = 1
         for action_name in self.action_keys:
             rec = custom_action(self, action_name)

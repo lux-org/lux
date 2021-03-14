@@ -137,14 +137,14 @@ class LuxSeries(pd.Series):
                 # Pre-displaying initial pandas frame before computing widget
                 pandas_output = widgets.Output()
                 self.output = widgets.Output()
-                
+
                 with pandas_output:
                     display(self.display_pandas())
 
                 with self.output:
                     display(widgets.HTML(value="Loading widget..."))
 
-                tab_contents = ['Pandas', 'Lux']
+                tab_contents = ["Pandas", "Lux"]
                 children = [pandas_output, self.output]
 
                 tab = widgets.Tab()

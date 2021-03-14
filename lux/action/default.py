@@ -9,6 +9,7 @@ from lux.utils import utils
 from lux.vis.VisList import VisList
 from lux.interestingness.interestingness import interestingness
 
+
 def register_default_actions():
 
     # display conditions for default actions
@@ -31,9 +32,11 @@ def register_default_actions():
 
     lux.config.register_action("Custom", custom, multiple_current_vis)
 
+
 """
 The methods below check whether or not we should render a given action.
 """
+
 
 def generalize_check(ldf):
     filters = utils.get_filter_specs(ldf._intent)
@@ -42,6 +45,7 @@ def generalize_check(ldf):
         return False
     else:
         return ldf.current_vis is not None and len(ldf.current_vis) == 1
+
 
 def correlation_check(ldf):
     if len(ldf) < 5:
@@ -58,8 +62,9 @@ def correlation_check(ldf):
             return False
         else:
             return (ldf.current_vis is None) or (
-            ldf.current_vis is not None and len(ldf.current_vis) == 0
-        )
+                ldf.current_vis is not None and len(ldf.current_vis) == 0
+            )
+
 
 def occurence_check(ldf):
     filter_specs = utils.get_filter_specs(ldf._intent)
@@ -69,13 +74,12 @@ def occurence_check(ldf):
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
     vlist.sort()
-    
+
     if len(vlist) < 1:
         return False
     else:
-        return (ldf.current_vis is None) or (
-            ldf.current_vis is not None and len(ldf.current_vis) == 0
-        )
+        return (ldf.current_vis is None) or (ldf.current_vis is not None and len(ldf.current_vis) == 0)
+
 
 def distribution_check(ldf):
     filter_specs = utils.get_filter_specs(ldf._intent)
@@ -90,9 +94,8 @@ def distribution_check(ldf):
     if len(vlist) < 1:
         return False
     else:
-        return (ldf.current_vis is None) or (
-            ldf.current_vis is not None and len(ldf.current_vis) == 0
-        )
+        return (ldf.current_vis is None) or (ldf.current_vis is not None and len(ldf.current_vis) == 0)
+
 
 def temporal_check(ldf):
     filter_specs = utils.get_filter_specs(ldf._intent)
@@ -108,9 +111,8 @@ def temporal_check(ldf):
     if len(vlist) < 1:
         return False
     else:
-        return (ldf.current_vis is None) or (
-        ldf.current_vis is not None and len(ldf.current_vis) == 0
-    )
+        return (ldf.current_vis is None) or (ldf.current_vis is not None and len(ldf.current_vis) == 0)
+
 
 def enhance_check(ldf):
     filters = utils.get_filter_specs(ldf._intent)
