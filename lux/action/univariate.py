@@ -93,7 +93,7 @@ def univariate(ldf, *args):
         recommendation = {
             "action": "Geographical",
             "description": "Show choropleth maps of <p class='highlight-descriptor'>geographic</p> attributes",
-            "long_description": f"Occurence displays choropleths of averages for some geographic attribute{examples}. Visualizations are ranked by diversity of the geographic attribute.",
+            "long_description": f"Geographical displays choropleths of averages for some geographic attribute{examples}. Visualizations are ranked by diversity of the geographic attribute.",
         }
     elif data_type_constraint == "temporal":
         intent = [lux.Clause("?", data_type="temporal")]

@@ -491,17 +491,17 @@ class LuxDataFrame(pd.DataFrame):
                 self.action_keys = filter_keys(rec_df)
 
                 if lux.config._streaming:
-
+                    print("TEST")
                     # Compute one tab to display on initial widget
-                    rec = custom_action(rec_df, self.action_keys[0])
-                    rec_df._append_rec(rec_infolist, rec)
-                    self.action_keys.pop(0)
+                    if len(self.action_keys) > 0:
+                        rec = custom_action(rec_df, self.action_keys[0])
+                        rec_df._append_rec(rec_infolist, rec)
+                        self.action_keys.pop(0)
 
-                    # Fill the rest of the tabs with empty (non-clickable) tabs
-                    for action_name in self.action_keys:
-                        rec = {'action': action_name.capitalize(), 'description': '', 'long_description':'', 'collection': []}
-                        rec_infolist.append(rec)
-                
+                        # Fill the rest of the tabs with empty (non-clickable) tabs
+                        for action_name in self.action_keys:
+                            rec = {'action': action_name.capitalize(), 'description': '', 'long_description':'', 'collection': []}
+                            rec_infolist.append(rec)
                 else:
                     for action_name in self.action_keys:
                         rec = custom_action(rec_df, action_name)
@@ -712,7 +712,6 @@ class LuxDataFrame(pd.DataFrame):
     def compute_remaining_actions(self):
         # Lazily load the rest of the tabs
         from lux.action.custom import custom_action
-
         i = 1
         for action_name in self.action_keys:
             rec = custom_action(self, action_name)

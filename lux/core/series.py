@@ -136,23 +136,16 @@ class LuxSeries(pd.Series):
 
                 # Pre-displaying initial pandas frame before computing widget
                 pandas_output = widgets.Output()
-                ldf.output = widgets.Output()
+                self.output = widgets.Output()
                 
                 with pandas_output:
-                    display(ldf.display_pandas())
+                    display(self.display_pandas())
 
-                with ldf.output:
+                with self.output:
                     display(widgets.HTML(value="Loading widget..."))
 
-                if not self.index.nlevels >= 2:
-                    ldf.maintain_metadata()
-
-                if lux.config.default_display == "lux":
-                    tab_contents = ['Lux', 'Pandas']
-                    children = [ldf.output, pandas_output]
-                else:
-                    tab_contents = ['Pandas', 'Lux']
-                    children = [pandas_output, ldf.output]
+                tab_contents = ['Pandas', 'Lux']
+                children = [pandas_output, self.output]
 
                 tab = widgets.Tab()
                 tab.children = children
@@ -161,6 +154,9 @@ class LuxSeries(pd.Series):
                     tab.set_title(i, tab_contents[i])
 
                 display(tab)
+
+                if lux.config.default_display == "lux":
+                    tab.selected_index = 1
 
                 if ldf._intent != [] and (not hasattr(ldf, "_compiled") or not ldf._compiled):
                     from lux.processor.Compiler import Compiler

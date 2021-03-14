@@ -86,8 +86,8 @@ def filter_keys(ldf):
                         continue
                 keys.insert(0, action_name)
             
-    if "temporal" in keys:
-        keys[0], keys[len(keys)-2] = keys[len(keys)-2], keys[0]
+    # if "temporal" in keys:
+    #     keys[0], keys[len(keys)-2] = keys[len(keys)-2], keys[0]
 
     return keys
 
