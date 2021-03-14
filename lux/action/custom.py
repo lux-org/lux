@@ -75,11 +75,12 @@ def custom_action(ldf, action):
             recommendation = lux.config.actions[action].action(ldf)
     return recommendation
 
-"""
-Filters out actions before beginning computations so we know which tabs to display.
-Logic to filter out actions in lux/action/default.py
-"""
+
 def filter_keys(ldf):
+    """
+    Filters out actions before beginning computations so we know which tabs to display.
+    Logic to filter out actions in lux/action/default.py
+    """
     keys = []
     data_types = set(ldf._data_type.values())
     if len(ldf) > 0:

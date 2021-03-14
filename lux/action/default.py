@@ -33,9 +33,6 @@ def register_default_actions():
     lux.config.register_action("Custom", custom, multiple_current_vis)
 
 
-"""
-The methods below check whether or not we should render a given action.
-"""
 def generalize_check(ldf):
     filters = utils.get_filter_specs(ldf._intent)
     attributes = list(filter(lambda x: x.value == "" and x.attribute != "Record", ldf._intent))
