@@ -654,6 +654,8 @@ class LuxDataFrame(pd.DataFrame):
 
             with self.output:
                 display(widgets.HTML(value="Loading widget..."))
+                # This is displayed to override the CSS of the original Tabs
+                display(self._widget)
 
             tab_contents = ['Pandas', 'Lux']
             children = [pandas_output, self.output]

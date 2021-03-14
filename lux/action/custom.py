@@ -86,8 +86,13 @@ def filter_keys(ldf):
                         continue
                 keys.append(action_name)
             
-    if "correlation" in keys:
-        keys[0], keys[len(keys)-1] = keys[len(keys)-1], keys[0]
+    if 'correlation' in keys:
+        keys.pop(keys.index('correlation'))
+        keys.append('correlation')
+
+    if 'geographical' in keys:
+        keys.pop(keys.index('geographical'))
+        keys.append('geographical')
 
     return keys
 
