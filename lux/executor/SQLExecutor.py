@@ -131,7 +131,6 @@ class SQLExecutor(Executor):
             query = f"SELECT {required_variables} FROM {lst.table_name} {where_clause} ORDER BY random() LIMIT 10000"
         else:
             query = "SELECT {} FROM {} {}".format(required_variables, lst.table_name, where_clause)
-            view._query = query
         data = pandas.read_sql(query, lux.config.SQLconnection)
         view._vis_data = utils.pandas_to_lux(data)
         view._vis_data.length = list(length_query["length"])[0]
@@ -219,7 +218,6 @@ class SQLExecutor(Executor):
                     view._vis_data = view._vis_data.rename(columns={"count": "Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
                 view._vis_data.length = list(length_query["length"])[0]
-                view._query = count_query
             # aggregate barchart case, need aggregate data (mean, sum, max) for each group
             else:
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
@@ -311,7 +309,6 @@ class SQLExecutor(Executor):
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
-                view._query = agg_query
             result_vals = list(view._vis_data[groupby_attr.attribute])
             # create existing group by attribute combinations if color is specified
             # this is needed to check what combinations of group_by_attr and color_attr values have a non-zero number of elements in them
@@ -410,7 +407,6 @@ class SQLExecutor(Executor):
             lst.table_name,
             where_clause,
         )
-        view._query = bin_count_query
 
         bin_count_data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
         if not bin_count_data["width_bucket"].isnull().values.any():
@@ -500,8 +496,6 @@ class SQLExecutor(Executor):
             lst.table_name,
             where_clause,
         )
-
-        view._query = bin_count_query
 
         # data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
 
