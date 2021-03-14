@@ -641,7 +641,7 @@ class LuxDataFrame(pd.DataFrame):
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
-    def _repr_html(self):
+    def _repr_html_(self):
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
