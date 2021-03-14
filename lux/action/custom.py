@@ -84,10 +84,10 @@ def filter_keys(ldf):
                 if lux.config.actions[action_name].args:
                     if not lux.config.actions[action_name].args[0] in data_types:
                         continue
-                keys.insert(0, action_name)
+                keys.append(action_name)
             
-    # if "temporal" in keys:
-    #     keys[0], keys[len(keys)-2] = keys[len(keys)-2], keys[0]
+    if "correlation" in keys:
+        keys[0], keys[len(keys)-1] = keys[len(keys)-1], keys[0]
 
     return keys
 

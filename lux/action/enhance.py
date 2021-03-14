@@ -17,7 +17,6 @@ from lux.interestingness.interestingness import interestingness
 from lux.processor.Compiler import Compiler
 from lux.utils import utils
 
-
 def enhance(ldf):
     """
     Given a set of vis, generates possible visualizations when an additional attribute is added to the current vis.
@@ -51,11 +50,6 @@ def enhance(ldf):
             "description": f"Further breaking down current {intended_attrs} intent by additional attribute.",
             "long_description": f"Enhance adds an additional attribute as the color to break down the {intended_attrs} distribution",
         }
-    # if there are too many column attributes, return don't generate Enhance recommendations
-    elif len(attr_specs) > 2:
-        recommendation = {"action": "Enhance"}
-        recommendation["collection"] = []
-        return recommendation
     intent = ldf._intent.copy()
     # Clear channel so that channel not enforced based on input vis intent
     for clause in intent:

@@ -491,7 +491,6 @@ class LuxDataFrame(pd.DataFrame):
                 self.action_keys = filter_keys(rec_df)
 
                 if lux.config._streaming:
-                    print("TEST")
                     # Compute one tab to display on initial widget
                     if len(self.action_keys) > 0:
                         rec = custom_action(rec_df, self.action_keys[0])
@@ -636,7 +635,7 @@ class LuxDataFrame(pd.DataFrame):
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
-    def _repr_html_(self):
+    def _ipython_display_(self):
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets

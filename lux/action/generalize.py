@@ -51,10 +51,6 @@ def generalize(ldf):
         "long_description": f"Remove one aspect of the Current Vis. We can either remove an attribute or filter from {intended_attrs}.",
     }
     # to observe a more general trend
-    # if we do no have enough column attributes or too many, return no vis.
-    if len(attributes) < 1 or len(attributes) > 4:
-        recommendation["collection"] = []
-        return recommendation
     # for each column specification, create a copy of the ldf's vis and remove the column specification
     # then append the vis to the output
     if len(attributes) > 1:

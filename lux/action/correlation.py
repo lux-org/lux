@@ -61,9 +61,6 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
                 their Pearson’s correlation score.",
     }
     ignore_rec_flag = False
-    # Doesn't make sense to compute correlation if less than 4 data values
-    if len(ldf) < 5:
-        ignore_rec_flag = True
     # Then use the data populated in the vis list to compute score
     for vis in vlist:
         measures = vis.get_attr_by_data_model("measure")

@@ -7,6 +7,7 @@ from lux.action.filter import add_filter
 from lux.action.generalize import generalize
 from lux.utils import utils
 from lux.vis.VisList import VisList
+from lux.interestingness.interestingness import interestingness
 
 def register_default_actions():
 
@@ -21,10 +22,10 @@ def register_default_actions():
     lux.config.register_action("correlation", correlation, correlation_check)
     lux.config.register_action("distribution", univariate, distribution_check, "quantitative")
     lux.config.register_action("occurrence", univariate, occurence_check, "nominal")
-    lux.config.register_action("temporal", univariate, no_vis, "temporal")
+    lux.config.register_action("temporal", univariate, temporal_check, "temporal")
     lux.config.register_action("geographical", univariate, no_vis, "geographical")
 
-    lux.config.register_action("Enhance", enhance, one_current_vis)
+    lux.config.register_action("Enhance", enhance, enhance_check)
     lux.config.register_action("Filter", add_filter, one_current_vis)
     lux.config.register_action("Generalize", generalize, generalize_check)
 
@@ -65,7 +66,10 @@ def occurence_check(ldf):
     intent = [lux.Clause("?", data_type="nominal")]
     intent.extend(filter_specs)
     vlist = VisList(intent, ldf)
-    print(vlist)
+    for vis in vlist:
+        vis.score = interestingness(vis, ldf)
+    vlist.sort()
+    
     if len(vlist) < 1:
         return False
     else:
@@ -89,3 +93,30 @@ def distribution_check(ldf):
         return (ldf.current_vis is None) or (
             ldf.current_vis is not None and len(ldf.current_vis) == 0
         )
+
+def temporal_check(ldf):
+    filter_specs = utils.get_filter_specs(ldf._intent)
+    intent = [lux.Clause("?", data_type="temporal")]
+    intent.extend(filter_specs)
+    vlist = VisList(intent, ldf)
+    for vis in vlist:
+        vis.score = interestingness(vis, ldf)
+    vlist.sort()
+    # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
+    if len(ldf) < 3:
+        return False
+    if len(vlist) < 1:
+        return False
+    else:
+        return (ldf.current_vis is None) or (
+        ldf.current_vis is not None and len(ldf.current_vis) == 0
+    )
+
+def enhance_check(ldf):
+    filters = utils.get_filter_specs(ldf._intent)
+    intent = ldf._intent.copy()
+    attr_specs = list(filter(lambda x: x.value == "" and x.attribute != "Record", ldf._intent))
+    if len(attr_specs) > 2:
+        return False
+    else:
+        return ldf.current_vis is not None and len(ldf.current_vis) == 1
