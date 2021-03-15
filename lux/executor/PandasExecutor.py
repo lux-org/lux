@@ -38,6 +38,7 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def execute_sampling(ldf: LuxDataFrame):
+        ldf.history.freeze()
         # General Sampling for entire dataframe
         SAMPLE_FLAG = lux.config.sampling
         SAMPLE_START = lux.config.sampling_start
@@ -60,6 +61,7 @@ class PandasExecutor(Executor):
             )
         else:
             ldf._sampled = ldf
+        ldf.history.unfreeze()
 
     @staticmethod
     def execute(vislist: VisList, ldf: LuxDataFrame):
@@ -81,6 +83,7 @@ class PandasExecutor(Executor):
         -------
         None
         """
+        ldf.history.freeze()
         PandasExecutor.execute_sampling(ldf)
         for vis in vislist:
             # The vis data starts off being original or sampled dataframe
@@ -108,6 +111,8 @@ class PandasExecutor(Executor):
                     )
                     # vis._mark = "heatmap"
                     # PandasExecutor.execute_2D_binning(vis) # Lazy Evaluation (Early pruning based on interestingness)
+        ldf.history.unfreeze()
+        
 
     @staticmethod
     def execute_aggregate(vis: Vis, isFiltered=True):
@@ -397,10 +402,13 @@ class PandasExecutor(Executor):
     ############ Metadata: data type, model #############
     #######################################################
     def compute_dataset_metadata(self, ldf: LuxDataFrame):
+        ldf.history.freeze()
         ldf._data_type = {}
         self.compute_data_type(ldf)
+        ldf.history.unfreeze()
 
     def compute_data_type(self, ldf: LuxDataFrame):
+        ldf.history.freeze()
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
         for attr in list(ldf.columns):
@@ -458,6 +466,8 @@ class PandasExecutor(Executor):
         for attr in ldf.columns:
             if ldf._data_type[attr] == "temporal" and not is_datetime(ldf[attr]):
                 non_datetime_attrs.append(attr)
+        ldf.history.unfreeze()
+        
         warn_msg = ""
         if len(non_datetime_attrs) == 1:
             warn_msg += f"\nLux detects that the attribute '{non_datetime_attrs[0]}' may be temporal.\n"
@@ -503,6 +513,7 @@ class PandasExecutor(Executor):
         return False
 
     def compute_stats(self, ldf: LuxDataFrame):
+        ldf.history.freeze()
         # precompute statistics
         ldf.unique_values = {}
         ldf._min_max = {}
@@ -531,3 +542,5 @@ class PandasExecutor(Executor):
             index_column_name = ldf.index.name
             ldf.unique_values[index_column_name] = list(ldf.index)
             ldf.cardinality[index_column_name] = len(ldf.index)
+        
+        ldf.history.unfreeze()

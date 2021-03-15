@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 import pandas as pd
+from pandas.core.dtypes.common import is_hashable, is_list_like
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
@@ -118,6 +119,7 @@ class LuxDataFrame(pd.DataFrame):
         return self._data_type
 
     def maintain_metadata(self):
+        self.history.freeze()
         # Check that metadata has not yet been computed
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
@@ -126,7 +128,8 @@ class LuxDataFrame(pd.DataFrame):
                 lux.config.executor.compute_dataset_metadata(self)
                 self._infer_structure()
                 self._metadata_fresh = True
-
+        self.history.unfreeze()
+        
     def expire_recs(self):
         """
         Expires and resets all recommendations
@@ -152,18 +155,55 @@ class LuxDataFrame(pd.DataFrame):
     #####################
     ## Override Pandas ##
     #####################
+
+    ## HISTORY stuff
     def __getattr__(self, name):
+        """
+        Called when
+            df.col
+        
+        TODO this is calling __getitem__ internally
+        """
         ret_value = super(LuxDataFrame, self).__getattr__(name)
+
+        # TODO attach which attribute this is to the history of ret_value
         # lux 
         self.expire_metadata()
         self.expire_recs()
 
         # history 
-        if name in self.columns:
-            self.history.append_event("col_ref", [name])
+        # if name in self.columns:
+        #     self.history.append_event("col_ref", [name])
 
         return ret_value
+    
+    def __getitem__(self, key):
+        """
+        df.col calls __getattr__ which then calls __getitem__
 
+        __getitem__ is called when selecting like below
+            df["col"]
+            df[["col_1", "col_2"]]
+        """
+        #set_trace()
+        ret_value = super(LuxDataFrame, self).__getitem__(key)
+
+        # single item like str "col_name"
+        if is_hashable(key) and key in self.columns:
+            self.history.append_event("col_ref", [key])
+        
+        elif is_list_like(key):
+            checked_keys = []
+            for item in key:
+                if is_hashable(item) and item in self.columns:
+                    checked_keys.append(item)
+            
+            if len(checked_keys):
+                self.history.append_event("col_ref", checked_keys)
+        
+        return ret_value
+
+    ## Other overrides 
     def _set_axis(self, axis, labels):
         super(LuxDataFrame, self)._set_axis(axis, labels)
         self.expire_metadata()
@@ -193,11 +233,7 @@ class LuxDataFrame(pd.DataFrame):
             # if very_small_df_flag:
             #     self.pre_aggregated = True
     
-    def __getitem__(self, key):
-        ret_value = super(LuxDataFrame, self).__getitem__(key)
-
-        #self.history.append_event(key)
-        return ret_value
+    
 
     @property
     def intent(self):
@@ -455,6 +491,7 @@ class LuxDataFrame(pd.DataFrame):
             rec_infolist.append(recommendations)
 
     def maintain_recs(self):
+        self.history.freeze()
 
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
@@ -517,6 +554,8 @@ class LuxDataFrame(pd.DataFrame):
         elif show_prev:
             self._widget = rec_df.render_widget()
         self._recs_fresh = True
+        self.history.unfreeze()
+
 
     #######################################################
     ############## LuxWidget Result Display ###############
@@ -817,7 +856,6 @@ class LuxDataFrame(pd.DataFrame):
         recCollection = LuxDataFrame.rec_to_JSON(rec_infolist)
         widget_spec["recommendation"].extend(recCollection)
 
-        # Will TODO implicit recs need to be added here I think....
         return widget_spec
 
     @staticmethod

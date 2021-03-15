@@ -24,12 +24,14 @@ class History:
 
     def __init__(self):
         self._events = []
+        self._frozen_count = 0
 
     def __getitem__(self, key):
         return self._events[key]
 
     def __setitem__(self, key, value):
-        self._events[key] = value
+        if self._frozen_count == 0:
+            self._events[key] = value
 
     def __len__(self):
         return len(self._events)
@@ -40,9 +42,16 @@ class History:
             event_repr.append(event.__repr__())
         return "[" + ",\n".join(event_repr) + "]"
 
+    def freeze(self):
+        self._frozen_count += 1 
+    
+    def unfreeze(self):
+        self._frozen_count -= 1 
+
     def append_event(self, op_name, cols, *args, **kwargs):
-        event = Event(op_name, cols, *args, **kwargs)
-        self._events.append(event)
+        if self._frozen_count == 0:
+            event = Event(op_name, cols, *args, **kwargs)
+            self._events.append(event)
 
     def copy(self):
         history_copy = History()
