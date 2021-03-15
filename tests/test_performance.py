@@ -23,10 +23,10 @@ import time
 def test_q1_performance_census(global_var):
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/census.csv?raw=true")
     tic = time.perf_counter()
-    df._repr_html_()
+    df._ipython_display_()
     toc = time.perf_counter()
     delta = toc - tic
-    df._repr_html_()
+    df._ipython_display_()
     toc2 = time.perf_counter()
     delta2 = toc2 - toc
     print(f"1st display Performance: {delta:0.4f} seconds")
