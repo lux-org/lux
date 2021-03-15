@@ -67,6 +67,13 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         ret_val.pre_aggregated = False  # Returned LuxDataFrame isn't pre_aggregated
         return ret_val
 
+    def apply(self, *args, **kwargs):
+        ret_val = super(LuxDataFrameGroupBy, self).apply(*args, **kwargs)
+        for attr in self._metadata:
+            ret_val.__dict__[attr] = getattr(self, attr, None)
+        ret_val.pre_aggregated = False  # Returned LuxDataFrame isn't pre_aggregated
+        return ret_val
+
     def size(self, *args, **kwargs):
         ret_val = super(LuxGroupBy, self).size(*args, **kwargs)
         for attr in self._metadata:
