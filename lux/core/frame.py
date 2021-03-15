@@ -632,7 +632,6 @@ class LuxDataFrame(pd.DataFrame):
             if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
                 self.maintain_metadata()
 
-
                 if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
                     from lux.processor.Compiler import Compiler
 

@@ -88,12 +88,12 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
 
     agg = aggregate
 
-class LuxDataFrameGroupBy(LuxGroupBy, pd.core.groupby.generic.DataFrameGroupBy):
 
+class LuxDataFrameGroupBy(LuxGroupBy, pd.core.groupby.generic.DataFrameGroupBy):
     def __init__(self, *args, **kwargs):
         super(LuxDataFrameGroupBy, self).__init__(*args, **kwargs)
 
-class LuxSeriesGroupBy(LuxGroupBy, pd.core.groupby.generic.SeriesGroupBy):
 
+class LuxSeriesGroupBy(LuxGroupBy, pd.core.groupby.generic.SeriesGroupBy):
     def __init__(self, *args, **kwargs):
         super(LuxSeriesGroupBy, self).__init__(*args, **kwargs)
