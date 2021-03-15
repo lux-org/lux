@@ -636,6 +636,7 @@ class LuxDataFrame(pd.DataFrame):
                     return
                 self.maintain_metadata()
 
+
                 if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
                     from lux.processor.Compiler import Compiler
 

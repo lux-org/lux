@@ -14,7 +14,7 @@
 
 import pandas as pd
 from .frame import LuxDataFrame
-from .groupby import LuxDataFrameGroupBy
+from .groupby import LuxDataFrameGroupBy, LuxSeriesGroupBy
 from .series import LuxSeries
 
 global originalDF
@@ -58,8 +58,9 @@ def setOption(overridePandas=True):
         ) = (
             pd.io.spss.DataFrame
         ) = pd.io.stata.DataFrame = pd.io.api.DataFrame = pd.core.frame.DataFrame = LuxDataFrame
-        pd.Series = pd.core.series.Series = pd.core.groupby.ops.Series = LuxSeries
+        pd.Series = pd.core.series.Series = pd.core.groupby.ops.Series = pd._testing.Series = LuxSeries
         pd.core.groupby.generic.DataFrameGroupBy = LuxDataFrameGroupBy
+        pd.core.groupby.generic.SeriesGroupBy = LuxSeriesGroupBy
     else:
         pd.DataFrame = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = originalDF
         pd.Series = originalSeries
