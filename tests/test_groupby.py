@@ -69,3 +69,11 @@ def test_get_group(global_var):
     new_df._repr_html_()
     assert new_df.history[0].name == "groupby"
     assert not new_df.pre_aggregated
+
+
+def test_series_groupby(global_var):
+    df = pytest.car_df
+    df._repr_html_()
+    new_ser = df.set_index("Brand")["Displacement"].groupby(level=0).agg("mean")
+    assert new_ser._history[0].name == "groupby"
+    assert new_ser.pre_aggregated
