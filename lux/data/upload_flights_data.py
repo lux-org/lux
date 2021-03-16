@@ -5,7 +5,7 @@ import csv
 
 import psycopg2
 
-conn = psycopg2.connect("host=localhost dbname=postgres_db user=postgres password=lux")
+conn = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
 cur = conn.cursor()
 cur.execute(
     """
@@ -32,19 +32,14 @@ cur.execute(
 """
 )
 
-# open flights.csv and read data into database
-with open("flights.csv", "r") as f:
-    reader = csv.reader(f)
-    next(reader)  # Skip the header row.
-    i = 0
-    for row in reader:
-        if i % 50000 == 0:
-            print(i)
-        i += 1
-        # print(row)
-        cur.execute(
-            "INSERT INTO flights VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-            row,
-        )
+# open car.csv and read data into database
+import urllib.request
 
+target_url = "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/flights.csv"
+for line in urllib.request.urlopen(target_url):
+    decoded = line.decode("utf-8")
+    if "day,weekday,carrier,origin" not in decoded:
+        cur.execute(
+            "INSERT INTO flights VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", decoded.split(",")
+        )
 conn.commit()
