@@ -298,7 +298,6 @@ def test_interestingness_deviation_nan():
 
     smaller_diff_score = interestingness(vis, test)
     bigger_diff_score = interestingness(vis2, test)
-    print(smaller_diff_score, bigger_diff_score)
     assert np.isclose(smaller_diff_score, 0.19, rtol=0.1)
     assert np.isclose(bigger_diff_score, 0.62, rtol=0.1)
     assert smaller_diff_score < bigger_diff_score
