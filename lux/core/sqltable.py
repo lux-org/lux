@@ -109,7 +109,7 @@ class LuxSQLTable(lux.LuxDataFrame):
                 )
 
     def _repr_html_(self):
-        from IPython.display import display
+        from IPython.display import HTML, display
         from IPython.display import clear_output
         import ipywidgets as widgets
 
@@ -143,7 +143,19 @@ class LuxSQLTable(lux.LuxDataFrame):
             )
             self.output = widgets.Output()
             lux.config.executor.execute_preview(self)
-            display(button, self.output)
+            notification = HTML("""<style>
+            body
+            {
+            background-color: #ffffcc;
+            border-left: 6px solid #ffeb3b;
+            margin-bottom: 12px;
+            padding: 4px 12px;
+
+            }
+            </style> 
+            Note: data displayed is just a preview of the database table. No Pandas functionality on this data is supported.""")
+
+            display(button, notification, self.output)
 
             def on_button_clicked(b):
                 with self.output:
