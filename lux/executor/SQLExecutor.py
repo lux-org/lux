@@ -4,7 +4,6 @@ from lux.vis.Vis import Vis
 from lux.core.sqltable import LuxSQLTable
 from lux.executor.Executor import Executor
 from lux.utils import utils, date_utils
-from lux.utils.date_utils import check_if_sql_date_like
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
 import lux
 
@@ -66,7 +65,7 @@ class SQLExecutor(Executor):
             if view.mark == "scatter":
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
                 length_query = pandas.read_sql(
-                    "SELECT COUNT(*) as length FROM {} {}".format(lst.table_name, where_clause),
+                    "SELECT COUNT(1) as length FROM {} {}".format(lst.table_name, where_clause),
                     lux.config.SQLconnection,
                 )
                 view_data_length = list(length_query["length"])[0]
@@ -112,7 +111,7 @@ class SQLExecutor(Executor):
         where_clause, filterVars = SQLExecutor.execute_filter(view)
 
         length_query = pandas.read_sql(
-            "SELECT COUNT(*) as length FROM {} {}".format(lst.table_name, where_clause),
+            "SELECT COUNT(1) as length FROM {} {}".format(lst.table_name, where_clause),
             lux.config.SQLconnection,
         )
 
@@ -388,7 +387,7 @@ class SQLExecutor(Executor):
         where_clause, filterVars = SQLExecutor.execute_filter(view)
 
         length_query = pandas.read_sql(
-            "SELECT COUNT(*) as length FROM {} {}".format(lst.table_name, where_clause),
+            "SELECT COUNT(1) as length FROM {} {}".format(lst.table_name, where_clause),
             lux.config.SQLconnection,
         )
         # need to calculate the bin edges before querying for the relevant data
@@ -650,7 +649,7 @@ class SQLExecutor(Executor):
         lst.unique_values = {}
         lst._min_max = {}
         length_query = pandas.read_sql(
-            "SELECT COUNT(*) as length FROM {}".format(lst.table_name),
+            "SELECT COUNT(1) as length FROM {}".format(lst.table_name),
             lux.config.SQLconnection,
         )
         lst.length = list(length_query["length"])[0]
@@ -736,10 +735,9 @@ class SQLExecutor(Executor):
         None
         """
         data_type = {}
-
-        self.get_cardinality(ldf)
-        if "." in ldf.table_name:
-            table_name = ldf.table_name[ldf.table_name.index(".") + 1 :]
+        self.get_cardinality(lst)
+        if "." in lst.table_name:
+            table_name = lst.table_name[lst.table_name.index(".") + 1 :]
         else:
             table_name = lst.table_name
         # get the data types of the attributes in the SQL table
@@ -768,9 +766,9 @@ class SQLExecutor(Executor):
                 "serial",
                 "double precision",
             }:
-                if ldf.cardinality[attr] < 13:
+                if lst.cardinality[attr] < 13:
                     data_type[attr] = "nominal"
-                elif check_if_id_like(ldf, attr):
+                elif check_if_id_like(lst, attr):
                     data_type[attr] = "id" 
                 else:
                     data_type[attr] = "quantitative"
