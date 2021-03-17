@@ -458,7 +458,6 @@ def test_vegalite_default_actions_registered_2(global_var):
 
 
 def test_matplotlib_default_actions_registered(global_var):
-    df = pytest.car_df
     lux.config.plotting_backend = "matplotlib"
     df = pytest.car_df
     df._repr_html_()
