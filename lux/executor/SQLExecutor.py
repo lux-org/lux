@@ -3,7 +3,7 @@ from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.core.sqltable import LuxSQLTable
 from lux.executor.Executor import Executor
-from lux.utils import utils, date_utils
+from lux.utils import utils
 from lux.utils.utils import check_import_lux_widget, check_if_id_like
 import lux
 
