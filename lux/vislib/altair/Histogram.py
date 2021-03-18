@@ -88,7 +88,8 @@ class Histogram(AltairChart):
                     y=alt.Y(
                         str(msr_attr.attribute),
                         title=axis_title,
-                        bin=alt.Bin(binned=True, step=markbar),
+                        bin=alt.Bin(binned=True, step=step),
+                        type=msr_attr.data_type,
                         axis=alt.Axis(title=axis_title),
                     ),
                     y2=end_attr_abv,
@@ -99,20 +100,21 @@ class Histogram(AltairChart):
         #####################################
 
         self.code += "import altair as alt\n"
-        # self.code += f"visData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
         self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
         if measure.channel == "x":
             self.code += f"""
-		chart = alt.Chart(visData).mark_bar(size={markbar}).encode(
-		    alt.X('{msr_attr.attribute}', title='{axis_title}',bin=alt.Bin(binned=True), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{axis_title}'), scale=alt.Scale(domain=({x_min}, {x_max}))),
-		    alt.Y("Number of Records", type="quantitative")
+		chart = alt.Chart(visData).mark_bar().encode(
+		    x=alt.X('{msr_attr.attribute}', title='{axis_title}',bin=alt.Bin(binned=True, step={step}), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{axis_title}'), scale=alt.Scale(domain=({x_min}, {x_max}))),
+            x2='{end_attr_abv}',
+		    y=alt.Y("Number of Records", type="quantitative")
 		)
 		"""
         elif measure.channel == "y":
             self.code += f"""
-		chart = alt.Chart(visData).mark_bar(size={markbar}).encode(
-		    alt.Y('{msr_attr.attribute}', title='{axis_title}',bin=alt.Bin(binned=True), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{axis_title}'), scale=alt.Scale(domain=({x_min}, {x_max}))),
-		    alt.X("Number of Records", type="quantitative")
+		chart = alt.Chart(visData).mark_bar().encode(
+		    y=alt.Y('{msr_attr.attribute}', title='{axis_title}', bin=alt.Bin(binned=True, step={step}), type='{msr_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{axis_title}')),
+            y2='{end_attr_abv}',
+		    x=alt.X("Number of Records", type="quantitative")
 		)
 		"""
         return chart
