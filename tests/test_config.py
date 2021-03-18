@@ -21,7 +21,6 @@ import lux
 
 
 def register_new_action(validator: bool = True):
-    lux.config.set_SQL_connection("")
     df = pd.read_csv("lux/data/car.csv")
 
     def random_categorical(ldf):
@@ -51,8 +50,8 @@ def register_new_action(validator: bool = True):
 
 
 def test_default_actions_registered(global_var):
-    df = pytest.car_df
     lux.config.set_executor_type("Pandas")
+    df = pytest.car_df
     df._repr_html_()
     assert "Distribution" in df.recommendation
     assert len(df.recommendation["Distribution"]) > 0

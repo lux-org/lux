@@ -227,3 +227,18 @@ class LuxSeries(pd.Series):
                 When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisList. -> {"Enhance": VisList(v1, v2...), "Filter": VisList(v5, v7...), ..}
         """
         return self._ldf.exported
+
+    def groupby(self, *args, **kwargs):
+        history_flag = False
+        if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
+            history_flag = True
+        if "history" in kwargs:
+            del kwargs["history"]
+        groupby_obj = super(LuxSeries, self).groupby(*args, **kwargs)
+        for attr in self._metadata:
+            groupby_obj.__dict__[attr] = getattr(self, attr, None)
+        if history_flag:
+            groupby_obj._history = groupby_obj._history.copy()
+            groupby_obj._history.append_event("groupby", *args, **kwargs)
+        groupby_obj.pre_aggregated = True
+        return groupby_obj
