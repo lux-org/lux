@@ -146,9 +146,12 @@ def test_filter():
     vis = Vis(intent, tbl)
     vis._vis_data = tbl
     filter_output = SQLExecutor.execute_filter(vis)
+    where_clause = filter_output[0]
+    where_clause_list = where_clause.split(" AND ")
     assert (
-        filter_output[0]
-        == 'WHERE "Origin" = \'USA\' AND "Year" IS NOT NULL AND "Horsepower" IS NOT NULL'
+        "WHERE \"Origin\" = 'USA'" in where_clause_list
+        and '"Horsepower" IS NOT NULL' in where_clause_list
+        and '"Year" IS NOT NULL' in where_clause_list
     )
     assert filter_output[1] == ["Origin"]
 

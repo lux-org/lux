@@ -65,7 +65,7 @@ class SQLExecutor(Executor):
             if view.mark == "scatter":
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
                 length_query = pandas.read_sql(
-                    "SELECT COUNT(1) as length FROM {} {}".format(lst.table_name, where_clause),
+                    "SELECT COUNT(1) as length FROM {} {}".format(tbl.table_name, where_clause),
                     lux.config.SQLconnection,
                 )
                 view_data_length = list(length_query["length"])[0]
@@ -111,7 +111,7 @@ class SQLExecutor(Executor):
         where_clause, filterVars = SQLExecutor.execute_filter(view)
 
         length_query = pandas.read_sql(
-            "SELECT COUNT(1) as length FROM {} {}".format(lst.table_name, where_clause),
+            "SELECT COUNT(1) as length FROM {} {}".format(tbl.table_name, where_clause),
             lux.config.SQLconnection,
         )
 
@@ -387,7 +387,7 @@ class SQLExecutor(Executor):
         where_clause, filterVars = SQLExecutor.execute_filter(view)
 
         length_query = pandas.read_sql(
-            "SELECT COUNT(1) as length FROM {} {}".format(lst.table_name, where_clause),
+            "SELECT COUNT(1) as length FROM {} {}".format(tbl.table_name, where_clause),
             lux.config.SQLconnection,
         )
         # need to calculate the bin edges before querying for the relevant data
@@ -649,7 +649,7 @@ class SQLExecutor(Executor):
         tbl.unique_values = {}
         tbl._min_max = {}
         length_query = pandas.read_sql(
-            "SELECT COUNT(1) as length FROM {}".format(lst.table_name),
+            "SELECT COUNT(1) as length FROM {}".format(tbl.table_name),
             lux.config.SQLconnection,
         )
         tbl.length = list(length_query["length"])[0]
@@ -735,9 +735,9 @@ class SQLExecutor(Executor):
         None
         """
         data_type = {}
-        self.get_cardinality(lst)
-        if "." in lst.table_name:
-            table_name = lst.table_name[lst.table_name.index(".") + 1 :]
+        self.get_cardinality(tbl)
+        if "." in tbl.table_name:
+            table_name = tbl.table_name[tbl.table_name.index(".") + 1 :]
         else:
             table_name = tbl.table_name
         # get the data types of the attributes in the SQL table
@@ -746,8 +746,9 @@ class SQLExecutor(Executor):
                 table_name, attr
             )
             datatype = list(pandas.read_sql(datatype_query, lux.config.SQLconnection)["data_type"])[0]
-
-            if datatype in {
+            if str(attr).lower() in {"month", "year"} or "time" in datatype or "date" in datatype:
+                data_type[attr] = "temporal"
+            elif datatype in {
                 "character",
                 "character varying",
                 "boolean",
@@ -766,12 +767,11 @@ class SQLExecutor(Executor):
                 "serial",
                 "double precision",
             }:
-                if lst.cardinality[attr] < 13:
+                if tbl.cardinality[attr] < 13:
                     data_type[attr] = "nominal"
-                elif check_if_id_like(lst, attr):
-                    data_type[attr] = "id" 
+                elif check_if_id_like(tbl, attr):
+                    data_type[attr] = "id"
                 else:
                     data_type[attr] = "quantitative"
-            elif (str(attr).lower() in ["month", "year"] or "time" in datatype or "date" in datatype):
-                data_type[attr] = "temporal"
+
         tbl._data_type = data_type
