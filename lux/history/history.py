@@ -25,6 +25,8 @@ class History:
     def __init__(self):
         self._events = []
         self._frozen_count = 0
+        self._ex_count = 0
+        self._time_decay = .9
 
     def __getitem__(self, key):
         return self._events[key]
@@ -42,6 +44,17 @@ class History:
             event_repr.append(event.__repr__())
         return "[" + ",\n".join(event_repr) + "]"
 
+    def copy(self):
+        history_copy = History()
+        history_copy._events.extend(self._events)
+        return history_copy
+
+    ######################
+    ## State management ##
+    ######################
+
+    # freeze/unfreeze offer locks on adding new 
+    # info to the history so we dont log internal calls
     def freeze(self):
         self._frozen_count += 1 
     
@@ -50,10 +63,44 @@ class History:
 
     def append_event(self, op_name, cols, *args, **kwargs):
         if self._frozen_count == 0:
-            event = Event(op_name, cols, *args, **kwargs)
+            event = Event(op_name, cols, 1, self._ex_count, *args, **kwargs)
+            self.decay_weights()
             self._events.append(event)
+            self._ex_count += 1
+    
+    def decay_weights(self):
+        for e in self._events:
+            e.weight *= self._time_decay
+            
+    ######################
+    ## Implicit Intent  ##
+    ######################
 
-    def copy(self):
-        history_copy = History()
-        history_copy._events.extend(self._events)
-        return history_copy
+    def get_implicit_intent(self, col_thresh = .25):
+        """
+        Iterates through history events and gets ordering of columns by user interest 
+        and most recent signal.
+        """
+        most_recent_signal = None
+        agg_col_ref = {}
+        col_order = []
+
+        if self._events:
+            for e in self._events[::-1]: # reverse iterate
+                
+                # first event that is not just col ref is most recent for vis
+                if not most_recent_signal and e.op_name != "col_ref":
+                    most_recent_signal = e 
+                
+                for c in e.cols:
+                    if c in agg_col_ref:
+                        agg_col_ref[c] += e.weight 
+                    else:
+                        agg_col_ref[c] = e.weight
+            
+            # get sorted column order by aggregate weight, thresholded 
+            col_order = list(agg_col_ref.items())
+            col_order.sort(key=lambda x: x[1], reverse=True)
+            col_order = [i[0] for i in col_order if i[1] > col_thresh]
+        
+        return most_recent_signal, col_order

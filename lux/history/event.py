@@ -19,17 +19,19 @@ class Event:
     Event represents a single operation applied to the dataframe, with input arguments of operation recorded
     """
 
-    def __init__(self, op_name, cols, *args, **kwargs):
+    def __init__(self, op_name, cols, weight, ex_count, *args, **kwargs):
         if type(cols) != list:
             cols = [cols]
         
         self.op_name = op_name
         self.cols = cols
+        self.weight = weight
+        self.ex_count = ex_count
         self.args = args
         self.kwargs = kwargs
 
     def __repr__(self):
-        s = f"<Event: {self.op_name}"
+        s = f"<Event: {self.op_name}, weight: {self.weight}, ex_count: {self.ex_count}"
         if self.cols:
             s += f", cols={self.cols}"
         if self.args != () or self.kwargs != {}:

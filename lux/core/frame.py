@@ -14,6 +14,9 @@
 
 import pandas as pd
 from pandas.core.dtypes.common import is_hashable, is_list_like
+from pandas._typing import FrameOrSeries
+from typing import Optional
+
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
@@ -63,7 +66,7 @@ class LuxDataFrame(pd.DataFrame):
     def __init__(self, *args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
 
-        self._history = History()
+        self._history = History() # when does this get copied over?
         self._intent = []
         self._inferred_intent = []
         self._recommendation = {}
@@ -97,7 +100,7 @@ class LuxDataFrame(pd.DataFrame):
 
     # 
     # This is called when a series is returned from the df 
-    #
+    # NOTE: this gets called a shit ton
     @property
     def _constructor_sliced(self):
         def f(*args, **kwargs):
@@ -162,7 +165,7 @@ class LuxDataFrame(pd.DataFrame):
         Called when
             df.col
         
-        TODO this is calling __getitem__ internally
+        This is calling __getitem__ internally
         """
         ret_value = super(LuxDataFrame, self).__getattr__(name)
 
@@ -186,7 +189,7 @@ class LuxDataFrame(pd.DataFrame):
             df[["col_1", "col_2"]]
         """
         #set_trace()
-        ret_value = super(LuxDataFrame, self).__getitem__(key)
+        ret_value = super(LuxDataFrame, self).__getitem__(key) # BUG this has the same history as self?
 
         # single item like str "col_name"
         if is_hashable(key) and key in self.columns:
@@ -202,6 +205,16 @@ class LuxDataFrame(pd.DataFrame):
                 self.history.append_event("col_ref", checked_keys)
         
         return ret_value
+    
+    def __finalize__(
+        self: FrameOrSeries, other, method: Optional[str] = None, **kwargs
+    ) -> FrameOrSeries:
+        _this = super(LuxDataFrame, self).__finalize__(other, method, **kwargs)
+
+        #set_trace()
+        print("Finalize yo")
+
+        return _this
 
     ## Other overrides 
     def _set_axis(self, axis, labels):
