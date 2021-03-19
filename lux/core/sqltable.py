@@ -118,22 +118,12 @@ class LuxSQLTable(lux.LuxDataFrame):
             self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
             button = widgets.Button(
-                description="Toggle Data Preview/Lux",
-                layout=widgets.Layout(width="200px", top="5px"),
+                description="Toggle Table/Lux",
+                layout=widgets.Layout(width="200px", top="6px", bottom="6px"),
             )
             self.output = widgets.Output()
             lux.config.executor.execute_preview(self)
-            notice = HTML(
-                """<style>
-            body
-            {
-            background-color:#aa0000;
-            }
-            </style>
-            Please note, the data shown here is just a preview of the database table. You will be unable to perform Pandas functionality on this data."""
-            )
-
-            display(button, notice, self.output)
+            display(button, self.output)
 
             def on_button_clicked(b):
                 with self.output:
@@ -141,7 +131,10 @@ class LuxSQLTable(lux.LuxDataFrame):
                         self._toggle_pandas_display = not self._toggle_pandas_display
                     clear_output()
                     if self._toggle_pandas_display:
-                        display(self._sampled.display_pandas())
+                        notification = widgets.Label(
+                            value="Preview of the database table: " + self.table_name
+                        )
+                        display(notification, self._sampled.display_pandas())
                     else:
                         # b.layout.display = "none"
                         display(self._widget)
