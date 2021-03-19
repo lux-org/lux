@@ -122,17 +122,7 @@ class LuxSQLTable(lux.LuxDataFrame):
             )
             self.output = widgets.Output()
             lux.config.executor.execute_preview(self)
-            notice = HTML(
-                """<style>
-            body
-            {
-            background-color:#aa0000;
-            }
-            </style>
-            Please note, the data shown here is just a preview of the database table. You will be unable to perform Pandas functionality on this data."""
-            )
-
-            display(button, notice, self.output)
+            display(button, self.output)
 
             def on_button_clicked(b):
                 with self.output:
