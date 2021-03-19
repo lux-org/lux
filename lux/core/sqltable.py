@@ -104,8 +104,7 @@ class LuxSQLTable(lux.LuxDataFrame):
             error_str = str(error)
             if f'relation "{t_name}" does not exist' in error_str:
                 warnings.warn(
-                    f"\nThe table '{t_name}' does not exist in your database./",
-                    stacklevel=2,
+                    f"\nThe table '{t_name}' does not exist in your database./", stacklevel=2,
                 )
 
     def _repr_html_(self):
@@ -138,24 +137,12 @@ class LuxSQLTable(lux.LuxDataFrame):
             self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
             button = widgets.Button(
-                description="Toggle Data Preview/Lux",
-                layout=widgets.Layout(width="200px", top="5px"),
+                description="Toggle Table/Lux",
+                layout=widgets.Layout(width="200px", top="6px", bottom="6px"),
             )
             self.output = widgets.Output()
             lux.config.executor.execute_preview(self)
-            notification = HTML("""<style>
-            body
-            {
-            background-color: #ffffcc;
-            border-left: 6px solid #ffeb3b;
-            margin-bottom: 12px;
-            padding: 4px 12px;
-
-            }
-            </style> 
-            Note: data displayed is just a preview of the database table. No Pandas functionality on this data is supported.""")
-
-            display(button, notification, self.output)
+            display(button, self.output)
 
             def on_button_clicked(b):
                 with self.output:
@@ -163,7 +150,10 @@ class LuxSQLTable(lux.LuxDataFrame):
                         self._toggle_pandas_display = not self._toggle_pandas_display
                     clear_output()
                     if self._toggle_pandas_display:
-                        display(self._sampled.display_pandas())
+                        notification = widgets.Label(
+                            value="Preview of the database table: " + self.table_name
+                        )
+                        display(notification, self._sampled.display_pandas())
                     else:
                         # b.layout.display = "none"
                         display(self._widget)

@@ -154,8 +154,7 @@ class LuxSeries(pd.Series):
 
                 # box = widgets.Box(layout=widgets.Layout(display='inline'))
                 button = widgets.Button(
-                    description="Toggle Pandas/Lux",
-                    layout=widgets.Layout(width="140px", top="5px"),
+                    description="Toggle Pandas/Lux", layout=widgets.Layout(width="140px", top="5px"),
                 )
                 ldf.output = widgets.Output()
                 # box.children = [button,output]
