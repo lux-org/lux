@@ -168,7 +168,10 @@ def test_underspecified_vis_collection_zval(global_var):
     # check if the number of charts is correct
     df = pytest.car_df
     vlst = VisList(
-        [lux.Clause(attribute="Origin", filter_op="=", value="?"), lux.Clause(attribute="MilesPerGal"),],
+        [
+            lux.Clause(attribute="Origin", filter_op="=", value="?"),
+            lux.Clause(attribute="MilesPerGal"),
+        ],
         df,
     )
     assert len(vlst) == 3
@@ -182,7 +185,10 @@ def test_underspecified_vis_collection_zval(global_var):
     lux.config.set_SQL_connection(connection)
     sql_df = lux.LuxSQLTable(table_name="cars")
     vlst = VisList(
-        [lux.Clause(attribute="origin", filter_op="=", value="?"), lux.Clause(attribute="milespergal"),],
+        [
+            lux.Clause(attribute="origin", filter_op="=", value="?"),
+            lux.Clause(attribute="milespergal"),
+        ],
         sql_df,
     )
     assert len(vlst) == 3
@@ -279,7 +285,10 @@ def test_specified_channel_enforced_vis_collection(global_var):
     df = pytest.car_df
     # change pandas dtype for the column "Year" to datetype
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
-    visList = VisList([lux.Clause(attribute="?"), lux.Clause(attribute="MilesPerGal", channel="x")], df,)
+    visList = VisList(
+        [lux.Clause(attribute="?"), lux.Clause(attribute="MilesPerGal", channel="x")],
+        df,
+    )
     for vis in visList:
         check_attribute_on_channel(vis, "MilesPerGal", "x")
 
@@ -295,13 +304,22 @@ def test_autoencoding_scatter(global_var):
     check_attribute_on_channel(vis, "Weight", "y")
 
     # Partial channel specified
-    vis = Vis([lux.Clause(attribute="MilesPerGal", channel="y"), lux.Clause(attribute="Weight"),], df,)
+    vis = Vis(
+        [
+            lux.Clause(attribute="MilesPerGal", channel="y"),
+            lux.Clause(attribute="Weight"),
+        ],
+        df,
+    )
     check_attribute_on_channel(vis, "MilesPerGal", "y")
     check_attribute_on_channel(vis, "Weight", "x")
 
     # Full channel specified
     vis = Vis(
-        [lux.Clause(attribute="MilesPerGal", channel="y"), lux.Clause(attribute="Weight", channel="x"),],
+        [
+            lux.Clause(attribute="MilesPerGal", channel="y"),
+            lux.Clause(attribute="Weight", channel="x"),
+        ],
         df,
     )
     check_attribute_on_channel(vis, "MilesPerGal", "y")
@@ -321,7 +339,8 @@ def test_autoencoding_scatter(global_var):
     lux.config.set_SQL_connection(connection)
     sql_df = lux.LuxSQLTable(table_name="cars")
     visList = VisList(
-        [lux.Clause(attribute="?"), lux.Clause(attribute="milespergal", channel="x")], sql_df,
+        [lux.Clause(attribute="?"), lux.Clause(attribute="milespergal", channel="x")],
+        sql_df,
     )
     for vis in visList:
         check_attribute_on_channel(vis, "milespergal", "x")
@@ -339,13 +358,22 @@ def test_autoencoding_scatter():
     check_attribute_on_channel(vis, "Weight", "y")
 
     # Partial channel specified
-    vis = Vis([lux.Clause(attribute="MilesPerGal", channel="y"), lux.Clause(attribute="Weight"),], df,)
+    vis = Vis(
+        [
+            lux.Clause(attribute="MilesPerGal", channel="y"),
+            lux.Clause(attribute="Weight"),
+        ],
+        df,
+    )
     check_attribute_on_channel(vis, "MilesPerGal", "y")
     check_attribute_on_channel(vis, "Weight", "x")
 
     # Full channel specified
     vis = Vis(
-        [lux.Clause(attribute="MilesPerGal", channel="y"), lux.Clause(attribute="Weight", channel="x"),],
+        [
+            lux.Clause(attribute="MilesPerGal", channel="y"),
+            lux.Clause(attribute="Weight", channel="x"),
+        ],
         df,
     )
     check_attribute_on_channel(vis, "MilesPerGal", "y")
@@ -370,14 +398,21 @@ def test_autoencoding_scatter():
 
     # Partial channel specified
     vis = Vis(
-        [lux.Clause(attribute="milespergal", channel="y"), lux.Clause(attribute="weight"),], sql_df,
+        [
+            lux.Clause(attribute="milespergal", channel="y"),
+            lux.Clause(attribute="weight"),
+        ],
+        sql_df,
     )
     check_attribute_on_channel(vis, "milespergal", "y")
     check_attribute_on_channel(vis, "weight", "x")
 
     # Full channel specified
     vis = Vis(
-        [lux.Clause(attribute="milespergal", channel="y"), lux.Clause(attribute="weight", channel="x"),],
+        [
+            lux.Clause(attribute="milespergal", channel="y"),
+            lux.Clause(attribute="weight", channel="x"),
+        ],
         sql_df,
     )
     check_attribute_on_channel(vis, "milespergal", "y")
@@ -429,13 +464,22 @@ def test_autoencoding_line_chart(global_var):
     check_attribute_on_channel(vis, "Acceleration", "y")
 
     # Partial channel specified
-    vis = Vis([lux.Clause(attribute="Year", channel="y"), lux.Clause(attribute="Acceleration"),], df,)
+    vis = Vis(
+        [
+            lux.Clause(attribute="Year", channel="y"),
+            lux.Clause(attribute="Acceleration"),
+        ],
+        df,
+    )
     check_attribute_on_channel(vis, "Year", "y")
     check_attribute_on_channel(vis, "Acceleration", "x")
 
     # Full channel specified
     vis = Vis(
-        [lux.Clause(attribute="Year", channel="y"), lux.Clause(attribute="Acceleration", channel="x"),],
+        [
+            lux.Clause(attribute="Year", channel="y"),
+            lux.Clause(attribute="Acceleration", channel="x"),
+        ],
         df,
     )
     check_attribute_on_channel(vis, "Year", "y")
@@ -461,14 +505,21 @@ def test_autoencoding_line_chart(global_var):
 
     # Partial channel specified
     vis = Vis(
-        [lux.Clause(attribute="year", channel="y"), lux.Clause(attribute="acceleration"),], sql_df,
+        [
+            lux.Clause(attribute="year", channel="y"),
+            lux.Clause(attribute="acceleration"),
+        ],
+        sql_df,
     )
     check_attribute_on_channel(vis, "year", "y")
     check_attribute_on_channel(vis, "acceleration", "x")
 
     # Full channel specified
     vis = Vis(
-        [lux.Clause(attribute="year", channel="y"), lux.Clause(attribute="acceleration", channel="x"),],
+        [
+            lux.Clause(attribute="year", channel="y"),
+            lux.Clause(attribute="acceleration", channel="x"),
+        ],
         sql_df,
     )
     check_attribute_on_channel(vis, "year", "y")
@@ -577,7 +628,10 @@ def test_populate_options(global_var):
     assert list_equal(list(col_set), list(df.columns))
 
     df.set_intent(
-        [lux.Clause(attribute="?", data_model="measure"), lux.Clause(attribute="MilesPerGal"),]
+        [
+            lux.Clause(attribute="?", data_model="measure"),
+            lux.Clause(attribute="MilesPerGal"),
+        ]
     )
     df._repr_html_()
     col_set = set()
@@ -585,7 +639,8 @@ def test_populate_options(global_var):
         for clause in specOptions:
             col_set.add(clause.attribute)
     assert list_equal(
-        list(col_set), ["Acceleration", "Weight", "Horsepower", "MilesPerGal", "Displacement"],
+        list(col_set),
+        ["Acceleration", "Weight", "Horsepower", "MilesPerGal", "Displacement"],
     )
     df.clear_intent()
 
@@ -601,7 +656,10 @@ def test_populate_options(global_var):
     assert list_equal(list(col_set), list(sql_df.columns))
 
     sql_df.set_intent(
-        [lux.Clause(attribute="?", data_model="measure"), lux.Clause(attribute="milespergal"),]
+        [
+            lux.Clause(attribute="?", data_model="measure"),
+            lux.Clause(attribute="milespergal"),
+        ]
     )
     sql_df._repr_html_()
     col_set = set()
@@ -609,7 +667,8 @@ def test_populate_options(global_var):
         for clause in specOptions:
             col_set.add(clause.attribute)
     assert list_equal(
-        list(col_set), ["acceleration", "weight", "horsepower", "milespergal", "displacement"],
+        list(col_set),
+        ["acceleration", "weight", "horsepower", "milespergal", "displacement"],
     )
 
 
@@ -619,7 +678,10 @@ def test_remove_all_invalid(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     # with pytest.warns(UserWarning,match="duplicate attribute specified in the intent"):
     df.set_intent(
-        [lux.Clause(attribute="Origin", filter_op="=", value="USA"), lux.Clause(attribute="Origin"),]
+        [
+            lux.Clause(attribute="Origin", filter_op="=", value="USA"),
+            lux.Clause(attribute="Origin"),
+        ]
     )
     df._repr_html_()
     assert len(df.current_vis) == 0
@@ -631,7 +693,10 @@ def test_remove_all_invalid(global_var):
     sql_df = lux.LuxSQLTable(table_name="cars")
     # with pytest.warns(UserWarning,match="duplicate attribute specified in the intent"):
     sql_df.set_intent(
-        [lux.Clause(attribute="origin", filter_op="=", value="USA"), lux.Clause(attribute="origin"),]
+        [
+            lux.Clause(attribute="origin", filter_op="=", value="USA"),
+            lux.Clause(attribute="origin"),
+        ]
     )
     sql_df._repr_html_()
     assert len(sql_df.current_vis) == 0

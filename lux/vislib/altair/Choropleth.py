@@ -68,7 +68,9 @@ class Choropleth(AltairChart):
         points = (
             alt.Chart(geo_map)
             .mark_geoshape()
-            .encode(color=f"{y_attr_abv}:Q",)
+            .encode(
+                color=f"{y_attr_abv}:Q",
+            )
             .transform_lookup(lookup="id", from_=alt.LookupData(self.data, x_attr_abv, [y_attr_abv]))
             .project(type=map_type)
             .properties(

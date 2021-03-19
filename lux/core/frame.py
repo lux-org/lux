@@ -496,7 +496,8 @@ class LuxDataFrame(pd.DataFrame):
             exported_vis = VisList(
                 list(
                     map(
-                        self._recommendation[export_action].__getitem__, exported_vis_lst[export_action],
+                        self._recommendation[export_action].__getitem__,
+                        exported_vis_lst[export_action],
                     )
                 )
             )
@@ -566,7 +567,8 @@ class LuxDataFrame(pd.DataFrame):
             self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
             button = widgets.Button(
-                description="Toggle Pandas/Lux", layout=widgets.Layout(width="140px", top="5px"),
+                description="Toggle Pandas/Lux",
+                layout=widgets.Layout(width="140px", top="5px"),
             )
             self.output = widgets.Output()
             display(button, self.output)

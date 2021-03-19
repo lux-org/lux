@@ -84,7 +84,8 @@ class LuxSQLTable(lux.LuxDataFrame):
             error_str = str(error)
             if f'relation "{t_name}" does not exist' in error_str:
                 warnings.warn(
-                    f"\nThe table '{t_name}' does not exist in your database./", stacklevel=2,
+                    f"\nThe table '{t_name}' does not exist in your database./",
+                    stacklevel=2,
                 )
 
     def _repr_html_(self):
