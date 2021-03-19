@@ -58,30 +58,10 @@ class LuxSQLTable(lux.LuxDataFrame):
     ]
 
     def __init__(self, *args, table_name="", **kw):
-        self._history = History()
-        self._intent = []
-        self._inferred_intent = []
-        self._recommendation = {}
-        self._saved_export = None
-        self._current_vis = []
-        self._prev = None
-        self._widget = None
         super(LuxSQLTable, self).__init__(*args, **kw)
         from lux.executor.SQLExecutor import SQLExecutor
 
         lux.config.executor = SQLExecutor()
-
-        self._sampled = None
-        self._toggle_pandas_display = True
-        self._message = Message()
-        self._pandas_only = False
-        # Metadata
-        self._data_type = {}
-        self.unique_values = None
-        self.cardinality = None
-        self._min_max = None
-        self.pre_aggregated = None
-        self._type_override = {}
 
         if table_name != "":
             self.set_SQL_table(table_name)
@@ -142,7 +122,17 @@ class LuxSQLTable(lux.LuxDataFrame):
             )
             self.output = widgets.Output()
             lux.config.executor.execute_preview(self)
-            display(button, self.output)
+            notice = HTML(
+                """<style>
+            body
+            {
+            background-color:#aa0000;
+            }
+            </style>
+            Please note, the data shown here is just a preview of the database table. You will be unable to perform Pandas functionality on this data."""
+            )
+
+            display(button, notice, self.output)
 
             def on_button_clicked(b):
                 with self.output:
