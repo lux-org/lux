@@ -266,8 +266,11 @@ def test_scatter_chart(global_var):
     vis = Vis(["Acceleration", "Weight"], df)
     vis_code = vis.to_matplotlib_code()
     assert "ax.scatter(x_pts, y_pts, alpha=0.5)" in vis_code
-    assert "ax.set_xlabel('Acceleration')" in vis_code
-    assert "ax.set_ylabel('Weight')" in vis_code
+    assert (
+        "ax.set_xlabel('Acceleration', fontsize='15')" in vis_code
+        or "ax.set_xlabel('Acceleration')" in vis_code
+    )
+    assert "ax.set_ylabel('Weight', fontsize='15')" in vis_code or "ax.set_ylabel('Weight')" in vis_code
 
 
 def test_colored_scatter_chart(global_var):
@@ -290,8 +293,11 @@ def test_colored_scatter_chart(global_var):
     vis_code = vis.to_matplotlib_code()
     assert "ax.scatter" in vis_code
     assert "title='Origin'" in vis_code
-    assert "ax.set_xlabel('Acceleration')" in vis_code
-    assert "ax.set_ylabel('Weight')" in vis_code
+    assert (
+        "ax.set_xlabel('Acceleration', fontsize='15')" in vis_code
+        or "ax.set_xlabel('Acceleration')" in vis_code
+    )
+    assert "ax.set_ylabel('Weight', fontsize='15')" in vis_code or "ax.set_ylabel('Weight')" in vis_code
 
 
 def test_line_chart(global_var):
