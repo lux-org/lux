@@ -53,7 +53,7 @@ class Histogram(AltairChart):
 
         # Default when bin too small
         if markbar < (x_range / 24):
-            markbar = abs(x_max - x_min) / 12
+            markbar = x_max - x_min / 12
 
         self.data = AltairChart.sanitize_dataframe(self.data)
         end_attr_abv = str(msr_attr.attribute) + "_end"
