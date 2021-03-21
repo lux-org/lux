@@ -426,7 +426,7 @@ class PandasExecutor(Executor):
                     if (
                         convertible2int
                         and ldf.cardinality[attr] != len(ldf)
-                        and ldf.cardinality[attr] < 20
+                        and (len(ldf[attr].convert_dtypes().unique() < 20 ))
                     ):
                         ldf._data_type[attr] = "nominal"
                     else:
@@ -524,9 +524,12 @@ class PandasExecutor(Executor):
             else:
                 attribute_repr = attribute
 
-            ldf.unique_values[attribute_repr] = list(ldf[attribute_repr].unique())
-            ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
-
+            if ldf.dtypes[attribute] != "float64" or ldf[attribute].isnull().values.any():
+                ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+                ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
+            else:   
+                ldf.cardinality[attribute_repr] = 999 # special value for non-numeric attribute
+                
             if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(
                 ldf.dtypes[attribute]
             ):

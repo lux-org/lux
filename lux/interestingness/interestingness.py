@@ -357,7 +357,7 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
         warnings.filterwarnings("error")
         try:
             score = np.abs(pearsonr(v_x, v_y)[0])
-        except (RuntimeWarning):
+        except:
             # RuntimeWarning: invalid value encountered in true_divide (occurs when v_x and v_y are uniform, stdev in denominator is zero, leading to spearman's correlation as nan), ignore these cases.
             score = -1
 

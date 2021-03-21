@@ -68,7 +68,7 @@ def univariate(ldf, *args):
         examples = ""
         if len(possible_attributes) >= 1:
             examples = f" (e.g., {possible_attributes[0]})"
-        intent = [lux.Clause("?", data_type="nominal")]
+        intent = [lux.Clause(possible_attributes)]
         intent.extend(filter_specs)
         recommendation = {
             "action": "Occurrence",
