@@ -246,14 +246,17 @@ def test_colored_bar_chart(global_var):
     assert "ax.set_xlabel('Acceleration')" in vis_code
     assert "ax.set_ylabel('Cylinders')" in vis_code
 
+
 def test_bar_uniform():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["Units"] = "units"
     vis = Vis(["Units"], df)
     vis_code = vis.to_Altair()
-    assert "y = alt.Y('Units', type= 'nominal', axis=alt.Axis(labelOverlap=True, title='Units'))" in vis_code
-
+    assert (
+        "y = alt.Y('Units', type= 'nominal', axis=alt.Axis(labelOverlap=True, title='Units'))"
+        in vis_code
+    )
 
 
 def test_scatter_chart(global_var):
@@ -369,15 +372,17 @@ def test_histogram_chart(global_var):
     assert "ax.set_xlabel('Displacement (binned)')" in vis_code
     assert "ax.set_ylabel('Number of Records')" in vis_code
 
+
 def test_uniform_histogram():
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["Units"] = 4.0
     vis = Vis(["Units"], df)
     vis_code = vis.to_Altair()
-    assert "y = alt.Y('Units', type= 'nominal', axis=alt.Axis(labelOverlap=True, title='Units'), sort ='-x')," in vis_code
-
-
+    assert (
+        "y = alt.Y('Units', type= 'nominal', axis=alt.Axis(labelOverlap=True, title='Units'), sort ='-x'),"
+        in vis_code
+    )
 
 
 def test_heatmap_chart(global_var):
