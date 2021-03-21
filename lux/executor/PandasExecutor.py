@@ -132,6 +132,7 @@ class PandasExecutor(Executor):
         has_color = False
         groupby_attr = ""
         measure_attr = ""
+        attr_unique_vals = []
         if x_attr.aggregation is None or y_attr.aggregation is None:
             return
         if y_attr.aggregation != "":
@@ -143,7 +144,7 @@ class PandasExecutor(Executor):
             measure_attr = x_attr
             agg_func = x_attr.aggregation
         if groupby_attr.attribute in vis.data.unique_values.keys():
-            attr_unique_vals = vis.data.unique_values[groupby_attr.attribute]
+            attr_unique_vals = vis.data.unique_values.get(groupby_attr.attribute)
         # checks if color is specified in the Vis
         if len(vis.get_attr_by_channel("color")) == 1:
             color_attr = vis.get_attr_by_channel("color")[0]

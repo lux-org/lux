@@ -438,7 +438,7 @@ def test_iloc(global_var):
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:5]
     new_df._repr_html_()
-    assert list(new_df.recommendation.keys()) == ["Distribution"]
+    assert list(new_df.recommendation.keys()) == ["Distribution", "Occurrence"]
     assert len(new_df.cardinality) == 2
     import numpy as np
 
