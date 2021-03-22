@@ -31,7 +31,7 @@ import lux
 
 class LuxSQLTable(lux.LuxDataFrame):
     """
-    A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
+    A subclass of Lux.LuxDataFrame that houses other variables and functions for generating visual recommendations. Does not support normal pandas functionality.
     """
 
     # MUST register here for new properties!!
