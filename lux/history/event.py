@@ -29,9 +29,19 @@ class Event:
         self.ex_count = ex_count
         self.args = args
         self.kwargs = kwargs
+    
+    def copy(self):
+        event_copy = Event(self.op_name, 
+                            self.cols, 
+                            self.weight,
+                            self.ex_count,
+                            *self.args,
+                            **self.kwargs)
+        
+        return event_copy
 
     def __repr__(self):
-        s = f"<Event: {self.op_name}, weight: {self.weight}, ex_count: {self.ex_count}"
+        s = f"<Event({id(self)}): {self.op_name}, weight: {self.weight}, ex_count: {self.ex_count}"
         if self.cols:
             s += f", cols={self.cols}"
         if self.args != () or self.kwargs != {}:

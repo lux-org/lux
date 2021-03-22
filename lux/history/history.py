@@ -44,9 +44,12 @@ class History:
             event_repr.append(event.__repr__())
         return "[" + ",\n".join(event_repr) + "]"
 
+    # deep copy 
     def copy(self):
-        history_copy = History()
-        history_copy._events.extend(self._events)
+        history_copy = History(self.parent_ldf)
+        _events_copy = [item.copy() for item in self._events]
+        history_copy._events = _events_copy
+        #history_copy._events.extend(self._events) # NOTE if events become mutable they need to be copied too 
         return history_copy
 
     ######################
@@ -81,7 +84,7 @@ class History:
         Iterates through history events and gets ordering of columns by user interest 
         and most recent signal.
         """
-        most_recent_signal = None
+        mre = None
         agg_col_ref = {}
         col_order = []
 
@@ -89,8 +92,8 @@ class History:
             for e in self._events[::-1]: # reverse iterate
                 
                 # first event that is not just col ref is most recent for vis
-                if not most_recent_signal and e.op_name != "col_ref":
-                    most_recent_signal = e 
+                if not mre and e.op_name != "col_ref":
+                    mre = e 
                 
                 for c in e.cols:
                     if c in agg_col_ref:
@@ -106,8 +109,10 @@ class History:
         # validate the returned signals
         #parent_cols = self.parent_ldf.columns
         val_col_order = [item for item in col_order if item in valid_cols]
-        if most_recent_signal:
-            mre_cols = [item for item in most_recent_signal.cols if item in valid_cols]
-            most_recent_signal.cols = mre_cols
+        if mre:
+            val_mre_cols = [item for item in mre.cols if item in valid_cols]
+            val_mre = mre.copy()
+            val_mre.cols = val_mre_cols
+            mre = val_mre
         
-        return most_recent_signal, val_col_order
+        return mre, val_col_order

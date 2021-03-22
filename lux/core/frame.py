@@ -162,34 +162,27 @@ class LuxDataFrame(pd.DataFrame):
     ## HISTORY stuff
     def __getattr__(self, name):
         """
-        Called when
+        Called when:
             df.col
         
-        This is calling __getitem__ internally
+        This calls  __getitem__ internally.
         """
         ret_value = super(LuxDataFrame, self).__getattr__(name)
 
-        # TODO attach which attribute this is to the history of ret_value
         # lux 
         self.expire_metadata()
         self.expire_recs()
-
-        # history 
-        # if name in self.columns:
-        #     self.history.append_event("col_ref", [name])
 
         return ret_value
     
     def __getitem__(self, key):
         """
-        df.col calls __getattr__ which then calls __getitem__
-
-        __getitem__ is called when selecting like below
+        Called when selecting like below
             df["col"]
             df[["col_1", "col_2"]]
         """
         #set_trace()
-        ret_value = super(LuxDataFrame, self).__getitem__(key) # BUG this has the same history as self?
+        ret_value = super(LuxDataFrame, self).__getitem__(key)
 
         # single item like str "col_name"
         if is_hashable(key) and key in self.columns:
@@ -209,10 +202,17 @@ class LuxDataFrame(pd.DataFrame):
     def __finalize__(
         self: FrameOrSeries, other, method: Optional[str] = None, **kwargs
     ) -> FrameOrSeries:
+        """
+        Finalize gets called a LOT by pandas. It is used to copy over anything defined in the 
+        class _metadata array when a new df is returned on a call to the original df. 
+        Since the history is an instance variable it's a bit hacky to attach it to the metadata 
+        so we have to override and make sure we use a copy of history and not the same object. 
+        
+        Since histories are pretty small this shouldnt cause too much overhead.
+        """
         _this = super(LuxDataFrame, self).__finalize__(other, method, **kwargs)
-
-        #set_trace()
-        print("Finalize yo")
+        
+        _this._history = _this._history.copy()
 
         return _this
 
