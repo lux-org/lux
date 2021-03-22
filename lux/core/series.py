@@ -20,8 +20,16 @@ import numpy as np
 from lux.history.history import History
 from lux.utils.message import Message
 
-from pandas._typing import FrameOrSeries
-from typing import Optional
+from pandas._typing import (
+    FrameOrSeries,
+    ArrayLike,
+)
+from typing import (
+    Optional,
+    Tuple,
+    Union,
+    Hashable,
+)
 
 from IPython.core.debugger import set_trace
 
@@ -264,6 +272,17 @@ class LuxSeries(pd.Series):
         _this = super(LuxSeries, self).__finalize__(other, method, **kwargs)
         _this._history = _this._history.copy()
         return _this
+
+    # def _construct_result(
+    #     self, result: Union[ArrayLike, Tuple[ArrayLike, ArrayLike]], name: Hashable
+    # ) -> Union[pd.Series, Tuple[pd.Series, pd.Series]]:
+    #     ret_value = super(LuxSeries, self)._construct_result(result, name)
+
+    #     set_trace()
+
+    #     print(type(ret_value))
+
+    #     return ret_value
     
     def value_counts(
         self,
@@ -300,6 +319,11 @@ class LuxSeries(pd.Series):
         self.add_to_parent_history("unique", [self.name])
 
         return ret_value
+    
+    
+    #################
+    # History Utils #
+    #################
     
     def add_to_parent_history(self, op, cols, **kw_dict):
         """

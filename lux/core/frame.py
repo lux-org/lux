@@ -95,13 +95,20 @@ class LuxDataFrame(pd.DataFrame):
         self._min_max = None
         self.pre_aggregated = None
         self._type_override = {}
+        self._parent_df = None
         warnings.formatwarning = lux.warning_format
 
         # BUG: this gets called a lot of times?
 
     @property
     def _constructor(self):
-        return LuxDataFrame
+        def f(*args, **kwargs):
+            _df = LuxDataFrame(*args, **kwargs)
+            # meta data should get proped through __finalize__ after this
+            _df._parent_df = self
+            return _df
+
+        return f
 
     # 
     # This is called when a series is returned from the df 
@@ -988,7 +995,29 @@ class LuxDataFrame(pd.DataFrame):
         _this._history = _this._history.copy()
 
         return _this
+    
+    def _getitem_bool_array(self, key):
+        """
+        Called after a filter.
+        key is the mask that selects from self to create the ret_value
 
+        """
+        # set_trace()
+        ret_value = super(LuxDataFrame, self)._getitem_bool_array(key)
+
+        # append to parent history
+        self._history.append_event("filter", [], filt_type="parent", filt_key=key)
+
+        # append to child history
+        ret_value._history.append_event("filter", [], filt_type="child", filt_key=key)
+
+        return ret_value
+    
+    def query(self, expr: str, inplace: bool = False, **kwargs):
+
+        ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
+
+        return ret_value
     
     # History logging functions 
     def head(self, n: int = 5):

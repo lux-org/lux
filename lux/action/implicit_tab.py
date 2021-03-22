@@ -38,7 +38,7 @@ def implicit_tab(ldf: LuxDataFrame):
             object with a collection of visualizations that result from the Implicit action.
     """
     # these events are cleansed when fetched 
-    set_trace()
+    # set_trace()
     most_recent_event, col_list = ldf.history.get_implicit_intent(ldf.columns)
     str_desc = "Recommendedations based off code containing: <br/>"
     lux_vis = []
@@ -120,14 +120,12 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
         for v in vis_list:
             v.score = 100
 
-    elif signal.op_name == "subs_filter" or signal.op_name == "filter" or signal.op_name == "loc": # or query
-        # filts = signal.f_arg_dict["filts"]
-        # alt_v = plot_filter(ldf, filts)
-        # if alt_v:
-        #     cv = CustomVis(alt_v)
-        #     vis_list = [cv]
-        ...
-
+    elif signal.op_name == "filter": #or signal.op_name == "loc": # or query
+        alt_v = process_filter(signal, ldf)
+        if alt_v:
+            cv = CustomVis(alt_v)
+            vis_list = [cv]
+        
     elif signal.op_name == "groupby" or signal.op_name == "agg":
         ...
     
@@ -139,46 +137,66 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
     return vis_list
     
 
+def process_filter(signal, ldf):
+    filt_type = signal.kwargs["filt_type"]
+    parent_mask = signal.kwargs["filt_key"]
 
-def plot_filter(ldf, col_filters):
+    # get columns of interest 
+    ex_time = signal.ex_count
+
+    other_signals = ldf._history.filter_by_ex_time(ex_time)
+    cols = set()
+    for s in other_signals:
+        cols.update(s.cols)
+
+    cols = list(cols)
+    
+    chart = None
+    if len(cols): # if no columns captured in same time we wont plot
+        if filt_type == "parent":
+            chart = plot_filter(ldf, cols, parent_mask)
+        
+        elif ldf._parent_df is not None: # filt_type == "child"
+            chart = plot_filter(ldf._parent_df, cols, parent_mask)
+
+    return chart
+
+
+
+def plot_filter(ldf, cols, mask):
     """
     data_source = df
     col_filters = [ColFilter, ...]
     """
-    alt.X('Acceleration', type='quantitative'),
-    alt.Y('Miles_per_Gallon', type='quantitative')
+    ldf = ldf.copy()
+    ldf["filt_mask"] = mask
 
     chart = None
-    if len(col_filters) == 1:
-        this_filter = col_filters[0]
 
-        x_d_type = ldf.data_type[this_filter.col_name]
+    tf_scale = alt.Scale(domain=[True, False], range=["steelblue", "grey"])
+    
+    if len(cols) == 1:
+        this_col = cols[0]
+
+        x_d_type = ldf.data_type[this_col]
         _bin = (x_d_type == "quantitative")
         
         chart = alt.Chart(ldf).mark_bar().encode(
-          x= alt.X(this_filter.col_name, type=x_d_type, bin=_bin),
-          y=f"count({this_filter.col_name}):Q",
-          color=alt.condition(
-              fill_condition(col_filters),
-              alt.value("steelblue"), 
-              alt.value("grey")  
-          )
+          x= alt.X(this_col, type=x_d_type, bin=_bin),
+          y=f"count({this_col}):Q",
+          color= alt.Color("filt_mask", scale= tf_scale )
         )
     
-    elif len(col_filters) == 3: # this looks bad when both are categorical
-        x_d_type = ldf.data_type[col_filters[0].col_name]
-        y_d_type = ldf.data_type[col_filters[2].col_name]
+    elif len(cols) >= 2: # this looks bad when both are categorical
+        x_d_type = ldf.data_type[cols[0]]
+        y_d_type = ldf.data_type[cols[1]]
         x_bin = (x_d_type == "quantitative")
         y_bin = (y_d_type == "quantitative")
         
         chart = alt.Chart(ldf).mark_point().encode(
-          x= alt.X(col_filters[0].col_name, type=x_d_type, bin=x_bin),
-          y= alt.Y(col_filters[2].col_name, type=y_d_type, bin=y_bin),
-          color=alt.condition(
-              fill_condition(col_filters),
-              alt.value("steelblue"), 
-              alt.value("grey")  
-          )
+          x= alt.X(cols[0], type=x_d_type, bin=x_bin),
+          y= alt.Y(cols[1], type=y_d_type, bin=y_bin),
+          color= alt.Color("filt_mask", scale= tf_scale )
         )
     
     if chart:
@@ -186,30 +204,20 @@ def plot_filter(ldf, col_filters):
     
     return chart
 
-def fill_condition(conds):
-    s = ""
-    for c in conds:
-        if type(c) == ColFilter:
-            s += f"(datum['{c.col_name}'] {c.comp} '{c.val}')"
-        else: # str with & or |
-            s += str(c)
-    return s
 
-def compute_filter_diff(old_df, filt_df):
-    """
-    Assumes filt_df is a subset of old_df.
-    Create indicator the size of old_df, 1= in both, 0= only in old
-
-    TODO this still needs the columns to visualize but can be used as a flag for the color encoding
-    """
-    # filtered should always be smaller
-    if len(filt_df) > len(old_df):
-        _t = filt_df
-        filt_df = old_df
-        old_df = _t
+# def compute_filter_diff(old_df, filt_df):
+#     """
+#     Assumes filt_df is a subset of old_df.
+#     Create indicator the size of old_df, 1= in both, 0= only in old
+#     """
+#     # filtered should always be smaller
+#     if len(filt_df) > len(old_df):
+#         _t = filt_df
+#         filt_df = old_df
+#         old_df = _t
     
-    _d = old_df.merge(filt_df, indicator=True, how="left")
+#     _d = old_df.merge(filt_df, indicator=True, how="left")
 
-    indicator = (_d._merge == "both").astype(int)
+#     indicator = (_d._merge == "both").astype(int)
     
-    return indicator
+#     return indicator

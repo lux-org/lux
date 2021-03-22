@@ -78,6 +78,9 @@ class History:
     def decay_weights(self):
         for e in self._events:
             e.weight *= self._time_decay
+    
+    def filter_by_ex_time(self, t):
+        return list(filter(lambda x: x.ex_count == t, self._events))
             
     ######################
     ## Implicit Intent  ##
