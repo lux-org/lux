@@ -132,6 +132,7 @@ class PandasExecutor(Executor):
         has_color = False
         groupby_attr = ""
         measure_attr = ""
+        attr_unique_vals = []
         if x_attr.aggregation is None or y_attr.aggregation is None:
             return
         if y_attr.aggregation != "":
@@ -143,7 +144,7 @@ class PandasExecutor(Executor):
             measure_attr = x_attr
             agg_func = x_attr.aggregation
         if groupby_attr.attribute in vis.data.unique_values.keys():
-            attr_unique_vals = vis.data.unique_values[groupby_attr.attribute]
+            attr_unique_vals = vis.data.unique_values.get(groupby_attr.attribute)
         # checks if color is specified in the Vis
         if len(vis.get_attr_by_channel("color")) == 1:
             color_attr = vis.get_attr_by_channel("color")[0]
@@ -426,7 +427,7 @@ class PandasExecutor(Executor):
                     if (
                         convertible2int
                         and ldf.cardinality[attr] != len(ldf)
-                        and ldf.cardinality[attr] < 20
+                        and (len(ldf[attr].convert_dtypes().unique() < 20))
                     ):
                         ldf._data_type[attr] = "nominal"
                     else:
@@ -524,8 +525,11 @@ class PandasExecutor(Executor):
             else:
                 attribute_repr = attribute
 
-            ldf.unique_values[attribute_repr] = list(ldf[attribute_repr].unique())
-            ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
+            if ldf.dtypes[attribute] != "float64" or ldf[attribute].isnull().values.any():
+                ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+                ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
+            else:
+                ldf.cardinality[attribute_repr] = 999  # special value for non-numeric attribute
 
             if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(
                 ldf.dtypes[attribute]
