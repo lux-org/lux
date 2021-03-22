@@ -139,60 +139,60 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
     
 
 
-# def plot_filter(ldf, col_filters):
-#     """
-#     data_source = df
-#     col_filters = [ColFilter, ...]
-#     """
-#     alt.X('Acceleration', type='quantitative'),
-#     alt.Y('Miles_per_Gallon', type='quantitative')
+def plot_filter(ldf, col_filters):
+    """
+    data_source = df
+    col_filters = [ColFilter, ...]
+    """
+    alt.X('Acceleration', type='quantitative'),
+    alt.Y('Miles_per_Gallon', type='quantitative')
 
-#     chart = None
-#     if len(col_filters) == 1:
-#         this_filter = col_filters[0]
+    chart = None
+    if len(col_filters) == 1:
+        this_filter = col_filters[0]
 
-#         x_d_type = ldf.data_type[this_filter.col_name]
-#         _bin = (x_d_type == "quantitative")
+        x_d_type = ldf.data_type[this_filter.col_name]
+        _bin = (x_d_type == "quantitative")
         
-#         chart = alt.Chart(ldf).mark_bar().encode(
-#           x= alt.X(this_filter.col_name, type=x_d_type, bin=_bin),
-#           y=f"count({this_filter.col_name}):Q",
-#           color=alt.condition(
-#               fill_condition(col_filters),
-#               alt.value("steelblue"), 
-#               alt.value("grey")  
-#           )
-#         )
+        chart = alt.Chart(ldf).mark_bar().encode(
+          x= alt.X(this_filter.col_name, type=x_d_type, bin=_bin),
+          y=f"count({this_filter.col_name}):Q",
+          color=alt.condition(
+              fill_condition(col_filters),
+              alt.value("steelblue"), 
+              alt.value("grey")  
+          )
+        )
     
-#     elif len(col_filters) == 3: # this looks bad when both are categorical
-#         x_d_type = ldf.data_type[col_filters[0].col_name]
-#         y_d_type = ldf.data_type[col_filters[2].col_name]
-#         x_bin = (x_d_type == "quantitative")
-#         y_bin = (y_d_type == "quantitative")
+    elif len(col_filters) == 3: # this looks bad when both are categorical
+        x_d_type = ldf.data_type[col_filters[0].col_name]
+        y_d_type = ldf.data_type[col_filters[2].col_name]
+        x_bin = (x_d_type == "quantitative")
+        y_bin = (y_d_type == "quantitative")
         
-#         chart = alt.Chart(ldf).mark_point().encode(
-#           x= alt.X(col_filters[0].col_name, type=x_d_type, bin=x_bin),
-#           y= alt.Y(col_filters[2].col_name, type=y_d_type, bin=y_bin),
-#           color=alt.condition(
-#               fill_condition(col_filters),
-#               alt.value("steelblue"), 
-#               alt.value("grey")  
-#           )
-#         )
+        chart = alt.Chart(ldf).mark_point().encode(
+          x= alt.X(col_filters[0].col_name, type=x_d_type, bin=x_bin),
+          y= alt.Y(col_filters[2].col_name, type=y_d_type, bin=y_bin),
+          color=alt.condition(
+              fill_condition(col_filters),
+              alt.value("steelblue"), 
+              alt.value("grey")  
+          )
+        )
     
-#     if chart:
-#         chart = chart.interactive()
+    if chart:
+        chart = chart.interactive()
     
-#     return chart
+    return chart
 
-# def fill_condition(conds):
-#     s = ""
-#     for c in conds:
-#         if type(c) == ColFilter:
-#             s += f"(datum['{c.col_name}'] {c.comp} '{c.val}')"
-#         else: # str with & or |
-#             s += str(c)
-#     return s
+def fill_condition(conds):
+    s = ""
+    for c in conds:
+        if type(c) == ColFilter:
+            s += f"(datum['{c.col_name}'] {c.comp} '{c.val}')"
+        else: # str with & or |
+            s += str(c)
+    return s
 
 def compute_filter_diff(old_df, filt_df):
     """

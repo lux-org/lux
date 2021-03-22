@@ -100,7 +100,6 @@ class LuxDataFrame(pd.DataFrame):
 
     # 
     # This is called when a series is returned from the df 
-    # NOTE: this gets called a shit ton
     @property
     def _constructor_sliced(self):
         def f(*args, **kwargs):
@@ -155,82 +154,6 @@ class LuxDataFrame(pd.DataFrame):
         self._min_max = None
         self.pre_aggregated = None
 
-    #####################
-    ## Override Pandas ##
-    #####################
-
-    ## HISTORY stuff
-    def __getattr__(self, name):
-        """
-        Called when:
-            df.col
-        
-        This calls  __getitem__ internally.
-        """
-        ret_value = super(LuxDataFrame, self).__getattr__(name)
-
-        # lux 
-        self.expire_metadata()
-        self.expire_recs()
-
-        return ret_value
-    
-    def __getitem__(self, key):
-        """
-        Called when selecting like below
-            df["col"]
-            df[["col_1", "col_2"]]
-        """
-        #set_trace()
-        ret_value = super(LuxDataFrame, self).__getitem__(key)
-
-        # single item like str "col_name"
-        if is_hashable(key) and key in self.columns:
-            self.history.append_event("col_ref", [key])
-        
-        elif is_list_like(key):
-            checked_keys = []
-            for item in key:
-                if is_hashable(item) and item in self.columns:
-                    checked_keys.append(item)
-            
-            if len(checked_keys):
-                self.history.append_event("col_ref", checked_keys)
-        
-        return ret_value
-    
-    def __finalize__(
-        self: FrameOrSeries, other, method: Optional[str] = None, **kwargs
-    ) -> FrameOrSeries:
-        """
-        Finalize gets called a LOT by pandas. It is used to copy over anything defined in the 
-        class _metadata array when a new df is returned on a call to the original df. 
-        Since the history is an instance variable it's a bit hacky to attach it to the metadata 
-        so we have to override and make sure we use a copy of history and not the same object. 
-        
-        Since histories are pretty small this shouldnt cause too much overhead.
-        """
-        _this = super(LuxDataFrame, self).__finalize__(other, method, **kwargs)
-        
-        _this._history = _this._history.copy()
-
-        return _this
-
-    ## Other overrides 
-    def _set_axis(self, axis, labels):
-        super(LuxDataFrame, self)._set_axis(axis, labels)
-        self.expire_metadata()
-        self.expire_recs()
-
-    def _update_inplace(self, *args, **kwargs):
-        super(LuxDataFrame, self)._update_inplace(*args, **kwargs)
-        self.expire_metadata()
-        self.expire_recs()
-
-    def _set_item(self, key, value):
-        super(LuxDataFrame, self)._set_item(key, value)
-        self.expire_metadata()
-        self.expire_recs()
 
     def _infer_structure(self):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
@@ -247,7 +170,6 @@ class LuxDataFrame(pd.DataFrame):
             #     self.pre_aggregated = True
     
     
-
     @property
     def intent(self):
         """
@@ -984,26 +906,114 @@ class LuxDataFrame(pd.DataFrame):
             fp.write(rendered_template)
             print(f"Saved HTML to {filename}")
 
-    # Overridden Pandas Functions
+    #####################
+    ## Override Pandas ##
+    #####################
+
+    ## state overrides 
+    def _set_axis(self, axis, labels):
+        super(LuxDataFrame, self)._set_axis(axis, labels)
+        self.expire_metadata()
+        self.expire_recs()
+
+    def _update_inplace(self, *args, **kwargs):
+        super(LuxDataFrame, self)._update_inplace(*args, **kwargs)
+        self.expire_metadata()
+        self.expire_recs()
+
+    def _set_item(self, key, value):
+        super(LuxDataFrame, self)._set_item(key, value)
+        self.expire_metadata()
+        self.expire_recs()
+
+    ## HISTORY overrides
+    def __getattr__(self, name):
+        """
+        Called when:
+            df.col
+        
+        This calls  __getitem__ internally.
+        """
+        ret_value = super(LuxDataFrame, self).__getattr__(name)
+
+        # lux 
+        self.expire_metadata()
+        self.expire_recs()
+
+        return ret_value
+    
+    def __getitem__(self, key):
+        """
+        Called when selecting like below
+            df["col"]
+            df[["col_1", "col_2"]]
+        """
+        ret_value = super(LuxDataFrame, self).__getitem__(key)
+
+        # single item like str "col_name"
+        if is_hashable(key) and key in self.columns:
+            self.history.append_event("col_ref", [key])
+        
+        elif is_list_like(key):
+            checked_keys = []
+            for item in key:
+                if is_hashable(item) and item in self.columns:
+                    checked_keys.append(item)
+            
+            if len(checked_keys):
+                self.history.append_event("col_ref", checked_keys)
+        
+        return ret_value
+    
+    def __finalize__(
+        self: FrameOrSeries, other, method: Optional[str] = None, **kwargs
+    ) -> FrameOrSeries:
+        """
+        Finalize gets called a LOT by pandas. It is used to copy over anything defined in the 
+        class _metadata array when a new df is returned on a call to the original df. 
+        Since the history is an instance variable it's a bit hacky to attach it to the metadata 
+        so we have to override and make sure we use a copy of history and not the same object. 
+        
+        Since histories are pretty small this shouldnt cause too much overhead.
+        """
+        _this = super(LuxDataFrame, self).__finalize__(other, method, **kwargs)
+        
+        _this._history = _this._history.copy()
+
+        return _this
+
+    
+    # History logging functions 
     def head(self, n: int = 5):
+        ret_frame = super(LuxDataFrame, self).head(n)
         self._prev = self
+       
+        # save history on self and returned df
         self._history.append_event("head", [], n=5)
-        return super(LuxDataFrame, self).head(n)
+        ret_frame._history.append_event("head", [], n=5)
+        return ret_frame
 
     def tail(self, n: int = 5):
+        ret_frame = super(LuxDataFrame, self).tail(n)
         self._prev = self
+        
+        # save history on self and returned df
         self._history.append_event("tail", [], n=5)
-        return super(LuxDataFrame, self).tail(n)
+        ret_frame._history.append_event("tail", [], n=5)
+        return ret_frame
 
     def info(self, *args, **kwargs):
         self._pandas_only = True
         self._history.append_event("info", [], *args, **kwargs)
-        return super(LuxDataFrame, self).info(*args, **kwargs)
+        return super(LuxDataFrame, self).info(*args, **kwargs) # returns None
 
     def describe(self, *args, **kwargs):
-        self._pandas_only = True
+        ret_frame =  super(LuxDataFrame, self).describe(*args, **kwargs)
+        
+        # save history on self and returned df
         self._history.append_event("describe", [], *args, **kwargs)
-        return super(LuxDataFrame, self).describe(*args, **kwargs)
+        ret_frame._history.append_event("describe", [], n=5)
+        return ret_frame
 
     def groupby(self, *args, **kwargs):
         history_flag = False
