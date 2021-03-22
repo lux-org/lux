@@ -14,6 +14,8 @@
 
 from typing import List, Union, Callable, Dict
 from lux.history.event import Event
+from IPython import get_ipython
+
 
 class History:
     """
@@ -24,9 +26,9 @@ class History:
     def __init__(self, ldf):
         self._events = []
         self._frozen_count = 0
-        self._ex_count = 0
         self._time_decay = .9
         self.parent_ldf = ldf
+        self.kernel = get_ipython()
 
     def __getitem__(self, key):
         return self._events[key]
@@ -66,10 +68,9 @@ class History:
 
     def append_event(self, op_name, cols, *args, **kwargs):
         if self._frozen_count == 0:
-            event = Event(op_name, cols, 1, self._ex_count, *args, **kwargs)
+            event = Event(op_name, cols, 1, self.kernel.execution_count, *args, **kwargs)
             self.decay_weights()
             self._events.append(event)
-            self._ex_count += 1
     
     def decay_weights(self):
         for e in self._events:
