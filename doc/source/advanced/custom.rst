@@ -11,37 +11,51 @@ In this tutorial, we will look at how you can register custom recommendation act
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/hpi.csv")
     df["G10"]  = df["Country"].isin(["Belgium","Canada","France","Germany","Italy","Japan","Netherlands","United Kingdom","Switzerland","Sweden","United States"])
     lux.config.default_display = "lux"
+
+As we can see, Lux registers a set of default recommendations to display to users, such as Correlation, Distribution, etc.
+
+.. code-block:: python
+
     df
 
-As we can see, Lux displays several recommendation actions, such as Correlation and Distributions, which is globally registered by default.
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-3.png?raw=true
+    :width: 700
+    :align: center
+    :alt: Displays default actions after print df.
 
 Registering Custom Actions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's define a custom function to generate the recommendations on the dataframe. In this example, we register a custom action called `G10` to generate a collection of visualizations that showcases numerical measures that differs significantly across `G10 <https://en.wikipedia.org/wiki/Group_of_Ten_(economics)>`_ and non-G10 countries. In other words, we want to understand how the G10 and non-G10 countries differs based on the measures present in the dataframe. 
+Let's define a custom function to generate the recommendations on the dataframe. In this example, we register a custom action that showcases numerical measures that differs significantly across G10 and non-G10 countries. `G10 countries<https://en.wikipedia.org/wiki/Group_of_Ten_(economics)>` are composed of the ten most industrialized countries in the world, so comparing G10 and non-G10 countries allows us to understand how industrialized and non-industrialized economies differs based on the measures present in the dataframe. 
 
 Here, we first generate a VisList that looks at how various quantitative attributes breakdown between G10 and non-G10 countries. Then, we score and rank these visualization by calculating the percentage difference in means across G10 v.s. non-G10 countries.
 
 .. code-block:: python
 
     from lux.vis.VisList import VisList
+    # Create a VisList containing G10 with respect to all possible quantitative columns in the dataframe
     intent = [lux.Clause("?",data_type="quantitative"),lux.Clause("G10")]
     vlist = VisList(intent,df)
-
+    
     for vis in vlist:
-        # Percentage Change Between G10 v.s. non-G10 countries 
+        # Percentage Change Between G10 v.s. non-G10 countries
         a = vis.data.iloc[0,1]
         b = vis.data.iloc[1,1]
         vis.score = (b-a)/a
-    lux.config.topK = 15
-    vlist = vlist.showK()
+    vlist.sort()
+    vlist.showK()
 
-Let's define a custom function to generate the recommendations on the dataframe. In this example, we will use G10 to generate a VisList to calculate the percentage change of means Between G10 v.s. non-G10 countries.
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-0.png?raw=true
+    :width: 700
+    :align: center
+    :alt: Custom VisList of G10 v.s. non G10 countries
+
+To define a custom action, we simply wrap our earlier VisList example into a function. We can even use short texts and emojis as the title to display on the tabs for the custom recommendation.
 
 .. code-block:: python
 
     def G10_mean_difference(ldf):
-    # Define a VisList of quantitative distribution between G10 and non-G10 countries
+        # Define a VisList of quantitative distribution between G10 and non-G10 countries
         intent = [lux.Clause("?",data_type="quantitative"),lux.Clause("G10")]
         vlist = VisList(intent,ldf)
 
@@ -50,11 +64,13 @@ Let's define a custom function to generate the recommendations on the dataframe.
             a = vis.data.iloc[0,1]
             b = vis.data.iloc[1,1]
             vis.score = (b-a)/a
-        lux.config.topK = 15
-        vlist = vlist.showK()
-        return {"action":"G10", "description": "Percentage Change of Means Between G10 v.s. non-G10 countries", "collection": vlist}
+        vlist.sort()
+        vlist.showK()
+        return {"action":"Compare 🏭🏦🌎", 
+                "description": "Percentage Change of Means Between G10 v.s. non-G10 countries",
+                "collection": vlist}
 
-In the code below, we define a display condition function to determine whether or not we want to generate recommendations for the custom action. In this example, we simply check if we are using the HPI dataset to generate recommendations for the custom action `G10`.
+In the code below, we define a display condition function to determine whether or not we want to generate recommendations for the custom action. In this example, we simply check if we are using the HPI dataset to generate recommendations for the `Compare industrialized` action.
 
 .. code-block:: python
 
@@ -68,13 +84,13 @@ In the code below, we define a display condition function to determine whether o
         except: 
             return False
 
-To register the `G10` action in Lux, we apply the `register_action` function, which takes a name and action as inputs, as well as a display condition and additional arguments as optional parameters.
+To register the `Compare industrialized` action in Lux, we apply the :code:`register_action` function, which takes a name and action as inputs, as well as a display condition and additional arguments as optional parameters.
 
 .. code-block:: python
     
-    lux.config.register_action("G10", G10_mean_difference, is_G10_hpi_dataset)
+    lux.config.register_action("Compare industrialized", G10_mean_difference, is_G10_hpi_dataset)
 
-After registering the action, the G10 recomendation action is automatically generated when we display the Lux dataframe again.
+After registering the action, the custom action is automatically generated when we display the Lux dataframe again.
 
 .. code-block:: python
 
@@ -93,7 +109,7 @@ Since the registered action is globally defined, the G10 action is displayed whe
 
     df[df["GDPPerCapita"]>40000]
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-1.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-1-filtered.png?raw=true
   :width: 700
   :align: center
   :alt: Displays countries with GDPPerCapita > 40000 to compare G10 results.
@@ -103,17 +119,22 @@ As we can see, there is a less of a distinction between G10 and non-G10 countrie
 Navigating the Action Manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can inspect a list of actions that are currently registered in the Lux Action Manager. The following code displays both default and user-defined actions.
+You can inspect a list of actions that are currently registered in Lux's Action Manager. The following code displays both default and user-defined actions.
 
 .. code-block:: python
     
     lux.config.actions
 
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-5.png?raw=true
+    :width: 700
+    :align: center
+    :alt: Retrieves a list of actions from Lux's action manager.
+
 You can also get a single action attribute by calling this function with the action's name.
 
 .. code-block:: python
 
-    lux.config.actions.get("G10")
+    lux.config.actions.get("Compare industrialized")
 
 .. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-2.png?raw=true
   :width: 700
@@ -123,19 +144,20 @@ You can also get a single action attribute by calling this function with the act
 Removing Custom Actions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's say that we are no longer in looking at the `G10` action, the `remove_action` function allows you to remove from Lux's action manager an action with its id. The action will no longer display with the Lux dataframe.
+Let's say that we are no longer interested in looking at the `Compare industrialized` action, the `remove_action` function allows you to remove from Lux's action manager an action with its id. The action will no longer display with the Lux dataframe.
 
 .. code-block:: python
     
-    lux.config.remove_action("G10")
+    lux.config.remove_action("Compare industrialized")
 
-After removing the action, when we print the dataframe again, the `G10` action is no longer displayed.
+After removing the action, when we print the dataframe again, the `Compare industrialized` action is no longer displayed.
+
 
 .. code-block:: python
 
     df
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-4.png?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/custom-3.png?raw=true
   :width: 700
   :align: center
   :alt: Demonstrates removing custom action from Lux Action Manager.
