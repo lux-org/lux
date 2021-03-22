@@ -15,18 +15,18 @@
 from typing import List, Union, Callable, Dict
 from lux.history.event import Event
 
-
 class History:
     """
     History maintains a list of past Pandas operations performed on the dataframe
     Currently only supports custom overridden functions (head, tail, info, describe)
     """
 
-    def __init__(self):
+    def __init__(self, ldf):
         self._events = []
         self._frozen_count = 0
         self._ex_count = 0
         self._time_decay = .9
+        self.parent_ldf = ldf
 
     def __getitem__(self, key):
         return self._events[key]
@@ -76,7 +76,7 @@ class History:
     ## Implicit Intent  ##
     ######################
 
-    def get_implicit_intent(self, col_thresh = .25):
+    def get_implicit_intent(self, valid_cols, col_thresh = .25):
         """
         Iterates through history events and gets ordering of columns by user interest 
         and most recent signal.
@@ -103,4 +103,11 @@ class History:
             col_order.sort(key=lambda x: x[1], reverse=True)
             col_order = [i[0] for i in col_order if i[1] > col_thresh]
         
-        return most_recent_signal, col_order
+        # validate the returned signals
+        #parent_cols = self.parent_ldf.columns
+        val_col_order = [item for item in col_order if item in valid_cols]
+        if most_recent_signal:
+            mre_cols = [item for item in most_recent_signal.cols if item in valid_cols]
+            most_recent_signal.cols = mre_cols
+        
+        return most_recent_signal, val_col_order

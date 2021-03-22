@@ -37,7 +37,8 @@ def implicit_tab(ldf: LuxDataFrame):
     recommendations : Dict[str,obj]
             object with a collection of visualizations that result from the Implicit action.
     """
-    most_recent_event, col_list = ldf.history.get_implicit_intent()
+    # these events are cleansed when fetched 
+    most_recent_event, col_list = ldf.history.get_implicit_intent(ldf.columns)
     str_desc = "Recommendedations based off code containing: <br/>"
     lux_vis = []
 
@@ -86,6 +87,8 @@ def implicit_tab(ldf: LuxDataFrame):
     }
     
     return recommendation
+
+# def validate_history(most_recent_event, col_list, ldf: LuxDataFrame)
 
 def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
     """

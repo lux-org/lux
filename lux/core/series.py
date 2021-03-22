@@ -65,11 +65,35 @@ class LuxSeries(pd.Series):
 
     def __init__(self, *args, **kw):
         super(LuxSeries, self).__init__(*args, **kw)
-        for attr in self._metadata:
-            if attr in self._default_metadata:
-                self.__dict__[attr] = self._default_metadata[attr]()
-            else:
-                self.__dict__[attr] = None
+        # for attr in self._metadata:
+        #     if attr in self._default_metadata:
+        #         self.__dict__[attr] = self._default_metadata[attr]()
+        #     else:
+        #         self.__dict__[attr] = None
+        
+        # defaults
+        self._intent = []
+        self._inferred_intent = []
+        self._current_vis = []
+        self._recommendation = []
+        self._toggle_pandas_display = True
+        self._pandas_only = False
+        self._type_override = {}
+        self._history = History(self)
+        self._message = Message()
+
+        # others 
+        self._data_type  = None
+        self.unique_values  = None 
+        self.cardinality  = None 
+        self._rec_info  = None 
+        self._min_max  = None 
+        self.plotting_style  = None 
+        self._widget  = None 
+        self._prev  = None 
+        self._saved_export  = None 
+        self._sampled  = None 
+        self.pre_aggregated  = None  
 
     @property
     def _constructor(self):
