@@ -253,7 +253,8 @@ def test_bar_uniform():
     df["Type"] = "A"
     vis = Vis(["Type"], df)
     vis_code = vis.to_Altair()
-    assert ("y = alt.Y('Type', type= 'nominal'" in vis_code)
+    assert "y = alt.Y('Type', type= 'nominal'" in vis_code
+
 
 def test_scatter_chart(global_var):
     df = pytest.car_df
@@ -375,7 +376,7 @@ def test_histogram_uniform():
     df["Units"] = 4.0
     vis = Vis(["Units"], df)
     vis_code = vis.to_Altair()
-    assert ("y = alt.Y('Units', type= 'nominal'" in vis_code)
+    assert "y = alt.Y('Units', type= 'nominal'" in vis_code
 
 
 def test_heatmap_chart(global_var):
