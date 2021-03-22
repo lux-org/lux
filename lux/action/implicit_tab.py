@@ -38,6 +38,7 @@ def implicit_tab(ldf: LuxDataFrame):
             object with a collection of visualizations that result from the Implicit action.
     """
     # these events are cleansed when fetched 
+    set_trace()
     most_recent_event, col_list = ldf.history.get_implicit_intent(ldf.columns)
     str_desc = "Recommendedations based off code containing: <br/>"
     lux_vis = []

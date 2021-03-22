@@ -15,6 +15,7 @@
 from typing import List, Union, Callable, Dict
 from lux.history.event import Event
 from IPython import get_ipython
+import lux
 
 
 class History:
@@ -71,6 +72,8 @@ class History:
             event = Event(op_name, cols, 1, self.kernel.execution_count, *args, **kwargs)
             self.decay_weights()
             self._events.append(event)
+            # aggressively refresh actions 
+            lux.config.update_actions["flag"] = True
     
     def decay_weights(self):
         for e in self._events:
@@ -95,6 +98,7 @@ class History:
                 # first event that is not just col ref is most recent for vis
                 if not mre and e.op_name != "col_ref":
                     mre = e 
+                    continue
                 
                 for c in e.cols:
                     if c in agg_col_ref:

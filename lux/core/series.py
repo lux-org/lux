@@ -20,6 +20,9 @@ import numpy as np
 from lux.history.history import History
 from lux.utils.message import Message
 
+from pandas._typing import FrameOrSeries
+from typing import Optional
+
 from IPython.core.debugger import set_trace
 
 
@@ -94,6 +97,7 @@ class LuxSeries(pd.Series):
         self._saved_export  = None 
         self._sampled  = None 
         self.pre_aggregated  = None  
+        self._parent_df = None # if series comes from a df this will be populated with ref to df
 
     @property
     def _constructor(self):
@@ -138,6 +142,8 @@ class LuxSeries(pd.Series):
         # Default column name 0 causes errors
         if self.name is None:
             self.name = " "
+        
+        # set_trace()
         ldf = LuxDataFrame(self)
 
         # TODO this needs to update history for the id() made immediatley above
@@ -249,6 +255,16 @@ class LuxSeries(pd.Series):
     #####################
     ## Override Pandas ##
     #####################
+    def __finalize__(
+        self: FrameOrSeries, other, method: Optional[str] = None, **kwargs
+    ) -> FrameOrSeries:
+        """
+        See same method in frame.py
+        """
+        _this = super(LuxSeries, self).__finalize__(other, method, **kwargs)
+        _this._history = _this._history.copy()
+        return _this
+    
     def value_counts(
         self,
         normalize: bool = False,
@@ -257,11 +273,45 @@ class LuxSeries(pd.Series):
         bins=None,
         dropna: bool = True,
     ):
-        set_trace()
+        # set_trace()
         ret_value = super(LuxSeries, self).value_counts(normalize, sort, ascending, bins, dropna)
 
-        # TODO need the history here as well somehow?
+        kw = {"normalize":normalize, 
+                "sort":sort, 
+                "ascending":ascending, 
+                "bins":bins, 
+                "dropna":dropna}
 
-        print("value_counts")
+        self._history.append_event("value_counts", [self.name], **kw)
+        ret_value._history.append_event("value_counts", [self.name], **kw)
+        self.add_to_parent_history("value_counts", [self.name], **kw)
+        
 
         return ret_value
+    
+    def unique(self):
+        """
+        Returns a numpy array so makes things more tricky
+        """
+        #set_trace()
+        ret_value = super(LuxSeries, self).unique()
+        self._history.append_event("unique", [self.name])
+        #ret_value._history.append_event("unique", [self.name])
+        self.add_to_parent_history("unique", [self.name])
+
+        return ret_value
+    
+    def add_to_parent_history(self, op, cols, **kw_dict):
+        """
+        Utility function for updating parent history
+        """
+        if self._parent_df is not None:
+            if (len(self._parent_df._history._events) and
+                    self._parent_df._history._events[-1].op_name == "col_ref" and
+                    self._parent_df._history._events[-1].cols == cols):
+
+                self._parent_df._history._events[-1].op_name = op
+                self._parent_df._history._events[-1].kwargs = kw_dict
+            
+            else: 
+                self._parent_df._history.append_event(op, cols, **kw_dict)

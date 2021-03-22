@@ -66,7 +66,12 @@ class LuxDataFrame(pd.DataFrame):
     def __init__(self, *args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
 
-        self._history = History(self) # when does this get copied over?
+        self._history = History(self) 
+        if len(args) and (isinstance(args[0], LuxSeries) or isinstance(args[0], LuxDataFrame)):
+            h = args[0]._history.copy()
+            h.parent_ldf = self 
+            self._history = h
+
         self._intent = []
         self._inferred_intent = []
         self._recommendation = {}
@@ -106,6 +111,8 @@ class LuxDataFrame(pd.DataFrame):
             s = LuxSeries(*args, **kwargs)
             for attr in self._metadata:  # propagate metadata
                 s.__dict__[attr] = getattr(self, attr, None)
+            s._history = s._history.copy()
+            s._parent_df = self
             return s
 
         return f
@@ -1012,7 +1019,8 @@ class LuxDataFrame(pd.DataFrame):
         
         # save history on self and returned df
         self._history.append_event("describe", [], *args, **kwargs)
-        ret_frame._history.append_event("describe", [], n=5)
+        ret_frame._history.append_event("describe", [])
+        ret_frame.pre_aggregated = True # TODO use this to plot properly somehow
         return ret_frame
 
     def groupby(self, *args, **kwargs):
