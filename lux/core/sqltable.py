@@ -71,7 +71,7 @@ class LuxSQLTable(lux.LuxDataFrame):
         # function that ties the Lux Dataframe to a SQL database table
         if self.table_name != "":
             warnings.warn(
-                f"\nThis dataframe is already tied to a database table. Please create a new Lux dataframe and connect it to your table '{t_name}'.",
+                f"\nThis LuxSQLTable is already tied to a database table. Please create a new Lux dataframe and connect it to your table '{t_name}'.",
                 stacklevel=2,
             )
         else:
@@ -89,7 +89,7 @@ class LuxSQLTable(lux.LuxDataFrame):
                 )
 
     def _repr_html_(self):
-        from IPython.display import HTML, display
+        from IPython.display import HTML, Markdown, display
         from IPython.display import clear_output
         import ipywidgets as widgets
 
@@ -130,11 +130,26 @@ class LuxSQLTable(lux.LuxDataFrame):
                     if b:
                         self._toggle_pandas_display = not self._toggle_pandas_display
                     clear_output()
+
+                    #create connection string to display
+                    connect_str = self.table_name
+                    connection_type = str(type(lux.config.SQLconnection))
+                    if("psycopg2.extensions.connection" in connection_type):
+                        connection_dsn = lux.config.SQLconnection.get_dsn_parameters()
+                        host_name = connection_dsn['host']
+                        host_port = connection_dsn['port']
+                        dbname = connection_dsn['dbname']
+                        connect_str = host_name+":"+host_port+"/"+dbname
+
+                    elif("sqlalchemy.engine.base.Engine" in connection_type):
+                        db_connection = str(lux.config.SQLconnection)
+                        db_start = db_connection.index('@')+1
+                        db_end = len(db_connection)-1
+                        connect_str = db_connection[db_start:db_end]
+
                     if self._toggle_pandas_display:
-                        notification = widgets.Label(
-                            value="Preview of the database table: " + self.table_name
-                        )
-                        display(notification, self._sampled.display_pandas())
+                        notification = "Here is a preview of the **{}** database table: **{}**".format(self.table_name, connect_str)
+                        display(Markdown(notification), self._sampled.display_pandas())
                     else:
                         # b.layout.display = "none"
                         display(self._widget)
