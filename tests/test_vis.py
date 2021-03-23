@@ -247,6 +247,15 @@ def test_colored_bar_chart(global_var):
     assert "ax.set_ylabel('Cylinders')" in vis_code
 
 
+def test_bar_uniform():
+    df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    df["Type"] = "A"
+    vis = Vis(["Type"], df)
+    vis_code = vis.to_Altair()
+    assert "y = alt.Y('Type', type= 'nominal'" in vis_code
+
+
 def test_scatter_chart(global_var):
     df = pytest.car_df
     lux.config.plotting_backend = "vegalite"
@@ -359,6 +368,15 @@ def test_histogram_chart(global_var):
     assert "ax.bar(bars, measurements, width=32.25)" in vis_code
     assert "ax.set_xlabel('Displacement (binned)')" in vis_code
     assert "ax.set_ylabel('Number of Records')" in vis_code
+
+
+def test_histogram_uniform():
+    df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    df["Units"] = 4.0
+    vis = Vis(["Units"], df)
+    vis_code = vis.to_Altair()
+    assert "y = alt.Y('Units', type= 'nominal'" in vis_code
 
 
 def test_heatmap_chart(global_var):
