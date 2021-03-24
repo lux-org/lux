@@ -33,7 +33,6 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
         chart_list: VisList OR list 
             list in event of CustomVis since cant be put into VisList directly
     """
-    set_trace()
     vis_list = []
     if signal.op_name == "value_counts" or signal.op_name == "unique":
         

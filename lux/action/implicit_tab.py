@@ -50,7 +50,7 @@ def implicit_tab(ldf: LuxDataFrame):
                 lux_vis._collection.extend(vl._collection)
             else: # type is list
                 lux_vis._collection.extend(vl)
-            str_desc += f"> {most_recent_event.op_name} <br/>"
+            str_desc += f"> Call to function '{most_recent_event.op_name}' in execution cell [{most_recent_event.ex_count}] <br/>"
         
     # get multiple vis for col refs
     if col_list:
@@ -60,7 +60,7 @@ def implicit_tab(ldf: LuxDataFrame):
             col_v = Vis( [lux.Clause(c)] )
             #col_v.score = max_score - i
             col_vis_l.append(col_v)
-            str_desc += f"> Reference to attribute {c} <br/>"
+            str_desc += f"> Reference(s) to '{c}' <br/>"
             
         vl_2 = VisList(col_vis_l, ldf)
 
