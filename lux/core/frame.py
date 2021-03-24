@@ -625,9 +625,6 @@ class LuxDataFrame(pd.DataFrame):
         import ipywidgets as widgets
 
         try:
-            # update implicit recs. Has to be run here after cell has executed
-            #  could maybe be moved to maintain_recs
-            #lux.config.code_tracker.analyze_recent_code()
 
             if self._pandas_only:
                 display(self.display_pandas())

@@ -20,7 +20,10 @@ import warnings
 
 class CustomVis:
     """
-    Vis Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
+    Lightweight wrapper for altair charts to be plotted directly into the widget without intents or anything.
+
+    TODO: add more property studs so this can be passed into VisList successfully, 
+    right now have to init an vislist then manually extend the collection
     """
 
     def __init__(self, altChart, width=160, height=150):
@@ -42,8 +45,6 @@ class CustomVis:
         import luxwidget
 
         from lux.core.frame import LuxDataFrame
-
-        #lux.config.code_tracker.analyze_recent_code()
 
         widget = luxwidget.LuxWidget(
             currentVis= self.to_code(),

@@ -20,7 +20,18 @@ tf_scale = alt.Scale(domain = [True, False],
 ##################
 def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
     """
-    Generate custom vis for this event type from ldf
+    Parameters
+    ----------
+        signal: lux.history.Event 
+            History event 
+        
+        ldf: lux.core.frame
+            the ldf to be plotted 
+    
+    Returns
+    -------
+        chart_list: VisList OR list 
+            list in event of CustomVis since cant be put into VisList directly
     """
     vis_list = []
     if signal.op_name == "value_counts" or signal.op_name == "unique":
@@ -43,15 +54,10 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
         ...
 
     elif signal.op_name == "describe":
-        vis_list = VisList([lux.Clause("?", mark_type="boxplot")], ldf)
-        for v in vis_list:
-            v.score = 100
+        vis_list = process_describe(signal, ldf)
 
     elif signal.op_name == "filter": #or signal.op_name == "loc": # or query
-        alt_v_list = process_filter(signal, ldf)
-        if alt_v_list:
-            for _v in alt_v_list:
-                vis_list.append( CustomVis(_v) )
+        vis_list = process_filter(signal, ldf)
         
     elif signal.op_name == "groupby" or signal.op_name == "agg":
         ...
@@ -62,6 +68,42 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
             vis_list = VisList( clauses, ldf )
     
     return vis_list
+
+###################
+# DESCRIBE plotting #
+###################
+def process_describe(signal, ldf):
+    """
+    Plots boxplots of either parent df if this is the describe df or of this df
+
+    Parameters
+    ----------
+        signal: lux.history.Event 
+            History event that is a FILTER
+        
+        ldf: lux.core.frame
+            the ldf to be plotted 
+    
+    Returns
+    -------
+        chart_list: VisList 
+    """
+
+    # is this the df returned by describe? if so plot the parent df not this one
+    if (ldf._parent_df is not None and 
+        all(d.index == ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])):
+        
+        vl = VisList([lux.Clause("?", mark_type="boxplot")], ldf._parent_df)
+
+    # or the full df?
+    else:
+        vl = VisList([lux.Clause("?", mark_type="boxplot")], ldf)
+    
+    # hack to get vis to appear at the front 
+    for v in vl:
+        v.score = 100
+    
+    return vl
 
 ###################
 # FILTER plotting #
@@ -81,7 +123,7 @@ def process_filter(signal, ldf):
     
     Returns
     -------
-        chart_list: list
+        chart_list: VisList or empty array
     """
     filt_type = signal.kwargs["filt_type"]
     parent_mask = signal.kwargs["filt_key"]
@@ -104,7 +146,13 @@ def process_filter(signal, ldf):
             chart_list = [plot_filter(ldf._parent_df, cols, parent_mask)]
             chart_list.append(plot_filter_count(ldf._parent_df, parent_mask))
 
-    return chart_list
+    # turn into vislist 
+    vis_list = []
+    if chart_list:
+        for _v in chart_list:
+            vis_list.append( CustomVis(_v) )
+
+    return vis_list
 
 
 def plot_filter_count(ldf, mask):
