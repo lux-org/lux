@@ -35,20 +35,7 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
     """
     vis_list = []
     if signal.op_name == "value_counts" or signal.op_name == "unique":
-        
-        clauses = []
-        # for vc should only be one col, but if multiple use generic recs
-        if len(signal.cols) > 1:
-            clauses = [lux.Clause(attribute=i) for i in signal.cols]
-        elif len(signal.cols) == 1 and signal.cols[0] in ldf.data_type:
-            c_name = signal.cols[0]
-            if ldf.data_type[c_name] == "quantitative":
-                c = lux.Clause(attribute=c_name, mark_type="histogram")
-            else:
-                c = lux.Clause(attribute=c_name, mark_type="bar")
-            clauses.append(c)
-
-        vis_list = VisList( clauses, ldf )
+        vis_list = process_value_counts(signal, ldf)
     
     elif signal.op_name == "crosstab":
         ...
@@ -62,16 +49,36 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
     elif signal.op_name == "groupby" or signal.op_name == "agg":
         ...
     
-    else:
-        if signal.cols:
-            clauses = [lux.Clause(attribute=i) for i in signal.cols]
-            vis_list = VisList( clauses, ldf )
-    
+    elif signal.cols: # generic recs
+        clauses = [lux.Clause(attribute=i) for i in signal.cols]
+        vis_list = VisList( clauses, ldf )
+
     return vis_list
 
-###################
+########################
+# VALUE_COUNT plotting #
+########################
+def process_value_counts(signal, ldf):
+    clauses = []
+    # for vc should only be one col, but if multiple use generic recs
+    if len(signal.cols) > 1:
+        clauses = [lux.Clause(attribute=i) for i in signal.cols]
+    elif len(signal.cols) == 1 and signal.cols[0] in ldf.data_type:
+        c_name = signal.cols[0]
+        if ldf.data_type[c_name] == "quantitative":
+            c = lux.Clause(attribute=c_name, mark_type="histogram")
+        else:
+            c = lux.Clause(attribute=c_name, mark_type="bar")
+        clauses.append(c)
+
+    vis_list = VisList( clauses, ldf )
+
+    return vis_list
+
+
+#####################
 # DESCRIBE plotting #
-###################
+#####################
 def process_describe(signal, ldf):
     """
     Plots boxplots of either parent df if this is the describe df or of this df

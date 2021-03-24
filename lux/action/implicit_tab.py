@@ -35,6 +35,7 @@ def implicit_tab(ldf: LuxDataFrame):
     recommendations : Dict[str,obj]
             object with a collection of visualizations that result from the Implicit action.
     """
+    # set_trace()
     # these events are cleansed when fetched 
     most_recent_event, col_list = ldf.history.get_implicit_intent(ldf.columns)
     str_desc = "Recommendedations based off code containing: <br/>"

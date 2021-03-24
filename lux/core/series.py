@@ -288,9 +288,9 @@ class LuxSeries(pd.Series):
         bins=None,
         dropna: bool = True,
     ):
-        # set_trace()
         ret_value = super(LuxSeries, self).value_counts(normalize, sort, ascending, bins, dropna)
-
+        ret_value._parent_df = self._parent_df # propagate parent from column to vc series
+        # add to history
         kw = {"normalize":normalize, 
                 "sort":sort, 
                 "ascending":ascending, 
@@ -301,7 +301,6 @@ class LuxSeries(pd.Series):
         ret_value._history.append_event("value_counts", [self.name], **kw)
         self.add_to_parent_history("value_counts", [self.name], **kw)
         
-
         return ret_value
     
     def unique(self):
@@ -324,6 +323,9 @@ class LuxSeries(pd.Series):
     def add_to_parent_history(self, op, cols, **kw_dict):
         """
         Utility function for updating parent history
+
+        NOTE: for df.col.value_counts() this is actually adding to the parent of df.col, 
+        not df.col.value_counts() so works how we want but is a subtle distinction.
         """
         if self._parent_df is not None:
             if (len(self._parent_df._history._events) and

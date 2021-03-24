@@ -65,13 +65,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def __init__(self, *args, **kw):
         from lux.executor.PandasExecutor import PandasExecutor
-
         self._history = History(self) 
-        if len(args) and (isinstance(args[0], LuxSeries) or isinstance(args[0], LuxDataFrame)):
-            h = args[0]._history.copy()
-            h.parent_ldf = self 
-            self._history = h
-
         self._intent = []
         self._inferred_intent = []
         self._recommendation = {}
@@ -98,7 +92,12 @@ class LuxDataFrame(pd.DataFrame):
         self._parent_df = None
         warnings.formatwarning = lux.warning_format
 
-        # BUG: this gets called a lot of times?
+        # prop history and parent
+        if len(args) and (isinstance(args[0], LuxSeries) or isinstance(args[0], LuxDataFrame)):
+            h = args[0]._history.copy()
+            h.parent_ldf = self 
+            self._history = h
+            self._parent_df = args[0]
 
     @property
     def _constructor(self):
@@ -1015,7 +1014,7 @@ class LuxDataFrame(pd.DataFrame):
         return ret_value
     
     def query(self, expr: str, inplace: bool = False, **kwargs):
-
+        set_trace()
         ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
 
         return ret_value
