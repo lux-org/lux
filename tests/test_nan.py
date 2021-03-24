@@ -24,7 +24,7 @@ def test_nan_column(global_var):
     df = pytest.college_df
     old_geo = df["Geography"]
     df["Geography"] = np.nan
-    df._repr_html_()
+    df._ipython_display_()
     for visList in df.recommendation.keys():
         for vis in df.recommendation[visList]:
             assert vis.get_attr_by_attr_name("Geography") == []
@@ -84,7 +84,7 @@ def test_apply_nan_filter():
     test = pd.DataFrame(dataset)
 
     vis = Vis(["some_nan", "some_nan2=nan"], test)
-    vis._repr_html_()
+    vis._ipython_display_()
     assert vis.mark == "bar"
 
 
@@ -111,5 +111,5 @@ def test_nan_series_occurence():
     }
     nan_series = LuxSeries(dvalues)
     ldf = pd.DataFrame(nan_series, columns=["col"])
-    ldf._repr_html_()
+    ldf._ipython_display_()
     assert ldf.recommendation["Occurrence"][0].mark == "bar"

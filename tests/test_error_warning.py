@@ -56,7 +56,7 @@ def test_vis_private_properties(global_var):
 
     df = pytest.car_df
     vis = Vis(["Horsepower", "Weight"], df)
-    vis._repr_html_()
+    vis._ipython_display_()
     assert isinstance(vis.data, lux.core.frame.LuxDataFrame)
     with pytest.raises(AttributeError, match="can't set attribute"):
         vis.data = "some val"
@@ -77,10 +77,10 @@ def test_vis_private_properties(global_var):
 # Test DataFrame Properties give Lux Warning but not UserWarning
 def test_lux_warnings(global_var):
     df = pd.DataFrame()
-    df._repr_html_()
+    df._ipython_display_()
     assert df._widget.message == f"<ul><li>Lux cannot operate on an empty DataFrame.</li></ul>"
     df = pd.DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-    df._repr_html_()
+    df._ipython_display_()
     assert (
         df._widget.message
         == f"<ul><li>The DataFrame is too small to visualize. To generate visualizations in Lux, the DataFrame must contain at least 5 rows.</li></ul>"
@@ -88,7 +88,7 @@ def test_lux_warnings(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.set_index(["Name", "Cylinders"])
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert (
         new_df._widget.message
         == f"<ul><li>Lux does not currently support visualizations in a DataFrame with hierarchical indexes.\nPlease convert the DataFrame into a flat table via pandas.DataFrame.reset_index.</li></ul>"
