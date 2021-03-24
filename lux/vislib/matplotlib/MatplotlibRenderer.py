@@ -20,6 +20,7 @@ from lux.vislib.matplotlib.ScatterChart import ScatterChart
 from lux.vislib.matplotlib.LineChart import LineChart
 from lux.vislib.matplotlib.Histogram import Histogram
 from lux.vislib.matplotlib.Heatmap import Heatmap
+from lux.vislib.altair.AltairRenderer import AltairRenderer
 import matplotlib.pyplot as plt
 from lux.utils.utils import matplotlib_setup
 
@@ -81,9 +82,17 @@ class MatplotlibRenderer:
             chart = LineChart(vis, fig, ax)
         elif vis.mark == "heatmap":
             chart = Heatmap(vis, fig, ax)
+        elif vis.mark == "geographical":
+            import warnings
+
+            warnings.formatwarning = lux.warning_format
+            warnings.warn(
+                " Choropleths ('Geographical' tab) are rendered using Altair. If you would like Matplotlib support for Choropleths, please express so on https://github.com/lux-org/lux/issues/310.\n"
+            )
+            return AltairRenderer().create_vis(vis, False)
         else:
             chart = None
-            return chart
+            # return chart
         if chart:
             plt.tight_layout()
             if lux.config.plotting_style and (
