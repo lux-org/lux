@@ -116,10 +116,11 @@ def plot_filter_count(ldf, mask):
     ldf["filt_mask"] = mask
 
     chart = alt.Chart(ldf).mark_bar(size=75).encode(
-        y = alt.Y("count()", title="Filtered Data Count"),
+        x = alt.X("count()", title="Filtered Data Count"),
         color = alt.Color("filt_mask", 
                            scale = tf_scale,
-                           legend = None)
+                           legend = None),
+        order=alt.Order('filt_mask', sort='descending') # make sure stack goes True then False for filter
         )
     
     # DONT use interactive for this chart, it breaks for some reason
@@ -146,20 +147,43 @@ def plot_filter(ldf, cols, mask):
         chart = alt.Chart(ldf).mark_bar().encode(
           x= alt.X(this_col, type=x_d_type, bin=_bin),
           y=f"count({this_col}):Q",
-          color= alt.Color("filt_mask", scale= tf_scale )
+          color= alt.Color("filt_mask", scale= tf_scale, title="Is Filtered?" )
         )
     
     elif len(cols) >= 2 and (cols[0] in ldf.data_type) and (cols[1] in ldf.data_type): # this looks bad when both are categorical
-        x_d_type = ldf.data_type[cols[0]]
-        y_d_type = ldf.data_type[cols[1]]
+        
+        # set x as quant if possible
+        if ldf.data_type[cols[0]] == "quantitative":
+            x_var = cols[0]
+            y_var = cols[1]
+        else:
+            x_var = cols[1]
+            y_var = cols[0]
+
+        
+        x_d_type = ldf.data_type[x_var]
+        y_d_type = ldf.data_type[y_var]
         x_bin = (x_d_type == "quantitative")
         y_bin = (y_d_type == "quantitative")
         
-        chart = alt.Chart(ldf).mark_point().encode(
-          x= alt.X(cols[0], type=x_d_type, bin=x_bin),
-          y= alt.Y(cols[1], type=y_d_type, bin=y_bin),
-          color= alt.Color("filt_mask", scale= tf_scale )
-        )
+        bg = alt.Chart(ldf) \
+                .mark_circle(color = lux_default.BG_COLOR) \
+                .encode(
+                    x= alt.X(x_var, type=x_d_type, bin=x_bin),
+                    y= alt.Y(y_var, type=y_d_type, bin=y_bin),
+                    size=alt.Size("count()", legend=None),
+                )
+        
+        filt_chart = alt.Chart(ldf) \
+                        .mark_circle(color = lux_default.MAIN_COLOR) \
+                        .transform_filter( (alt.datum.filt_mask == True)) \
+                        .encode(
+                            x= alt.X(x_var, type=x_d_type, bin=x_bin),
+                            y= alt.Y(y_var, type=y_d_type, bin=y_bin),
+                            size=alt.Size("count()", legend=None),
+                        )
+        
+        chart = bg + filt_chart
     
     if chart:
         chart = chart.interactive()

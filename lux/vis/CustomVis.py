@@ -32,7 +32,8 @@ class CustomVis:
         self.chart_height = height
 
         # config
-        self.apply_default_config()
+        if self.chart:
+            self.apply_default_config()
         
     def _repr_html_(self):
         from IPython.display import display
@@ -96,6 +97,9 @@ class CustomVis:
         spec:
             visualization specification corresponding to the Vis object
         """
+        if self.chart is None:
+            return None
+        
         if lux.config.plotting_style and (
                 lux.config.plotting_backend == "vegalite" or lux.config.plotting_backend == "altair"
             ):
