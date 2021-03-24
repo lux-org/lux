@@ -23,9 +23,15 @@ class CustomVis:
     Vis Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
     """
 
-    def __init__(self, altChart):
+    def __init__(self, altChart, width=160, height=150):
         self.chart = altChart
         self.score = 1
+
+        # vis defaults
+        self.chart_width = width
+        self.chart_height = height
+
+        # config
         self.apply_default_config()
         
     def _repr_html_(self):
@@ -65,7 +71,7 @@ class CustomVis:
             labelFontSize=9,
             labelFont="Helvetica Neue",
         )
-        self.chart = self.chart.properties(width=160, height=150)
+        self.chart = self.chart.properties(width=self.chart_width, height=self.chart_height)
         # self.code += (
         #     "\nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
         # )
