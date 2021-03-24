@@ -87,7 +87,7 @@ class MatplotlibRenderer:
 
             warnings.formatwarning = lux.warning_format
             warnings.warn(
-                " Choropleths ('Geographical' tab) are rendered using Altair. If you would like Matplotlib support for Choropleths, please express so on https://github.com/lux-org/lux/issues/310.\n"
+                " Choropleths ('Geographical' tab) are rendered using Altair. If you would like Matplotlib support for Choropleths, please express so on https://github.com/lux-org/lux/issues/310."
             )
             return AltairRenderer().create_vis(vis, False)
         else:
