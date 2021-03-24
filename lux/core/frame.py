@@ -104,7 +104,7 @@ class LuxDataFrame(pd.DataFrame):
     def _constructor(self):
         def f(*args, **kwargs):
             _df = LuxDataFrame(*args, **kwargs)
-            # meta data should get proped through __finalize__ after this
+            # meta data should get proped in __finalize__ after this
             _df._parent_df = self
             return _df
 
@@ -474,12 +474,16 @@ class LuxDataFrame(pd.DataFrame):
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
+            from lux.action.implicit_tab import implicit_tab
 
             # TODO: Rewrite these as register action inside default actions
             if rec_df.pre_aggregated:
                 if rec_df.columns.name is not None:
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
+
+                # manually adding implicit here since not done by default 
+                rec_df._append_rec(rec_infolist, implicit_tab(rec_df))
             else:
                 # if rec_df._recommendation == {}:
                 from lux.action.custom import custom_actions
@@ -1042,11 +1046,12 @@ class LuxDataFrame(pd.DataFrame):
 
     def describe(self, *args, **kwargs):
         ret_frame =  super(LuxDataFrame, self).describe(*args, **kwargs)
+        ret_frame._parent_df = self
         
         # save history on self and returned df
         self._history.append_event("describe", [], *args, **kwargs)
         ret_frame._history.append_event("describe", [])
-        ret_frame.pre_aggregated = True # TODO use this to plot properly somehow
+        ret_frame.pre_aggregated = True # this doesnt do anything rn to affect plotting
         return ret_frame
 
     def groupby(self, *args, **kwargs):

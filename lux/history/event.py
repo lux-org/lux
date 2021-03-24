@@ -45,6 +45,6 @@ class Event:
         if self.cols:
             s += f", cols={self.cols}"
         if self.args != () or self.kwargs != {}:
-            s += f", args={self.args}, kwargs={self.kwargs}"
+            s += f", args={str(self.args)}, kwargs={str(self.kwargs)}"
         s += ">"
         return s

@@ -33,6 +33,7 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
         chart_list: VisList OR list 
             list in event of CustomVis since cant be put into VisList directly
     """
+    set_trace()
     vis_list = []
     if signal.op_name == "value_counts" or signal.op_name == "unique":
         
@@ -91,7 +92,7 @@ def process_describe(signal, ldf):
 
     # is this the df returned by describe? if so plot the parent df not this one
     if (ldf._parent_df is not None and 
-        all(d.index == ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])):
+        all(ldf.index == ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])):
         
         vl = VisList([lux.Clause("?", mark_type="boxplot")], ldf._parent_df)
 
