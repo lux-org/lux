@@ -17,7 +17,6 @@ import pytest
 import pandas as pd
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
-from lux.vislib.altair.Histogram import compute_bin_width
 
 
 def test_vis(global_var):
@@ -248,6 +247,15 @@ def test_colored_bar_chart(global_var):
     assert "ax.set_ylabel('Cylinders')" in vis_code
 
 
+def test_bar_uniform():
+    df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    df["Type"] = "A"
+    vis = Vis(["Type"], df)
+    vis_code = vis.to_Altair()
+    assert "y = alt.Y('Type', type= 'nominal'" in vis_code
+
+
 def test_scatter_chart(global_var):
     df = pytest.car_df
     lux.config.plotting_backend = "vegalite"
@@ -267,8 +275,11 @@ def test_scatter_chart(global_var):
     vis = Vis(["Acceleration", "Weight"], df)
     vis_code = vis.to_matplotlib_code()
     assert "ax.scatter(x_pts, y_pts, alpha=0.5)" in vis_code
-    assert "ax.set_xlabel('Acceleration')" in vis_code
-    assert "ax.set_ylabel('Weight')" in vis_code
+    assert (
+        "ax.set_xlabel('Acceleration', fontsize='15')" in vis_code
+        or "ax.set_xlabel('Acceleration')" in vis_code
+    )
+    assert "ax.set_ylabel('Weight', fontsize='15')" in vis_code or "ax.set_ylabel('Weight')" in vis_code
 
 
 def test_colored_scatter_chart(global_var):
@@ -291,8 +302,11 @@ def test_colored_scatter_chart(global_var):
     vis_code = vis.to_matplotlib_code()
     assert "ax.scatter" in vis_code
     assert "title='Origin'" in vis_code
-    assert "ax.set_xlabel('Acceleration')" in vis_code
-    assert "ax.set_ylabel('Weight')" in vis_code
+    assert (
+        "ax.set_xlabel('Acceleration', fontsize='15')" in vis_code
+        or "ax.set_xlabel('Acceleration')" in vis_code
+    )
+    assert "ax.set_ylabel('Weight', fontsize='15')" in vis_code or "ax.set_ylabel('Weight')" in vis_code
 
 
 def test_line_chart(global_var):
@@ -341,11 +355,9 @@ def test_histogram_chart(global_var):
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Displacement"], df)
     vis_code = vis.to_Altair()
-    expected_bin_size = compute_bin_width(vis.data["Displacement"])
     assert "alt.Chart(visData).mark_bar" in vis_code
-    assert str(expected_bin_size) in vis_code
     assert (
-        "alt.X('Displacement', title='Displacement (binned)',bin=alt.Bin(binned=True), type='quantitative', axis=alt.Axis(labelOverlap=True, title='Displacement (binned)'), scale=alt.Scale(domain=(68.0, 455.0)))"
+        "alt.X('Displacement', title='Displacement (binned)',bin=alt.Bin(binned=True, step=38.7), type='quantitative', axis=alt.Axis(labelOverlap=True, title='Displacement (binned)'), scale=alt.Scale(domain=(68.0, 455.0)))"
         in vis_code
     )
     assert 'alt.Y("Number of Records", type="quantitative")' in vis_code
@@ -356,6 +368,15 @@ def test_histogram_chart(global_var):
     assert "ax.bar(bars, measurements, width=32.25)" in vis_code
     assert "ax.set_xlabel('Displacement (binned)')" in vis_code
     assert "ax.set_ylabel('Number of Records')" in vis_code
+
+
+def test_histogram_uniform():
+    df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    df["Units"] = 4.0
+    vis = Vis(["Units"], df)
+    vis_code = vis.to_Altair()
+    assert "y = alt.Y('Units', type= 'nominal'" in vis_code
 
 
 def test_heatmap_chart(global_var):
