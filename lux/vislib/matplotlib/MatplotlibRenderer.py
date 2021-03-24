@@ -84,9 +84,10 @@ class MatplotlibRenderer:
         elif vis.mark == "heatmap":
             chart = Heatmap(vis, fig, ax)
         elif vis.mark == "geographical":
+
             warnings.formatwarning = lux.warning_format
             warnings.warn(
-                " Choropleths ('Geographical' tab) are rendered using Altair. If you would like Matplotlib support for Choropleths, please express so on https://github.com/lux-org/lux/issues/310."
+                "The map visualizations from the 'Geographical' tab are rendered using Altair. Lux does not currently support geographical maps with Matplotlib. If you would like this feature, please leave us a comment at issue #310 (https://github.com/lux-org/lux/issues/310) to let us know!"
             )
             return AltairRenderer().create_vis(vis, False)
         else:
