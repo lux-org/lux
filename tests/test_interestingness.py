@@ -86,7 +86,7 @@ def test_interestingness_1_0_1(global_var):
         ]
     )
     tbl._repr_html_()
-    filter_score = tbl.recommendation['Filter'][0].score
+    filter_score = tbl.recommendation["Filter"][0].score
     assert tbl.current_vis[0].score == 0
     assert filter_score > 0
     tbl.clear_intent()
@@ -263,6 +263,7 @@ def test_interestingness_1_2_0(global_var):
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
     from lux.interestingness.interestingness import interestingness
+
     lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     y_clause = Clause(attribute="Name", channel="y")

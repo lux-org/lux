@@ -233,6 +233,7 @@ def deviation_from_overall(
         v_size = len(vis.data)
     elif lux.config.executor.name == "SQLExecutor":
         from lux.executor.SQLExecutor import SQLExecutor
+
         v_filter_size = SQLExecutor.get_filtered_size(filter_specs, ldf)
         v_size = ldf.len()
         vdata = vis.data

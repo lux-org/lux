@@ -135,24 +135,26 @@ class LuxSQLTable(lux.LuxDataFrame):
                         self._toggle_pandas_display = not self._toggle_pandas_display
                     clear_output()
 
-                    #create connection string to display
+                    # create connection string to display
                     connect_str = self.table_name
                     connection_type = str(type(lux.config.SQLconnection))
-                    if("psycopg2.extensions.connection" in connection_type):
+                    if "psycopg2.extensions.connection" in connection_type:
                         connection_dsn = lux.config.SQLconnection.get_dsn_parameters()
-                        host_name = connection_dsn['host']
-                        host_port = connection_dsn['port']
-                        dbname = connection_dsn['dbname']
-                        connect_str = host_name+":"+host_port+"/"+dbname
+                        host_name = connection_dsn["host"]
+                        host_port = connection_dsn["port"]
+                        dbname = connection_dsn["dbname"]
+                        connect_str = host_name + ":" + host_port + "/" + dbname
 
-                    elif("sqlalchemy.engine.base.Engine" in connection_type):
+                    elif "sqlalchemy.engine.base.Engine" in connection_type:
                         db_connection = str(lux.config.SQLconnection)
-                        db_start = db_connection.index('@')+1
-                        db_end = len(db_connection)-1
+                        db_start = db_connection.index("@") + 1
+                        db_end = len(db_connection) - 1
                         connect_str = db_connection[db_start:db_end]
 
                     if self._toggle_pandas_display:
-                        notification = "Here is a preview of the **{}** database table: **{}**".format(self.table_name, connect_str)
+                        notification = "Here is a preview of the **{}** database table: **{}**".format(
+                            self.table_name, connect_str
+                        )
                         display(Markdown(notification), self._sampled.display_pandas())
                     else:
                         # b.layout.display = "none"

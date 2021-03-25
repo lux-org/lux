@@ -133,7 +133,7 @@ class SQLExecutor(Executor):
             query = "SELECT {} FROM {} {}".format(required_variables, tbl.table_name, where_clause)
         data = pandas.read_sql(query, lux.config.SQLconnection)
         view._vis_data = utils.pandas_to_lux(data)
-        #view._vis_data.length = list(length_query["length"])[0]
+        # view._vis_data.length = list(length_query["length"])[0]
 
         tbl._message.add_unique(
             f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
@@ -217,7 +217,7 @@ class SQLExecutor(Executor):
                     view._vis_data = pandas.read_sql(count_query, lux.config.SQLconnection)
                     view._vis_data = view._vis_data.rename(columns={"count": "Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
-                #view._vis_data.length = list(length_query["length"])[0]
+                # view._vis_data.length = list(length_query["length"])[0]
             # aggregate barchart case, need aggregate data (mean, sum, max) for each group
             else:
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
@@ -358,7 +358,7 @@ class SQLExecutor(Executor):
             view._vis_data = view._vis_data.sort_values(by=groupby_attr.attribute, ascending=True)
             view._vis_data = view._vis_data.reset_index()
             view._vis_data = view._vis_data.drop(columns="index")
-            #view._vis_data.length = list(length_query["length"])[0]
+            # view._vis_data.length = list(length_query["length"])[0]
 
     @staticmethod
     def execute_binning(view: Vis, tbl: LuxSQLTable):
@@ -443,7 +443,7 @@ class SQLExecutor(Executor):
                 columns=[bin_attribute.attribute, "Number of Records"],
             )
             view._vis_data = utils.pandas_to_lux(view.data)
-            #view._vis_data.length = list(length_query["length"])[0]
+            # view._vis_data.length = list(length_query["length"])[0]
 
     @staticmethod
     def execute_2D_binning(view: Vis, tbl: LuxSQLTable):
@@ -588,9 +588,9 @@ class SQLExecutor(Executor):
         where_clause = clause_info[0]
         filter_intents = filter_specs[0]
         filtered_length = pandas.read_sql(
-                    "SELECT COUNT(1) as length FROM {} {}".format(tbl.table_name, where_clause),
-                    lux.config.SQLconnection,
-                )
+            "SELECT COUNT(1) as length FROM {} {}".format(tbl.table_name, where_clause),
+            lux.config.SQLconnection,
+        )
         return list(filtered_length["length"])[0]
 
     #######################################################

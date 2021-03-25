@@ -516,7 +516,7 @@ class PandasExecutor(Executor):
         ldf.unique_values = {}
         ldf._min_max = {}
         ldf.cardinality = {}
-        ldf.length = len(ldf)
+        ldf._length = len(ldf)
 
         for attribute in ldf.columns:
 

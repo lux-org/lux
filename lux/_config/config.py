@@ -365,7 +365,7 @@ class Config:
             self.SQLconnection = ""
             self.executor = PandasExecutor()
         else:
-            raise ValueError("Executor type must be either \'Pandas\' or \'SQL\'")
+            raise ValueError("Executor type must be either 'Pandas' or 'SQL'")
 
 
 def warning_format(message, category, filename, lineno, file=None, line=None):
