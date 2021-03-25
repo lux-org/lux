@@ -90,10 +90,10 @@ def test_interestingness_1_0_1(global_var):
     assert tbl.current_vis[0].score == 0
     assert filter_score > 0
     tbl.clear_intent()
-    lux.config.set_executor_type("Pandas")
 
 
 def test_interestingness_0_1_0(global_var):
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
@@ -168,10 +168,10 @@ def test_interestingness_0_1_1(global_var):
     assert interestingness(tbl.recommendation["Current Vis"][0], tbl) != None
     assert str(tbl.recommendation["Current Vis"][0]._inferred_intent[2].value) == "USA"
     tbl.clear_intent()
-    lux.config.set_executor_type("Pandas")
 
 
 def test_interestingness_1_1_0(global_var):
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
@@ -257,14 +257,13 @@ def test_interestingness_1_1_1(global_var):
     # check for top recommended Filter graph score is not none
     assert interestingness(tbl.recommendation["Filter"][0], tbl) != None
     tbl.clear_intent()
-    lux.config.set_executor_type("Pandas")
 
 
 def test_interestingness_1_2_0(global_var):
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
     from lux.interestingness.interestingness import interestingness
-
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     y_clause = Clause(attribute="Name", channel="y")
     color_clause = Clause(attribute="Cylinders", channel="color")

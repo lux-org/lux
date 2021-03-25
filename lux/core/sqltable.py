@@ -63,9 +63,13 @@ class LuxSQLTable(lux.LuxDataFrame):
 
         lux.config.executor = SQLExecutor()
 
+        self._length = 0
         if table_name != "":
             self.set_SQL_table(table_name)
         warnings.formatwarning = lux.warning_format
+
+    def len(self):
+        return self._length
 
     def set_SQL_table(self, t_name):
         # function that ties the Lux Dataframe to a SQL database table
