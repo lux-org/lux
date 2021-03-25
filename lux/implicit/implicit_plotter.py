@@ -99,8 +99,7 @@ def process_describe(signal, ldf):
     -------
         chart_list: VisList 
     """
-
-    # is this the df returned by describe? if so plot the parent df not this one
+    # if ldf is df returned by describe plot the parent of ldf
     if (ldf._parent_df is not None and 
         all(ldf.index == ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])):
         

@@ -1038,7 +1038,10 @@ class LuxDataFrame(pd.DataFrame):
         return super(LuxDataFrame, self).info(*args, **kwargs) # returns None
 
     def describe(self, *args, **kwargs):
+        self.history.freeze() # calls unique internally
         ret_frame =  super(LuxDataFrame, self).describe(*args, **kwargs)
+        self.history.unfreeze()
+
         ret_frame._parent_df = self
         
         # save history on self and returned df
