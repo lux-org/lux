@@ -7,6 +7,7 @@ import lux.utils.defaults as lux_default
 
 import lux
 import altair as alt
+import random
 
 from IPython.core.debugger import set_trace
 
@@ -18,7 +19,7 @@ tf_scale = alt.Scale(domain = [True, False],
 ##################
 # MAIN function #
 ##################
-def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
+def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
     """
     Parameters
     ----------
@@ -43,8 +44,11 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame):
     elif signal.op_name == "describe":
         vis_list = process_describe(signal, ldf)
 
-    elif signal.op_name == "filter": #or signal.op_name == "loc": # or query
+    elif signal.op_name == "filter":
         vis_list = process_filter(signal, ldf)
+    
+    elif signal.op_name == "query" or signal.op_name == "loc": 
+        vis_list = process_query_loc(signal, ldf, ranked_cols)
         
     elif signal.op_name == "groupby" or signal.op_name == "agg":
         ...
@@ -161,10 +165,81 @@ def process_filter(signal, ldf):
 
     return vis_list
 
+def process_query_loc(signal, ldf, ranked_cols):
+    """
+    Decides if plotting parent that WAS filtered, or the resulting df
+    FROM a filter and plots accordingly.
+
+    Parameters
+    ----------
+        signal: lux.history.Event 
+            History event that is a FILTER
+        
+        ldf: lux.core.frame
+            the ldf to be plotted 
+    
+    Returns
+    -------
+        chart_list: VisList or empty array
+    """
+    filt_type = signal.kwargs["filt_type"]
+    query_df = signal.kwargs["query_df"]
+    plot_df = None 
+    chart_list = None
+
+    # TODO.. which columns should I plot?
+
+    # get parent df to plot and filter mask
+    if filt_type == "parent" and query_df is not None:
+        mask, diff_cols = compute_filter_diff(ldf, query_df)
+        plot_df = ldf
+        plot_cols = get_query_cols(ranked_cols, diff_cols)
+
+        # get charts
+        chart_list = [plot_filter(plot_df, plot_cols, mask)]
+    
+    elif filt_type == "child" and ldf._parent_df is not None:
+        mask, diff_cols = compute_filter_diff(ldf._parent_df, ldf)
+        plot_df = ldf._parent_df
+        plot_cols = get_query_cols(ranked_cols, diff_cols)
+
+        # get charts
+        chart_list = [plot_filter(plot_df, plot_cols, mask)]
+        chart_list.append(plot_filter_count(plot_df, mask))
+    
+    # turn into vislist 
+    vis_list = []
+    if chart_list:
+        for _v in chart_list:
+            vis_list.append( CustomVis(_v) )
+
+    return vis_list
+
+def get_query_cols(ranked_cols, diff_cols):
+    """
+    Params: both should be lists of col names, or empty list
+    """
+    if ranked_cols:
+        return ranked_cols 
+    
+    return random.sample(diff_cols, 2) # randomly select here for funsies
+
 
 def plot_filter_count(ldf, mask):
     """
     For filtered dfs, plot the count of columns compared to count of unfiltered df
+
+    Parameters
+    ----------
+        ldf: lux.core.LuxDataFrame 
+            parent ldf that was filtered
+        
+        mask: boolean list or series
+            True if in filter, False if not
+    
+    Returns
+    -------
+        chart: Altair chart
     """
 
     ldf = ldf.copy()
@@ -183,10 +258,24 @@ def plot_filter_count(ldf, mask):
     return chart 
 
 
-def plot_filter(ldf, cols, mask):
+def plot_filter(ldf, cols, mask, card_thresh=12):
     """
-    data_source = df
-    col_filters = [ColFilter, ...]
+    Plot 1d or 2d plot of filted df
+
+    Parameters
+    ----------
+        ldf: lux.core.LuxDataFrame 
+            parent ldf that was filtered
+        
+        cols: list 
+            which col(s) should be in the plot 
+
+        mask: boolean list or series
+            True if in filter, False if not
+    
+    Returns
+    -------
+        chart: Altair chart
     """
     ldf = ldf.copy()
     ldf["filt_mask"] = mask
@@ -205,7 +294,7 @@ def plot_filter(ldf, cols, mask):
           color= alt.Color("filt_mask", scale= tf_scale, title="Is Filtered?" )
         )
     
-    elif len(cols) >= 2 and (cols[0] in ldf.data_type) and (cols[1] in ldf.data_type): # this looks bad when both are categorical
+    elif len(cols) >= 2 and (cols[0] in ldf.data_type) and (cols[1] in ldf.data_type):
         
         # set x as quant if possible
         if ldf.data_type[cols[0]] == "quantitative":
@@ -220,12 +309,26 @@ def plot_filter(ldf, cols, mask):
         y_d_type = ldf.data_type[y_var]
         x_bin = (x_d_type == "quantitative")
         y_bin = (y_d_type == "quantitative")
+
+        x_title = f"{x_var}"
+        y_title = f"{y_var}"
+        # filter for cardinality if high cardinality nominal vars
+        if x_d_type == "nominal" and ldf.cardinality[x_var] > card_thresh:
+            _most_common = ldf[x_var].value_counts()[:card_thresh].index
+            ldf = ldf[ldf[x_var].isin(_most_common)]
+            x_title += f" (top {card_thresh})"
+        
+        if y_d_type == "nominal" and ldf.cardinality[y_var] > card_thresh:
+            _most_common = ldf[y_var].value_counts()[:card_thresh].index
+            ldf = ldf[ldf[y_var].isin(_most_common)]
+            y_title += f" (top {card_thresh})"
+
         
         bg = alt.Chart(ldf) \
                 .mark_circle(color = lux_default.BG_COLOR) \
                 .encode(
-                    x= alt.X(x_var, type=x_d_type, bin=x_bin),
-                    y= alt.Y(y_var, type=y_d_type, bin=y_bin),
+                    x= alt.X(x_var, type=x_d_type, bin=x_bin, title=x_title),
+                    y= alt.Y(y_var, type=y_d_type, bin=y_bin, title=y_title),
                     size=alt.Size("count()", legend=None),
                 )
         
@@ -246,19 +349,25 @@ def plot_filter(ldf, cols, mask):
     return chart
 
 
-# def compute_filter_diff(old_df, filt_df):
-#     """
-#     Assumes filt_df is a subset of old_df.
-#     Create indicator the size of old_df, 1= in both, 0= only in old
-#     """
-#     # filtered should always be smaller
-#     if len(filt_df) > len(old_df):
-#         _t = filt_df
-#         filt_df = old_df
-#         old_df = _t
+def compute_filter_diff(old_df, filt_df):
+    """
+    Assumes filt_df is a subset of old_df. Creates indicator the size of the larger df
     
-#     _d = old_df.merge(filt_df, indicator=True, how="left")
+    True = in both, False = only in larger
+    """
+    old_df = old_df.copy()
+    filt_df = filt_df.copy()
+    # filtered should always be smaller
+    if len(filt_df) > len(old_df):
+        _t = filt_df
+        filt_df = old_df
+        old_df = _t
+    
+    _d = old_df.merge(filt_df, indicator=True, how="left")
+    indicator = (_d._merge == "both") #.astype(int)
 
-#     indicator = (_d._merge == "both").astype(int)
+    # which cols change? this isnt very informative since 
+    # many columns change other than the filter. TODO change this 
+    different_cols = list(old_df.columns[old_df.nunique() != filt_df.nunique()])
     
-#     return indicator
+    return indicator, different_cols

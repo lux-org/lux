@@ -16,7 +16,9 @@ from typing import List, Union, Callable, Dict
 from lux.history.event import Event
 from IPython import get_ipython
 import lux
+import warnings
 
+from IPython.core.debugger import set_trace
 
 class History:
     """
@@ -67,6 +69,12 @@ class History:
     def unfreeze(self):
         self._frozen_count -= 1 
 
+        if self._frozen_count < 0:
+            warnings.warn(
+                "History was unfrozen without an associted freeze and thus may be corrupted.",
+                stacklevel=2,
+            )
+
     def append_event(self, op_name, cols, *args, **kwargs):
         if self._frozen_count == 0:
             event = Event(op_name, cols, 1, self.kernel.execution_count, *args, **kwargs)
@@ -90,6 +98,22 @@ class History:
         """
         Iterates through history events and gets ordering of columns by user interest 
         and most recent signal.
+
+        Parameters
+        ----------
+            valid_cols: Iterable like list or Index
+                Columns that are in the df we want the intent for. Filter out cols not in this list
+            
+            col_thresh: float
+                Events with weight less than this threshold are not included
+        
+        Returns
+        -------
+            mre: Event 
+                most recent non column reference event 
+            
+            val_col_order: list 
+                ordered list of important columns (descending order) or empty list
         """
         mre = None
         agg_col_ref = {}
@@ -98,21 +122,24 @@ class History:
         if self._events:
             for e in self._events[::-1]: # reverse iterate
                 
-                # first event that is not just col ref is most recent for vis
-                if not mre and e.op_name != "col_ref":
-                    mre = e 
-                    continue
-                
-                for c in e.cols:
-                    if c in agg_col_ref:
-                        agg_col_ref[c] += e.weight 
-                    else:
-                        agg_col_ref[c] = e.weight
+                # filter out decayed history
+                if e.weight >= col_thresh:
+                    
+                    # first event that is not just col ref is most recent for vis
+                    if not mre and e.op_name != "col_ref":
+                        mre = e 
+                        continue
+                    
+                    for c in e.cols:
+                        if c in agg_col_ref:
+                            agg_col_ref[c] += e.weight 
+                        else:
+                            agg_col_ref[c] = e.weight
             
             # get sorted column order by aggregate weight, thresholded 
             col_order = list(agg_col_ref.items())
             col_order.sort(key=lambda x: x[1], reverse=True)
-            col_order = [i[0] for i in col_order if i[1] > col_thresh]
+            col_order = [i[0] for i in col_order]
         
         # validate the returned signals
         #parent_cols = self.parent_ldf.columns

@@ -127,6 +127,10 @@ class LuxSeries(pd.Series):
 
         f._get_axis_number = LuxDataFrame._get_axis_number
         return f
+    
+    @property
+    def history(self):
+        return self._history
 
     def to_pandas(self) -> pd.Series:
         """

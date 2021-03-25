@@ -44,7 +44,7 @@ def implicit_tab(ldf: LuxDataFrame):
     # get unique vis for recent col ref 
     if most_recent_event:
         lux_vis = VisList([], ldf)
-        vl = implicit_plotter.generate_vis_from_signal(most_recent_event, ldf)
+        vl = implicit_plotter.generate_vis_from_signal(most_recent_event, ldf, col_list)
         
         if vl:
             if type(vl) == VisList:

@@ -23,6 +23,8 @@ from lux.utils.utils import check_import_lux_widget, check_if_id_like
 import warnings
 import lux
 
+from IPython.core.debugger import set_trace
+
 
 class PandasExecutor(Executor):
     """

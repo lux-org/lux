@@ -1013,12 +1013,6 @@ class LuxDataFrame(pd.DataFrame):
 
         return ret_value
     
-    def query(self, expr: str, inplace: bool = False, **kwargs):
-        set_trace()
-        ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
-
-        return ret_value
-    
     # History logging functions 
     def head(self, n: int = 5):
         ret_frame = super(LuxDataFrame, self).head(n)
@@ -1067,3 +1061,24 @@ class LuxDataFrame(pd.DataFrame):
             groupby_obj._history.append_event("groupby", [], *args, **kwargs)
         groupby_obj.pre_aggregated = True
         return groupby_obj
+    
+    def query(self, expr: str, inplace: bool = False, **kwargs):
+        # set_trace()
+        ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
+
+        self._history.append_event("query", [], filt_type="parent", query_df=ret_value)
+        if ret_value is not None: # i.e. inplace = True
+            ret_value._history.append_event("query", [], filt_type="child", query_df=None)
+
+        return ret_value
+    
+    @property
+    def loc(self, *args, **kwargs):  # -> _LocIndexer from pd.core.indexing._LocIndexer
+        # set_trace()
+        ret_value = super(LuxDataFrame, self).loc(*args, **kwargs)
+
+        # self._history.append_event("loc", [], filt_type="parent", query_df=ret_value)
+        # if ret_value is not None: # i.e. inplace = True
+        #     ret_value._history.append_event("loc", [], filt_type="child", query_df=None)
+
+        return ret_value
