@@ -147,9 +147,9 @@ conda install -c conda-forge lux-api
 
 Both the PyPI and conda installation include includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). 
 
-## Setup in Jupyter Notebook, VSCode
+## Setup in Jupyter Notebook, VSCode, JupyterHub
 
-To use Lux in [Jupyter notebook](https://github.com/jupyter/notebook) or [VSCode](https://code.visualstudio.com/docs/python/jupyter-support), activate the notebook extension:
+To use Lux with any Jupyter notebook-based frontends (e.g., [Jupyter notebook](https://github.com/jupyter/notebook), [JupyterHub](https://github.com/jupyterhub/jupyterhub), or [VSCode](https://code.visualstudio.com/docs/python/jupyter-support)), activate the notebook extension:
 
 ```bash
 jupyter nbextension install --py luxwidget

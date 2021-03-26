@@ -109,10 +109,10 @@ def test_underspecified_single_vis(global_var, test_recs):
 def test_set_intent_as_vis(global_var, test_recs):
     lux.config.set_executor_type("Pandas")
     df = pytest.car_df
-    df._repr_html_()
+    df._ipython_display_()
     vis = df.recommendation["Correlation"][0]
     df.intent = vis
-    df._repr_html_()
+    df._ipython_display_()
     test_recs(df, ["Enhance", "Filter", "Generalize"])
 
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
@@ -128,7 +128,7 @@ def test_set_intent_as_vis(global_var, test_recs):
 @pytest.fixture
 def test_recs():
     def test_recs_function(df, actions):
-        df._repr_html_()
+        df._ipython_display_()
         assert len(df.recommendation) > 0
         recKeys = list(df.recommendation.keys())
         list_equal(recKeys, actions)
@@ -633,7 +633,7 @@ def test_populate_options(global_var):
             lux.Clause(attribute="MilesPerGal"),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     col_set = set()
     for specOptions in Compiler.populate_wildcard_options(df._intent, df)["attributes"]:
         for clause in specOptions:
@@ -683,7 +683,7 @@ def test_remove_all_invalid(global_var):
             lux.Clause(attribute="Origin"),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.current_vis) == 0
     df.clear_intent()
 
