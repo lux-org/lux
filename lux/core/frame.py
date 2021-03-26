@@ -979,6 +979,18 @@ class LuxDataFrame(pd.DataFrame):
         
         return ret_value
     
+    def __setitem__(self, key, value):
+        """
+        Called when assigning new item to df like below.
+            df["new_col"] = ...
+
+        """
+        super(LuxDataFrame, self).__setitem__(key, value)
+
+        if is_hashable(key) and key in self.columns:
+            self.history.append_event("col_ref", [key])
+
+    
     def __finalize__(
         self: FrameOrSeries, other, method: Optional[str] = None, **kwargs
     ) -> FrameOrSeries:
