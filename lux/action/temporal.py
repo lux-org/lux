@@ -79,8 +79,10 @@ def create_temporal_vis(ldf, col):
     ----------
     ldf : lux.core.frame
             LuxDataFrame with underspecified intent.
+
     col : str
             Name of temporal column.
+
     Returns
     -------
     visuals : [Vis]
