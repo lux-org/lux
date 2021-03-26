@@ -47,7 +47,7 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
     elif signal.op_name == "filter":
         vis_list = process_filter(signal, ldf)
     
-    elif signal.op_name == "query" or signal.op_name == "loc": 
+    elif signal.op_name == "query" or signal.op_name == "slice": 
         vis_list = process_query_loc(signal, ldf, ranked_cols)
         
     elif signal.op_name == "groupby" or signal.op_name == "agg":

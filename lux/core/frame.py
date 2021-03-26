@@ -1062,6 +1062,40 @@ class LuxDataFrame(pd.DataFrame):
         ret_frame.pre_aggregated = True # this doesnt do anything rn to affect plotting
         return ret_frame
 
+   
+    
+    def query(self, expr: str, inplace: bool = False, **kwargs):
+        # set_trace()
+        ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
+
+        self._history.append_event("query", [], filt_type="parent", query_df=ret_value)
+        if ret_value is not None: # i.e. inplace = True
+            ret_value._history.append_event("query", [], filt_type="child", query_df=None)
+
+        return ret_value
+    
+    # @property
+    # def loc(self, *args, **kwargs):  # -> _LocIndexer from pd.core.indexing._LocIndexer
+    #     # set_trace()
+    #     ret_value = super(LuxDataFrame, self).loc(*args, **kwargs)
+        
+    #     return ret_value
+    
+    def _slice(self: FrameOrSeries, slobj: slice, axis=0) -> FrameOrSeries:
+        """
+        Called whenever the df is accessed like df[1:3] or some slice. Also called by 
+        df.loc[33:55] but cannot override loc directly since loc returns a _LocIndexer
+        not a dataframe
+        """
+        # set_trace()
+        ret_value = super(LuxDataFrame, self)._slice(slobj, axis)
+        
+        self._history.append_event("slice", [], filt_type="parent", query_df=ret_value)
+        if ret_value is not None: # i.e. inplace = True
+            ret_value._history.append_event("slice", [], filt_type="child", query_df=None)
+        
+        return ret_value
+
     def groupby(self, *args, **kwargs):
         history_flag = False
         if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
@@ -1077,23 +1111,29 @@ class LuxDataFrame(pd.DataFrame):
         groupby_obj.pre_aggregated = True
         return groupby_obj
     
-    def query(self, expr: str, inplace: bool = False, **kwargs):
+    # groupby agg functions 
+    # TODO log these 
+    def mean(self, *args, **kwargs):
         # set_trace()
-        ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
-
-        self._history.append_event("query", [], filt_type="parent", query_df=ret_value)
-        if ret_value is not None: # i.e. inplace = True
-            ret_value._history.append_event("query", [], filt_type="child", query_df=None)
-
+        ret_value = super(LuxDataFrame, self).mean(*args, **kwargs)
         return ret_value
     
-    @property
-    def loc(self, *args, **kwargs):  # -> _LocIndexer from pd.core.indexing._LocIndexer
+    def min(self, *args, **kwargs):
         # set_trace()
-        ret_value = super(LuxDataFrame, self).loc(*args, **kwargs)
+        ret_value = super(LuxDataFrame, self).min(*args, **kwargs)
+        return ret_value
+    
+    def max(self, *args, **kwargs):
+        # set_trace()
+        ret_value = super(LuxDataFrame, self).max(*args, **kwargs)
+        return ret_value
 
-        # self._history.append_event("loc", [], filt_type="parent", query_df=ret_value)
-        # if ret_value is not None: # i.e. inplace = True
-        #     ret_value._history.append_event("loc", [], filt_type="child", query_df=None)
-
+    def count(self, *args, **kwargs):
+        # set_trace()
+        ret_value = super(LuxDataFrame, self).count(*args, **kwargs)
+        return ret_value
+    
+    def sum(self, *args, **kwargs):
+        # set_trace()
+        ret_value = super(LuxDataFrame, self).sum(*args, **kwargs)
         return ret_value
