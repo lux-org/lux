@@ -62,7 +62,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
     }
     ignore_rec_flag = False
     # Doesn't make sense to compute correlation if less than 4 data values
-    if ldf._length < 5:
+    if len(ldf) < 5:
         ignore_rec_flag = True
     # Then use the data populated in the vis list to compute score
     for vis in vlist:
