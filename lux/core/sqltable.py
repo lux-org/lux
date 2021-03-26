@@ -98,7 +98,7 @@ class LuxSQLTable(lux.LuxDataFrame):
                     stacklevel=2,
                 )
 
-    def _repr_html_(self):
+    def _ipython_display_(self):
         from IPython.display import HTML, Markdown, display
         from IPython.display import clear_output
         import ipywidgets as widgets
