@@ -88,7 +88,6 @@ class History:
         Attempt to edit event at index edit_index.
         Returns T/F if edit succeeded
         """
-        set_trace()
         if self._frozen_count == 0:
             try:
                 e = self._events[edit_index]

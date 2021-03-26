@@ -1114,7 +1114,7 @@ class LuxDataFrame(pd.DataFrame):
     # groupby agg functions 
     # TODO log these 
     def aggregate(self, *args, **kwargs):
-        set_trace()
+        # set_trace()
         ret_value = super(LuxDataFrame, self).aggregate(*args, **kwargs)
         ret_value.pre_aggregated = True
         return ret_value
@@ -1122,31 +1122,31 @@ class LuxDataFrame(pd.DataFrame):
     agg = aggregate
 
     def mean(self, *args, **kwargs):
-        set_trace()
+        # set_trace()
         ret_value = super(LuxDataFrame, self).mean(*args, **kwargs)
         ret_value.pre_aggregated = True
         return ret_value
     
     def min(self, *args, **kwargs):
-        set_trace()
+        # set_trace()
         ret_value = super(LuxDataFrame, self).min(*args, **kwargs)
         ret_value.pre_aggregated = True
         return ret_value
     
     def max(self, *args, **kwargs):
-        set_trace()
+        # set_trace()
         ret_value = super(LuxDataFrame, self).max(*args, **kwargs)
         ret_value.pre_aggregated = True
         return ret_value
 
     def count(self, *args, **kwargs):
-        set_trace()
+        # set_trace()
         ret_value = super(LuxDataFrame, self).count(*args, **kwargs)
         ret_value.pre_aggregated = True
         return ret_value
     
     def sum(self, *args, **kwargs):
-        set_trace()
+        # set_trace()
         ret_value = super(LuxDataFrame, self).sum(*args, **kwargs)
         ret_value.pre_aggregated = True
         return ret_value
