@@ -83,6 +83,44 @@ class History:
             # aggressively refresh actions 
             lux.config.update_actions["flag"] = True
     
+    def edit_event(self, edit_index, new_op_name, new_cols, *args, **kwargs):
+        """
+        Attempt to edit event at index edit_index.
+        Returns T/F if edit succeeded
+        """
+        set_trace()
+        if self._frozen_count == 0:
+            try:
+                e = self._events[edit_index]
+                e.op_name = new_op_name
+                e.cols = new_cols
+                e.args = args
+                e.kwargs = kwargs
+
+                return True
+            except IndexError:
+                return False
+        return False
+    
+    def check_event(self, event_index, **kwargs):
+        """
+        See if event at event_index has equal properties provided as kwargs
+        Note: 
+            If an arg is provided as None and is not in Event this will still return True
+            e.g. check_event(0, fake_arg=None) will return true (if event at 0)
+        Returns truthiness of comp
+        """
+        try:
+            e = self._events[event_index]
+            for k, v in kwargs.items():
+                e_v = getattr(e, k, None)
+                if e_v != v:
+                    return False
+            
+            return True
+        except IndexError:
+            return False
+    
     def decay_weights(self):
         for e in self._events:
             e.weight *= self._time_decay

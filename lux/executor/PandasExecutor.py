@@ -62,6 +62,8 @@ class PandasExecutor(Executor):
                 priority=99,
             )
         else:
+            # NOTE: Will -- as a precaution to prevent history corruption could set as copy
+            # Likely unneccessary and will cause performance issues
             ldf._sampled = ldf
         ldf.history.unfreeze()
 

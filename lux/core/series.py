@@ -328,16 +328,11 @@ class LuxSeries(pd.Series):
         """
         Utility function for updating parent history
 
-        NOTE: for df.col.value_counts() this is actually adding to the parent of df.col, 
+        N.B.: for df.col.value_counts() this is actually adding to the parent of df.col, 
         not df.col.value_counts() so works how we want but is a subtle distinction.
         """
         if self._parent_df is not None:
-            if (len(self._parent_df._history._events) and
-                    self._parent_df._history._events[-1].op_name == "col_ref" and
-                    self._parent_df._history._events[-1].cols == cols):
-
-                self._parent_df._history._events[-1].op_name = op
-                self._parent_df._history._events[-1].kwargs = kw_dict
-            
+            if self._parent_df.history.check_event(-1, op_name="col_ref", cols=cols):
+                self._parent_df.history.edit_event(-1, op, cols, **kw_dict)
             else: 
                 self._parent_df._history.append_event(op, cols, **kw_dict)
