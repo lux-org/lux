@@ -1,4 +1,5 @@
 import pandas as pd
+from pandas.core.dtypes.common import is_list_like, is_dict_like
 from lux.history.history import History
 
 from IPython.core.debugger import set_trace
@@ -36,9 +37,31 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
     ####################
     ## Different aggs  # 
     ####################
-    def aggregate(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).aggregate(*args, **kwargs)
+    def aggregate(self, func=None, *args, **kwargs):
+
+        # TODO use same copy scheme from frame
+        ret_value = super(LuxGroupBy, self).aggregate(func, *args, **kwargs)
         ret_value = self._lux_copymd(ret_value)
+
+        # for some reason is_list_like(dict) == True so MUST compare dict first 
+        if is_dict_like(func):
+            for i, (col, aggs) in enumerate(func.items()):
+                decay = True
+                if i > 0: decay = False # only decay for first item
+
+                if is_list_like(aggs):
+                    for a in aggs:
+                        ret_value._history.append_event(a, [col], decay=decay, rank_type="child", child_df=None)
+                        decay = False
+                else: # is aggs is str
+                    ret_value._history.append_event(aggs, [col], decay=decay, rank_type="child", child_df=None)
+        
+        elif is_list_like(func):
+            for i, f_name in enumerate(func):
+                decay = True
+                if i > 0: decay = False # only decay for first item
+                ret_value._history.append_event(f_name, [], decay=decay, rank_type="child", child_df=None)
+
         return ret_value
     
     agg = aggregate
@@ -48,7 +71,7 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         this calls _cython_agg_general, if that fails calls self.aggregate
         """
         ret_value = super(LuxGroupBy, self)._agg_general(*args, **kwargs)
-        ret_value = self._lux_copymd(ret_value)
+        ret_value = self._lux_copymd(ret_value, force=True)
 
         # ret_value._history.append_event(kwargs["alias"], [], rank_type="child", child_df=None)
 
@@ -65,11 +88,16 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
     #################
     ## Utils, etc   # 
     #################
-    def _lux_copymd(self, ret_value):
+    def _lux_copymd(self, ret_value, force=False):
+        old_history = ret_value._history
         for attr in self._metadata:
             ret_value.__dict__[attr] = getattr(self, attr, None)
-        if ret_value._history is not None:
+        
+        if force or ((len(old_history) == 0) and ret_value._history is not None):
             ret_value._history = ret_value._history.copy()
+        else:
+            ret_value._history = old_history # restore 
+
         return ret_value
 
     def get_group(self, *args, **kwargs):
@@ -100,13 +128,13 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
 
     def size(self, *args, **kwargs):
         ret_value = super(LuxGroupBy, self).size(*args, **kwargs)
-        ret_value = self._lux_copymd(ret_value) # not copied over otherwise
+        ret_value = self._lux_copymd(ret_value, force=True) # not copied over otherwise
         ret_value._history.append_event("size", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
         return ret_value
 
     def mean(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).prod(*args, **kwargs)
+        ret_value = super(LuxGroupBy, self).mean(*args, **kwargs)
         ret_value._history.append_event("mean", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
         return ret_value
