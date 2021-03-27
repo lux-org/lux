@@ -618,6 +618,43 @@ class LuxDataFrame(pd.DataFrame):
 
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+        self._widget.observe(self.get_graphing_code, names="selectedFullScreenIndex")
+        self._widget.observe(self.apply_full_view_changes, names="visGraphCode")
+
+
+    # Gets graphing code to be displayed in full screen view
+    def get_graphing_code(self, change):
+        from IPython.display import display, clear_output
+        full_screen_vis_idx = self._widget.selectedFullScreenIndex
+        full_screen_action = list(self._widget.selectedFullScreenIndex.keys())[0]
+        # Using visList to support eventual full view display of multiple graphs
+        full_screen_vis = VisList(
+                list(
+                    map(
+                        self._recommendation[full_screen_action].__getitem__,
+                        full_screen_vis_idx[full_screen_action],
+                    )
+                )
+            )
+        code = full_screen_vis[0].to_Altair()
+        # Shared variable to communicate to widget front end
+        self._widget.visGraphCode = code
+
+    def apply_full_view_changes(self, change):
+        # Call on button click
+        # 
+
+        code = self._widget.visGraphCode
+        chart = None
+
+        # run code to get chart
+
+
+        # x = '{\n  "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json",\n  "config": {\n    "axis": {\n      "labelColor": "#505050",\n      "labelFont": "Helvetica Neue",\n      "labelFontSize": 8,\n      "labelFontWeight": 400,\n      "titleFont": "Helvetica Neue",\n      "titleFontSize": 11,\n      "titleFontWeight": 500\n    },\n    "legend": {\n      "labelFont": "Helvetica Neue",\n      "labelFontSize": 8,\n      "labelFontWeight": 400,\n      "titleFont": "Helvetica Neue",\n      "titleFontSize": 10,\n      "titleFontWeight": 500\n    },\n    "title": {\n      "font": "Helvetica Neue",\n      "fontSize": 13,\n      "fontWeight": 500\n    },\n    "view": {\n      "continuousHeight": 300,\n      "continuousWidth": 400\n    }\n  },\n  "data": {\n    "name": "data-41dc8c578d56fc9d5c7490fed3b7a973"\n  },\n  "datasets": {\n    "data-41dc8c578d56fc9d5c7490fed3b7a973": [\n      {\n        "Displacement": 68.0,\n        "Displacement_end": 108.64,\n        "Number of Records": 104.0\n      },\n      {\n        "Displacement": 106.7,\n        "Displacement_end": 147.34,\n        "Number of Records": 88.0\n      },\n      {\n        "Displacement": 145.4,\n        "Displacement_end": 186.04000000000002,\n        "Number of Records": 30.0\n      },\n      {\n        "Displacement": 184.10000000000002,\n        "Displacement_end": 224.74,\n        "Number of Records": 12.0\n      },\n      {\n        "Displacement": 222.8,\n        "Displacement_end": 263.44,\n        "Number of Records": 57.0\n      },\n      {\n        "Displacement": 261.5,\n        "Displacement_end": 302.14,\n        "Number of Records": 3.0\n      },\n      {\n        "Displacement": 300.20000000000005,\n        "Displacement_end": 340.84000000000003,\n        "Number of Records": 42.0\n      },\n      {\n        "Displacement": 338.90000000000003,\n        "Displacement_end": 379.54,\n        "Number of Records": 31.0\n      },\n      {\n        "Displacement": 377.6,\n        "Displacement_end": 418.24,\n        "Number of Records": 16.0\n      },\n      {\n        "Displacement": 416.3,\n        "Displacement_end": 456.94,\n        "Number of Records": 9.0\n      }\n    ]\n  },\n  "encoding": {\n    "x": {\n      "axis": {\n        "labelOverlap": true,\n        "title": "Displacement (binned)"\n      },\n      "bin": {\n        "binned": true\n      },\n      "field": "Displacement",\n      "scale": {\n        "domain": [\n          68.0,\n          455.0\n        ]\n      },\n      "title": "Displacement (binned)",\n      "type": "quantitative"\n    },\n    "y": {\n      "field": "Number of Records",\n      "type": "quantitative"\n    }\n  },\n  "height": 150,\n  "mark": {\n    "size": 40.64,\n    "type": "bar"\n  },\n  "width": 160\n}'
+        x = chart.to_code()
+
+        self._widget.visGraphSpec = x  
+
 
     def _repr_html_(self):
         from IPython.display import display
@@ -648,6 +685,8 @@ class LuxDataFrame(pd.DataFrame):
             # Observers(callback_function, listen_to_this_variable)
             self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
             self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+            self._widget.observe(self.get_graphing_code, names="selectedFullScreenIndex")
+            self._widget.observe(self.apply_full_view_changes, names="visGraphCode")
 
             button = widgets.Button(
                 description="Toggle Pandas/Lux",
