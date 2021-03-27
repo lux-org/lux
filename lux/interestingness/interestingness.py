@@ -235,7 +235,7 @@ def deviation_from_overall(
         from lux.executor.SQLExecutor import SQLExecutor
 
         v_filter_size = SQLExecutor.get_filtered_size(filter_specs, ldf)
-        v_size = len(ldf)
+        v_size = ldf.len()
         vdata = vis.data
     v_filter = vdata[msr_attribute]
     total = v_filter.sum()

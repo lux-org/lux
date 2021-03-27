@@ -82,6 +82,7 @@ class LuxDataFrame(pd.DataFrame):
         self._toggle_pandas_display = True
         self._message = Message()
         self._pandas_only = False
+        self._length = len(self)
         # Metadata
         self._data_type = {}
         self.unique_values = None

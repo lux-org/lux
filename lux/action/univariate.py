@@ -59,7 +59,7 @@ def univariate(ldf, *args):
             "long_description": f"Distribution displays univariate histogram distributions of all quantitative attributes{examples}. Visualizations are ranked from most to least skewed.",
         }
         # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
-        if len(ldf) < 5:
+        if ldf._length < 5:
             ignore_rec_flag = True
     elif data_type_constraint == "nominal":
         possible_attributes = [
@@ -98,7 +98,7 @@ def univariate(ldf, *args):
             "long_description": "Temporal displays line charts for all attributes related to datetimes in the dataframe.",
         }
         # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
-        if len(ldf) < 3:
+        if ldf._length < 3:
             ignore_rec_flag = True
     if ignore_rec_flag:
         recommendation["collection"] = []

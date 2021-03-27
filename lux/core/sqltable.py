@@ -55,8 +55,6 @@ class LuxSQLTable(lux.LuxDataFrame):
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
-        "_length",
-        "_setup_done",
     ]
 
     def __init__(self, *args, table_name="", **kw):
@@ -66,16 +64,12 @@ class LuxSQLTable(lux.LuxDataFrame):
         lux.config.executor = SQLExecutor()
 
         self._length = 0
-        self._setup_done = False
         if table_name != "":
             self.set_SQL_table(table_name)
         warnings.formatwarning = lux.warning_format
 
-    def __len__(self):
-        if self._setup_done:
-            return self._length
-        else:
-            return super(LuxSQLTable, self).__len__()
+    def len(self):
+        return self._length
 
     def set_SQL_table(self, t_name):
         # function that ties the Lux Dataframe to a SQL database table
@@ -132,7 +126,7 @@ class LuxSQLTable(lux.LuxDataFrame):
                 layout=widgets.Layout(width="200px", top="6px", bottom="6px"),
             )
             self.output = widgets.Output()
-            self._sampled = lux.config.executor.execute_preview(self)
+            lux.config.executor.execute_preview(self)
             display(button, self.output)
 
             def on_button_clicked(b):
