@@ -16,6 +16,7 @@ from .context import lux
 import pytest
 import pandas as pd
 import numpy as np
+import psycopg2
 from lux.interestingness.interestingness import interestingness
 
 
@@ -25,7 +26,7 @@ def test_interestingness_1_0_0(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Origin")])
-    df._repr_html_()
+    df._ipython_display_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
     rank1 = -1
@@ -69,17 +70,35 @@ def test_interestingness_1_0_1(global_var):
             lux.Clause(attribute="Cylinders"),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     assert df.current_vis[0].score == 0
     df.clear_intent()
 
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
+    tbl = lux.LuxSQLTable()
+    lux.config.set_SQL_connection(connection)
+    tbl.set_SQL_table("car")
+
+    tbl.set_intent(
+        [
+            lux.Clause(attribute="Origin", filter_op="=", value="USA"),
+            lux.Clause(attribute="Cylinders"),
+        ]
+    )
+    tbl._repr_html_()
+    filter_score = tbl.recommendation["Filter"][0].score
+    assert tbl.current_vis[0].score == 0
+    assert filter_score > 0
+    tbl.clear_intent()
+
 
 def test_interestingness_0_1_0(global_var):
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower")])
-    df._repr_html_()
+    df._ipython_display_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
     rank1 = -1
@@ -129,18 +148,35 @@ def test_interestingness_0_1_1(global_var):
             lux.Clause(attribute="MilesPerGal"),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     assert interestingness(df.recommendation["Current Vis"][0], df) != None
     assert str(df.recommendation["Current Vis"][0]._inferred_intent[2].value) == "USA"
     df.clear_intent()
 
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
+    tbl = lux.LuxSQLTable()
+    lux.config.set_SQL_connection(connection)
+    tbl.set_SQL_table("car")
+
+    tbl.set_intent(
+        [
+            lux.Clause(attribute="Origin", filter_op="=", value="?"),
+            lux.Clause(attribute="MilesPerGal"),
+        ]
+    )
+    tbl._repr_html_()
+    assert interestingness(tbl.recommendation["Current Vis"][0], tbl) != None
+    assert str(tbl.recommendation["Current Vis"][0]._inferred_intent[2].value) == "USA"
+    tbl.clear_intent()
+
 
 def test_interestingness_1_1_0(global_var):
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Year")])
-    df._repr_html_()
+    df._ipython_display_()
     # check that top recommended Enhance graph score is not none (all graphs here have same score)
     assert interestingness(df.recommendation["Enhance"][0], df) != None
 
@@ -176,7 +212,7 @@ def test_interestingness_1_1_1(global_var):
             lux.Clause(attribute="Origin", filter_op="=", value="USA", bin_size=20),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     # check that top recommended Enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
     rank1 = -1
@@ -204,12 +240,31 @@ def test_interestingness_1_1_1(global_var):
     assert interestingness(df.recommendation["Filter"][0], df) != None
     df.clear_intent()
 
+    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
+    tbl = lux.LuxSQLTable()
+    lux.config.set_SQL_connection(connection)
+    tbl.set_SQL_table("car")
+
+    tbl.set_intent(
+        [
+            lux.Clause(attribute="Horsepower"),
+            lux.Clause(attribute="Origin", filter_op="=", value="USA", bin_size=20),
+        ]
+    )
+    tbl._repr_html_()
+    assert interestingness(tbl.recommendation["Enhance"][0], tbl) != None
+
+    # check for top recommended Filter graph score is not none
+    assert interestingness(tbl.recommendation["Filter"][0], tbl) != None
+    tbl.clear_intent()
+
 
 def test_interestingness_1_2_0(global_var):
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
     from lux.interestingness.interestingness import interestingness
 
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     y_clause = Clause(attribute="Name", channel="y")
     color_clause = Clause(attribute="Cylinders", channel="color")
@@ -227,7 +282,7 @@ def test_interestingness_0_2_0(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Acceleration")])
-    df._repr_html_()
+    df._ipython_display_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
     rank1 = -1
@@ -263,7 +318,7 @@ def test_interestingness_0_2_1(global_var):
             lux.Clause(attribute="Acceleration", filter_op=">", value=10),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     # check that top recommended Generalize graph score is not none
     assert interestingness(df.recommendation["Generalize"][0], df) != None
     df.clear_intent()

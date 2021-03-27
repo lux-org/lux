@@ -133,7 +133,7 @@ class SQLExecutor(Executor):
             query = "SELECT {} FROM {} {}".format(required_variables, tbl.table_name, where_clause)
         data = pandas.read_sql(query, lux.config.SQLconnection)
         view._vis_data = utils.pandas_to_lux(data)
-        view._vis_data.length = list(length_query["length"])[0]
+        # view._vis_data.length = list(length_query["length"])[0]
 
         tbl._message.add_unique(
             f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
@@ -217,7 +217,7 @@ class SQLExecutor(Executor):
                     view._vis_data = pandas.read_sql(count_query, lux.config.SQLconnection)
                     view._vis_data = view._vis_data.rename(columns={"count": "Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
-                view._vis_data.length = list(length_query["length"])[0]
+                # view._vis_data.length = list(length_query["length"])[0]
             # aggregate barchart case, need aggregate data (mean, sum, max) for each group
             else:
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
@@ -358,7 +358,7 @@ class SQLExecutor(Executor):
             view._vis_data = view._vis_data.sort_values(by=groupby_attr.attribute, ascending=True)
             view._vis_data = view._vis_data.reset_index()
             view._vis_data = view._vis_data.drop(columns="index")
-            view._vis_data.length = list(length_query["length"])[0]
+            # view._vis_data.length = list(length_query["length"])[0]
 
     @staticmethod
     def execute_binning(view: Vis, tbl: LuxSQLTable):
@@ -443,7 +443,7 @@ class SQLExecutor(Executor):
                 columns=[bin_attribute.attribute, "Number of Records"],
             )
             view._vis_data = utils.pandas_to_lux(view.data)
-            view._vis_data.length = list(length_query["length"])[0]
+            # view._vis_data.length = list(length_query["length"])[0]
 
     @staticmethod
     def execute_2D_binning(view: Vis, tbl: LuxSQLTable):
@@ -535,9 +535,13 @@ class SQLExecutor(Executor):
         filter_vars: list of strings
             list of variables that have been used as filters
         """
-        where_clause = []
         filters = utils.get_filter_specs(view._inferred_intent)
+        return SQLExecutor.create_where_clause(filters, view=view)
+
+    def create_where_clause(filter_specs, view=""):
+        where_clause = []
         filter_vars = []
+        filters = filter_specs
         if filters:
             for f in range(0, len(filters)):
                 if f == 0:
@@ -555,29 +559,39 @@ class SQLExecutor(Executor):
                 )
                 if filters[f].attribute not in filter_vars:
                     filter_vars.append(filters[f].attribute)
+        if view != "":
+            attributes = utils.get_attrs_specs(view._inferred_intent)
 
-        attributes = utils.get_attrs_specs(view._inferred_intent)
-
-        # need to ensure that no null values are included in the data
-        # null values breaks binning queries
-        for a in attributes:
-            if a.attribute != "Record":
-                if where_clause == []:
-                    where_clause.append("WHERE")
-                else:
-                    where_clause.append("AND")
-                where_clause.extend(
-                    [
-                        '"' + str(a.attribute) + '"',
-                        "IS NOT NULL",
-                    ]
-                )
+            # need to ensure that no null values are included in the data
+            # null values breaks binning queries
+            for a in attributes:
+                if a.attribute != "Record":
+                    if where_clause == []:
+                        where_clause.append("WHERE")
+                    else:
+                        where_clause.append("AND")
+                    where_clause.extend(
+                        [
+                            '"' + str(a.attribute) + '"',
+                            "IS NOT NULL",
+                        ]
+                    )
 
         if where_clause == []:
             return ("", [])
         else:
             where_clause = " ".join(where_clause)
         return (where_clause, filter_vars)
+
+    def get_filtered_size(filter_specs, tbl):
+        clause_info = SQLExecutor.create_where_clause(filter_specs=filter_specs, view="")
+        where_clause = clause_info[0]
+        filter_intents = filter_specs[0]
+        filtered_length = pandas.read_sql(
+            "SELECT COUNT(1) as length FROM {} {}".format(tbl.table_name, where_clause),
+            lux.config.SQLconnection,
+        )
+        return list(filtered_length["length"])[0]
 
     #######################################################
     ########## Metadata, type, model schema ###############
@@ -652,7 +666,7 @@ class SQLExecutor(Executor):
             "SELECT COUNT(1) as length FROM {}".format(tbl.table_name),
             lux.config.SQLconnection,
         )
-        tbl.length = list(length_query["length"])[0]
+        tbl._length = list(length_query["length"])[0]
 
         self.get_unique_values(tbl)
         for attribute in tbl.columns:

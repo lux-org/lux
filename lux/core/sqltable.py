@@ -31,7 +31,7 @@ import lux
 
 class LuxSQLTable(lux.LuxDataFrame):
     """
-    A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
+    A subclass of Lux.LuxDataFrame that houses other variables and functions for generating visual recommendations. Does not support normal pandas functionality.
     """
 
     # MUST register here for new properties!!
@@ -63,15 +63,19 @@ class LuxSQLTable(lux.LuxDataFrame):
 
         lux.config.executor = SQLExecutor()
 
+        self._length = 0
         if table_name != "":
             self.set_SQL_table(table_name)
         warnings.formatwarning = lux.warning_format
+
+    def len(self):
+        return self._length
 
     def set_SQL_table(self, t_name):
         # function that ties the Lux Dataframe to a SQL database table
         if self.table_name != "":
             warnings.warn(
-                f"\nThis dataframe is already tied to a database table. Please create a new Lux dataframe and connect it to your table '{t_name}'.",
+                f"\nThis LuxSQLTable is already tied to a database table. Please create a new Lux dataframe and connect it to your table '{t_name}'.",
                 stacklevel=2,
             )
         else:
@@ -88,8 +92,8 @@ class LuxSQLTable(lux.LuxDataFrame):
                     stacklevel=2,
                 )
 
-    def _repr_html_(self):
-        from IPython.display import HTML, display
+    def _ipython_display_(self):
+        from IPython.display import HTML, Markdown, display
         from IPython.display import clear_output
         import ipywidgets as widgets
 
@@ -130,11 +134,28 @@ class LuxSQLTable(lux.LuxDataFrame):
                     if b:
                         self._toggle_pandas_display = not self._toggle_pandas_display
                     clear_output()
+
+                    # create connection string to display
+                    connect_str = self.table_name
+                    connection_type = str(type(lux.config.SQLconnection))
+                    if "psycopg2.extensions.connection" in connection_type:
+                        connection_dsn = lux.config.SQLconnection.get_dsn_parameters()
+                        host_name = connection_dsn["host"]
+                        host_port = connection_dsn["port"]
+                        dbname = connection_dsn["dbname"]
+                        connect_str = host_name + ":" + host_port + "/" + dbname
+
+                    elif "sqlalchemy.engine.base.Engine" in connection_type:
+                        db_connection = str(lux.config.SQLconnection)
+                        db_start = db_connection.index("@") + 1
+                        db_end = len(db_connection) - 1
+                        connect_str = db_connection[db_start:db_end]
+
                     if self._toggle_pandas_display:
-                        notification = widgets.Label(
-                            value="Preview of the database table: " + self.table_name
+                        notification = "Here is a preview of the **{}** database table: **{}**".format(
+                            self.table_name, connect_str
                         )
-                        display(notification, self._sampled.display_pandas())
+                        display(Markdown(notification), self._sampled.display_pandas())
                     else:
                         # b.layout.display = "none"
                         display(self._widget)

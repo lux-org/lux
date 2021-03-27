@@ -231,9 +231,11 @@ def deviation_from_overall(
             vdata = vis.data
         v_filter_size = get_filtered_size(filter_specs, ldf)
         v_size = len(vis.data)
-    else:
-        v_filter_size = vis._vis_data.length
-        v_size = ldf.length
+    elif lux.config.executor.name == "SQLExecutor":
+        from lux.executor.SQLExecutor import SQLExecutor
+
+        v_filter_size = SQLExecutor.get_filtered_size(filter_specs, ldf)
+        v_size = ldf.len()
         vdata = vis.data
     v_filter = vdata[msr_attribute]
     total = v_filter.sum()
@@ -360,7 +362,7 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
         warnings.filterwarnings("error")
         try:
             score = np.abs(pearsonr(v_x, v_y)[0])
-        except (RuntimeWarning):
+        except:
             # RuntimeWarning: invalid value encountered in true_divide (occurs when v_x and v_y are uniform, stdev in denominator is zero, leading to spearman's correlation as nan), ignore these cases.
             score = -1
 

@@ -46,9 +46,7 @@ def univariate(ldf, *args):
     ignore_rec_flag = False
     if data_type_constraint == "quantitative":
         possible_attributes = [
-            c
-            for c in ldf.columns
-            if ldf.data_type[c] == "quantitative" and ldf.cardinality[c] > 5 and c != "Number of Records"
+            c for c in ldf.columns if ldf.data_type[c] == "quantitative" and c != "Number of Records"
         ]
         intent = [lux.Clause(possible_attributes)]
         intent.extend(filter_specs)
@@ -61,18 +59,16 @@ def univariate(ldf, *args):
             "long_description": f"Distribution displays univariate histogram distributions of all quantitative attributes{examples}. Visualizations are ranked from most to least skewed.",
         }
         # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
-        if ldf.length < 5:
+        if ldf._length < 5:
             ignore_rec_flag = True
     elif data_type_constraint == "nominal":
         possible_attributes = [
-            c
-            for c in ldf.columns
-            if ldf.data_type[c] == "nominal" and ldf.cardinality[c] > 5 and c != "Number of Records"
+            c for c in ldf.columns if ldf.data_type[c] == "nominal" and c != "Number of Records"
         ]
         examples = ""
         if len(possible_attributes) >= 1:
             examples = f" (e.g., {possible_attributes[0]})"
-        intent = [lux.Clause("?", data_type="nominal")]
+        intent = [lux.Clause(possible_attributes)]
         intent.extend(filter_specs)
         recommendation = {
             "action": "Occurrence",
@@ -81,9 +77,7 @@ def univariate(ldf, *args):
         }
     elif data_type_constraint == "geographical":
         possible_attributes = [
-            c
-            for c in ldf.columns
-            if ldf.data_type[c] == "geographical" and ldf.cardinality[c] > 5 and c != "Number of Records"
+            c for c in ldf.columns if ldf.data_type[c] == "geographical" and c != "Number of Records"
         ]
         examples = ""
         if len(possible_attributes) >= 1:
@@ -104,7 +98,7 @@ def univariate(ldf, *args):
             "long_description": "Temporal displays line charts for all attributes related to datetimes in the dataframe.",
         }
         # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
-        if ldf.length < 3:
+        if ldf._length < 3:
             ignore_rec_flag = True
     if ignore_rec_flag:
         recommendation["collection"] = []

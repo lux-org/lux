@@ -21,15 +21,15 @@ from lux.vis.Vis import Vis
 
 def test_metadata_subsequent_display(global_var):
     df = pytest.car_df
-    df._repr_html_()
+    df._ipython_display_()
     assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
-    df._repr_html_()
+    df._ipython_display_()
     assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
 
 
 def test_metadata_subsequent_vis(global_var):
     df = pytest.car_df
-    df._repr_html_()
+    df._ipython_display_()
     assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
     vis = Vis(["Acceleration", "Horsepower"], df)
     assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
@@ -37,7 +37,7 @@ def test_metadata_subsequent_vis(global_var):
 
 def test_metadata_inplace_operation(global_var):
     df = pytest.car_df
-    df._repr_html_()
+    df._ipython_display_()
     assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
     df.dropna(inplace=True)
     assert df._metadata_fresh == False, "Failed to expire metadata after in-place Pandas operation"
@@ -45,7 +45,7 @@ def test_metadata_inplace_operation(global_var):
 
 def test_metadata_new_df_operation(global_var):
     df = pytest.car_df
-    df._repr_html_()
+    df._ipython_display_()
     assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
     df[["MilesPerGal", "Acceleration"]]
     assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
@@ -61,7 +61,7 @@ def test_metadata_column_group_reset_df(global_var):
     result = df.groupby("Cylinders").mean()
     assert not hasattr(result, "_metadata_fresh")
     # Note that this should trigger two compute metadata (one for df, and one for an intermediate df.reset_index used to feed inside created Vis)
-    result._repr_html_()
+    result._ipython_display_()
     assert result._metadata_fresh == True, "Failed to maintain metadata after display df"
 
     colgroup_recs = result.recommendation["Column Groups"]
@@ -72,12 +72,12 @@ def test_metadata_column_group_reset_df(global_var):
 
 def test_recs_inplace_operation(global_var):
     df = pytest.college_df
-    df._repr_html_()
+    df._ipython_display_()
     assert df._recs_fresh == True, "Failed to maintain recommendation after display df"
     assert len(df.recommendation["Occurrence"]) == 6
     df.drop(columns=["Name"], inplace=True)
     assert "Name" not in df.columns, "Failed to perform `drop` operation in-place"
     assert df._recs_fresh == False, "Failed to maintain recommendation after in-place Pandas operation"
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.recommendation["Occurrence"]) == 5
     assert df._recs_fresh == True, "Failed to maintain recommendation after display df"

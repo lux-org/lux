@@ -30,5 +30,4 @@ def global_var():
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
-        "name",
     ]

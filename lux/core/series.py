@@ -50,7 +50,6 @@ class LuxSeries(pd.Series):
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
-        "name",
     ]
 
     _default_metadata = {
@@ -106,7 +105,7 @@ class LuxSeries(pd.Series):
 
         return lux.core.originalSeries(self, copy=False)
 
-    def __repr__(self):
+    def _ipython_display_(self):
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
@@ -189,7 +188,6 @@ class LuxSeries(pd.Series):
             )
             warnings.warn(traceback.format_exc())
             display(self.to_pandas())
-        return ""
 
     @property
     def recommendation(self):
