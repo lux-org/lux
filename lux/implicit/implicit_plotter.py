@@ -135,7 +135,7 @@ def process_filter(signal, ldf):
     -------
         chart_list: VisList or empty array
     """
-    filt_type = signal.kwargs["filt_type"]
+    rank_type = signal.kwargs["rank_type"]
     parent_mask = signal.kwargs["filt_key"]
 
     # get columns of interest from same execution time
@@ -149,10 +149,10 @@ def process_filter(signal, ldf):
     # get vis
     chart_list = None
     if len(cols): # if no columns captured in same time we wont plot
-        if filt_type == "parent":
+        if rank_type == "parent":
             chart_list = [plot_filter(ldf, cols, parent_mask)]
         
-        elif ldf._parent_df is not None: # filt_type == "child"
+        elif ldf._parent_df is not None: # rank_type == "child"
             chart_list = [plot_filter(ldf._parent_df, cols, parent_mask)]
             chart_list.append(plot_filter_count(ldf._parent_df, parent_mask))
 
@@ -181,23 +181,23 @@ def process_query_loc(signal, ldf, ranked_cols):
     -------
         chart_list: VisList or empty array
     """
-    filt_type = signal.kwargs["filt_type"]
-    query_df = signal.kwargs["query_df"]
+    rank_type = signal.kwargs["rank_type"]
+    child_df = signal.kwargs["child_df"]
     plot_df = None 
     chart_list = None
 
     # TODO.. which columns should I plot?
 
     # get parent df to plot and filter mask
-    if filt_type == "parent" and query_df is not None:
-        mask, diff_cols = compute_filter_diff(ldf, query_df)
+    if rank_type == "parent" and child_df is not None:
+        mask, diff_cols = compute_filter_diff(ldf, child_df)
         plot_df = ldf
         plot_cols = get_query_cols(ranked_cols, diff_cols)
 
         # get charts
         chart_list = [plot_filter(plot_df, plot_cols, mask)]
     
-    elif filt_type == "child" and ldf._parent_df is not None:
+    elif rank_type == "child" and ldf._parent_df is not None:
         mask, diff_cols = compute_filter_diff(ldf._parent_df, ldf)
         plot_df = ldf._parent_df
         plot_cols = get_query_cols(ranked_cols, diff_cols)

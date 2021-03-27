@@ -75,10 +75,12 @@ class History:
                 stacklevel=2,
             )
 
-    def append_event(self, op_name, cols, *args, **kwargs):
+    # TODO if i append new event and kernel.execution_count is the same, should I still decay weights?
+    def append_event(self, op_name, cols, decay=True, *args, **kwargs):
         if self._frozen_count == 0:
             event = Event(op_name, cols, 1, self.kernel.execution_count, *args, **kwargs)
-            self.decay_weights()
+            if decay:
+                self.decay_weights()
             self._events.append(event)
             # aggressively refresh actions 
             lux.config.update_actions["flag"] = True

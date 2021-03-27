@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 import pandas as pd
-from pandas.core.dtypes.common import is_hashable, is_list_like
+from pandas.core.dtypes.common import is_hashable, is_list_like, is_dict_like
 from pandas._typing import FrameOrSeries
 from typing import Optional
 
@@ -101,13 +101,13 @@ class LuxDataFrame(pd.DataFrame):
 
     @property
     def _constructor(self):
-        def f(*args, **kwargs):
-            _df = LuxDataFrame(*args, **kwargs)
-            # meta data should get proped in __finalize__ after this
-            _df._parent_df = self
-            return _df
-
-        return f
+        # def f(*args, **kwargs):
+        #     _df = LuxDataFrame(*args, **kwargs)
+        #     # meta data should get proped in __finalize__ after this
+        #     _df._parent_df = self
+        #     return _df
+        # return f
+        return LuxDataFrame
 
     # 
     # This is called when a series is returned from the df 
@@ -1003,8 +1003,9 @@ class LuxDataFrame(pd.DataFrame):
         Since histories are pretty small this shouldnt cause too much overhead.
         """
         _this = super(LuxDataFrame, self).__finalize__(other, method, **kwargs)
-        
-        _this._history = _this._history.copy()
+        if _this._history is not None:
+            _this._history = _this._history.copy()
+        _this._parent_df = other
 
         return _this
     
@@ -1018,10 +1019,10 @@ class LuxDataFrame(pd.DataFrame):
         ret_value = super(LuxDataFrame, self)._getitem_bool_array(key)
 
         # append to parent history
-        self._history.append_event("filter", [], filt_type="parent", filt_key=key)
+        self._history.append_event("filter", [], rank_type="parent", filt_key=key)
 
         # append to child history
-        ret_value._history.append_event("filter", [], filt_type="child", filt_key=key)
+        ret_value._history.append_event("filter", [], rank_type="child", filt_key=key)
 
         return ret_value
     
@@ -1031,8 +1032,8 @@ class LuxDataFrame(pd.DataFrame):
         self._prev = self
        
         # save history on self and returned df
-        self._history.append_event("head", [], n=5)
-        ret_frame._history.append_event("head", [], n=5)
+        self._history.append_event("head", [], n)
+        ret_frame._history.append_event("head", [], n)
         return ret_frame
 
     def tail(self, n: int = 5):
@@ -1040,8 +1041,8 @@ class LuxDataFrame(pd.DataFrame):
         self._prev = self
         
         # save history on self and returned df
-        self._history.append_event("tail", [], n=5)
-        ret_frame._history.append_event("tail", [], n=5)
+        self._history.append_event("tail", [], n)
+        ret_frame._history.append_event("tail", [], n)
         return ret_frame
 
     def info(self, *args, **kwargs):
@@ -1061,16 +1062,14 @@ class LuxDataFrame(pd.DataFrame):
         ret_frame._history.append_event("describe", [])
         ret_frame.pre_aggregated = True # this doesnt do anything rn to affect plotting
         return ret_frame
-
-   
     
     def query(self, expr: str, inplace: bool = False, **kwargs):
         # set_trace()
         ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
 
-        self._history.append_event("query", [], filt_type="parent", query_df=ret_value)
+        self._history.append_event("query", [], rank_type="parent", child_df=ret_value)
         if ret_value is not None: # i.e. inplace = True
-            ret_value._history.append_event("query", [], filt_type="child", query_df=None)
+            ret_value._history.append_event("query", [], rank_type="child", child_df=None)
 
         return ret_value
     
@@ -1090,9 +1089,9 @@ class LuxDataFrame(pd.DataFrame):
         # set_trace()
         ret_value = super(LuxDataFrame, self)._slice(slobj, axis)
         
-        self._history.append_event("slice", [], filt_type="parent", query_df=ret_value)
+        self._history.append_event("slice", [], rank_type="parent", child_df=ret_value)
         if ret_value is not None: # i.e. inplace = True
-            ret_value._history.append_event("slice", [], filt_type="child", query_df=None)
+            ret_value._history.append_event("slice", [], rank_type="child", child_df=None)
         
         return ret_value
 
@@ -1111,42 +1110,79 @@ class LuxDataFrame(pd.DataFrame):
         groupby_obj.pre_aggregated = True
         return groupby_obj
     
-    # groupby agg functions 
-    # TODO log these 
-    def aggregate(self, *args, **kwargs):
-        # set_trace()
-        ret_value = super(LuxDataFrame, self).aggregate(*args, **kwargs)
+    # agg functions 
+    def aggregate(self, func=None, axis=0, *args, **kwargs):
+        self.history.freeze()
+        ret_value = super(LuxDataFrame, self).aggregate(func, axis, *args, **kwargs)
+        self.history.unfreeze()
         ret_value.pre_aggregated = True
+       
+        # Not already logged since history frozen
+        if isinstance(func, str):
+            # ret value got history in child func but parent was frozen       
+            self._history.append_event(func, [], rank_type="parent", child_df=ret_value)
+
+        # for some reason is_list_like(dict) == True so MUST compare dict first 
+        elif is_dict_like(func):
+            for i, (col, aggs) in enumerate(func.items()):
+                decay = True
+                if i > 0: decay = False # only decay for first item
+
+                if is_list_like(aggs):
+                    for a in aggs:
+                        ret_value._history.append_event(a, [col], decay=decay, rank_type="child", child_df=None)
+                        self._history.append_event(a, [col], decay=decay, rank_type="parent", child_df=ret_value)
+                        decay = False
+                else: # is aggs is str
+                    ret_value._history.append_event(aggs, [col], decay=decay, rank_type="child", child_df=None)
+                    self._history.append_event(aggs, [col], decay=decay, rank_type="parent", child_df=ret_value)
+        
+        elif is_list_like(func):
+            for i, f_name in enumerate(func):
+                decay = True
+                if i > 0: decay = False # only decay for first item
+                ret_value._history.append_event(f_name, [], decay=decay, rank_type="child", child_df=None)
+                self._history.append_event(f_name, [], decay=decay, rank_type="parent", child_df=ret_value)
+
         return ret_value
     
     agg = aggregate
+    
+    """
+    called for min, max, mean, median, skew, kurt (kurtosis)
+    """
+    def _stat_function(self, name: str, *args, **kwargs):
+        self.history.freeze()
+        ret_value = super(LuxDataFrame, self)._stat_function(name, *args, **kwargs)
+        self.history.unfreeze()
 
-    def mean(self, *args, **kwargs):
-        # set_trace()
-        ret_value = super(LuxDataFrame, self).mean(*args, **kwargs)
+        ret_value._history.append_event(name, [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        self._history.append_event(name, [], rank_type="parent", child_df=ret_value)
         return ret_value
     
-    def min(self, *args, **kwargs):
-        # set_trace()
-        ret_value = super(LuxDataFrame, self).min(*args, **kwargs)
-        ret_value.pre_aggregated = True
-        return ret_value
-    
-    def max(self, *args, **kwargs):
-        # set_trace()
-        ret_value = super(LuxDataFrame, self).max(*args, **kwargs)
-        ret_value.pre_aggregated = True
-        return ret_value
+    """
+    called for sum, prod
+    """
+    def _min_count_stat_function(self, name: str, *args, **kwargs):
+        self.history.freeze()
+        ret_value = super(LuxDataFrame, self)._min_count_stat_function(name, *args, **kwargs)
+        self.history.unfreeze()
 
-    def count(self, *args, **kwargs):
-        # set_trace()
-        ret_value = super(LuxDataFrame, self).count(*args, **kwargs)
+        ret_value._history.append_event(name, [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        self._history.append_event(name, [], rank_type="parent", child_df=ret_value)
         return ret_value
     
-    def sum(self, *args, **kwargs):
-        # set_trace()
-        ret_value = super(LuxDataFrame, self).sum(*args, **kwargs)
+    """
+    called for std, var, sem
+    """
+    def _stat_function_ddof(self, name: str, *args, **kwargs):
+        self.history.freeze()
+        ret_value = super(LuxDataFrame, self)._stat_function_ddof(name, *args, **kwargs)
+        self.history.unfreeze()
+
+        ret_value._history.append_event(name, [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        self._history.append_event(name, [], rank_type="parent", child_df=ret_value)
         return ret_value

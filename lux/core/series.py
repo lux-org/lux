@@ -285,7 +285,8 @@ class LuxSeries(pd.Series):
         See same method in frame.py
         """
         _this = super(LuxSeries, self).__finalize__(other, method, **kwargs)
-        _this._history = _this._history.copy()
+        if _this._history is not None:
+            _this._history = _this._history.copy()
         return _this
 
     # def _construct_result(
