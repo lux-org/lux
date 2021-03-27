@@ -25,10 +25,11 @@ class SQLExecutor(Executor):
         return f"<SQLExecutor>"
 
     @staticmethod
-    def execute_preview(tbl: LuxSQLTable):
-        tbl._sampled = pandas.read_sql(
-            "SELECT * from {} LIMIT 5".format(tbl.table_name), lux.config.SQLconnection
+    def execute_preview(tbl: LuxSQLTable, preview_size=5):
+        output = pandas.read_sql(
+            "SELECT * from {} LIMIT {}".format(tbl.table_name, preview_size), lux.config.SQLconnection
         )
+        return output
 
     @staticmethod
     def execute_sampling(tbl: LuxSQLTable):
@@ -611,9 +612,8 @@ class SQLExecutor(Executor):
         -------
         None
         """
-        self.get_SQL_attributes(tbl)
-        for attr in list(tbl.columns):
-            tbl[attr] = None
+        if not tbl._setup_done:
+            self.get_SQL_attributes(tbl)
         tbl._data_type = {}
         #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this
         #####      in the initialization and do it just once
@@ -644,6 +644,7 @@ class SQLExecutor(Executor):
         attributes = list(pandas.read_sql(attr_query, lux.config.SQLconnection)["column_name"])
         for attr in attributes:
             tbl[attr] = None
+        tbl._setup_done = True
 
     def compute_stats(self, tbl: LuxSQLTable):
         """
