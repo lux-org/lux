@@ -1164,6 +1164,7 @@ class LuxDataFrame(pd.DataFrame):
         ret_value._history.append_event(name, [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
         self._history.append_event(name, [], rank_type="parent", child_df=ret_value)
+        ret_value._parent_df = self
         return ret_value
     
     """
@@ -1177,6 +1178,7 @@ class LuxDataFrame(pd.DataFrame):
         ret_value._history.append_event(name, [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
         self._history.append_event(name, [], rank_type="parent", child_df=ret_value)
+        ret_value._parent_df = self
         return ret_value
     
     """
@@ -1190,4 +1192,5 @@ class LuxDataFrame(pd.DataFrame):
         ret_value._history.append_event(name, [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
         self._history.append_event(name, [], rank_type="parent", child_df=ret_value)
+        ret_value._parent_df = self
         return ret_value

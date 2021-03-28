@@ -155,9 +155,9 @@ class LuxSeries(pd.Series):
         # Default column name 0 causes errors
         if self.name is None:
             self.name = " "
-        
         ldf = LuxDataFrame(self)
         ldf = rename_from_history(ldf) # TODO maybe should move this to frame 
+        ldf._parent_df = self._parent_df # tbd if this is good or bad, dont think I ever need the series itself
 
         try:
             # Ignore recommendations when Series a results of:

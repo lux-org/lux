@@ -134,7 +134,6 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         return ret_value
 
     def mean(self, *args, **kwargs):
-        set_trace()
         ret_value = super(LuxGroupBy, self).mean(*args, **kwargs)
         ret_value._history.append_event("mean", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
