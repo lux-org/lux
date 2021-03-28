@@ -19,6 +19,7 @@ import traceback
 import numpy as np
 from lux.history.history import History
 from lux.utils.message import Message
+from lux.implicit.utils import rename_from_history
 
 from pandas._typing import (
     FrameOrSeries,
@@ -155,8 +156,8 @@ class LuxSeries(pd.Series):
         if self.name is None:
             self.name = " "
         
-        # set_trace()
         ldf = LuxDataFrame(self)
+        ldf = rename_from_history(ldf) # TODO maybe should move this to frame 
 
         try:
             # Ignore recommendations when Series a results of:

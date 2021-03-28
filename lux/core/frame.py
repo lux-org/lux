@@ -94,10 +94,13 @@ class LuxDataFrame(pd.DataFrame):
 
         # prop history and parent
         if len(args) and (isinstance(args[0], LuxSeries) or isinstance(args[0], LuxDataFrame)):
-            h = args[0]._history.copy()
-            h.parent_ldf = self 
-            self._history = h
-            self._parent_df = args[0]
+            # set_trace()
+            self = self.__finalize__(args[0])
+            # h = args[0]._history.copy()
+            # h.parent_ldf = self 
+            # self._history = h
+            # self._parent_df = args[0]
+            # _y = 12
 
     @property
     def _constructor(self):
@@ -925,20 +928,21 @@ class LuxDataFrame(pd.DataFrame):
     #####################
 
     ## state overrides 
+    # NOTE: whats rationale for expiring on these?
     def _set_axis(self, axis, labels):
         super(LuxDataFrame, self)._set_axis(axis, labels)
-        self.expire_metadata()
-        self.expire_recs()
+        # self.expire_metadata()
+        # self.expire_recs()
 
     def _update_inplace(self, *args, **kwargs):
         super(LuxDataFrame, self)._update_inplace(*args, **kwargs)
-        self.expire_metadata()
-        self.expire_recs()
+        # self.expire_metadata()
+        # self.expire_recs()
 
     def _set_item(self, key, value):
         super(LuxDataFrame, self)._set_item(key, value)
-        self.expire_metadata()
-        self.expire_recs()
+        # self.expire_metadata()
+        # self.expire_recs()
 
     ## HISTORY overrides
     def __getattr__(self, name):
@@ -951,8 +955,8 @@ class LuxDataFrame(pd.DataFrame):
         ret_value = super(LuxDataFrame, self).__getattr__(name)
 
         # lux 
-        self.expire_metadata()
-        self.expire_recs()
+        # self.expire_metadata()
+        # self.expire_recs()
 
         return ret_value
     
@@ -1108,6 +1112,7 @@ class LuxDataFrame(pd.DataFrame):
             groupby_obj._history = groupby_obj._history.copy()
             groupby_obj._history.append_event("groupby", [], *args, **kwargs)
         groupby_obj.pre_aggregated = True
+        groupby_obj._parent_df = self
         return groupby_obj
     
     # agg functions 

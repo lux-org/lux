@@ -63,6 +63,7 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
 # VALUE_COUNT plotting #
 ########################
 def process_value_counts(signal, ldf):
+    #  TODO handle this differently if for parent or child
     clauses = []
     # for vc should only be one col, but if multiple use generic recs
     if len(signal.cols) > 1:
@@ -76,6 +77,22 @@ def process_value_counts(signal, ldf):
         clauses.append(c)
 
     vis_list = VisList( clauses, ldf )
+
+    # Vis(
+    #     [
+    #         lux.Clause(
+    #             attribute=index_column_name,
+    #             data_type="nominal",
+    #             data_model="dimension",
+    #             aggregation="",
+    #         ),
+    #         lux.Clause(
+    #             attribute=attribute,
+    #             data_type="quantitative",
+    #             data_model="measure",
+    #             aggregation=None,
+    #         ),
+    #     ]
 
     return vis_list
 

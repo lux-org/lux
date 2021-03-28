@@ -19,6 +19,7 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         "_recommendation",
         "_prev",
         "_history",
+        "_parent_df",
         "_saved_export",
         "_sampled",
         "_toggle_pandas_display",
@@ -31,17 +32,15 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
     def __init__(self, *args, **kwargs):
         super(LuxGroupBy, self).__init__(*args, **kwargs)
         self._history = History(self) 
+        self._parent_df = None
 
-    
-   
     ####################
     ## Different aggs  # 
     ####################
     def aggregate(self, func=None, *args, **kwargs):
-
-        # TODO use same copy scheme from frame
         ret_value = super(LuxGroupBy, self).aggregate(func, *args, **kwargs)
         ret_value = self._lux_copymd(ret_value)
+        ret_value._parent_df = self
 
         # for some reason is_list_like(dict) == True so MUST compare dict first 
         if is_dict_like(func):
@@ -72,16 +71,14 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         """
         ret_value = super(LuxGroupBy, self)._agg_general(*args, **kwargs)
         ret_value = self._lux_copymd(ret_value, force=True)
-
-        # ret_value._history.append_event(kwargs["alias"], [], rank_type="child", child_df=None)
+        ret_value._parent_df = self
 
         return ret_value
 
     def _cython_agg_general(self, how:str, *args, **kwargs):
         ret_value = super(LuxGroupBy, self)._cython_agg_general(how, *args, **kwargs)
         ret_value = self._lux_copymd(ret_value)
-
-        # ret_value._history.append_event(how, [], rank_type="child", child_df=None)
+        ret_value._parent_df = self
 
         return ret_value
     
@@ -118,12 +115,14 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         ret_value = super(LuxGroupBy, self).filter(*args, **kwargs)
         ret_value = self._lux_copymd(ret_value)
         ret_value.pre_aggregated = False  # Returned LuxDataFrame isn't pre_aggregated
+        ret_value._parent_df = self 
         return ret_value
 
     def apply(self, *args, **kwargs):
         ret_value = super(LuxGroupBy, self).apply(*args, **kwargs)
         ret_value = self._lux_copymd(ret_value)
         ret_value.pre_aggregated = False  # Returned LuxDataFrame isn't pre_aggregated
+        ret_value._parent_df = self 
         return ret_value
 
     def size(self, *args, **kwargs):
@@ -131,24 +130,29 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         ret_value = self._lux_copymd(ret_value, force=True) # not copied over otherwise
         ret_value._history.append_event("size", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        ret_value._parent_df = self 
         return ret_value
 
     def mean(self, *args, **kwargs):
+        set_trace()
         ret_value = super(LuxGroupBy, self).mean(*args, **kwargs)
         ret_value._history.append_event("mean", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        ret_value._parent_df = self 
         return ret_value
     
     def min(self, *args, **kwargs):
         ret_value = super(LuxGroupBy, self).min(*args, **kwargs)
         ret_value._history.append_event("min", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        ret_value._parent_df = self 
         return ret_value
     
     def max(self, *args, **kwargs):
         ret_value = super(LuxGroupBy, self).max(*args, **kwargs)
         ret_value._history.append_event("max", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        ret_value._parent_df = self 
         return ret_value
 
     def count(self, *args, **kwargs):
@@ -156,18 +160,21 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         ret_value = self._lux_copymd(ret_value) # not copied over otherwise
         ret_value._history.append_event("count", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        ret_value._parent_df = self
         return ret_value
     
     def sum(self, *args, **kwargs):
         ret_value = super(LuxGroupBy, self).sum(*args, **kwargs)
         ret_value._history.append_event("sum", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        ret_value._parent_df = self
         return ret_value
     
     def prod(self, *args, **kwargs):
         ret_value = super(LuxGroupBy, self).prod(*args, **kwargs)
         ret_value._history.append_event("prod", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        ret_value._parent_df = self
         return ret_value
     
     def median(self, *args, **kwargs):
@@ -175,6 +182,7 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         ret_value = self._lux_copymd(ret_value) # not copied over otherwise
         ret_value._history.append_event("median", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        ret_value._parent_df = self
         return ret_value
     
     def std(self, *args, **kwargs):
@@ -182,12 +190,14 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         ret_value = self._lux_copymd(ret_value) # not copied over otherwise
         ret_value._history.append_event("std", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        ret_value._parent_df = self
         return ret_value
 
     def var(self, *args, **kwargs):
         ret_value = super(LuxGroupBy, self).var(*args, **kwargs)
         ret_value._history.append_event("var", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        ret_value._parent_df = self
         return ret_value
     
     def sem(self, *args, **kwargs):
@@ -196,6 +206,7 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         # ret_value._history.edit_event(-1, "sem", [], rank_type="child", child_df=None) # sem calls std so want to edit 
         ret_value._history.append_event("sem", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = True
+        ret_value._parent_df = self
         return ret_value
 
 
