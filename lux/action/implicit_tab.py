@@ -39,11 +39,12 @@ def implicit_tab(ldf: LuxDataFrame):
     most_recent_event, col_list = ldf.history.get_implicit_intent(ldf.columns)
     str_desc = "Recommendedations based off code containing: <br/>"
     lux_vis = []
+    used_cols = most_recent_event.cols
 
     # get unique vis for recent col ref 
     if most_recent_event:
         lux_vis = VisList([], ldf)
-        vl = implicit_plotter.generate_vis_from_signal(most_recent_event, ldf, col_list)
+        vl, used_cols = implicit_plotter.generate_vis_from_signal(most_recent_event, ldf, col_list)
         
         if vl:
             if type(vl) == VisList:
@@ -55,12 +56,11 @@ def implicit_tab(ldf: LuxDataFrame):
     # get multiple vis for col refs
     if col_list and not ldf.pre_aggregated:
         col_vis_l = []
-        #max_score = len(col_vis_l)
-        for i, c in enumerate(col_list):
-            col_v = Vis( [lux.Clause(c)] )
-            #col_v.score = max_score - i
-            col_vis_l.append(col_v)
-            str_desc += f"> Reference(s) to '{c}' <br/>"
+        for c in col_list:
+            if c not in used_cols:
+                col_v = Vis( [lux.Clause(c)] )
+                col_vis_l.append(col_v)
+                str_desc += f"> Reference(s) to '{c}' <br/>"
             
         vl_2 = VisList(col_vis_l, ldf)
 

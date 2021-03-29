@@ -35,58 +35,70 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
     -------
         chart_list: VisList OR list 
             list in event of CustomVis since cant be put into VisList directly
+        used_cols: list
+            which columns were used in the returned vis(i)
     """
     vis_list = []
     if signal.op_name == "value_counts" or signal.op_name == "unique":
-        vis_list = process_value_counts(signal, ldf)
+        vis_list, used_cols = process_value_counts(signal, ldf)
     
-    elif signal.op_name == "crosstab":
-        ...
-
     elif signal.op_name == "describe":
-        vis_list = process_describe(signal, ldf)
+        vis_list, used_cols = process_describe(signal, ldf)
 
     elif signal.op_name == "filter":
-        vis_list = process_filter(signal, ldf)
+        vis_list, used_cols = process_filter(signal, ldf)
     
     elif signal.op_name == "query" or signal.op_name == "slice": 
-        vis_list = process_query_loc(signal, ldf, ranked_cols)
-        
-    elif signal.op_name == "groupby" or signal.op_name == "agg":
-        ...
+        vis_list, used_cols = process_query_loc(signal, ldf, ranked_cols)
+
+    # elif signal.op_name == "crosstab":
+    #     ...
+ 
+    # elif signal.op_name == "groupby" or signal.op_name == "agg": # gb is handled in cg_plotter.py
+    #     ...
     
     elif signal.cols: # generic recs
         clauses = [lux.Clause(attribute=i) for i in signal.cols]
+        used_cols = signal.cols
         vis_list = VisList( clauses, ldf )
-
-    return vis_list
+    
+    return vis_list, used_cols
 
 ########################
 # VALUE_COUNT plotting #
 ########################
 def process_value_counts(signal, ldf):
+    """
+    Generate 1d distribution plot either from raw data (if parent and unaggregated)
+    or from child 
+
+    Returns
+    -------
+        vis_list: VisList 
+            with the vis 
+        array: []
+            which columns were used 
+    """
     try: 
         rank_type = signal.kwargs["rank_type"]
-        # clauses = []
         c_name = signal.cols[0]
         if rank_type == "parent" and not ldf.pre_aggregated:
             if ldf.data_type[c_name] == "quantitative":
-                c = lux.Clause(attribute=c_name, mark_type="histogram")
+                clse = lux.Clause(attribute=c_name, mark_type="histogram")
             else:
-                c = lux.Clause(attribute=c_name, mark_type="bar")
+                clse = lux.Clause(attribute=c_name, mark_type="bar")
             
-            # clauses.append(c)
-            vis_list = VisList([c], ldf )
+            vis_list = VisList([clse], ldf )
 
         else: # "child" AND ldf is pre_aggregated
-            v = cg_plotter.plot_col_vis("index", c_name) # TODO index isnt real bro
+            v = cg_plotter.plot_col_vis("index", c_name)
             flat = ldf.reset_index()
-        
             vis_list = VisList([v], flat)
-        return vis_list
+        
+        return vis_list, [c_name]
     
     except (IndexError, KeyError):
-        return VisList( [], ldf )
+        return VisList( [], ldf ), []
 
 
 #####################
@@ -107,6 +119,10 @@ def process_describe(signal, ldf):
     Returns
     -------
         chart_list: VisList 
+        array: []
+            which columns were used 
+            NOTE: this is intentionally wrong here bc want to still use these cols elsewhere 
+            since will not be boxplots elsewhere
     """
     # if ldf is df returned by describe plot the parent of ldf
     if (ldf._parent_df is not None and 
@@ -119,10 +135,10 @@ def process_describe(signal, ldf):
         vl = VisList([lux.Clause("?", mark_type="boxplot")], ldf)
     
     # hack to get vis to appear at the front 
-    for v in vl:
-        v.score = 100
+    # for v in vl:
+    #     v.score = 100
     
-    return vl
+    return vl, []
 
 ###################
 # FILTER plotting #
@@ -143,6 +159,8 @@ def process_filter(signal, ldf):
     Returns
     -------
         chart_list: VisList or empty array
+        cols: []
+            which columns were used 
     """
     rank_type = signal.kwargs["rank_type"]
     parent_mask = signal.kwargs["filt_key"]
@@ -171,7 +189,7 @@ def process_filter(signal, ldf):
         for _v in chart_list:
             vis_list.append( CustomVis(_v) )
 
-    return vis_list
+    return vis_list, cols
 
 def process_query_loc(signal, ldf, ranked_cols):
     """
@@ -189,6 +207,8 @@ def process_query_loc(signal, ldf, ranked_cols):
     Returns
     -------
         chart_list: VisList or empty array
+        plot_cols: array
+            which cols were used
     """
     rank_type = signal.kwargs["rank_type"]
     child_df = signal.kwargs["child_df"]
@@ -221,7 +241,7 @@ def process_query_loc(signal, ldf, ranked_cols):
         for _v in chart_list:
             vis_list.append( CustomVis(_v) )
 
-    return vis_list
+    return vis_list, plot_cols
 
 def get_query_cols(ranked_cols, diff_cols):
     """
