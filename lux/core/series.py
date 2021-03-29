@@ -61,27 +61,11 @@ class LuxSeries(pd.Series):
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
+        "name",
     ]
-
-    _default_metadata = {
-        "_intent": list,
-        "_inferred_intent": list,
-        "_current_vis": list,
-        "_recommendation": list,
-        "_toggle_pandas_display": lambda: True,
-        "_pandas_only": lambda: False,
-        "_type_override": dict,
-        "_history": History,
-        "_message": Message,
-    }
 
     def __init__(self, *args, **kw):
         super(LuxSeries, self).__init__(*args, **kw)
-        # for attr in self._metadata:
-        #     if attr in self._default_metadata:
-        #         self.__dict__[attr] = self._default_metadata[attr]()
-        #     else:
-        #         self.__dict__[attr] = None
         
         # defaults
         self._intent = []
@@ -155,8 +139,9 @@ class LuxSeries(pd.Series):
         # Default column name 0 causes errors
         if self.name is None:
             self.name = " "
+        set_trace()
         ldf = LuxDataFrame(self)
-        ldf = rename_from_history(ldf) # TODO maybe should move this to frame 
+        # ldf = rename_from_history(ldf) # TODO maybe should move this to frame 
         ldf._parent_df = self._parent_df # tbd if this is good or bad, dont think I ever need the series itself
 
         try:
@@ -290,48 +275,27 @@ class LuxSeries(pd.Series):
             _this._history = _this._history.copy()
         return _this
 
-    # def _construct_result(
-    #     self, result: Union[ArrayLike, Tuple[ArrayLike, ArrayLike]], name: Hashable
-    # ) -> Union[pd.Series, Tuple[pd.Series, pd.Series]]:
-    #     ret_value = super(LuxSeries, self)._construct_result(result, name)
-
-    #     set_trace()
-
-    #     print(type(ret_value))
-
-    #     return ret_value
-    
-    def value_counts(
-        self,
-        normalize: bool = False,
-        sort: bool = True,
-        ascending: bool = False,
-        bins=None,
-        dropna: bool = True,
-    ):
-        ret_value = super(LuxSeries, self).value_counts(normalize, sort, ascending, bins, dropna)
-        ret_value._parent_df = self._parent_df # propagate parent from column to vc series
-        # add to history
-        kw = {"normalize":normalize, 
-                "sort":sort, 
-                "ascending":ascending, 
-                "bins":bins, 
-                "dropna":dropna}
-
-        self._history.append_event("value_counts", [self.name], **kw)
-        ret_value._history.append_event("value_counts", [self.name], **kw)
-        self.add_to_parent_history("value_counts", [self.name], **kw)
+    def value_counts(self, *args, **kwargs):
+        ret_value = super(LuxSeries, self).value_counts(*args, **kwargs)
         
+        # add to history
+        self._history.append_event("value_counts", [self.name]) # df.col
+        ret_value._history.append_event("value_counts", [self.name], rank_type = "child") # df.col.value_counts
+        self.add_to_parent_history("value_counts", [self.name]) # df
+
+        # set ret_value meta data
+        ret_value._parent_df = self._parent_df 
+        ret_value.pre_aggregated = True 
+
         return ret_value
     
-    def unique(self):
+    def unique(self, *args, **kwargs):
         """
         Returns a numpy array so makes things more tricky
         """
         #set_trace()
-        ret_value = super(LuxSeries, self).unique()
+        ret_value = super(LuxSeries, self).unique(*args, **kwargs)
         self._history.append_event("unique", [self.name])
-        #ret_value._history.append_event("unique", [self.name])
         self.add_to_parent_history("unique", [self.name])
 
         return ret_value
@@ -341,7 +305,7 @@ class LuxSeries(pd.Series):
     # History Utils #
     #################
     
-    def add_to_parent_history(self, op, cols, **kw_dict):
+    def add_to_parent_history(self, op, cols):
         """
         Utility function for updating parent history
 
@@ -350,6 +314,6 @@ class LuxSeries(pd.Series):
         """
         if self._parent_df is not None:
             if self._parent_df.history.check_event(-1, op_name="col_ref", cols=cols):
-                self._parent_df.history.edit_event(-1, op, cols, **kw_dict)
+                self._parent_df.history.edit_event(-1, op, cols, rank_type="parent")
             else: 
-                self._parent_df._history.append_event(op, cols, **kw_dict)
+                self._parent_df._history.append_event(op, cols, rank_type="parent")

@@ -5,6 +5,8 @@ from lux.history.event import Event
 from lux.core.frame import LuxDataFrame
 import lux.utils.defaults as lux_default
 
+from lux.implicit import cg_plotter
+
 import lux
 import altair as alt
 import random
@@ -63,38 +65,29 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
 # VALUE_COUNT plotting #
 ########################
 def process_value_counts(signal, ldf):
-    #  TODO handle this differently if for parent or child
-    clauses = []
-    # for vc should only be one col, but if multiple use generic recs
-    if len(signal.cols) > 1:
-        clauses = [lux.Clause(attribute=i) for i in signal.cols]
-    elif len(signal.cols) == 1 and signal.cols[0] in ldf.data_type:
+    set_trace()
+
+    try: 
+        rank_type = signal.kwargs["rank_type"]
+        clauses = []
         c_name = signal.cols[0]
-        if ldf.data_type[c_name] == "quantitative":
-            c = lux.Clause(attribute=c_name, mark_type="histogram")
-        else:
-            c = lux.Clause(attribute=c_name, mark_type="bar")
-        clauses.append(c)
+        if rank_type == "parent":
+            if ldf.data_type[c_name] == "quantitative":
+                c = lux.Clause(attribute=c_name, mark_type="histogram")
+            else:
+                c = lux.Clause(attribute=c_name, mark_type="bar")
+            
+            clauses.append(c)
 
-    vis_list = VisList( clauses, ldf )
-
-    # Vis(
-    #     [
-    #         lux.Clause(
-    #             attribute=index_column_name,
-    #             data_type="nominal",
-    #             data_model="dimension",
-    #             aggregation="",
-    #         ),
-    #         lux.Clause(
-    #             attribute=attribute,
-    #             data_type="quantitative",
-    #             data_model="measure",
-    #             aggregation=None,
-    #         ),
-    #     ]
-
-    return vis_list
+        else: # "child" AND ldf is pre_aggregated
+            v = cg_plotter.plot_col_vis("index", c_name) # TODO index isnt real bro
+            clauses.append(v)
+        
+        vis_list = VisList( clauses, ldf )
+        return vis_list
+    
+    except (IndexError, KeyError) as e:
+        return VisList( [], ldf )
 
 
 #####################

@@ -24,6 +24,7 @@ from lux.vis.VisList import VisList
 from lux.history.history import History
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
+from lux.implicit.utils import rename_from_history
 from typing import Dict, Union, List, Callable
 
 # from lux.executor.Executor import *
@@ -94,13 +95,14 @@ class LuxDataFrame(pd.DataFrame):
 
         # prop history and parent
         if len(args) and (isinstance(args[0], LuxSeries) or isinstance(args[0], LuxDataFrame)):
-            # set_trace()
-            self = self.__finalize__(args[0])
+            set_trace()
+            self.__finalize__(args[0])
+            rename_from_history(self, args[0])
             # h = args[0]._history.copy()
             # h.parent_ldf = self 
             # self._history = h
             # self._parent_df = args[0]
-            # _y = 12
+            _y = 12
 
     @property
     def _constructor(self):
@@ -988,11 +990,17 @@ class LuxDataFrame(pd.DataFrame):
         Called when assigning new item to df like below.
             df["new_col"] = ...
 
+        Note: for assignments to and from same column (like df.A = df.A + 1), this results in two logs. 
+        One here and one in the __getitem__
         """
         super(LuxDataFrame, self).__setitem__(key, value)
 
         if is_hashable(key) and key in self.columns:
             self.history.append_event("col_ref", [key])
+        
+        # # when assiging to same col, dont log twice
+        # if self.history.check_event(-1, op_name="col_ref", cols=[key]):
+        #     self.history.edit_event(-1, "col_ref", [key])
 
     
     def __finalize__(

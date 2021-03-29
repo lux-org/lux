@@ -37,7 +37,7 @@ def column_group(ldf):
                     are often pre-aggregated, so Lux visualizes exactly the values that the dataframe portrays.  \
                         <a href="https://lux-api.readthedocs.io/en/latest/source/advanced/indexgroup.html" target="_blank">More details</a>',
     }    
-    set_trace()
+    # set_trace()
     
     ldf, f_map = cg_plotter.rename_cg_history(ldf)
     

@@ -41,7 +41,7 @@ class Event:
         return event_copy
 
     def __repr__(self):
-        s = f"<Event({id(self)}): {self.op_name}, weight: {self.weight}, ex_count: {self.ex_count}"
+        s = f"<Event (id: {id(self)}) @[{self.ex_count}]: \033[1m{self.op_name}\033[0m, weight: {self.weight}"
         if self.cols:
             s += f", cols={self.cols}"
         if self.args != () or self.kwargs != {}:
