@@ -48,7 +48,7 @@ class Heatmap(MatplotlibChart):
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
 
-        df=self.data
+        df = self.data
 
         plot_code = ""
         color_attr = self.vis.get_attr_by_channel("color")

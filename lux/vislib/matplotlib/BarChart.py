@@ -78,7 +78,7 @@ class BarChart(MatplotlibChart):
                 color="#ff8e04",
             )
 
-        df=self.data
+        df = self.data
 
         bars = df[bar_attr].apply(lambda x: str(x))
         measurements = df[measure_attr]
