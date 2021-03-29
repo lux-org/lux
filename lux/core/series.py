@@ -139,9 +139,8 @@ class LuxSeries(pd.Series):
         # Default column name 0 causes errors
         if self.name is None:
             self.name = " "
-        set_trace()
+        
         ldf = LuxDataFrame(self)
-        # ldf = rename_from_history(ldf) # TODO maybe should move this to frame 
         ldf._parent_df = self._parent_df # tbd if this is good or bad, dont think I ever need the series itself
 
         try:
@@ -278,14 +277,15 @@ class LuxSeries(pd.Series):
     def value_counts(self, *args, **kwargs):
         ret_value = super(LuxSeries, self).value_counts(*args, **kwargs)
         
+        # set ret_value meta data from df instead of df.col
+        ret_value._parent_df = self._parent_df 
+        # ret_value._history = self._parent_df._history.copy() # NOTE: should parent history be copied over here?
+        ret_value.pre_aggregated = True 
+
         # add to history
         self._history.append_event("value_counts", [self.name]) # df.col
         ret_value._history.append_event("value_counts", [self.name], rank_type = "child") # df.col.value_counts
         self.add_to_parent_history("value_counts", [self.name]) # df
-
-        # set ret_value meta data
-        ret_value._parent_df = self._parent_df 
-        ret_value.pre_aggregated = True 
 
         return ret_value
     

@@ -65,28 +65,27 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
 # VALUE_COUNT plotting #
 ########################
 def process_value_counts(signal, ldf):
-    set_trace()
-
     try: 
         rank_type = signal.kwargs["rank_type"]
-        clauses = []
+        # clauses = []
         c_name = signal.cols[0]
-        if rank_type == "parent":
+        if rank_type == "parent" and not ldf.pre_aggregated:
             if ldf.data_type[c_name] == "quantitative":
                 c = lux.Clause(attribute=c_name, mark_type="histogram")
             else:
                 c = lux.Clause(attribute=c_name, mark_type="bar")
             
-            clauses.append(c)
+            # clauses.append(c)
+            vis_list = VisList([c], ldf )
 
         else: # "child" AND ldf is pre_aggregated
             v = cg_plotter.plot_col_vis("index", c_name) # TODO index isnt real bro
-            clauses.append(v)
+            flat = ldf.reset_index()
         
-        vis_list = VisList( clauses, ldf )
+            vis_list = VisList([v], flat)
         return vis_list
     
-    except (IndexError, KeyError) as e:
+    except (IndexError, KeyError):
         return VisList( [], ldf )
 
 

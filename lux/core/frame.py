@@ -95,14 +95,10 @@ class LuxDataFrame(pd.DataFrame):
 
         # prop history and parent
         if len(args) and (isinstance(args[0], LuxSeries) or isinstance(args[0], LuxDataFrame)):
-            set_trace()
+            # note assigning to self here does nothing since local
             self.__finalize__(args[0])
             rename_from_history(self, args[0])
-            # h = args[0]._history.copy()
-            # h.parent_ldf = self 
-            # self._history = h
-            # self._parent_df = args[0]
-            _y = 12
+            
 
     @property
     def _constructor(self):

@@ -17,7 +17,6 @@ def rename_from_history(child, parent):
     Updates child in place so no return
     """
     try:
-
         # this only applies with single column from series 
         if len(child.columns) == 1:
 
@@ -28,11 +27,8 @@ def rename_from_history(child, parent):
             else:
                 mre = child.history._events[-1]
                 c = mre.cols[0] if len(mre.cols) else mre.op_name
-            
-            set_trace()
-            
+                        
             child.rename(columns = {child.columns[0]: c}, inplace=True) # MUST be inplace
-            # child._parent_df = parent
 
     except IndexError:
         ...

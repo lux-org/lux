@@ -53,7 +53,7 @@ def implicit_tab(ldf: LuxDataFrame):
             str_desc += f"> Call to function '{most_recent_event.op_name}' in execution cell [{most_recent_event.ex_count}] <br/>"
         
     # get multiple vis for col refs
-    if col_list:
+    if col_list and not ldf.pre_aggregated:
         col_vis_l = []
         #max_score = len(col_vis_l)
         for i, c in enumerate(col_list):
@@ -69,13 +69,10 @@ def implicit_tab(ldf: LuxDataFrame):
         else:
             lux_vis = vl_2
         
-        lux_vis.remove_duplicates()
-        lux_vis.sort()
-
-
-    # for vis in i_vis_list:
-    #     vis.score = interestingness(vis, ldf)
-    # vlist.sort()
+        # lux_vis.remove_duplicates()
+        # lux_vis.sort()
+    
+    # TODO how to deal with other col refs when ldf is pre aggregated? 
 
     recommendation = {
         "action": "Implicit",
