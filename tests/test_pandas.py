@@ -19,16 +19,16 @@ import pandas as pd
 
 def test_head_tail(global_var):
     df = pytest.car_df
-    df._repr_html_()
+    df._ipython_display_()
     assert df._message.to_html() == ""
-    df.head()._repr_html_()
+    df.head()._ipython_display_()
     assert (
         "Lux is visualizing the previous version of the dataframe before you applied <code>head</code>."
         in df._message.to_html()
     )
-    df._repr_html_()
+    df._ipython_display_()
     assert df._message.to_html() == ""
-    df.tail()._repr_html_()
+    df.tail()._ipython_display_()
     assert (
         "Lux is visualizing the previous version of the dataframe before you applied <code>tail</code>."
         in df._message.to_html()
@@ -38,12 +38,12 @@ def test_head_tail(global_var):
 def test_describe(global_var):
     df = pytest.college_df
     summary = df.describe()
-    summary._repr_html_()
+    summary._ipython_display_()
     assert len(summary.columns) == 10
 
 
 def test_convert_dtype(global_var):
     df = pytest.college_df
     cdf = df.convert_dtypes()
-    cdf._repr_html_()
+    cdf._ipython_display_()
     assert list(cdf.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]

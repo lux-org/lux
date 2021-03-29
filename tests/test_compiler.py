@@ -77,19 +77,21 @@ def test_underspecified_single_vis(global_var, test_recs):
 # 	df.set_intent([lux.Clause(attribute ="?", data_model="measure"), lux.Clause(attribute ="?", data_model="measure")])
 # 	assert len(df.current_vis) == len([vis.get_attr_by_data_model("measure") for vis in df.current_vis]) #should be 25
 # 	test_recs(df, multiple_vis_actions)
+
+
 def test_set_intent_as_vis(global_var, test_recs):
     df = pytest.car_df
-    df._repr_html_()
+    df._ipython_display_()
     vis = df.recommendation["Correlation"][0]
     df.intent = vis
-    df._repr_html_()
+    df._ipython_display_()
     test_recs(df, ["Enhance", "Filter", "Generalize"])
 
 
 @pytest.fixture
 def test_recs():
     def test_recs_function(df, actions):
-        df._repr_html_()
+        df._ipython_display_()
         assert len(df.recommendation) > 0
         recKeys = list(df.recommendation.keys())
         list_equal(recKeys, actions)
@@ -348,7 +350,7 @@ def test_populate_options(global_var):
             lux.Clause(attribute="MilesPerGal"),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     col_set = set()
     for specOptions in Compiler.populate_wildcard_options(df._intent, df)["attributes"]:
         for clause in specOptions:
@@ -370,7 +372,7 @@ def test_remove_all_invalid(global_var):
             lux.Clause(attribute="Origin"),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.current_vis) == 0
     df.clear_intent()
 

@@ -11,7 +11,7 @@
     <a href='https://lux-api.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/lux-api/badge/?version=latest' alt='Documentation Status'  align="center"/>
     </a>
-    <a href='https://lux-project.slack.com/join/shared_invite/zt-lilu4e87-TM4EDTq9HWzlDRycFsrkLg'>
+    <a href='https://communityinviter.com/apps/lux-project/lux'>
         <img src='https://img.shields.io/static/v1?label=chat&logo=slack&message=Slack&color=brightgreen' alt='Slack'  align="center"/>
     </a>
     <a href='https://forms.gle/XKv3ejrshkCi3FJE6'>
@@ -147,9 +147,9 @@ conda install -c conda-forge lux-api
 
 Both the PyPI and conda installation include includes the Lux Jupyter widget frontend, [lux-widget](https://pypi.org/project/lux-widget/). 
 
-## Setup in Jupyter Notebook, VSCode
+## Setup in Jupyter Notebook, VSCode, JupyterHub
 
-To use Lux in [Jupyter notebook](https://github.com/jupyter/notebook) or [VSCode](https://code.visualstudio.com/docs/python/jupyter-support), activate the notebook extension:
+To use Lux with any Jupyter notebook-based frontends (e.g., [Jupyter notebook](https://github.com/jupyter/notebook), [JupyterHub](https://github.com/jupyterhub/jupyterhub), or [VSCode](https://code.visualstudio.com/docs/python/jupyter-support)), activate the notebook extension:
 
 ```bash
 jupyter nbextension install --py luxwidget
@@ -179,5 +179,5 @@ Other additional resources:
 - Sign up for the early-user [mailing list](https://forms.gle/XKv3ejrshkCi3FJE6) to stay tuned for upcoming releases, updates, or user studies. 
 - Visit [ReadTheDoc](https://lux-api.readthedocs.io/en/latest/) for more detailed documentation.
 - Try out these hands-on [exercises](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/exercise) or [tutorials](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial) on [Binder](https://mybinder.org/v2/gh/lux-org/lux-binder/master). Or clone and run [lux-binder](https://github.com/lux-org/lux-binder) locally.
-- Join our community [Slack](https://lux-project.slack.com/join/shared_invite/zt-lilu4e87-TM4EDTq9HWzlDRycFsrkLg) to discuss and ask questions.
+- Join our community [Slack](https://communityinviter.com/apps/lux-project/lux) to discuss and ask questions.
 - Report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues). 
