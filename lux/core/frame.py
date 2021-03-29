@@ -483,7 +483,7 @@ class LuxDataFrame(pd.DataFrame):
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
 
                 # manually adding implicit here since not done by default 
-                rec_df._append_rec(rec_infolist, implicit_tab(rec_df))
+                #rec_df._append_rec(rec_infolist, implicit_tab(rec_df))
             else:
                 # if rec_df._recommendation == {}:
                 from lux.action.custom import custom_actions

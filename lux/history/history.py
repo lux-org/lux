@@ -54,7 +54,6 @@ class History:
         history_copy = History(self.parent_ldf)
         _events_copy = [item.copy() for item in self._events]
         history_copy._events = _events_copy
-        #history_copy._events.extend(self._events) # NOTE if events become mutable they need to be copied too 
         return history_copy
 
     ######################
@@ -75,6 +74,23 @@ class History:
                 stacklevel=2,
             )
 
+    def clear(self):
+        if self._frozen_count == 0:
+            self._events = []
+            return True 
+        
+        return False
+    
+    def delete_at(self, index):
+        try:
+            if self._frozen_count == 0:
+                item = self._events.pop(index)
+                return item 
+            
+            return None
+        except IndexError:
+            return None
+        
     # TODO if i append new event and kernel.execution_count is the same, should I still decay weights?
     def append_event(self, op_name, cols, decay=True, *args, **kwargs):
         if self._frozen_count == 0:

@@ -44,6 +44,9 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
 
         # for some reason is_list_like(dict) == True so MUST compare dict first 
         if is_dict_like(func):
+            # the first function gets added twice so we delete from history 
+            ret_value._history.delete_at(-1)
+
             for i, (col, aggs) in enumerate(func.items()):
                 decay = True
                 if i > 0: decay = False # only decay for first item

@@ -37,9 +37,8 @@ def column_group(ldf):
                     are often pre-aggregated, so Lux visualizes exactly the values that the dataframe portrays.  \
                         <a href="https://lux-api.readthedocs.io/en/latest/source/advanced/indexgroup.html" target="_blank">More details</a>',
     }    
-    # set_trace()
     
-    ldf, f_map = cg_plotter.rename_cg_history(ldf)
+    ldf, f_map, inverted_col_map = cg_plotter.rename_cg_history(ldf)
     
     ldf_flat = ldf
     if isinstance(ldf.columns, pd.DatetimeIndex):
@@ -88,14 +87,22 @@ def column_group(ldf):
                 
         else:
             collection = []
+            mean_collection = []
             for attribute in ldf.columns:
                 if ldf[attribute].dtype != "object" and (attribute != "index"):
-                    # TODO handle future case with different aggs
-                    #if f_map[attribute] == "mean": 
-                    
-                    vis = cg_plotter.plot_col_vis(index_column_name, attribute)
-                    collection.append(vis)
+                    if (attribute in f_map) and (f_map[attribute] == "mean"): 
+                        _this_c_df = ldf[[attribute]] # select col as df
+                        old_col_name = inverted_col_map[attribute]
+                        df_s = pd.DataFrame(ldf._parent_df[old_col_name].std()) # as df
+                        df_s = df_s.rename(columns={c: f"{c} (std)" for c in df_s.columns})
+                        
+                        vl = cg_plotter.plot_gb_mean_errorbar(_this_c_df, df_s)
+                        mean_collection.extend(vl)
+                    else:
+                        vis = cg_plotter.plot_col_vis(index_column_name, attribute)
+                        collection.append(vis)
             vlst = VisList(collection, ldf_flat)
+            vlst._collection.extend(mean_collection)
     # Note that we are not computing interestingness score here because we want to preserve the arrangement of the aggregated ldf
 
     recommendation["collection"] = vlst

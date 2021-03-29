@@ -93,9 +93,13 @@ def rename_cg_history(ldf):
     updated_col_names, f_map = get_cols_agg_name(ldf)
     ldf_renamed = ldf.rename(columns = updated_col_names)
 
+    inverted_map = {}
+    for k, v in updated_col_names.items():
+        inverted_map[v] = k
+
     ldf_renamed._parent_df = ldf._parent_df # omit the rename from tree
 
-    return ldf_renamed, f_map
+    return ldf_renamed, f_map, inverted_map
 
 
 def get_cols_agg_name(ldf):
