@@ -62,7 +62,6 @@ class BarChart(MatplotlibChart):
             bar_attr = x_attr.attribute
 
         k = 10
-        self._topkcode = ""
         n_bars = len(self.data.iloc[:, 0].unique())
         if n_bars > k:  # Truncating to only top k
             remaining_bars = n_bars - k
@@ -79,17 +78,7 @@ class BarChart(MatplotlibChart):
                 color="#ff8e04",
             )
 
-            self._topkcode = f"""text = alt.Chart(visData).mark_text(
-			x=155, 
-			y=142,
-			align="right",
-			color = "#ff8e04",
-			fontSize = 11,
-			text=f"+ {remaining_bars} more ..."
-		)
-		chart = chart + text\n"""
-
-        df = pd.DataFrame(self.data)
+        df = self.data
 
         bars = df[bar_attr].apply(lambda x: str(x))
         measurements = df[measure_attr]
