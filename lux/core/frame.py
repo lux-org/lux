@@ -317,10 +317,6 @@ class LuxDataFrame(pd.DataFrame):
     def current_vis(self, current_vis: Dict):
         self._current_vis = current_vis
 
-    def __repr__(self):
-        # TODO: _repr_ gets called from _repr_html, need to get rid of this call
-        return ""
-
     #######################################################
     ########## SQL Metadata, type, model schema ###########
     #######################################################
@@ -619,7 +615,7 @@ class LuxDataFrame(pd.DataFrame):
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
-    def _repr_html_(self):
+    def _ipython_display_(self):
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
