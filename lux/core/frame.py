@@ -274,7 +274,7 @@ class LuxDataFrame(pd.DataFrame):
             self.maintain_metadata()
 
         for attr in types:
-            if types[attr] not in ["nominal", "quantitative", "id", "temporal"]:
+            if types[attr] not in ["nominal", "quantitative", "id", "temporal", "ordinal"]:
                 raise ValueError(
                     f'Invalid data type option specified for {attr}. Please use one of the following supported types: ["nominal", "quantitative", "id", "temporal"]'
                 )

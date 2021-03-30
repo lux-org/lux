@@ -160,6 +160,7 @@ class Compiler:
         from lux.utils.date_utils import is_datetime_string
 
         data_model_lookup = lux.config.executor.compute_data_model_lookup(ldf.data_type)
+        
 
         for vis in vlist:
             for clause in vis._inferred_intent:
@@ -265,6 +266,7 @@ class Compiler:
         # Helper function (TODO: Move this into utils)
         def line_or_bar_or_geo(ldf, dimension: Clause, measure: Clause):
             dim_type = dimension.data_type
+            print(dim_type)
             # If no aggregation function is specified, then default as average
             if measure.aggregation == "":
                 measure.set_aggregation("mean")
@@ -304,6 +306,8 @@ class Compiler:
             dimension = vis.get_attr_by_data_model("dimension")[0]
             measure = vis.get_attr_by_data_model("measure")[0]
             vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
+            print(dimension, measure, vis._mark, auto_channel)
+            print("\n")
         elif ndim == 2 and (nmsr == 0 or nmsr == 1):
             # Line or Bar chart broken down by the dimension
             dimensions = vis.get_attr_by_data_model("dimension")
@@ -327,7 +331,9 @@ class Compiler:
                 if nmsr == 0 and not ldf.pre_aggregated:
                     vis._inferred_intent.append(count_col)
                 measure = vis.get_attr_by_data_model("measure")[0]
+                # print(measure)
                 vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
+                # print(vis._mark, auto_channel)
                 auto_channel["color"] = color_attr
         elif ndim == 0 and nmsr == 2:
             # Scatterplot

@@ -61,9 +61,10 @@ def univariate(ldf, *args):
         # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
         if len(ldf) < 5:
             ignore_rec_flag = True
-    elif data_type_constraint == "nominal":
+    elif data_type_constraint == "nominal" or data_type_constraint == "ordinal":
         possible_attributes = [
-            c for c in ldf.columns if ldf.data_type[c] == "nominal" and c != "Number of Records"
+            c for c in ldf.columns if (ldf.data_type[c] == "nominal" or ldf.data_type[c] == "ordinal")
+            and c != "Number of Records"
         ]
         examples = ""
         if len(possible_attributes) >= 1:
