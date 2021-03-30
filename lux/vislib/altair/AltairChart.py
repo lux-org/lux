@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 import altair as alt
 from lux.utils.date_utils import compute_date_granularity
+import lux
 
 
 class AltairChart:
@@ -69,7 +70,8 @@ class AltairChart:
             labelFontSize=9,
             labelFont="Helvetica Neue",
         )
-        self.chart = self.chart.properties(width=160, height=150)
+        chart_scale = lux.config.chart_scale
+        self.chart = self.chart.properties(width=160 * chart_scale, height=150 * chart_scale)
         self.code += (
             "\nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
         )
