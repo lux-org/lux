@@ -291,17 +291,18 @@ class Config:
         return self._chart_scale
 
     @chart_scale.setter
-    def chart_scale(self, scale: int) -> None:
+    def chart_scale(self, scale: float) -> None:
         """
         Set the scale factor for charts displayed in Lux.
         ----------
-        type : int (default = 1)
+        type : float (default = 1.0)
         """
-        if isinstance(scale, int) and scale > 0:
+        scale = float(scale) if isinstance(scale, int) else scale
+        if isinstance(scale, float) and scale > 0:
             self._chart_scale = scale
         else:
             warnings.warn(
-                "Scaling factor for charts must be positive.",
+                "Scaling factor for charts must be a positive float.",
                 stacklevel=2,
             )
 
