@@ -498,9 +498,13 @@ class LuxDataFrame(pd.DataFrame):
                 if len(vlist) > 0:
                     rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
+            if len(self.columns) == 2 or len(self.columns) == 3:
+                self.current_vis = VisList([i for i in self.columns], self)
             self._widget = rec_df.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
+            if len(self.columns) == 2 or len(self.columns) == 3:
+                self.current_vis = VisList([i for i in self.columns], self)
             self._widget = rec_df.render_widget()
         self._recs_fresh = True
 
