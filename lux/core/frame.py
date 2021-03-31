@@ -504,7 +504,7 @@ class LuxDataFrame(pd.DataFrame):
             self._widget = rec_df.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
-            quantitative_columns = [i for i in self.dtypes if i != 'O' and i != 'str']
+            quantitative_columns = [i for i in self.dtypes if i != "O" and i != "str"]
             if len(quantitative_columns) == 2 or len(quantitative_columns) == 3:
                 self.current_vis = VisList([i for i in self.columns], self)
             self._widget = rec_df.render_widget()
