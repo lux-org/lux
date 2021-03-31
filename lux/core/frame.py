@@ -166,7 +166,7 @@ class LuxDataFrame(pd.DataFrame):
         self.unique_values = None
         self.cardinality = None
         self._min_max = None
-        self.pre_aggregated = None
+        # self.pre_aggregated = None
 
 
     def _infer_structure(self):
@@ -929,18 +929,18 @@ class LuxDataFrame(pd.DataFrame):
     # NOTE: whats rationale for expiring on these?
     def _set_axis(self, axis, labels):
         super(LuxDataFrame, self)._set_axis(axis, labels)
-        # self.expire_metadata()
-        # self.expire_recs()
+        self.expire_metadata()
+        self.expire_recs()
 
     def _update_inplace(self, *args, **kwargs):
         super(LuxDataFrame, self)._update_inplace(*args, **kwargs)
-        # self.expire_metadata()
-        # self.expire_recs()
+        self.expire_metadata()
+        self.expire_recs()
 
     def _set_item(self, key, value):
         super(LuxDataFrame, self)._set_item(key, value)
-        # self.expire_metadata()
-        # self.expire_recs()
+        self.expire_metadata()
+        self.expire_recs()
 
     ## HISTORY overrides
     def __getattr__(self, name):

@@ -39,6 +39,7 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
             which columns were used in the returned vis(i)
     """
     vis_list = []
+    used_cols = []
     if signal.op_name == "value_counts" or signal.op_name == "unique":
         vis_list, used_cols = process_value_counts(signal, ldf)
     
@@ -46,7 +47,7 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
         vis_list, used_cols = process_describe(signal, ldf)
 
     elif signal.op_name == "filter":
-        vis_list, used_cols = process_filter(signal, ldf)
+        vis_list, used_cols = process_filter(signal, ldf, ranked_cols)
     
     elif signal.op_name == "query" or signal.op_name == "slice": 
         vis_list, used_cols = process_query_loc(signal, ldf, ranked_cols)
@@ -125,8 +126,8 @@ def process_describe(signal, ldf):
             since will not be boxplots elsewhere
     """
     # if ldf is df returned by describe plot the parent of ldf
-    if (ldf._parent_df is not None and 
-        all(ldf.index == ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])):
+    if (ldf._parent_df is not None and len(ldf) == 8 and
+        all(ldf.index == ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max']) ):
         
         vl = VisList([lux.Clause("?", mark_type="boxplot")], ldf._parent_df)
 
@@ -143,7 +144,7 @@ def process_describe(signal, ldf):
 ###################
 # FILTER plotting #
 ###################
-def process_filter(signal, ldf):
+def process_filter(signal, ldf, ranked_cols):
     """
     Decides if plotting parent that WAS filtered, or the resulting df
     FROM a filter and plots accordingly.
@@ -165,31 +166,81 @@ def process_filter(signal, ldf):
     rank_type = signal.kwargs["rank_type"]
     parent_mask = signal.kwargs["filt_key"]
 
-    # get columns of interest from same execution time
+    # cols from same execution time may have been in filter so we DONT want to use them
     ex_time = signal.ex_count
     other_signals = ldf._history.filter_by_ex_time(ex_time)
-    cols = set()
+    exclude_cols = set()
     for s in other_signals:
-        cols.update(s.cols)
-    cols = list(cols)
+        exclude_cols.update(s.cols)
     
-    # get vis
-    chart_list = None
-    if len(cols): # if no columns captured in same time we wont plot
-        if rank_type == "parent":
-            chart_list = [plot_filter(ldf, cols, parent_mask)]
-        
-        elif ldf._parent_df is not None: # rank_type == "child"
-            chart_list = [plot_filter(ldf._parent_df, cols, parent_mask)]
-            chart_list.append(plot_filter_count(ldf._parent_df, parent_mask))
+    # set_trace()
+    col_combos = get_col_recs(ldf, ranked_cols, exclude_cols)
+
+    all_used_cols = set()
+    chart_list = []
+    
+    plot_df = None
+    if rank_type == "parent":
+        plot_df = ldf
+    elif ldf._parent_df is not None: # rank_type == "child"
+        plot_df = ldf._parent_df
+        chart_list.append(plot_filter_count(ldf._parent_df, parent_mask)) # count 
+
+    if plot_df is not None:
+        for input_combo in col_combos:
+            _v = plot_filter(plot_df, input_combo, parent_mask)
+            all_used_cols.update(input_combo)
+            chart_list.append(_v)
 
     # turn into vislist 
-    vis_list = []
-    if chart_list:
-        for _v in chart_list:
-            vis_list.append( CustomVis(_v) )
+    # vis_list = []
+    # if chart_list:
+    #     for _v in chart_list:
+    #         vis_list.append( CustomVis(_v) )
 
-    return vis_list, cols
+    return chart_list, list(all_used_cols)
+
+def get_col_recs(ldf, ranked_cols, exclude=[]):
+    # sets for easy comparision
+    all_c = set(ldf.columns)
+    ranked_cols = set(ranked_cols)
+    exclude = set(exclude)
+
+    good_c = all_c - exclude # all cols not in exclude
+    good_ranked = ranked_cols - exclude
+    col_tups_single = set()
+    final = []
+    
+    # look at interesting columns individually
+    for c in good_ranked:
+        col_tups_single.add(c)
+    
+    quant_cols = set()
+    cat_cols = set()
+    for c in good_c:
+        if ldf.data_type[c] == "temporal":
+            col_tups_single.add(c)
+        elif ldf.data_type[c] == "quantitative":
+            quant_cols.add(c)
+        elif ldf.data_type[c] == "nominal":
+            cat_cols.add(c)
+    
+    if all( [ ldf.data_type[c] == "quantitative" for c in exclude ] ): # filter is quant 
+        for item in cat_cols:
+            col_tups_single.add(item)
+    elif all( [ ldf.data_type[c] == "nominal" for c in exclude ] ): # filter is categorical
+        for item in quant_cols:
+            col_tups_single.add(item)
+    else:
+        # use all quant categorical combos
+        for q in quant_cols:
+            for n in cat_cols:
+                final.append([q, n]) 
+    
+    for i in col_tups_single: final.append([i])
+
+    return final
+
 
 def process_query_loc(signal, ldf, ranked_cols):
     """
@@ -209,48 +260,50 @@ def process_query_loc(signal, ldf, ranked_cols):
         chart_list: VisList or empty array
         plot_cols: array
             which cols were used
+    
+    # TODO this could prob be combined with process_filter 
     """
     rank_type = signal.kwargs["rank_type"]
     child_df = signal.kwargs["child_df"]
-    plot_df = None 
-    chart_list = None
 
-    # TODO.. which columns should I plot?
-
-    # get parent df to plot and filter mask
+    p_df, c_df = None, None
+    chart_list = []
     if rank_type == "parent" and child_df is not None:
-        mask, diff_cols = compute_filter_diff(ldf, child_df)
-        plot_df = ldf
-        plot_cols = get_query_cols(ranked_cols, diff_cols)
-
-        # get charts
-        chart_list = [plot_filter(plot_df, plot_cols, mask)]
-    
+        p_df = ldf
+        c_df = child_df
     elif rank_type == "child" and ldf._parent_df is not None:
-        mask, diff_cols = compute_filter_diff(ldf._parent_df, ldf)
-        plot_df = ldf._parent_df
-        plot_cols = get_query_cols(ranked_cols, diff_cols)
+        p_df = ldf._parent_df
+        c_df = ldf
+    
+    mask, same_cols = compute_filter_diff(p_df, c_df)
+    # set_trace()
+    col_combos = get_col_recs(ldf, ranked_cols, same_cols) # TODO this excludes same cols is that good?
 
-        # get charts
-        chart_list = [plot_filter(plot_df, plot_cols, mask)]
-        chart_list.append(plot_filter_count(plot_df, mask))
+    all_used_cols = set()
+    if rank_type == "child": 
+        chart_list.append(plot_filter_count(p_df, mask))
+    if p_df is not None:
+        for input_combo in col_combos:
+            _v = plot_filter(p_df, input_combo, mask)
+            all_used_cols.update(input_combo)
+            chart_list.append(_v)
     
     # turn into vislist 
-    vis_list = []
-    if chart_list:
-        for _v in chart_list:
-            vis_list.append( CustomVis(_v) )
+    # vis_list = []
+    # if chart_list:
+    #     for _v in chart_list:
+    #         vis_list.append( CustomVis(_v) )
 
-    return vis_list, plot_cols
+    return chart_list, list(all_used_cols)
 
-def get_query_cols(ranked_cols, diff_cols):
-    """
-    Params: both should be lists of col names, or empty list
-    """
-    if ranked_cols:
-        return ranked_cols 
+# def get_query_cols(ranked_cols, diff_cols):
+#     """
+#     Params: both should be lists of col names, or empty list
+#     """
+#     if ranked_cols:
+#         return ranked_cols 
     
-    return random.sample(diff_cols, 2) # randomly select here for funsies
+#     return random.sample(diff_cols, 2) # randomly select here for funsies
 
 
 def plot_filter_count(ldf, mask):
@@ -267,14 +320,14 @@ def plot_filter_count(ldf, mask):
     
     Returns
     -------
-        chart: Altair chart
+        chart: CustomVis chart
     """
 
     ldf = ldf.copy()
     ldf["filt_mask"] = mask
 
     chart = alt.Chart(ldf).mark_bar(size=75).encode(
-        x = alt.X("count()", title="Filtered Data Count"),
+        y = alt.Y("count()", title="Filtered Data Count"),
         color = alt.Color("filt_mask", 
                            scale = tf_scale,
                            legend = None),
@@ -283,7 +336,9 @@ def plot_filter_count(ldf, mask):
     
     # DONT use interactive for this chart, it breaks for some reason
 
-    return chart 
+    v = CustomVis(chart, width=90)
+
+    return v 
 
 
 def plot_filter(ldf, cols, mask, card_thresh=12):
@@ -303,7 +358,7 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
     
     Returns
     -------
-        chart: Altair chart
+        chart: CustomVis chart
     """
     ldf = ldf.copy()
     ldf["filt_mask"] = mask
@@ -311,16 +366,37 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
     chart = None
     
     if len(cols) == 1 and cols[0] in ldf.data_type:
-        this_col = cols[0]
-
-        x_d_type = ldf.data_type[this_col]
+        x_var = cols[0]
+        x_title = f"{x_var}"
+        x_d_type = ldf.data_type[x_var]
         _bin = (x_d_type == "quantitative")
+
+        filt_text = None
+        if x_d_type == "nominal" and ldf.cardinality[x_var] > card_thresh:
+            vc = ldf[x_var].value_counts()
+            _most_common = vc.iloc[:card_thresh].index
+            ldf = ldf[ldf[x_var].isin(_most_common)]
+            x_title += f" (top {card_thresh})"
+            filt_text = f"+ {len(vc) - card_thresh} more..." 
+
         
         chart = alt.Chart(ldf).mark_bar().encode(
-          x= alt.X(this_col, type=x_d_type, bin=_bin),
-          y=f"count({this_col}):Q",
+          x= alt.X(x_var, type=x_d_type, bin=_bin, title=x_title),
+          y=f"count({x_var}):Q",
           color= alt.Color("filt_mask", scale= tf_scale, title="Is Filtered?" )
         )
+
+        if filt_text:
+            filt_label = alt.Chart(ldf).mark_text(
+                x=155,
+                y=142,
+                align="right",
+                color="#ff8e04",
+                fontSize=11,
+                text= filt_text,
+            )
+
+            chart = chart + filt_label
     
     elif len(cols) >= 2 and (cols[0] in ldf.data_type) and (cols[1] in ldf.data_type):
         
@@ -340,17 +416,23 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
 
         x_title = f"{x_var}"
         y_title = f"{y_var}"
+
+        filt_text = None
         # filter for cardinality if high cardinality nominal vars
         if x_d_type == "nominal" and ldf.cardinality[x_var] > card_thresh:
-            _most_common = ldf[x_var].value_counts()[:card_thresh].index
+            vc = ldf[x_var].value_counts()
+            _most_common = vc.iloc[:card_thresh].index
             ldf = ldf[ldf[x_var].isin(_most_common)]
             x_title += f" (top {card_thresh})"
+            filt_text = f"+ {len(vc) - card_thresh} more..."
         
         if y_d_type == "nominal" and ldf.cardinality[y_var] > card_thresh:
-            _most_common = ldf[y_var].value_counts()[:card_thresh].index
+            vc = ldf[y_var].value_counts()
+            _most_common = vc.iloc[:card_thresh].index
             ldf = ldf[ldf[y_var].isin(_most_common)]
             y_title += f" (top {card_thresh})"
-
+            filt_text = f"+ {len(vc) - card_thresh} more..." # TODO what if x and y are high card
+        
         
         bg = alt.Chart(ldf) \
                 .mark_circle(color = lux_default.BG_COLOR) \
@@ -369,12 +451,28 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
                             size=alt.Size("count()", legend=None),
                         )
         
-        chart = bg + filt_chart
+        filt_label = None 
+        if filt_text:
+            filt_label = alt.Chart(ldf).mark_text(
+                x=155,
+                y=142,
+                align="right",
+                color="#ff8e04",
+                fontSize=11,
+                text= filt_text,
+            )
+        
+        if filt_label:
+            chart = bg + filt_chart + filt_label
+        else:
+            chart = bg + filt_chart
     
     if chart:
         chart = chart.interactive()
+
+    v = CustomVis(chart)
     
-    return chart
+    return v
 
 
 def compute_filter_diff(old_df, filt_df):
@@ -396,6 +494,6 @@ def compute_filter_diff(old_df, filt_df):
 
     # which cols change? this isnt very informative since 
     # many columns change other than the filter. TODO change this 
-    different_cols = list(old_df.columns[old_df.nunique() != filt_df.nunique()])
+    same_cols = list(old_df.columns[old_df.nunique() == filt_df.nunique()])
     
-    return indicator, different_cols
+    return indicator, same_cols

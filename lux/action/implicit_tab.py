@@ -39,7 +39,7 @@ def implicit_tab(ldf: LuxDataFrame):
     most_recent_event, col_list = ldf.history.get_implicit_intent(ldf.columns)
     str_desc = "Recommendedations based off code containing: <br/>"
     lux_vis = []
-    used_cols = most_recent_event.cols
+    used_cols = most_recent_event.cols if most_recent_event is not None else []
 
     # get unique vis for recent col ref 
     if most_recent_event:
