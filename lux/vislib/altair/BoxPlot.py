@@ -28,6 +28,10 @@ class BoxPlot(AltairChart):
 
     def __repr__(self):
         return f"Boxplot <{str(self.vis)}>"
+    
+    def apply_default_config(self):
+        super(BoxPlot, self).apply_default_config()
+        self.chart = self.chart.properties(width=80, height=150)
 
     def initialize_chart(self):
         # return NotImplemented

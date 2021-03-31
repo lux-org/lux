@@ -417,21 +417,22 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
         x_title = f"{x_var}"
         y_title = f"{y_var}"
 
-        filt_text = None
+        filt_text_x = None
+        # filt_text_y = None
         # filter for cardinality if high cardinality nominal vars
         if x_d_type == "nominal" and ldf.cardinality[x_var] > card_thresh:
             vc = ldf[x_var].value_counts()
             _most_common = vc.iloc[:card_thresh].index
             ldf = ldf[ldf[x_var].isin(_most_common)]
             x_title += f" (top {card_thresh})"
-            filt_text = f"+ {len(vc) - card_thresh} more..."
+            filt_text_x = f"+ {len(vc) - card_thresh} more..."
         
         if y_d_type == "nominal" and ldf.cardinality[y_var] > card_thresh:
             vc = ldf[y_var].value_counts()
             _most_common = vc.iloc[:card_thresh].index
             ldf = ldf[ldf[y_var].isin(_most_common)]
-            y_title += f" (top {card_thresh})"
-            filt_text = f"+ {len(vc) - card_thresh} more..." # TODO what if x and y are high card
+            y_title += f" (top {card_thresh}/{len(vc)}...)"
+            # filt_text_y = f"+ {len(vc) - card_thresh} more..." # TODO what if x and y are high card
         
         
         bg = alt.Chart(ldf) \
@@ -451,21 +452,32 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
                             size=alt.Size("count()", legend=None),
                         )
         
-        filt_label = None 
-        if filt_text:
-            filt_label = alt.Chart(ldf).mark_text(
+        chart = bg + filt_chart
+
+        if filt_text_x:
+            filt_c = alt.Chart(ldf).mark_text(
                 x=155,
                 y=142,
                 align="right",
                 color="#ff8e04",
                 fontSize=11,
-                text= filt_text,
+                text= filt_text_x,
             )
+
+            chart = chart + filt_c
         
-        if filt_label:
-            chart = bg + filt_chart + filt_label
-        else:
-            chart = bg + filt_chart
+        # if filt_text_y:
+        #     filt_c = alt.Chart(ldf).mark_text(
+        #         x=15,
+        #         y=135,
+        #         align="right",
+        #         color="#ff8e04",
+        #         fontSize=11,
+        #         text= filt_text_y,
+        #     )
+
+        #     chart = chart + filt_c
+            
     
     if chart:
         chart = chart.interactive()
