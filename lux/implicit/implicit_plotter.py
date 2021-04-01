@@ -125,6 +125,7 @@ def process_describe(signal, ldf):
             NOTE: this is intentionally wrong here bc want to still use these cols elsewhere 
             since will not be boxplots elsewhere
     """
+    # set_trace()
     # if ldf is df returned by describe plot the parent of ldf
     if (ldf._parent_df is not None and len(ldf) == 8 and
         all(ldf.index == ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max']) ):
