@@ -92,8 +92,30 @@ def process_value_counts(signal, ldf):
             vis_list = VisList([clse], ldf )
 
         else: # "child" AND ldf is pre_aggregated
-            v = cg_plotter.plot_col_vis("index", c_name)
+            # v = cg_plotter.plot_col_vis(c_name, "Count")
+            
+            # make vis consistent with normal histogram from history
+            v = Vis(
+                [
+                    lux.Clause(
+                        attribute=c_name,
+                        data_type="nominal",
+                        data_model="dimension",
+                        aggregation="",
+                        channel="x",
+                    ),
+                    lux.Clause(
+                        attribute="Number of Records",
+                        data_type="quantitative",
+                        data_model="measure",
+                        aggregation=None,
+                        channel="y",
+
+                    ),
+                ]
+            )
             flat = ldf.reset_index()
+            flat = flat.rename(columns={"index": c_name, c_name: "Number of Records"})
             vis_list = VisList([v], flat)
         
         return vis_list, [c_name]
