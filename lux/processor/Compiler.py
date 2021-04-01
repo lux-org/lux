@@ -96,6 +96,34 @@ class Compiler:
             return vis_collection
 
     @staticmethod
+    def compile_intent_safe(ldf: LuxDataFrame, _inferred_intent: List[Clause]) -> VisList:
+        """
+        Compiles input specifications in the intent of the ldf into a collection of lux.vis objects for visualization.
+        1) Enumerate a collection of visualizations interested by the user to generate a vis list
+        2) Expand underspecified specifications(lux.Clause) for each of the generated visualizations.
+        3) Determine encoding properties for each vis
+        The compiler will return an empty object in case any failure in computation happens for example: Missing intent
+
+        Parameters
+        ----------
+        ldf : lux.core.frame
+                LuxDataFrame with underspecified intent.
+        vis_collection : list[lux.vis.Vis]
+                empty list that will be populated with specified lux.Vis objects.
+
+        Returns
+        -------
+        vis_collection: list[lux.Vis]
+                vis list with compiled lux.Vis objects.
+        """
+        try:
+            return Compiler.compile_intent(ldf, _inferred_intent)
+        except Exception as e:
+            ldf._message.add(f"Failed to compile intent:{e}")
+            return VisList([])
+
+
+    @staticmethod
     def enumerate_collection(_inferred_intent: List[Clause], ldf: LuxDataFrame) -> VisList:
         """
         Given specifications that have been expanded thorught populateOptions,

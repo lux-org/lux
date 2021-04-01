@@ -92,7 +92,8 @@ class PandasExecutor(Executor):
                 if clause.attribute != "Record":
                     attributes.add(clause.attribute)
             # TODO: Add some type of cap size on Nrows ?
-            vis._vis_data = vis.data[list(attributes)]
+            vis._vis_data = vis.data.get(list(attributes))
+
 
             if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
