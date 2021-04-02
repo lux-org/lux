@@ -228,14 +228,12 @@ def test_autoencoding_scatter(global_var):
     check_attribute_on_channel(vis, "MilesPerGal", "y")
     check_attribute_on_channel(vis, "Weight", "x")
     # Duplicate channel specified
-    with pytest.raises(ValueError):
-        # Should throw error because there should not be columns with the same channel specified
-        df.set_intent(
-            [
-                lux.Clause(attribute="MilesPerGal", channel="x"),
-                lux.Clause(attribute="Weight", channel="x"),
-            ]
-        )
+    df.set_intent(
+        [
+            lux.Clause(attribute="MilesPerGal", channel="x"),
+            lux.Clause(attribute="Weight", channel="x"),
+        ]
+    )
     df.clear_intent()
 
 
@@ -282,14 +280,12 @@ def test_autoencoding_line_chart(global_var):
     check_attribute_on_channel(vis, "Year", "y")
     check_attribute_on_channel(vis, "Acceleration", "x")
 
-    with pytest.raises(ValueError):
-        # Should throw error because there should not be columns with the same channel specified
-        df.set_intent(
-            [
-                lux.Clause(attribute="Year", channel="x"),
-                lux.Clause(attribute="Acceleration", channel="x"),
-            ]
-        )
+    df.set_intent(
+        [
+            lux.Clause(attribute="Year", channel="x"),
+            lux.Clause(attribute="Acceleration", channel="x"),
+        ]
+    )
     df.clear_intent()
 
 
