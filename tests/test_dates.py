@@ -88,7 +88,7 @@ def test_refresh_inplace():
         }
     )
     with pytest.warns(UserWarning, match="Lux detects that the attribute 'date' may be temporal."):
-        df._repr_html_()
+        df._ipython_display_()
     assert df.data_type["date"] == "temporal"
 
     from lux.vis.Vis import Vis

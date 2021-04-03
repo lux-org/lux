@@ -25,7 +25,7 @@ def test_interestingness_1_0_0(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Origin")])
-    df._repr_html_()
+    df._ipython_display_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
     rank1 = -1
@@ -69,7 +69,7 @@ def test_interestingness_1_0_1(global_var):
             lux.Clause(attribute="Cylinders"),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     assert df.current_vis[0].score == 0
     df.clear_intent()
 
@@ -79,7 +79,7 @@ def test_interestingness_0_1_0(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower")])
-    df._repr_html_()
+    df._ipython_display_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
     rank1 = -1
@@ -129,7 +129,7 @@ def test_interestingness_0_1_1(global_var):
             lux.Clause(attribute="MilesPerGal"),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     assert interestingness(df.recommendation["Current Vis"][0], df) != None
     assert str(df.recommendation["Current Vis"][0]._inferred_intent[2].value) == "USA"
     df.clear_intent()
@@ -140,7 +140,7 @@ def test_interestingness_1_1_0(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Year")])
-    df._repr_html_()
+    df._ipython_display_()
     # check that top recommended Enhance graph score is not none (all graphs here have same score)
     assert interestingness(df.recommendation["Enhance"][0], df) != None
 
@@ -176,7 +176,7 @@ def test_interestingness_1_1_1(global_var):
             lux.Clause(attribute="Origin", filter_op="=", value="USA", bin_size=20),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     # check that top recommended Enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
     rank1 = -1
@@ -227,7 +227,7 @@ def test_interestingness_0_2_0(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Acceleration")])
-    df._repr_html_()
+    df._ipython_display_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
     rank1 = -1
@@ -263,7 +263,7 @@ def test_interestingness_0_2_1(global_var):
             lux.Clause(attribute="Acceleration", filter_op=">", value=10),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     # check that top recommended Generalize graph score is not none
     assert interestingness(df.recommendation["Generalize"][0], df) != None
     df.clear_intent()

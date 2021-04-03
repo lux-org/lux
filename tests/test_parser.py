@@ -78,7 +78,7 @@ def test_case5(global_var):
 def test_case6(global_var):
     df = pytest.car_df
     df.set_intent(["Horsepower", "Origin=?"])
-    df._repr_html_()
+    df._ipython_display_()
     assert type(df._intent[0]) is lux.Clause
     assert df._intent[0].attribute == "Horsepower"
     assert type(df._intent[1]) is lux.Clause
@@ -90,7 +90,7 @@ def test_case6(global_var):
 def test_case7(global_var):
     df = pytest.car_df
     df.intent = [["Horsepower", "MilesPerGal", "Acceleration"], "Origin"]
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.current_vis) == 3
     df.clear_intent()
 
