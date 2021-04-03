@@ -502,7 +502,8 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def _is_datetime_number(series):
-        if series.dtype == int or "int" in str(series.dtype):
+        is_int_dtype = pd.api.types.is_integer_dtype(series.dtype)
+        if is_int_dtype:
             try:
                 temp = series.astype(str)
                 pd.to_datetime(temp)
