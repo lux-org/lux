@@ -998,7 +998,7 @@ class LuxDataFrame(pd.DataFrame):
         # if self.history.check_event(-1, op_name="col_ref", cols=[key]):
         #     self.history.edit_event(-1, "col_ref", [key])
 
-    
+
     def __finalize__(
         self: FrameOrSeries, other, method: Optional[str] = None, **kwargs
     ) -> FrameOrSeries:
@@ -1133,25 +1133,19 @@ class LuxDataFrame(pd.DataFrame):
 
         # for some reason is_list_like(dict) == True so MUST compare dict first 
         elif is_dict_like(func):
-            for i, (col, aggs) in enumerate(func.items()):
-                decay = True
-                if i > 0: decay = False # only decay for first item
-
+            for col, aggs in func.items():
                 if is_list_like(aggs):
                     for a in aggs:
-                        ret_value._history.append_event(a, [col], decay=decay, rank_type="child", child_df=None)
-                        self._history.append_event(a, [col], decay=decay, rank_type="parent", child_df=ret_value)
-                        decay = False
+                        ret_value._history.append_event(a, [col], rank_type="child", child_df=None)
+                        self._history.append_event(a, [col], rank_type="parent", child_df=ret_value)
                 else: # is aggs is str
-                    ret_value._history.append_event(aggs, [col], decay=decay, rank_type="child", child_df=None)
-                    self._history.append_event(aggs, [col], decay=decay, rank_type="parent", child_df=ret_value)
+                    ret_value._history.append_event(aggs, [col], rank_type="child", child_df=None)
+                    self._history.append_event(aggs, [col], rank_type="parent", child_df=ret_value)
         
         elif is_list_like(func):
-            for i, f_name in enumerate(func):
-                decay = True
-                if i > 0: decay = False # only decay for first item
-                ret_value._history.append_event(f_name, [], decay=decay, rank_type="child", child_df=None)
-                self._history.append_event(f_name, [], decay=decay, rank_type="parent", child_df=ret_value)
+            for f_name in func:
+                ret_value._history.append_event(f_name, [], rank_type="child", child_df=None)
+                self._history.append_event(f_name, [], rank_type="parent", child_df=ret_value)
 
         return ret_value
     

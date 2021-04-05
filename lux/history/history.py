@@ -17,6 +17,7 @@ from lux.history.event import Event
 from IPython import get_ipython
 import lux
 import warnings
+import numpy as np
 
 from IPython.core.debugger import set_trace
 
@@ -33,6 +34,12 @@ class History:
         self.parent_ldf = ldf
         self.kernel = get_ipython()
 
+        # class variable TODO is there better way for this to be stored 
+        self.base_weights = {
+            "value_counts": 1,
+            "col_ref": 0.5, 
+        }
+
     def __getitem__(self, key):
         return self._events[key]
 
@@ -45,9 +52,10 @@ class History:
 
     def __repr__(self):
         event_repr = []
-        for event in self._events:
-            event_repr.append(event.__repr__())
-        return "[" + ",\n".join(event_repr) + "]"
+        weights = self.get_weights()
+        for event, weight in zip(self._events, weights):
+            event_repr.append(f"{event.__repr__()} with weight {weight}")
+        return "[\n" + ",\n".join(event_repr) + "\n]"
 
     # deep copy 
     def copy(self):
@@ -91,15 +99,46 @@ class History:
         except IndexError:
             return None
         
-    # TODO if i append new event and kernel.execution_count is the same, should I still decay weights?
-    def append_event(self, op_name, cols, decay=True, *args, **kwargs):
+    def append_event(self, op_name, cols, *args, **kwargs):
         if self._frozen_count == 0:
-            event = Event(op_name, cols, 1, self.kernel.execution_count, *args, **kwargs)
-            if decay:
-                self.decay_weights()
+            event = Event(op_name, cols, self.kernel.execution_count, *args, **kwargs)
             self._events.append(event)
             # aggressively refresh actions 
             lux.config.update_actions["flag"] = True
+    
+
+    def get_weights(self):
+        """
+        Calculate the weights for each event in the history 
+        """
+        n_events = len(self._events)
+        weight_arr = np.zeros(n_events)
+
+        ex_decay = .85      # how much to decay between ex [n] to [n - 1]
+        cell_decay = .95   # how much to decay between lines in ex cell [n]
+        
+        curr_ex = -1
+        rolling_ex_decay = 1
+        rolling_cell_decay = 1
+
+        for i in range(n_events - 1, -1, -1): # reverse iterate 
+            e = self._events[i]
+            base_w = self.base_weights.get(e.op_name, 1)
+            
+            if e.ex_count != curr_ex:
+                if curr_ex != -1: # dont decay first event 
+                    rolling_ex_decay *= ex_decay
+
+                curr_ex = e.ex_count
+                rolling_cell_decay = 1
+            else:
+                rolling_cell_decay *= cell_decay
+
+            w = base_w * rolling_ex_decay * rolling_cell_decay
+
+            weight_arr[i] = w
+        
+        return list(weight_arr)
     
     def edit_event(self, edit_index, new_op_name, new_cols, *args, **kwargs):
         """
@@ -138,9 +177,6 @@ class History:
         except IndexError:
             return False
     
-    def decay_weights(self):
-        for e in self._events:
-            e.weight *= self._time_decay
     
     def filter_by_ex_time(self, t):
         return list(filter(lambda x: x.ex_count == t, self._events))
@@ -174,11 +210,15 @@ class History:
         agg_col_ref = {}
         col_order = []
 
-        if self._events:
-            for e in self._events[::-1]: # reverse iterate
+        weights = self.get_weights()
+
+        if self._events:            
+            for i in range(len(self._events) - 1, -1, -1):
+                e = self._events[i]
+                w = weights[i]
                 
                 # filter out decayed history
-                if e.weight >= col_thresh:
+                if w >= col_thresh:
                     
                     # first event that is not just col ref is most recent for vis
                     if not mre and e.op_name != "col_ref":
@@ -187,9 +227,9 @@ class History:
                     
                     for c in e.cols:
                         if c in agg_col_ref:
-                            agg_col_ref[c] += e.weight 
+                            agg_col_ref[c] += w 
                         else:
-                            agg_col_ref[c] = e.weight
+                            agg_col_ref[c] = w
             
             # get sorted column order by aggregate weight, thresholded 
             col_order = list(agg_col_ref.items())
@@ -197,7 +237,6 @@ class History:
             col_order = [i[0] for i in col_order]
         
         # validate the returned signals
-        #parent_cols = self.parent_ldf.columns
         val_col_order = [item for item in col_order if item in valid_cols]
         if mre:
             val_mre_cols = [item for item in mre.cols if item in valid_cols]
