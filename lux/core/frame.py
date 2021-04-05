@@ -992,7 +992,7 @@ class LuxDataFrame(pd.DataFrame):
         super(LuxDataFrame, self).__setitem__(key, value)
 
         if is_hashable(key) and key in self.columns:
-            self.history.append_event("col_ref", [key])
+            self.history.append_event("assign", [key])
         
         # # when assiging to same col, dont log twice
         # if self.history.check_event(-1, op_name="col_ref", cols=[key]):
