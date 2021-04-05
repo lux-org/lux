@@ -125,3 +125,7 @@ def matplotlib_setup(w, h):
     ax.spines["right"].set_color("#dddddd")
     ax.spines["top"].set_color("#dddddd")
     return fig, ax
+
+
+def return_float_or_original(df, attribute):
+    return df[df[attribute].notnull()][attribute].astype("float", errors="ignore")

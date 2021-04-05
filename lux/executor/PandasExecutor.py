@@ -19,7 +19,7 @@ from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
 from lux.utils.date_utils import is_datetime_series
-from lux.utils.utils import check_import_lux_widget, check_if_id_like
+from lux.utils.utils import check_import_lux_widget, check_if_id_like, return_float_or_original
 import warnings
 import lux
 
@@ -445,7 +445,21 @@ class PandasExecutor(Executor):
                         ldf._data_type[attr] = "id"
                 # Eliminate this clause because a single NaN value can cause the dtype to be object
                 elif pd.api.types.is_string_dtype(ldf.dtypes[attr]):
-                    if check_if_id_like(ldf, attr):
+                    # check first if it's castable to float after removing NaN
+                    transformed_col = return_float_or_original(ldf, attr)
+                    if pd.api.types.is_float_dtype(transformed_col):
+                        # int columns gets coerced into floats if contain NaN
+                        convertible2int = pd.api.types.is_integer_dtype(transformed_col.convert_dtypes())
+                        cardinality = len(pd.Index(transformed_col.value_counts()))
+                        if (
+                            convertible2int
+                            and cardinality != len(ldf)
+                            and (len(transformed_col.unique()) < 20)
+                        ):
+                            ldf._data_type[attr] = "nominal"
+                        else:
+                            ldf._data_type[attr] = "quantitative"
+                    elif check_if_id_like(ldf, attr):
                         ldf._data_type[attr] = "id"
                     else:
                         ldf._data_type[attr] = "nominal"
