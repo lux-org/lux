@@ -18,6 +18,7 @@ from IPython import get_ipython
 import lux
 import warnings
 import numpy as np
+from contextlib import contextmanager
 
 from IPython.core.debugger import set_trace
 
@@ -63,6 +64,20 @@ class History:
         _events_copy = [item.copy() for item in self._events]
         history_copy._events = _events_copy
         return history_copy
+    
+    @contextmanager
+    def pause(self):
+        """
+        Supports with notation to freeze history. For example...
+        
+        with df.history.pause():
+            # anything executed here not logged to history
+        """
+        self.freeze()
+        try:
+            yield self 
+        finally:
+            self.unfreeze()
 
     ######################
     ## State management ##
@@ -75,7 +90,6 @@ class History:
     
     def unfreeze(self):
         self._frozen_count -= 1 
-
         if self._frozen_count < 0:
             warnings.warn(
                 "History was unfrozen without an associted freeze and thus may be corrupted.",
