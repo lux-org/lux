@@ -131,15 +131,16 @@ VisList(["Region=?","AverageCost"],df)
 
 To find out more about other features in Lux, see the complete documentation on [ReadTheDocs](https://lux-api.readthedocs.io/).
 
-# Installation 
+# Installation & Setup
 
-To get started, Lux can be installed through [PyPI](https://pypi.org/project/lux-api/). 
+To get started, please follow both the installation and setup instructions in your command line.
+`lux-api` can be installed through [PyPI](https://pypi.org/project/lux-api/). 
 
 ```bash
 pip install lux-api
 ```
 
-If you use [conda](https://docs.conda.io/en/latest/), you can install Lux via:
+If you use [conda](https://docs.conda.io/en/latest/), you can install `lux-api` via:
 
 ```bash
 conda install -c conda-forge lux-api
@@ -157,6 +158,7 @@ jupyter nbextension enable --py luxwidget
 ```
 
 If the installation happens correctly, you should see two `- Validating: OK` after executing the two lines above.
+Note that you may have to restart the Jupyter Notebook server to ensure that the widget is displaying correctly.
 
 ## Setup in Jupyter Lab
 
@@ -166,7 +168,7 @@ To use Lux in [Jupyter Lab](https://github.com/jupyterlab/jupyterlab), activate 
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
 jupyter labextension install luxwidget
 ```
-Lux is only compatible with Jupyter Lab version 2.2.9 and below. Support for the recent [JupyterLab 3](https://blog.jupyter.org/jupyterlab-3-0-is-out-4f58385e25bb) will come soon. Note that JupyterLab and VSCode is supported only for lux-widget version >=0.1.2, if you have an earlier version, please upgrade to the latest version of [lux-widget](https://pypi.org/project/lux-widget/). Lux currently only works with the Chrome browser. 
+Lux is only compatible with Jupyter Lab version 2.2.9 and below. Support for the recent [JupyterLab 3](https://blog.jupyter.org/jupyterlab-3-0-is-out-4f58385e25bb) will come soon. Note that JupyterLab and VSCode is supported only for lux-widget version >=0.1.2, if you have an earlier version, please upgrade to the latest version of [lux-widget](https://pypi.org/project/lux-widget/). Lux has only been tested with the Chrome browser. 
 
 If you encounter issues with the installation, please refer to [this page](https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips) to troubleshoot the installation. Follow [these instructions](https://lux-api.readthedocs.io/en/latest/source/getting_started/installation.html#manual-installation-dev-setup) to set up Lux for development purposes.
 
@@ -176,7 +178,7 @@ Lux is undergoing active development. If you are interested in using Lux, we wou
 
 Other additional resources:
 
-- Sign up for the early-user [mailing list](https://forms.gle/XKv3ejrshkCi3FJE6) to stay tuned for upcoming releases, updates, or user studies. 
+- Follow us on [Twitter](https://twitter.com/intent/follow?original_referer=https%3A%2F%2Fpublish.twitter.com%2F&ref_src=twsrc%5Etfw&screen_name=lux_api&tw_p=followbutton) or sign up to our [mailing list](https://forms.gle/XKv3ejrshkCi3FJE6) to stay tuned for upcoming releases and updates. 
 - Visit [ReadTheDoc](https://lux-api.readthedocs.io/en/latest/) for more detailed documentation.
 - Try out these hands-on [exercises](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/exercise) or [tutorials](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial) on [Binder](https://mybinder.org/v2/gh/lux-org/lux-binder/master). Or clone and run [lux-binder](https://github.com/lux-org/lux-binder) locally.
 - Join our community [Slack](https://communityinviter.com/apps/lux-project/lux) to discuss and ask questions.
