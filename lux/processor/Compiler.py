@@ -266,11 +266,11 @@ class Compiler:
         # Helper function (TODO: Move this into utils)
         def line_or_bar_or_geo(ldf, dimension: Clause, measure: Clause):
             dim_type = dimension.data_type
-            print(dim_type)
+            # print(dim_type)
             # If no aggregation function is specified, then default as average
             if measure.aggregation == "":
                 measure.set_aggregation("mean")
-            if dim_type == "temporal" or dim_type == "oridinal":
+            if dim_type == "temporal":
                 return "line", {"x": dimension, "y": measure}
             else:  # unordered categorical
                 # if cardinality large than 5 then sort bars
@@ -306,8 +306,15 @@ class Compiler:
             dimension = vis.get_attr_by_data_model("dimension")[0]
             measure = vis.get_attr_by_data_model("measure")[0]
             vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
-            print(dimension, measure, vis._mark, auto_channel)
-            print("\n")
+            if dimension.data_type == "ordinal":
+                print(dimension)
+                print(measure)
+                vis._mark = "violin"
+                vis._inferred_intent[0].set_aggregation(None)
+                vis._inferred_intent[1].set_aggregation(None)
+                auto_channel = {"x": dimension, "y": vis._inferred_intent[1]}
+            # print(dimension, measure, vis._mark, auto_channel)
+            # print("\n")
         elif ndim == 2 and (nmsr == 0 or nmsr == 1):
             # Line or Bar chart broken down by the dimension
             dimensions = vis.get_attr_by_data_model("dimension")
@@ -331,9 +338,7 @@ class Compiler:
                 if nmsr == 0 and not ldf.pre_aggregated:
                     vis._inferred_intent.append(count_col)
                 measure = vis.get_attr_by_data_model("measure")[0]
-                # print(measure)
                 vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
-                # print(vis._mark, auto_channel)
                 auto_channel["color"] = color_attr
         elif ndim == 0 and nmsr == 2:
             # Scatterplot

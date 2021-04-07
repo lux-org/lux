@@ -793,6 +793,7 @@ class LuxDataFrame(pd.DataFrame):
             if len(rec["collection"]) > 0:
                 rec["vspec"] = []
                 for vis in rec["collection"]:
+                    # print(vis)
                     chart = vis.to_code(language=lux.config.plotting_backend, prettyOutput=False)
                     rec["vspec"].append(chart)
                 rec_lst.append(rec)

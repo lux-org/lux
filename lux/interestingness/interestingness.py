@@ -78,7 +78,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
             if v_size < 2:
                 return -1
 
-            if vis.mark == "geographical":
+            if vis.mark == "geographical" or vis.mark == "violin":
                 return n_distinct(vis, dimension_lst, measure_lst)
             if n_filter == 0:
                 return unevenness(vis, ldf, measure_lst, dimension_lst)

@@ -61,9 +61,9 @@ def univariate(ldf, *args):
         # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
         if len(ldf) < 5:
             ignore_rec_flag = True
-    elif data_type_constraint == "nominal" or data_type_constraint == "ordinal":
+    elif data_type_constraint == "nominal":
         possible_attributes = [
-            c for c in ldf.columns if (ldf.data_type[c] == "nominal" or ldf.data_type[c] == "ordinal")
+            c for c in ldf.columns if (ldf.data_type[c] == "nominal")
             and c != "Number of Records"
         ]
         examples = ""
@@ -101,6 +101,18 @@ def univariate(ldf, *args):
         # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
         if len(ldf) < 3:
             ignore_rec_flag = True
+    elif data_type_constraint == "ordinal":
+        possible_attributes = [
+            c for c in ldf.columns if ldf.data_type[c] == "ordinal"
+            and c != "Number of Records"
+        ]
+        intent = [lux.Clause(possible_attributes)]
+        intent.extend(filter_specs)
+        recommendation = {
+            "action": "New Action Name Here",
+            "description": "Show trends over <p class='highlight-descriptor'>ordinal</p> attributes.",
+            "long_description": "Long Description Here"
+        }
     if ignore_rec_flag:
         recommendation["collection"] = []
         return recommendation
