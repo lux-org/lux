@@ -82,7 +82,6 @@ class LuxDataFrame(pd.DataFrame):
         self._toggle_pandas_display = True
         self._message = Message()
         self._pandas_only = False
-        self._length = len(self)
         # Metadata
         self._data_type = {}
         self.unique_values = None
@@ -117,7 +116,8 @@ class LuxDataFrame(pd.DataFrame):
         return self._data_type
 
     def maintain_metadata(self):
-        if lux.config.SQLconnection != "" and lux.config.executor.name != "SQL":
+        is_sql_tbl = lux.config.executor.name == "SQLExecutor"
+        if lux.config.SQLconnection != "" and is_sql_tbl:
             from lux.executor.SQLExecutor import SQLExecutor
 
             lux.config.executor = SQLExecutor()
@@ -125,7 +125,7 @@ class LuxDataFrame(pd.DataFrame):
         # Check that metadata has not yet been computed
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
-            if lux.config.executor.name == "SQLExecutor":
+            if is_sql_tbl:
                 lux.config.executor.compute_dataset_metadata(self)
                 self._infer_structure()
                 self._metadata_fresh = True
@@ -185,14 +185,16 @@ class LuxDataFrame(pd.DataFrame):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels != 1
         not_int_index_flag = not pd.api.types.is_integer_dtype(self.index)
-        small_df_flag = len(self) < 100 and lux.config.executor.name == "PandasExecutor"
+        is_sql_tbl = lux.config.executor.name == "SQLExecutor"
+
+        small_df_flag = len(self) < 100 and is_sql_tbl
         if self.pre_aggregated == None:
             self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
             if "Number of Records" in self.columns:
                 self.pre_aggregated = True
             self.pre_aggregated = (
                 "groupby" in [event.name for event in self.history]
-                and lux.config.executor.name == "PandasExecutor"
+                and not is_sql_tbl
             )
 
     @property
@@ -243,7 +245,6 @@ class LuxDataFrame(pd.DataFrame):
         self._intent = Parser.parse(self._intent)
         Validator.validate_intent(self._intent, self)
         self.maintain_metadata()
-        Validator.validate_intent(self._intent, self)
         from lux.processor.Compiler import Compiler
 
         self.current_vis = Compiler.compile_intent(self, self._intent)
@@ -387,6 +388,7 @@ class LuxDataFrame(pd.DataFrame):
 
         # Check that recs has not yet been computed
         if not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh:
+            is_sql_tbl = lux.config.executor.name == "SQLExecutor"
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
@@ -399,7 +401,7 @@ class LuxDataFrame(pd.DataFrame):
             elif not (
                 len(rec_df) < 5
                 and not rec_df.pre_aggregated
-                and lux.config.executor.name == "PandasExecutor"
+                and not is_sql_tbl
             ) and not (self.index.nlevels >= 2 or self.columns.nlevels >= 2):
                 from lux.action.custom import custom_actions
 
