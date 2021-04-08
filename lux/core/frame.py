@@ -192,10 +192,7 @@ class LuxDataFrame(pd.DataFrame):
             self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
             if "Number of Records" in self.columns:
                 self.pre_aggregated = True
-            self.pre_aggregated = (
-                "groupby" in [event.name for event in self.history]
-                and not is_sql_tbl
-            )
+            self.pre_aggregated = "groupby" in [event.name for event in self.history] and not is_sql_tbl
 
     @property
     def intent(self):
@@ -398,11 +395,9 @@ class LuxDataFrame(pd.DataFrame):
                 if rec_df.columns.name is not None:
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
-            elif not (
-                len(rec_df) < 5
-                and not rec_df.pre_aggregated
-                and not is_sql_tbl
-            ) and not (self.index.nlevels >= 2 or self.columns.nlevels >= 2):
+            elif not (len(rec_df) < 5 and not rec_df.pre_aggregated and not is_sql_tbl) and not (
+                self.index.nlevels >= 2 or self.columns.nlevels >= 2
+            ):
                 from lux.action.custom import custom_actions
 
                 # generate vis from globally registered actions and append to dataframe
