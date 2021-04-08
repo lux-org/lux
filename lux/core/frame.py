@@ -545,47 +545,48 @@ class LuxDataFrame(pd.DataFrame):
             if self._pandas_only:
                 display(self.display_pandas())
                 self._pandas_only = False
-            if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-                self.maintain_metadata()
-
-                if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
-                    from lux.processor.Compiler import Compiler
-
-                    self.current_vis = Compiler.compile_intent(self, self._intent)
-
-            if lux.config.default_display == "lux":
-                self._toggle_pandas_display = False
             else:
-                self._toggle_pandas_display = True
+                if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
+                    self.maintain_metadata()
 
-            # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-            self.maintain_recs()
+                    if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
+                        from lux.processor.Compiler import Compiler
 
-            # Observers(callback_function, listen_to_this_variable)
-            self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
-            self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+                        self.current_vis = Compiler.compile_intent(self, self._intent)
 
-            button = widgets.Button(
-                description="Toggle Pandas/Lux",
-                layout=widgets.Layout(width="140px", top="5px"),
-            )
-            self.output = widgets.Output()
-            display(button, self.output)
+                if lux.config.default_display == "lux":
+                    self._toggle_pandas_display = False
+                else:
+                    self._toggle_pandas_display = True
 
-            def on_button_clicked(b):
-                with self.output:
-                    if b:
-                        self._toggle_pandas_display = not self._toggle_pandas_display
-                    clear_output()
-                    if self._toggle_pandas_display:
-                        display(self.display_pandas())
-                    else:
-                        # b.layout.display = "none"
-                        display(self._widget)
-                        # b.layout.display = "inline-block"
+                # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+                self.maintain_recs()
 
-            button.on_click(on_button_clicked)
-            on_button_clicked(None)
+                # Observers(callback_function, listen_to_this_variable)
+                self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
+                self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+
+                button = widgets.Button(
+                    description="Toggle Pandas/Lux",
+                    layout=widgets.Layout(width="140px", top="5px"),
+                )
+                self.output = widgets.Output()
+                display(button, self.output)
+
+                def on_button_clicked(b):
+                    with self.output:
+                        if b:
+                            self._toggle_pandas_display = not self._toggle_pandas_display
+                        clear_output()
+                        if self._toggle_pandas_display:
+                            display(self.display_pandas())
+                        else:
+                            # b.layout.display = "none"
+                            display(self._widget)
+                            # b.layout.display = "inline-block"
+
+                button.on_click(on_button_clicked)
+                on_button_clicked(None)
 
         except (KeyboardInterrupt, SystemExit):
             raise
@@ -804,24 +805,22 @@ class LuxDataFrame(pd.DataFrame):
 
     # Overridden Pandas Functions
     def head(self, n: int = 5):
-        self._prev = self
-        self._history.append_event("head", n=5)
-        return super(LuxDataFrame, self).head(n)
+        ret_val = super(LuxDataFrame, self).head(n)
+        ret_val._prev = self
+        ret_val._history.append_event("head", n=5)
+        return ret_val
 
     def tail(self, n: int = 5):
-        self._prev = self
-        self._history.append_event("tail", n=5)
-        return super(LuxDataFrame, self).tail(n)
-
-    def info(self, *args, **kwargs):
-        self._pandas_only = True
-        self._history.append_event("info", *args, **kwargs)
-        return super(LuxDataFrame, self).info(*args, **kwargs)
+        ret_val = super(LuxDataFrame, self).tail(n)
+        ret_val._prev = self
+        ret_val._history.append_event("tail", n=5)
+        return ret_val
 
     def describe(self, *args, **kwargs):
-        self._pandas_only = True
-        self._history.append_event("describe", *args, **kwargs)
-        return super(LuxDataFrame, self).describe(*args, **kwargs)
+        ret_val = super(LuxDataFrame, self).describe(*args, **kwargs)
+        ret_val._pandas_only = True
+        ret_val._history.append_event("describe", *args, **kwargs)
+        return ret_val
 
     def groupby(self, *args, **kwargs):
         history_flag = False
