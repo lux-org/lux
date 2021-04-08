@@ -82,7 +82,7 @@ class Compiler:
         vis_collection: list[lux.Vis]
                 vis list with compiled lux.Vis objects.
         """
-        if _inferred_intent:
+        if [clause for clause in _inferred_intent if clause.attribute in ldf.columns]:        
             vis_collection = Compiler.enumerate_collection(_inferred_intent, ldf)
             # autofill data type/model information
             Compiler.populate_data_type_model(ldf, vis_collection)

@@ -309,6 +309,7 @@ class LuxDataFrame(pd.DataFrame):
             self._current_vis is not None
             and len(self._current_vis) > 0
             and self._current_vis[0].data is None
+            and [clause for clause in self._current_vis.intent if clause.attribute in self.columns]
         ):
             lux.config.executor.execute(self._current_vis, self)
         return self._current_vis
@@ -630,7 +631,6 @@ class LuxDataFrame(pd.DataFrame):
 
                     if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
                         from lux.processor.Compiler import Compiler
-
                         self.current_vis = Compiler.compile_intent(self, self._intent)
 
                 if lux.config.default_display == "lux":
