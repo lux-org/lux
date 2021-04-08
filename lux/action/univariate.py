@@ -46,9 +46,7 @@ def univariate(ldf, *args):
     ignore_rec_flag = False
     if data_type_constraint == "quantitative": # this should use pre aggregated somehow imo
         possible_attributes = [
-            c
-            for c in ldf.columns
-            if ldf.data_type[c] == "quantitative" and ldf.cardinality[c] >= 1 and c != "Number of Records" # WILL changed this threshold so can get vc recs
+            c for c in ldf.columns if ldf.data_type[c] == "quantitative" and c != "Number of Records"
         ]
         intent = [lux.Clause(possible_attributes)]
         intent.extend(filter_specs)
@@ -65,19 +63,31 @@ def univariate(ldf, *args):
             ignore_rec_flag = True
     elif data_type_constraint == "nominal":
         possible_attributes = [
-            c
-            for c in ldf.columns
-            if ldf.data_type[c] == "nominal" and ldf.cardinality[c] >= 1 and c != "Number of Records"
+            c for c in ldf.columns if ldf.data_type[c] == "nominal" and c != "Number of Records"
         ]
         examples = ""
         if len(possible_attributes) >= 1:
             examples = f" (e.g., {possible_attributes[0]})"
-        intent = [lux.Clause("?", data_type="nominal")]
+        intent = [lux.Clause(possible_attributes)]
         intent.extend(filter_specs)
         recommendation = {
             "action": "Occurrence",
             "description": "Show frequency of occurrence for <p class='highlight-descriptor'>categorical</p> attributes.",
             "long_description": f"Occurence displays bar charts of counts for all categorical attributes{examples}. Visualizations are ranked from most to least uneven across the bars. ",
+        }
+    elif data_type_constraint == "geographical":
+        possible_attributes = [
+            c for c in ldf.columns if ldf.data_type[c] == "geographical" and c != "Number of Records"
+        ]
+        examples = ""
+        if len(possible_attributes) >= 1:
+            examples = f" (e.g., {possible_attributes[0]})"
+        intent = [lux.Clause("?", data_type="geographical"), lux.Clause("?", data_model="measure")]
+        intent.extend(filter_specs)
+        recommendation = {
+            "action": "Geographical",
+            "description": "Show choropleth maps of <p class='highlight-descriptor'>geographic</p> attributes",
+            "long_description": f"Occurence displays choropleths of averages for some geographic attribute{examples}. Visualizations are ranked by diversity of the geographic attribute.",
         }
     elif data_type_constraint == "temporal":
         intent = [lux.Clause("?", data_type="temporal")]

@@ -110,7 +110,7 @@ class Vis:
         self._intent = intent
         self.refresh_source(self._source)
 
-    def _repr_html_(self):
+    def _ipython_display_(self):
         from IPython.display import display
 
         check_import_lux_widget()

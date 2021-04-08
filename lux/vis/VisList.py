@@ -260,7 +260,7 @@ class VisList:
             if invert_order:
                 dobj.score = 1 - dobj.score
 
-    def _repr_html_(self):
+    def _ipython_display_(self):
         self._widget = None
         from IPython.display import display
         from lux.core.frame import LuxDataFrame

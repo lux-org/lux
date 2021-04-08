@@ -207,6 +207,8 @@ class Compiler:
                         clause.data_type = ldf.data_type[clause.attribute]
                     if clause.data_type == "id":
                         clause.data_type = "nominal"
+                    if clause.data_type == "geographical":
+                        clause.data_type = "nominal"
                     if clause.data_model == "":
                         clause.data_model = data_model_lookup[clause.attribute]
                 if clause.value != "":
@@ -354,7 +356,7 @@ class Compiler:
         else:
             dimension = d1
 
-        _m, auto_channel = Compiler.line_or_bar_helper(ldf, dimension, measure)
+        _m, auto_channel = Compiler.line_bar_geo_helper(ldf, dimension, measure)
 
         if not vis._mark:
             vis._mark = _m
@@ -367,9 +369,9 @@ class Compiler:
         
         return auto_channel
 
-    
+  
     @staticmethod
-    def line_or_bar_helper(ldf: LuxDataFrame, dimension: Clause, measure: Clause):
+    def line_bar_geo_helper(ldf: LuxDataFrame, dimension: Clause, measure: Clause):
         dim_type = dimension.data_type
         # If no aggregation function is specified, then default as average
         if measure.aggregation == "":
@@ -380,6 +382,8 @@ class Compiler:
             # if cardinality large than 5 then sort bars
             if ldf.cardinality[dimension.attribute] > 5:
                 dimension.sort = "ascending"
+            if utils.like_geo(dimension.get_attr()):
+                    return "geographical", {"x": dimension, "y": measure}
             return "bar", {"x": measure, "y": dimension}
     
     @staticmethod
