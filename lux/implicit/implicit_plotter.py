@@ -142,9 +142,7 @@ def process_describe(signal, ldf):
         chart_list: VisList 
         array: []
             Empty array of used cols so not excluded in other vis
-    """
-    set_trace()
-    
+    """    
     if (ldf._parent_df is not None and len(ldf) == 8 and
         all(ldf.index == ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max']) ):
         plot_df = ldf._parent_df

@@ -33,6 +33,14 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         super(LuxGroupBy, self).__init__(*args, **kwargs)
         self._history = History(self) 
         self._parent_df = None
+    
+    @property
+    def history(self):
+        return self._history
+    
+    @history.setter
+    def history(self, history: History):
+        self._history = history
 
     ####################
     ## Different aggs  # 
@@ -42,20 +50,21 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         ret_value = self._lux_copymd(ret_value)
         ret_value._parent_df = self
 
-        # for some reason is_list_like(dict) == True so MUST compare dict first 
-        if is_dict_like(func):
-            # the first function gets added twice so we delete from history 
-            ret_value._history.delete_at(-1)
+        if isinstance(func, str):     
+            ret_value.history.append_event(func, [], rank_type="child", child_df=None)
+        
+        # for some reason is_list_like({}) == True so MUST compare dict first 
+        elif is_dict_like(func):
             for col, aggs in func.items():
                 if is_list_like(aggs):
                     for a in aggs:
-                        ret_value._history.append_event(a, [col], rank_type="child", child_df=None)
-                else: # is aggs is str
-                    ret_value._history.append_event(aggs, [col], rank_type="child", child_df=None)
+                        ret_value.history.append_event(a, [col], rank_type="child", child_df=None)
+                else: # aggs is str
+                    ret_value.history.append_event(aggs, [col], rank_type="child", child_df=None)
         
         elif is_list_like(func):
             for f_name in func:
-                ret_value._history.append_event(f_name, [], rank_type="child", child_df=None)
+                ret_value.history.append_event(f_name, [], rank_type="child", child_df=None)
 
         return ret_value
     
@@ -66,7 +75,7 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         this calls _cython_agg_general, if that fails calls self.aggregate
         """
         ret_value = super(LuxGroupBy, self)._agg_general(*args, **kwargs)
-        ret_value = self._lux_copymd(ret_value, force=True)
+        ret_value = self._lux_copymd(ret_value)
         ret_value._parent_df = self
 
         return ret_value
@@ -81,16 +90,11 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
     #################
     ## Utils, etc   # 
     #################
-    def _lux_copymd(self, ret_value, force=False):
-        old_history = ret_value._history
+    def _lux_copymd(self, ret_value):
         for attr in self._metadata:
             ret_value.__dict__[attr] = getattr(self, attr, None)
         
-        if force or ((len(old_history) == 0) and ret_value._history is not None):
-            ret_value._history = ret_value._history.copy()
-        else:
-            ret_value._history = old_history # restore 
-
+        ret_value.history = ret_value.history.copy()
         return ret_value
 
     def get_group(self, *args, **kwargs):
@@ -104,12 +108,10 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         ret_value = self._lux_copymd(ret_value)
         return ret_value
     
-    ##################
-    ## agg functions # 
-    ##################
     def filter(self, *args, **kwargs):
         ret_value = super(LuxGroupBy, self).filter(*args, **kwargs)
         ret_value = self._lux_copymd(ret_value)
+        ret_value.history.append_event("gb_filter", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = False  # Returned LuxDataFrame isn't pre_aggregated
         ret_value._parent_df = self 
         return ret_value
@@ -117,92 +119,57 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
     def apply(self, *args, **kwargs):
         ret_value = super(LuxGroupBy, self).apply(*args, **kwargs)
         ret_value = self._lux_copymd(ret_value)
+        ret_value.history.append_event("gb_apply", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = False  # Returned LuxDataFrame isn't pre_aggregated
         ret_value._parent_df = self 
         return ret_value
+    
+    ##################
+    ## agg functions # 
+    ##################
+    def _eval_agg_function_lux(self, func_name: str, *args, **kwargs):
+        with self.history.pause():
+            method = getattr(super(LuxGroupBy, self), func_name)
+            ret_value = method(*args, **kwargs)  
+
+        ret_value = self._lux_copymd(ret_value) 
+        ret_value.history.append_event(func_name, [], rank_type="child", child_df=None)
+        ret_value._parent_df = self 
+
+        return ret_value
 
     def size(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).size(*args, **kwargs)
-        ret_value = self._lux_copymd(ret_value, force=True) # not copied over otherwise
-        ret_value._history.append_event("size", [], rank_type="child", child_df=None)
-        ret_value.pre_aggregated = True
-        ret_value._parent_df = self 
-        return ret_value
+        return self._eval_agg_function_lux("size", *args, **kwargs)
 
     def mean(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).mean(*args, **kwargs)
-        ret_value._history.append_event("mean", [], rank_type="child", child_df=None)
-        ret_value.pre_aggregated = True
-        ret_value._parent_df = self 
-        return ret_value
+        return self._eval_agg_function_lux("mean", *args, **kwargs)
     
     def min(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).min(*args, **kwargs)
-        ret_value._history.append_event("min", [], rank_type="child", child_df=None)
-        ret_value.pre_aggregated = True
-        ret_value._parent_df = self 
-        return ret_value
+        return self._eval_agg_function_lux("min", *args, **kwargs)
     
     def max(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).max(*args, **kwargs)
-        ret_value._history.append_event("max", [], rank_type="child", child_df=None)
-        ret_value.pre_aggregated = True
-        ret_value._parent_df = self 
-        return ret_value
+        return self._eval_agg_function_lux("max", *args, **kwargs)
 
     def count(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).count(*args, **kwargs)
-        ret_value = self._lux_copymd(ret_value) # not copied over otherwise
-        ret_value._history.append_event("count", [], rank_type="child", child_df=None)
-        ret_value.pre_aggregated = True
-        ret_value._parent_df = self
-        return ret_value
-    
+        return self._eval_agg_function_lux("count", *args, **kwargs)
+
     def sum(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).sum(*args, **kwargs)
-        ret_value._history.append_event("sum", [], rank_type="child", child_df=None)
-        ret_value.pre_aggregated = True
-        ret_value._parent_df = self
-        return ret_value
+        return self._eval_agg_function_lux("sum", *args, **kwargs)
     
     def prod(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).prod(*args, **kwargs)
-        ret_value._history.append_event("prod", [], rank_type="child", child_df=None)
-        ret_value.pre_aggregated = True
-        ret_value._parent_df = self
-        return ret_value
-    
+        return self._eval_agg_function_lux("prod", *args, **kwargs)
+
     def median(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).median(*args, **kwargs)
-        ret_value = self._lux_copymd(ret_value) # not copied over otherwise
-        ret_value._history.append_event("median", [], rank_type="child", child_df=None)
-        ret_value.pre_aggregated = True
-        ret_value._parent_df = self
-        return ret_value
-    
+        return self._eval_agg_function_lux("median", *args, **kwargs)
+
     def std(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).std(*args, **kwargs)
-        ret_value = self._lux_copymd(ret_value) # not copied over otherwise
-        ret_value._history.append_event("std", [], rank_type="child", child_df=None)
-        ret_value.pre_aggregated = True
-        ret_value._parent_df = self
-        return ret_value
+        return self._eval_agg_function_lux("std", *args, **kwargs)
 
     def var(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).var(*args, **kwargs)
-        ret_value._history.append_event("var", [], rank_type="child", child_df=None)
-        ret_value.pre_aggregated = True
-        ret_value._parent_df = self
-        return ret_value
-    
+        return self._eval_agg_function_lux("var", *args, **kwargs)
+
     def sem(self, *args, **kwargs):
-        ret_value = super(LuxGroupBy, self).sem(*args, **kwargs)
-        ret_value = self._lux_copymd(ret_value) # not copied over otherwise
-        # ret_value._history.edit_event(-1, "sem", [], rank_type="child", child_df=None) # sem calls std so want to edit 
-        ret_value._history.append_event("sem", [], rank_type="child", child_df=None)
-        ret_value.pre_aggregated = True
-        ret_value._parent_df = self
-        return ret_value
+        return self._eval_agg_function_lux("sem", *args, **kwargs)
 
 
 class LuxDataFrameGroupBy(LuxGroupBy, pd.core.groupby.generic.DataFrameGroupBy):

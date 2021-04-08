@@ -121,6 +121,10 @@ class LuxSeries(pd.Series):
     @property
     def history(self):
         return self._history
+    
+    @history.setter
+    def history(self, history: History):
+        self._history = history
 
     def to_pandas(self) -> pd.Series:
         """
@@ -285,12 +289,22 @@ class LuxSeries(pd.Series):
             _this._history = _this._history.copy()
         return _this
 
+    """
+    NOTE: df.Origin 's history is a little off right now.
+    Since a column is put into a cache on the df it only copies over the history
+    from df when the column is first referenced. If this history has to do with "Origin"
+    this it will all be logged since the same object is left in the cache but a series history
+    might be inconsistent with it's parent df so 
+
+    `df.Origin.history` will not necessarily contain all of `df.history`
+    The fix is to catch this the first time a column is pulled into the cache and either clear the history or 
+    something else
+    """
     def value_counts(self, *args, **kwargs):
         ret_value = super(LuxSeries, self).value_counts(*args, **kwargs)
         
-        # set ret_value meta data from df instead of df.col
-        ret_value._parent_df = self._parent_df 
-        # ret_value._history = self._parent_df._history.copy() # NOTE: should parent history be copied over here?
+        ret_value._parent_df = self 
+        ret_value._history = self._parent_df._history.copy() 
         ret_value.pre_aggregated = True 
 
         # add to history
@@ -304,7 +318,6 @@ class LuxSeries(pd.Series):
         """
         Returns a numpy array so makes things more tricky
         """
-        #set_trace()
         ret_value = super(LuxSeries, self).unique(*args, **kwargs)
         self._history.append_event("unique", [self.name])
         self.add_to_parent_history("unique", [self.name])
