@@ -220,32 +220,12 @@ class LuxDataFrame(pd.DataFrame):
 
 
     def set_intent(self, intent: List[Union[str, Clause]]):
-        print("Setting intent")
         self.expire_recs()
         self._intent = intent
         self._parse_validate_compile_intent()
-
-    def _parse_validate_compile_intent(self, cv_fresh=False):
-        self.maintain_metadata()
-        from lux.processor.Parser import Parser
-        from lux.processor.Validator import Validator
-
-        self._intent = Parser.parse(self._intent)
-        Validator.validate_intent(self._intent, self)
-        self.maintain_metadata()
-        from lux.processor.Compiler import Compiler
-
-        if not cv_fresh:
-            self.current_vis = Compiler.compile_intent(self, self._intent)
-
-    def copy_intent(self):
-        # creates a true copy of the dataframe's intent
-        output = []
-        for clause in self._intent:
-            temp_clause = clause.copy_clause()
-            output.append(temp_clause)
-        return output
-
+        self.log_current_intent_to_history()
+        
+    
     def set_intent_as_vis(self, vis: Vis):
         """
         Set intent of the dataframe based on the intent of a Vis
@@ -258,7 +238,38 @@ class LuxDataFrame(pd.DataFrame):
         self.expire_recs()
         self._intent = vis._inferred_intent
         self._current_vis = [vis]
-        self._parse_validate_compile_intent(cv_fresh=True)
+        self._parse_validate_compile_intent(update_curr_vis=False)
+        self.log_current_intent_to_history()
+
+    
+    def log_current_intent_to_history(self):
+        attrs = []
+        for clause in self.intent:
+            if clause.attribute and clause.attribute in self.columns:
+                attrs.append(clause.attribute)
+        
+        self.history.append_event("intent_set", attrs)
+
+    def _parse_validate_compile_intent(self, update_curr_vis=True):
+        self.maintain_metadata()
+        from lux.processor.Parser import Parser
+        from lux.processor.Validator import Validator
+
+        self._intent = Parser.parse(self._intent)
+        Validator.validate_intent(self._intent, self)
+        self.maintain_metadata()
+        from lux.processor.Compiler import Compiler
+
+        if update_curr_vis:
+            self.current_vis = Compiler.compile_intent(self, self._intent)
+
+    def copy_intent(self):
+        # creates a true copy of the dataframe's intent
+        output = []
+        for clause in self._intent:
+            temp_clause = clause.copy_clause()
+            output.append(temp_clause)
+        return output
 
     def set_data_type(self, types: dict):
         """
