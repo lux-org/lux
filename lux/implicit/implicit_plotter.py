@@ -33,12 +33,12 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
     
     Returns
     -------
-        chart_list: VisList OR list 
-            list in event of CustomVis since cant be put into VisList directly
+        chart_list: VisList 
+            VistList of returned vis
         used_cols: list
             which columns were used in the returned vis(i)
     """
-    vis_list = []
+    vis_list = VisList([])
     used_cols = []
     if signal.op_name == "value_counts" or signal.op_name == "unique":
         vis_list, used_cols = process_value_counts(signal, ldf)
@@ -91,9 +91,7 @@ def process_value_counts(signal, ldf):
             
             vis_list = VisList([clse], ldf )
 
-        else: # "child" AND ldf is pre_aggregated
-            # v = cg_plotter.plot_col_vis(c_name, "Count")
-            
+        else: # "child" AND ldf is pre_aggregated            
             # make vis consistent with normal histogram from history
             v = Vis(
                 [
@@ -143,25 +141,24 @@ def process_describe(signal, ldf):
     -------
         chart_list: VisList 
         array: []
-            which columns were used 
-            NOTE: this is intentionally wrong here bc want to still use these cols elsewhere 
-            since will not be boxplots elsewhere
+            Empty array of used cols so not excluded in other vis
     """
-    # set_trace()
-    # if ldf is df returned by describe plot the parent of ldf
+    set_trace()
+    
     if (ldf._parent_df is not None and len(ldf) == 8 and
         all(ldf.index == ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max']) ):
-        
-        vl = VisList([lux.Clause("?", mark_type="boxplot")], ldf._parent_df)
-
-    # or the full df?
+        plot_df = ldf._parent_df
     else:
-        vl = VisList([lux.Clause("?", mark_type="boxplot")], ldf)
+        plot_df = ldf 
     
-    # hack to get vis to appear at the front 
-    # for v in vl:
-    #     v.score = 100
+    collection = []
+
+    for c in signal.cols:
+        v = Vis([lux.Clause(c, mark_type="boxplot")], plot_df)
+        collection.append(v)
     
+    vl = VisList(collection)
+
     return vl, []
 
 ###################
@@ -182,7 +179,7 @@ def process_filter(signal, ldf, ranked_cols):
     
     Returns
     -------
-        chart_list: VisList or empty array
+        chart_list: VisList
         cols: []
             which columns were used 
     """
@@ -196,7 +193,6 @@ def process_filter(signal, ldf, ranked_cols):
     for s in other_signals:
         exclude_cols.update(s.cols)
     
-    # set_trace()
     col_combos = get_col_recs(ldf, ranked_cols, exclude_cols)
 
     all_used_cols = set()
@@ -214,14 +210,10 @@ def process_filter(signal, ldf, ranked_cols):
             _v = plot_filter(plot_df, input_combo, parent_mask)
             all_used_cols.update(input_combo)
             chart_list.append(_v)
+    
+    vl = VisList(chart_list)
 
-    # turn into vislist 
-    # vis_list = []
-    # if chart_list:
-    #     for _v in chart_list:
-    #         vis_list.append( CustomVis(_v) )
-
-    return chart_list, list(all_used_cols)
+    return vl, list(all_used_cols)
 
 def get_col_recs(ldf, ranked_cols, exclude=[]):
     # sets for easy comparision
@@ -299,7 +291,6 @@ def process_query_loc(signal, ldf, ranked_cols):
         c_df = ldf
     
     mask, same_cols = compute_filter_diff(p_df, c_df)
-    # set_trace()
     col_combos = get_col_recs(ldf, ranked_cols, same_cols) # TODO this excludes same cols is that good?
 
     all_used_cols = set()
@@ -311,23 +302,9 @@ def process_query_loc(signal, ldf, ranked_cols):
             all_used_cols.update(input_combo)
             chart_list.append(_v)
     
-    # turn into vislist 
-    # vis_list = []
-    # if chart_list:
-    #     for _v in chart_list:
-    #         vis_list.append( CustomVis(_v) )
+    vl = VisList(chart_list)
 
-    return chart_list, list(all_used_cols)
-
-# def get_query_cols(ranked_cols, diff_cols):
-#     """
-#     Params: both should be lists of col names, or empty list
-#     """
-#     if ranked_cols:
-#         return ranked_cols 
-    
-#     return random.sample(diff_cols, 2) # randomly select here for funsies
-
+    return vl, list(all_used_cols)
 
 def plot_filter_count(ldf, mask):
     """
@@ -357,11 +334,11 @@ def plot_filter_count(ldf, mask):
         order=alt.Order('filt_mask', sort='descending') # make sure stack goes True then False for filter
         )
     
-    # DONT use interactive for this chart, it breaks for some reason
+    # DONT use interactive for this chart, it breaks bc ordinal scale I think
+    intent = [] # NOTE: this isnt great intent for this chart 
+    cv = CustomVis(intent, chart, ldf, width=90, override_c_config={"interactive": False})
 
-    v = CustomVis(chart, width=90)
-
-    return v 
+    return cv
 
 
 def plot_filter(ldf, cols, mask, card_thresh=12):
@@ -387,6 +364,7 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
     ldf["filt_mask"] = mask
 
     chart = None
+    intent = []
     
     if len(cols) == 1 and cols[0] in ldf.data_type:
         x_var = cols[0]
@@ -408,6 +386,8 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
           y=f"count({x_var}):Q",
           color= alt.Color("filt_mask", scale= tf_scale, title="Is Filtered?" )
         )
+
+        intent = [lux.Clause(x_var, data_type=x_d_type)]
 
         if filt_text:
             filt_label = alt.Chart(ldf).mark_text(
@@ -477,6 +457,9 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
         
         chart = bg + filt_chart
 
+        intent = [lux.Clause(x_var, data_type=x_d_type),
+                  lux.Clause(y_var, data_type=y_d_type)]
+
         if filt_text_x:
             filt_c = alt.Chart(ldf).mark_text(
                 x=155,
@@ -501,13 +484,10 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
 
         #     chart = chart + filt_c
             
-    
-    if chart:
-        chart = chart.interactive()
 
-    v = CustomVis(chart)
+    cv = CustomVis(intent, chart, ldf)
     
-    return v
+    return cv
 
 
 def compute_filter_diff(old_df, filt_df):

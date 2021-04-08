@@ -55,7 +55,10 @@ def plot_gb_mean_errorbar(df_m, df_s):
             y= alt.Y(index_col, type="nominal"))
 
         v = b + err
-        vl.append(CustomVis(v))
+        intent = [lux.Clause(c_m, data_type="quantitative", data_model="measure"),
+                  lux.Clause(index_col, data_type="nominal", data_model="dimension")]
+
+        vl.append(CustomVis(intent, v, tog))
     
     return vl
 
@@ -69,19 +72,27 @@ def plot_df_mean_errorbar(df_m, df_s):
         CustomVis of this object
     """
     tog = df_m.join(df_s).reset_index()
+
+    x_name = "mean"
+    y_name = "index"
     
     b = alt.Chart(tog).mark_bar().encode(
-        x = alt.X("mean", type = "quantitative"),
-        y = alt.Y("index", type = "nominal"))
+        x = alt.X(x_name, type = "quantitative"),
+        y = alt.Y(y_name, type = "nominal"))
 
     err = alt.Chart(tog).mark_errorbar().encode(
-        x = alt.X("mean", type = "quantitative"),
+        x = alt.X(x_name, type = "quantitative"),
         xError = "std",
-        y = alt.Y("index", type = "nominal"))
+        y = alt.Y(y_name, type = "nominal"))
 
     v = b + err
+
+    intent = [lux.Clause(x_name, data_type="quantitative", data_model="measure"),
+                  lux.Clause(y_name, data_type="nominal", data_model="dimension")]
+
+    cv = CustomVis(intent, v, tog)
     
-    return CustomVis(v)
+    return cv
 
 ##########
 # Utils  #

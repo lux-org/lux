@@ -46,12 +46,9 @@ def implicit_tab(ldf: LuxDataFrame):
         lux_vis = VisList([], ldf)
         vl, used_cols = implicit_plotter.generate_vis_from_signal(most_recent_event, ldf, col_list)
         
-        if vl:
-            if type(vl) == VisList:
-                lux_vis._collection.extend(vl._collection)
-            else: # type is list
-                lux_vis._collection.extend(vl)
-            str_desc += f"> Call to function '{most_recent_event.op_name}' in execution cell [{most_recent_event.ex_count}] <br/>"
+        lux_vis._collection.extend(vl._collection)
+        str_desc += f"> Call to function '{most_recent_event.op_name}' in execution cell [{most_recent_event.ex_count}] <br/>"
+
         
     # get multiple vis for col refs
     if col_list and not ldf.pre_aggregated:

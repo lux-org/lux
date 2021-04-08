@@ -221,11 +221,12 @@ class LuxDataFrame(pd.DataFrame):
 
 
     def set_intent(self, intent: List[Union[str, Clause]]):
+        print("Setting intent")
         self.expire_recs()
         self._intent = intent
         self._parse_validate_compile_intent()
 
-    def _parse_validate_compile_intent(self):
+    def _parse_validate_compile_intent(self, cv_fresh=False):
         self.maintain_metadata()
         from lux.processor.Parser import Parser
         from lux.processor.Validator import Validator
@@ -235,7 +236,8 @@ class LuxDataFrame(pd.DataFrame):
         self.maintain_metadata()
         from lux.processor.Compiler import Compiler
 
-        self.current_vis = Compiler.compile_intent(self, self._intent)
+        if not cv_fresh:
+            self.current_vis = Compiler.compile_intent(self, self._intent)
 
     def copy_intent(self):
         # creates a true copy of the dataframe's intent
@@ -256,7 +258,8 @@ class LuxDataFrame(pd.DataFrame):
         """
         self.expire_recs()
         self._intent = vis._inferred_intent
-        self._parse_validate_compile_intent()
+        self._current_vis = [vis]
+        self._parse_validate_compile_intent(cv_fresh=True)
 
     def set_data_type(self, types: dict):
         """
@@ -605,13 +608,14 @@ class LuxDataFrame(pd.DataFrame):
     def set_intent_on_click(self, change):
         from IPython.display import display, clear_output
         from lux.processor.Compiler import Compiler
+        print("set intent on click...")
 
         intent_action = list(self._widget.selectedIntentIndex.keys())[0]
         vis = self._recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
         self.set_intent_as_vis(vis)
 
-        self.maintain_metadata()
-        self.current_vis = Compiler.compile_intent(self, self._intent)
+        # self.maintain_metadata()
+        # self.current_vis = Compiler.compile_intent(self, self._intent)
         self.maintain_recs()
 
         with self.output:
@@ -1023,7 +1027,6 @@ class LuxDataFrame(pd.DataFrame):
         key is the mask that selects from self to create the ret_value
 
         """
-        # set_trace()
         ret_value = super(LuxDataFrame, self)._getitem_bool_array(key)
 
         # append to parent history
@@ -1064,15 +1067,16 @@ class LuxDataFrame(pd.DataFrame):
         self.history.unfreeze()
 
         ret_frame._parent_df = self
+
+        used_cols = list(ret_frame.columns)
         
         # save history on self and returned df
-        self._history.append_event("describe", [], *args, **kwargs)
-        ret_frame._history.append_event("describe", [])
+        self._history.append_event("describe", used_cols, *args, **kwargs)
+        ret_frame._history.append_event("describe", used_cols)
         ret_frame.pre_aggregated = True # this doesnt do anything rn to affect plotting
         return ret_frame
     
     def query(self, expr: str, inplace: bool = False, **kwargs):
-        # set_trace()
         ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
 
         self._history.append_event("query", [], rank_type="parent", child_df=ret_value)
@@ -1094,7 +1098,6 @@ class LuxDataFrame(pd.DataFrame):
         df.loc[33:55] but cannot override loc directly since loc returns a _LocIndexer
         not a dataframe
         """
-        # set_trace()
         ret_value = super(LuxDataFrame, self)._slice(slobj, axis)
         
         self._history.append_event("slice", [], rank_type="parent", child_df=ret_value)

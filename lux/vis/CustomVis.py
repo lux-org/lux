@@ -16,6 +16,7 @@ from typing import List, Callable, Union
 from lux.vis.Clause import Clause
 from lux.utils.utils import check_import_lux_widget
 import lux
+import altair as alt
 import warnings
 
 class CustomVis:
@@ -26,17 +27,37 @@ class CustomVis:
     right now have to init an vislist then manually extend the collection
     """
 
-    def __init__(self, altChart, width=160, height=150):
+    def __init__(self, intent, altChart, data, width = 160, height = 150, override_c_config = None):
+        # local properties
+        self._inferred_intent = intent
         self.chart = altChart
-        self.score = 1
+        self.score = 0
 
+        # @property copy from Vis
+        self.data = data
+        # self.code below
+        self.intent = intent
+        self.min_max = {}
+        self.mark = ""
+        
         # vis defaults
         self.chart_width = width
         self.chart_height = height
 
-        # config
+        # chart config 
+        base_chart_config = {"interactive": True, "tooltip": True}
+        if override_c_config and isinstance(override_c_config, dict):
+            base_chart_config.update(override_c_config)
+        self.chart_config = base_chart_config
+
         if self.chart:
             self.apply_default_config()
+            self.code = self.to_code()
+    
+    # def generate_code_str(self):
+    #     self.code += "import altair as alt\n"
+    #     ### self.code += f"visData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
+    #     # self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
         
     def _repr_html_(self):
         from IPython.display import display
@@ -74,6 +95,13 @@ class CustomVis:
             labelFont="Helvetica Neue",
         )
         self.chart = self.chart.properties(width=self.chart_width, height=self.chart_height)
+        
+        if self.chart_config["tooltip"]:
+            self.chart = self.chart.configure_mark(tooltip=alt.TooltipContent("encoding"))
+        
+        if self.chart_config["interactive"]:
+            self.chart = self.chart.interactive()  # Enable Zooming and Panning
+        
         # self.code += (
         #     "\nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
         # )

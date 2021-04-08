@@ -99,7 +99,6 @@ def column_group(ldf):
                         vl = cg_plotter.plot_gb_mean_errorbar(_this_c_df, df_s)
                         mean_collection.extend(vl)
                     else:
-                        # set_trace()
                         vis = cg_plotter.plot_col_vis(index_column_name, attribute)
                         collection.append(vis)
             vlst = VisList(collection, ldf_flat)
