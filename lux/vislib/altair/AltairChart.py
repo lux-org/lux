@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import lux
 import pandas as pd
 import numpy as np
 import altair as alt
@@ -39,7 +40,8 @@ class AltairChart:
         # self.add_tooltip()
         self.encode_color()
         self.add_title()
-        self.apply_default_config()
+        if not lux.config.plotting_style:
+            self.apply_default_config()
 
         # ----- END self.code modification -----
 
@@ -51,33 +53,29 @@ class AltairChart:
             self.chart = self.chart.encode(tooltip=list(self.vis.data.columns))
 
     def apply_default_config(self):
-        self.chart = self.chart.configure_title(fontWeight=500, fontSize=13, font="Helvetica Neue")
-        self.chart = self.chart.configure_axis(
-            titleFontWeight=500,
-            titleFontSize=11,
-            titleFont="Helvetica Neue",
-            labelFontWeight=400,
-            labelFontSize=9,
-            labelFont="Helvetica Neue",
-            labelColor="#505050",
-        )
-        self.chart = self.chart.configure_legend(
-            titleFontWeight=500,
-            titleFontSize=10,
-            titleFont="Helvetica Neue",
-            labelFontWeight=400,
-            labelFontSize=9,
-            labelFont="Helvetica Neue",
-        )
-        self.chart = self.chart.properties(width=160, height=150)
-        self.code += (
-            "\nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
-        )
-        self.code += "chart = chart.configure_axis(titleFontWeight=500,titleFontSize=11,titleFont='Helvetica Neue',\n"
-        self.code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue',labelColor='#505050')\n"
-        self.code += "chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',\n"
-        self.code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue')\n"
-        self.code += "chart = chart.properties(width=160,height=150)\n"
+        def default_config(chart):
+            chart = chart.configure_title(fontWeight=500, fontSize=13, font="Helvetica Neue")
+            chart = chart.configure_axis(
+                titleFontWeight=500,
+                titleFontSize=11,
+                titleFont="Helvetica Neue",
+                labelFontWeight=400,
+                labelFontSize=9,
+                labelFont="Helvetica Neue",
+                labelColor="#505050",
+            )
+            chart = chart.configure_legend(
+                titleFontWeight=500,
+                titleFontSize=10,
+                titleFont="Helvetica Neue",
+                labelFontWeight=400,
+                labelFontSize=9,
+                labelFont="Helvetica Neue",
+            )
+            chart = chart.properties(width=160, height=150)
+            return chart
+        self.chart = default_config(self.chart)
+        lux.config.plotting_style = default_config
 
     def encode_color(self):
         color_attr = self.vis.get_attr_by_channel("color")

@@ -622,7 +622,7 @@ class LuxDataFrame(pd.DataFrame):
 
     # Gets graphing code to be displayed in full screen view
     def get_graphing_code(self, change):
-        from IPython.display import display, clear_output
+        import inspect
         full_screen_vis_idx = self._widget.selectedFullScreenIndex
         full_screen_action = list(self._widget.selectedFullScreenIndex.keys())[0]
         # Using visList to support eventual full view display of multiple graphs
@@ -634,21 +634,58 @@ class LuxDataFrame(pd.DataFrame):
                     )
                 )
             )
-        code = full_screen_vis[0].to_Altair(standalone=True)
-        # Shared variable to communicate to widget front end
-        self._widget.unobserve(self.apply_full_view_changes)
-        self._widget.visGraphCode = "import pandas as pd\n" + code[:-7]
-        self._widget.observe(self.apply_full_view_changes, names="visGraphCode")
+        if lux.config.plotting_backend == "vegalite":
+            code = full_screen_vis[0].to_Altair()
+            self._widget.unobserve(self.apply_full_view_changes)
+            visStyleCode = "\n" + "\n".join(
+                            inspect.getsource(lux.config.plotting_style).split("\n    ")[1:-1])
+            visStyleCode = visStyleCode.replace("\n\t\t", "\n")
+            visStyleCode = visStyleCode.replace("\n        ", "\n")
+            
+            self._widget.visGraphCode = "import pandas as pd\n" + code[:-6]
+            self._widget.visGraphCode = self._widget.visGraphCode.replace(visStyleCode, "")
+            self._widget.visStyleCode = visStyleCode[1:]
+            self._widget.observe(self.apply_full_view_changes, names="visGraphCode")
+            self._widget.observe(self.apply_full_view_changes, names="visStyleCode")
+            self._widget.observe(self.change_style_config, names="configPlottingStyle")
+        else:
+            self._widget.visGraphCode = "# " + lux.config.plotting_backend + " not supported in full screen yet"
+            self._widget.visStyleCode = ""
 
     def apply_full_view_changes(self, change):
         from IPython.display import display, clear_output
-        the_code = self._widget.visGraphCode
-        loc = {}
+        code = self._widget.visGraphCode + '\n' + self._widget.visStyleCode
+        df = self
+        loc = {'df':df}
         # look into security concerns here, code injection attack
-        exec(the_code, {}, loc)
+        # try catch to show error
+        exec(code, {}, loc)
         chart = loc['chart']
         vspec = chart.to_json()
         self._widget.visGraphSpec = vspec
+    
+    def change_style_config(self, change):
+        from IPython.display import display, clear_output
+        code = '\n' + self._widget.visStyleCode
+        code = 'def custom_config(chart):' + code + '\nreturn chart'
+        code = code.replace('\n', '\n\t')
+
+        loc = {}
+        # look into security concerns here, code injection attack
+        # try catch to show error
+        exec(code, {}, loc)
+        custom_config = loc['custom_config'] 
+        lux.config.plotting_style = custom_config
+        
+        self.expire_recs()
+        self.maintain_recs()
+        with self.output:
+            clear_output()
+            display(self._widget)
+
+        self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
+        self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+        self._widget.observe(self.get_graphing_code, names="selectedFullScreenIndex")
 
     def _repr_html_(self):
         from IPython.display import display

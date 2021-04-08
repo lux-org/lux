@@ -14,6 +14,7 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import lux
 
 
 class MatplotlibChart:
@@ -61,6 +62,8 @@ class MatplotlibChart:
                 "ytick.labelsize": 13,
             }
         )\n"""
+        # TODO: Change default config similar to AltairChart
+        lux.config.plotting_style = None
 
     def encode_color(self):
         return NotImplemented

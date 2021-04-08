@@ -107,6 +107,7 @@ class AltairRenderer:
                     )
                 chart.code += "\nchart"
                 chart.code = chart.code.replace("\n\t\t", "\n")
+                chart.code = chart.code.replace("\n        ", "\n")
 
                 var = vis._source
                 if var is not None:
