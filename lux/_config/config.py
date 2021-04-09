@@ -88,7 +88,7 @@ class Config:
     @property
     def sorter(self):
         return self._sorter
-    
+
     @sorter.setter
     def sorter(self, sorting_function):
         """

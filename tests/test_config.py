@@ -289,6 +289,7 @@ def test_sort(global_var):
     assert sorted(scorelst) != scorelst, "unsorted setting"
     lux.config.sort = "descending"
 
+
 def test_sorter(global_var):
     df = pd.read_csv("lux/data/college.csv")
     lux.config.topk = 5
@@ -314,11 +315,6 @@ def test_sorter(global_var):
         string = vis.get_attr_by_channel("y")[0].attribute
     lux.config.sorter = Sorter.interestingness()
     lux.config.topk = 15
-
-
-
-
-
 
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.

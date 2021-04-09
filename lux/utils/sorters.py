@@ -14,7 +14,6 @@
 
 
 class Sorter:
-
     @staticmethod
     def interestingness():
         return lambda x: x.score
