@@ -631,6 +631,7 @@ class LuxDataFrame(pd.DataFrame):
 
                     if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
                         from lux.processor.Compiler import Compiler
+
                         self.current_vis = Compiler.compile_intent(self, self._intent)
 
                 if lux.config.default_display == "lux":
