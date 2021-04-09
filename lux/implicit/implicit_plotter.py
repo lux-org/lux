@@ -339,7 +339,7 @@ def plot_filter_count(ldf, mask):
     return cv
 
 
-def plot_filter(ldf, cols, mask, card_thresh=12):
+def plot_filter(ldf, cols, mask, card_thresh=12, filt_frac_thresh = .1):
     """
     Plot 1d or 2d plot of filted df
 
@@ -361,6 +361,14 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
     ldf = ldf.copy()
     ldf["filt_mask"] = mask
 
+    # make sure filtered data is at least 10% of dataset, if not only use filter
+    n = len(ldf)
+    filt_df_true = ldf[mask]
+    filt_n = len(filt_df_true) 
+
+    if (filt_n / n) < filt_frac_thresh:
+        ldf = filt_df_true
+
     chart = None
     intent = []
     
@@ -371,16 +379,19 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
         _bin = (x_d_type == "quantitative")
 
         filt_text = None
-        if x_d_type == "nominal" and ldf.cardinality[x_var] > card_thresh:
-            vc = ldf[x_var].value_counts()
-            _most_common = vc.iloc[:card_thresh].index
-            ldf = ldf[ldf[x_var].isin(_most_common)]
-            x_title += f" (top {card_thresh})"
-            filt_text = f"+ {len(vc) - card_thresh} more..." 
+        if x_d_type == "nominal":
+            if ldf.cardinality[x_var] > card_thresh:
+                vc = filt_df_true[x_var].value_counts()
+                _most_common = vc.iloc[:card_thresh].index
+                ldf = ldf[ldf[x_var].isin(_most_common)]
+                x_title += f" (top {card_thresh})"
+                filt_text = f"+ {len(vc) - card_thresh} more..."
+            alt_x_enc = alt.X(x_var, type=x_d_type, bin=_bin, title=x_title, sort="-y")
+        else:
+            alt_x_enc = alt.X(x_var, type=x_d_type, bin=_bin, title=x_title)
 
-        
         chart = alt.Chart(ldf).mark_bar().encode(
-          x= alt.X(x_var, type=x_d_type, bin=_bin, title=x_title),
+          x= alt_x_enc,
           y=f"count({x_var}):Q",
           color= alt.Color("filt_mask", scale= tf_scale, title="Is Filtered?" )
         )
@@ -422,14 +433,14 @@ def plot_filter(ldf, cols, mask, card_thresh=12):
         # filt_text_y = None
         # filter for cardinality if high cardinality nominal vars
         if x_d_type == "nominal" and ldf.cardinality[x_var] > card_thresh:
-            vc = ldf[x_var].value_counts()
+            vc = filt_df_true[x_var].value_counts()
             _most_common = vc.iloc[:card_thresh].index
             ldf = ldf[ldf[x_var].isin(_most_common)]
             x_title += f" (top {card_thresh})"
             filt_text_x = f"+ {len(vc) - card_thresh} more..."
         
         if y_d_type == "nominal" and ldf.cardinality[y_var] > card_thresh:
-            vc = ldf[y_var].value_counts()
+            vc = filt_df_true[y_var].value_counts()
             _most_common = vc.iloc[:card_thresh].index
             ldf = ldf[ldf[y_var].isin(_most_common)]
             y_title += f" (top {card_thresh}/{len(vc)}...)"
