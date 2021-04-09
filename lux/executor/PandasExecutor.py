@@ -433,7 +433,7 @@ class PandasExecutor(Executor):
                     if (
                         convertible2int
                         and ldf.cardinality[attr] != len(ldf)
-                        and (len(ldf[attr].convert_dtypes().unique() < 20))
+                        and len(ldf[attr].convert_dtypes().unique()) < 20
                     ):
                         ldf._data_type[attr] = "nominal"
                     else:
