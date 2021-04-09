@@ -428,13 +428,8 @@ class PandasExecutor(Executor):
                 elif self._is_geographical_attribute(ldf[attr]):
                     ldf._data_type[attr] = "geographical"
                 elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
-                    # int columns gets coerced into floats if contain NaN
-                    convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
-                    if (
-                        convertible2int
-                        and ldf.cardinality[attr] != len(ldf)
-                        and len(ldf[attr].convert_dtypes().unique()) < 20
-                    ):
+
+                    if ldf.cardinality[attr] != len(ldf) and (ldf.cardinality[attr] < 20):
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
@@ -534,11 +529,8 @@ class PandasExecutor(Executor):
             else:
                 attribute_repr = attribute
 
-            if ldf.dtypes[attribute] != "float64" or ldf[attribute].isnull().values.any():
-                ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
-                ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
-            else:
-                ldf.cardinality[attribute_repr] = 999  # special value for non-numeric attribute
+            ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+            ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
 
             if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(
                 ldf.dtypes[attribute]
