@@ -313,6 +313,7 @@ def test_sorter(global_var):
         assert vis.get_attr_by_channel("y")[0].attribute <= string
         string = vis.get_attr_by_channel("y")[0].attribute
     lux.config.sorter = Sorter.interestingness()
+    lux.config.topk = 15
 
 
 
