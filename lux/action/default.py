@@ -17,16 +17,16 @@ def register_default_actions():
     always_show = lambda ldf: True
 
     # globally register default actions
-    lux.config.register_action("correlation", correlation, no_vis)
-    lux.config.register_action("distribution", univariate, no_vis, "quantitative")
-    lux.config.register_action("occurrence", univariate, no_vis, "nominal")
-    lux.config.register_action("temporal", univariate, no_vis, "temporal")
-    lux.config.register_action("geographical", univariate, no_vis, "geographical")
+    # lux.config.register_action("correlation", correlation, no_vis)
+    # lux.config.register_action("distribution", univariate, no_vis, "quantitative")
+    # lux.config.register_action("occurrence", univariate, no_vis, "nominal")
+    # lux.config.register_action("temporal", univariate, no_vis, "temporal")
+    # lux.config.register_action("geographical", univariate, no_vis, "geographical")
 
-    lux.config.register_action("Enhance", enhance, one_current_vis)
-    lux.config.register_action("Filter", add_filter, one_current_vis)
-    lux.config.register_action("Generalize", generalize, one_current_vis)
+    # lux.config.register_action("Enhance", enhance, one_current_vis)
+    # lux.config.register_action("Filter", add_filter, one_current_vis)
+    # lux.config.register_action("Generalize", generalize, one_current_vis)
 
-    lux.config.register_action("Custom", custom, multiple_current_vis)
+    # lux.config.register_action("Custom", custom, multiple_current_vis)
 
     lux.config.register_action("Implicit", implicit_tab, always_show)
