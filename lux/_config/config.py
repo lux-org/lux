@@ -6,6 +6,7 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 import lux
 import warnings
+from lux.utils.sorters import Sorter
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
@@ -32,6 +33,7 @@ class Config:
         self._plotting_backend = "vegalite"
         self._topk = 15
         self._sort = "descending"
+        self._sorter = Sorter.interestingness()
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
@@ -82,6 +84,23 @@ class Config:
                 "Parameter to lux.config.sort must be one of the following: 'none', 'ascending', or 'descending'.",
                 stacklevel=2,
             )
+
+    @property
+    def sorter(self):
+        return self._sorter
+    
+    @sorter.setter
+    def sorter(self, sorting_function):
+        """
+        Setting parameter to determine sort function of each action
+
+        Parameters
+        ----------
+        flag : Union[str]
+            "none", "ascending","descending"
+            No sorting, sort by ascending order, sort by descending order
+        """
+        self._sorter = sorting_function
 
     @property
     def pandas_fallback(self):

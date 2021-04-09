@@ -17,6 +17,7 @@ import pytest
 import pandas as pd
 import time
 from lux.vis.VisList import VisList
+from lux.utils.sorters import Sorter
 import lux
 
 
@@ -287,6 +288,36 @@ def test_sort(global_var):
     scorelst = [x.score for x in df.recommendation["Distribution"]]
     assert sorted(scorelst) != scorelst, "unsorted setting"
     lux.config.sort = "descending"
+
+def test_sorter(global_var):
+    df = pd.read_csv("lux/data/college.csv")
+    lux.config.topk = 5
+    df._ipython_display_()
+    assert len(df.recommendation["Correlation"]) == 5, "Show top 5"
+    score = float("inf")
+    for vis in df.recommendation["Correlation"]:
+        assert vis.score <= score
+        score = vis.score
+    lux.config.sorter = Sorter.x_alpha()
+    df = pd.read_csv("lux/data/college.csv")
+    string = df.recommendation["Correlation"][0].get_attr_by_channel("x")[0].attribute
+    assert len(df.recommendation["Correlation"]) == 5, "Show top 5"
+    for vis in df.recommendation["Correlation"]:
+        assert vis.get_attr_by_channel("x")[0].attribute <= string
+        string = vis.get_attr_by_channel("x")[0].attribute
+    lux.config.sorter = Sorter.y_alpha()
+    df = pd.read_csv("lux/data/college.csv")
+    string = df.recommendation["Correlation"][0].get_attr_by_channel("y")[0].attribute
+    assert len(df.recommendation["Correlation"]) == 5, "Show top 5"
+    for vis in df.recommendation["Correlation"]:
+        assert vis.get_attr_by_channel("y")[0].attribute <= string
+        string = vis.get_attr_by_channel("y")[0].attribute
+    lux.config.sorter = Sorter.interestingness()
+
+
+
+
+
 
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.
