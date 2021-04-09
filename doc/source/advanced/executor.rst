@@ -2,7 +2,7 @@
 Execution Engine
 ****************
 
-Fetching the data required for generating visualizations can be computationally expensive, especially on large datasets. Lux provides a extensible framework for users to pick their own execution backend for data processing. We currently support Pandas (default, :mod:`lux.executor.PandasExecutor`) and SQL (:mod:`lux.executor.SQLExecutor`). In this tutorial, we explain how to use switch to SQL as an execution backend, as an example of how you can use a different data processing mechanism in Lux.
+Lux provides an extensible framework for users to pick their own execution backend for data processing. We currently support Pandas (default, :mod:`lux.executor.PandasExecutor`) and Postgresql (:mod:`lux.executor.SQLExecutor`). In this tutorial, we explain how to use Lux, a data exploration and visualization python library, with SQL databases using Lux’s SQL executor
 
 Please refer to :mod:`lux.executor.Executor`, if you are interested in extending Lux for your own execution backend.
 
@@ -13,6 +13,27 @@ SQL Executor
 
 Lux extends its visualization exploration operations to data within SQL databases. By using the SQL Executor, users can specify a SQL database to connect a LuxSQLTable for generating all the visualizations recommended in Lux.
 
+
+What is the SQL Executor
+=============
+
+Lux uses an execution engine to collect and process data from databases. By default, Lux’s executor engine is set for Pandas and works on Pandas Dataframes. However, if you store data on a Postgres SQL database, Lux can use the SQL executor to explore and visualize your SQL tables using its visualization recommendation system.       
+
+
+Why use the LuxSQLTable
+=============
+
+As datasets grow larger, more and more people use databases for their data storage needs. However, fetching the data required for generating visualizations can be computationally expensive, especially on large database tables. Furthermore, individuals working with the data may not be able to pull in the entire dataset, either due to a lack of permissions or due to the data being too large to work with on a local machine. Thus in order to leverage Lux’ smart visual exploration system, you can use the LuxSQLTable and the Postgresql executor backend.
+
+Terms to familiarize yourself: 
+=============
+1. LuxSQLTable: For generating all the visualizations and recommendations Lux creates a proxy for your SQL table with the LuxSQLTable object. If you’ve used Lux in the pandas environment, the LuxSQLTable is the database compatible version of the LuxDataFrame. It is important to note that you cannot use the usual Pandas Dataframe functions on the LuxSQLTable object. 
+
+Before running Lux with SQL Executor:   
+Make sure you’ve have following:
+Jupyter notebook.
+Postgresql database that you want to explore. 
+
 Connecting Lux to a Database
 ----------------------------
 
@@ -22,7 +43,7 @@ To do this, users first need to specify a connection to their SQL database. This
 .. code-block:: python
 
 	import psycopg2
-	connection = psycopg2.connect("dbname=example_database user=example_user, password=example_password")
+	connection = psycopg2.connect("dbname=postgres_db_name user=example_user password=example_user_password")
 
 Once this connection is created, users can connect the lux config to the database using the set_SQL_connection command.
 
@@ -30,12 +51,12 @@ Once this connection is created, users can connect the lux config to the databas
 
 	lux.config.set_SQL_connection(connection)
 
-When the set_SQL_connection function is called, Lux will then populate the LuxSQLTable with all the metadata it needs to run its intent from the database table. 
+When the set_SQL_connection function is called, Lux gets the details it needs to be able to connect to your PostgreSQL database and run the visualization recommendation system. 
 
 Connecting a LuxSQLTable to a Table/View
 --------------------------
 
-LuxSQLTables can be connected to individual tables or views created within your Postgresql database. This can be done by either specifying the table/view name in the constructor.
+LuxSQLTables can be connected to individual tables or views created within your Postgresql database. This can be done by either specifying the table/view name in the constructor. We are actively working on supporting joins between multiple tables. But as of now, the functionality is limited to one table/view per LuxSQLTable object only.
 
 .. code-block:: python
 
@@ -64,4 +85,5 @@ Once a LuxSQLTable has been connected to a Postgresql table and set to use the S
 SQL Executor Limitations
 --------------------------
 
-While users can make full use of Lux's functionalities on data within a database table, they will not be able to use any of Pandas' Dataframe functions to manipulate the data in the LuxSQLTable object. Since the Lux SQL Executor delegates most data processing to the Postgresql database, it does not pull in the entire dataset into the Lux Dataframe. As such there is no actual data within the LuxSQLTable to manipulate, only the relevant metadata required to for Lux to manage its intent. Thus, if users are interested in manipulating or querying their data, this needs to be done through SQL or an alternative RDBMS interface.
+While users can make full use of Lux's functionalities on data within a database table, they will not be able to use any of Pandas' Dataframe functions to manipulate the data in the LuxSQLTable object. Since the Lux SQL Executor delegates most data processing to the Postgresql database, it does not pull in the entire dataset into the Lux Dataframe. As such there is no actual data within the LuxSQLTable to manipulate, only the relevant metadata required for Lux to manage its intent. Thus, if users are interested in manipulating or querying their data, this needs to be done through SQL or an alternative RDBMS interface.
+At the moment, the Lux SQL executor also does not support JOIN operation on SQL tables. Therefore, you cannot explore data and create recommended visualizations across multiple SQL tables only through Lux. However, we are consistently working on expanding the SQL capabilities of Lux, so keep an eye on future updates! 
