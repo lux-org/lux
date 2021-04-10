@@ -100,12 +100,17 @@ class AltairRenderer:
                 return chart_dict
             elif self.output_type == "Altair":
                 import inspect
-
+                source = ""
                 if lux.config.plotting_style:
-                    chart.code += "\n".join(
-                        inspect.getsource(lux.config.plotting_style).split("\n    ")[1:-1]
-                    )
-                chart.code += "\nchart"
+                    if "def custom_config(chart):" in lux.config.plotting_style_code:
+                        source = lux.config.plotting_style_code
+                    else:
+                        source = inspect.getsource(lux.config.plotting_style)
+                    vis_style_code = "\n"+"\n".join(source.split("\n    ")[1:-1])
+                    vis_style_code = vis_style_code.replace("\n\t\t", "\n")
+                    vis_style_code = vis_style_code.replace("\n        ", "\n")
+                    vis_style_code = vis_style_code[1:]
+                    lux.config.plotting_style_code = vis_style_code
                 chart.code = chart.code.replace("\n\t\t", "\n")
                 chart.code = chart.code.replace("\n        ", "\n")
 

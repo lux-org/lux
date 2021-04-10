@@ -627,56 +627,53 @@ class LuxDataFrame(pd.DataFrame):
         full_screen_action = list(self._widget.selectedFullScreenIndex.keys())[0]
         # Using visList to support eventual full view display of multiple graphs
         full_screen_vis = VisList(
-                list(
-                    map(
-                        self._recommendation[full_screen_action].__getitem__,
-                        full_screen_vis_idx[full_screen_action],
-                    )
+            list(
+                map(
+                    self._recommendation[full_screen_action].__getitem__,
+                    full_screen_vis_idx[full_screen_action],
                 )
             )
+        )
         if lux.config.plotting_backend == "vegalite":
-            code = full_screen_vis[0].to_Altair()
             self._widget.unobserve(self.apply_full_view_changes)
-            visStyleCode = "\n" + "\n".join(
-                            inspect.getsource(lux.config.plotting_style).split("\n    ")[1:-1])
-            visStyleCode = visStyleCode.replace("\n\t\t", "\n")
-            visStyleCode = visStyleCode.replace("\n        ", "\n")
-            
-            self._widget.visGraphCode = "import pandas as pd\n" + code[:-6]
-            self._widget.visGraphCode = self._widget.visGraphCode.replace(visStyleCode, "")
-            self._widget.visStyleCode = visStyleCode[1:]
+            self._widget.visGraphCode = "import pandas as pd\n" + full_screen_vis[0].get_Altair_vis_code()
+            self._widget.visStyleCode = lux.config.plotting_style_code
             self._widget.observe(self.apply_full_view_changes, names="visGraphCode")
             self._widget.observe(self.apply_full_view_changes, names="visStyleCode")
             self._widget.observe(self.change_style_config, names="configPlottingStyle")
         else:
-            self._widget.visGraphCode = "# " + lux.config.plotting_backend + " not supported in full screen yet"
+            self._widget.visGraphCode = (
+                "# " + lux.config.plotting_backend + " not supported in full screen yet"
+            )
             self._widget.visStyleCode = ""
 
     def apply_full_view_changes(self, change):
         from IPython.display import display, clear_output
-        code = self._widget.visGraphCode + '\n' + self._widget.visStyleCode
+        code = self._widget.visGraphCode + self._widget.visStyleCode
         df = self
-        loc = {'df':df}
+        loc = {"df": df}
         # look into security concerns here, code injection attack
         # try catch to show error
         exec(code, {}, loc)
-        chart = loc['chart']
+        chart = loc["chart"]
         vspec = chart.to_json()
         self._widget.visGraphSpec = vspec
-    
+
     def change_style_config(self, change):
         from IPython.display import display, clear_output
-        code = '\n' + self._widget.visStyleCode
-        code = 'def custom_config(chart):' + code + '\nreturn chart'
-        code = code.replace('\n', '\n\t')
+
+        code = "\n" + self._widget.visStyleCode
+        code = "def custom_config(chart):" + code + "\nreturn chart"
+        code = code.replace("\n", "\n    ")
 
         loc = {}
         # look into security concerns here, code injection attack
         # try catch to show error
         exec(code, {}, loc)
-        custom_config = loc['custom_config'] 
+        custom_config = loc["custom_config"]
         lux.config.plotting_style = custom_config
-        
+        lux.config.plotting_style_code = code
+
         self.expire_recs()
         self.maintain_recs()
         with self.output:

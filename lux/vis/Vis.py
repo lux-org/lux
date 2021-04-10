@@ -231,6 +231,23 @@ class Vis:
         str
                 String version of the Altair code. Need to print out the string to apply formatting.
         """
+        self._code = self.get_Altair_vis_code(standalone)
+        return self._code + lux.config.plotting_style_code + "\nchart"
+
+    def get_Altair_vis_code(self, standalone=False) -> str:
+        """
+        Returns code specific to the visualization without styling
+
+        Parameters
+        ----------
+        standalone : bool, optional
+                Flag to determine if outputted code uses user-defined variable names or can be run independently, by default False
+
+        Returns
+        -------
+        str
+                String version of the Altair code. Need to print out the string to apply formatting.
+        """
         from lux.vislib.altair.AltairRenderer import AltairRenderer
 
         renderer = AltairRenderer(output_type="Altair")

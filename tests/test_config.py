@@ -197,7 +197,7 @@ def test_matplotlib_set_default_plotting_style():
     lux.config.plotting_style = add_title
     df._repr_html_()
     title_addition = 'ax.set_title("Test Title")'
-    exported_code_str = df.recommendation["Correlation"][0].to_Altair()
+    exported_code_str = df.recommendation["Correlation"][0].to_matplotlib_code()
     assert title_addition in exported_code_str
 
 
@@ -289,19 +289,19 @@ def test_sort(global_var):
     lux.config.sort = "descending"
 
 
-# TODO: This test does not pass in pytest but is working in Jupyter notebook.
-# def test_plot_setting(global_var):
-# 	df = pytest.car_df
-# 	df["Year"] = pd.to_datetime(df["Year"], format='%Y')
-# 	def change_color_add_title(chart):
-# 		chart = chart.configure_mark(color="green") # change mark color to green
-# 		chart.title = "Custom Title" # add title to chart
-# 		return chart
+def test_plot_setting(global_var):
+    lux.config._plotting_backend = "vegalite"
+    df = pytest.car_df
+    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    def change_color_add_title(chart):
+        chart = chart.configure_mark(color="green") # change mark color to green
+        chart.title = "Custom Title" # add title to chart
+        return chart
 
-# 	df.plot_config = change_color_add_title
+    lux.config.plotting_style = change_color_add_title
 
-# 	df._repr_html_()
+    df._repr_html_()
 
-# 	vis_code = df.recommendation["Correlation"][0].to_Altair()
-# 	print (vis_code)
-# 	assert 'chart = chart.configure_mark(color="green")' in vis_code, "Exported chart does not have additional plot style setting."
+    vis_code = df.recommendation["Correlation"][0].to_Altair()
+    print (vis_code)
+    assert 'chart = chart.configure_mark(color="green")' in vis_code, "Exported chart does not have additional plot style setting."
