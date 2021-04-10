@@ -94,7 +94,7 @@ class PandasExecutor(Executor):
             # TODO: Add some type of cap size on Nrows ?
             vis._vis_data = vis.data[list(attributes)]
 
-            if vis.mark == "bar" or vis.mark == "line":
+            if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
                 PandasExecutor.execute_binning(vis)
@@ -132,6 +132,7 @@ class PandasExecutor(Executor):
         has_color = False
         groupby_attr = ""
         measure_attr = ""
+        attr_unique_vals = []
         if x_attr.aggregation is None or y_attr.aggregation is None:
             return
         if y_attr.aggregation != "":
@@ -143,7 +144,7 @@ class PandasExecutor(Executor):
             measure_attr = x_attr
             agg_func = x_attr.aggregation
         if groupby_attr.attribute in vis.data.unique_values.keys():
-            attr_unique_vals = vis.data.unique_values[groupby_attr.attribute]
+            attr_unique_vals = vis.data.unique_values.get(groupby_attr.attribute)
         # checks if color is specified in the Vis
         if len(vis.get_attr_by_channel("color")) == 1:
             color_attr = vis.get_attr_by_channel("color")[0]
@@ -418,14 +419,11 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "temporal"
                 elif self._is_datetime_number(ldf[attr]):
                     ldf._data_type[attr] = "temporal"
+                elif self._is_geographical_attribute(ldf[attr]):
+                    ldf._data_type[attr] = "geographical"
                 elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
-                    # int columns gets coerced into floats if contain NaN
-                    convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
-                    if (
-                        convertible2int
-                        and ldf.cardinality[attr] != len(ldf)
-                        and ldf.cardinality[attr] < 20
-                    ):
+
+                    if ldf.cardinality[attr] != len(ldf) and (ldf.cardinality[attr] < 20):
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
@@ -492,6 +490,12 @@ class PandasExecutor(Executor):
         return False
 
     @staticmethod
+    def _is_geographical_attribute(series):
+        # run detection algorithm
+        name = str(series.name).lower()
+        return utils.like_geo(name)
+
+    @staticmethod
     def _is_datetime_number(series):
         if series.dtype == int:
             try:
@@ -516,7 +520,7 @@ class PandasExecutor(Executor):
             else:
                 attribute_repr = attribute
 
-            ldf.unique_values[attribute_repr] = list(ldf[attribute_repr].unique())
+            ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
             ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
 
             if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(
