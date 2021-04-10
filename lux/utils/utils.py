@@ -127,5 +127,13 @@ def matplotlib_setup(w, h):
     return fig, ax
 
 
-def return_float_or_original(df, attribute):
-    return df[df[attribute].notnull()][attribute].astype("float", errors="ignore")
+def is_numeric_nan_column(series):
+    if series.dtype == object:
+        if series.hasnans:
+            series = series.dropna()
+        try:
+            return True, series.astype("float")
+        except Exception as e:
+            return False, series
+    else:
+        return False, series

@@ -19,7 +19,7 @@ from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
 from lux.utils.date_utils import is_datetime_series
-from lux.utils.utils import check_import_lux_widget, check_if_id_like, return_float_or_original
+from lux.utils.utils import check_import_lux_widget, check_if_id_like, is_numeric_nan_column
 import warnings
 import lux
 
@@ -279,17 +279,15 @@ class PandasExecutor(Executor):
         bin_attribute = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0]
         bin_attr = bin_attribute.attribute
         series = vis.data[bin_attr]
-        # # np.histogram breaks if array contain NaN
-        if (
-            not (pd.api.types.is_float_dtype(series) or pd.api.types.is_integer_dtype(series))
-            or series.hasnans
-        ):
-            if series.hasnans:
-                ldf._message.add_unique(
-                    f"The column <code>{bin_attr}</code> contains missing values, not shown in the displayed histogram.",
-                    priority=100,
-                )
-            series = pd.to_numeric(series.dropna())
+
+        if series.hasnans:
+            ldf._message.add_unique(
+                f"The column <code>{bin_attr}</code> contains missing values, not shown in the displayed histogram.",
+                priority=100,
+            )
+            series = series.dropna()
+        if pd.api.types.is_object_dtype(series):
+            series = series.astype("float", errors="ignore")
 
         counts, bin_edges = np.histogram(series, bins=bin_attribute.bin_size)
         # bin_edges of size N+1, so need to compute bin_start as the bin location
@@ -454,16 +452,14 @@ class PandasExecutor(Executor):
                 # Eliminate this clause because a single NaN value can cause the dtype to be object
                 elif pd.api.types.is_string_dtype(ldf.dtypes[attr]):
                     # Check first if it's castable to float after removing NaN
-                    transformed_col = return_float_or_original(ldf, attr)
-                    if pd.api.types.is_float_dtype(transformed_col) or pd.api.types.is_integer_dtype(
-                        transformed_col
-                    ):
+                    is_numeric_nan, series = is_numeric_nan_column(ldf[attr])
+                    if is_numeric_nan:
                         # int columns gets coerced into floats if contain NaN
                         ldf._data_type[attr] = "quantitative"
                         # min max was not computed since object type, so recompute here
                         ldf._min_max[attr] = (
-                            transformed_col.min(),
-                            transformed_col.max(),
+                            series.min(),
+                            series.max(),
                         )
                     elif check_if_id_like(ldf, attr):
                         ldf._data_type[attr] = "id"
