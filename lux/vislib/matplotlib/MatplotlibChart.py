@@ -62,7 +62,6 @@ class MatplotlibChart:
                 "ytick.labelsize": 13,
             }
         )\n"""
-        lux.config.plotting_style = None
 
     def encode_color(self):
         return NotImplemented
