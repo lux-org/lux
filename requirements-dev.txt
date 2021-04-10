@@ -4,3 +4,4 @@ Sphinx>=3.0.2
 sphinx-rtd-theme>=0.4.3
 xlrd
 black
+lxml
