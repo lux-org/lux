@@ -328,24 +328,27 @@ def test_interestingness_deviation_nan():
     import numpy as np
 
     dataset = [
-        {"date": "2017-08-25 09:06:11+00:00", "category": "A", "value": 25.0},
-        {"date": "2017-08-25 09:06:11+00:00", "category": "B", "value": 1.2},
-        {"date": "2017-08-25 09:06:11+00:00", "category": "C", "value": 1.3},
-        {"date": "2017-08-25 09:06:11+00:00", "category": "D", "value": 1.4},
-        {"date": "2017-08-25 09:06:11+00:00", "category": "E", "value": 1.5},
-        {"date": "2017-08-25 09:06:11+00:00", "category": "F", "value": 0.1},
+        {"date": "2017-08-25", "category": "A", "value": 25.0},
+        {"date": "2017-08-25", "category": "B", "value": 1.2},
+        {"date": "2017-08-25", "category": "C", "value": 1.3},
+        {"date": "2017-08-25", "category": "D", "value": 1.4},
+        {"date": "2017-08-25", "category": "E", "value": 1.5},
+        {"date": "2017-08-25", "category": "F", "value": 0.1},
         {"date": np.nan, "category": "C", "value": 0.2},
         {"date": np.nan, "category": "B", "value": 0.2},
         {"date": np.nan, "category": "F", "value": 0.3},
         {"date": np.nan, "category": "E", "value": 0.3},
         {"date": np.nan, "category": "D", "value": 0.4},
         {"date": np.nan, "category": "A", "value": 10.4},
-        {"date": "2017-07-25 15:06:11+00:00", "category": "A", "value": 15.5},
-        {"date": "2017-07-25 15:06:11+00:00", "category": "F", "value": 1.0},
-        {"date": "2017-07-25 15:06:11+00:00", "category": "B", "value": 0.1},
+        {"date": "2017-07-25", "category": "A", "value": 15.5},
+        {"date": "2017-07-25", "category": "F", "value": 1.0},
+        {"date": "2017-07-25", "category": "B", "value": 0.1},
     ]
     test = pd.DataFrame(dataset)
     from lux.vis.Vis import Vis
+
+    test["date"] = pd.to_datetime(test["date"], format="%Y-%M-%d")
+    test.set_data_type({"value": "quantitative"})
 
     vis = Vis(["date", "value", "category=A"], test)
     vis2 = Vis(["date", "value", "category=B"], test)

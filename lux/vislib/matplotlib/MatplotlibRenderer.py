@@ -20,6 +20,7 @@ from lux.vislib.matplotlib.ScatterChart import ScatterChart
 from lux.vislib.matplotlib.LineChart import LineChart
 from lux.vislib.matplotlib.Histogram import Histogram
 from lux.vislib.matplotlib.Heatmap import Heatmap
+from lux.vislib.altair.AltairRenderer import AltairRenderer
 import matplotlib.pyplot as plt
 from lux.utils.utils import matplotlib_setup
 
@@ -81,6 +82,8 @@ class MatplotlibRenderer:
             chart = LineChart(vis, fig, ax)
         elif vis.mark == "heatmap":
             chart = Heatmap(vis, fig, ax)
+        elif vis.mark == "geographical":
+            return AltairRenderer().create_vis(vis, False)
         else:
             chart = None
             return chart
