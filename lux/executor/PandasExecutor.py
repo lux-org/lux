@@ -19,7 +19,7 @@ from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
 from lux.utils.date_utils import is_datetime_series
-from lux.utils.utils import check_import_lux_widget, check_if_id_like, is_numeric_nan_column
+from lux.utils.utils import check_import_lux_widget, check_if_id_like
 import warnings
 import lux
 
@@ -97,7 +97,7 @@ class PandasExecutor(Executor):
             if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
-                PandasExecutor.execute_binning(ldf, vis)
+                PandasExecutor.execute_binning(vis)
             elif vis.mark == "scatter":
                 HBIN_START = 5000
                 if lux.config.heatmap and len(ldf) > HBIN_START:
@@ -259,7 +259,7 @@ class PandasExecutor(Executor):
             vis._vis_data = vis._vis_data.drop(columns="index")
 
     @staticmethod
-    def execute_binning(ldf, vis: Vis):
+    def execute_binning(vis: Vis):
         """
         Binning of data points for generating histograms
 
@@ -278,22 +278,16 @@ class PandasExecutor(Executor):
 
         bin_attribute = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0]
         bin_attr = bin_attribute.attribute
-        series = vis.data[bin_attr]
-
-        if series.hasnans:
-            ldf._message.add_unique(
-                f"The column <code>{bin_attr}</code> contains missing values, not shown in the displayed histogram.",
-                priority=100,
-            )
-            series = series.dropna()
-        if pd.api.types.is_object_dtype(series):
-            series = series.astype("float", errors="ignore")
-
-        counts, bin_edges = np.histogram(series, bins=bin_attribute.bin_size)
-        # bin_edges of size N+1, so need to compute bin_start as the bin location
-        bin_start = bin_edges[0:-1]
-        binned_result = np.array([bin_start, counts]).T
-        vis._vis_data = pd.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
+        if not np.isnan(vis.data[bin_attr]).all():
+            # np.histogram breaks if array contain NaN
+            series = vis.data[bin_attr].dropna()
+            # TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
+            counts, bin_edges = np.histogram(series, bins=bin_attribute.bin_size)
+            # bin_edges of size N+1, so need to compute bin_start as the bin location
+            bin_start = bin_edges[0:-1]
+            # TODO: Should vis.data be a LuxDataFrame or a Pandas DataFrame?
+            binned_result = np.array([bin_start, counts]).T
+            vis._vis_data = pd.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
 
     @staticmethod
     def execute_filter(vis: Vis):
@@ -428,8 +422,13 @@ class PandasExecutor(Executor):
                 elif self._is_geographical_attribute(ldf[attr]):
                     ldf._data_type[attr] = "geographical"
                 elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
-
-                    if ldf.cardinality[attr] != len(ldf) and (ldf.cardinality[attr] < 20):
+                    # int columns gets coerced into floats if contain NaN
+                    convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
+                    if (
+                        convertible2int
+                        and ldf.cardinality[attr] != len(ldf)
+                        and (len(ldf[attr].convert_dtypes().unique() < 20))
+                    ):
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
@@ -446,17 +445,7 @@ class PandasExecutor(Executor):
                         ldf._data_type[attr] = "id"
                 # Eliminate this clause because a single NaN value can cause the dtype to be object
                 elif pd.api.types.is_string_dtype(ldf.dtypes[attr]):
-                    # Check first if it's castable to float after removing NaN
-                    is_numeric_nan, series = is_numeric_nan_column(ldf[attr])
-                    if is_numeric_nan:
-                        # int columns gets coerced into floats if contain NaN
-                        ldf._data_type[attr] = "quantitative"
-                        # min max was not computed since object type, so recompute here
-                        ldf._min_max[attr] = (
-                            series.min(),
-                            series.max(),
-                        )
-                    elif check_if_id_like(ldf, attr):
+                    if check_if_id_like(ldf, attr):
                         ldf._data_type[attr] = "id"
                     else:
                         ldf._data_type[attr] = "nominal"
@@ -538,8 +527,11 @@ class PandasExecutor(Executor):
             else:
                 attribute_repr = attribute
 
-            ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
-            ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
+            if ldf.dtypes[attribute] != "float64" or ldf[attribute].isnull().values.any():
+                ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+                ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
+            else:
+                ldf.cardinality[attribute_repr] = 999  # special value for non-numeric attribute
 
             if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(
                 ldf.dtypes[attribute]
