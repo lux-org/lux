@@ -184,19 +184,3 @@ class LuxSQLTable(lux.LuxDataFrame):
                 display(self.display_pandas())
             else:
                 raise
-
-    # Overridden Pandas Functions
-    def head(self, n: int = 5):
-        return
-
-    def tail(self, n: int = 5):
-        return
-
-    def info(self, *args, **kwargs):
-        return
-
-    def describe(self, *args, **kwargs):
-        return
-
-    def groupby(self, *args, **kwargs):
-        return
