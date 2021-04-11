@@ -379,7 +379,7 @@ class PandasExecutor(Executor):
                             (color_attr.attribute, lambda x: pd.Series.mode(x).iat[0]),
                         ]
                     ).reset_index()
-                elif color_attr.data_type == "quantitative":
+                elif color_attr.data_type == "quantitative" or color_attr.data_type == "temporal":
                     # Compute the average of all values in the bin
                     result = groups.agg(
                         [("count", "count"), (color_attr.attribute, "mean")]
@@ -513,7 +513,8 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def _is_datetime_number(series):
-        if series.dtype == int:
+        is_int_dtype = pd.api.types.is_integer_dtype(series.dtype)
+        if is_int_dtype:
             try:
                 temp = series.astype(str)
                 pd.to_datetime(temp)
@@ -527,6 +528,7 @@ class PandasExecutor(Executor):
         ldf.unique_values = {}
         ldf._min_max = {}
         ldf.cardinality = {}
+        ldf._length = len(ldf)
 
         for attribute in ldf.columns:
 

@@ -23,11 +23,11 @@ def global_var():
         "_prev",
         "_history",
         "_saved_export",
+        "name",
         "_sampled",
         "_toggle_pandas_display",
         "_message",
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
-        "name",
     ]

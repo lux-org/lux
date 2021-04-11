@@ -84,13 +84,10 @@ def univariate(ldf, *args):
             examples = f" (e.g., {possible_attributes[0]})"
         intent = [lux.Clause("?", data_type="geographical"), lux.Clause("?", data_model="measure")]
         intent.extend(filter_specs)
-        long_description = f"Geographical displays <a href='https://en.wikipedia.org/wiki/Choropleth_map'>choropleths</a> for geographic attribute{examples}, with colors indicating the average measure values. "
-        if lux.config.plotting_backend == "matplotlib":
-            long_description += "The map visualizations from the 'Geographical' tab are rendered using <a href='https://altair-viz.github.io/'>Altair</a>. Lux does not currently support geographical maps with Matplotlib. If you would like this feature, please leave us a comment at <a href='https://github.com/lux-org/lux/issues/310'>issue #310</a> to let us know!"
         recommendation = {
             "action": "Geographical",
             "description": "Show choropleth maps of <p class='highlight-descriptor'>geographic</p> attributes",
-            "long_description": long_description,
+            "long_description": f"Occurence displays choropleths of averages for some geographic attribute{examples}. Visualizations are ranked by diversity of the geographic attribute.",
         }
     elif data_type_constraint == "temporal":
         intent = [lux.Clause("?", data_type="temporal")]

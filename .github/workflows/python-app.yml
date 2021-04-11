@@ -15,6 +15,22 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: lux
+          POSTGRES_DB: postgres
+        # Set health checks to wait until postgres has started
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.7
@@ -28,6 +44,11 @@ jobs:
         pip install wheel
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
+        pip install sqlalchemy
+    - name: Upload data to Postgres
+      run: |
+        python lux/data/upload_car_data.py
+        python lux/data/upload_aug_test_data.py
     - name: Lint check with black
       run: |
         black --target-version py37 --line-length 105 --check .
