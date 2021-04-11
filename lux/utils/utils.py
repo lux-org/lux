@@ -131,15 +131,3 @@ def matplotlib_setup(w, h):
     ax.spines["right"].set_color("#dddddd")
     ax.spines["top"].set_color("#dddddd")
     return fig, ax
-
-
-def is_numeric_nan_column(series):
-    if series.dtype == object:
-        if series.hasnans:
-            series = series.dropna()
-        try:
-            return True, series.astype("float")
-        except Exception as e:
-            return False, series
-    else:
-        return False, series

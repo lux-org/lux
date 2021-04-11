@@ -257,7 +257,7 @@ def test_transform(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.iloc[:, 1:].groupby("Origin").transform(sum)
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Occurrence"]
+    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
     assert len(new_df.cardinality) == 7
 
 
@@ -409,7 +409,7 @@ def test_loc(global_var):
     assert len(new_df.cardinality) == 6
     new_df = df.loc[0:10, "Displacement":"Horsepower"]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution"]
+    assert list(new_df.recommendation.keys()) == ["Distribution", "Occurrence"]
     assert len(new_df.cardinality) == 2
     import numpy as np
 
@@ -438,7 +438,7 @@ def test_iloc(global_var):
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:5]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution"]
+    assert list(new_df.recommendation.keys()) == ["Distribution", "Occurrence"]
     assert len(new_df.cardinality) == 2
     import numpy as np
 
