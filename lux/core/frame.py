@@ -734,7 +734,6 @@ class LuxDataFrame(pd.DataFrame):
         """
         check_import_lux_widget()
         import luxwidget
-
         widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
         
         return luxwidget.LuxWidget(
@@ -742,7 +741,6 @@ class LuxDataFrame(pd.DataFrame):
             recommendations=widgetJSON["recommendation"],
             intent=LuxDataFrame.intent_to_string(self._intent),
             message=self._message.to_html(),
-            all_column=self.all_column,
         )
 
     @staticmethod
