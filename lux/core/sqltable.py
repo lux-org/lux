@@ -86,7 +86,6 @@ class LuxSQLTable(lux.LuxDataFrame):
             )
         else:
             self.table_name = t_name
-        import psycopg2
 
         try:
             lux.config.executor.compute_dataset_metadata(self)

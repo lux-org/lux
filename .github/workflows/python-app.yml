@@ -54,5 +54,5 @@ jobs:
         black --target-version py37 --line-length 105 --check .
     - name: Test with Pytest and Code Coverage Report
       run: |
-        pytest --cov-report term --cov=lux tests/
+        pytest --cov-report term --cov=lux tests/ tests_sql/
         bash <(curl -s https://codecov.io/bash)
