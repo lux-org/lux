@@ -19,22 +19,6 @@ import pandas as pd
 import warnings
 
 
-# Suite of test that checks if data_type inferred correctly by Lux
-def test_check_cars():
-    lux.config.set_SQL_connection("")
-    df = pd.read_csv("lux/data/car.csv")
-    df.maintain_metadata()
-    assert df.data_type["Name"] == "nominal"
-    assert df.data_type["MilesPerGal"] == "quantitative"
-    assert df.data_type["Cylinders"] == "nominal"
-    assert df.data_type["Displacement"] == "quantitative"
-    assert df.data_type["Horsepower"] == "quantitative"
-    assert df.data_type["Weight"] == "quantitative"
-    assert df.data_type["Acceleration"] == "quantitative"
-    assert df.data_type["Year"] == "temporal"
-    assert df.data_type["Origin"] == "nominal"
-
-
 def test_check_int_id():
     df = pd.read_csv(
         "https://github.com/lux-org/lux-datasets/blob/master/data/instacart_sample.csv?raw=true"

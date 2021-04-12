@@ -23,9 +23,7 @@ import psycopg2
 
 
 def test_lazy_execution():
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
     tbl.set_SQL_table("car")
 
     intent = [
@@ -40,9 +38,7 @@ def test_lazy_execution():
 
 
 def test_selection():
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
     tbl.set_SQL_table("car")
 
     intent = [
@@ -55,9 +51,7 @@ def test_selection():
 
 
 def test_aggregation():
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
     tbl.set_SQL_table("car")
 
     intent = [
@@ -89,9 +83,7 @@ def test_colored_bar_chart():
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
 
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
     tbl.set_SQL_table("car")
 
     x_clause = Clause(attribute="MilesPerGal", channel="x")
@@ -112,9 +104,7 @@ def test_colored_line_chart():
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
 
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
     tbl.set_SQL_table("car")
 
     x_clause = Clause(attribute="Year", channel="x")
@@ -133,9 +123,7 @@ def test_colored_line_chart():
 
 
 def test_filter():
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
     tbl.set_SQL_table("car")
 
     intent = [
@@ -157,9 +145,7 @@ def test_filter():
 
 
 def test_inequalityfilter():
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
     tbl.set_SQL_table("car")
 
     vis = Vis(
@@ -185,9 +171,7 @@ def test_inequalityfilter():
 
 
 def test_binning():
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
     tbl.set_SQL_table("car")
 
     vis = Vis([lux.Clause(attribute="Horsepower")], tbl)
@@ -196,9 +180,7 @@ def test_binning():
 
 
 def test_record():
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
     tbl.set_SQL_table("car")
 
     vis = Vis([lux.Clause(attribute="Cylinders")], tbl)
@@ -206,9 +188,7 @@ def test_record():
 
 
 def test_filter_aggregation_fillzero_aligned():
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
     tbl.set_SQL_table("car")
 
     intent = [
@@ -223,9 +203,7 @@ def test_filter_aggregation_fillzero_aligned():
 
 
 def test_exclude_attribute():
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
     tbl.set_SQL_table("car")
 
     intent = [lux.Clause("?", exclude=["Name", "Year"]), lux.Clause("Horsepower")]
@@ -239,9 +217,7 @@ def test_exclude_attribute():
 
 def test_null_values():
     # checks that the SQLExecutor has filtered out any None or Null values from its metadata
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
     tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
     tbl.set_SQL_table("aug_test_table")
 
     assert None not in tbl.unique_values["enrolled_university"]
