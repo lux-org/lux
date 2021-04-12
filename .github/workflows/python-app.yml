@@ -55,4 +55,5 @@ jobs:
     - name: Test with Pytest and Code Coverage Report
       run: |
         pytest --cov-report term --cov=lux tests/
+        pytest --cov-report term --cov=lux tests_sql/
         bash <(curl -s https://codecov.io/bash)
