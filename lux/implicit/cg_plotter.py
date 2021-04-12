@@ -125,27 +125,59 @@ def get_cols_agg_name(ldf):
 
     all_cols = ldf.columns 
     col_agg_d = {}
-    
-    for e in ldf.history._events:
-        if e.op_name in valid_agg_funcs: # should check if follows "groupby"?
-            curr_op = e.op_name
-            curr_cols = e.cols
-            update_cols = all_cols
-            if len(curr_cols) != 0:
-                update_cols = curr_cols
-            for c in update_cols:
-                col_agg_d[c] = curr_op
-    
-    ret_d = {}
-    f_map = {}
-    for k, v in col_agg_d.items():
-        s = k
-        if k!=v:
-            s = f"{k} ({v})"
-        ret_d[k] = s
-        f_map[s] = v
 
-    if "index" in ret_d:
-        ret_d["index"] = "index"
+    start_index = -1 
+    n = len(ldf.history._events)
+
+    try: 
+        # find most recent groupby 
+        i = n - 1 
+        while i > -1:
+            e = ldf.history._events[i]
+            if e.op_name == "groupby":
+                start_index = i + 1
+                break
+            i -= 1
+
+        # look after most recent groupby 
+        if start_index != -1: 
+            for i in range(start_index, n):
+                e = ldf.history._events[i]
+                if e.op_name in valid_agg_funcs:
+                    process_update_item(e, col_agg_d, all_cols)
+                else:
+                    col_agg_d = {} # something else in history so must reset
+        
+        # look at most recent function otherwise
+        else:  
+            e = ldf.history._events[-1]
+            if e.op_name in valid_agg_funcs:
+                process_update_item(e, col_agg_d, all_cols)
+            
+    except (IndexError, AttributeError):
+        pass
     
-    return ret_d, f_map
+    finally:
+        ret_d = {}
+        f_map = {}
+        for k, v in col_agg_d.items():
+            s = k
+            if k!=v:
+                s = f"{k} ({v})"
+            ret_d[k] = s
+            f_map[s] = v
+
+        if "index" in ret_d:
+            ret_d["index"] = "index"
+    
+        return ret_d, f_map
+
+def process_update_item(evnt, d, all_cols):
+    curr_op = evnt.op_name
+    curr_cols = evnt.cols
+    # if columns on the history item use these, otherwise use all
+    update_cols = all_cols
+    if len(curr_cols):
+        update_cols = curr_cols
+    for c in update_cols:
+        d[c] = curr_op

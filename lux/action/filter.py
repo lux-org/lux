@@ -20,6 +20,7 @@ from lux.processor.Compiler import Compiler
 from lux.utils import utils
 from lux.utils.utils import get_filter_specs
 
+from IPython.core.debugger import set_trace
 
 def add_filter(ldf):
     """
@@ -38,9 +39,16 @@ def add_filter(ldf):
     filters = utils.get_filter_specs(ldf._intent)
     filter_values = []
     output = []
+
+    # set_trace()
     # if fltr is specified, create visualizations where data is filtered by all values of the fltr's categorical variable
     column_spec = utils.get_attrs_specs(ldf.current_vis[0].intent)
     column_spec_attr = list(map(lambda x: x.attribute, column_spec))
+    recommendation = {
+        "action": "",
+        "description": "",
+        "long_description":  "",
+    }
     if len(filters) == 1:
         # get unique values for all categorical values specified and creates corresponding filters
         fltr = filters[0]
@@ -130,8 +138,10 @@ def add_filter(ldf):
         last = get_filter_specs(ldf.intent)[-1]
         output = ldf.intent.copy()[0:-1]
         # array of possible values for attribute
+        # set_trace()
         arr = ldf[last.attribute].unique().tolist()
         output.append(lux.Clause(last.attribute, last.attribute, arr))
+    # set_trace()
     vlist = lux.vis.VisList.VisList(output, ldf)
     vlist_copy = lux.vis.VisList.VisList(output, ldf)
     for i in range(len(vlist_copy)):

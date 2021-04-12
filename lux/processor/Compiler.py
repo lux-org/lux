@@ -63,7 +63,7 @@ class Compiler:
         """
         if vis:
             # autofill data type/model information
-            Compiler.populate_data_type_model(ldf, [vis])
+            Compiler.populate_data_type_model(ldf, [vis]) # DEBUG NOTE this doesnt count the record as measure if already present
             # remove invalid visualizations from collection
             Compiler.remove_all_invalid([vis])
             # autofill viz related information
@@ -226,7 +226,7 @@ class Compiler:
                 if clause.value == "":
                     if clause.data_model == "dimension":
                         vis._ndim += 1
-                    elif clause.data_model == "measure" and clause.attribute != "Record":
+                    elif clause.data_model == "measure" and clause.attribute != "Record": # NOTE Will - I think record should be counted but that breaks other stuff
                         vis._nmsr += 1
 
     @staticmethod
@@ -331,8 +331,8 @@ class Compiler:
         if len(dimensions) > 1:
             d2 = dimensions[1]
 
-        if vis._nmsr == 0:
-            vis._inferred_intent.append(Compiler.count_col)
+        if (vis._nmsr == 0) and not len(vis.get_attr_by_attr_name("Record")):
+            vis._inferred_intent.append(Compiler.count_col) # TODO this causes redundancy sometimes?? only add if record not in therrrrr
             #vis._nmsr += 1
         
         measure = vis.get_attr_by_data_model("measure")[0]
@@ -490,7 +490,7 @@ class Compiler:
                 # Histogram
                 auto_channel = Compiler.make_histogram(vis)
             
-            elif ndim == 1 or ndim == 2 and (nmsr == 0 or nmsr == 1):
+            elif (ndim == 1 or ndim == 2) and (nmsr == 0 or nmsr == 1):
                 # Line or Bar Chart
                 auto_channel = Compiler.make_line_or_bar(vis, ldf)
             
@@ -555,6 +555,8 @@ class Compiler:
                 sAttr[0].channel = sVal
                 result_dict[sVal] = sAttr[0]
             elif len(sAttr) > 1:
+                set_trace()
+
                 raise ValueError(
                     "There should not be more than one attribute specified in the same channel."
                 )

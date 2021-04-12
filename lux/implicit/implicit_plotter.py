@@ -49,7 +49,7 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
     elif signal.op_name == "filter":
         vis_list, used_cols = process_filter(signal, ldf, ranked_cols)
     
-    elif signal.op_name == "query" or signal.op_name == "slice": 
+    elif signal.op_name == "query" or signal.op_name == "slice" or signal.op_name == "gb_filter": 
         vis_list, used_cols = process_query_loc(signal, ldf, ranked_cols)
 
     # elif signal.op_name == "crosstab":
@@ -285,7 +285,11 @@ def process_query_loc(signal, ldf, ranked_cols):
         p_df = ldf
         c_df = child_df
     elif rank_type == "child" and ldf._parent_df is not None:
-        p_df = ldf._parent_df
+        if isinstance(ldf._parent_df, lux.core.groupby.LuxGroupBy):
+            p_df = ldf._parent_df._parent_df
+        else:
+            p_df = ldf._parent_df
+        
         c_df = ldf
     
     mask, same_cols = compute_filter_diff(p_df, c_df)

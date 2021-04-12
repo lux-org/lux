@@ -27,7 +27,7 @@ from IPython.core.debugger import set_trace
 
 
 def column_group(ldf):
-    
+
     recommendation = {
         "action": "Column Groups",
         "description": "Shows charts of possible visualizations with respect to the column-wise index.",
@@ -36,8 +36,10 @@ def column_group(ldf):
                 that the user is interested in or have operated on (e.g., group-by attribute). In particular, dataframes with named indices \
                     are often pre-aggregated, so Lux visualizes exactly the values that the dataframe portrays.  \
                         <a href="https://lux-api.readthedocs.io/en/latest/source/advanced/indexgroup.html" target="_blank">More details</a>',
-    }    
+    }
     
+    # set_trace()
+
     ldf, f_map, inverted_col_map = cg_plotter.rename_cg_history(ldf)
     
     ldf_flat = ldf
@@ -47,6 +49,11 @@ def column_group(ldf):
     # use a single shared ldf_flat so that metadata doesn't need to be computed for every vis
     ldf_flat = ldf_flat.reset_index()
     vlst = VisList([], ldf_flat)
+
+    # dont compute if this is the result of describe or value counts
+    if len(ldf.history) and (ldf.history._events[-1].op_name == "describe" or ldf.history._events[-1].op_name == "value_counts" ):
+        recommendation["collection"] = vlst
+        return recommendation
 
     if ldf.index.nlevels == 1:
         if ldf.index.name:
@@ -90,14 +97,23 @@ def column_group(ldf):
             mean_collection = []
             for attribute in ldf.columns:
                 if ldf[attribute].dtype != "object" and (attribute != "index"):
-                    if (attribute in f_map) and (f_map[attribute] == "mean"): 
-                        _this_c_df = ldf[[attribute]] # select col as df
-                        old_col_name = inverted_col_map[attribute]
-                        df_s = pd.DataFrame(ldf._parent_df[old_col_name].std()) # as df
-                        df_s = df_s.rename(columns={c: f"{c} (std)" for c in df_s.columns})
+                    if ((attribute in f_map) and 
+                        (f_map[attribute] == "mean") and 
+                        isinstance(ldf._parent_df, lux.core.groupby.LuxGroupBy)): 
                         
-                        vl = cg_plotter.plot_gb_mean_errorbar(_this_c_df, df_s)
-                        mean_collection.extend(vl)
+                        try:
+                            _this_c_df = ldf[[attribute]] # select col as df
+                            old_col_name = inverted_col_map[attribute]
+                            df_s = pd.DataFrame(ldf._parent_df[old_col_name].std()) # as df
+                            df_s = df_s.rename(columns={c: f"{c} (std)" for c in df_s.columns})
+                            
+                            vl = cg_plotter.plot_gb_mean_errorbar(_this_c_df, df_s)
+                            mean_collection.extend(vl)
+
+                        except ValueError:
+                            vis = cg_plotter.plot_col_vis(index_column_name, attribute)
+                            collection.append(vis)
+                        
                     else:
                         vis = cg_plotter.plot_col_vis(index_column_name, attribute)
                         collection.append(vis)

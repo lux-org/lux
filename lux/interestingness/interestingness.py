@@ -27,6 +27,9 @@ from lux.interestingness.similarity import preprocess, euclidean_dist
 from lux.vis.VisList import VisList
 import warnings
 
+from IPython.core.debugger import set_trace
+
+
 def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
     """
     Compute the interestingness score of the vis.
@@ -165,6 +168,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         if lux.config.interestingness_fallback:
             # Supress interestingness related issues
             warnings.warn(f"An error occurred when computing interestingness for: {vis}")
+            set_trace()
             return -1
         else:
             raise
