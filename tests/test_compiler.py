@@ -295,6 +295,49 @@ def test_autoencoding_scatter():
         )
 
 
+def test_autoencoding_scatter():
+    lux.config.set_executor_type("Pandas")
+    # No channel specified
+    df = pd.read_csv("lux/data/car.csv")
+    df["Year"] = pd.to_datetime(
+        df["Year"], format="%Y"
+    )  # change pandas dtype for the column "Year" to datetype
+    vis = Vis([lux.Clause(attribute="MilesPerGal"), lux.Clause(attribute="Weight")], df)
+    check_attribute_on_channel(vis, "MilesPerGal", "x")
+    check_attribute_on_channel(vis, "Weight", "y")
+
+    # Partial channel specified
+    vis = Vis(
+        [
+            lux.Clause(attribute="MilesPerGal", channel="y"),
+            lux.Clause(attribute="Weight"),
+        ],
+        df,
+    )
+    check_attribute_on_channel(vis, "MilesPerGal", "y")
+    check_attribute_on_channel(vis, "Weight", "x")
+
+    # Full channel specified
+    vis = Vis(
+        [
+            lux.Clause(attribute="MilesPerGal", channel="y"),
+            lux.Clause(attribute="Weight", channel="x"),
+        ],
+        df,
+    )
+    check_attribute_on_channel(vis, "MilesPerGal", "y")
+    check_attribute_on_channel(vis, "Weight", "x")
+    # Duplicate channel specified
+    with pytest.raises(ValueError):
+        # Should throw error because there should not be columns with the same channel specified
+        df.set_intent(
+            [
+                lux.Clause(attribute="MilesPerGal", channel="x"),
+                lux.Clause(attribute="Weight", channel="x"),
+            ]
+        )
+
+
 def test_autoencoding_histogram(global_var):
     lux.config.set_executor_type("Pandas")
     # No channel specified
