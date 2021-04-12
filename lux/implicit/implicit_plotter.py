@@ -59,9 +59,28 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
     #     ...
     
     elif signal.cols: # generic recs
-        clauses = [lux.Clause(attribute=i) for i in signal.cols]
+        vl = []
+        all_cols = list(ldf.columns)
+        for c in signal.cols:
+            v = Vis( [lux.Clause(attribute=c)] )
+            vl.append(v)
+            
+        # compare to rest 
+        if len(signal.cols) < 3: # lux cant handle 4+ items 
+            remaining_cols = set(all_cols) - set(signal.cols)
+
+            for rc in remaining_cols: # or could only look at ranked_cols
+                base_c = [ lux.Clause(attribute=c) for c in signal.cols] # HAVE to make new clause objects each time
+                v = Vis( base_c + [lux.Clause(attribute=rc)] )
+                vl.append(v)
+        
+        # used_cols = set()
+        # used_cols.update(signal.cols + all_cols)
+        # used_cols = list(used_cols)
+
         used_cols = signal.cols
-        vis_list = VisList( clauses, ldf )
+        
+        vis_list = VisList( vl, ldf )
     
     return vis_list, used_cols
 

@@ -52,12 +52,21 @@ def implicit_tab(ldf: LuxDataFrame):
         
     # get multiple vis for col refs
     if col_list and not ldf.pre_aggregated:
+
         col_vis_l = []
-        for c in col_list:
-            if c not in used_cols:
-                col_v = Vis( [lux.Clause(c)] )
+        top_c = col_list[0]
+
+        if not (len(used_cols) == 1 and used_cols[0] == top_c):
+            # univariate for top column 
+            col_v = Vis( [ lux.Clause(top_c) ] )
+            col_vis_l.append(col_v)
+            str_desc += f"> Reference(s) to '{top_c}' <br/>"
+
+            # other cols with this column
+            for c in col_list[1:]:
+                col_v = Vis( [lux.Clause(top_c), lux.Clause(c)] )
                 col_vis_l.append(col_v)
-                str_desc += f"> Reference(s) to '{c}' <br/>"
+                # str_desc += f"> '{top_c}' combined with '{c}' <br/>"
             
         vl_2 = VisList(col_vis_l, ldf)
 
@@ -66,8 +75,7 @@ def implicit_tab(ldf: LuxDataFrame):
         else:
             lux_vis = vl_2
         
-        # lux_vis.remove_duplicates()
-        # lux_vis.sort()
+   
     
     # TODO how to deal with other col refs when ldf is pre aggregated? 
 
