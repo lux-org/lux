@@ -22,12 +22,12 @@ from lux.interestingness.interestingness import interestingness
 
 def test_interestingness_1_0_1(global_var):
     tbl = lux.LuxSQLTable()
-    tbl.set_SQL_table("car")
+    tbl.set_SQL_table("cars")
 
     tbl.set_intent(
         [
-            lux.Clause(attribute="Origin", filter_op="=", value="USA"),
-            lux.Clause(attribute="Cylinders"),
+            lux.Clause(attribute="origin", filter_op="=", value="USA"),
+            lux.Clause(attribute="cylinders"),
         ]
     )
     tbl._repr_html_()
@@ -39,12 +39,12 @@ def test_interestingness_1_0_1(global_var):
 
 def test_interestingness_0_1_1(global_var):
     tbl = lux.LuxSQLTable()
-    tbl.set_SQL_table("car")
+    tbl.set_SQL_table("cars")
 
     tbl.set_intent(
         [
-            lux.Clause(attribute="Origin", filter_op="=", value="?"),
-            lux.Clause(attribute="MilesPerGal"),
+            lux.Clause(attribute="origin", filter_op="=", value="?"),
+            lux.Clause(attribute="milespergal"),
         ]
     )
     tbl._repr_html_()
@@ -55,12 +55,12 @@ def test_interestingness_0_1_1(global_var):
 
 def test_interestingness_1_1_1(global_var):
     tbl = lux.LuxSQLTable()
-    tbl.set_SQL_table("car")
+    tbl.set_SQL_table("cars")
 
     tbl.set_intent(
         [
-            lux.Clause(attribute="Horsepower"),
-            lux.Clause(attribute="Origin", filter_op="=", value="USA", bin_size=20),
+            lux.Clause(attribute="horsepower"),
+            lux.Clause(attribute="origin", filter_op="=", value="USA", bin_size=20),
         ]
     )
     tbl._repr_html_()

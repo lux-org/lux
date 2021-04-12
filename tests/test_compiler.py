@@ -34,7 +34,6 @@ def test_underspecified_no_vis(global_var, test_recs):
 
 
 def test_underspecified_single_vis(global_var, test_recs):
-    lux.config.set_executor_type("Pandas")
     one_vis_actions = ["Enhance", "Filter", "Generalize"]
     df = pytest.car_df
     df.set_intent([lux.Clause(attribute="MilesPerGal"), lux.Clause(attribute="Weight")])
