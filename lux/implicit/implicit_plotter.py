@@ -11,12 +11,17 @@ import lux
 import altair as alt
 import random
 
+from sklearn.preprocessing import LabelEncoder
+from pyemd import emd_samples
+
+
 from IPython.core.debugger import set_trace
 
-### common utils 
+### common utils and settings
 tf_scale = alt.Scale(domain = [True, False], 
                     range = [lux_default.MAIN_COLOR, lux_default.BG_COLOR])
 
+PLOT_CARD_THRESH = 12
 
 ##################
 # MAIN function #
@@ -38,6 +43,7 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
         used_cols: list
             which columns were used in the returned vis(i)
     """
+    ldf.history.freeze()
     vis_list = VisList([])
     used_cols = []
     if signal.op_name == "value_counts" or signal.op_name == "unique":
@@ -45,44 +51,20 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
     
     elif signal.op_name == "describe":
         vis_list, used_cols = process_describe(signal, ldf)
-
-    elif signal.op_name == "filter":
+    
+    elif(signal.op_name == "filter" or signal.op_name == "query" or 
+        signal.op_name == "slice" or signal.op_name == "gb_filter"): 
+        
         vis_list, used_cols = process_filter(signal, ldf, ranked_cols)
     
-    elif signal.op_name == "query" or signal.op_name == "slice" or signal.op_name == "gb_filter": 
-        vis_list, used_cols = process_query_loc(signal, ldf, ranked_cols)
-
-    # elif signal.op_name == "crosstab":
-    #     ...
- 
-    # elif signal.op_name == "groupby" or signal.op_name == "agg": # gb is handled in cg_plotter.py
-    #     ...
-    
     elif signal.cols: # generic recs
-        vl = []
-        all_cols = list(ldf.columns)
-        for c in signal.cols:
-            v = Vis( [lux.Clause(attribute=c)] )
-            vl.append(v)
-            
-        # compare to rest 
-        if len(signal.cols) < 3: # lux cant handle 4+ items 
-            remaining_cols = set(all_cols) - set(signal.cols)
-
-            for rc in remaining_cols: # or could only look at ranked_cols
-                base_c = [ lux.Clause(attribute=c) for c in signal.cols] # HAVE to make new clause objects each time
-                v = Vis( base_c + [lux.Clause(attribute=rc)] )
-                vl.append(v)
+        vis_list, used_cols = process_generic(signal, ldf)
         
-        # used_cols = set()
-        # used_cols.update(signal.cols + all_cols)
-        # used_cols = list(used_cols)
+    ldf.history.unfreeze()
 
-        used_cols = signal.cols
-        
-        vis_list = VisList( vl, ldf )
-    
     return vis_list, used_cols
+
+
 
 ########################
 # VALUE_COUNT plotting #
@@ -181,100 +163,7 @@ def process_describe(signal, ldf):
 ###################
 # FILTER plotting #
 ###################
-def process_filter(signal, ldf, ranked_cols):
-    """
-    Decides if plotting parent that WAS filtered, or the resulting df
-    FROM a filter and plots accordingly.
-
-    Parameters
-    ----------
-        signal: lux.history.Event 
-            History event that is a FILTER
-        
-        ldf: lux.core.frame
-            the ldf to be plotted 
-    
-    Returns
-    -------
-        chart_list: VisList
-        cols: []
-            which columns were used 
-    """
-    rank_type = signal.kwargs["rank_type"]
-    parent_mask = signal.kwargs["filt_key"]
-
-    # cols from same execution time may have been in filter so we DONT want to use them
-    ex_time = signal.ex_count
-    other_signals = ldf._history.filter_by_ex_time(ex_time)
-    exclude_cols = set()
-    for s in other_signals:
-        exclude_cols.update(s.cols)
-    
-    col_combos = get_col_recs(ldf, ranked_cols, exclude_cols)
-
-    all_used_cols = set()
-    chart_list = []
-    
-    plot_df = None
-    if rank_type == "parent":
-        plot_df = ldf
-    elif ldf._parent_df is not None: # rank_type == "child"
-        plot_df = ldf._parent_df
-        chart_list.append(plot_filter_count(ldf._parent_df, parent_mask)) # count 
-
-    if plot_df is not None:
-        for input_combo in col_combos:
-            _v = plot_filter(plot_df, input_combo, parent_mask)
-            all_used_cols.update(input_combo)
-            chart_list.append(_v)
-    
-    vl = VisList(chart_list)
-
-    return vl, list(all_used_cols)
-
-def get_col_recs(ldf, ranked_cols, exclude=[]):
-    # sets for easy comparision
-    all_c = set(ldf.columns)
-    ranked_cols = set(ranked_cols)
-    exclude = set(exclude)
-
-    good_c = all_c - exclude # all cols not in exclude
-    good_ranked = ranked_cols - exclude
-    col_tups_single = set()
-    final = []
-    
-    # look at interesting columns individually
-    for c in good_ranked:
-        col_tups_single.add(c)
-    
-    quant_cols = set()
-    cat_cols = set()
-    for c in good_c:
-        if ldf.data_type[c] == "temporal":
-            col_tups_single.add(c)
-        elif ldf.data_type[c] == "quantitative":
-            quant_cols.add(c)
-        elif ldf.data_type[c] == "nominal":
-            cat_cols.add(c)
-    
-    if all( [ ldf.data_type[c] == "quantitative" for c in exclude ] ): # filter is quant 
-        for item in cat_cols:
-            col_tups_single.add(item)
-    elif all( [ ldf.data_type[c] == "nominal" for c in exclude ] ): # filter is categorical
-        for item in quant_cols:
-            col_tups_single.add(item)
-    else:
-        # use all quant categorical combos
-        for q in quant_cols:
-            for n in cat_cols:
-                final.append([q, n]) 
-    
-    for i in col_tups_single: final.append([i])
-
-    return final
-
-
-def process_query_loc(signal, ldf, ranked_cols):
+def process_filter(signal, ldf, ranked_cols, num_vis_cap = 5):
     """
     Decides if plotting parent that WAS filtered, or the resulting df
     FROM a filter and plots accordingly.
@@ -293,13 +182,14 @@ def process_query_loc(signal, ldf, ranked_cols):
         plot_cols: array
             which cols were used
     
-    # TODO this could prob be combined with process_filter 
+    
     """
-    rank_type = signal.kwargs["rank_type"]
-    child_df = signal.kwargs["child_df"]
+    rank_type = signal.kwargs.get("rank_type", None)
+    child_df = signal.kwargs.get("child_df", None)
+    parent_mask = signal.kwargs.get("filt_key", None)
 
+    # assign parent and child
     p_df, c_df = None, None
-    chart_list = []
     if rank_type == "parent" and child_df is not None:
         p_df = ldf
         c_df = child_df
@@ -308,24 +198,101 @@ def process_query_loc(signal, ldf, ranked_cols):
             p_df = ldf._parent_df._parent_df
         else:
             p_df = ldf._parent_df
-        
         c_df = ldf
     
-    mask, same_cols = compute_filter_diff(p_df, c_df)
-    col_combos = get_col_recs(ldf, ranked_cols, same_cols) # TODO this excludes same cols is that good?
+    # get mask
+    if parent_mask is not None:
+        mask = parent_mask
+    else:
+        mask, same_cols = compute_filter_diff(p_df, c_df)
+    
+    # get cols with large dist change
+    vis_cols = get_col_recs(p_df, c_df)
 
+    # populate vis
     all_used_cols = set()
+    chart_list = []
     if rank_type == "child": 
         chart_list.append(plot_filter_count(p_df, mask))
+    
     if p_df is not None:
-        for input_combo in col_combos:
-            _v = plot_filter(p_df, input_combo, mask)
-            all_used_cols.update(input_combo)
+        for c in vis_cols[:num_vis_cap]:
+            _v = plot_filter(p_df, [c], mask)
             chart_list.append(_v)
+            all_used_cols.add(c)
     
     vl = VisList(chart_list)
 
     return vl, list(all_used_cols)
+
+def get_col_recs(parent_df, child_df):
+    """
+    Look at each column and calculate distance metric by column
+    """
+    dists = []
+    parent_df.history.freeze()
+    child_df.history.freeze()
+
+    # TODO store this on the df so dont have to recalc so much
+    # TODO calc distance for 2d as well
+    for c in parent_df.columns:
+        p_data = parent_df[c].dropna().values
+        c_data = child_df[c].dropna().values
+
+        if parent_df.data_type[c] != "quantitative" and parent_df.cardinality[c] > PLOT_CARD_THRESH:
+            dist = -1
+        else:
+            dist = calc_dist_distance(p_data, c_data, parent_df.data_type[c])
+        
+        if dist != -1:
+            dists.append( (c, dist) )
+    
+    dists.sort(key=lambda x: x[1], reverse=True)
+    col_order = [i[0] for i in dists]
+
+    parent_df.history.unfreeze()
+    child_df.history.unfreeze()
+
+    return col_order
+    
+def calc_dist_distance(p_data, c_data, dtype):
+    """
+    Calculate wasserstein / earth movers distance between two samples.
+    c_data must be subset of p_data
+    """
+    try: 
+        if dtype == "nominal":
+            le = LabelEncoder()
+            le.fit(p_data)
+            p_data = le.transform(p_data)
+            c_data = le.transform(c_data)
+        return emd_samples(p_data, c_data)
+    except Exception:
+        return -1
+
+def compute_filter_diff(old_df, filt_df):
+    """
+    Assumes filt_df is a subset of old_df. Creates indicator the size of the larger df
+    
+    True = in both, False = only in larger
+    """
+    old_df = old_df.copy()
+    filt_df = filt_df.copy()
+    # filtered should always be smaller
+    if len(filt_df) > len(old_df):
+        _t = filt_df
+        filt_df = old_df
+        old_df = _t
+    
+    _d = old_df.merge(filt_df, indicator=True, how="left")
+    indicator = (_d._merge == "both") #.astype(int)
+
+    # which cols change? this isnt very informative since 
+    # many columns change other than the filter.
+    same_cols = list(old_df.columns[old_df.nunique() == filt_df.nunique()])
+    
+    return indicator, same_cols
+
 
 def plot_filter_count(ldf, mask):
     """
@@ -362,7 +329,7 @@ def plot_filter_count(ldf, mask):
     return cv
 
 
-def plot_filter(ldf, cols, mask, card_thresh=12, filt_frac_thresh = .1):
+def plot_filter(ldf, cols, mask, card_thresh=PLOT_CARD_THRESH, filt_frac_thresh = .1):
     """
     Plot 1d or 2d plot of filted df
 
@@ -521,26 +488,30 @@ def plot_filter(ldf, cols, mask, card_thresh=12, filt_frac_thresh = .1):
     
     return cv
 
+######################
+# GENERIC plotting   #
+######################
+def process_generic(signal, ldf):
+    vl = []
+    all_cols = list(ldf.columns)
+    for c in signal.cols:
+        v = Vis( [lux.Clause(attribute=c)] )
+        vl.append(v)
+        
+    # compare to rest, lux cant handle 4+ items 
+    if len(signal.cols) < 3:  
+        remaining_cols = set(all_cols) - set(signal.cols)
 
-def compute_filter_diff(old_df, filt_df):
-    """
-    Assumes filt_df is a subset of old_df. Creates indicator the size of the larger df
+        for rc in remaining_cols: # or could only look at ranked_cols
+            base_c = [ lux.Clause(attribute=c) for c in signal.cols] # HAVE to make new clause objects each time
+            v = Vis( base_c + [lux.Clause(attribute=rc)] )
+            vl.append(v)
     
-    True = in both, False = only in larger
-    """
-    old_df = old_df.copy()
-    filt_df = filt_df.copy()
-    # filtered should always be smaller
-    if len(filt_df) > len(old_df):
-        _t = filt_df
-        filt_df = old_df
-        old_df = _t
-    
-    _d = old_df.merge(filt_df, indicator=True, how="left")
-    indicator = (_d._merge == "both") #.astype(int)
+    # used_cols = set()
+    # used_cols.update(signal.cols + all_cols)
+    # used_cols = list(used_cols)
 
-    # which cols change? this isnt very informative since 
-    # many columns change other than the filter. TODO change this 
-    same_cols = list(old_df.columns[old_df.nunique() == filt_df.nunique()])
-    
-    return indicator, same_cols
+    used_cols = signal.cols
+    vis_list = VisList( vl, ldf )
+
+    return vis_list, used_cols

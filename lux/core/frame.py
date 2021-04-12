@@ -1020,10 +1020,10 @@ class LuxDataFrame(pd.DataFrame):
         ret_value = super(LuxDataFrame, self)._getitem_bool_array(key)
 
         # append to parent history
-        self.history.append_event("filter", [], rank_type="parent", filt_key=key)
+        self.history.append_event("filter", [], rank_type="parent", child_df=ret_value, filt_key=key)
 
         # append to child history
-        ret_value.history.append_event("filter", [], rank_type="child", filt_key=key)
+        ret_value.history.append_event("filter", [], rank_type="child", child_df=None, filt_key=key)
 
         return ret_value
     
@@ -1071,9 +1071,9 @@ class LuxDataFrame(pd.DataFrame):
     def query(self, expr: str, inplace: bool = False, **kwargs):
         ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
 
-        self.history.append_event("query", [], rank_type="parent", child_df=ret_value)
+        self.history.append_event("query", [], rank_type="parent", child_df=ret_value, filt_key=None)
         if ret_value is not None: # i.e. inplace = True
-            ret_value.history.append_event("query", [], rank_type="child", child_df=None)
+            ret_value.history.append_event("query", [], rank_type="child", child_df=None, filt_key=None)
 
         return ret_value
     
@@ -1091,9 +1091,9 @@ class LuxDataFrame(pd.DataFrame):
         """
         ret_value = super(LuxDataFrame, self)._slice(slobj, axis)
         
-        self.history.append_event("slice", [], rank_type="parent", child_df=ret_value)
+        self.history.append_event("slice", [], rank_type="parent", child_df=ret_value, filt_key=None)
         if ret_value is not None: # i.e. inplace = True
-            ret_value.history.append_event("slice", [], rank_type="child", child_df=None)
+            ret_value.history.append_event("slice", [], rank_type="child", child_df=None, filt_key=None)
         
         return ret_value
 

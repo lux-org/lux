@@ -12,3 +12,5 @@ matplotlib>=3.0.0
 lux-widget>=0.1.4
 us
 iso3166
+pyemd
+sklearn

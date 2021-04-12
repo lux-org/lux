@@ -111,7 +111,7 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
     def filter(self, *args, **kwargs):
         ret_value = super(LuxGroupBy, self).filter(*args, **kwargs)
         ret_value = self._lux_copymd(ret_value)
-        ret_value.history.append_event("gb_filter", [], rank_type="child", child_df=None)
+        ret_value.history.append_event("gb_filter", [], rank_type="child", child_df=None, filt_key=None)
         ret_value.pre_aggregated = False  # Returned LuxDataFrame isn't pre_aggregated
         ret_value._parent_df = self 
         return ret_value
