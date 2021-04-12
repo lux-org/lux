@@ -430,7 +430,6 @@ class LuxDataFrame(pd.DataFrame):
         quantitative_columns = [i for i in self.dtypes if i != "O" and i != "str"]
         if len(quantitative_columns) == 2 or len(quantitative_columns) == 3:
             self.current_vis = VisList([i for i in self.columns], self)
-            self.all_column = True
 
     def maintain_recs(self, is_series="DataFrame"):
         # `rec_df` is the dataframe to generate the recommendations on
