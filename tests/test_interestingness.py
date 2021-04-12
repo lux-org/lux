@@ -74,23 +74,6 @@ def test_interestingness_1_0_1(global_var):
     assert df.current_vis[0].score == 0
     df.clear_intent()
 
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
-    tbl.set_SQL_table("car")
-
-    tbl.set_intent(
-        [
-            lux.Clause(attribute="Origin", filter_op="=", value="USA"),
-            lux.Clause(attribute="Cylinders"),
-        ]
-    )
-    tbl._repr_html_()
-    filter_score = tbl.recommendation["Filter"][0].score
-    assert tbl.current_vis[0].score == 0
-    assert filter_score > 0
-    tbl.clear_intent()
-
 
 def test_interestingness_0_1_0(global_var):
     lux.config.set_executor_type("Pandas")
@@ -152,22 +135,6 @@ def test_interestingness_0_1_1(global_var):
     assert interestingness(df.recommendation["Current Vis"][0], df) != None
     assert str(df.recommendation["Current Vis"][0]._inferred_intent[2].value) == "USA"
     df.clear_intent()
-
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
-    tbl.set_SQL_table("car")
-
-    tbl.set_intent(
-        [
-            lux.Clause(attribute="Origin", filter_op="=", value="?"),
-            lux.Clause(attribute="MilesPerGal"),
-        ]
-    )
-    tbl._repr_html_()
-    assert interestingness(tbl.recommendation["Current Vis"][0], tbl) != None
-    assert str(tbl.recommendation["Current Vis"][0]._inferred_intent[2].value) == "USA"
-    tbl.clear_intent()
 
 
 def test_interestingness_1_1_0(global_var):
@@ -240,24 +207,6 @@ def test_interestingness_1_1_1(global_var):
     assert interestingness(df.recommendation["Filter"][0], df) != None
     df.clear_intent()
 
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    tbl = lux.LuxSQLTable()
-    lux.config.set_SQL_connection(connection)
-    tbl.set_SQL_table("car")
-
-    tbl.set_intent(
-        [
-            lux.Clause(attribute="Horsepower"),
-            lux.Clause(attribute="Origin", filter_op="=", value="USA", bin_size=20),
-        ]
-    )
-    tbl._repr_html_()
-    assert interestingness(tbl.recommendation["Enhance"][0], tbl) != None
-
-    # check for top recommended Filter graph score is not none
-    assert interestingness(tbl.recommendation["Filter"][0], tbl) != None
-    tbl.clear_intent()
-
 
 def test_interestingness_1_2_0(global_var):
     from lux.vis.Vis import Vis
@@ -328,24 +277,27 @@ def test_interestingness_deviation_nan():
     import numpy as np
 
     dataset = [
-        {"date": "2017-08-25 09:06:11+00:00", "category": "A", "value": 25.0},
-        {"date": "2017-08-25 09:06:11+00:00", "category": "B", "value": 1.2},
-        {"date": "2017-08-25 09:06:11+00:00", "category": "C", "value": 1.3},
-        {"date": "2017-08-25 09:06:11+00:00", "category": "D", "value": 1.4},
-        {"date": "2017-08-25 09:06:11+00:00", "category": "E", "value": 1.5},
-        {"date": "2017-08-25 09:06:11+00:00", "category": "F", "value": 0.1},
+        {"date": "2017-08-25", "category": "A", "value": 25.0},
+        {"date": "2017-08-25", "category": "B", "value": 1.2},
+        {"date": "2017-08-25", "category": "C", "value": 1.3},
+        {"date": "2017-08-25", "category": "D", "value": 1.4},
+        {"date": "2017-08-25", "category": "E", "value": 1.5},
+        {"date": "2017-08-25", "category": "F", "value": 0.1},
         {"date": np.nan, "category": "C", "value": 0.2},
         {"date": np.nan, "category": "B", "value": 0.2},
         {"date": np.nan, "category": "F", "value": 0.3},
         {"date": np.nan, "category": "E", "value": 0.3},
         {"date": np.nan, "category": "D", "value": 0.4},
         {"date": np.nan, "category": "A", "value": 10.4},
-        {"date": "2017-07-25 15:06:11+00:00", "category": "A", "value": 15.5},
-        {"date": "2017-07-25 15:06:11+00:00", "category": "F", "value": 1.0},
-        {"date": "2017-07-25 15:06:11+00:00", "category": "B", "value": 0.1},
+        {"date": "2017-07-25", "category": "A", "value": 15.5},
+        {"date": "2017-07-25", "category": "F", "value": 1.0},
+        {"date": "2017-07-25", "category": "B", "value": 0.1},
     ]
     test = pd.DataFrame(dataset)
     from lux.vis.Vis import Vis
+
+    test["date"] = pd.to_datetime(test["date"], format="%Y-%M-%d")
+    test.set_data_type({"value": "quantitative"})
 
     vis = Vis(["date", "value", "category=A"], test)
     vis2 = Vis(["date", "value", "category=B"], test)
