@@ -21,8 +21,3 @@ import lux
 
 lux.config.interestingness_fallback = False
 lux.config.pandas_fallback = False
-
-import psycopg2
-
-connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-lux.config.set_SQL_connection(connection)
