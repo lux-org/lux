@@ -305,13 +305,26 @@ class LuxDataFrame(pd.DataFrame):
     def current_vis(self):
         # _parse_validate_compile_intent does not call executor,
         # we only attach data to current vis when user request current_vis
-        valid_current_vis = self._current_vis is not None and len(self._current_vis) > 0 and self._current_vis[0].data is None and self._current_vis[0].intent
+        valid_current_vis = (
+            self._current_vis is not None
+            and len(self._current_vis) > 0
+            and self._current_vis[0].data is None
+            and self._current_vis[0].intent
+        )
         if valid_current_vis:
             for clause in self._current_vis[0].intent:
                 if isinstance(clause.attribute, list):
-                    valid_current_vis = valid_current_vis and [attr for attr in clause.attribute if attr == "?" or attr == "Record" or attr in list(self.columns)]
+                    valid_current_vis = valid_current_vis and [
+                        attr
+                        for attr in clause.attribute
+                        if attr == "?" or attr == "Record" or attr in list(self.columns)
+                    ]
                 else:
-                    valid_current_vis =  valid_current_vis and (clause.attribute == "?" or clause.attribute == "Record" or clause.attribute in list(self.columns))
+                    valid_current_vis = valid_current_vis and (
+                        clause.attribute == "?"
+                        or clause.attribute == "Record"
+                        or clause.attribute in list(self.columns)
+                    )
             if valid_current_vis:
                 lux.config.executor.execute(self._current_vis, self)
         return self._current_vis

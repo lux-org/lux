@@ -82,12 +82,20 @@ class Compiler:
         vis_collection: list[lux.Vis]
                 vis list with compiled lux.Vis objects.
         """
-        valid_intent = _inferred_intent # ensures intent is non-empty
-        for clause in _inferred_intent: # checks if the intent is valid before compiling
+        valid_intent = _inferred_intent  # ensures intent is non-empty
+        for clause in _inferred_intent:  # checks if the intent is valid before compiling
             if isinstance(clause.attribute, list):
-                valid_intent = valid_intent and [attr for attr in clause.attribute if attr == "?" or attr == "Record" or attr in list(ldf.columns)]
+                valid_intent = valid_intent and [
+                    attr
+                    for attr in clause.attribute
+                    if attr == "?" or attr == "Record" or attr in list(ldf.columns)
+                ]
             else:
-                valid_intent =  valid_intent and (clause.attribute == "?" or clause.attribute == "Record" or clause.attribute in list(ldf.columns))
+                valid_intent = valid_intent and (
+                    clause.attribute == "?"
+                    or clause.attribute == "Record"
+                    or clause.attribute in list(ldf.columns)
+                )
         if valid_intent:
             vis_collection = Compiler.enumerate_collection(_inferred_intent, ldf)
             # autofill data type/model information

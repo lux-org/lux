@@ -275,6 +275,7 @@ def test_intent_retained():
     df._ipython_display_()
     assert list(df.recommendation.keys()) == ["Enhance", "Filter"]
 
+
 def test_invalid_intent():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
     df.intent = ["Attrition"]
