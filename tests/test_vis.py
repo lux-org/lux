@@ -153,7 +153,10 @@ def test_vis_list_custom_title_override(global_var):
 
     vcLst = []
     for attribute in ["Sport", "Year", "Height", "HostRegion", "SportType"]:
-        vis = Vis([lux.Clause("Weight"), lux.Clause(attribute)], title="overriding dummy title",)
+        vis = Vis(
+            [lux.Clause("Weight"), lux.Clause(attribute)],
+            title="overriding dummy title",
+        )
         vcLst.append(vis)
     vlist = VisList(vcLst, df)
     for v in vlist:
@@ -554,5 +557,5 @@ def test_intent_override_all_column():
     df.intent = ["Year"]
     df._ipython_display_()
     current_vis_code = df.current_vis[0].to_matplotlib_code()
-    assert "ax.set_ylabel(\'Number of Records\')" in current_vis_code, "All column not overriden by intent"
+    assert "ax.set_ylabel('Number of Records')" in current_vis_code, "All column not overriden by intent"
     lux.config.plotting_backend = "altair"
