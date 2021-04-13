@@ -23,7 +23,7 @@ class Violin(AltairChart):
         super().__init__(vis)
     
     def __repr__(self):
-        return f"Histogram <{str(self.vis)}>"
+        return f"Violin <{str(self.vis)}>"
     
     def initialize_chart(self):
         x_attr = self.vis.get_attr_by_channel("x")[0]

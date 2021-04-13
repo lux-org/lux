@@ -22,6 +22,7 @@ from lux.vislib.altair.Histogram import Histogram
 from lux.vislib.altair.Heatmap import Heatmap
 from lux.vislib.altair.Choropleth import Choropleth
 from lux.vislib.altair.Violin import Violin
+from lux.vislib.altair.BoxPlot import BoxPlot
 
 
 class AltairRenderer:
@@ -87,7 +88,7 @@ class AltairRenderer:
         elif vis.mark == "geographical":
             chart = Choropleth(vis)
         elif vis.mark == "violin":
-            chart = Violin(vis)
+            chart = BoxPlot(vis)
         else:
             chart = None
 

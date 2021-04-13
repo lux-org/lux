@@ -306,13 +306,9 @@ class Compiler:
             dimension = vis.get_attr_by_data_model("dimension")[0]
             measure = vis.get_attr_by_data_model("measure")[0]
             vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
-            if dimension.data_type == "ordinal":
-                print(dimension)
-                print(measure)
+            if nmsr == 1 and dimension.data_type == "ordinal":
                 vis._mark = "violin"
-                vis._inferred_intent[0].set_aggregation(None)
-                vis._inferred_intent[1].set_aggregation(None)
-                auto_channel = {"x": dimension, "y": vis._inferred_intent[1]}
+                auto_channel = {"x": dimension, "y": measure}
             # print(dimension, measure, vis._mark, auto_channel)
             # print("\n")
         elif ndim == 2 and (nmsr == 0 or nmsr == 1):
