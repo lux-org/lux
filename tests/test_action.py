@@ -275,3 +275,11 @@ def test_intent_retained():
 
     df._ipython_display_()
     assert list(df.recommendation.keys()) == ["Enhance", "Filter"]
+
+
+def test_invalid_intent():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
+    df.intent = ["Attrition"]
+    new_df = df.groupby("BusinessTravel").mean()
+    new_df._ipython_display_()
+    assert new_df.current_vis == []
