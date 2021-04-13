@@ -64,10 +64,7 @@ def test_interestingness_1_0_1(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
-        [
-            lux.Clause(attribute="Origin", filter_op="=", value="USA"),
-            lux.Clause(attribute="Cylinders"),
-        ]
+        [lux.Clause(attribute="Origin", filter_op="=", value="USA"), lux.Clause(attribute="Cylinders"),]
     )
     df._ipython_display_()
     assert df.current_vis[0].score == 0
@@ -124,10 +121,7 @@ def test_interestingness_0_1_1(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
     df.set_intent(
-        [
-            lux.Clause(attribute="Origin", filter_op="=", value="?"),
-            lux.Clause(attribute="MilesPerGal"),
-        ]
+        [lux.Clause(attribute="Origin", filter_op="=", value="?"), lux.Clause(attribute="MilesPerGal"),]
     )
     df._ipython_display_()
     assert interestingness(df.recommendation["Current Vis"][0], df) != None

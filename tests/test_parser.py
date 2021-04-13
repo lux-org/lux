@@ -121,7 +121,6 @@ def test_validator_invalid_attribute(global_var):
     df = pytest.college_df
     with pytest.raises(KeyError, match="'blah'"):
         with pytest.warns(
-            UserWarning,
-            match="The input attribute 'blah' does not exist in the DataFrame.",
+            UserWarning, match="The input attribute 'blah' does not exist in the DataFrame.",
         ):
             df.intent = ["blah"]
