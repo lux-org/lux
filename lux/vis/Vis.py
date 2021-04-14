@@ -351,6 +351,7 @@ class Vis:
             self._source = ldf
             self._inferred_intent = Parser.parse(self._intent)
             Validator.validate_intent(self._inferred_intent, ldf)
+
             Compiler.compile_vis(ldf, self)
             lux.config.executor.execute([self], ldf)
 

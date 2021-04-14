@@ -50,6 +50,7 @@ def register_new_action(validator: bool = True):
 
 
 def test_default_actions_registered(global_var):
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     df._ipython_display_()
     assert "Distribution" in df.recommendation
