@@ -30,7 +30,7 @@ class Config:
         self._sampling_flag = True
         self._heatmap_flag = True
         self._plotting_backend = "vegalite"
-        self._chart_scale = 1
+        self._plotting_scale = 1
         self._topk = 15
         self._sort = "descending"
         self._pandas_fallback = True
@@ -287,11 +287,11 @@ class Config:
             )
 
     @property
-    def chart_scale(self):
-        return self._chart_scale
+    def plotting_scale(self):
+        return self._plotting_scale
 
-    @chart_scale.setter
-    def chart_scale(self, scale: float) -> None:
+    @plotting_scale.setter
+    def plotting_scale(self, scale: float) -> None:
         """
         Set the scale factor for charts displayed in Lux.
         ----------
@@ -299,7 +299,7 @@ class Config:
         """
         scale = float(scale) if isinstance(scale, int) else scale
         if isinstance(scale, float) and scale > 0:
-            self._chart_scale = scale
+            self._plotting_scale = scale
         else:
             warnings.warn(
                 "Scaling factor for charts must be a positive float.",
