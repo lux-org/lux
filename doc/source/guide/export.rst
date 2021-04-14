@@ -203,6 +203,52 @@ You can also export this as Vega-Lite specification and vis/edit the specificati
   :align: center
   :alt: add screenshot of what this looks like in Vega Editor
 
+Visualizations can also be exported to code in `Matplotlib <https://matplotlib.org/>`.
+
+.. code-block:: python
+
+    print (vis.to_matplotlib())
+    print (vis.to_code(language="matplotlib"))
+
+.. image:: ../img/export-16.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
+
+This can be copy-and-pasted back into a new notebook cell for further editing.
+
+.. code-block:: python
+  import matplotlib.pyplot as plt
+  plt.rcParams.update(
+              {
+                  "axes.titlesize": 20,
+                  "axes.titleweight": "bold",
+                  "axes.labelweight": "bold",
+                  "axes.labelsize": 16,
+                  "legend.fontsize": 14,
+                  "legend.title_fontsize": 15,
+                  "xtick.labelsize": 13,
+                  "ytick.labelsize": 13,
+              }
+          )
+  import numpy as np
+  from math import nan
+  from matplotlib.cm import ScalarMappable
+  fig, ax = plt.subplots(figsize=(4.5, 4))
+  x_pts = df['Displacement']
+  y_pts = df['Weight']
+  ax.scatter(x_pts, y_pts, alpha=0.5)
+  ax.set_xlabel('Displacement', fontsize='15')
+  ax.set_ylabel('Weight', fontsize='15')
+
+  fig
+
+.. image:: ../img/export-17.png
+  :width: 700
+  :align: center
+  :alt: add screenshot
+
+
 Let's say now we are interested in the scatter plot of the `HPIRank` and `HappyPlanetIndex`.
 
 .. code-block:: python

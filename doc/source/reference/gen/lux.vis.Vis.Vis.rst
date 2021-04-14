@@ -27,7 +27,6 @@ lux.vis.Vis.Vis
       ~Vis.to_VegaLite
       ~Vis.to_code
       ~Vis.to_matplotlib
-      ~Vis.to_matplotlib_code
    
    
 

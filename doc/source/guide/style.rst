@@ -44,38 +44,6 @@ We now see that the displayed visualizations adopt these new imported settings.
   :width: 700
   :align: center 
 
-Similarly, we can change the plot configurations for Matplotlib charts as well.
-The plotting_style attribute for Matplotlib charts takes in both the `fig` and `ax` as parameters.
-`fig` handles figure width and other plot size attributes. `ax` supports changing the chart title and other plot labels and configurations.
-
-.. code-block:: python
-	
-    lux.config.plotting_backend = "matplotlib"
-    def change_width_add_title(fig, ax):
-        fig.set_figwidth(7)
-        ax.set_title("Custom Title")
-        return fig, ax
-
-.. code-block:: python
-	
-	lux.config.plotting_style = change_width_add_title
-
-Moreover, we can set the color and other figure styles using the rcParams attribute of pyplot.
-
-.. code-block:: python
-
-	import matplotlib.pyplot as plt
-	import matplotlib
-
-	plt.rcParams['axes.prop_cycle'] = matplotlib.cycler(color='g')
-
-
-We now see that the displayed visualizations adopt these new imported settings.
-
-.. image:: ../img/style-7.png
-  :width: 700
-  :align: center 
-
 If we click on the visualization for `Displacement` v.s. `Weight` and export it. We see that the exported chart now contains code with these additional plot settings at the every end.
 
 .. code-block:: python
@@ -109,6 +77,82 @@ If we click on the visualization for `Displacement` v.s. `Weight` and export it.
 	chart
 
 .. image:: ../img/style-4.png
+  :width: 200
+  :align: center 
+
+Similarly, we can change the plot configurations for Matplotlib charts as well.
+The plotting_style attribute for Matplotlib charts takes in both the `fig` and `ax` as parameters.
+`fig` handles figure width and other plot size attributes. `ax` supports changing the chart title and other plot labels and configurations.
+
+.. code-block:: python
+	
+    lux.config.plotting_backend = "matplotlib"
+    def change_width_add_title(fig, ax):
+        fig.set_figwidth(7)
+        ax.set_title("Custom Title")
+        return fig, ax
+
+.. code-block:: python
+	
+	lux.config.plotting_style = change_width_add_title
+
+Moreover, we can set the color and other figure styles using the rcParams attribute of pyplot.
+
+.. code-block:: python
+
+	import matplotlib.pyplot as plt
+	import matplotlib
+
+	plt.rcParams['axes.prop_cycle'] = matplotlib.cycler(color='g')
+
+
+We now see that the displayed visualizations adopt these new imported settings.
+
+.. image:: ../img/style-7.png
+  :width: 700
+  :align: center 
+
+We can also export these Matplotlib charts with styling.
+
+.. code-block:: python
+	
+	# Before running this cell, click on Displacement v.s. Weight vis and export it.
+	vis = df.exported[0]
+	print (vis.to_matplotlib())
+
+.. image:: ../img/style-8.png
+  :width: 700
+  :align: center 
+
+.. code-block:: python
+	
+	import matplotlib.pyplot as plt
+	plt.rcParams.update(
+				{
+					"axes.titlesize": 20,
+					"axes.titleweight": "bold",
+					"axes.labelweight": "bold",
+					"axes.labelsize": 16,
+					"legend.fontsize": 14,
+					"legend.title_fontsize": 15,
+					"xtick.labelsize": 13,
+					"ytick.labelsize": 13,
+				}
+			)
+	import numpy as np
+	from math import nan
+	from matplotlib.cm import ScalarMappable
+	fig, ax = plt.subplots(figsize=(4.5, 4))
+	x_pts = df['Displacement']
+	y_pts = df['Weight']
+	ax.scatter(x_pts, y_pts, alpha=0.5)
+	ax.set_xlabel('Displacement', fontsize='15')
+	ax.set_ylabel('Weight', fontsize='15')
+	fig.set_figwidth(7)
+	ax.set_title("Custom Title")
+	fig
+
+.. image:: ../img/style-9.png
   :width: 200
   :align: center 
 

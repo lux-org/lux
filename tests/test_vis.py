@@ -217,7 +217,7 @@ def test_bar_chart(global_var):
     lux.config.plotting_style = None
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Origin", "Acceleration"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.barh(bars, measurements, align='center')" in vis_code
     assert "ax.set_xlabel('Acceleration')" in vis_code
     assert "ax.set_ylabel('Origin')" in vis_code
@@ -240,7 +240,7 @@ def test_colored_bar_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Cylinders", "Acceleration", "Origin"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.barh" in vis_code
     assert "title='Origin'" in vis_code
     assert "ax.set_xlabel('Acceleration')" in vis_code
@@ -273,7 +273,7 @@ def test_scatter_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Acceleration", "Weight"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.scatter(x_pts, y_pts, alpha=0.5)" in vis_code
     assert (
         "ax.set_xlabel('Acceleration', fontsize='15')" in vis_code
@@ -299,7 +299,7 @@ def test_colored_scatter_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Origin", "Acceleration", "Weight"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.scatter" in vis_code
     assert "title='Origin'" in vis_code
     assert (
@@ -323,7 +323,7 @@ def test_line_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Year", "Acceleration"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.plot(x_pts, y_pts)" in vis_code
     assert "ax.set_xlabel('Year')" in vis_code
     assert "ax.set_ylabel('Mean of Acceleration')" in vis_code
@@ -343,7 +343,7 @@ def test_colored_line_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Year", "Acceleration", "Origin"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.plot" in vis_code
     assert "title='Origin'" in vis_code
     assert "ax.set_xlabel('Year')" in vis_code
@@ -364,7 +364,7 @@ def test_histogram_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Displacement"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.bar(bars, measurements, width=32.25)" in vis_code
     assert "ax.set_xlabel('Displacement (binned)')" in vis_code
     assert "ax.set_ylabel('Number of Records')" in vis_code
@@ -399,7 +399,7 @@ def test_heatmap_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["price", "longitude"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "plt.imshow(df, cmap='Blues')" in vis_code
     assert "index='xBinStart'" in vis_code
     assert "values='count'" in vis_code
@@ -427,7 +427,7 @@ def test_colored_heatmap_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["price", "longitude", "availability_365"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "plt.imshow(df, cmap='viridis')" in vis_code
     assert "index='xBinStart'" in vis_code
     assert "values='availability_365'" in vis_code
