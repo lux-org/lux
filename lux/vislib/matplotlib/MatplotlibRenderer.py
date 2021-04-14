@@ -86,7 +86,7 @@ class MatplotlibRenderer:
             return AltairRenderer().create_vis(vis, False)
         else:
             chart = None
-            # return chart
+            return chart
         if chart:
             plt.tight_layout()
             if lux.config.plotting_style and (
