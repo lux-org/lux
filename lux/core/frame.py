@@ -248,7 +248,7 @@ class LuxDataFrame(pd.DataFrame):
         self._intent = vis._inferred_intent
         self._parse_validate_compile_intent()
 
-    def set_data_type(self, types: dict):
+    def set_data_type(self, types: dict, order:dict = {}):
         """
         Set the data type for a particular attribute in the dataframe
         overriding the automatically-detected type inferred by Lux

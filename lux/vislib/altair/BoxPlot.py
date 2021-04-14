@@ -34,10 +34,16 @@ class BoxPlot(AltairChart):
 
         self.data = AltairChart.sanitize_dataframe(self.data)
 
-        chart = alt.Chart(self.data).mark_boxplot().encode(
-            x=f'{x_attr_abv}:O',
-            y=f'{y_attr_abv}:Q'
+        chart = alt.Chart(self.data).mark_boxplot(
+            outliers=alt.MarkConfig(filled=True)
+            ).encode(
+            x=f'{y_attr_abv}:Q',
+            y=f'{x_attr_abv}:O',
+        ).configure_errorbar(ticks=True).encode(
+            x=alt.X(f'{y_attr_abv}:Q'),
+            y=alt.Y(f'{x_attr_abv}:O'),
         )
+
         
         #####################################
         ## Constructing Altair Code String ##
