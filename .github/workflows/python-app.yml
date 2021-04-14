@@ -1,0 +1,58 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python application
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: lux
+          POSTGRES_DB: postgres
+        # Set health checks to wait until postgres has started
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install jupyter-client==6.1.6
+        pip install wheel
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        pip install sqlalchemy
+    - name: Upload data to Postgres
+      run: |
+        python lux/data/upload_car_data.py
+        python lux/data/upload_aug_test_data.py
+    - name: Lint check with black
+      run: |
+        black --target-version py37 --line-length 105 --check .
+    - name: Test with Pytest and Code Coverage Report
+      run: |
+        pytest --cov-report term --cov=lux tests/ tests_sql/
+        bash <(curl -s https://codecov.io/bash)

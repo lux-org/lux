@@ -20,6 +20,7 @@ from lux.vislib.altair.ScatterChart import ScatterChart
 from lux.vislib.altair.LineChart import LineChart
 from lux.vislib.altair.Histogram import Histogram
 from lux.vislib.altair.Heatmap import Heatmap
+from lux.vislib.altair.Choropleth import Choropleth
 
 
 class AltairRenderer:
@@ -50,10 +51,9 @@ class AltairRenderer:
         """
         # Lazy Evaluation for 2D Binning
         if vis.mark == "scatter" and vis._postbin:
-            vis._mark = "heatmap"
-            from lux.executor.PandasExecutor import PandasExecutor
-
-            PandasExecutor.execute_2D_binning(vis)
+            if lux.config.executor.name == "PandasExecutor":
+                vis._mark = "heatmap"
+                lux.config.executor.execute_2D_binning(vis)
         # If a column has a Period dtype, or contains Period objects, convert it back to Datetime
         if vis.data is not None:
             for attr in list(vis.data.columns):
@@ -82,6 +82,8 @@ class AltairRenderer:
             chart = LineChart(vis)
         elif vis.mark == "heatmap":
             chart = Heatmap(vis)
+        elif vis.mark == "geographical":
+            chart = Choropleth(vis)
         else:
             chart = None
 

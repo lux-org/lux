@@ -52,7 +52,7 @@ class LineChart(MatplotlibChart):
 
         self.data = self.data.dropna(subset=[x_attr.attribute, y_attr.attribute])
 
-        df = pd.DataFrame(self.data)
+        df = self.data
 
         x_pts = df[x_attr.attribute]
         y_pts = df[y_attr.attribute]

@@ -12,7 +12,7 @@ Note that you must perform :code:`import lux` before you load in or create the d
 
 What if my data is stored in a relational database?
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""
-  Lux has `some limited support <https://lux-api.readthedocs.io/en/latest/source/advanced/executor.html#sql-executor>`__ for SQL (currently only tested for Postgres). We are actively working on extending Lux to databases. If you are interested in using this feature, please `contact us <http://lux-project.slack.com/>`_ for more information.
+  Lux has `some limited support <https://lux-api.readthedocs.io/en/latest/source/advanced/executor.html#sql-executor>`__ for SQL (currently only tested for Postgres). We are actively working on extending Lux to databases. If you are interested in using this feature, please `contact us <https://communityinviter.com/apps/lux-project/lux>`_ for more information.
 
 What do I do with date-related attributes in my dataset?
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -153,7 +153,7 @@ I'm not able to export my visualizations via the :code:`exported` property.
 
 I have an issue that is not addressed by any of the FAQs.
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Please submit a `Github Issue <https://github.com/lux-org/lux/issues>`__ or ask a question on `Slack <http://lux-project.slack.com/>`__.
+Please submit a `Github Issue <https://github.com/lux-org/lux/issues>`__ or ask a question on `Slack <https://communityinviter.com/apps/lux-project/lux>`__.
 
 .. Not Currently Supported
 .. - What do I do if I want to change the data type of an attribute?
