@@ -252,18 +252,18 @@ class Vis:
         self._code = renderer.create_vis(self)
         return self._code
 
-    def __to_matplotlib_svg_dict(self) -> str:
+    def _to_matplotlib_svg(self) -> str:
         """
-        Private method to visualize the Vis with svg dictionary
+        Private method to render Vis as SVG with Matplotlib
 
         Returns
         -------
         str
-                String version of the Matplotlib code. Need to print out the string to apply formatting.
+                String version of the SVG.
         """
         from lux.vislib.matplotlib.MatplotlibRenderer import MatplotlibRenderer
 
-        renderer = MatplotlibRenderer(output_type="to_matplotlib_svg_dict")
+        renderer = MatplotlibRenderer(output_type="matplotlib_svg")
         self._code = renderer.create_vis(self)
         return self._code
 
@@ -309,8 +309,8 @@ class Vis:
             return self.to_Altair(**kwargs)
         elif language == "matplotlib":
             return self.to_matplotlib()
-        elif language == "to_matplotlib_svg_dict":
-            return self.__to_matplotlib_svg_dict()
+        elif language == "matplotlib_svg":
+            return self._to_matplotlib_svg()
         else:
             warnings.warn(
                 "Unsupported plotting backend. Lux currently only support 'altair', 'vegalite', or 'matplotlib'",

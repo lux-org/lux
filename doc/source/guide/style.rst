@@ -112,7 +112,7 @@ We now see that the displayed visualizations adopt these new imported settings.
   :width: 700
   :align: center 
 
-We can also export these Matplotlib charts with styling.
+We can also export these Matplotlib charts with the plotting style.
 
 .. code-block:: python
 	

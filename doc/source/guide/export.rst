@@ -19,7 +19,7 @@ In this tutorial, we look at the `Happy Planet Index <http://happyplanetindex.or
 Note that for the convienience of this tutorial, we have set Lux as the default display so we don't have to Toggle from the Pandas table display everytime we print the dataframe.
 
 Exporting widget visualizations as static HTML
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------------------------
 
 Let's say that you are interested in sharing the visualizations displayed in Lux with others, you can export the visualizations into a static HTML using the following command: 
 
@@ -34,7 +34,7 @@ By default, the file is saved as `export.html`, you can optionally specify the H
     df.save_as_html('hpi.html')
 
 Selecting visualizations from recommendation widget
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------------------------
 
 You can also click on visualizations of interest and export them into a separate widget for further processing.
 
@@ -79,7 +79,7 @@ From the dataframe recommendations, the visualization showing the relationship b
   :alt: add screenshot of exported vis
 
 Setting Vis as the Updated Intent
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------
 
 Often, we might be interested in other visualizations that is related to a visualization of interest and want to learn more. With the exported Vis, we can update the intent associated with dataframe to be based on the selected Vis to get more recommendations related to this visualization.
 
@@ -94,7 +94,7 @@ Often, we might be interested in other visualizations that is related to a visua
   :alt: add screenshot
 
 Accessing Widget State
-~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 We can access the set of recommendations generated for the dataframes via the properties `recommendation`.
 
@@ -130,7 +130,7 @@ You can also access the vis represented by the current intent via the property `
   :alt: add screenshot
 
 Exporting Visualizations as Code
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 Let's revist our earlier recommendations by clearing the specified intent.
 
@@ -156,59 +156,21 @@ Looking at the Occurrence tab, we are interested in the bar chart distribution o
   :align: center
   :alt: add screenshot
 
-To allow further edits of visualizations, visualizations can be exported to code in `Altair <https://altair-viz.github.io/>`_ or as `Vega-Lite <https://vega.github.io/vega-lite/>`_ specification.
+To allow further edits of visualizations, visualizations can be exported to code in `Matplotlib <https://matplotlib.org/>`_, `Altair <https://altair-viz.github.io/>`_, or as `Vega-Lite <https://vega.github.io/vega-lite/>`_ specification via the :code:`to_code` command:
 
 .. code-block:: python
 
-    print (vis.to_Altair())
+    print (vis.to_code("matplotlib"))
+    print (vis.to_code("altair"))
+    print (vis.to_code("vegalite"))
 
-.. image:: ../img/export-11.png
-  :width: 700
-  :align: center
-  :alt: add screenshot
-
-This can be copy-and-pasted back into a new notebook cell for further editing.
-
-.. code-block:: python
-
-    import altair as alt
-    visData = pd.DataFrame({'SubRegion': {0: 'Americas', 1: 'Asia Pacific', 2: 'Europe', 3: 'Middle East and North Africa', 4: 'Post-communist', 5: 'Sub Saharan Africa'}, 'Record': {0: 25, 1: 21, 2: 20, 3: 14, 4: 26, 5: 34}})
-
-    chart = alt.Chart(visData).mark_bar().encode(
-        y = alt.Y('SubRegion', type= 'nominal', axis=alt.Axis(labelOverlap=True), sort ='-x'),
-        x = alt.X('Record', type= 'quantitative', title='Count of Record'),
-    )
-    chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
-    chart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')
-    chart = chart.configure_axis(titleFontWeight=500,titleFontSize=11,titleFont='Helvetica Neue',
-                labelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue',labelColor='#505050')
-    chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',
-                labelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue')
-    chart = chart.properties(width=160,height=150)
-    chart
-
-.. image:: ../img/export-12.png
-  :width: 300
-  :align: center
-  :alt: add screenshot 
-
-You can also export this as Vega-Lite specification and vis/edit the specification on `Vega Editor <https://vega.github.io/editor>`_.
-
-.. code-block:: python
-
-    print (vis.to_VegaLite())
-
-.. image:: ../img/export-13.png
-  :width: 700
-  :align: center
-  :alt: add screenshot of what this looks like in Vega Editor
-
-Visualizations can also be exported to code in `Matplotlib <https://matplotlib.org/>`.
+Exporting Visualizations to Matplotlib
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We can also be export the visualization as code in `Matplotlib <https://matplotlib.org/>`_.
 
 .. code-block:: python
 
     print (vis.to_matplotlib())
-    print (vis.to_code(language="matplotlib"))
 
 .. image:: ../img/export-16.png
   :width: 700
@@ -218,6 +180,7 @@ Visualizations can also be exported to code in `Matplotlib <https://matplotlib.o
 This can be copy-and-pasted back into a new notebook cell for further editing.
 
 .. code-block:: python
+
   import matplotlib.pyplot as plt
   plt.rcParams.update(
               {
@@ -248,6 +211,60 @@ This can be copy-and-pasted back into a new notebook cell for further editing.
   :align: center
   :alt: add screenshot
 
+Exporting Visualizations to Altair
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. code-block:: python
+
+    print (vis.to_Altair())
+
+.. .. image:: ../img/export-11.png
+..   :width: 700
+..   :align: center
+..   :alt: add screenshot
+
+.. This can be copy-and-pasted back into a new notebook cell for further editing.
+
+.. code-block:: python
+
+    import altair as alt
+    visData = pd.DataFrame({'SubRegion': {0: 'Americas', 1: 'Asia Pacific', 2: 'Europe', 3: 'Middle East and North Africa', 4: 'Post-communist', 5: 'Sub Saharan Africa'}, 'Record': {0: 25, 1: 21, 2: 20, 3: 14, 4: 26, 5: 34}})
+
+    chart = alt.Chart(visData).mark_bar().encode(
+        y = alt.Y('SubRegion', type= 'nominal', axis=alt.Axis(labelOverlap=True), sort ='-x'),
+        x = alt.X('Record', type= 'quantitative', title='Count of Record'),
+    )
+    chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
+    chart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')
+    chart = chart.configure_axis(titleFontWeight=500,titleFontSize=11,titleFont='Helvetica Neue',
+                labelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue',labelColor='#505050')
+    chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',
+                labelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue')
+    chart = chart.properties(width=160,height=150)
+    chart
+
+.. image:: ../img/export-12.png
+  :width: 300
+  :align: center
+  :alt: add screenshot 
+
+Exporting Visualizations to Vega-Lite
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+You can also export this as Vega-Lite specification and view/edit the specification on `Vega Editor <https://vega.github.io/editor>`_.
+
+.. code-block:: python
+
+    print (vis.to_VegaLite())
+
+.. image:: ../img/export-13.png
+  :width: 700
+  :align: center
+  :alt: add screenshot of what this looks like in Vega Editor
+
+Exporting Standalone Visualizations 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Let's say now we are interested in the scatter plot of the `HPIRank` and `HappyPlanetIndex`.
 
@@ -266,7 +283,7 @@ Since the dataset used to create the scatterplot is large, Lux infers the variab
   :align: center
   :alt: screenshot of code with df
 
-If we wanted to include the actual data in the returned codeblock, we would use `to_Altair(standalone=True)`
+If we wanted to include the actual data in the returned codeblock, we would use :code:`to_Altair(standalone=True)` to create a code snippet that contains all the data that we need embedded in the code itself, which can be run outside the notebook.
 
 .. code-block:: python
 
