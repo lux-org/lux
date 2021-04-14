@@ -322,6 +322,8 @@ class LuxDataFrame(pd.DataFrame):
 
     @property
     def current_vis(self):
+        from lux.processor.Validator import Validator
+
         # _parse_validate_compile_intent does not call executor,
         # we only attach data to current vis when user request current_vis
         valid_current_vis = (
@@ -330,22 +332,8 @@ class LuxDataFrame(pd.DataFrame):
             and self._current_vis[0].data is None
             and self._current_vis[0].intent
         )
-        if valid_current_vis:
-            for clause in self._current_vis[0].intent:
-                if isinstance(clause.attribute, list):
-                    valid_current_vis = valid_current_vis and [
-                        attr
-                        for attr in clause.attribute
-                        if attr == "?" or attr == "Record" or attr in list(self.columns)
-                    ]
-                else:
-                    valid_current_vis = valid_current_vis and (
-                        clause.attribute == "?"
-                        or clause.attribute == "Record"
-                        or clause.attribute in list(self.columns)
-                    )
-            if valid_current_vis:
-                lux.config.executor.execute(self._current_vis, self)
+        if valid_current_vis and Validator.validate_intent(self._current_vis[0].intent, self):
+            lux.config.executor.execute(self._current_vis, self)
         return self._current_vis
 
     @current_vis.setter

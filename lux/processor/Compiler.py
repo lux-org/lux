@@ -15,6 +15,7 @@
 from lux.vis import Clause
 from typing import List, Dict, Union
 from lux.vis.Vis import Vis
+from lux.processor.Validator import Validator
 from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 from lux.utils import date_utils
@@ -83,20 +84,7 @@ class Compiler:
                 vis list with compiled lux.Vis objects.
         """
         valid_intent = _inferred_intent  # ensures intent is non-empty
-        for clause in _inferred_intent:  # checks if the intent is valid before compiling
-            if isinstance(clause.attribute, list):
-                valid_intent = valid_intent and [
-                    attr
-                    for attr in clause.attribute
-                    if attr == "?" or attr == "Record" or attr in list(ldf.columns)
-                ]
-            else:
-                valid_intent = valid_intent and (
-                    clause.attribute == "?"
-                    or clause.attribute == "Record"
-                    or clause.attribute in list(ldf.columns)
-                )
-        if valid_intent:
+        if valid_intent and Validator.validate_intent(_inferred_intent, ldf, True):
             vis_collection = Compiler.enumerate_collection(_inferred_intent, ldf)
             # autofill data type/model information
             Compiler.populate_data_type_model(ldf, vis_collection)
