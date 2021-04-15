@@ -217,7 +217,7 @@ Exporting Visualizations to Altair
 
 .. code-block:: python
 
-    print (vis.to_Altair())
+    print (vis.to_altair())
 
 .. .. image:: ../img/export-11.png
 ..   :width: 700
@@ -256,7 +256,7 @@ You can also export this as Vega-Lite specification and view/edit the specificat
 
 .. code-block:: python
 
-    print (vis.to_VegaLite())
+    print (vis.to_vegalite())
 
 .. image:: ../img/export-13.png
   :width: 700
@@ -276,18 +276,18 @@ Since the dataset used to create the scatterplot is large, Lux infers the variab
 
 .. code-block:: python
 
-    print (vis.to_Altair())
+    print (vis.to_altair())
 
 .. image:: ../img/export-14.png
   :width: 700
   :align: center
   :alt: screenshot of code with df
 
-If we wanted to include the actual data in the returned codeblock, we would use :code:`to_Altair(standalone=True)` to create a code snippet that contains all the data that we need embedded in the code itself, which can be run outside the notebook.
+If we wanted to include the actual data in the returned codeblock, we would use :code:`to_altair(standalone=True)` to create a code snippet that contains all the data that we need embedded in the code itself, which can be run outside the notebook.
 
 .. code-block:: python
 
-    print (vis.to_Altair(standalone=True))
+    print (vis.to_altair(standalone=True))
 
 .. image:: ../img/export-15.png
   :width: 700

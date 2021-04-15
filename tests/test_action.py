@@ -196,7 +196,7 @@ def test_year_filter_value(global_var):
     )
     vis = list_of_vis_with_year_filter[0]
     assert (
-        "T00:00:00.000000000" not in vis.to_Altair()
+        "T00:00:00.000000000" not in vis.to_altair()
     ), "Year filter title contains extraneous string, not displayed as summarized string"
     df.clear_intent()
 

@@ -50,7 +50,7 @@ If we click on the visualization for `Displacement` v.s. `Weight` and export it.
 	
 	# Before running this cell, click on Displacement v.s. Weight vis and export it.
 	vis = df.exported[0]
-	print (vis.to_Altair())
+	print (vis.to_altair())
 
 .. image:: ../img/style-3.png
   :width: 700

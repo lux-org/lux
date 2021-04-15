@@ -217,7 +217,7 @@ class Vis:
             self._intent = new_inferred
             self._inferred_intent = new_inferred
 
-    def to_Altair(self, standalone=False) -> str:
+    def to_altair(self, standalone=False) -> str:
         """
         Generate minimal Altair code to visualize the Vis
 
@@ -267,7 +267,7 @@ class Vis:
         self._code = renderer.create_vis(self)
         return self._code
 
-    def to_VegaLite(self, prettyOutput=True) -> Union[dict, str]:
+    def to_vegalite(self, prettyOutput=True) -> Union[dict, str]:
         """
         Generate minimal Vega-Lite code to visualize the Vis
 
@@ -304,9 +304,9 @@ class Vis:
             visualization specification corresponding to the Vis object
         """
         if language == "vegalite":
-            return self.to_VegaLite(**kwargs)
+            return self.to_vegalite(**kwargs)
         elif language == "altair":
-            return self.to_Altair(**kwargs)
+            return self.to_altair(**kwargs)
         elif language == "matplotlib":
             return self.to_matplotlib()
         elif language == "matplotlib_svg":
