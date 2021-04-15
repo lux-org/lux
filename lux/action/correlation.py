@@ -80,7 +80,6 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True, *args):
             )
         msr1 = measures[0].attribute
         msr2 = measures[1].attribute
-
         if ignore_transpose:
             check_transpose = check_transpose_not_computed(vlist, msr1, msr2)
         else:

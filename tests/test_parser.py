@@ -78,7 +78,7 @@ def test_case5(global_var):
 def test_case6(global_var):
     df = pytest.car_df
     df.set_intent(["Horsepower", "Origin=?"])
-    df._repr_html_()
+    df._ipython_display_()
     assert type(df._intent[0]) is lux.Clause
     assert df._intent[0].attribute == "Horsepower"
     assert type(df._intent[1]) is lux.Clause
@@ -90,7 +90,7 @@ def test_case6(global_var):
 def test_case7(global_var):
     df = pytest.car_df
     df.intent = [["Horsepower", "MilesPerGal", "Acceleration"], "Origin"]
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.current_vis) == 3
     df.clear_intent()
 
@@ -109,19 +109,17 @@ def test_validator_invalid_value(global_var):
 def test_validator_invalid_filter(global_var):
     df = pytest.college_df
 
-    with pytest.raises(KeyError, match="'New England'"):
-        with pytest.warns(
-            UserWarning,
-            match="The input 'New England' looks like a value that belongs to the 'Region' attribute.",
-        ):
-            df.intent = ["New England", "Southeast", "Far West"]
+    with pytest.warns(
+        UserWarning,
+        match="The input 'New England' looks like a value that belongs to the 'Region' attribute.",
+    ):
+        df.intent = ["New England", "Southeast", "Far West"]
 
 
 def test_validator_invalid_attribute(global_var):
     df = pytest.college_df
-    with pytest.raises(KeyError, match="'blah'"):
-        with pytest.warns(
-            UserWarning,
-            match="The input attribute 'blah' does not exist in the DataFrame.",
-        ):
-            df.intent = ["blah"]
+    with pytest.warns(
+        UserWarning,
+        match="The input attribute 'blah' does not exist in the DataFrame.",
+    ):
+        df.intent = ["blah"]

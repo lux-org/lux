@@ -26,16 +26,22 @@ def test_to_pandas(global_var):
 
 def test_display_LuxDataframe(global_var):
     df = pytest.car_df
-    df._repr_html_()
+    df._ipython_display_()
 
 
 def test_display_Vis(global_var):
     df = pytest.car_df
     vis = Vis(["Horsepower", "Acceleration"], df)
-    vis._repr_html_()
+    vis._ipython_display_()
 
 
 def test_display_VisList(global_var):
     df = pytest.car_df
     vislist = VisList(["?", "Acceleration"], df)
-    vislist._repr_html_()
+    vislist._ipython_display_()
+
+
+def test_repr(global_var):
+    df = pytest.car_df
+    output = df.__repr__()
+    assert "MilesPerGal" in output

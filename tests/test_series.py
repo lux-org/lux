@@ -20,7 +20,7 @@ import warnings
 def test_df_to_series():
     # Ensure metadata is kept when going from df to series
     df = pd.read_csv("lux/data/car.csv")
-    df._repr_html_()  # compute metadata
+    df._ipython_display_()  # compute metadata
     assert df.cardinality is not None
     series = df["Weight"]
     assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
@@ -40,14 +40,18 @@ def test_df_to_series():
         "_prev",
         "_history",
         "_saved_export",
+        "name",
         "_sampled",
         "_toggle_pandas_display",
         "_message",
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
+<<<<<<< HEAD
         "_order",
         "name",
+=======
+>>>>>>> c8b163c0f4682dd211b938af155eaba4a7b8bbc6
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."

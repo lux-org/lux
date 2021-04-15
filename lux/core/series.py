@@ -43,6 +43,7 @@ class LuxSeries(pd.Series):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
         "_sampled",
         "_toggle_pandas_display",
         "_message",
@@ -107,7 +108,7 @@ class LuxSeries(pd.Series):
 
         return lux.core.originalSeries(self, copy=False)
 
-    def __repr__(self):
+    def _ipython_display_(self):
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
@@ -190,7 +191,6 @@ class LuxSeries(pd.Series):
             )
             warnings.warn(traceback.format_exc())
             display(self.to_pandas())
-        return ""
 
     @property
     def recommendation(self):

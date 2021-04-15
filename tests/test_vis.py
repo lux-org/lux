@@ -79,7 +79,7 @@ def test_refresh_collection(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df.set_intent([lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")])
-    df._repr_html_()
+    df._ipython_display_()
     enhanceCollection = df.recommendation["Enhance"]
     enhanceCollection.refresh_source(df[df["Origin"] == "USA"])
     df.clear_intent()
@@ -168,10 +168,10 @@ def test_vis_set_intent(global_var):
 
     df = pytest.car_df
     vis = Vis(["Weight", "Horsepower"], df)
-    vis._repr_html_()
+    vis._ipython_display_()
     assert "Horsepower" in str(vis._code)
     vis.intent = ["Weight", "MilesPerGal"]
-    vis._repr_html_()
+    vis._ipython_display_()
     assert "MilesPerGal" in str(vis._code)
 
 
@@ -180,11 +180,11 @@ def test_vis_list_set_intent(global_var):
 
     df = pytest.car_df
     vislist = VisList(["Horsepower", "?"], df)
-    vislist._repr_html_()
+    vislist._ipython_display_()
     for vis in vislist:
         assert vis.get_attr_by_attr_name("Horsepower") != []
     vislist.intent = ["Weight", "?"]
-    vislist._repr_html_()
+    vislist._ipython_display_()
     for vis in vislist:
         assert vis.get_attr_by_attr_name("Weight") != []
 
@@ -194,7 +194,7 @@ def test_text_not_overridden():
 
     df = pd.read_csv("lux/data/college.csv")
     vis = Vis(["Region", "Geography"], df)
-    vis._repr_html_()
+    vis._ipython_display_()
     code = vis.to_Altair()
     assert 'color = "#ff8e04"' in code
 
@@ -438,7 +438,7 @@ def test_colored_heatmap_chart(global_var):
 def test_vegalite_default_actions_registered(global_var):
     df = pytest.car_df
     lux.config.plotting_backend = "vegalite"
-    df._repr_html_()
+    df._ipython_display_()
     # Histogram Chart
     assert "Distribution" in df.recommendation
     assert len(df.recommendation["Distribution"]) > 0
@@ -465,7 +465,7 @@ def test_vegalite_default_actions_registered_2(global_var):
     df["magnitude"] = np.random.randint(0, 20, size=len(df))
     lux.config.plotting_backend = "vegalite"
 
-    # Symbol Map
+    # Choropleth Map
     assert "Geographical" in df.recommendation
     assert len(df.recommendation["Geographical"]) > 0
 
@@ -481,7 +481,7 @@ def test_vegalite_default_actions_registered_2(global_var):
 def test_matplotlib_default_actions_registered(global_var):
     lux.config.plotting_backend = "matplotlib"
     df = pytest.car_df
-    df._repr_html_()
+    df._ipython_display_()
     # Histogram Chart
     assert "Distribution" in df.recommendation
     assert len(df.recommendation["Distribution"]) > 0
@@ -499,10 +499,32 @@ def test_matplotlib_default_actions_registered(global_var):
     assert len(df.recommendation["Correlation"]) > 0
 
 
+def test_matplotlib_default_actions_registered_2(global_var):
+    import numpy as np
+
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/altair-viz/vega_datasets/master/vega_datasets/_data/airports.csv"
+    )
+    df["magnitude"] = np.random.randint(0, 20, size=len(df))
+    lux.config.plotting_backend = "matplotlib"
+
+    # Choropleth Map
+    assert "Geographical" in df.recommendation
+    assert len(df.recommendation["Geographical"]) > 0
+
+    # Occurrence Chart
+    assert "Occurrence" in df.recommendation
+    assert len(df.recommendation["Occurrence"]) > 0
+
+    # Scatter Chart
+    assert "Correlation" in df.recommendation
+    assert len(df.recommendation["Correlation"]) > 0
+
+
 def test_vegalite_heatmap_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "vegalite"
-    df._repr_html_()
+    df._ipython_display_()
     # Heatmap Chart
     assert df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = False
@@ -516,7 +538,7 @@ def test_vegalite_heatmap_flag_config():
 def test_matplotlib_heatmap_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "matplotlib"
-    df._repr_html_()
+    df._ipython_display_()
     # Heatmap Chart
     assert df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = False
