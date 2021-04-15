@@ -46,7 +46,6 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
         lux.Clause("?", data_model="measure"),
         lux.Clause("?", data_model="measure"),
     ]
-
     intent.extend(filter_specs)
     vlist = VisList(intent, ldf)
     examples = ""

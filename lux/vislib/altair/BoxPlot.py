@@ -38,12 +38,13 @@ class BoxPlot(AltairChart):
 
         sort_order = self.data._order.get(x_attr_abv, [])
 
+        text, topkcode = "", ""
         if n_bars > k:
             remaining_bars = n_bars - k
 
             self.data = self.data[(self.data[x_attr_abv].isin(sort_order[:k]))]
             # self.data = self.data.sort_values(columns=x_attr_abv, key=lambda x: sort_order.index(x)).head(k)
-            self.text = alt.Chart(self.data).mark_text(
+            text = alt.Chart(self.data).mark_text(
                 x=155,
                 y=142,
                 align="right",
@@ -51,7 +52,7 @@ class BoxPlot(AltairChart):
                 fontSize=11,
                 text=f"+ {remaining_bars} more ...",
             )
-            self._topkcode = f"""text = alt.Chart(visData).mark_text(
+            topkcode = f"""text = alt.Chart(visData).mark_text(
 			x=155, 
 			y=142,
 			align="right",
@@ -68,8 +69,8 @@ class BoxPlot(AltairChart):
             .mark_boxplot(outliers=alt.MarkConfig(filled=True))
             .encode(x=alt.X(f"{y_attr_abv}:Q"), y=alt.Y(f"{x_attr_abv}:O", sort=sort_order))
         )
-
-        chart += self.text
+        if text != "":
+            chart += text
 
         #####################################
         ## Constructing Altair Code String ##
@@ -81,6 +82,6 @@ class BoxPlot(AltairChart):
             x={x_attr_abv}:O,
             y={y_attr_abv}:Q
             """
-        self.code += self._topkcode
+        self.code += topkcode
 
         return chart
