@@ -75,7 +75,7 @@ def test_period_to_altair(global_var):
     from lux.vis.Vis import Vis
 
     vis = Vis(["Acceleration", "Horsepower", "Year=1972"], df)
-    exported_code = vis.to_Altair()
+    exported_code = vis.to_altair()
 
     assert "Year = 1972" in exported_code
 

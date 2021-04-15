@@ -49,7 +49,7 @@ def test_special_char():
     assert vis.intent == ["special.char"]
     assert vis.get_attr_by_channel("x")[0].attribute == "Record"
     assert vis.get_attr_by_channel("y")[0].attribute == "special.char"
-    vis = vis.to_Altair()
+    vis = vis.to_altair()
     assert (
         "alt.Y('specialchar', type= 'nominal', axis=alt.Axis(labelOverlap=True, title='special.char'))"
         in vis
@@ -66,7 +66,7 @@ def test_special_char():
     assert vis.intent == ["special..char.."]
     assert vis.get_attr_by_channel("x")[0].attribute == "Record"
     assert vis.get_attr_by_channel("y")[0].attribute == "special..char.."
-    vis = vis.to_Altair()
+    vis = vis.to_altair()
     assert (
         "alt.Y('specialchar', type= 'nominal', axis=alt.Axis(labelOverlap=True, title='special..char..')"
         in vis
@@ -88,7 +88,7 @@ def test_abbrev_bar():
         {long_var: 1, "normal": 4},
     ]
     test = pd.DataFrame(dataset)
-    vis = Vis([long_var, "normal"], test).to_Altair()
+    vis = Vis([long_var, "normal"], test).to_altair()
     assert "axis=alt.Axis(labelOverlap=True, title='Lorem ipsum dol...t laborum.')" in vis
 
 
@@ -98,7 +98,7 @@ def test_abbrev_histogram():
         {long_var: 0},
     ]
     test = pd.DataFrame(dataset)
-    vis = Vis([long_var], test).to_Altair()
+    vis = Vis([long_var], test).to_altair()
     assert "axis=alt.Axis(labelOverlap=True, title='Lorem ipsu...aborum. (binned)')" in vis
 
 
@@ -107,7 +107,7 @@ def test_abbrev_scatter():
         {long_var: 1, "normal": 3},
     ]
     test = pd.DataFrame(dataset)
-    vis = Vis([long_var, "normal"], test).to_Altair()
+    vis = Vis([long_var, "normal"], test).to_altair()
     assert "axis=alt.Axis(title='Lorem ipsum dol...t laborum.')" in vis
 
 
@@ -119,7 +119,7 @@ def test_abbrev_agg():
         {"normal": "Europe", long_var: 4},
     ]
     test = pd.DataFrame(dataset)
-    vis = Vis([long_var, "normal"], test).to_Altair()
+    vis = Vis([long_var, "normal"], test).to_altair()
     assert "axis=alt.Axis(title='Mean of Lorem ipsum dol...')" in vis
 
 

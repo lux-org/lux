@@ -119,27 +119,27 @@ def test_vis_collection_via_list_of_vis(global_var):
     assert len(vlist) == 5
 
 
-def test_vis_to_Altair_basic_df(global_var):
+def test_vis_to_altair_basic_df(global_var):
     df = pytest.car_df
     vis = Vis(["Weight", "Horsepower"], df)
-    code = vis.to_Altair()
+    code = vis.to_altair()
     assert "alt.Chart(df)" in code, "Unable to export to Altair"
 
 
-def test_vis_to_Altair_custom_named_df(global_var):
+def test_vis_to_altair_custom_named_df(global_var):
     df = pytest.car_df
     some_weirdly_named_df = df.dropna()
     vis = Vis(["Weight", "Horsepower"], some_weirdly_named_df)
-    code = vis.to_Altair()
+    code = vis.to_altair()
     assert (
         "alt.Chart(some_weirdly_named_df)" in code
     ), "Unable to export to Altair and detect custom df name"
 
 
-def test_vis_to_Altair_standalone(global_var):
+def test_vis_to_altair_standalone(global_var):
     df = pytest.car_df
     vis = Vis(["Weight", "Horsepower"], df)
-    code = vis.to_Altair(standalone=True)
+    code = vis.to_altair(standalone=True)
     assert (
         "chart = alt.Chart(pd.DataFrame({'Weight': {0: 3504, 1: 3693, 2: 3436, 3: 3433, 4: 3449, 5: 43"
         in code
@@ -195,7 +195,7 @@ def test_text_not_overridden():
     df = pd.read_csv("lux/data/college.csv")
     vis = Vis(["Region", "Geography"], df)
     vis._ipython_display_()
-    code = vis.to_Altair()
+    code = vis.to_altair()
     assert 'color = "#ff8e04"' in code
 
 
@@ -203,7 +203,7 @@ def test_bar_chart(global_var):
     df = pytest.car_df
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Origin", "Acceleration"], df)
-    vis_code = vis.to_Altair()
+    vis_code = vis.to_altair()
     assert "alt.Chart(visData).mark_bar()" in vis_code
     assert (
         "y = alt.Y('Origin', type= 'nominal', axis=alt.Axis(labelOverlap=True, title='Origin'))"
@@ -217,7 +217,7 @@ def test_bar_chart(global_var):
     lux.config.plotting_style = None
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Origin", "Acceleration"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.barh(bars, measurements, align='center')" in vis_code
     assert "ax.set_xlabel('Acceleration')" in vis_code
     assert "ax.set_ylabel('Origin')" in vis_code
@@ -227,7 +227,7 @@ def test_colored_bar_chart(global_var):
     df = pytest.car_df
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Cylinders", "Acceleration", "Origin"], df)
-    vis_code = vis.to_Altair()
+    vis_code = vis.to_altair()
     assert "alt.Chart(visData).mark_bar()" in vis_code
     assert (
         "y = alt.Y('Cylinders', type= 'nominal', axis=alt.Axis(labelOverlap=True, title='Cylinders'))"
@@ -240,7 +240,7 @@ def test_colored_bar_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Cylinders", "Acceleration", "Origin"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.barh" in vis_code
     assert "title='Origin'" in vis_code
     assert "ax.set_xlabel('Acceleration')" in vis_code
@@ -252,7 +252,7 @@ def test_bar_uniform():
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["Type"] = "A"
     vis = Vis(["Type"], df)
-    vis_code = vis.to_Altair()
+    vis_code = vis.to_altair()
     assert "y = alt.Y('Type', type= 'nominal'" in vis_code
 
 
@@ -260,7 +260,7 @@ def test_scatter_chart(global_var):
     df = pytest.car_df
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Acceleration", "Weight"], df)
-    vis_code = vis.to_Altair()
+    vis_code = vis.to_altair()
     assert "alt.Chart(df).mark_circle()" in vis_code
     assert (
         "x=alt.X('Acceleration',scale=alt.Scale(domain=(8.0, 24.8)),type='quantitative', axis=alt.Axis(title='Acceleration'))"
@@ -273,7 +273,7 @@ def test_scatter_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Acceleration", "Weight"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.scatter(x_pts, y_pts, alpha=0.5)" in vis_code
     assert (
         "ax.set_xlabel('Acceleration', fontsize='15')" in vis_code
@@ -286,7 +286,7 @@ def test_colored_scatter_chart(global_var):
     df = pytest.car_df
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Origin", "Acceleration", "Weight"], df)
-    vis_code = vis.to_Altair()
+    vis_code = vis.to_altair()
     assert "alt.Chart(df).mark_circle()" in vis_code
     assert (
         "x=alt.X('Acceleration',scale=alt.Scale(domain=(8.0, 24.8)),type='quantitative', axis=alt.Axis(title='Acceleration'))"
@@ -299,7 +299,7 @@ def test_colored_scatter_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Origin", "Acceleration", "Weight"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.scatter" in vis_code
     assert "title='Origin'" in vis_code
     assert (
@@ -313,7 +313,7 @@ def test_line_chart(global_var):
     df = pytest.car_df
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Year", "Acceleration"], df)
-    vis_code = vis.to_Altair()
+    vis_code = vis.to_altair()
     assert "alt.Chart(visData).mark_line()" in vis_code
     assert (
         "y = alt.Y('Acceleration', type= 'quantitative', title='Mean of Acceleration', axis=alt.Axis(title='Acceleration')"
@@ -323,7 +323,7 @@ def test_line_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Year", "Acceleration"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.plot(x_pts, y_pts)" in vis_code
     assert "ax.set_xlabel('Year')" in vis_code
     assert "ax.set_ylabel('Mean of Acceleration')" in vis_code
@@ -333,7 +333,7 @@ def test_colored_line_chart(global_var):
     df = pd.read_csv("lux/data/car.csv")
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Year", "Acceleration", "Origin"], df)
-    vis_code = vis.to_Altair()
+    vis_code = vis.to_altair()
     assert "alt.Chart(visData).mark_line()" in vis_code
     assert (
         "y = alt.Y('Acceleration', type= 'quantitative', title='Mean of Acceleration', axis=alt.Axis(title='Acceleration')"
@@ -343,7 +343,7 @@ def test_colored_line_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Year", "Acceleration", "Origin"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.plot" in vis_code
     assert "title='Origin'" in vis_code
     assert "ax.set_xlabel('Year')" in vis_code
@@ -354,7 +354,7 @@ def test_histogram_chart(global_var):
     df = pytest.car_df
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["Displacement"], df)
-    vis_code = vis.to_Altair()
+    vis_code = vis.to_altair()
     assert "alt.Chart(visData).mark_bar" in vis_code
     assert (
         "alt.X('Displacement', title='Displacement (binned)',bin=alt.Bin(binned=True, step=38.7), type='quantitative', axis=alt.Axis(labelOverlap=True, title='Displacement (binned)'), scale=alt.Scale(domain=(68.0, 455.0)))"
@@ -364,7 +364,7 @@ def test_histogram_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Displacement"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "ax.bar(bars, measurements, width=32.25)" in vis_code
     assert "ax.set_xlabel('Displacement (binned)')" in vis_code
     assert "ax.set_ylabel('Number of Records')" in vis_code
@@ -375,7 +375,7 @@ def test_histogram_uniform():
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["Units"] = 4.0
     vis = Vis(["Units"], df)
-    vis_code = vis.to_Altair()
+    vis_code = vis.to_altair()
     assert "y = alt.Y('Units', type= 'nominal'" in vis_code
 
 
@@ -383,7 +383,7 @@ def test_heatmap_chart(global_var):
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["price", "longitude"], df)
-    vis_code = vis.to_Altair()
+    vis_code = vis.to_altair()
     assert "alt.Chart(visData).mark_rect()" in vis_code
     assert (
         "x=alt.X('xBinStart', type='quantitative', axis=alt.Axis(title='price'), bin = alt.BinParams(binned=True))"
@@ -399,7 +399,7 @@ def test_heatmap_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["price", "longitude"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "plt.imshow(df, cmap='Blues')" in vis_code
     assert "index='xBinStart'" in vis_code
     assert "values='count'" in vis_code
@@ -410,7 +410,7 @@ def test_colored_heatmap_chart(global_var):
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["price", "longitude", "availability_365"], df)
-    vis_code = vis.to_Altair()
+    vis_code = vis.to_altair()
     assert "alt.Chart(visData).mark_rect()" in vis_code
     assert (
         "x=alt.X('xBinStart', type='quantitative', axis=alt.Axis(title='price'), bin = alt.BinParams(binned=True))"
@@ -427,7 +427,7 @@ def test_colored_heatmap_chart(global_var):
 
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["price", "longitude", "availability_365"], df)
-    vis_code = vis.to_matplotlib_code()
+    vis_code = vis.to_matplotlib()
     assert "plt.imshow(df, cmap='viridis')" in vis_code
     assert "index='xBinStart'" in vis_code
     assert "values='availability_365'" in vis_code
