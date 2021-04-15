@@ -79,8 +79,7 @@ class Executor:
             + data_type_inverted["temporal"]
             + data_type_inverted["id"]
             + data_type_inverted["geographical"]
-            + data_type_inverted["ordinal"]
-
+            + data_type_inverted["ordinal"],
         }
         return data_model
 

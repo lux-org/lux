@@ -51,7 +51,6 @@ class LuxSeries(pd.Series):
         "pre_aggregated",
         "_type_override",
         "_order",
-        "name",
     ]
 
     _default_metadata = {

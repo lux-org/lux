@@ -164,7 +164,6 @@ class Compiler:
         from lux.utils.date_utils import is_datetime_string
 
         data_model_lookup = lux.config.executor.compute_data_model_lookup(ldf.data_type)
-        
 
         for vis in vlist:
             for clause in vis._inferred_intent:
@@ -270,7 +269,6 @@ class Compiler:
         # Helper function (TODO: Move this into utils)
         def line_or_bar_or_geo(ldf, dimension: Clause, measure: Clause):
             dim_type = dimension.data_type
-            # print(dim_type)
             # If no aggregation function is specified, then default as average
             if measure.aggregation == "":
                 measure.set_aggregation("mean")
@@ -314,7 +312,7 @@ class Compiler:
                 auto_channel = {"x": dimension, "y": measure}
             else:
                 vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
-            
+
             # print(dimension, measure, vis._mark, auto_channel)
             # print("\n")
         elif ndim == 2 and (nmsr == 0 or nmsr == 1):

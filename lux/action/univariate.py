@@ -63,8 +63,7 @@ def univariate(ldf, *args):
             ignore_rec_flag = True
     elif data_type_constraint == "nominal":
         possible_attributes = [
-            c for c in ldf.columns if (ldf.data_type[c] == "nominal")
-            and c != "Number of Records"
+            c for c in ldf.columns if (ldf.data_type[c] == "nominal") and c != "Number of Records"
         ]
         examples = ""
         if len(possible_attributes) >= 1:
@@ -103,15 +102,14 @@ def univariate(ldf, *args):
             ignore_rec_flag = True
     elif data_type_constraint == "ordinal":
         possible_attributes = [
-            c for c in ldf.columns if ldf.data_type[c] == "ordinal"
-            and c != "Number of Records"
+            c for c in ldf.columns if ldf.data_type[c] == "ordinal" and c != "Number of Records"
         ]
         intent = [lux.Clause(possible_attributes)]
         intent.extend(filter_specs)
         recommendation = {
             "action": "New Action Name Here",
             "description": "Show trends over <p class='highlight-descriptor'>ordinal</p> attributes.",
-            "long_description": "Long Description Here"
+            "long_description": "Long Description Here",
         }
     if ignore_rec_flag:
         recommendation["collection"] = []

@@ -55,7 +55,7 @@ class LuxDataFrame(pd.DataFrame):
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
-        "_order"
+        "_order",
     ]
 
     def __init__(self, *args, **kw):
@@ -269,7 +269,7 @@ class LuxDataFrame(pd.DataFrame):
         self._intent = vis._inferred_intent
         self._parse_validate_compile_intent()
 
-    def set_data_type(self, types: dict, order:dict = {}):
+    def set_data_type(self, types: dict, order: dict = {}):
         """
         Set the data type for a particular attribute in the dataframe
         overriding the automatically-detected type inferred by Lux
@@ -292,7 +292,9 @@ class LuxDataFrame(pd.DataFrame):
         """
         for col in order:
             if types.get(col) != "ordinal":
-                raise ValueError("Invalid  order argument. Please only specify orders for ordinal data types.")
+                raise ValueError(
+                    "Invalid  order argument. Please only specify orders for ordinal data types."
+                )
 
         if not self.data_type:
             self.maintain_metadata()
@@ -305,7 +307,7 @@ class LuxDataFrame(pd.DataFrame):
             self.data_type[attr] = types[attr]
             if types[attr] == "ordinal":
                 self._order[attr] = order.get(attr)
-        
+
         if self._type_override == None:
             self._type_override = types
         else:
@@ -721,7 +723,6 @@ class LuxDataFrame(pd.DataFrame):
             if len(rec["collection"]) > 0:
                 rec["vspec"] = []
                 for vis in rec["collection"]:
-                    # print(vis)
                     chart = vis.to_code(language=lux.config.plotting_backend, prettyOutput=False)
                     rec["vspec"].append(chart)
                 rec_lst.append(rec)

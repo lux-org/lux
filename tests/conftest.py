@@ -30,9 +30,5 @@ def global_var():
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
-<<<<<<< HEAD
         "_order",
-        "name",
-=======
->>>>>>> c8b163c0f4682dd211b938af155eaba4a7b8bbc6
     ]

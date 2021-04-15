@@ -20,7 +20,6 @@ def register_default_actions():
     lux.config.register_action("occurrence", univariate, no_vis, "nominal")
     lux.config.register_action("temporal", univariate, no_vis, "temporal")
     lux.config.register_action("geographical", univariate, no_vis, "geographical")
-    # lux.config.register_action("<insert tab name here>", univariate, no_vis, "ordinal")
 
     lux.config.register_action("Enhance", enhance, one_current_vis)
     lux.config.register_action("Filter", add_filter, one_current_vis)

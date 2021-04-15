@@ -74,7 +74,6 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
 
         # Line/Bar Chart
         if n_dim == 1 and (n_msr == 0 or n_msr == 1):
-            # print("this  case", dimension_lst, measure_lst)
             if v_size < 2:
                 return -1
             if vis.mark == "geographical":
