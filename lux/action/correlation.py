@@ -21,7 +21,7 @@ from lux.utils import utils
 
 
 # change ignore_transpose to false for now.
-def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
+def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True, *args):
     """
     Generates bivariate visualizations that represent all pairwise relationships in the data.
 
@@ -41,11 +41,18 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 
     import numpy as np
 
+
     filter_specs = utils.get_filter_specs(ldf._intent)
-    intent = [
-        lux.Clause("?", data_model="measure"),
-        lux.Clause("?", data_model="measure"),
-    ]
+    if (len(args) == 1):
+        intent = [
+            lux.Clause(args[0][0], data_model="measure"),
+            lux.Clause("?", data_model="measure"),
+        ]
+    else:
+        intent = [
+            lux.Clause("?", data_model="measure"),
+            lux.Clause("?", data_model="measure"),]
+    
     intent.extend(filter_specs)
     vlist = VisList(intent, ldf)
     examples = ""

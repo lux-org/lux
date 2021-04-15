@@ -54,6 +54,7 @@ class LuxDataFrame(pd.DataFrame):
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
+        "_order"
     ]
 
     def __init__(self, *args, **kw):
@@ -83,6 +84,7 @@ class LuxDataFrame(pd.DataFrame):
         self._min_max = None
         self.pre_aggregated = None
         self._type_override = {}
+        self._order = {}
         warnings.formatwarning = lux.warning_format
 
     @property
@@ -258,6 +260,10 @@ class LuxDataFrame(pd.DataFrame):
         types: dict
             Dictionary that maps attribute/column name to a specified Lux Type.
             Possible options: "nominal", "quantitative", "id", and "temporal".
+        order: dict
+            Default = {}
+            Dictionary that maps attribute/column name with ordinal data type to
+            a list where the ordering of that attribute is specified
 
         Example
         ----------
@@ -265,10 +271,9 @@ class LuxDataFrame(pd.DataFrame):
         df.set_data_type({"ID":"id",
                           "Reason for absence":"nominal"})
         """
-        if self._type_override == None:
-            self._type_override = types
-        else:
-            self._type_override = {**self._type_override, **types}
+        for col in order:
+            if types.get(col) != "ordinal":
+                raise ValueError("Invalid  order argument. Please only specify orders for ordinal data types.")
 
         if not self.data_type:
             self.maintain_metadata()
@@ -276,9 +281,16 @@ class LuxDataFrame(pd.DataFrame):
         for attr in types:
             if types[attr] not in ["nominal", "quantitative", "id", "temporal", "ordinal"]:
                 raise ValueError(
-                    f'Invalid data type option specified for {attr}. Please use one of the following supported types: ["nominal", "quantitative", "id", "temporal"]'
+                    f'Invalid data type option specified for {attr}. Please use one of the following supported types: ["nominal", "quantitative", "id", "temporal", "ordinal"]'
                 )
             self.data_type[attr] = types[attr]
+            if types[attr] == "ordinal":
+                self._order[attr] = order.get(attr)
+        
+        if self._type_override == None:
+            self._type_override = types
+        else:
+            self._type_override = {**self._type_override, **types}
 
         self.expire_recs()
 
