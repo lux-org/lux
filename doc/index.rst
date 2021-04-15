@@ -39,6 +39,7 @@ This website contains pages that overview of the basic and advanced functionalit
    :maxdepth: 1
    :caption: Advanced Topics
    
+   source/advanced/map
    source/advanced/date
    source/advanced/indexgroup
    source/advanced/custom
