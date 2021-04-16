@@ -13,7 +13,7 @@ SQL Executor
 
 Lux extends its visualization exploration operations to data within SQL databases. By using the SQL Executor, users can specify a SQL database to connect a LuxSQLTable for generating all the visualizations recommended in Lux.
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/SQLexecutor.gif?raw=true
+.. image:: https://github.com/lux-org/lux/blob/sql-engine/doc/source/img/SQLexecutor.gif?raw=true
   :width: 700
   :align: center
 
