@@ -20,6 +20,7 @@ from typing import Optional
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
+from lux.vis.CustomVis import CustomVis
 from lux.vis.VisList import VisList
 from lux.history.history import History
 from lux.utils.message import Message
@@ -238,17 +239,30 @@ class LuxDataFrame(pd.DataFrame):
         self.expire_recs()
         self._intent = vis._inferred_intent
         self._current_vis = [vis]
-        self._parse_validate_compile_intent(update_curr_vis=False)
+        
+        if type(vis) == CustomVis:
+            self._parse_validate_compile_intent(update_curr_vis=False) 
+        else:
+            self._parse_validate_compile_intent(update_curr_vis=True)
+
         self.log_current_intent_to_history()
 
     
     def log_current_intent_to_history(self):
+
         attrs = []
         for clause in self.intent:
-            if clause.attribute and clause.attribute in self.columns:
-                attrs.append(clause.attribute)
+            print("clause: ", clause)
+            if is_hashable(clause.attribute):
+                if clause.attribute and clause.attribute in self.columns:
+                    attrs.append(clause.attribute)
+            else:
+                for a in clause.attribute:
+                    if a and a in self.columns:
+                        attrs.append(a)
         
-        self.history.append_event("intent_set", attrs)
+        if attrs:
+            self.history.append_event("intent_set", attrs)
 
     def _parse_validate_compile_intent(self, update_curr_vis=True):
         self.maintain_metadata()
