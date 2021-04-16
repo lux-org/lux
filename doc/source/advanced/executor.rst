@@ -6,6 +6,8 @@ Lux provides an extensible framework for users to pick their own execution backe
 
 Please refer to :mod:`lux.executor.Executor`, if you are interested in extending Lux for your own execution backend.
 
+.. note:: You can follow a tutorial covering Lux' SQL functionality in a Jupyter notebook. To run the notebook on your own Postgresql database, you can follow the instructions there on how to set up and populate the appropriate example database and table. [`Github <https://github.com/lux-org/lux-binder-sql/blob/master/notebooks/Using%20Lux%20with%20SQL%20Databases.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder-sql/HEAD>`_]
+
 SQL Executor
 =============
 
@@ -27,12 +29,17 @@ Connecting Lux to a Database
 ----------------------------
 
 Before Lux can operate on data within a Postgresql database, users have to connect their LuxSQLTable to their database.
-To do this, users first need to specify a connection to their SQL database. This can be done using the psycopg2 package's functionality.
+To do this, users first need to specify a connection to their SQL database. This can be done using the psycopg2 or sqlalchemy package's functionality. Note that users will have to install these packages on their own if they want to connect Lux to their databases.
 
 .. code-block:: python
 
 	import psycopg2
 	connection = psycopg2.connect("dbname=postgres_db_name user=example_user password=example_user_password")
+
+.. code-block:: python
+
+	from sqlalchemy import create_engine
+	engine = create_engine("postgresql://postgres:lux@localhost:5432")
 
 Once this connection is created, users can connect the lux config to the database using the set_SQL_connection command.
 
