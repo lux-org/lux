@@ -1,19 +1,17 @@
-****************
-Execution Engine
-****************
+**************************
+Working with SQL Databases
+**************************
 
 Lux provides an extensible framework for users to pick their own execution backend for data processing. We currently support Pandas (:mod:`lux.executor.PandasExecutor`) and SQL (:mod:`lux.executor.SQLExecutor`) as the execution engine. By default, Lux leverages Pandas as its execution backend; in other words, the data processing code is performed as a set of Pandas operations on top of dataframe. In this tutorial, we further explain how Lux can be used with SQL with tables inside a Postgres database.
 
-Please refer to :mod:`lux.executor.Executor`, if you are interested in extending Lux for your own execution backend.
-
-.. note:: You can follow a tutorial covering Lux' SQL functionality in a Jupyter notebook. To run the notebook on your own Postgresql database, you can follow the instructions there on how to set up and populate the appropriate example database and table. [`Github <https://github.com/lux-org/lux-binder-sql/blob/master/notebooks/Using%20Lux%20with%20SQL%20Databases.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder-sql/HEAD>`_]
+.. note:: You can follow a tutorial describing how Lux can be used with data inside a Postgres database in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder-sql/blob/master/notebooks/Using%20Lux%20with%20SQL%20Databases.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder-sql/HEAD>`_]
 
 SQL Executor
 =============
 
 Lux extends its visualization capabilities to SQL within Postgres databases. By using the SQLExecutor, users can create a :code:`LuxSQLTable` that connects to a Postgres database. When the :code:`LuxSQLTable` object is printed out, Lux displays a subset of the data and recommends a default set of visualizations to display.
 
-.. image:: https://github.com/lux-org/lux/blob/sql-engine/doc/source/img/SQLexecutor.gif?raw=true
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/SQLexecutor1.gif?raw=true
   :width: 900
   :align: center
 
@@ -28,8 +26,10 @@ However, fetching the data required for generating visualizations can be computa
 Connecting Lux to a Database
 ----------------------------
 
-Before Lux can operate on data within a Postgresql database, users have to connect their LuxSQLTable to their database.
-To do this, users first need to specify a connection to their SQL database. This can be done using the psycopg2 or sqlalchemy package's functionality. Note that users will have to install these packages on their own if they want to connect Lux to their databases.
+.. note:: To run these examples with your own Postgresql database locally, please follow `these instructions <https://github.com/lux-org/lux-binder-sql/blob/master/notebooks/Using%20Lux%20with%20SQL%20Databases.ipynb>`_ how to set up and populate the appropriate example database and table.
+
+Before Lux can operate on data within a Postgres database, users have to connect their LuxSQLTable to their database.
+To do this, users first need to specify a connection to their SQL database. This can be done using `psycopg2 <https://pypi.org/project/psycopg2/>`_ or `sqlalchemy <https://www.sqlalchemy.org/>`_ SQL database connectors, shown as follows:
 
 .. code-block:: python
 
@@ -41,24 +41,26 @@ To do this, users first need to specify a connection to their SQL database. This
 	from sqlalchemy import create_engine
 	engine = create_engine("postgresql://postgres:lux@localhost:5432")
 
-Once this connection is created, users can connect the lux config to the database using the set_SQL_connection command.
+Note that users will have to install these packages on their own if they want to connect Lux to their databases.
+Once this connection is created, users can connect the lux config to the database using the :code:`set_SQL_connection` command.
 
 .. code-block:: python
 
 	lux.config.set_SQL_connection(connection)
 
-When the :code:`set_SQL_connection` function is called, Lux fetches the details required to connect to your PostgreSQL database and generate useful recommendations.
+After the SQL connection is set, Lux fetches the details required to connect to your PostgreSQL database and generate useful recommendations.
 
 Connecting a LuxSQLTable to a Table/View
 ----------------------------------------
 
-LuxSQLTables can be connected to individual tables or views created within your Postgresql database. This can be done by specifying the table/view name in the constructor. We are actively working on supporting joins between multiple tables. But as of now, the functionality is limited to one table/view per LuxSQLTable object only.
+LuxSQLTables can be connected to individual tables or views created within your Postgresql database. This can be done by specifying the table or view name in the constructor. 
+.. We are actively working on supporting joins between multiple tables. But as of now, the functionality is limited to one table or view per LuxSQLTable object only.
 
 .. code-block:: python
 
 	sql_tbl = LuxSQLTable(table_name = "my_table")
 
-You can also connect a LuxSQLTable to a table/view by using the set_SQL_table function.
+Alternatively, you can also connect a LuxSQLTable to a table or view by using :code:`set_SQL_table`:
 
 .. code-block:: python
 
@@ -70,7 +72,7 @@ Choosing an Executor
 
 
 Once a user has created a connection to their Postgresql database, they need to change Lux's execution engine so that the system can collect and process the data properly.
-By default Lux uses the Pandas executor to process local data in the LuxDataframe, but users will use the SQL executor when their LuxSQLTable is connected to a database.
+By default, Lux uses the Pandas executor to process local data in the LuxDataframe, but users will use the SQL executor when their LuxSQLTable is connected to a database.
 Users can specify the executor that Lux will use via the set_executor_type function as follows:
 
 .. code-block:: python
