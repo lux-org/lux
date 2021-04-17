@@ -348,13 +348,12 @@ class LuxDataFrame(pd.DataFrame):
     def show_all_column_vis(self):
         from lux.processor.Compiler import Compiler
 
-        quantitative_columns = [i for i in self.dtypes if i != "O" and i != "str"]
+        quantitative_columns = [i for i in self.data_type if i != "quantitative"]
         curr_vis = VisList([i for i in self.columns], self)
         if len(curr_vis) > 0:
-            test = Compiler.determine_encoding(self, curr_vis[0])
+            Compiler.determine_encoding(self, curr_vis[0])
             if (
-                test != None
-                and self._inferred_intent == []
+                curr_vis[0]._inferred_intent != []
                 and self._intent == []
                 and (len(quantitative_columns) == 2 or len(quantitative_columns) == 3)
             ):
