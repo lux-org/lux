@@ -166,7 +166,7 @@ To allow further edits of visualizations, visualizations can be exported to code
 
 Exporting Visualizations to Matplotlib
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-We can also be export the visualization as code in `Matplotlib <https://matplotlib.org/>`_.
+We can also export the visualization as code in `Matplotlib <https://matplotlib.org/>`_.
 
 .. code-block:: python
 
@@ -177,7 +177,7 @@ We can also be export the visualization as code in `Matplotlib <https://matplotl
   :align: center
   :alt: add screenshot
 
-This can be copy-and-pasted back into a new notebook cell for further editing.
+This code can be copy-and-pasted back into a new notebook cell for further editing.
 
 .. code-block:: python
 

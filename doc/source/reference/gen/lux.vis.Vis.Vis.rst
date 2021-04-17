@@ -1,4 +1,4 @@
-lux.vis.Vis.Vis
+﻿lux.vis.Vis.Vis
 ===============
 
 .. currentmodule:: lux.vis.Vis
@@ -24,9 +24,9 @@ lux.vis.Vis.Vis
       ~Vis.remove_filter_from_spec
       ~Vis.set_intent
       ~Vis.to_altair
-      ~Vis.to_vegalite
       ~Vis.to_code
       ~Vis.to_matplotlib
+      ~Vis.to_vegalite
    
    
 

@@ -1,6 +1,6 @@
-********************************
-Working with Geographic Data
-********************************
+************************************
+Working with Geographic Data Columns
+************************************
 
 This tutorial describes how geographic attributes can be visualized automatically with Lux. 
 Lux recognizes any columns named :code:`state` and :code:`country` that contains US States or worldwide countries as geographic attributes.
