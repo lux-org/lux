@@ -562,22 +562,24 @@ def test_all_column_current_vis():
 
 
 def test_all_column_current_vis_filter():
-    lux.config.plotting_backend = "matplotlib"
-    df = pytest.car_df
-    df = df[["Year", "Displacement"]]
-    df._ipython_display_()
-    assert df.current_vis != None
-
-    df = df[["Year", "Displacement", "Origin"]]
-    df._ipython_display_()
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    two_col_df = df[["Year", "Displacement"]]
+    two_col_df._ipython_display_()
+    assert two_col_df.current_vis != None
+    assert two_col_df.current_vis[0]._all_column
+    three_col_df = df[["Year", "Displacement", "Origin"]]
+    three_col_df._ipython_display_()
+    assert three_col_df.current_vis != None
+    assert three_col_df.current_vis[0]._all_column
 
 
 def test_intent_override_all_column():
-    lux.config.plotting_backend = "matplotlib"
     df = pytest.car_df
     df = df[["Year", "Displacement"]]
     df.intent = ["Year"]
     df._ipython_display_()
-    current_vis_code = df.current_vis[0].to_matplotlib()
-    assert "ax.set_ylabel('Number of Records')" in current_vis_code, "All column not overriden by intent"
-    lux.config.plotting_backend = "altair"
+    current_vis_code = df.current_vis[0].to_altair()
+    assert (
+        "y = alt.Y('Record', type= 'quantitative', title='Number of Records'" in current_vis_code
+    ), "All column not overriden by intent"
