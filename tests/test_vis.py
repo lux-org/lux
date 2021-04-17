@@ -578,6 +578,6 @@ def test_intent_override_all_column():
     df = df[["Year", "Displacement"]]
     df.intent = ["Year"]
     df._ipython_display_()
-    current_vis_code = df.current_vis[0].to_matplotlib_code()
+    current_vis_code = df.current_vis[0].to_matplotlib()
     assert "ax.set_ylabel('Number of Records')" in current_vis_code, "All column not overriden by intent"
     lux.config.plotting_backend = "altair"
