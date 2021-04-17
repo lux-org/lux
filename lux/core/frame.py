@@ -90,7 +90,6 @@ class LuxDataFrame(pd.DataFrame):
         self.pre_aggregated = None
         self._type_override = {}
         warnings.formatwarning = lux.warning_format
-        self.all_column = False
 
     @property
     def _constructor(self):
@@ -346,9 +345,11 @@ class LuxDataFrame(pd.DataFrame):
             rec_infolist.append(recommendations)
 
     def show_all_column_vis(self):
-        quantitative_columns = [i for i in self.dtypes if i != "O" and i != "str"]
-        if (len(quantitative_columns) == 2 or len(quantitative_columns) == 3) and self._intent == []:
-            self.current_vis = VisList([i for i in self.columns], self)
+        if self.intent == [] or self.intent is None:
+            vis = Vis(list(self.columns), self)
+            if vis.mark != "":
+                vis._all_column = True
+                self.current_vis = VisList([vis])
 
     def maintain_recs(self, is_series="DataFrame"):
         # `rec_df` is the dataframe to generate the recommendations on
@@ -705,6 +706,10 @@ class LuxDataFrame(pd.DataFrame):
             current_vis_spec = vlist[0].to_code(language=lux.config.plotting_backend, prettyOutput=False)
         elif numVC > 1:
             pass
+        if vlist[0]._all_column:
+            current_vis_spec["allcols"] = True
+        else:
+            current_vis_spec["allcols"] = False
         return current_vis_spec
 
     @staticmethod
