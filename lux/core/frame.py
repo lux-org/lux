@@ -90,6 +90,7 @@ class LuxDataFrame(pd.DataFrame):
         self.pre_aggregated = None
         self._type_override = {}
         warnings.formatwarning = lux.warning_format
+        self.all_column = False
 
     @property
     def _constructor(self):
@@ -344,6 +345,20 @@ class LuxDataFrame(pd.DataFrame):
         if recommendations["collection"] is not None and len(recommendations["collection"]) > 0:
             rec_infolist.append(recommendations)
 
+    def show_all_column_vis(self):
+        from lux.processor.Compiler import Compiler
+
+        curr_vis = VisList([i for i in self.columns], self)
+        if len(curr_vis) > 0:
+            Compiler.determine_encoding(self, curr_vis[0])
+            if (
+                self._inferred_intent == []
+                and self._intent == []
+                and (len(self.columns) == 2 or len(self.columns) == 3)
+            ):
+                self.current_vis = curr_vis
+                self.all_column = True
+
     def maintain_recs(self, is_series="DataFrame"):
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
@@ -418,9 +433,11 @@ class LuxDataFrame(pd.DataFrame):
                 if len(vlist) > 0:
                     rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
+            rec_df.show_all_column_vis()
             self._widget = rec_df.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
+            rec_df.show_all_column_vis()
             self._widget = rec_df.render_widget()
         self._recs_fresh = True
 
@@ -652,6 +669,7 @@ class LuxDataFrame(pd.DataFrame):
             recommendations=widgetJSON["recommendation"],
             intent=LuxDataFrame.intent_to_string(self._intent),
             message=self._message.to_html(),
+            allColumn=self.all_column,
         )
 
     @staticmethod
