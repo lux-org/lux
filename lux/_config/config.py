@@ -278,7 +278,7 @@ class Config:
         if type.lower() == "vegalite" or type.lower() == "altair":
             self._plotting_backend = "vegalite"
         elif type.lower() == "matplotlib":
-            self._plotting_backend = "matplotlib"
+            self._plotting_backend = "matplotlib_svg"
         else:
             warnings.warn(
                 "Unsupported plotting backend. Lux currently only support 'altair', 'vegalite', or 'matplotlib'",

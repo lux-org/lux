@@ -41,11 +41,13 @@ This website contains pages that overview of the basic and advanced functionalit
    
    source/advanced/datatype
    source/advanced/date
+   source/advanced/map
    source/advanced/indexgroup
    source/advanced/custom
    source/advanced/architecture
-   source/advanced/interestingness
    source/advanced/executor
+   source/advanced/interestingness
+   
    
 
 .. toctree::

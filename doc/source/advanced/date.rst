@@ -1,6 +1,6 @@
-********************************
-Working with Dates
-********************************
+***************************************
+Working with Temporal Datetime Columns 
+***************************************
 
 .. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder/blob/master/tutorial/tutorial/5-datetime.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial/5-datetime.ipynb>`_]
 
