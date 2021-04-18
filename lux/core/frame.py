@@ -619,6 +619,7 @@ class LuxDataFrame(pd.DataFrame):
     # Gets graphing code to be displayed in full screen view
     def get_graphing_code(self, change):
         import inspect
+
         full_screen_vis_idx = self._widget.selectedFullScreenIndex
         full_screen_action = list(self._widget.selectedFullScreenIndex.keys())[0]
         # Using visList to support eventual full view display of multiple graphs
@@ -632,7 +633,9 @@ class LuxDataFrame(pd.DataFrame):
         )
         if lux.config.plotting_backend == "vegalite":
             self._widget.unobserve(self.apply_full_view_changes)
-            self._widget.visGraphCode = "import pandas as pd\n" + full_screen_vis[0].get_Altair_vis_code()
+            self._widget.visGraphCode = (
+                "import pandas as pd\n" + full_screen_vis[0].get_Altair_vis_code()
+            )
             self._widget.visStyleCode = lux.config.plotting_style_code
             self._widget.observe(self.apply_full_view_changes, names="visGraphCode")
             self._widget.observe(self.apply_full_view_changes, names="visStyleCode")
@@ -645,6 +648,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def apply_full_view_changes(self, change):
         from IPython.display import display, clear_output
+
         code = self._widget.visGraphCode + self._widget.visStyleCode
         df = self
         loc = {"df": df}

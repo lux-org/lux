@@ -103,19 +103,20 @@ class AltairRenderer:
                 return chart_dict
             elif self.output_type == "Altair":
                 import inspect
+
                 source = ""
                 if lux.config.plotting_style:
                     if "def custom_config(chart):" in lux.config.plotting_style_code:
                         source = lux.config.plotting_style_code
                     else:
                         source = inspect.getsource(lux.config.plotting_style)
-                    default_vis_style_code = (
-                        "# Default Lux Style \nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
-                    )
+                    default_vis_style_code = "# Default Lux Style \nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
                     default_vis_style_code += "chart = chart.configure_axis(titleFontWeight=500,titleFontSize=11,titleFont='Helvetica Neue',\n"
                     default_vis_style_code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=9,labelFont='Helvetica Neue',labelColor='#505050')\n"
                     default_vis_style_code += "chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',\n"
-                    default_vis_style_code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=9,labelFont='Helvetica Neue')\n"
+                    default_vis_style_code += (
+                        "\t\t\t\t\tlabelFontWeight=400,labelFontSize=9,labelFont='Helvetica Neue')\n"
+                    )
                     default_vis_style_code += "chart = chart.properties(width=160,height=150)\n"
                     vis_style_code = "\n# Custom Style Additions"
                     # TODO: improve parsing such that it splits based on line of logic instead of line of code

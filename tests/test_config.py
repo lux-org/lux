@@ -292,16 +292,19 @@ def test_sort(global_var):
 def test_plot_setting(global_var):
     lux.config._plotting_backend = "vegalite"
     df = pytest.car_df
-    df["Year"] = pd.to_datetime(df["Year"], format='%Y')
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+
     def change_color_add_title(chart):
-        chart = chart.configure_mark(color="green") # change mark color to green
-        chart.title = "Custom Title" # add title to chart
+        chart = chart.configure_mark(color="green")  # change mark color to green
+        chart.title = "Custom Title"  # add title to chart
         return chart
 
     lux.config.plotting_style = change_color_add_title
 
-# 	df._ipython_display_()
+    # 	df._ipython_display_()
 
     vis_code = df.recommendation["Correlation"][0].to_Altair()
-    print (vis_code)
-    assert 'chart = chart.configure_mark(color="green")' in vis_code, "Exported chart does not have additional plot style setting."
+    print(vis_code)
+    assert (
+        'chart = chart.configure_mark(color="green")' in vis_code
+    ), "Exported chart does not have additional plot style setting."

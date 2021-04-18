@@ -53,27 +53,27 @@ class AltairChart:
 
     def apply_default_config(self):
         def default_config(chart):
-            chart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')
+            chart = chart.configure_title(fontWeight=500, fontSize=13, font="Helvetica Neue")
             chart = chart.configure_axis(
                 titleFontWeight=500,
                 titleFontSize=11,
-                titleFont='Helvetica Neue',
+                titleFont="Helvetica Neue",
                 labelFontWeight=400,
                 labelFontSize=9,
-                labelFont='Helvetica Neue',
-                labelColor='#505050'
+                labelFont="Helvetica Neue",
+                labelColor="#505050",
             )
             chart = chart.configure_legend(
                 titleFontWeight=500,
                 titleFontSize=10,
-                titleFont='Helvetica Neue',
+                titleFont="Helvetica Neue",
                 labelFontWeight=400,
                 labelFontSize=9,
-                labelFont='Helvetica Neue'
+                labelFont="Helvetica Neue",
             )
-            chart = chart.properties(width=160,height=150)
+            chart = chart.properties(width=160, height=150)
             return chart
-        
+
         self.chart = default_config(self.chart)
         if not lux.config.plotting_style:
             lux.config.plotting_style = default_config
