@@ -278,8 +278,12 @@ class Config:
         """
         if type.lower() == "vegalite" or type.lower() == "altair":
             self._plotting_backend = "vegalite"
+            self.plotting_style = None
+            self.plotting_style_code = ""
         elif type.lower() == "matplotlib":
             self._plotting_backend = "matplotlib"
+            self.plotting_style = None
+            self.plotting_style_code = ""
         else:
             warnings.warn(
                 "Unsupported plotting backend. Lux currently only support 'altair', 'vegalite', or 'matplotlib'",

@@ -648,8 +648,6 @@ class LuxDataFrame(pd.DataFrame):
         code = self._widget.visGraphCode + self._widget.visStyleCode
         df = self
         loc = {"df": df}
-        # look into security concerns here, code injection attack
-        # try catch to show error
         exec(code, {}, loc)
         chart = loc["chart"]
         vspec = chart.to_json()
@@ -658,13 +656,11 @@ class LuxDataFrame(pd.DataFrame):
     def change_style_config(self, change):
         from IPython.display import display, clear_output
 
-        code = "\n" + self._widget.visStyleCode
+        code = "\n" + self._widget.configPlottingStyle
         code = "def custom_config(chart):" + code + "\nreturn chart"
         code = code.replace("\n", "\n    ")
 
         loc = {}
-        # look into security concerns here, code injection attack
-        # try catch to show error
         exec(code, {}, loc)
         custom_config = loc["custom_config"]
         lux.config.plotting_style = custom_config

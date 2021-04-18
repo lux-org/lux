@@ -109,10 +109,25 @@ class AltairRenderer:
                         source = lux.config.plotting_style_code
                     else:
                         source = inspect.getsource(lux.config.plotting_style)
-                    vis_style_code = "\n"+"\n".join(source.split("\n    ")[1:-1])
+                    default_vis_style_code = (
+                        "# Default Lux Style \nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
+                    )
+                    default_vis_style_code += "chart = chart.configure_axis(titleFontWeight=500,titleFontSize=11,titleFont='Helvetica Neue',\n"
+                    default_vis_style_code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=9,labelFont='Helvetica Neue',labelColor='#505050')\n"
+                    default_vis_style_code += "chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',\n"
+                    default_vis_style_code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=9,labelFont='Helvetica Neue')\n"
+                    default_vis_style_code += "chart = chart.properties(width=160,height=150)\n"
+                    vis_style_code = "\n# Custom Style Additions"
+                    # TODO: improve parsing such that it splits based on line of logic instead of line of code
+                    for line in source.split("\n    ")[1:-1]:
+                        if line.strip() not in default_vis_style_code:
+                            vis_style_code += "\n" + line
+                    if vis_style_code == "\n# Custom Style Additions":
+                        vis_style_code = default_vis_style_code
+                    else:
+                        vis_style_code = default_vis_style_code + vis_style_code
                     vis_style_code = vis_style_code.replace("\n\t\t", "\n")
                     vis_style_code = vis_style_code.replace("\n        ", "\n")
-                    vis_style_code = vis_style_code[1:]
                     lux.config.plotting_style_code = vis_style_code
                 chart.code = chart.code.replace("\n\t\t", "\n")
                 chart.code = chart.code.replace("\n        ", "\n")
