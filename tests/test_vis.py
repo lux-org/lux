@@ -547,3 +547,39 @@ def test_matplotlib_heatmap_flag_config():
     assert not df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True
     lux.config.plotting_backend = "vegalite"
+
+
+def test_all_column_current_vis():
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/koldunovn/python_for_geosciences/master/DelhiTmax.txt",
+        delimiter=r"\s+",
+        parse_dates=[[0, 1, 2]],
+        header=None,
+    )
+    df.columns = ["Date", "Temp"]
+    df._ipython_display_()
+    assert df.current_vis != None
+
+
+def test_all_column_current_vis_filter():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.csv")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    two_col_df = df[["Year", "Displacement"]]
+    two_col_df._ipython_display_()
+    assert two_col_df.current_vis != None
+    assert two_col_df.current_vis[0]._all_column
+    three_col_df = df[["Year", "Displacement", "Origin"]]
+    three_col_df._ipython_display_()
+    assert three_col_df.current_vis != None
+    assert three_col_df.current_vis[0]._all_column
+
+
+def test_intent_override_all_column():
+    df = pytest.car_df
+    df = df[["Year", "Displacement"]]
+    df.intent = ["Year"]
+    df._ipython_display_()
+    current_vis_code = df.current_vis[0].to_altair()
+    assert (
+        "y = alt.Y('Record', type= 'quantitative', title='Number of Records'" in current_vis_code
+    ), "All column not overriden by intent"
