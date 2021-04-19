@@ -46,3 +46,6 @@ class Event:
             s += f", args={self.args}, kwargs={self.kwargs.keys()}"
         s += ">"
         return s
+    
+    def to_JSON(self):
+        return {"op_name": self.op_name, "cols": self.cols, "ex_count": self.ex_count}

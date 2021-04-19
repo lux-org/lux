@@ -1,4 +1,4 @@
-jupyterlab==2.2.9
+jupyterlab>=2.2.9
 scipy>=1.3.3
 altair>=4.0.0
 numpy>=1.16.5

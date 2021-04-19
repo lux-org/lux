@@ -57,6 +57,14 @@ class History:
         for event, weight in zip(self._events, weights):
             event_repr.append(f"{event.__repr__()} with weight {weight}")
         return "[\n" + ",\n".join(event_repr) + "\n]"
+    
+    def to_JSON(self):
+        _events_json = []
+
+        for e in self._events:
+            _events_json.append(e.to_JSON())
+        
+        return _events_json
 
     # deep copy 
     def copy(self):

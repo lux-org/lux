@@ -72,6 +72,7 @@ class CustomVis:
             recommendations=[],
             intent="",
             message="",
+            history_list=[]
         )
         display(widget)
     

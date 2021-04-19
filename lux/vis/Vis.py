@@ -128,6 +128,7 @@ class Vis:
                 recommendations=[],
                 intent="",
                 message="",
+                history_list=[],
             )
             display(widget)
 
