@@ -15,6 +15,7 @@
 from lux.vis import Clause
 from typing import List, Dict, Union
 from lux.vis.Vis import Vis
+from lux.processor.Validator import Validator
 from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 from lux.utils import date_utils
@@ -91,7 +92,8 @@ class Compiler:
         vis_collection: list[lux.Vis]
                 vis list with compiled lux.Vis objects.
         """
-        if _inferred_intent:
+        valid_intent = _inferred_intent  # ensures intent is non-empty
+        if valid_intent and Validator.validate_intent(_inferred_intent, ldf, True):
             vis_collection = Compiler.enumerate_collection(_inferred_intent, ldf)
             # autofill data type/model information
             Compiler.populate_data_type_model(ldf, vis_collection)
@@ -107,6 +109,8 @@ class Compiler:
 
             ldf._compiled = True
             return vis_collection
+        elif _inferred_intent:
+            return []
 
     @staticmethod
     def enforce_mark_type(_inferred_intent: List[Clause], vis_collection: VisList) -> VisList:

@@ -40,13 +40,13 @@ def test_df_to_series():
         "_prev",
         "_history",
         "_saved_export",
+        "name",
         "_sampled",
         "_toggle_pandas_display",
         "_message",
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
-        "name",
     ], "Metadata is lost when going from Dataframe to Series."
     assert df.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
@@ -82,11 +82,11 @@ def test_unnamed_column():
     series = df["YearsAtCompany"] / df["TotalWorkingYears"]
     series.__repr__()
     axis_title = "Series (binned)"
-    exported_code_str = series.recommendation["Distribution"][0].to_matplotlib_code()
+    exported_code_str = series.recommendation["Distribution"][0].to_matplotlib()
     assert axis_title in exported_code_str, "Unnamed column should have 'Series' as placeholder"
 
     lux.config.plotting_backend = "vegalite"
     series = df["YearsAtCompany"] / df["TotalWorkingYears"]
     series.__repr__()
-    exported_code_str = series.recommendation["Distribution"][0].to_Altair()
+    exported_code_str = series.recommendation["Distribution"][0].to_altair()
     assert axis_title in exported_code_str, "Unnamed column should have 'Series' as placeholder"

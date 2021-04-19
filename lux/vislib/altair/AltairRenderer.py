@@ -52,10 +52,9 @@ class AltairRenderer:
         """
         # Lazy Evaluation for 2D Binning
         if vis.mark == "scatter" and vis._postbin:
-            vis._mark = "heatmap"
-            from lux.executor.PandasExecutor import PandasExecutor
-
-            PandasExecutor.execute_2D_binning(vis)
+            if lux.config.executor.name == "PandasExecutor":
+                vis._mark = "heatmap"
+                lux.config.executor.execute_2D_binning(vis)
         # If a column has a Period dtype, or contains Period objects, convert it back to Datetime
         if vis.data is not None:
             for attr in list(vis.data.columns):

@@ -16,6 +16,7 @@ from .context import lux
 import pytest
 import pandas as pd
 import numpy as np
+import psycopg2
 from lux.interestingness.interestingness import interestingness
 
 
@@ -75,6 +76,7 @@ def test_interestingness_1_0_1(global_var):
 
 
 def test_interestingness_0_1_0(global_var):
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
@@ -136,6 +138,7 @@ def test_interestingness_0_1_1(global_var):
 
 
 def test_interestingness_1_1_0(global_var):
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
@@ -210,6 +213,7 @@ def test_interestingness_1_2_0(global_var):
     from lux.vis.Vis import Clause
     from lux.interestingness.interestingness import interestingness
 
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     y_clause = Clause(attribute="Name", channel="y")
     color_clause = Clause(attribute="Cylinders", channel="color")
@@ -301,6 +305,6 @@ def test_interestingness_deviation_nan():
 
     smaller_diff_score = interestingness(vis, test)
     bigger_diff_score = interestingness(vis2, test)
-    assert np.isclose(smaller_diff_score, 0.29, rtol=0.1)
-    assert np.isclose(bigger_diff_score, 0.94, rtol=0.1)
+    assert np.isclose(smaller_diff_score, 0.19, rtol=0.1)
+    assert np.isclose(bigger_diff_score, 0.62, rtol=0.1)
     assert smaller_diff_score < bigger_diff_score

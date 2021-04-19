@@ -37,7 +37,7 @@ lux/
 ```
 
 # Code Formatting
-In order to keep our codebase clean and readible, we are using PEP8 guidelines. To help us maintain and check code style, we are using [black](https://github.com/psf/black). Simply run `black .` before commiting. Failure to do so may fail the tests run on Travis. This package should have been installed for you as part of [requirements-dev](https://github.com/lux-org/lux/blob/master/requirements-dev.txt). 
+In order to keep our codebase clean and readible, we are using PEP8 guidelines. To help us maintain and check code style, we are using [black](https://github.com/psf/black). Simply run `black .` before commiting. Without running black,  the checks on the continuous integration tests can fail. `black` should be installed for you as part of [requirements-dev](https://github.com/lux-org/lux/blob/master/requirements-dev.txt). 
 
 # Running the Test Suite
 
@@ -54,8 +54,6 @@ To run a single test file, run:
 ```
 python -m pytest tests/<test_file_name>.py
 ```
-
-
 
 # Submitting a Pull Request
 

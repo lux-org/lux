@@ -60,13 +60,13 @@ class LuxSeries(pd.Series):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
         "_sampled",
         "_toggle_pandas_display",
         "_message",
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
-        "name",
     ]
 
     def __init__(self, *args, **kw):

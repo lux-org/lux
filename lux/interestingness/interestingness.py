@@ -45,7 +45,6 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
     int
             Interestingness Score
     """
-
     if vis.data is None or len(vis.data) == 0:
         return -1
         # raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
@@ -228,13 +227,19 @@ def deviation_from_overall(
     int
             Score describing how different the vis is from the overall vis
     """
-    v_filter_size = get_filtered_size(filter_specs, ldf)
+    if lux.config.executor.name == "PandasExecutor":
+        if exclude_nan:
+            vdata = vis.data.dropna()
+        else:
+            vdata = vis.data
+        v_filter_size = get_filtered_size(filter_specs, ldf)
+        v_size = len(vis.data)
+    elif lux.config.executor.name == "SQLExecutor":
+        from lux.executor.SQLExecutor import SQLExecutor
 
-    if exclude_nan:
-        vdata = vis.data.dropna()
-    else:
+        v_filter_size = SQLExecutor.get_filtered_size(filter_specs, ldf)
+        v_size = len(ldf)
         vdata = vis.data
-    v_size = len(vdata)
     v_filter = vdata[msr_attribute]
     total = v_filter.sum()
     v_filter = v_filter / total  # normalize by total to get ratio

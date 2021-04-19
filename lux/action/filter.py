@@ -42,7 +42,7 @@ def add_filter(ldf):
 
     # set_trace()
     # if fltr is specified, create visualizations where data is filtered by all values of the fltr's categorical variable
-    column_spec = utils.get_attrs_specs(ldf.current_vis[0].intent)
+    column_spec = utils.get_attrs_specs(ldf._intent)
     column_spec_attr = list(map(lambda x: x.attribute, column_spec))
     recommendation = {
         "action": "",
