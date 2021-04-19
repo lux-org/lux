@@ -591,7 +591,7 @@ class LuxDataFrame(pd.DataFrame):
 
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices") # NOTE observe syncs with frontend
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
-        self._widget.observe(self.remove_history_item, names="deletedHistoryIdxs") # TODO why does this need to be declared here too
+        self._widget.observe(self.remove_history_item, names="deletedHistoryItem") # TODO why does this need to be declared here too
 
     
     def remove_history_item(self, change):
@@ -600,8 +600,17 @@ class LuxDataFrame(pd.DataFrame):
         TODO not sure if this logic will work, copied from above
         idxs must be sorted I think
         """
-        for i, delIdx in enumerate(self._widget.deletedHistoryIdxs):
-            self.history.delete_at(delIdx - i)
+
+        mre_deleted = self._widget.deletedHistoryItem
+
+        obj = mre_deleted["item"]
+        idx = mre_deleted["idx"]
+        
+        print(f"Deleting {idx} from history")
+        self.history.delete_at(idx)
+
+        # for i, delIdx in enumerate(self._widget.deletedHistoryItem):
+        #     self.history.delete_at(delIdx - i)
 
     # this is called by ipython when the object is displayed in the kernel post execution
     def _ipython_display_(self):
@@ -634,7 +643,7 @@ class LuxDataFrame(pd.DataFrame):
                 # Observers(callback_function, listen_to_this_variable)
                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
                 self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
-                self._widget.observe(self.remove_history_item, names="deletedHistoryIdxs")
+                self._widget.observe(self.remove_history_item, names="deletedHistoryItem")
 
                 button = widgets.Button(
                     description="Toggle Pandas/Lux",
@@ -717,12 +726,7 @@ class LuxDataFrame(pd.DataFrame):
         check_import_lux_widget()
         import luxwidget # NOTE code from other repo 
 
-        print("Rendering widget")
-
         hJSON = self.history.to_JSON()
-
-        print("History JSON: ", hJSON)
-
         widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
         return luxwidget.LuxWidget( # widget
             currentVis=widgetJSON["current_vis"],

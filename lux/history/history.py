@@ -61,8 +61,9 @@ class History:
     def to_JSON(self):
         _events_json = []
 
-        for e in self._events:
-            _events_json.append(e.to_JSON())
+        for i, e in enumerate(self._events):
+            js = {**e.to_JSON(), "og_index": i}
+            _events_json.append(js)
         
         return _events_json
 
