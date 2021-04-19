@@ -134,12 +134,6 @@ class SQLExecutor(Executor):
             query = "SELECT {} FROM {} {}".format(required_variables, tbl.table_name, where_clause)
         data = pandas.read_sql(query, lux.config.SQLconnection)
         view._vis_data = utils.pandas_to_lux(data)
-        # view._vis_data.length = list(length_query["length"])[0]
-
-        tbl._message.add_unique(
-            f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
-            priority=98,
-        )
 
     @staticmethod
     def execute_aggregate(view: Vis, tbl: LuxSQLTable, isFiltered=True):

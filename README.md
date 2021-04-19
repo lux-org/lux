@@ -28,11 +28,16 @@
     </a>
 </p>
 
-Lux is a Python library that makes data science easier by automating aspects of the data exploration process. Lux facilitate faster experimentation with data, even when the user does not have a clear idea of what they are looking for. Visualizations are displayed via [an interactive widget](https://github.com/lux-org/lux-widget) that allow users to quickly browse through large collections of visualizations directly within their Jupyter notebooks.
+Lux is a Python library that facilitate fast and easy data exploration by automating the visualization and data analysis process. By simply printing out a dataframe in a Jupyter notebook, Lux recommends a set of visualizations highlighting interesting trends and patterns in the dataset. Visualizations are displayed via [an interactive widget](https://github.com/lux-org/lux-widget) that enables users to quickly browse through large collections of visualizations and make sense of their data.
 
+<img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/demohighlight.gif?raw=true"
+     alt="Highlighted Visual Dataframe Workflow with Lux"
+     style="width:900px" />
+     
 Here is a [1-min video](https://www.youtube.com/watch?v=qmnYP-LmbNU) introducing Lux, and [slides](http://dorisjunglinlee.com/files/Zillow_07_2020_Slide.pdf) from a more extended talk.
 
-Try out Lux on your own in a live Jupyter Notebook [here](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/demo/employee_demo.ipynb)! 
+Check out our [notebook gallery](https://lux-api.readthedocs.io/en/latest/source/reference/gallery.html) with examples of how Lux can be used with a variety of dataset and analysis scenarios. 
+<br>Or try out Lux on your own in a [live Jupyter Notebook](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/demo/employee_demo.ipynb)! 
 
 # Getting Started
 
@@ -93,7 +98,7 @@ df
 
 ### Easy programmatic access and export of visualizations: 
 
-Now that we have found some interesting visualizations through Lux, we might be interested in digging into these visualizations a bit more or sharing it with others. We can save the visualizations generated in Lux as a [static, shareable HTML](https://lux-api.readthedocs.io/en/latest/source/guide/export.html#exporting-widget-visualizations-as-static-html) or programmatically access these visualizations further in Jupyter. Selected `Vis` objects can be translated into [Altair](http://altair-viz.github.io/) or [Vega-Lite](https://vega.github.io/vega-lite/) code, so that they can be further edited.
+Now that we have found some interesting visualizations through Lux, we might be interested in digging into these visualizations a bit more or sharing it with others. We can save the visualizations generated in Lux as a [static, shareable HTML](https://lux-api.readthedocs.io/en/latest/source/guide/export.html#exporting-widget-visualizations-as-static-html) or programmatically access these visualizations further in Jupyter. Selected `Vis` objects can be translated into [Altair](http://altair-viz.github.io/), [Matplotlib](https://matplotlib.org/), or [Vega-Lite](https://vega.github.io/vega-lite/) code, so that they can be further edited.
 
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/export.gif?raw=true"
      alt="Easily exportable visualization object"
@@ -134,7 +139,7 @@ To find out more about other features in Lux, see the complete documentation on 
 # Installation & Setup
 
 To get started, please follow both the installation and setup instructions in your command line.
-`lux-api` can be installed through [PyPI](https://pypi.org/project/lux-api/). 
+`lux-api` can be installed through [PyPI](https://pypi.org/project/lux-api/) or [conda-forge](https://github.com/conda-forge/lux-api-feedstock). 
 
 ```bash
 pip install lux-api
@@ -162,13 +167,13 @@ Note that you may have to restart the Jupyter Notebook server to ensure that the
 
 ## Setup in Jupyter Lab
 
-To use Lux in [Jupyter Lab](https://github.com/jupyterlab/jupyterlab), activate the lab extension:
+Lux is compatible with both Jupyter Lab version 2 and 3. To use Lux in [Jupyter Lab](https://github.com/jupyterlab/jupyterlab), activate the lab extension:
 
 ```bash
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
 jupyter labextension install luxwidget
 ```
-Lux is only compatible with Jupyter Lab version 2.2.9 and below. Support for the recent [JupyterLab 3](https://blog.jupyter.org/jupyterlab-3-0-is-out-4f58385e25bb) will come soon. Note that JupyterLab and VSCode is supported only for lux-widget version >=0.1.2, if you have an earlier version, please upgrade to the latest version of [lux-widget](https://pypi.org/project/lux-widget/). Lux has only been tested with the Chrome browser. 
+Note that JupyterLab and VSCode is supported only for lux-widget version >=0.1.2, if you have an earlier version, please upgrade to the latest version of [lux-widget](https://pypi.org/project/lux-widget/). Lux has only been tested with the Chrome browser. 
 
 If you encounter issues with the installation, please refer to [this page](https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips) to troubleshoot the installation. Follow [these instructions](https://lux-api.readthedocs.io/en/latest/source/getting_started/installation.html#manual-installation-dev-setup) to set up Lux for development purposes.
 
