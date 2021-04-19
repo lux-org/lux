@@ -108,6 +108,7 @@ class PandasExecutor(Executor):
                     )
                     # vis._mark = "heatmap"
                     # PandasExecutor.execute_2D_binning(vis) # Lazy Evaluation (Early pruning based on interestingness)
+            vis.data.clear_intent()  # Ensure that intent is not propogated to the vis data
 
     @staticmethod
     def execute_aggregate(vis: Vis, isFiltered=True):
