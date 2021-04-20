@@ -84,7 +84,12 @@ def check_if_id_like(df, attribute):
     if is_string:
         # For string IDs, usually serial numbers or codes with alphanumerics have a consistent length (eg., CG-39405) with little deviation. For a high cardinality string field but not ID field (like Name or Brand), there is less uniformity across the string lengths.
         if len(df) > 50:
-            sampled = df[attribute].sample(50, random_state=99)
+            if lux.config.executor.name == "PandasExecutor":
+                sampled = df[attribute].sample(50, random_state=99)
+            else:
+                from lux.executor.SQLExecutor import SQLExecutor
+
+                sampled = SQLExecutor.execute_preview(df, preview_size=50)
         else:
             sampled = df[attribute]
         str_length_uniformity = sampled.apply(lambda x: type(x) == str and len(x)).std() < 3
@@ -127,3 +132,15 @@ def matplotlib_setup(w, h):
     ax.spines["right"].set_color("#dddddd")
     ax.spines["top"].set_color("#dddddd")
     return fig, ax
+
+
+def is_numeric_nan_column(series):
+    if series.dtype == object:
+        if series.hasnans:
+            series = series.dropna()
+        try:
+            return True, series.astype("float")
+        except Exception as e:
+            return False, series
+    else:
+        return False, series

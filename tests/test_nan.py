@@ -113,3 +113,31 @@ def test_nan_series_occurence():
     ldf = pd.DataFrame(nan_series, columns=["col"])
     ldf._ipython_display_()
     assert ldf.recommendation["Occurrence"][0].mark == "bar"
+
+
+def test_numeric_with_nan():
+    df = pd.read_html(
+        "https://archive.ics.uci.edu/ml/datasets.php?format=&task=&att=&area=&numAtt=&numIns=&type=&sort=nameUp&view=table"
+    )[5]
+    df.columns = df.loc[0]
+    df = df.loc[1:]
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    assert (
+        df.data_type["# Instances"] == "quantitative"
+    ), "Testing a numeric columns with NaN, check if type can be detected correctly"
+    assert (
+        df.data_type["# Attributes"] == "quantitative"
+    ), "Testing a numeric columns with NaN, check if type can be detected correctly"
+    a = df[["# Instances", "# Attributes"]]
+    a._ipython_display_()
+    assert (
+        len(a.recommendation["Distribution"]) == 2
+    ), "Testing a numeric columns with NaN, check that histograms are displayed"
+    assert "contains missing values" in a._message.to_html(), "Warning message for NaN displayed"
+    # a = a.dropna()
+    # # TODO: Needs to be explicitly called, possible problem with metadata prpogation
+    # a._ipython_display_()
+    # assert (
+    #     len(a.recommendation["Distribution"]) == 2
+    # ), "Example where dtype might be off after dropna(), check if histograms are still displayed"
+    assert "" in a._message.to_html(), "No warning message for NaN should be displayed"
