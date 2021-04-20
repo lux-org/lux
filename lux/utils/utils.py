@@ -13,6 +13,7 @@
 #  limitations under the License.
 import pandas as pd
 import matplotlib.pyplot as plt
+import lux
 
 
 def convert_to_list(x):
@@ -119,7 +120,8 @@ def like_geo(val):
 
 def matplotlib_setup(w, h):
     plt.ioff()
-    fig, ax = plt.subplots(figsize=(w, h))
+    scale = lux.config.plotting_scale 
+    fig, ax = plt.subplots(figsize=(w * scale, h * scale))
     ax.set_axisbelow(True)
     ax.grid(color="#dddddd")
     ax.spines["right"].set_color("#dddddd")

@@ -732,6 +732,7 @@ class LuxDataFrame(pd.DataFrame):
             recommendations=widgetJSON["recommendation"],
             intent=LuxDataFrame.intent_to_string(self._intent),
             message=self._message.to_html(),
+            plottingScale=lux.config.plotting_scale
         )
 
     @staticmethod
