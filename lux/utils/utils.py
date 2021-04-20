@@ -125,7 +125,7 @@ def like_geo(val):
 
 def matplotlib_setup(w, h):
     plt.ioff()
-    scale = lux.config.plotting_scale 
+    scale = lux.config.plotting_scale
     fig, ax = plt.subplots(figsize=(w * scale, h * scale))
     ax.set_axisbelow(True)
     ax.grid(color="#dddddd")
