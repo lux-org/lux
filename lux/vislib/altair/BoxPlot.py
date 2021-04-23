@@ -32,7 +32,7 @@ class BoxPlot(AltairChart):
         x_attr_abv = str(x_attr.attribute)
         y_attr_abv = str(y_attr.attribute)
 
-        k = 10
+        k = 6
         self._topkcode = ""
         n_bars = len(self.data[x_attr_abv].unique())
 

@@ -45,8 +45,10 @@ class BarChart(AltairChart):
 
         if hasattr(self.vis,"_sort"):
             sort_order= self.vis._sort
+            k = 6
         else:
-            sort_order  = []
+            sort_order  = []        
+            k = 10
 
         if len(x_attr_abv) > 25:
             x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
@@ -102,7 +104,7 @@ class BarChart(AltairChart):
                 x_attr_field.sort = "-y"
                 x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{x_attr_abv}'),sort='-y')"
         
-        k = 10
+
         self._topkcode = ""
         n_bars = len(self.data.iloc[:, 0].unique())
  
