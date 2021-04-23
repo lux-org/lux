@@ -26,6 +26,7 @@ class BoxPlot(AltairChart):
         return f"BoxPlot <{str(self.vis)}>"
 
     def initialize_chart(self):
+
         x_attr = self.vis.get_attr_by_channel("x")[0]
         y_attr = self.vis.get_attr_by_channel("y")[0]
 
