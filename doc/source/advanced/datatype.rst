@@ -60,7 +60,6 @@ Below: Lux displays the occurence counts of nominal variables under the :code:`O
   :align: center
   :alt: Displays bar chart for nominal variables.
 
-<<<<<<< HEAD
 Ordinal
 --------
 The Ordinal Data type is a subset of nominal data where there is an ordering to the categories. 
@@ -110,7 +109,6 @@ However, after setting intent using :code:`df.intent = ["education"]`, we see bo
           `this Github issue <https://github.com/lux-org/lux/issues/240>`_.
 
 
-=======
 Geographic
 -----------
 Geographic data types describe location-based attributes, such as US states and world countries. 
@@ -131,7 +129,6 @@ Here, the :code:`Geographical` tab shows different choropleth maps of how differ
 .. note:: For more information on geographic attributes in Lux, see `this tutorial <https://lux-api.readthedocs.io/en/latest/source/advanced/map.html>`_.
   
   
->>>>>>> 1dbbcb9967f0e7413675626ce080c1059e214e74
 Temporal
 --------
 Temporal data types describe time-related attributes, such as dates and timestamps. 
