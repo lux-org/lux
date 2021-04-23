@@ -64,7 +64,7 @@ Ordinal
 --------
 The Ordinal Data type is a subset of nominal data where there is an ordering to the categories. 
 Examples could include grade level at school, rankings,
-or even the [`Likert Scale <https://en.wikipedia.org/wiki/Likert_scale>`_] popular in many surveys. 
+or even the `Likert Scale <https://en.wikipedia.org/wiki/Likert_scale>`_ popular in many surveys. 
 Currently, the only way to use the Ordinal data type is by using :code:`df.set_data_type`
 and specifiying an :code:`order` argument. An example is provided below:
 
@@ -103,6 +103,11 @@ However, after setting intent using :code:`df.intent = ["education"]`, we see bo
   :width: 700
   :align: center
   :alt: Displays bar chart for nominal variables.
+
+.. note:: Currently, the box plots are only available for the :code:`vegalite` backend. 
+          If you would like this to be supported in :code:`matplotlib` as well or have any suggestions for the ordinal data, please comment them under 
+          `this Github issue <https://github.com/lux-org/lux/issues/240>`_.
+
 
 Temporal
 --------
