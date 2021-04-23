@@ -312,9 +312,7 @@ class Compiler:
                 auto_channel = {"x": dimension, "y": measure}
             else:
                 vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
-
-            # print(dimension, measure, vis._mark, auto_channel)
-            # print("\n")
+                vis._sort = ldf._order.get(auto_channel.get("y").attribute)
         elif ndim == 2 and (nmsr == 0 or nmsr == 1):
             # Line or Bar chart broken down by the dimension
             dimensions = vis.get_attr_by_data_model("dimension")

@@ -43,6 +43,11 @@ class BarChart(AltairChart):
         x_attr_abv = str(x_attr.attribute)
         y_attr_abv = str(y_attr.attribute)
 
+        if hasattr(self.vis,"_sort"):
+            sort_order= self.vis._sort
+        else:
+            sort_order  = []
+
         if len(x_attr_abv) > 25:
             x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
         if len(y_attr_abv) > 25:
@@ -69,7 +74,11 @@ class BarChart(AltairChart):
             y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{y_attr_abv}'))"
             x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', title='{agg_title}', axis=alt.Axis(title='{agg_title}'))"
 
-            if y_attr.sort == "ascending":
+            if sort_order:
+                y_attr_field.sort = sort_order
+                y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{y_attr_abv}'),sort={sort_order})"
+
+            elif y_attr.sort == "ascending":
                 y_attr_field.sort = "-x"
                 y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{y_attr_abv}'), sort ='-x')"
         else:
@@ -88,16 +97,21 @@ class BarChart(AltairChart):
                 axis=alt.Axis(title=agg_title),
             )
             y_attr_field_code = f"alt.Y('{y_attr.attribute}', type= '{y_attr.data_type}', title='{agg_title}', axis=alt.Axis(title='{agg_title}'))"
+
             if x_attr.sort == "ascending":
                 x_attr_field.sort = "-y"
                 x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{x_attr_abv}'),sort='-y')"
+        
         k = 10
         self._topkcode = ""
         n_bars = len(self.data.iloc[:, 0].unique())
-
+ 
         if n_bars > k:  # Truncating to only top k
             remaining_bars = n_bars - k
-            self.data = self.data.nlargest(k, columns=measure_attr)
+            if sort_order:
+                self.data = self.data.loc[(self.data[y_attr_abv].isin(sort_order[:k]))]
+            else:
+                self.data = self.data.nlargest(k, columns=measure_attr)
             self.data = AltairChart.sanitize_dataframe(self.data)
             self.text = alt.Chart(self.data).mark_text(
                 x=155,
