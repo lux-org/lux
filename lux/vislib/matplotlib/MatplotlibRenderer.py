@@ -93,7 +93,7 @@ class MatplotlibRenderer:
             plt.tight_layout()
             if lux.config.plotting_style and (
                 lux.config.plotting_backend == "matplotlib"
-                or lux.config.plotting_backend == "matplotlib_code"
+                or lux.config.plotting_backend == "matplotlib_svg"
             ):
                 chart.ax = lux.config.plotting_style(chart.fig, chart.ax)
             plt.tight_layout()
@@ -102,9 +102,9 @@ class MatplotlibRenderer:
             chart.chart = base64.b64encode(tmpfile.getvalue()).decode("utf-8")
             plt.clf()
             plt.close("all")
-            if self.output_type == "matplotlib":
+            if self.output_type == "matplotlib_svg":
                 return {"config": chart.chart, "vislib": "matplotlib"}
-            if self.output_type == "matplotlib_code":
+            if self.output_type == "matplotlib":
                 if lux.config.plotting_style:
                     import inspect
 

@@ -60,6 +60,7 @@ Below: Lux displays the occurence counts of nominal variables under the :code:`O
   :align: center
   :alt: Displays bar chart for nominal variables.
 
+<<<<<<< HEAD
 Ordinal
 --------
 The Ordinal Data type is a subset of nominal data where there is an ordering to the categories. 
@@ -109,6 +110,28 @@ However, after setting intent using :code:`df.intent = ["education"]`, we see bo
           `this Github issue <https://github.com/lux-org/lux/issues/240>`_.
 
 
+=======
+Geographic
+-----------
+Geographic data types describe location-based attributes, such as US states and world countries. 
+Lux infers that an attribute is geographical if it's column name is :code:`state` or :code:`country` and if the data content contain state or country information. For example, the :code:`Country` column is detected as a geographic data type in this example:
+
+.. code-block:: python
+
+  df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/hpi.csv")
+  df
+
+Here, the :code:`Geographical` tab shows different choropleth maps of how different measures vary by country.
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/map-2.png?raw=true
+  :width: 600
+  :align: center
+  :alt: Geographic tab of HPI dataset
+
+.. note:: For more information on geographic attributes in Lux, see `this tutorial <https://lux-api.readthedocs.io/en/latest/source/advanced/map.html>`_.
+  
+  
+>>>>>>> 1dbbcb9967f0e7413675626ce080c1059e214e74
 Temporal
 --------
 Temporal data types describe time-related attributes, such as dates and timestamps. 
