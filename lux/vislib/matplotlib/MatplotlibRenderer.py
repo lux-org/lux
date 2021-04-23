@@ -84,6 +84,8 @@ class MatplotlibRenderer:
             chart = Heatmap(vis, fig, ax)
         elif vis.mark == "geographical":
             return AltairRenderer().create_vis(vis, False)
+        elif vis.mark == "box":
+            return AltairRenderer().create_vis(vis, False)
         else:
             chart = None
             return chart
