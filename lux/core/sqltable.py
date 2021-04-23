@@ -97,6 +97,25 @@ class LuxSQLTable(lux.LuxDataFrame):
                     stacklevel=2,
                 )
 
+    def maintain_metadata(self):
+        # Check that metadata has not yet been computed
+        if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
+            # only compute metadata information if the dataframe is non-empty
+            lux.config.executor.compute_dataset_metadata(self)
+            self._infer_structure()
+            self._metadata_fresh = True
+
+    def expire_metadata(self):
+        """
+        Expire all saved metadata to trigger a recomputation the next time the data is required.
+        """
+        # self._metadata_fresh = False
+        # self._data_type = None
+        # self.unique_values = None
+        # self.cardinality = None
+        # self._min_max = None
+        # self.pre_aggregated = None
+
     def _ipython_display_(self):
         from IPython.display import HTML, Markdown, display
         from IPython.display import clear_output

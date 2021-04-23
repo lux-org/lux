@@ -125,16 +125,11 @@ class LuxDataFrame(pd.DataFrame):
         # Check that metadata has not yet been computed
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
-            if is_sql_tbl:
+            if len(self) > 0:
+                lux.config.executor.compute_stats(self)
                 lux.config.executor.compute_dataset_metadata(self)
                 self._infer_structure()
                 self._metadata_fresh = True
-            else:
-                if len(self) > 0:
-                    lux.config.executor.compute_stats(self)
-                    lux.config.executor.compute_dataset_metadata(self)
-                    self._infer_structure()
-                    self._metadata_fresh = True
 
     def expire_recs(self):
         """
