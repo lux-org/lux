@@ -50,7 +50,7 @@ class TestFrameComparisons:
     def test_frame_in_list(self):
         # GH#12689 this should raise at the DataFrame level, not blocks
         df = DataFrame(np.random.randn(6, 4), columns=list("ABCD"))
-        msg = "The truth value of a DataFrame is ambiguous"
+        msg = "The truth value of a LuxDataFrame is ambiguous"
         with pytest.raises(ValueError, match=msg):
             df in [None]
 
@@ -464,8 +464,10 @@ class TestFrameFlexArithmetic:
             if op.startswith("__r"):
                 return getattr(operator, op.replace("__r", "__"))(y, x)
             return getattr(operator, op)(x, y)
-
-        result = getattr(float_frame, op)(2 * float_frame)
+        print(float_frame, op)
+        op_f = getattr(float_frame, op)
+        df = 2 * float_frame
+        result = op_f(df)
         expected = f(float_frame, 2 * float_frame)
         tm.assert_frame_equal(result, expected)
 
