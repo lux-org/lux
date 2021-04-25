@@ -6,6 +6,7 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 import lux
 import warnings
+from lux.utils.tracing_utils import LuxTracer
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
@@ -35,6 +36,8 @@ class Config:
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
+        self.tracer_relevant_lines=[]
+        self.tracer = LuxTracer()
 
     @property
     def topk(self):

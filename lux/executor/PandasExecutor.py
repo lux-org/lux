@@ -22,6 +22,7 @@ from lux.utils.date_utils import is_datetime_series
 from lux.utils.utils import check_import_lux_widget, check_if_id_like, is_numeric_nan_column
 import warnings
 import lux
+from lux.utils.tracing_utils import LuxTracer
 
 
 class PandasExecutor(Executor):
@@ -81,8 +82,11 @@ class PandasExecutor(Executor):
         -------
         None
         """
+        tracer = LuxTracer()
+
         PandasExecutor.execute_sampling(ldf)
         for vis in vislist:
+            tracer.start_tracing()
             # The vis data starts off being original or sampled dataframe
             vis._vis_data = ldf._sampled
             filter_executed = PandasExecutor.execute_filter(vis)
@@ -108,6 +112,10 @@ class PandasExecutor(Executor):
                     )
                     # vis._mark = "heatmap"
                     # PandasExecutor.execute_2D_binning(vis) # Lazy Evaluation (Early pruning based on interestingness)
+            tracer.stop_tracing()
+            #print(lux.config.tracer_relevant_lines)
+            vis._trace_code = tracer.process_executor_code(lux.config.tracer_relevant_lines)
+            lux.config.tracer_relevant_lines = []
 
     @staticmethod
     def execute_aggregate(vis: Vis, isFiltered=True):
