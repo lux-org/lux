@@ -274,7 +274,6 @@ class LuxDataFrame(pd.DataFrame):
 
         attrs = []
         for clause in self.intent:
-            print("clause: ", clause)
             if is_hashable(clause.attribute):
                 if clause.attribute and clause.attribute in self.columns:
                     attrs.append(clause.attribute)
@@ -603,7 +602,6 @@ class LuxDataFrame(pd.DataFrame):
         # obj = mre_deleted["item"]
         idx = mre_deleted["idx"]
         
-        print(f"Deleting {idx} from history")
         self.history.delete_at(idx)
 
     # this is called by ipython when the object is displayed in the kernel post execution
