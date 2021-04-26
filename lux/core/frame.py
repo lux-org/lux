@@ -597,20 +597,14 @@ class LuxDataFrame(pd.DataFrame):
     def remove_history_item(self, change):
         """
         Delete history item. 
-        TODO not sure if this logic will work, copied from above
-        idxs must be sorted I think
         """
-
         mre_deleted = self._widget.deletedHistoryItem
 
-        obj = mre_deleted["item"]
+        # obj = mre_deleted["item"]
         idx = mre_deleted["idx"]
         
         print(f"Deleting {idx} from history")
         self.history.delete_at(idx)
-
-        # for i, delIdx in enumerate(self._widget.deletedHistoryItem):
-        #     self.history.delete_at(delIdx - i)
 
     # this is called by ipython when the object is displayed in the kernel post execution
     def _ipython_display_(self):
@@ -1037,8 +1031,8 @@ class LuxDataFrame(pd.DataFrame):
         used_cols = list(ret_frame.columns)
         
         # save history on self and returned df
-        self.history.append_event("describe", used_cols, *args, **kwargs)
-        ret_frame.history.append_event("describe", used_cols)
+        self.history.append_event("describe", used_cols, rank_type="parent", *args, **kwargs)
+        ret_frame.history.append_event("describe", used_cols, rank_type="child")
         ret_frame.pre_aggregated = True # this doesnt do anything rn to affect plotting
         return ret_frame
     
@@ -1049,6 +1043,57 @@ class LuxDataFrame(pd.DataFrame):
         if ret_value is not None: # i.e. inplace = True
             ret_value.history.append_event("query", [], rank_type="child", child_df=None, filt_key=None)
 
+        return ret_value
+    
+    # null check functions 
+    def isna(self, *args, **kwargs):
+        with self.history.pause():
+            ret_value = super(LuxDataFrame, self).isna(*args, **kwargs)
+        self.history.append_event("isna", [], rank_type="parent")
+        ret_value.history.append_event("isna", [], rank_type="child")
+
+        return ret_value
+    
+    def isnull(self, *args, **kwargs):
+        with self.history.pause():
+            ret_value = super(LuxDataFrame, self).isnull(*args, **kwargs)
+        self.history.append_event("isna", [], rank_type="parent")
+        ret_value.history.delete_at(-1) # isna gets added twice
+        ret_value.history.append_event("isna", [], rank_type="child")
+
+        return ret_value
+    
+    def notnull(self, *args, **kwargs):
+        with self.history.pause():
+            ret_value = super(LuxDataFrame, self).notnull(*args, **kwargs)
+        self.history.append_event("notnull", [], rank_type="parent")
+        ret_value.history.delete_at(-1) # isna gets added twice
+        ret_value.history.append_event("notnull", [], rank_type="child")
+
+        return ret_value
+    
+    def dropna(self, *args, **kwargs):
+        with self.history.pause():
+            ret_value = super(LuxDataFrame, self).dropna(*args, **kwargs)
+        
+        self.history.append_event("dropna", [], rank_type="parent", child_df=ret_value, filt_key=None)
+        if ret_value is not None: # i.e. inplace = True
+            ret_value.history.append_event("dropna", [], rank_type="child", child_df=None, filt_key=None)
+
+        return ret_value
+    
+    def fillna(self, *args, **kwargs):
+        affected_cols = []
+        with self.history.pause():
+            m = self.isna().any()
+            affected_cols = list(m.index[m])
+        
+        ret_value = super(LuxDataFrame, self).fillna(*args, **kwargs)
+
+        if affected_cols:
+            self.history.append_event("fillna", affected_cols, rank_type="parent")
+            ret_value.history.append_event("fillna", affected_cols, rank_type="child")
+        
         return ret_value
     
     # @property

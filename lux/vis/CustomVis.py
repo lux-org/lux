@@ -30,6 +30,7 @@ class CustomVis:
     def __init__(self, intent, altChart, data, width = 160, height = 150, override_c_config = None):
         # local properties
         self._inferred_intent = intent
+        self._intent = intent
         self.chart = altChart
         self.score = 0
 

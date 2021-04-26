@@ -57,6 +57,12 @@ def generate_vis_from_signal(signal: Event, ldf: LuxDataFrame, ranked_cols=[]):
         
         vis_list, used_cols = process_filter(signal, ldf, ranked_cols)
     
+    elif signal.op_name == "dropna": 
+        vis_list, used_cols = process_filter(signal, ldf, ranked_cols)
+
+    elif signal.op_name == "isna" or signal.op_name == "notnull": 
+        vis_list, used_cols = process_null_plot(signal, ldf)
+
     elif signal.cols: # generic recs
         vis_list, used_cols = process_generic(signal, ldf)
         
@@ -294,7 +300,7 @@ def compute_filter_diff(old_df, filt_df):
     return indicator, same_cols
 
 
-def plot_filter_count(ldf, mask):
+def plot_filter_count(ldf, mask, c_col_name = "In filter?", c_title="Filtered Data Count"):
     """
     For filtered dfs, plot the count of columns compared to count of unfiltered df
 
@@ -312,14 +318,14 @@ def plot_filter_count(ldf, mask):
     """
 
     ldf = ldf.copy()
-    ldf["filt_mask"] = mask
+    ldf[c_col_name] = mask
 
     chart = alt.Chart(ldf).mark_bar(size=75).encode(
-        y = alt.Y("count()", title="Filtered Data Count"),
-        color = alt.Color("filt_mask", 
+        y = alt.Y("count()", title=c_title),
+        color = alt.Color(c_col_name, 
                            scale = tf_scale,
                            legend = None),
-        order=alt.Order('filt_mask', sort='descending') # make sure stack goes True then False for filter
+        order=alt.Order(c_col_name, sort='descending') # make sure stack goes True then False for filter
         )
     
     # DONT use interactive for this chart, it breaks bc ordinal scale I think
@@ -486,6 +492,57 @@ def plot_filter(ldf, cols, mask, card_thresh=PLOT_CARD_THRESH, filt_frac_thresh 
 
     cv = CustomVis(intent, chart, ldf)
     
+    return cv
+
+######################
+# Null df plotting   #
+######################
+def process_null_plot(signal, ldf):
+    """
+    Generate count histograms of df if boolean showing isna 
+    """
+    rank_type = signal.kwargs.get("rank_type", None)
+
+    chart_list = []
+
+    if rank_type == "child" and all(ldf.dtypes == "bool"):
+
+        for c in ldf.columns:
+            chart = plot_na_count(ldf, c, f"{c} {signal.op_name}")
+            chart_list.append(chart)
+
+    vl = VisList(chart_list)
+
+    return vl, []
+
+def plot_na_count(ldf, c_col_name, c_title):
+    """
+    For count dfs, plot the count of columns compared to count of unfiltered df
+
+    Parameters
+    ----------
+        ldf: lux.core.LuxDataFrame 
+            parent ldf that was filtered
+        
+        mask: boolean list or series
+            True if in filter, False if not
+    
+    Returns
+    -------
+        chart: CustomVis chart
+    """
+    chart = alt.Chart(ldf).mark_bar(size=75).encode(
+        y = alt.Y("count()", title=c_title),
+        color = alt.Color(c_col_name, 
+                           scale = tf_scale,
+                           legend = None),
+        order=alt.Order(c_col_name, sort='descending') # make sure stack goes True then False for filter
+        )
+    
+    # DONT use interactive for this chart, it breaks bc ordinal scale I think
+    intent = [c_col_name] 
+    cv = CustomVis(intent, chart, ldf, width=90, override_c_config={"interactive": False})
+
     return cv
 
 ######################

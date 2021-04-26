@@ -130,11 +130,14 @@ class History:
             lux.config.update_actions["flag"] = True
     
 
-    def get_weights(self):
+    def get_weights(self, event_list=None):
         """
         Calculate the weights for each event in the history 
         """
-        n_events = len(self._events)
+        if not event_list:
+            event_list = self._events
+        
+        n_events = len(event_list)
         weight_arr = np.zeros(n_events)
 
         ex_decay = .85      # how much to decay between ex [n] to [n - 1]
@@ -145,7 +148,7 @@ class History:
         rolling_cell_decay = 1
 
         for i in range(n_events - 1, -1, -1): # reverse iterate 
-            e = self._events[i]
+            e = event_list[i]
             base_w = self.base_weights.get(e.op_name, 1)
             
             if e.ex_count != curr_ex:
@@ -208,6 +211,19 @@ class History:
     ## Implicit Intent  ##
     ######################
 
+    def get_cleaned_events(self):
+        """
+        get self.events that are NOT parent events, 
+        only care about those that actually happened to this df
+        """
+        cleaned_e = []
+
+        for e in self._events:
+            if e.kwargs.get("rank_type", None) != "parent":
+                cleaned_e.append(e)
+        
+        return cleaned_e
+
     def get_implicit_intent(self, valid_cols, col_thresh = .25):
         """
         Iterates through history events and gets ordering of columns by user interest 
@@ -233,11 +249,12 @@ class History:
         agg_col_ref = {}
         col_order = []
 
-        weights = self.get_weights()
+        cleaned_e = self.get_cleaned_events()
+        weights = self.get_weights(cleaned_e)
 
-        if self._events:            
-            for i in range(len(self._events) - 1, -1, -1):
-                e = self._events[i]
+        if cleaned_e:            
+            for i in range(len(cleaned_e) - 1, -1, -1):
+                e = cleaned_e[i]
                 w = weights[i]
                 
                 # filter out decayed history

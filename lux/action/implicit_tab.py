@@ -56,6 +56,13 @@ def implicit_tab(ldf: LuxDataFrame):
         col_vis_l = []
         top_c = col_list[0]
 
+        # plot null columns 
+        for c in col_list:
+            m = ldf[c].isna()
+            if m.any():
+                v = implicit_plotter.plot_filter_count(ldf, m, "Is null?", f"{c} is null?")
+                col_vis_l.append(v)
+
         if not (len(used_cols) == 1 and used_cols[0] == top_c):
             # univariate for top column 
             col_v = Vis( [ lux.Clause(top_c) ] )
