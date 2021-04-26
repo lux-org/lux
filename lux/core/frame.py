@@ -79,6 +79,7 @@ class LuxDataFrame(pd.DataFrame):
             lux.config.executor = SQLExecutor()
 
         self._sampled = None
+        self._approx_sample = None
         self._toggle_pandas_display = True
         self._message = Message()
         self._pandas_only = False
@@ -120,7 +121,6 @@ class LuxDataFrame(pd.DataFrame):
         Compute dataset metadata and statistics
         """
         if len(self) > 0:
-            print("Actually computing recommendation")
             if lux.config.executor.name != "SQLExecutor":
                 lux.config.executor.compute_stats(self)
             lux.config.executor.compute_dataset_metadata(self)
@@ -134,7 +134,6 @@ class LuxDataFrame(pd.DataFrame):
         is_sql_tbl = lux.config.executor.name == "SQLExecutor"
         if lux.config.SQLconnection != "" and is_sql_tbl:
             from lux.executor.SQLExecutor import SQLExecutor
-
             lux.config.executor = SQLExecutor()
         if lux.config.lazy_maintain:
             # Check that metadata has not yet been computed
@@ -367,6 +366,7 @@ class LuxDataFrame(pd.DataFrame):
         if lux.config.update_actions["flag"] == True:
             self._recs_fresh = False
         show_prev = False  # flag indicating whether rec_df is showing previous df or current self
+        
         if self._prev is not None:
             rec_df = self._prev
             rec_df._message = Message()
@@ -413,7 +413,6 @@ class LuxDataFrame(pd.DataFrame):
         # Check that recs has not yet been computed
         if lazy_but_not_computed or eager:
             is_sql_tbl = lux.config.executor.name == "SQLExecutor"
-            print("Actually computing recommendation")
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group

@@ -221,6 +221,9 @@ def test_set_default_plotting_style():
 
 
 def test_sampling_flag_config():
+    lux.config.heatmap = False
+    lux.config.sampling = True
+    lux.config.early_pruning = False
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df._ipython_display_()
     assert df.recommendation["Correlation"][0].data.shape[0] == 30000
@@ -229,6 +232,8 @@ def test_sampling_flag_config():
     df._ipython_display_()
     assert df.recommendation["Correlation"][0].data.shape[0] == 48895
     lux.config.sampling = True
+    lux.config.heatmap = True
+    lux.config.early_pruning = True
 
 
 def test_sampling_parameters_config():
@@ -245,6 +250,7 @@ def test_sampling_parameters_config():
 
 
 def test_heatmap_flag_config():
+    lux.config.heatmap = True
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df._ipython_display_()
     assert df.recommendation["Correlation"][0]._postbin

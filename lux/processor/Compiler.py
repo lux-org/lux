@@ -366,6 +366,15 @@ class Compiler:
             for attr in relevant_attributes
             if attr != "Record" and attr in ldf._min_max
         )
+        # Replace scatterplot with heatmap
+        HBIN_START = 5000
+        if vis.mark == "scatter" and lux.config.heatmap and len(ldf) > HBIN_START:
+            vis._postbin = True
+            ldf._message.add_unique(
+                f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
+                priority=98,
+            )
+            vis._mark = "heatmap"
         vis._min_max = relevant_min_max
         if auto_channel != {}:
             vis = Compiler.enforce_specified_channel(vis, auto_channel)

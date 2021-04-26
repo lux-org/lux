@@ -62,7 +62,20 @@ class PandasExecutor(Executor):
             ldf._sampled = ldf
 
     @staticmethod
-    def execute(vislist: VisList, ldf: LuxDataFrame):
+    def execute_approx_sample(ldf: LuxDataFrame):
+        # Compute sample used for approx query
+        if ldf._approx_sample is None:  # memoize unfiltered sample df
+            # if len(ldf._sampled) >= 10000 and len(ldf._sampled) < 30000:
+            #     ldf._approx_sample = ldf._sampled.sample(frac=0.5, random_state=1)
+            if len(ldf._sampled) > 30000:
+                # Sampling Cap at 30k 
+                ldf._approx_sample = ldf._sampled.sample(n=30000, random_state=1)
+                # print (f"Early pruning approx with {len(ldf._approx_sample)}")
+            else:
+                ldf._approx_sample = ldf._sampled
+
+    @staticmethod
+    def execute(vislist: VisList, ldf: LuxDataFrame, approx=False):
         """
         Given a VisList, fetch the data required to render the vis.
         1) Apply filters
@@ -85,6 +98,12 @@ class PandasExecutor(Executor):
         for vis in vislist:
             # The vis data starts off being original or sampled dataframe
             vis._vis_data = ldf._sampled
+            # Approximating vis for early pruning
+            if (approx):
+                vis._original_df = vis._vis_data
+                PandasExecutor.execute_approx_sample(ldf)
+                vis._vis_data = ldf._approx_sample
+                vis.approx = True
             filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
             attributes = set([])
@@ -98,16 +117,13 @@ class PandasExecutor(Executor):
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
                 PandasExecutor.execute_binning(ldf, vis)
-            elif vis.mark == "scatter":
-                HBIN_START = 5000
-                if lux.config.heatmap and len(ldf) > HBIN_START:
-                    vis._postbin = True
-                    ldf._message.add_unique(
-                        f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
-                        priority=98,
-                    )
-                    # vis._mark = "heatmap"
-                    # PandasExecutor.execute_2D_binning(vis) # Lazy Evaluation (Early pruning based on interestingness)
+            elif vis.mark == "heatmap":
+                # Early pruning based on interestingness of scatterplots
+                if approx:
+                    vis._mark = "scatter"
+                else:
+                    vis._mark = "heatmap"
+                    PandasExecutor.execute_2D_binning(vis)
             vis.data.clear_intent()  # Ensure that intent is not propogated to the vis data
 
     @staticmethod
