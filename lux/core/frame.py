@@ -76,7 +76,7 @@ class LuxDataFrame(pd.DataFrame):
         else:
             from lux.executor.SQLExecutor import SQLExecutor
 
-            lux.config.executor = SQLExecutor()
+            #lux.config.executor = SQLExecutor()
 
         self._sampled = None
         self._toggle_pandas_display = True
@@ -116,10 +116,11 @@ class LuxDataFrame(pd.DataFrame):
         return self._data_type
 
     def maintain_metadata(self):
-        if lux.config.SQLconnection != "" and lux.config.executor.name != "SQL":
+        is_sql_tbl = lux.config.executor.name != "PandasExecutor"
+        if lux.config.SQLconnection != "" and is_sql_tbl:
             from lux.executor.SQLExecutor import SQLExecutor
 
-            lux.config.executor = SQLExecutor()
+            #lux.config.executor = SQLExecutor()
 
         # Check that metadata has not yet been computed
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
@@ -184,7 +185,10 @@ class LuxDataFrame(pd.DataFrame):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels != 1
         not_int_index_flag = not pd.api.types.is_integer_dtype(self.index)
-        small_df_flag = len(self) < 100 and lux.config.executor.name == "PandasExecutor"
+
+        is_sql_tbl = lux.config.executor.name != "PandasExecutor"
+
+        small_df_flag = len(self) < 100 and is_sql_tbl
         if self.pre_aggregated == None:
             self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
             if "Number of Records" in self.columns:
@@ -386,6 +390,7 @@ class LuxDataFrame(pd.DataFrame):
 
         # Check that recs has not yet been computed
         if not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh:
+            is_sql_tbl = lux.config.executor.name != "PandasExecutor"
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
