@@ -93,7 +93,7 @@ def generalize(ldf):
     # 	vis.score = interestingness(vis,ldf)
 
     vlist.remove_duplicates()
-    vlist.sort(remove_invalid=True)
-    vlist._collection = list(filter(lambda x: x.score != -1, vlist._collection))
+    _, col_order = ldf.history.get_implicit_intent(ldf.columns)
+    vlist.sort(remove_invalid=True, intent_cols=col_order)
     recommendation["collection"] = vlist
     return recommendation

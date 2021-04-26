@@ -46,7 +46,8 @@ def custom(ldf):
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
     # ldf.clear_intent()
-    vlist.sort(remove_invalid=True)
+    _, col_order = ldf.history.get_implicit_intent(ldf.columns)
+    vlist.sort(remove_invalid=True, intent_cols=col_order)
     return recommendation
 
 

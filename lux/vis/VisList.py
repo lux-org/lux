@@ -232,7 +232,7 @@ class VisList:
     def set(self, field_name, field_val):
         return NotImplemented
 
-    def sort(self, remove_invalid=True, descending=True):
+    def sort(self, remove_invalid=True, descending=True, intent_cols=None):
         # remove the items that have invalid (-1) score
         if remove_invalid:
             self._collection = list(filter(lambda x: x.score != -1, self._collection))
@@ -243,6 +243,22 @@ class VisList:
         elif lux.config.sort == "descending":
             descending = True
         # sort in-place by “score” by default if available, otherwise user-specified field to sort by
+        
+        # add more weight to columns in implicit intent
+        if intent_cols:
+            self.normalize_score()
+            ic_map = {}
+
+            for i, c in enumerate(intent_cols):
+                ic_map[c] = len(intent_cols) - i
+            
+            for vis in self._collection:
+                new_s = 0
+                for intnt in vis._inferred_intent:
+                    new_s += ic_map.get(intnt.attribute, 0)
+                
+                vis.score += new_s
+
         self._collection.sort(key=lambda x: x.score, reverse=descending)
 
     def showK(self):
@@ -254,11 +270,17 @@ class VisList:
             return VisList(self._collection[:k])
 
     def normalize_score(self, invert_order=False):
-        max_score = max(list(self.get("score")))
-        for dobj in self._collection:
-            dobj.score = dobj.score / max_score
-            if invert_order:
-                dobj.score = 1 - dobj.score
+        try:
+            max_score = max(list(self.get("score")))
+            # only reassign if max score isnt none or 0 
+            if max_score: 
+                for dobj in self._collection:
+                    dobj.score = dobj.score / max_score
+                    if invert_order:
+                        dobj.score = 1 - dobj.score
+        except ValueError: 
+            # fails if self._collection is empty
+            pass
 
     def _ipython_display_(self):
         self._widget = None
