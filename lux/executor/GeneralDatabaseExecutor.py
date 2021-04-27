@@ -121,7 +121,7 @@ class GeneralDatabaseExecutor(Executor):
             return '"' + var_name + '"'
 
         required_variables = attributes | set(filterVars)
-        required_variables = map(add_quotes, required_variables)
+        #required_variables = map(add_quotes, required_variables)
         required_variables = ",".join(required_variables)
         row_count = list(
             pandas.read_sql(
@@ -782,6 +782,7 @@ class GeneralDatabaseExecutor(Executor):
                 "smallint",
                 "smallserial",
                 "serial",
+                "double",
                 "double precision",
             }:
                 if tbl.cardinality[attr] < 13:
