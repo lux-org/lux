@@ -18,7 +18,7 @@ class LuxTracer():
                 func_name = fcode.co_name
                 #includeMod = ['lux/vis', 'lux/action', 'lux/vislib', 'lux/executor', 'lux/interestingness']
                 includeMod = ['lux\\vis', 'lux\\vislib', 'lux\\executor']
-                includeFunc = ['execute', 'execute_sampling', 'execute_filter', 'execute_binning', 'execute_scatter', 'execute_aggregate', 'execute_2D_binning', 'create_where_clause']
+                includeFunc = ['execute_sampling', 'execute_filter', 'execute_binning', 'execute_scatter', 'execute_aggregate', 'execute_2D_binning', 'create_where_clause']
                 if any(x in frame.f_code.co_filename for x in includeMod):
                     if (func_name!="<lambda>"): #ignore one-liner lambda functions (repeated line events)
                         if any(x in f"{frame.f_code.co_filename}--{func_name}--{line_no}" for x in includeFunc):
@@ -42,11 +42,14 @@ class LuxTracer():
 
 
     def process_executor_code(self,executor_lines):
-        selected = ""
+        selected = {}
+        selected_index = {}
+        index = 0
         curr_for = ""
         curr_for_len = 0
         in_loop = False
         loop_end = 0
+        output = ""
 
         for l in range(0, len(executor_lines)):
             line = executor_lines[l]
@@ -63,27 +66,10 @@ class LuxTracer():
                 if not any(construct in code for construct in ignore):
                     #need to handle for loops, this keeps track of when a for loop shows up and when the for loop code is repeated
                     clean_code_line = codelines[line_no].lstrip()
-                    if 'for ' in clean_code_line and ' for ' not in clean_code_line:
-                        if code != curr_for:
-                            #print (f"{filename}--{funcname}--{line_no}")  
-                            #print (codelines[line_no].lstrip())
-                            #selected+=codelines[line_no].lstrip()
-                            selected+=codelines[line_no].replace("    ", "", 1)
-                            in_loop = True
-                            curr_for = code
-                        else:
-                            in_loop = False
-                            loop_end = curr_for_len+l+1
-                    else:
-                        if in_loop:
-                            curr_for_len += 1
-                            #print (f"{filename}--{funcname}--{line_no}")  
-                            #print (codelines[line_no].lstrip())
-                            #selected+= "\t"+codelines[line_no].lstrip()
-                            selected+=codelines[line_no].replace("    ", "", 1)
-                        
-                        elif l > loop_end:
-                            #print (f"{filename}--{funcname}--{line_no}")  
-                            #print (codelines[line_no].lstrip())
-                            selected+=codelines[line_no].replace("    ", "", 1)
-        return(selected)
+                    if clean_code_line not in selected:
+                        selected[clean_code_line] = index
+                        selected_index[index] = codelines[line_no].replace("    ", "", 1)
+                        index += 1
+        for key in selected_index.keys():
+            output += selected_index[key]
+        return(output)

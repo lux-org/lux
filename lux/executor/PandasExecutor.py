@@ -82,11 +82,10 @@ class PandasExecutor(Executor):
         -------
         None
         """
-        tracer = LuxTracer()
 
         PandasExecutor.execute_sampling(ldf)
         for vis in vislist:
-            tracer.start_tracing()
+            #lux.config.tracer.start_tracing()
             # The vis data starts off being original or sampled dataframe
             vis._vis_data = ldf._sampled
             filter_executed = PandasExecutor.execute_filter(vis)
@@ -112,10 +111,10 @@ class PandasExecutor(Executor):
                     )
                     # vis._mark = "heatmap"
                     # PandasExecutor.execute_2D_binning(vis) # Lazy Evaluation (Early pruning based on interestingness)
-            tracer.stop_tracing()
+            #lux.config.tracer.stop_tracing()
             #print(lux.config.tracer_relevant_lines)
-            vis._trace_code = "def plot(vis, df):\n" + tracer.process_executor_code(lux.config.tracer_relevant_lines)
-            lux.config.tracer_relevant_lines = []
+            #vis._trace_code = "def plot(vis, df):\n" + lux.config.tracer.process_executor_code(lux.config.tracer_relevant_lines)
+            #lux.config.tracer_relevant_lines = []
 
     @staticmethod
     def execute_aggregate(vis: Vis, isFiltered=True):
