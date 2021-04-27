@@ -503,7 +503,7 @@ def compare_vis(vis1, vis2):
     assert len(vis1._inferred_intent) == len(vis2._inferred_intent)
     for j in range(len(vis1._inferred_intent)):
         compare_clauses(vis1._inferred_intent[j], vis2._inferred_intent[j])
-    assert vis1._source == vis2._source
+    assert vis1._source.equals(vis2._source)
     assert vis1._code == vis2._code
     assert vis1._mark == vis2._mark
     assert vis1._min_max == vis2._min_max
