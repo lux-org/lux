@@ -114,7 +114,7 @@ class PandasExecutor(Executor):
                     # PandasExecutor.execute_2D_binning(vis) # Lazy Evaluation (Early pruning based on interestingness)
             tracer.stop_tracing()
             #print(lux.config.tracer_relevant_lines)
-            vis._trace_code = tracer.process_executor_code(lux.config.tracer_relevant_lines)
+            vis._trace_code = "def plot(vis, df):\n" + tracer.process_executor_code(lux.config.tracer_relevant_lines)
             lux.config.tracer_relevant_lines = []
 
     @staticmethod

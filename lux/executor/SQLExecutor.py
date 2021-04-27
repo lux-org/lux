@@ -78,7 +78,7 @@ class SQLExecutor(Executor):
             elif view.mark == "histogram":
                 SQLExecutor.execute_binning(view, tbl)
             lux.config.tracer.stop_tracing()
-            view._trace_code = lux.config.tracer.process_executor_code(lux.config.tracer_relevant_lines)
+            view._trace_code = "def plot(view, tbl):\n" + lux.config.tracer.process_executor_code(lux.config.tracer_relevant_lines)
             lux.config.tracer_relevant_lines = []
 
     @staticmethod
@@ -109,10 +109,7 @@ class SQLExecutor(Executor):
                 attributes.add(clause.attribute)
         where_clause, filterVars = SQLExecutor.execute_filter(view)
 
-        length_query = pandas.read_sql(
-            "SELECT COUNT(1) as length FROM {} {}".format(tbl.table_name, where_clause),
-            lux.config.SQLconnection,
-        )
+        length_query = pandas.read_sql("SELECT COUNT(1) as length FROM {} {}".format(tbl.table_name, where_clause),lux.config.SQLconnection,)
 
         def add_quotes(var_name):
             return '"' + var_name + '"'
@@ -120,18 +117,14 @@ class SQLExecutor(Executor):
         required_variables = attributes | set(filterVars)
         required_variables = map(add_quotes, required_variables)
         required_variables = ",".join(required_variables)
-        row_count = list(
-            pandas.read_sql(
-                f"SELECT COUNT(*) FROM {tbl.table_name} {where_clause}",
-                lux.config.SQLconnection,
-            )["count"]
-        )[0]
+        row_count = list(pandas.read_sql(f"SELECT COUNT(*) FROM {tbl.table_name} {where_clause}",lux.config.SQLconnection,)["count"])[0]
         if row_count > lux.config.sampling_cap:
             query = f"SELECT {required_variables} FROM {tbl.table_name} {where_clause} ORDER BY random() LIMIT {str(lux.config.sampling_cap)}"
         else:
             query = "SELECT {} FROM {} {}".format(required_variables, tbl.table_name, where_clause)
         data = pandas.read_sql(query, lux.config.SQLconnection)
         view._vis_data = utils.pandas_to_lux(data)
+        view._query = query
         # view._vis_data.length = list(length_query["length"])[0]
 
         tbl._message.add_unique(
@@ -216,6 +209,7 @@ class SQLExecutor(Executor):
                     view._vis_data = pandas.read_sql(count_query, lux.config.SQLconnection)
                     view._vis_data = view._vis_data.rename(columns={"count": "Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
+                view._query = count_query
                 # view._vis_data.length = list(length_query["length"])[0]
             # aggregate barchart case, need aggregate data (mean, sum, max) for each group
             else:
@@ -302,6 +296,7 @@ class SQLExecutor(Executor):
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
+                view._query = agg_query
             result_vals = list(view._vis_data[groupby_attr.attribute])
             # create existing group by attribute combinations if color is specified
             # this is needed to check what combinations of group_by_attr and color_attr values have a non-zero number of elements in them
@@ -426,6 +421,7 @@ class SQLExecutor(Executor):
                 columns=[bin_attribute.attribute, "Number of Records"],
             )
             view._vis_data = utils.pandas_to_lux(view.data)
+            view._query = bin_count_query
             # view._vis_data.length = list(length_query["length"])[0]
 
     @staticmethod
@@ -491,6 +487,7 @@ class SQLExecutor(Executor):
             data["yBinStart"] = data.apply(lambda row: float(y_upper_edges[int(row["width_bucket2"]) - 1]) - y_bin_width, axis=1)
             data["yBinEnd"] = data.apply(lambda row: float(y_upper_edges[int(row["width_bucket2"]) - 1]), axis=1)
         view._vis_data = utils.pandas_to_lux(data)
+        view._query = bin_count_query
 
     @staticmethod
     def execute_filter(view: Vis):
@@ -525,13 +522,7 @@ class SQLExecutor(Executor):
                     where_clause.append("AND")
                 curr_value = str(filters[f].value)
                 curr_value = curr_value.replace("'", "''")
-                where_clause.extend(
-                    [
-                        '"' + str(filters[f].attribute) + '"',
-                        str(filters[f].filter_op),
-                        "'" + curr_value + "'",
-                    ]
-                )
+                where_clause.extend(['"' + str(filters[f].attribute) + '"', str(filters[f].filter_op), "'" + curr_value + "'",])
                 if filters[f].attribute not in filter_vars:
                     filter_vars.append(filters[f].attribute)
         if view != "":
@@ -545,12 +536,7 @@ class SQLExecutor(Executor):
                         where_clause.append("WHERE")
                     else:
                         where_clause.append("AND")
-                    where_clause.extend(
-                        [
-                            '"' + str(a.attribute) + '"',
-                            "IS NOT NULL",
-                        ]
-                    )
+                    where_clause.extend(['"' + str(a.attribute) + '"', "IS NOT NULL",])
 
         if where_clause == []:
             return ("", [])

@@ -18,7 +18,7 @@ class LuxTracer():
                 func_name = fcode.co_name
                 #includeMod = ['lux/vis', 'lux/action', 'lux/vislib', 'lux/executor', 'lux/interestingness']
                 includeMod = ['lux\\vis', 'lux\\vislib', 'lux\\executor']
-                includeFunc = ['execute', 'execute_sampling', 'execute_filter', 'execute_binning', 'execute_scatter', 'execute_aggregate', 'execute_2D_binning']
+                includeFunc = ['execute', 'execute_sampling', 'execute_filter', 'execute_binning', 'execute_scatter', 'execute_aggregate', 'execute_2D_binning', 'create_where_clause']
                 if any(x in frame.f_code.co_filename for x in includeMod):
                     if (func_name!="<lambda>"): #ignore one-liner lambda functions (repeated line events)
                         if any(x in f"{frame.f_code.co_filename}--{func_name}--{line_no}" for x in includeFunc):
@@ -68,7 +68,7 @@ class LuxTracer():
                             #print (f"{filename}--{funcname}--{line_no}")  
                             #print (codelines[line_no].lstrip())
                             #selected+=codelines[line_no].lstrip()
-                            selected+=codelines[line_no].replace("        ", "", 1)
+                            selected+=codelines[line_no].replace("    ", "", 1)
                             in_loop = True
                             curr_for = code
                         else:
@@ -80,10 +80,10 @@ class LuxTracer():
                             #print (f"{filename}--{funcname}--{line_no}")  
                             #print (codelines[line_no].lstrip())
                             #selected+= "\t"+codelines[line_no].lstrip()
-                            selected+=codelines[line_no].replace("        ", "", 1)
+                            selected+=codelines[line_no].replace("    ", "", 1)
                         
                         elif l > loop_end:
                             #print (f"{filename}--{funcname}--{line_no}")  
                             #print (codelines[line_no].lstrip())
-                            selected+=codelines[line_no].replace("        ", "", 1)
+                            selected+=codelines[line_no].replace("    ", "", 1)
         return(selected)

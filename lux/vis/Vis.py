@@ -311,6 +311,16 @@ class Vis:
             return self.to_matplotlib()
         elif language == "matplotlib_svg":
             return self._to_matplotlib_svg()
+        elif language == "python":
+            return self._trace_code
+        elif language == "SQL":
+            if self._query:
+                return self._query
+            else:
+                 warnings.warn(
+                    "The data for this Vis was not collected via a SQL database. Use the 'python' parameter to view the code used to generate the data.",
+                    stacklevel=2,
+                )
         else:
             warnings.warn(
                 "Unsupported plotting backend. Lux currently only support 'altair', 'vegalite', or 'matplotlib'",
