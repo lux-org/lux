@@ -88,7 +88,6 @@ class LuxSQLTable(lux.LuxDataFrame):
             )
         else:
             self.table_name = t_name
-        import psycopg2
 
         try:
             lux.config.executor.compute_dataset_metadata(self)
@@ -99,6 +98,25 @@ class LuxSQLTable(lux.LuxDataFrame):
                     f"\nThe table '{t_name}' does not exist in your database./",
                     stacklevel=2,
                 )
+
+    def maintain_metadata(self):
+        # Check that metadata has not yet been computed
+        if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
+            # only compute metadata information if the dataframe is non-empty
+            lux.config.executor.compute_dataset_metadata(self)
+            self._infer_structure()
+            self._metadata_fresh = True
+
+    def expire_metadata(self):
+        """
+        Expire all saved metadata to trigger a recomputation the next time the data is required.
+        """
+        # self._metadata_fresh = False
+        # self._data_type = None
+        # self.unique_values = None
+        # self.cardinality = None
+        # self._min_max = None
+        # self.pre_aggregated = None
 
     def _ipython_display_(self):
         from IPython.display import HTML, Markdown, display
@@ -186,19 +204,3 @@ class LuxSQLTable(lux.LuxDataFrame):
                 display(self.display_pandas())
             else:
                 raise
-
-    # Overridden Pandas Functions
-    def head(self, n: int = 5):
-        return
-
-    def tail(self, n: int = 5):
-        return
-
-    def info(self, *args, **kwargs):
-        return
-
-    def describe(self, *args, **kwargs):
-        return
-
-    def groupby(self, *args, **kwargs):
-        return

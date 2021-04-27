@@ -18,6 +18,10 @@ What do I do with date-related attributes in my dataset?
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""
   Lux supports a variety of temporal data types in Pandas. For more information on how to handle temporal data in Lux, refer to `the datetime guide <https://lux-api.readthedocs.io/en/latest/source/advanced/date.html>`__.
 
+What do I do with geographical attributes in my dataset?
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  Lux supports a variety of geographical data types in Pandas. For more information on how to handle temporal data in Lux, refer to `the geographic entity tutorial <https://lux-api.readthedocs.io/en/latest/source/advanced/map.html>`__.
+
 How do I access all of the current recommendations shown in my widget?
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   The recommendations for Lux can be accessed via the :code:`recommendation` property of the dataframe (e.g., :code:`df.recommendation`).
