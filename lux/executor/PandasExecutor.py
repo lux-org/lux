@@ -112,10 +112,7 @@ class PandasExecutor(Executor):
                     )
                     # vis._mark = "heatmap"
                     # PandasExecutor.execute_2D_binning(vis) # Lazy Evaluation (Early pruning based on interestingness)
-            #lux.config.tracer.stop_tracing()
-            #print(lux.config.tracer_relevant_lines)
-            #vis._trace_code = "def plot(vis, df):\n" + lux.config.tracer.process_executor_code(lux.config.tracer_relevant_lines)
-            #lux.config.tracer_relevant_lines = []
+            vis.data.clear_intent()  # Ensure that intent is not propogated to the vis data
 
     @staticmethod
     def execute_aggregate(vis: Vis, isFiltered=True):

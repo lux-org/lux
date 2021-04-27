@@ -42,7 +42,7 @@ To do this, users first need to specify a connection to their SQL database. This
 	engine = create_engine("postgresql://postgres:lux@localhost:5432")
 
 Note that users will have to install these packages on their own if they want to connect Lux to their databases.
-Once this connection is created, users can connect the lux config to the database using the :code:`set_SQL_connection` command.
+Once this connection is created, users can connect Lux to their database using the :code:`set_SQL_connection` command.
 
 .. code-block:: python
 
@@ -54,7 +54,6 @@ Connecting a LuxSQLTable to a Table/View
 ----------------------------------------
 
 LuxSQLTables can be connected to individual tables or views created within your Postgresql database. This can be done by specifying the table or view name in the constructor. 
-.. We are actively working on supporting joins between multiple tables. But as of now, the functionality is limited to one table or view per LuxSQLTable object only.
 
 .. code-block:: python
 

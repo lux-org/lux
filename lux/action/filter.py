@@ -39,7 +39,7 @@ def add_filter(ldf):
     filter_values = []
     output = []
     # if fltr is specified, create visualizations where data is filtered by all values of the fltr's categorical variable
-    column_spec = utils.get_attrs_specs(ldf.current_vis[0].intent)
+    column_spec = utils.get_attrs_specs(ldf._intent)
     column_spec_attr = list(map(lambda x: x.attribute, column_spec))
     if len(filters) == 1:
         # get unique values for all categorical values specified and creates corresponding filters

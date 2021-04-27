@@ -35,6 +35,7 @@ class Vis:
         self._postbin = None
         self.title = title
         self.score = score
+        self._all_column = False
         self.refresh_source(self._source)
 
     def __repr__(self):

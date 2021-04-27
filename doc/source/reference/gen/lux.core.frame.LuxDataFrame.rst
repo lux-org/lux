@@ -176,6 +176,7 @@
       ~LuxDataFrame.set_intent_as_vis
       ~LuxDataFrame.set_intent_on_click
       ~LuxDataFrame.shift
+      ~LuxDataFrame.show_all_column_vis
       ~LuxDataFrame.skew
       ~LuxDataFrame.slice_shift
       ~LuxDataFrame.sort_index
