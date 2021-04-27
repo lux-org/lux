@@ -318,9 +318,13 @@ class VisList:
                     self._collection = Compiler.compile_intent(ldf, self._inferred_intent)
 
                 # Early pruning determination criteria
-                width_criteria = len(self._collection) > lux.config.topk
-                length_criteria = len(ldf) >= 30000
+                width_criteria = len(self._collection) > (lux.config.topk + 3)
+                length_criteria = len(ldf) > lux.config.early_pruning_sample_start
                 if lux.config.early_pruning and width_criteria and length_criteria:
-                    print("Apply approx to this VisList")
+                    # print("Apply approx to this VisList")
+                    ldf._message.add_unique(
+                        "Large search space detected: Lux is approximating the interestingness of recommended visualizations.",
+                        priority=1,
+                    )
                     approx = True
                 lux.config.executor.execute(self._collection, ldf, approx=approx)

@@ -39,8 +39,10 @@ class Config:
         self._sampling_flag = True
         self._heatmap_flag = True
         self.lazy_maintain = True
-        self.early_pruning = False
+        self.early_pruning = True
         self.early_pruning_sample_cap = 30000
+        # Apply sampling only if the dataset is 150% larger than the sample cap
+        self.early_pruning_sample_start = self.early_pruning_sample_cap * 1.5
         self.streaming = False
         self.render_widget = True
 

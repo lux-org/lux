@@ -84,8 +84,7 @@ class PandasExecutor(Executor):
         ldf : LuxDataFrame
         """
         if ldf._approx_sample is None:
-            # Apply sampling only if the dataset is 150% larger than the sample cap
-            if len(ldf._sampled) > lux.config.early_pruning_sample_cap * 1.5:
+            if len(ldf._sampled) > lux.config.early_pruning_sample_start:
                 ldf._approx_sample = ldf._sampled.sample(
                     n=lux.config.early_pruning_sample_cap, random_state=1
                 )

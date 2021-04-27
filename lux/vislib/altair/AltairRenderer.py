@@ -55,6 +55,7 @@ class AltairRenderer:
                 vis._mark = "heatmap"
                 lux.config.executor.execute_2D_binning(vis)
             else:
+                # Exactly recompute the selected vis (e.g., top k) to display
                 lux.config.executor.execute([vis], vis._original_df, approx=False)
         # If a column has a Period dtype, or contains Period objects, convert it back to Datetime
         if vis.data is not None:

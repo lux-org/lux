@@ -51,10 +51,10 @@ def test_lazy_maintain_performance_census(global_var):
     print(f"2nd display Performance: {delta2:0.4f} seconds")
 
     assert (
-        delta > 3
+        delta > 2
     ), "The recompute of recommendations on Census dataset took a total of {delta:0.4f} seconds, shorter than expected."
     assert (
-        delta2 > 3
+        delta2 > 2
     ), "Subsequent recompute of recommendations on Census dataset took a total of {delta2:0.4f} seconds, shorter than expected."
 
     assert df.data_type == {
@@ -74,3 +74,27 @@ def test_lazy_maintain_performance_census(global_var):
         "native-country": "nominal",
         "income": "nominal",
     }
+
+
+def test_early_prune_performance_spotify():
+    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/spotify.csv?raw=True")
+    df.maintain_metadata()
+    # With Early Pruning
+    lux.config.early_pruning = True
+    df.clear_intent()
+    start = time.time()
+    df.maintain_recs()
+    end = time.time()
+    with_prune_time = end - start
+    assert "Large search space detected" in df._message.to_html()
+    # Without Early Pruning
+    lux.config.early_pruning = False
+    df.clear_intent()
+    start = time.time()
+    df.maintain_recs()
+    end = time.time()
+    without_prune_time = end - start
+    assert "Large search space detected" not in df._message.to_html()
+    assert (
+        without_prune_time > with_prune_time
+    ), "Early pruning should speed up Spotify dataset recommendations"
