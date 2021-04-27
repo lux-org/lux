@@ -87,6 +87,7 @@ class PandasExecutor(Executor):
         for vis in vislist:
             #lux.config.tracer.start_tracing()
             # The vis data starts off being original or sampled dataframe
+            vis._source = ldf
             vis._vis_data = ldf._sampled
             filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
