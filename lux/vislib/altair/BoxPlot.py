@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 from lux.vislib.altair.AltairChart import AltairChart
+from lux.utils.utils import only_k_bars
 import altair as alt
 
 alt.data_transformers.disable_max_rows()
@@ -33,35 +34,11 @@ class BoxPlot(AltairChart):
         x_attr_abv = str(x_attr.attribute)
         y_attr_abv = str(y_attr.attribute)
 
-        k = 6
-        self._topkcode = ""
-        n_bars = len(self.data[x_attr_abv].unique())
-
         sort_order = self.data._order.get(x_attr_abv, [])
+        if not sort_order:
+            sort_order = self.data.unique_values[x_attr_abv]
 
-        text, topkcode = "", ""
-        if n_bars > k:
-            remaining_bars = n_bars - k
-
-            self.data = self.data[(self.data[x_attr_abv].isin(sort_order[:k]))]
-            # self.data = self.data.sort_values(columns=x_attr_abv, key=lambda x: sort_order.index(x)).head(k)
-            text = alt.Chart(self.data).mark_text(
-                x=155,
-                y=142,
-                align="right",
-                color="#ff8e04",
-                fontSize=11,
-                text=f"+ {remaining_bars} more ...",
-            )
-            topkcode = f"""text = alt.Chart(visData).mark_text(
-			x=155, 
-			y=142,
-			align="right",
-			color = "#ff8e04",
-			fontSize = 11,
-			text=f"+ {remaining_bars} more ..."
-		)
-		chart = chart + text\n"""
+        self.data, text, topkcode = only_k_bars(6, self.data, x_attr_abv, sorted=True, sort_order=sort_order)
 
         self.data = AltairChart.sanitize_dataframe(self.data)
 

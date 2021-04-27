@@ -307,7 +307,7 @@ class Compiler:
                 vis._inferred_intent.append(count_col)
             dimension = vis.get_attr_by_data_model("dimension")[0]
             measure = vis.get_attr_by_data_model("measure")[0]
-            if nmsr == 1 and dimension.data_type == "ordinal":
+            if nmsr == 1:
                 vis._mark = "box"
                 auto_channel = {"x": dimension, "y": measure}
             else:
