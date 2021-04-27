@@ -34,12 +34,13 @@ class Config:
         #####################################
         #### Optimization Configurations ####
         #####################################
-        self._sampling_start = 10000
-        self._sampling_cap = 30000
+        self._sampling_start = 100000
+        self._sampling_cap = 1000000
         self._sampling_flag = True
         self._heatmap_flag = True
         self.lazy_maintain = True
         self.early_pruning = False
+        self.early_pruning_sample_cap = 30000
         self.streaming = False
         self.render_widget = True
 

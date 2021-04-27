@@ -134,6 +134,7 @@ class LuxDataFrame(pd.DataFrame):
         is_sql_tbl = lux.config.executor.name == "SQLExecutor"
         if lux.config.SQLconnection != "" and is_sql_tbl:
             from lux.executor.SQLExecutor import SQLExecutor
+
             lux.config.executor = SQLExecutor()
         if lux.config.lazy_maintain:
             # Check that metadata has not yet been computed
@@ -366,7 +367,7 @@ class LuxDataFrame(pd.DataFrame):
         if lux.config.update_actions["flag"] == True:
             self._recs_fresh = False
         show_prev = False  # flag indicating whether rec_df is showing previous df or current self
-        
+
         if self._prev is not None:
             rec_df = self._prev
             rec_df._message = Message()

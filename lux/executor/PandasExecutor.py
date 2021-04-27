@@ -38,7 +38,19 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def execute_sampling(ldf: LuxDataFrame):
-        # General Sampling for entire dataframe
+        """
+        Compute and cache a sample for the overall dataframe
+
+        - When # of rows exceeds lux.config.sampling_start, take 75% df as sample
+        - When # of rows exceeds lux.config.sampling_cap, cap the df at {lux.config.sampling_cap} rows
+
+        lux.config.sampling_start = 100k rows
+        lux.config.sampling_cap = 1M rows
+
+        Parameters
+        ----------
+        ldf : LuxDataFrame
+        """
         SAMPLE_FLAG = lux.config.sampling
         SAMPLE_START = lux.config.sampling_start
         SAMPLE_CAP = lux.config.sampling_cap
@@ -48,14 +60,14 @@ class PandasExecutor(Executor):
             if ldf._sampled is None:  # memoize unfiltered sample df
                 ldf._sampled = ldf.sample(n=SAMPLE_CAP, random_state=1)
             ldf._message.add_unique(
-                f"Large dataframe detected: Lux is only visualizing a random sample capped at {SAMPLE_CAP} rows.",
+                f"Large dataframe detected: Lux is only visualizing a sample capped at {SAMPLE_CAP} rows.",
                 priority=99,
             )
         elif SAMPLE_FLAG and len(ldf) > SAMPLE_START:
             if ldf._sampled is None:  # memoize unfiltered sample df
                 ldf._sampled = ldf.sample(frac=SAMPLE_FRAC, random_state=1)
             ldf._message.add_unique(
-                f"Large dataframe detected: Lux is only visualizing a random sample of {len(ldf._sampled)} rows.",
+                f"Large dataframe detected: Lux is visualizing a sample of {SAMPLE_FRAC}% of the dataframe ({len(ldf._sampled)} rows).",
                 priority=99,
             )
         else:
@@ -63,14 +75,20 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def execute_approx_sample(ldf: LuxDataFrame):
-        # Compute sample used for approx query
-        if ldf._approx_sample is None:  # memoize unfiltered sample df
-            # if len(ldf._sampled) >= 10000 and len(ldf._sampled) < 30000:
-            #     ldf._approx_sample = ldf._sampled.sample(frac=0.5, random_state=1)
-            if len(ldf._sampled) > 30000:
-                # Sampling Cap at 30k 
-                ldf._approx_sample = ldf._sampled.sample(n=30000, random_state=1)
-                # print (f"Early pruning approx with {len(ldf._approx_sample)}")
+        """
+        Compute and cache an approximate sample of the overall dataframe
+        for the purpose of early pruning of the visualization search space
+
+        Parameters
+        ----------
+        ldf : LuxDataFrame
+        """
+        if ldf._approx_sample is None:
+            # Apply sampling only if the dataset is 150% larger than the sample cap
+            if len(ldf._sampled) > lux.config.early_pruning_sample_cap * 1.5:
+                ldf._approx_sample = ldf._sampled.sample(
+                    n=lux.config.early_pruning_sample_cap, random_state=1
+                )
             else:
                 ldf._approx_sample = ldf._sampled
 
@@ -99,7 +117,7 @@ class PandasExecutor(Executor):
             # The vis data starts off being original or sampled dataframe
             vis._vis_data = ldf._sampled
             # Approximating vis for early pruning
-            if (approx):
+            if approx:
                 vis._original_df = vis._vis_data
                 PandasExecutor.execute_approx_sample(ldf)
                 vis._vis_data = ldf._approx_sample

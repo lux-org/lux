@@ -316,7 +316,7 @@ class VisList:
                     self._inferred_intent = Parser.parse(self._intent)
                     Validator.validate_intent(self._inferred_intent, ldf)
                     self._collection = Compiler.compile_intent(ldf, self._inferred_intent)
-                
+
                 # Early pruning determination criteria
                 width_criteria = len(self._collection) > lux.config.topk
                 length_criteria = len(ldf) >= 30000
