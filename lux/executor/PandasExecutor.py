@@ -293,7 +293,7 @@ class PandasExecutor(Executor):
             vis._vis_data = vis._vis_data.drop(columns="index")
 
     @staticmethod
-    def execute_binning(ldf, vis: Vis):
+    def execute_binning(ldf: LuxDataFrame, vis: Vis):
         """
         Binning of data points for generating histograms
 
@@ -330,7 +330,19 @@ class PandasExecutor(Executor):
         vis._vis_data = pd.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
 
     @staticmethod
-    def execute_filter(vis: Vis):
+    def execute_filter(vis: Vis) -> bool:
+        """
+        Apply a Vis's filter to vis.data
+
+        Parameters
+        ----------
+        vis : Vis
+
+        Returns
+        -------
+        bool
+            Boolean flag indicating if any filter was applied
+        """
         assert (
             vis.data is not None
         ), "execute_filter assumes input vis.data is populated (if not, populate with LuxDataFrame values)"
@@ -392,7 +404,14 @@ class PandasExecutor(Executor):
         return df
 
     @staticmethod
-    def execute_2D_binning(vis: Vis):
+    def execute_2D_binning(vis: Vis) -> None:
+        """
+        Apply 2D binning (heatmap) to vis.data
+
+        Parameters
+        ----------
+        vis : Vis
+        """
         pd.reset_option("mode.chained_assignment")
         with pd.option_context("mode.chained_assignment", None):
             x_attr = vis.get_attr_by_channel("x")[0].attribute

@@ -224,13 +224,12 @@ def test_sampling_flag_config():
     lux.config.heatmap = False
     lux.config.sampling = True
     lux.config.early_pruning = False
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
-    df._ipython_display_()
-    assert df.recommendation["Correlation"][0].data.shape[0] == 30000
-    lux.config.sampling = False
-    df = df.copy()
-    df._ipython_display_()
-    assert df.recommendation["Correlation"][0].data.shape[0] == 48895
+    import numpy as np
+
+    N = int(1.1 * lux.config.sampling_cap)
+    df = pd.DataFrame({"col1": np.random.rand(N), "col2": np.random.rand(N)})
+    df.maintain_recs()
+    assert len(df.recommendation["Correlation"][0].data) == lux.config.sampling_cap
     lux.config.sampling = True
     lux.config.heatmap = True
     lux.config.early_pruning = True

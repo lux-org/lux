@@ -48,7 +48,7 @@ class SQLExecutor(Executor):
         )
 
     @staticmethod
-    def execute(view_collection: VisList, tbl: LuxSQLTable):
+    def execute(view_collection: VisList, tbl: LuxSQLTable, approx: bool = False):
         """
         Given a VisList, fetch the data required to render the view
         1) Generate Necessary WHERE clauses
