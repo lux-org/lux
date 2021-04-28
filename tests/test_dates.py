@@ -75,7 +75,7 @@ def test_period_to_altair(global_var):
     from lux.vis.Vis import Vis
 
     vis = Vis(["Acceleration", "Horsepower", "Year=1972"], df)
-    exported_code = vis.to_Altair()
+    exported_code = vis.to_altair()
 
     assert "Year = 1972" in exported_code
 
@@ -88,7 +88,7 @@ def test_refresh_inplace():
         }
     )
     with pytest.warns(UserWarning, match="Lux detects that the attribute 'date' may be temporal."):
-        df._repr_html_()
+        df._ipython_display_()
     assert df.data_type["date"] == "temporal"
 
     from lux.vis.Vis import Vis

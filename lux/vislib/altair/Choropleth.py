@@ -37,7 +37,7 @@ class Choropleth(AltairChart):
         super().__init__(dobj)
 
     def __repr__(self):
-        return f"Proportional Symbol Map <{str(self.vis)}>"
+        return f"Choropleth Map <{str(self.vis)}>"
 
     def initialize_chart(self):
         x_attr = self.vis.get_attr_by_channel("x")[0]
@@ -69,9 +69,12 @@ class Choropleth(AltairChart):
             alt.Chart(geo_map)
             .mark_geoshape()
             .encode(
-                color=f"{y_attr_abv}:Q",
+                color=f"{str(y_attr.attribute)}:Q",
             )
-            .transform_lookup(lookup="id", from_=alt.LookupData(self.data, x_attr_abv, [y_attr_abv]))
+            .transform_lookup(
+                lookup="id",
+                from_=alt.LookupData(self.data, str(x_attr.attribute), [str(y_attr.attribute)]),
+            )
             .project(type=map_type)
             .properties(
                 width=width, height=height, title=f"Mean of {y_attr_abv} across {geographical_name}"
@@ -91,10 +94,10 @@ df = pd.DataFrame({str(self.data.to_dict())})
 background = {background_str}
 
 		points = alt.Chart({geo_map_str}).mark_geoshape().encode(
-    color='{y_attr_abv}:Q',
+    color='{str(y_attr.attribute)}:Q',
 ).transform_lookup(
     lookup='id',
-    from_=alt.LookupData({dfname}, "{x_attr_abv}", ["{y_attr_abv}"])
+    from_=alt.LookupData({dfname}, "{str(x_attr.attribute)}", ["{str(y_attr.attribute)}"])
 ).project(
     type="{map_type}"
 ).properties(

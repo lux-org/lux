@@ -26,20 +26,20 @@ import warnings
 def test_deepcopy(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
-    df._repr_html_()
+    df._ipython_display_()
     saved_df = df.copy(deep=True)
-    saved_df._repr_html_()
+    saved_df._ipython_display_()
     check_metadata_equal(df, saved_df)
 
 
 def test_rename_inplace(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
-    df._repr_html_()
+    df._ipython_display_()
     new_df = df.copy(deep=True)
     df.rename(columns={"Name": "Car Name"}, inplace=True)
-    df._repr_html_()
-    new_df._repr_html_()
+    df._ipython_display_()
+    new_df._ipython_display_()
     # new_df is the old dataframe (df) with the new column name changed inplace
     new_df, df = df, new_df
 
@@ -79,9 +79,9 @@ def test_rename_inplace(global_var):
 def test_rename(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
-    df._repr_html_()
+    df._ipython_display_()
     new_df = df.rename(columns={"Name": "Car Name"}, inplace=False)
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert df.data_type != new_df.data_type
 
     assert df.data_type["Name"] == new_df.data_type["Car Name"]
@@ -131,7 +131,7 @@ def test_rename3(global_var):
         "col9",
         "col10",
     ]
-    df._repr_html_()
+    df._ipython_display_()
     assert set(df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -140,6 +140,7 @@ def test_rename3(global_var):
             "Temporal",
         ]
     )
+
     assert len(df.cardinality) == 10
     assert "col2" in list(df.cardinality.keys())
 
@@ -149,7 +150,8 @@ def test_concat(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = pd.concat([df.loc[:, "Name":"Cylinders"], df.loc[:, "Year":"Origin"]], axis="columns")
-    new_df._repr_html_()
+
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(
         [
             "Distribution",
@@ -157,6 +159,7 @@ def test_concat(global_var):
             "Temporal",
         ]
     )
+
     assert len(new_df.cardinality) == 5
 
 
@@ -164,7 +167,7 @@ def test_groupby_agg(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.groupby("Year").agg(sum)
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert list(new_df.recommendation.keys()) == ["Column Groups"]
     assert len(new_df.cardinality) == 7
 
@@ -172,7 +175,7 @@ def test_groupby_agg(global_var):
 def test_groupby_agg_big(global_var):
     df = pd.read_csv("lux/data/car.csv")
     new_df = df.groupby("Brand").agg(sum)
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert list(new_df.recommendation.keys()) == ["Column Groups"]
     assert len(new_df.cardinality) == 8
     year_vis = list(
@@ -184,7 +187,7 @@ def test_groupby_agg_big(global_var):
     assert year_vis.mark == "bar"
     assert year_vis.get_attr_by_channel("x")[0].attribute == "Year"
     new_df = new_df.T
-    new_df._repr_html_()
+    new_df._ipython_display_()
     year_vis = list(
         filter(
             lambda vis: vis.get_attr_by_attr_name("Year") != [],
@@ -199,13 +202,13 @@ def test_qcut(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["Weight"] = pd.qcut(df["Weight"], q=3)
-    df._repr_html_()
+    df._ipython_display_()
 
 
 def test_cut(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Weight"] = pd.cut(df["Weight"], bins=[0, 2500, 7500, 10000], labels=["small", "medium", "large"])
-    df._repr_html_()
+    df._ipython_display_()
 
 
 def test_groupby_agg_very_small(global_var):
@@ -213,7 +216,7 @@ def test_groupby_agg_very_small(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.groupby("Origin").agg(sum).reset_index()
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert list(new_df.recommendation.keys()) == ["Column Groups"]
     assert len(new_df.cardinality) == 7
 
@@ -223,7 +226,7 @@ def test_groupby_agg_very_small(global_var):
 #     df = pd.read_csv(url)
 #     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 #     new_df = df.groupby(["Year", "Cylinders"]).agg(sum).stack().reset_index()
-#     new_df._repr_html_()
+#     new_df._ipython_display_()
 #     assert set(new_df.recommendation.keys() ) == set(['Column Groups']) # TODO
 #     assert len(new_df.cardinality) == 7 # TODO
 
@@ -232,7 +235,7 @@ def test_query(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.query("Weight > 3000")
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -241,6 +244,7 @@ def test_query(global_var):
             "Temporal",
         ]
     )
+
     assert len(new_df.cardinality) == 10
 
 
@@ -248,7 +252,7 @@ def test_pop(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df.pop("Weight")
-    df._repr_html_()
+    df._ipython_display_()
     assert set(df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -264,7 +268,7 @@ def test_transform(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.iloc[:, 1:].groupby("Origin").transform(sum)
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(["Correlation", "Occurrence"])
     assert len(new_df.cardinality) == 7
 
@@ -274,7 +278,8 @@ def test_get_group(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     gbobj = df.groupby("Origin")
     new_df = gbobj.get_group("Japan")
-    new_df._repr_html_()
+    new_df._ipython_display_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -283,6 +288,7 @@ def test_get_group(global_var):
             "Temporal",
         ]
     )
+
     assert len(new_df.cardinality) == 10
 
 
@@ -291,7 +297,7 @@ def test_applymap(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     mapping = {"USA": 0, "Europe": 1, "Japan": 2}
     df["Origin"] = df[["Origin"]].applymap(mapping.get)
-    df._repr_html_()
+    df._ipython_display_()
     assert set(df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -307,7 +313,7 @@ def test_strcat(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["combined"] = df["Origin"].str.cat(df["Brand"], sep=", ")
-    df._repr_html_()
+    df._ipython_display_()
     assert set(df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -327,7 +333,7 @@ def test_named_agg(global_var):
         max_weight=("Weight", "max"),
         mean_displacement=("Displacement", "mean"),
     )
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(["Column Groups"])
     assert len(new_df.cardinality) == 4
 
@@ -336,7 +342,7 @@ def test_change_dtype(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["Cylinders"] = pd.Series(df["Cylinders"], dtype="Int64")
-    df._repr_html_()
+    df._ipython_display_()
     assert set(df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -352,7 +358,7 @@ def test_get_dummies(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = pd.get_dummies(df)
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -369,7 +375,7 @@ def test_drop(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.drop([0, 1, 2], axis="rows")
     new_df2 = new_df.drop(["Name", "MilesPerGal", "Cylinders"], axis="columns")
-    new_df2._repr_html_()
+    new_df2._ipython_display_()
     assert set(new_df2.recommendation.keys()) == set(
         [
             "Correlation",
@@ -378,6 +384,7 @@ def test_drop(global_var):
             "Temporal",
         ]
     )
+
     assert len(new_df2.cardinality) == 7
 
 
@@ -386,7 +393,7 @@ def test_merge(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.drop([0, 1, 2], axis="rows")
     new_df2 = pd.merge(df, new_df, how="left", indicator=True)
-    new_df2._repr_html_()
+    new_df2._ipython_display_()
     assert set(new_df2.recommendation.keys()) == set(
         [
             "Correlation",
@@ -395,6 +402,7 @@ def test_merge(global_var):
             "Temporal",
         ]
     )  # TODO once bug is fixed
+
     assert len(new_df2.cardinality) == 11
 
 
@@ -402,7 +410,7 @@ def test_prefix(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.add_prefix("1_")
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -411,6 +419,7 @@ def test_prefix(global_var):
             "Temporal",
         ]
     )
+
     assert len(new_df.cardinality) == 10
     assert new_df.cardinality["1_Name"] == 300
 
@@ -419,7 +428,7 @@ def test_loc(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.loc[:, "Displacement":"Origin"]
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -430,18 +439,18 @@ def test_loc(global_var):
     )
     assert len(new_df.cardinality) == 6
     new_df = df.loc[0:10, "Displacement":"Origin"]
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(["Correlation", "Distribution"])
     assert len(new_df.cardinality) == 6
     new_df = df.loc[0:10, "Displacement":"Horsepower"]
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(["Correlation", "Distribution"])
     assert len(new_df.cardinality) == 2
     import numpy as np
 
     inter_df = df.groupby("Brand")[["Acceleration", "Weight", "Horsepower"]].agg(np.mean)
     new_df = inter_df.loc["chevrolet":"fiat", "Acceleration":"Weight"]
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(["Column Groups"])
     assert len(new_df.cardinality) == 3
 
@@ -450,7 +459,7 @@ def test_iloc(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.iloc[:, 3:9]
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -461,18 +470,18 @@ def test_iloc(global_var):
     )
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:9]
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(["Correlation", "Distribution"])
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:5]
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(["Correlation", "Distribution"])
     assert len(new_df.cardinality) == 2
     import numpy as np
 
     inter_df = df.groupby("Brand")[["Acceleration", "Weight", "Horsepower"]].agg(np.mean)
     new_df = inter_df.iloc[5:10, 0:2]
-    new_df._repr_html_()
+    new_df._ipython_display_()
     assert set(new_df.recommendation.keys()) == set(["Column Groups"])
     assert len(new_df.cardinality) == 3
 
@@ -549,29 +558,29 @@ def test_index(global_var):
     df = df.set_index(["Name"])
     # if this assert fails, then the index column has not properly been removed from the dataframe's column and registered as an index
     assert "Name" not in df.columns and df.index.name == "Name"
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.recommendation) > 0
     df = df.reset_index()
     assert "Name" in df.columns and df.index.name != "Name"
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.recommendation) > 0
 
     df.set_index(["Name"], inplace=True)
     assert "Name" not in df.columns and df.index.name == "Name"
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.recommendation) > 0
     df.reset_index(inplace=True)
     assert "Name" in df.columns and df.index.name != "Name"
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.recommendation) > 0
 
     df = df.set_index(["Name"])
     assert "Name" not in df.columns and df.index.name == "Name"
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.recommendation) > 0
     df = df.reset_index(drop=True)
     assert "Name" not in df.columns and df.index.name != "Name"
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.recommendation) > 0
 
 
@@ -579,17 +588,17 @@ def test_index_col(global_var):
     df = pd.read_csv("lux/data/car.csv", index_col="Name")
     # if this assert fails, then the index column has not properly been removed from the dataframe's column and registered as an index
     assert "Name" not in df.columns and df.index.name == "Name"
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.recommendation) > 0
     df = df.reset_index()
     assert "Name" in df.columns and df.index.name != "Name"
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.recommendation) > 0
 
     # this case is not yet addressed, need to have a check that eliminates bar charts with duplicate column names
     # df = df.set_index(["Name"], drop=False)
     # assert "Name" not in df.columns and df.index.name == "Name"
-    # df._repr_html_()
+    # df._ipython_display_()
     # assert len(df.recommendation) > 0
     # df = df.reset_index(drop=True)
     # assert "Name" not in df.columns and df.index.name != "Name"
@@ -603,7 +612,7 @@ def test_index_col(global_var):
 def test_df_to_series(global_var):
     # Ensure metadata is kept when going from df to series
     df = pd.read_csv("lux/data/car.csv")
-    df._repr_html_()  # compute metadata
+    df._ipython_display_()  # compute metadata
     assert df.cardinality is not None
     series = df["Weight"]
     assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
@@ -617,7 +626,7 @@ def test_df_to_series(global_var):
 
 def test_value_counts(global_var):
     df = pd.read_csv("lux/data/car.csv")
-    df._repr_html_()  # compute metadata
+    df._ipython_display_()  # compute metadata
     assert df.cardinality is not None
     series = df["Weight"]
     series.value_counts()
@@ -631,7 +640,7 @@ def test_value_counts(global_var):
 
 def test_str_replace(global_var):
     df = pd.read_csv("lux/data/car.csv")
-    df._repr_html_()  # compute metadata
+    df._ipython_display_()  # compute metadata
     assert df.cardinality is not None
     series = df["Brand"].str.replace("chevrolet", "chevy")
     assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
@@ -650,7 +659,7 @@ def test_str_replace(global_var):
 def test_read_json(global_var):
     url = "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.json"
     df = pd.read_json(url)
-    df._repr_html_()
+    new_df._ipython_display_()
     assert set(df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -665,7 +674,7 @@ def test_read_json(global_var):
 def test_read_sas(global_var):
     url = "https://github.com/lux-org/lux-datasets/blob/master/data/airline.sas7bdat?raw=true"
     df = pd.read_sas(url, format="sas7bdat")
-    df._repr_html_()
+    new_df._ipython_display_()
     assert set(df.recommendation.keys()) == set(["Correlation", "Distribution", "Temporal"])
     assert len(df.data_type) == 6
 
@@ -674,5 +683,5 @@ def test_read_multi_dtype(global_var):
     url = "https://github.com/lux-org/lux-datasets/blob/master/data/car-data.xls?raw=true"
     df = pd.read_excel(url)
     with pytest.warns(UserWarning, match="mixed type") as w:
-        df._repr_html_()
+        df._ipython_display_()
         assert "df['Car Type'] = df['Car Type'].astype(str)" in str(w[-1].message)

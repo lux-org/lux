@@ -51,6 +51,11 @@ def enhance(ldf):
             "description": f"Further breaking down current {intended_attrs} intent by additional attribute.",
             "long_description": f"Enhance adds an additional attribute as the color to break down the {intended_attrs} distribution",
         }
+    # if there are too many column attributes, return don't generate Enhance recommendations
+    else:
+        recommendation = {"action": "Enhance"}
+        recommendation["collection"] = []
+        return recommendation
     intent = ldf._intent.copy()
     # Clear channel so that channel not enforced based on input vis intent
     for clause in intent:

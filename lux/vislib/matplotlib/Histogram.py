@@ -49,7 +49,7 @@ class Histogram(MatplotlibChart):
 
         markbar = abs(x_max - x_min) / 12
 
-        df = pd.DataFrame(self.data)
+        df = self.data
 
         bars = df[msr_attr.attribute]
         measurements = df["Number of Records"]
