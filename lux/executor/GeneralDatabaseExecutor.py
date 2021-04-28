@@ -224,7 +224,6 @@ class GeneralDatabaseExecutor(Executor):
             # aggregate barchart case, need aggregate data (mean, sum, max) for each group
             else:
                 where_clause, filterVars = GeneralDatabaseExecutor.execute_filter(view)
-
                 length_query = pandas.read_sql(
                     lux.config.query_templates['length_query'].format(tbl.table_name, where_clause),
                     lux.config.SQLconnection,
@@ -553,9 +552,16 @@ class GeneralDatabaseExecutor(Executor):
                     where_clause.append("AND")
                 curr_value = str(filters[f].value)
                 curr_value = curr_value.replace("'", "''")
+                # where_clause.extend(
+                #     [
+                #         '"' + str(filters[f].attribute) + '"',
+                #         str(filters[f].filter_op),
+                #         "'" + curr_value + "'",
+                #     ]
+                # )
                 where_clause.extend(
                     [
-                        '"' + str(filters[f].attribute) + '"',
+                        str(filters[f].attribute),
                         str(filters[f].filter_op),
                         "'" + curr_value + "'",
                     ]
@@ -573,9 +579,15 @@ class GeneralDatabaseExecutor(Executor):
                         where_clause.append("WHERE")
                     else:
                         where_clause.append("AND")
+                    # where_clause.extend(
+                    #     [
+                    #         '"' + str(a.attribute) + '"',
+                    #         "IS NOT NULL",
+                    #     ]
+                    # )
                     where_clause.extend(
                         [
-                            '"' + str(a.attribute) + '"',
+                            str(a.attribute),
                             "IS NOT NULL",
                         ]
                     )

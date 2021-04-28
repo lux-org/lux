@@ -3,11 +3,11 @@ length_query:SELECT COUNT(*) as length FROM {} {}
 sample_query:SELECT {} FROM {} {} LIMIT {}
 count_query:SELECT COUNT(*) as length FROM {} {}
 scatter_query:SELECT {} FROM {} {}
-colored_barchart_counts:SELECT {}, {}, COUNT({}) FROM {} {} GROUP BY {}, {}
+colored_barchart_counts:SELECT {}, {}, COUNT({}) as count FROM {} {} GROUP BY {}, {}
 colored_barchart_average:SELECT {}, {}, AVG({}) as {} FROM {} {} GROUP BY {}, {}
 colored_barchart_sum:SELECT {}, {}, SUM({}) as {} FROM {} {} GROUP BY {}, {}
 colored_barchart_max:SELECT {}, {}, MAX({}) as {} FROM {} {} GROUP BY {}, {}
-barchart_counts:SELECT {}, COUNT({}) FROM {} {} GROUP BY {}
+barchart_counts:SELECT {}, COUNT({}) as count FROM {} {} GROUP BY {}
 barchart_average:SELECT {}, AVG({}) as {} FROM {} {} GROUP BY {}
 barchart_sum:SELECT {}, SUM({}) as {} FROM {} {} GROUP BY {}
 barchart_max:SELECT {}, MAX({}) as {} FROM {} {} GROUP BY {}
