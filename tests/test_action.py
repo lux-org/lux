@@ -202,6 +202,7 @@ def test_year_filter_value(global_var):
 
 
 def test_similarity(global_var):
+    lux.config.early_pruning = False
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df.set_intent(
@@ -229,6 +230,7 @@ def test_similarity(global_var):
     )[0]
     assert japan_vis.score > europe_vis.score
     df.clear_intent()
+    lux.config.early_pruning = True
 
 
 def test_similarity2():
