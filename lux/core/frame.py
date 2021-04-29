@@ -614,6 +614,7 @@ class LuxDataFrame(pd.DataFrame):
             )
             display(self.loadingBar)
 
+
             # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
             self.maintain_recs()
             
