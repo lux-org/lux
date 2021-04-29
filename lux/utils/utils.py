@@ -143,3 +143,42 @@ def is_numeric_nan_column(series):
             return False, series
     else:
         return False, series
+
+def only_k_bars(k, ldf, x_attr_abv, sorted = False, sort_order=[]):
+    text, topkcode = "", ""
+    n_bars = len(ldf.unique_values[x_attr_abv])
+
+    if n_bars > k:
+        remaining_bars = n_bars - k
+        if sorted:
+            ldf = ldf[(ldf[x_attr_abv].isin(sort_order[:k]))]
+        else:
+            ldf= ldf.nlargest(k, columns=x_attr_abv)
+        
+        if lux.config._plotting_backend == "vegalite":
+            import altair as alt
+            text = alt.Chart(ldf).mark_text(
+                    x=155,
+                    y=142,
+                    align="right",
+                    color="#ff8e04",
+                    fontSize=11,
+                    text=f"+ {remaining_bars} more ...",
+                )
+            
+            topkcode = f"""text = alt.Chart(visData).mark_text(
+                x=155, 
+                y=142,
+                align="right",
+                color = "#ff8e04",
+                fontSize = 11,
+                text=f"+ {remaining_bars} more ..."
+            )
+            chart = chart + text\n"""
+
+    return ldf, text, topkcode
+
+
+
+
+    

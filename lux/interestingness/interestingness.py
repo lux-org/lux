@@ -76,7 +76,6 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         if n_dim == 1 and (n_msr == 0 or n_msr == 1):
             if v_size < 2:
                 return -1
-
             if vis.mark == "geographical":
                 return n_distinct(vis, dimension_lst, measure_lst)
             if n_filter == 0:

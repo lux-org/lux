@@ -60,6 +60,55 @@ Below: Lux displays the occurence counts of nominal variables under the :code:`O
   :align: center
   :alt: Displays bar chart for nominal variables.
 
+Ordinal
+--------
+The Ordinal Data type is a subset of nominal data where there is an ordering to the categories. 
+Examples could include grade level at school, rankings,
+or even the `Likert Scale <https://en.wikipedia.org/wiki/Likert_scale>`_ popular in many surveys. 
+Currently, the only way to use the Ordinal data type is by using :code:`df.set_data_type`
+and specifiying an :code:`order` argument. An example is provided below:
+
+.. code-block:: python
+
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/census.csv?raw=true")
+    df.set_data_type({'education': "ordinal"}, 
+                 order={'education': [' Preschool', 
+                                      ' 1st-4th', 
+                                      ' 5th-6th',
+                                      ' 7th-8th',
+                                      ' 9th',
+                                      ' 10th',
+                                      ' 11th',
+                                      ' 12th',
+                                      ' HS-grad',
+                                      ' Some-college',
+                                      ' Assoc-voc',
+                                      ' Assoc-acdm',
+                                      ' Prof-school',
+                                      ' Bachelors',
+                                      ' Masters', 
+                                      ' Doctorate',]})
+    df
+
+By default, under :code:`Occurrence`, there will be a sorted bar graph showing the counts of each category.
+
+.. image:: https://github.com/jinimukh/lux-resources/blob/datatype/doc_img/ordinal_1.png?raw=true
+  :width: 700
+  :align: center
+  :alt: Displays bar chart for nominal variables.
+
+However, after setting intent using :code:`df.intent = ["education"]`, we see box plots instead.
+
+.. image:: https://github.com/jinimukh/lux-resources/blob/datatype/doc_img/ordinal_2.png?raw=true
+  :width: 700
+  :align: center
+  :alt: Displays bar chart for nominal variables.
+
+.. note:: Currently, the box plots are only available for the :code:`vegalite` backend. 
+          If you would like this to be supported in :code:`matplotlib` as well or have any suggestions for the ordinal data, please comment them under 
+          `this Github issue <https://github.com/lux-org/lux/issues/240>`_.
+
+
 Geographic
 -----------
 Geographic data types describe location-based attributes, such as US states and world countries. 

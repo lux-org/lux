@@ -51,8 +51,15 @@ def enhance(ldf):
             "description": f"Further breaking down current {intended_attrs} intent by additional attribute.",
             "long_description": f"Enhance adds an additional attribute as the color to break down the {intended_attrs} distribution",
         }
+    if (
+        filter(lambda x: ldf.data_type[x] == "ordinal", attr_str)
+        and lux.config.plotting_backend == "matplotlib"
+    ):
+        recommendation[
+            "long_description"
+        ] += f"The Box Plot Visualizations in the 'Enhance' tab are rendered using <a href='https://altair-viz.github.io/'>Altair</a>. Lux does not currently support box plots with Matplotlib. If you would like this feature, please leave us a comment at <a href='https://github.com/lux-org/lux/issues/240'>issue #240</a> to let us know!"
     # if there are too many column attributes, return don't generate Enhance recommendations
-    else:
+    if len(attr_specs) > 2:
         recommendation = {"action": "Enhance"}
         recommendation["collection"] = []
         return recommendation

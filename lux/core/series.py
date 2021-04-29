@@ -50,6 +50,7 @@ class LuxSeries(pd.Series):
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
+        "_order",
     ]
 
     _default_metadata = {
@@ -60,6 +61,7 @@ class LuxSeries(pd.Series):
         "_toggle_pandas_display": lambda: True,
         "_pandas_only": lambda: False,
         "_type_override": dict,
+        "_order": dict,
         "_history": History,
         "_message": Message,
     }

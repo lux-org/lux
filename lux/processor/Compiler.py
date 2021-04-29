@@ -272,7 +272,7 @@ class Compiler:
             # If no aggregation function is specified, then default as average
             if measure.aggregation == "":
                 measure.set_aggregation("mean")
-            if dim_type == "temporal" or dim_type == "oridinal":
+            if dim_type == "temporal":
                 return "line", {"x": dimension, "y": measure}
             else:  # unordered categorical
                 # if cardinality large than 5 then sort bars
@@ -307,7 +307,12 @@ class Compiler:
                 vis._inferred_intent.append(count_col)
             dimension = vis.get_attr_by_data_model("dimension")[0]
             measure = vis.get_attr_by_data_model("measure")[0]
-            vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
+            if nmsr == 1:
+                vis._mark = "box"
+                auto_channel = {"x": dimension, "y": measure}
+            else:
+                vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
+                vis._sort = ldf._order.get(auto_channel.get("y").attribute)
         elif ndim == 2 and (nmsr == 0 or nmsr == 1):
             # Line or Bar chart broken down by the dimension
             dimensions = vis.get_attr_by_data_model("dimension")

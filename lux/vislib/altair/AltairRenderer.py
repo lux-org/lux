@@ -21,6 +21,7 @@ from lux.vislib.altair.LineChart import LineChart
 from lux.vislib.altair.Histogram import Histogram
 from lux.vislib.altair.Heatmap import Heatmap
 from lux.vislib.altair.Choropleth import Choropleth
+from lux.vislib.altair.BoxPlot import BoxPlot
 
 
 class AltairRenderer:
@@ -87,6 +88,8 @@ class AltairRenderer:
             chart = Heatmap(vis)
         elif vis.mark == "geographical":
             chart = Choropleth(vis)
+        elif vis.mark == "box":
+            chart = BoxPlot(vis)
         else:
             chart = None
 

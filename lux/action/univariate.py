@@ -62,8 +62,12 @@ def univariate(ldf, *args):
         if len(ldf) < 5:
             ignore_rec_flag = True
     elif data_type_constraint == "nominal":
+        # possible attributes are only nominal/ordinal data types for categorical data
         possible_attributes = [
-            c for c in ldf.columns if ldf.data_type[c] == "nominal" and c != "Number of Records"
+            c
+            for c in ldf.columns
+            if (ldf.data_type[c] == "nominal" or ldf.data_type[c] == "ordinal")
+            and c != "Number of Records"
         ]
         examples = ""
         if len(possible_attributes) >= 1:

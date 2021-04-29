@@ -258,6 +258,22 @@ def test_set_wrong_data_type():
     assert df.data_type["Year"] == "quantitative"
 
 
+def test_oridinal_set_and_order():
+    df = pd.read_csv("lux/data/college.csv")
+    df.set_data_type(
+        {"HighestDegree": "ordinal"}, order={"HighestDegree": ["Associate", "Bachelor's", "Graduate"]}
+    )
+    assert df._order == {"HighestDegree": ["Associate", "Bachelor's", "Graduate"]}
+
+    from lux.vis.VisList import VisList
+    from lux.vis.Vis import Vis
+
+    vis = Vis(["HighestDegree"], df)
+    assert vis._sort == ["Associate", "Bachelor's", "Graduate"]
+    vis = Vis(["HighestDegree", "AverageFacultySalary"], df)
+    assert vis.mark == "box"
+
+
 def test_id_with_label():
     df = pd.read_csv(
         "https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true"
