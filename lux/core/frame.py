@@ -79,6 +79,7 @@ class LuxDataFrame(pd.DataFrame):
             lux.config.executor = SQLExecutor()
 
         self._sampled = None
+        self._approx_sample = None
         self._toggle_pandas_display = True
         self._message = Message()
         self._pandas_only = False
@@ -115,47 +116,56 @@ class LuxDataFrame(pd.DataFrame):
             self.maintain_metadata()
         return self._data_type
 
-    def maintain_metadata(self):
+    def compute_metadata(self) -> None:
+        """
+        Compute dataset metadata and statistics
+        """
+        if len(self) > 0:
+            if lux.config.executor.name != "SQLExecutor":
+                lux.config.executor.compute_stats(self)
+            lux.config.executor.compute_dataset_metadata(self)
+            self._infer_structure()
+            self._metadata_fresh = True
+
+    def maintain_metadata(self) -> None:
+        """
+        Maintain dataset metadata and statistics (Compute only if needed)
+        """
         is_sql_tbl = lux.config.executor.name == "SQLExecutor"
         if lux.config.SQLconnection != "" and is_sql_tbl:
             from lux.executor.SQLExecutor import SQLExecutor
 
             lux.config.executor = SQLExecutor()
+        if lux.config.lazy_maintain:
+            # Check that metadata has not yet been computed
+            if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
+                # only compute metadata information if the dataframe is non-empty
+                self.compute_metadata()
+        else:
+            self.compute_metadata()
 
-        # Check that metadata has not yet been computed
-        if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
-            # only compute metadata information if the dataframe is non-empty
-            if is_sql_tbl:
-                lux.config.executor.compute_dataset_metadata(self)
-                self._infer_structure()
-                self._metadata_fresh = True
-            else:
-                if len(self) > 0:
-                    lux.config.executor.compute_stats(self)
-                    lux.config.executor.compute_dataset_metadata(self)
-                    self._infer_structure()
-                    self._metadata_fresh = True
-
-    def expire_recs(self):
+    def expire_recs(self) -> None:
         """
         Expires and resets all recommendations
         """
-        self._recs_fresh = False
-        self._recommendation = {}
-        self._widget = None
-        self._rec_info = None
-        self._sampled = None
+        if lux.config.lazy_maintain:
+            self._recs_fresh = False
+            self._recommendation = {}
+            self._widget = None
+            self._rec_info = None
+            self._sampled = None
 
-    def expire_metadata(self):
+    def expire_metadata(self) -> None:
         """
         Expire all saved metadata to trigger a recomputation the next time the data is required.
         """
-        self._metadata_fresh = False
-        self._data_type = None
-        self.unique_values = None
-        self.cardinality = None
-        self._min_max = None
-        self.pre_aggregated = None
+        if lux.config.lazy_maintain:
+            self._metadata_fresh = False
+            self._data_type = None
+            self.unique_values = None
+            self.cardinality = None
+            self._min_max = None
+            self.pre_aggregated = None
 
     #####################
     ## Override Pandas ##
@@ -358,6 +368,7 @@ class LuxDataFrame(pd.DataFrame):
         if lux.config.update_actions["flag"] == True:
             self._recs_fresh = False
         show_prev = False  # flag indicating whether rec_df is showing previous df or current self
+
         if self._prev is not None:
             rec_df = self._prev
             rec_df._message = Message()
@@ -395,8 +406,14 @@ class LuxDataFrame(pd.DataFrame):
 
         rec_df._prev = None  # reset _prev
 
+        # If lazy, check that recs has not yet been computed
+        lazy_but_not_computed = lux.config.lazy_maintain and (
+            not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh
+        )
+        eager = not lux.config.lazy_maintain
+
         # Check that recs has not yet been computed
-        if not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh:
+        if lazy_but_not_computed or eager:
             is_sql_tbl = lux.config.executor.name == "SQLExecutor"
             rec_infolist = []
             from lux.action.row_group import row_group
@@ -452,7 +469,9 @@ class LuxDataFrame(pd.DataFrame):
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
             rec_df.show_all_column_vis()
-            self._widget = rec_df.render_widget(pandasHtml=rec_df.to_html(max_rows=5))
+            if lux.config.render_widget:
+                self._widget = rec_df.render_widget(pandasHtml=rec_df.to_html(max_rows=5))
+
         self._recs_fresh = True
 
     #######################################################
