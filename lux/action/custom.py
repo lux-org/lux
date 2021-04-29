@@ -85,7 +85,7 @@ def filter_keys(ldf):
     keys = []
     data_types = set(ldf._data_type.values())
     
-    if len(ldf) > 0 or lux.config.executor.name != "PandasExecutor"):
+    if len(ldf) > 0 or lux.config.executor.name != "PandasExecutor":
         for action_name in lux.config.actions.keys():
             display_condition = lux.config.actions[action_name].display_condition
             if display_condition is None or (display_condition is not None and display_condition(ldf)):

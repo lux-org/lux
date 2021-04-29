@@ -447,7 +447,7 @@ class LuxDataFrame(pd.DataFrame):
             rec_df._rec_info = rec_infolist
             rec_df.show_all_column_vis()
 
-            self._widget = rec_df.render_widget()
+            self._widget = rec_df.render_widget(pandasHtml=rec_df.to_html(max_rows=5))
 
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
@@ -559,9 +559,8 @@ class LuxDataFrame(pd.DataFrame):
         if len(self._widget.recommendations) <= 1:
             self.compute_remaining_actions()
 
-        with self.output:
-            clear_output()
-            display(self._widget)
+        clear_output()
+        display(self._widget)
 
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
@@ -576,53 +575,27 @@ class LuxDataFrame(pd.DataFrame):
                 display(self.display_pandas())
                 self._pandas_only = False
 
-            # Pre-displaying initial pandas frame before computing widget
-            pandas_output = widgets.Output()
-            self.output = widgets.Output()
-
-            with pandas_output:
-                display(self.display_pandas())
-
-            with self.output:
-                display(widgets.HTML(value="Loading widget..."))
-                # This is displayed to override the CSS of the original Tabs
-                display(self._widget)
-
-            tab_contents = ["Pandas", "Lux"]
-            children = [pandas_output, self.output]
-
-            tab = widgets.Tab()
-            tab.children = children
-
-            for i in range(len(tab_contents)):
-                tab.set_title(i, tab_contents[i])
-
-            display(tab)
-
-            if lux.config.default_display == "lux":
-                tab.selected_index = 1
-
             if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
                 self.maintain_metadata()
 
+                if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
+                    from lux.processor.Compiler import Compiler
 
-                    if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
-                        from lux.processor.Compiler import Compiler
+                    self.current_vis = Compiler.compile_intent(self, self._intent)
 
-                        self.current_vis = Compiler.compile_intent(self, self._intent)
+            display(self._widget)
 
             # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
             self.maintain_recs()
+            
+            clear_output()
+            display(self._widget)
 
-                # Observers(callback_function, listen_to_this_variable)
-                self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
-                self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+            # Observers(callback_function, listen_to_this_variable)
+            self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
+            self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
             if len(self._recommendation) > 0:
-                with self.output:
-                    clear_output()
-                    display(self._widget)
-
                 if hasattr(self, "action_keys"):
                     self.compute_remaining_actions()
 
@@ -668,7 +641,7 @@ class LuxDataFrame(pd.DataFrame):
     def display_pandas(self):
         return self.to_pandas()
 
-    def render_widget(self, renderer: str = "altair", input_current_vis=""):
+    def render_widget(self, renderer: str = "altair", input_current_vis="", pandasHtml=""):
         """
         Generate a LuxWidget based on the LuxDataFrame
 
@@ -715,6 +688,7 @@ class LuxDataFrame(pd.DataFrame):
             recommendations=widgetJSON["recommendation"],
             intent=LuxDataFrame.intent_to_string(self._intent),
             message=self._message.to_html(),
+            pandasHtml=pandasHtml
         )
 
     @staticmethod
