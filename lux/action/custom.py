@@ -76,7 +76,7 @@ def custom_action(ldf, action):
     return recommendation
 
 
-def filter_keys(ldf):
+def filter_keys(ldf, loadingBar=None):
     """
     Filters out actions before beginning computations so we know which tabs to display.
     Logic to filter out actions in lux/action/default.py
@@ -84,7 +84,9 @@ def filter_keys(ldf):
 
     keys = []
     data_types = set(ldf._data_type.values())
-    
+    progress = 0 
+    if loadingBar is not None:
+        loadingBar.max = len(lux.config.actions.keys())
     if len(ldf) > 0 or lux.config.executor.name != "PandasExecutor":
         for action_name in lux.config.actions.keys():
             display_condition = lux.config.actions[action_name].display_condition
@@ -93,6 +95,9 @@ def filter_keys(ldf):
                     if not lux.config.actions[action_name].args[0] in data_types:
                         continue
                 keys.append(action_name)
+            progress += 1
+            if loadingBar is not None:
+                loadingBar.value = progress
 
     # Pushing back correlation and geographical actions for performance reasons
     if "correlation" in keys:
