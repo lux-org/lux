@@ -229,15 +229,9 @@ def test_set_data_type():
         "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
     )
     with pytest.warns(UserWarning) as w:
-<<<<<<< HEAD
-        df._repr_html_()
+        df._ipython_display_()
         assert "df.set_data_type" in str(w[0].message)
         assert "starter template that you can use" in str(w[0].message)
-=======
-        df._ipython_display_()
-        assert "starter template that you can use" in str(w[-1].message)
-        assert "df.set_data_type" in str(w[-1].message)
->>>>>>> master
 
     df.set_data_type({"Month": "nominal", "Year": "nominal"})
     assert df.data_type["Month"] == "nominal"

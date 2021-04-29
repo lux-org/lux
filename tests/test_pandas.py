@@ -45,10 +45,5 @@ def test_describe(global_var):
 def test_convert_dtype(global_var):
     df = pytest.college_df
     cdf = df.convert_dtypes()
-<<<<<<< HEAD
-    cdf._repr_html_()
-    assert set(cdf.recommendation.keys()) == set(["Correlation", "Distribution", "Occurrence"])
-=======
     cdf._ipython_display_()
-    assert list(cdf.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
->>>>>>> master
+    assert set(cdf.recommendation.keys()) == set(["Correlation", "Distribution", "Occurrence"])
