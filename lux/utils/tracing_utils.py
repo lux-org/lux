@@ -18,7 +18,7 @@ class LuxTracer():
                 func_name = fcode.co_name
                 #includeMod = ['lux/vis', 'lux/action', 'lux/vislib', 'lux/executor', 'lux/interestingness']
                 includeMod = ['lux\\vis', 'lux\\vislib', 'lux\\executor']
-                includeFunc = ['execute_sampling', 'execute_filter', 'execute_binning', 'execute_scatter', 'execute_aggregate', 'execute_2D_binning', 'create_where_clause']
+                includeFunc = ['add_quotes', 'execute_sampling', 'execute_filter', 'execute_binning', 'execute_scatter', 'execute_aggregate', 'execute_2D_binning']
                 if any(x in frame.f_code.co_filename for x in includeMod):
                     if (func_name!="<lambda>"): #ignore one-liner lambda functions (repeated line events)
                         if any(x in f"{frame.f_code.co_filename}--{func_name}--{line_no}" for x in includeFunc):
@@ -60,16 +60,33 @@ class LuxTracer():
             codelines = open(filename).readlines()# TODO: do sharing of file content here
             if (funcname not in ['__init__']):
                 code = codelines[line_no]
-                ignore_construct = ['if','elif','return'] # prune out these control flow programming constructs                    
+                ignore_construct = ['if','elif','return', 'try'] # prune out these control flow programming constructs                    
                 ignore_lux_keyword = ['self.code','self.name','__init__','PandasExecutor.',"'''",'self.output_type', 'message.add_unique', 'Large scatterplots detected', 'priority=']# Lux-specific keywords to ignore
                 ignore = ignore_construct+ignore_lux_keyword
                 if not any(construct in code for construct in ignore):
                     #need to handle for loops, this keeps track of when a for loop shows up and when the for loop code is repeated
                     clean_code_line = codelines[line_no].lstrip()
                     if clean_code_line not in selected:
-                        selected[clean_code_line] = index
-                        selected_index[index] = codelines[line_no].replace("    ", "", 1)
+                        if "def add_quotes(var_name):" in clean_code_line:
+                            clean_code_line = "def add_quotes(var_name):\n\treturn \'\"\' + var_name + \'\"\'\n"
+                            selected[clean_code_line] = index
+                            selected_index[index] = clean_code_line.replace("    ", "", 3)
+                        else:
+                            selected[clean_code_line] = index
+                            selected_index[index] = codelines[line_no].replace("    ", "", 3)
                         index += 1
+
+        curr_executor = lux.config.executor.name
+        if curr_executor == "SQLExecutor":
+            import_code = "from lux.utils import utils\nfrom lux.executor.SQLExecutor import SQLExecutor\nimport pandas\nimport math\n"
+            var_init_code = "tbl = 'insert your LuxSQLTable variable here'\nvis = 'insert the name of your Vis object here'\n"
+        else:
+            import_code = "from lux.utils import utils\nfrom lux.executor.PandasExecutor import PandasExecutor\nimport pandas\nimport math\n"
+            var_init_code = "ldf = 'insert your LuxDataFrame variable here'\nvis = 'insert the name of your Vis object here'\nvis._vis_data = ldf\n"
+        output += import_code
+        output += var_init_code
         for key in selected_index.keys():
             output += selected_index[key]
+
+        output+="\nvis"
         return(output)

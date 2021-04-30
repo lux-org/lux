@@ -316,7 +316,7 @@ class Vis:
             lux.config.tracer.start_tracing()
             lux.config.executor.execute(lux.vis.VisList.VisList(input_lst=[self]), self._source)
             lux.config.tracer.stop_tracing() 
-            self._trace_code = "def plot(view, tbl):\n" + lux.config.tracer.process_executor_code(lux.config.tracer_relevant_lines)
+            self._trace_code = lux.config.tracer.process_executor_code(lux.config.tracer_relevant_lines)
             lux.config.tracer_relevant_lines = []
             return(self._trace_code)
         elif language == "SQL":

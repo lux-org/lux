@@ -175,33 +175,16 @@ class SQLExecutor(Executor):
             if measure_attr.attribute == "Record":
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
 
-                length_query = pandas.read_sql(
-                    "SELECT COUNT(*) as length FROM {} {}".format(tbl.table_name, where_clause),
-                    lux.config.SQLconnection,
-                )
+                length_query = pandas.read_sql("SELECT COUNT(*) as length FROM {} {}".format(tbl.table_name, where_clause),lux.config.SQLconnection,)
                 # generates query for colored barchart case
                 if has_color:
-                    count_query = 'SELECT "{}", "{}", COUNT("{}") FROM {} {} GROUP BY "{}", "{}"'.format(
-                        groupby_attr.attribute,
-                        color_attr.attribute,
-                        groupby_attr.attribute,
-                        tbl.table_name,
-                        where_clause,
-                        groupby_attr.attribute,
-                        color_attr.attribute,
-                    )
+                    count_query = 'SELECT "{}", "{}", COUNT("{}") FROM {} {} GROUP BY "{}", "{}"'.format(groupby_attr.attribute,color_attr.attribute,groupby_attr.attribute,tbl.table_name,where_clause,groupby_attr.attribute,color_attr.attribute,)
                     view._vis_data = pandas.read_sql(count_query, lux.config.SQLconnection)
                     view._vis_data = view._vis_data.rename(columns={"count": "Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
                 # generates query for normal barchart case
                 else:
-                    count_query = 'SELECT "{}", COUNT("{}") FROM {} {} GROUP BY "{}"'.format(
-                        groupby_attr.attribute,
-                        groupby_attr.attribute,
-                        tbl.table_name,
-                        where_clause,
-                        groupby_attr.attribute,
-                    )
+                    count_query = 'SELECT "{}", COUNT("{}") FROM {} {} GROUP BY "{}"'.format(groupby_attr.attribute,groupby_attr.attribute,tbl.table_name,where_clause,groupby_attr.attribute,)
                     view._vis_data = pandas.read_sql(count_query, lux.config.SQLconnection)
                     view._vis_data = view._vis_data.rename(columns={"count": "Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
@@ -218,16 +201,7 @@ class SQLExecutor(Executor):
                 # generates query for colored barchart case
                 if has_color:
                     if agg_func == "mean":
-                        agg_query = 'SELECT "{}", "{}", AVG("{}") as "{}" FROM {} {} GROUP BY "{}", "{}"'.format(
-                            groupby_attr.attribute,
-                            color_attr.attribute,
-                            measure_attr.attribute,
-                            measure_attr.attribute,
-                            tbl.table_name,
-                            where_clause,
-                            groupby_attr.attribute,
-                            color_attr.attribute,
-                        )
+                        agg_query = 'SELECT "{}", "{}", AVG("{}") as "{}" FROM {} {} GROUP BY "{}", "{}"'.format(groupby_attr.attribute,color_attr.attribute,measure_attr.attribute,measure_attr.attribute,tbl.table_name,where_clause,groupby_attr.attribute,color_attr.attribute,)
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
 
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
@@ -245,51 +219,21 @@ class SQLExecutor(Executor):
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "max":
-                        agg_query = 'SELECT "{}", "{}", MAX("{}") as "{}" FROM {} {} GROUP BY "{}", "{}"'.format(
-                            groupby_attr.attribute,
-                            color_attr.attribute,
-                            measure_attr.attribute,
-                            measure_attr.attribute,
-                            tbl.table_name,
-                            where_clause,
-                            groupby_attr.attribute,
-                            color_attr.attribute,
-                        )
+                        agg_query = 'SELECT "{}", "{}", MAX("{}") as "{}" FROM {} {} GROUP BY "{}", "{}"'.format(groupby_attr.attribute,color_attr.attribute,measure_attr.attribute,measure_attr.attribute,tbl.table_name,where_clause,groupby_attr.attribute,color_attr.attribute,)
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                 # generates query for normal barchart case
                 else:
                     if agg_func == "mean":
-                        agg_query = 'SELECT "{}", AVG("{}") as "{}" FROM {} {} GROUP BY "{}"'.format(
-                            groupby_attr.attribute,
-                            measure_attr.attribute,
-                            measure_attr.attribute,
-                            tbl.table_name,
-                            where_clause,
-                            groupby_attr.attribute,
-                        )
+                        agg_query = 'SELECT "{}", AVG("{}") as "{}" FROM {} {} GROUP BY "{}"'.format(groupby_attr.attribute,measure_attr.attribute,measure_attr.attribute,tbl.table_name,where_clause,groupby_attr.attribute,)
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "sum":
-                        agg_query = 'SELECT "{}", SUM("{}") as "{}" FROM {} {} GROUP BY "{}"'.format(
-                            groupby_attr.attribute,
-                            measure_attr.attribute,
-                            measure_attr.attribute,
-                            tbl.table_name,
-                            where_clause,
-                            groupby_attr.attribute,
-                        )
+                        agg_query = 'SELECT "{}", SUM("{}") as "{}" FROM {} {} GROUP BY "{}"'.format(groupby_attr.attribute,measure_attr.attribute,measure_attr.attribute,tbl.table_name,where_clause,groupby_attr.attribute,)
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "max":
-                        agg_query = 'SELECT "{}", MAX("{}") as "{}" FROM {} {} GROUP BY "{}"'.format(
-                            groupby_attr.attribute,
-                            measure_attr.attribute,
-                            measure_attr.attribute,
-                            tbl.table_name,
-                            where_clause,
-                            groupby_attr.attribute,
-                        )
+                        agg_query = 'SELECT "{}", MAX("{}") as "{}" FROM {} {} GROUP BY "{}"'.format(groupby_attr.attribute,measure_attr.attribute,measure_attr.attribute,tbl.table_name,where_clause,groupby_attr.attribute,)
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                 view._query = agg_query
@@ -307,18 +251,8 @@ class SQLExecutor(Executor):
                 if len(result_vals) != N_unique_vals * color_cardinality:
                     columns = view._vis_data.columns
                     if has_color:
-                        df = pandas.DataFrame(
-                            {
-                                columns[0]: attr_unique_vals * color_cardinality,
-                                columns[1]: pandas.Series(color_attr_vals).repeat(N_unique_vals),
-                            }
-                        )
-                        view._vis_data = view._vis_data.merge(
-                            df,
-                            on=[columns[0], columns[1]],
-                            how="right",
-                            suffixes=["", "_right"],
-                        )
+                        df = pandas.DataFrame({columns[0]: attr_unique_vals * color_cardinality,columns[1]: pandas.Series(color_attr_vals).repeat(N_unique_vals),})
+                        view._vis_data = view._vis_data.merge(df,on=[columns[0], columns[1]],how="right",suffixes=["", "_right"],)
                         for col in columns[2:]:
                             view._vis_data[col] = view._vis_data[col].fillna(0)  # Triggers __setitem__
                         assert len(list(view._vis_data[groupby_attr.attribute])) == N_unique_vals * len(color_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
@@ -362,10 +296,7 @@ class SQLExecutor(Executor):
         # get filters if available
         where_clause, filterVars = SQLExecutor.execute_filter(view)
 
-        length_query = pandas.read_sql(
-            "SELECT COUNT(1) as length FROM {} {}".format(tbl.table_name, where_clause),
-            lux.config.SQLconnection,
-        )
+        length_query = pandas.read_sql("SELECT COUNT(1) as length FROM {} {}".format(tbl.table_name, where_clause),lux.config.SQLconnection,)
         # need to calculate the bin edges before querying for the relevant data
         bin_width = (attr_max - attr_min) / num_bins
         upper_edges = []
@@ -377,12 +308,7 @@ class SQLExecutor(Executor):
                 upper_edges.append(str(curr_edge))
         upper_edges = ",".join(upper_edges)
         view_filter, filter_vars = SQLExecutor.execute_filter(view)
-        bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket(CAST (\"{}\" AS FLOAT), '{}') FROM {} {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(
-            bin_attribute.attribute,
-            "{" + upper_edges + "}",
-            tbl.table_name,
-            where_clause,
-        )
+        bin_count_query = "SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket(CAST (\"{}\" AS FLOAT), '{}') FROM {} {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket".format(bin_attribute.attribute,"{" + upper_edges + "}",tbl.table_name,where_clause,)
 
         bin_count_data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
         if not bin_count_data["width_bucket"].isnull().values.any():
@@ -395,15 +321,9 @@ class SQLExecutor(Executor):
                 bin_centers = np.array([math.ceil((attr_min + attr_min + bin_width) / 2)])
             else:
                 bin_centers = np.array([(attr_min + attr_min + bin_width) / 2])
-            bin_centers = np.append(
-                bin_centers,
-                np.mean(np.vstack([upper_edges[0:-1], upper_edges[1:]]), axis=0),
-            )
+            bin_centers = np.append(bin_centers,np.mean(np.vstack([upper_edges[0:-1], upper_edges[1:]]), axis=0),)
             if attr_type == int:
-                bin_centers = np.append(
-                    bin_centers,
-                    math.ceil((upper_edges[len(upper_edges) - 1] + attr_max) / 2),
-                )
+                bin_centers = np.append(bin_centers,math.ceil((upper_edges[len(upper_edges) - 1] + attr_max) / 2),)
             else:
                 bin_centers = np.append(bin_centers, (upper_edges[len(upper_edges) - 1] + attr_max) / 2)
 
@@ -412,10 +332,7 @@ class SQLExecutor(Executor):
                 for i in range(0, len(bin_centers)):
                     if i not in bucket_lables:
                         bin_count_data = bin_count_data.append(pandas.DataFrame([[i, 0]], columns=bin_count_data.columns))
-            view._vis_data = pandas.DataFrame(
-                np.array([bin_centers, list(bin_count_data["count"])]).T,
-                columns=[bin_attribute.attribute, "Number of Records"],
-            )
+            view._vis_data = pandas.DataFrame(np.array([bin_centers, list(bin_count_data["count"])]).T,columns=[bin_attribute.attribute, "Number of Records"],)
             view._vis_data = utils.pandas_to_lux(view.data)
             view._query = bin_count_query
             # view._vis_data.length = list(length_query["length"])[0]
@@ -506,10 +423,9 @@ class SQLExecutor(Executor):
         filters = utils.get_filter_specs(view._inferred_intent)
         return SQLExecutor.create_where_clause(filters, view=view)
 
-    def create_where_clause(filter_specs, view=""):
+    def create_where_clause(filters, view=""):
         where_clause = []
         filter_vars = []
-        filters = filter_specs
         if filters:
             for f in range(0, len(filters)):
                 if f == 0:
@@ -541,7 +457,7 @@ class SQLExecutor(Executor):
         return (where_clause, filter_vars)
 
     def get_filtered_size(filter_specs, tbl):
-        clause_info = SQLExecutor.create_where_clause(filter_specs=filter_specs, view="")
+        clause_info = SQLExecutor.create_where_clause(filters=filter_specs, view="")
         where_clause = clause_info[0]
         filter_intents = filter_specs[0]
         filtered_length = pandas.read_sql(
