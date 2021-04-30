@@ -41,6 +41,7 @@
       ~LuxDataFrame.combine
       ~LuxDataFrame.combine_first
       ~LuxDataFrame.compare
+      ~LuxDataFrame.compute_metadata
       ~LuxDataFrame.convert_dtypes
       ~LuxDataFrame.copy
       ~LuxDataFrame.copy_intent
