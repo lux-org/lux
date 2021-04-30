@@ -464,13 +464,13 @@ class LuxDataFrame(pd.DataFrame):
             rec_df._rec_info = rec_infolist
             rec_df.show_all_column_vis()
 
-            self._widget = rec_df.render_widget(pandasHtml=rec_df.to_html(max_rows=5))
+            self._widget = rec_df.render_widget(pandasHtml=rec_df.to_html(max_rows=5, classes='pandasStyle'))
 
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
             rec_df.show_all_column_vis()
             if lux.config.render_widget:
-                self._widget = rec_df.render_widget(pandasHtml=rec_df.to_html(max_rows=5))
+                self._widget = rec_df.render_widget(pandasHtml=rec_df.to_html(max_rows=5, classes='pandasStyle'))
 
         self._recs_fresh = True
 
