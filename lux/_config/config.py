@@ -48,7 +48,6 @@ class Config:
         self.streaming = False
         self.render_widget = True
 
-
     @property
     def topk(self):
         return self._topk

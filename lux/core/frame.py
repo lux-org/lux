@@ -464,13 +464,17 @@ class LuxDataFrame(pd.DataFrame):
             rec_df._rec_info = rec_infolist
             rec_df.show_all_column_vis()
 
-            self._widget = rec_df.render_widget(pandasHtml=rec_df.to_html(max_rows=5, classes='pandasStyle'))
+            self._widget = rec_df.render_widget(
+                pandasHtml=rec_df.to_html(max_rows=5, classes="pandasStyle")
+            )
 
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
             rec_df.show_all_column_vis()
             if lux.config.render_widget:
-                self._widget = rec_df.render_widget(pandasHtml=rec_df.to_html(max_rows=5, classes='pandasStyle'))
+                self._widget = rec_df.render_widget(
+                    pandasHtml=rec_df.to_html(max_rows=5, classes="pandasStyle")
+                )
 
         self._recs_fresh = True
 
@@ -607,17 +611,16 @@ class LuxDataFrame(pd.DataFrame):
                 value=0,
                 min=0,
                 max=10,
-                description='Loading:',
-                bar_style='info', 
-                style={'bar_color': '#add8e6'},
-                orientation='horizontal'
+                description="Loading:",
+                bar_style="info",
+                style={"bar_color": "#add8e6"},
+                orientation="horizontal",
             )
             display(self.loadingBar)
 
-
             # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
             self.maintain_recs()
-            
+
             clear_output()
             display(self._widget)
 
@@ -718,7 +721,7 @@ class LuxDataFrame(pd.DataFrame):
             recommendations=widgetJSON["recommendation"],
             intent=LuxDataFrame.intent_to_string(self._intent),
             message=self._message.to_html(),
-            pandasHtml=pandasHtml
+            pandasHtml=pandasHtml,
         )
 
     @staticmethod

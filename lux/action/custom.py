@@ -84,7 +84,7 @@ def filter_keys(ldf, loadingBar=None):
 
     keys = []
     data_types = set(ldf._data_type.values())
-    progress = 0 
+    progress = 0
     if loadingBar is not None:
         loadingBar.max = len(lux.config.actions.keys())
     if len(ldf) > 0 or lux.config.executor.name != "PandasExecutor":
