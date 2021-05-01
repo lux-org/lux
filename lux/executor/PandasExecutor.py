@@ -204,9 +204,7 @@ class PandasExecutor(Executor):
                         vis._vis_data = vis.data.merge(df,on=[columns[0], columns[1]],how="right",suffixes=["", "_right"],)
                         for col in columns[2:]:
                             vis.data[col] = vis.data[col].fillna(0)  # Triggers __setitem__
-                        assert len(list(vis.data[groupby_attr.attribute])) == N_unique_vals * len(
-                            color_attr_vals
-                        ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
+                        assert len(list(vis.data[groupby_attr.attribute])) == N_unique_vals * len(color_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
 
                         # Keep only the three relevant columns not the *_right columns resulting from merge
                         vis._vis_data = vis.data.iloc[:, :3]
@@ -218,9 +216,7 @@ class PandasExecutor(Executor):
 
                         for col in columns[1:]:
                             vis.data[col] = vis.data[col].fillna(0)
-                        assert (
-                            len(list(vis.data[groupby_attr.attribute])) == N_unique_vals
-                        ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
+                        assert (len(list(vis.data[groupby_attr.attribute])) == N_unique_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
 
             vis._vis_data = vis._vis_data.dropna(subset=[measure_attr.attribute])
             try:
@@ -254,7 +250,8 @@ class PandasExecutor(Executor):
         """
         import numpy as np
 
-        bin_attribute = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0]
+        #bin_attribute = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0]
+        bin_attribute = [x for x in vis._inferred_intent if x.bin_size != 0][0]
         bin_attr = bin_attribute.attribute
         series = vis.data[bin_attr]
 
