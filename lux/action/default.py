@@ -5,6 +5,7 @@ from lux.action.univariate import univariate
 from lux.action.enhance import enhance
 from lux.action.filter import add_filter
 from lux.action.generalize import generalize
+from lux.action.temporal import temporal
 from lux.utils import utils
 from lux.vis.VisList import VisList
 from lux.interestingness.interestingness import interestingness

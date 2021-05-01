@@ -1,4 +1,4 @@
-lux.executor.PandasExecutor.PandasExecutor
+﻿lux.executor.PandasExecutor.PandasExecutor
 ==========================================
 
 .. currentmodule:: lux.executor.PandasExecutor
@@ -23,6 +23,7 @@ lux.executor.PandasExecutor.PandasExecutor
       ~PandasExecutor.execute
       ~PandasExecutor.execute_2D_binning
       ~PandasExecutor.execute_aggregate
+      ~PandasExecutor.execute_approx_sample
       ~PandasExecutor.execute_binning
       ~PandasExecutor.execute_filter
       ~PandasExecutor.execute_sampling
