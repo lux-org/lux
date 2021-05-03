@@ -153,29 +153,17 @@ class LuxSeries(pd.Series):
                 ldf._pandas_only = False
             else:
 
-                # Pre-displaying initial pandas frame before computing widget
-                pandas_output = widgets.Output()
-                self.output = widgets.Output()
-
-                with pandas_output:
-                    display(self.display_pandas())
-
-                with self.output:
-                    display(widgets.HTML(value="Loading widget..."))
-
-                tab_contents = ["Pandas", "Lux"]
-                children = [pandas_output, self.output]
-
-                tab = widgets.Tab()
-                tab.children = children
-
-                for i in range(len(tab_contents)):
-                    tab.set_title(i, tab_contents[i])
-
-                display(tab)
-
-                if lux.config.default_display == "lux":
-                    tab.selected_index = 1
+                # Initialized view before actions are computed
+                self.loadingBar = widgets.IntProgress(
+                    value=0,
+                    min=0,
+                    max=10,
+                    description="Loading:",
+                    bar_style="info",
+                    style={"bar_color": "#add8e6"},
+                    orientation="horizontal",
+                )
+                display(self.loadingBar)
 
                 if ldf._intent != [] and (not hasattr(ldf, "_compiled") or not ldf._compiled):
                     from lux.processor.Compiler import Compiler
@@ -185,17 +173,15 @@ class LuxSeries(pd.Series):
                 # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
                 ldf.maintain_recs(is_series="Series")
 
+                clear_output()
+                display(self._widget)
+
                 # Observers(callback_function, listen_to_this_variable)
                 ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")
                 ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
 
-                if len(ldf._recommendation) > 0:
-                    with ldf.output:
-                        clear_output()
-                        display(ldf._widget)
-
-                    if len(ldf._widget.recommendations) <= 1 and hasattr(ldf, "action_keys"):
-                        ldf.compute_remaining_actions()
+                if len(ldf._widget.recommendations) <= 1 and hasattr(ldf, "action_keys"):
+                    ldf.compute_remaining_actions()
 
         except (KeyboardInterrupt, SystemExit):
             raise

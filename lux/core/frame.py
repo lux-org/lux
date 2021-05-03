@@ -90,6 +90,7 @@ class LuxDataFrame(pd.DataFrame):
         self._min_max = None
         self.pre_aggregated = None
         self._type_override = {}
+        self.loadingBar = None
         warnings.formatwarning = lux.warning_format
 
     @property
@@ -716,6 +717,9 @@ class LuxDataFrame(pd.DataFrame):
         import luxwidget
 
         widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
+        if pandasHtml is None:
+            pandasHtml = ""
+
         return luxwidget.LuxWidget(
             currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
