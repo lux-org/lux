@@ -94,6 +94,7 @@ def distribution_check(ldf):
 
 
 def temporal_check(ldf):
+    import time
     filter_specs = utils.get_filter_specs(ldf._intent)
     intent = [lux.Clause("?", data_type="temporal")]
     intent.extend(filter_specs)

@@ -56,7 +56,7 @@ def test_temporal_action(global_var):
     test_data_vis_count = [4, 4, 2, 1, 1]
     for entry in zip(test_data, test_data_vis_count):
         df, num_vis = entry[0], entry[1]
-        df._repr_html_()
+        df._ipython_display_()
         assert ("Temporal" in df.recommendation, "Temporal visualizations should be generated.")
         recommended = df.recommendation["Temporal"]
         assert (len(recommended) == num_vis, "Incorrect number of temporal visualizations generated.")

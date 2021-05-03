@@ -269,7 +269,7 @@ def test_transform(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.iloc[:, 1:].groupby("Origin").transform(sum)
     new_df._ipython_display_()
-    assert set(new_df.recommendation.keys()) == set(["Correlation", "Occurrence"])
+    assert set(new_df.recommendation.keys()) == set(["Occurrence"])
     assert len(new_df.cardinality) == 7
 
 
@@ -440,12 +440,12 @@ def test_loc(global_var):
     assert len(new_df.cardinality) == 6
     new_df = df.loc[0:10, "Displacement":"Origin"]
     new_df._ipython_display_()
-    assert set(new_df.recommendation.keys()) == [
+    assert set(new_df.recommendation.keys()) == set([
         "Correlation",
         "Distribution",
         "Occurrence",
         "Temporal",
-    ]
+    ])
     assert len(new_df.cardinality) == 6
     new_df = df.loc[0:10, "Displacement":"Horsepower"]
     new_df._ipython_display_()
@@ -476,12 +476,12 @@ def test_iloc(global_var):
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:9]
     new_df._ipython_display_()
-    assert set(new_df.recommendation.keys()) == [
+    assert set(new_df.recommendation.keys()) == set([
         "Correlation",
         "Distribution",
         "Occurrence",
         "Temporal",
-    ]
+    ])
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:5]
     new_df._ipython_display_()
@@ -674,7 +674,7 @@ def test_str_replace(global_var):
 def test_read_json(global_var):
     url = "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.json"
     df = pd.read_json(url)
-    new_df._ipython_display_()
+    df._ipython_display_()
     assert set(df.recommendation.keys()) == set(
         [
             "Correlation",
@@ -689,7 +689,7 @@ def test_read_json(global_var):
 def test_read_sas(global_var):
     url = "https://github.com/lux-org/lux-datasets/blob/master/data/airline.sas7bdat?raw=true"
     df = pd.read_sas(url, format="sas7bdat")
-    new_df._ipython_display_()
+    df._ipython_display_()
     assert set(df.recommendation.keys()) == set(["Correlation", "Distribution", "Temporal"])
     assert len(df.data_type) == 6
 
