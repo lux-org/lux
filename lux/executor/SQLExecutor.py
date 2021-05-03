@@ -49,7 +49,6 @@ class SQLExecutor(Executor):
         3) populates vis' data with a DataFrame with relevant results
         """
         for view in view_collection:
-            #lux.config.tracer.start_tracing()
             # choose execution method depending on vis mark type
             view._source = tbl
             # when mark is empty, deal with lazy execution by filling the data with a small sample of the dataframe
@@ -73,9 +72,6 @@ class SQLExecutor(Executor):
                 SQLExecutor.execute_aggregate(view, tbl)
             elif view.mark == "histogram":
                 SQLExecutor.execute_binning(view, tbl)
-            # lux.config.tracer.stop_tracing()
-            # view._trace_code = "def plot(view, tbl):\n" + lux.config.tracer.process_executor_code(lux.config.tracer_relevant_lines)
-            # lux.config.tracer_relevant_lines = []
 
     @staticmethod
     def execute_scatter(view: Vis, tbl: LuxSQLTable):

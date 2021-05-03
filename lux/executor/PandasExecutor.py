@@ -85,7 +85,6 @@ class PandasExecutor(Executor):
 
         PandasExecutor.execute_sampling(ldf)
         for vis in vislist:
-            #lux.config.tracer.start_tracing()
             # The vis data starts off being original or sampled dataframe
             vis._source = ldf
             vis._vis_data = ldf._sampled
