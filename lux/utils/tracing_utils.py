@@ -60,9 +60,10 @@ class LuxTracer():
             codelines = open(filename).readlines()# TODO: do sharing of file content here
             if (funcname not in ['__init__']):
                 code = codelines[line_no]
-                ignore_construct = ['if','elif','return', 'try'] # prune out these control flow programming constructs                    
-                ignore_lux_keyword = ['self.code','self.name','__init__','PandasExecutor.',"'''",'self.output_type', 'message.add_unique', 'Large scatterplots detected', 'priority=']# Lux-specific keywords to ignore
+                ignore_construct = ['    if','elif','return', 'try'] # prune out these control flow programming constructs                    
+                ignore_lux_keyword = ['self.code','self.name','__init__',"'''",'self.output_type', 'message.add_unique', 'Large scatterplots detected', 'priority=']# Lux-specific keywords to ignore
                 ignore = ignore_construct+ignore_lux_keyword
+                #print("PandasExecutor.apply_filter" in codelines[line_no].lstrip(), codelines[line_no].lstrip())
                 if not any(construct in code for construct in ignore):
                     #need to handle for loops, this keeps track of when a for loop shows up and when the for loop code is repeated
                     clean_code_line = codelines[line_no].lstrip()
@@ -77,9 +78,9 @@ class LuxTracer():
                         index += 1
 
         curr_executor = lux.config.executor.name
-        if curr_executor == "SQLExecutor":
+        if curr_executor != "PandasExecutor":
             import_code = "from lux.utils import utils\nfrom lux.executor.SQLExecutor import SQLExecutor\nimport pandas\nimport math\n"
-            var_init_code = "tbl = 'insert your LuxSQLTable variable here'\nvis = 'insert the name of your Vis object here'\n"
+            var_init_code = "tbl = 'insert your LuxSQLTable variable here'\nview = 'insert the name of your Vis object here'\n"
         else:
             import_code = "from lux.utils import utils\nfrom lux.executor.PandasExecutor import PandasExecutor\nimport pandas\nimport math\n"
             var_init_code = "ldf = 'insert your LuxDataFrame variable here'\nvis = 'insert the name of your Vis object here'\nvis._vis_data = ldf\n"
@@ -88,5 +89,8 @@ class LuxTracer():
         for key in selected_index.keys():
             output += selected_index[key]
 
-        output+="\nvis"
+        if curr_executor != "PandasExecutor":
+            output+="\nview"
+        else:
+            output+="\nvis"
         return(output)

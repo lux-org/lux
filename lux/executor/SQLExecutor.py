@@ -36,10 +36,7 @@ class SQLExecutor(Executor):
         SAMPLE_CAP = lux.config.sampling_cap
         SAMPLE_FRAC = 0.2
 
-        length_query = pandas.read_sql(
-            "SELECT COUNT(*) as length FROM {}".format(tbl.table_name),
-            lux.config.SQLconnection,
-        )
+        length_query = pandas.read_sql("SELECT COUNT(*) as length FROM {}".format(tbl.table_name),lux.config.SQLconnection,)
         limit = int(list(length_query["length"])[0]) * SAMPLE_FRAC
         tbl._sampled = pandas.read_sql("SELECT * from {} LIMIT {}".format(tbl.table_name, str(limit)), lux.config.SQLconnection)
 
@@ -61,10 +58,7 @@ class SQLExecutor(Executor):
                 view._vis_data = tbl._sampled
             if view.mark == "scatter":
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
-                length_query = pandas.read_sql(
-                    "SELECT COUNT(1) as length FROM {} {}".format(tbl.table_name, where_clause),
-                    lux.config.SQLconnection,
-                )
+                length_query = pandas.read_sql("SELECT COUNT(1) as length FROM {} {}".format(tbl.table_name, where_clause),lux.config.SQLconnection,)
                 view_data_length = list(length_query["length"])[0]
                 if len(view.get_attr_by_channel("color")) == 1 or view_data_length < 5000:
                     # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
@@ -194,10 +188,7 @@ class SQLExecutor(Executor):
             else:
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
 
-                length_query = pandas.read_sql(
-                    "SELECT COUNT(*) as length FROM {} {}".format(tbl.table_name, where_clause),
-                    lux.config.SQLconnection,
-                )
+                length_query = pandas.read_sql("SELECT COUNT(*) as length FROM {} {}".format(tbl.table_name, where_clause),lux.config.SQLconnection,)
                 # generates query for colored barchart case
                 if has_color:
                     if agg_func == "mean":
@@ -488,10 +479,7 @@ class SQLExecutor(Executor):
             self.get_SQL_attributes(tbl)
             tbl._data_type = {}
             tbl._min_max = {}
-            length_query = pandas.read_sql(
-                "SELECT COUNT(1) as length FROM {}".format(tbl.table_name),
-                lux.config.SQLconnection,
-            )
+            length_query = pandas.read_sql("SELECT COUNT(1) as length FROM {}".format(tbl.table_name),lux.config.SQLconnection,)
             tbl._length = list(length_query["length"])[0]
             #####NOTE: since we aren't expecting users to do much data processing with the SQL database, should we just keep this
             #####      in the initialization and do it just once
@@ -556,10 +544,7 @@ class SQLExecutor(Executor):
         # precompute statistics
         # tbl.unique_values = {}
         # tbl._min_max = {}
-        length_query = pandas.read_sql(
-            "SELECT COUNT(1) as length FROM {}".format(tbl.table_name),
-            lux.config.SQLconnection,
-        )
+        length_query = pandas.read_sql("SELECT COUNT(1) as length FROM {}".format(tbl.table_name),lux.config.SQLconnection,)
         tbl._length = list(length_query["length"])[0]
 
         self.get_unique_values(tbl)

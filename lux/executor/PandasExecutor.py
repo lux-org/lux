@@ -272,9 +272,7 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def execute_filter(vis: Vis):
-        assert (
-            vis.data is not None
-        ), "execute_filter assumes input vis.data is populated (if not, populate with LuxDataFrame values)"
+        assert (vis.data is not None), "execute_filter assumes input vis.data is populated (if not, populate with LuxDataFrame values)"
         filters = utils.get_filter_specs(vis._inferred_intent)
 
         if filters:
