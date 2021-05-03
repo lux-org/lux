@@ -121,7 +121,7 @@ class GeneralDatabaseExecutor(Executor):
             return '"' + var_name + '"'
 
         required_variables = attributes | set(filterVars)
-        #required_variables = map(add_quotes, required_variables)
+        required_variables = map(add_quotes, required_variables)
         required_variables = ",".join(required_variables)
         row_count = list(
             pandas.read_sql(
@@ -552,20 +552,22 @@ class GeneralDatabaseExecutor(Executor):
                     where_clause.append("AND")
                 curr_value = str(filters[f].value)
                 curr_value = curr_value.replace("'", "''")
-                # where_clause.extend(
-                #     [
-                #         '"' + str(filters[f].attribute) + '"',
-                #         str(filters[f].filter_op),
-                #         "'" + curr_value + "'",
-                #     ]
-                # )
-                where_clause.extend(
-                    [
-                        str(filters[f].attribute),
-                        str(filters[f].filter_op),
-                        "'" + curr_value + "'",
-                    ]
-                )
+                if lux.config.quoted_queries == True:
+                    where_clause.extend(
+                        [
+                            '"' + str(filters[f].attribute) + '"',
+                            str(filters[f].filter_op),
+                            "'" + curr_value + "'",
+                        ]
+                    )
+                else:
+                    where_clause.extend(
+                        [
+                            str(filters[f].attribute),
+                            str(filters[f].filter_op),
+                            "'" + curr_value + "'",
+                        ]
+                    )
                 if filters[f].attribute not in filter_vars:
                     filter_vars.append(filters[f].attribute)
         if view != "":
@@ -579,18 +581,20 @@ class GeneralDatabaseExecutor(Executor):
                         where_clause.append("WHERE")
                     else:
                         where_clause.append("AND")
-                    # where_clause.extend(
-                    #     [
-                    #         '"' + str(a.attribute) + '"',
-                    #         "IS NOT NULL",
-                    #     ]
-                    # )
-                    where_clause.extend(
-                        [
-                            str(a.attribute),
-                            "IS NOT NULL",
-                        ]
-                    )
+                    if lux.config.quoted_queries == True:
+                        where_clause.extend(
+                            [
+                                '"' + str(a.attribute) + '"',
+                                "IS NOT NULL",
+                            ]
+                        )
+                    else:
+                        where_clause.extend(
+                            [
+                                str(a.attribute),
+                                "IS NOT NULL",
+                            ]
+                        )
 
         if where_clause == []:
             return ("", [])
