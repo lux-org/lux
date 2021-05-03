@@ -128,6 +128,7 @@ class History:
             self._events.append(event)
             # aggressively refresh actions 
             lux.config.update_actions["flag"] = True
+            # TODO change this to use df._recs_fresh -- does it make a difference?
     
 
     def get_weights(self, event_list=None):
@@ -248,22 +249,22 @@ class History:
         mre = None
         agg_col_ref = {}
         col_order = []
+        
+        weights = self.get_weights()
 
-        cleaned_e = self.get_cleaned_events()
-        weights = self.get_weights(cleaned_e)
-
-        if cleaned_e:            
-            for i in range(len(cleaned_e) - 1, -1, -1):
-                e = cleaned_e[i]
+        if self._events:            
+            for i in range(len(self._events) - 1, -1, -1):
+                e = self._events[i]
                 w = weights[i]
                 
                 # filter out decayed history
-                if w >= col_thresh:
+                # TODO I am filtering out history events that happen on child but should the 
+                # columns be included in the aggregate. They are not right now...
+                if (e.kwargs.get("rank_type", None) != "parent" ) and (w >= col_thresh):
                     
                     # first event that is not just col ref is most recent for vis
-                    if not mre and e.op_name != "col_ref":
+                    if not mre:
                         mre = e 
-                        continue
                     
                     for c in e.cols:
                         if c in agg_col_ref:

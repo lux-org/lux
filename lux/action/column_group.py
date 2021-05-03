@@ -38,8 +38,6 @@ def column_group(ldf):
                         <a href="https://lux-api.readthedocs.io/en/latest/source/advanced/indexgroup.html" target="_blank">More details</a>',
     }
     
-    # set_trace()
-
     ldf, f_map, inverted_col_map = cg_plotter.rename_cg_history(ldf)
     
     ldf_flat = ldf

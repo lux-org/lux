@@ -73,7 +73,6 @@ class LuxDataFrame(pd.DataFrame):
         self._recommendation = {}
         self._saved_export = None
         self._current_vis = []
-        self._prev = None
         self._widget = None
         super(LuxDataFrame, self).__init__(*args, **kw)
 
@@ -392,32 +391,22 @@ class LuxDataFrame(pd.DataFrame):
 
     def maintain_recs(self, is_series="DataFrame"):
         self.history.freeze()
-        # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
         if lux.config.update_actions["flag"] == True:
             self._recs_fresh = False
-        show_prev = False  # flag indicating whether rec_df is showing previous df or current self
-        if self._prev is not None:
-            rec_df = self._prev
-            rec_df._message = Message()
-            rec_df.maintain_metadata()  # the prev dataframe may not have been printed before
-            last_event = self.history._events[-1].op_name
-            rec_df._message.add(
-                f"Lux is visualizing the previous version of the dataframe before you applied <code>{last_event}</code>."
-            )
-            show_prev = True
-        else:
-            rec_df = self
-            rec_df._message = Message()
-        # Add warning message if there exist ID fields
-        if len(rec_df) == 0:
-            rec_df._message.add(f"Lux cannot operate on an empty {is_series}.")
-        elif len(rec_df) < 5 and not rec_df.pre_aggregated:
-            rec_df._message.add(
+        
+        self._message = Message()
+
+        # Add warning messages 
+        # --------------------
+        if len(self) == 0:
+            self._message.add(f"Lux cannot operate on an empty {is_series}.")
+        elif len(self) < 5 and not self.pre_aggregated:
+            self._message.add(
                 f"The {is_series} is too small to visualize. To generate visualizations in Lux, the {is_series} must contain at least 5 rows."
             )
         elif self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-            rec_df._message.add(
+            self._message.add(
                 f"Lux does not currently support visualizations in a {is_series} "
                 f"with hierarchical indexes.\n"
                 f"Please convert the {is_series} into a flat "
@@ -425,55 +414,51 @@ class LuxDataFrame(pd.DataFrame):
             )
         else:
             id_fields_str = ""
-            inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
+            inverted_data_type = lux.config.executor.invert_data_type(self.data_type)
             if len(inverted_data_type["id"]) > 0:
                 for id_field in inverted_data_type["id"]:
                     id_fields_str += f"<code>{id_field}</code>, "
                 id_fields_str = id_fields_str[:-2]
-                rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
+                self._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
 
-        rec_df._prev = None  # reset _prev
-
-        # Check that recs has not yet been computed
-        if not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh:
+        # Compute recs from actions
+        # --------------------
+        if not hasattr(self, "_recs_fresh") or not self._recs_fresh:
             is_sql_tbl = lux.config.executor.name == "SQLExecutor"
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
-            from lux.action.implicit_tab import implicit_tab
+            # from lux.action.implicit_tab import implicit_mre
 
             # TODO: Rewrite these as register action inside default actions
-            if rec_df.pre_aggregated:
-                if rec_df.columns.name is not None:
-                    rec_df._append_rec(rec_infolist, row_group(rec_df))
-                rec_df._append_rec(rec_infolist, column_group(rec_df))
-                rec_df._append_rec(rec_infolist, implicit_tab(rec_df))
+            if self.pre_aggregated:
+                if self.columns.name is not None:
+                    self._append_rec(rec_infolist, row_group(self))
+                self._append_rec(rec_infolist, column_group(self))
+                # self._append_rec(rec_infolist, implicit_mre(self))
 
-            elif not (len(rec_df) < 5 and not rec_df.pre_aggregated and not is_sql_tbl) and not (
+            elif not (len(self) < 5 and not self.pre_aggregated and not is_sql_tbl) and not (
                 self.index.nlevels >= 2 or self.columns.nlevels >= 2
             ):
                 from lux.action.custom import custom_actions
 
                 # generate vis from globally registered actions and append to dataframe
-                custom_action_collection = custom_actions(rec_df)
+                custom_action_collection = custom_actions(self)
                 for rec in custom_action_collection:
-                    rec_df._append_rec(rec_infolist, rec)
+                    self._append_rec(rec_infolist, rec)
                 lux.config.update_actions["flag"] = False
 
             # Store _rec_info into a more user-friendly dictionary form
-            rec_df._recommendation = {}
+            self._recommendation = {}
             for rec_info in rec_infolist:
                 action_type = rec_info["action"]
                 vlist = rec_info["collection"]
                 if len(vlist) > 0:
-                    rec_df._recommendation[action_type] = vlist
-            rec_df._rec_info = rec_infolist
-            rec_df.show_all_column_vis()
-            self._widget = rec_df.render_widget()
+                    self._recommendation[action_type] = vlist
+            self._rec_info = rec_infolist
+            self.show_all_column_vis()
+            self._widget = self.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
-        elif show_prev:
-            rec_df.show_all_column_vis()
-            self._widget = rec_df.render_widget()
         self._recs_fresh = True
         self.history.unfreeze()
 
@@ -629,7 +614,7 @@ class LuxDataFrame(pd.DataFrame):
                 else:
                     self._toggle_pandas_display = True
 
-                # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+                # compute recommendation tabs 
                 self.maintain_recs()
 
                 # Observers(callback_function, listen_to_this_variable)
@@ -716,16 +701,25 @@ class LuxDataFrame(pd.DataFrame):
 
         """
         check_import_lux_widget()
-        import luxwidget # NOTE code from other repo 
+        import luxwidget # widget code from other repo 
+
+        # set_trace()
 
         hJSON = self.history.to_JSON()
-        widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
-        return luxwidget.LuxWidget( # widget
+        widgetJSON = self.to_JSON(input_current_vis=input_current_vis)
+        
+        # get single function vis
+        from lux.action.implicit_tab import implicit_mre
+        implicit_mre_rec = [implicit_mre(self)]
+        implicit_mre_JSON = LuxDataFrame.rec_to_JSON(implicit_mre_rec)
+        
+        return luxwidget.LuxWidget( 
             currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
             intent=LuxDataFrame.intent_to_string(self._intent),
             message=self._message.to_html(),
-            history_list=hJSON
+            history_list=hJSON,
+            implicit_vis_list=implicit_mre_JSON
         )
 
     @staticmethod
@@ -747,7 +741,7 @@ class LuxDataFrame(pd.DataFrame):
         else:
             return ""
 
-    def to_JSON(self, rec_infolist, input_current_vis=""):
+    def to_JSON(self, input_current_vis=""):
         widget_spec = {}
         if self.current_vis:
             lux.config.executor.execute(self.current_vis, self)
@@ -756,11 +750,9 @@ class LuxDataFrame(pd.DataFrame):
             )
         else:
             widget_spec["current_vis"] = {}
-        widget_spec["recommendation"] = []
-
+        
         # Recommended Collection
-        recCollection = LuxDataFrame.rec_to_JSON(rec_infolist)
-        widget_spec["recommendation"].extend(recCollection)
+        widget_spec["recommendation"] = LuxDataFrame.rec_to_JSON(self._rec_info)
 
         return widget_spec
 
@@ -782,8 +774,9 @@ class LuxDataFrame(pd.DataFrame):
     def rec_to_JSON(recs):
         rec_lst = []
         import copy
-
         rec_copy = copy.deepcopy(recs)
+        # TODO is this copy creating large memory footprint? 
+
         for idx, rec in enumerate(rec_copy):
             if len(rec["collection"]) > 0:
                 rec["vspec"] = []
@@ -996,7 +989,6 @@ class LuxDataFrame(pd.DataFrame):
     # History logging functions 
     def head(self, n: int = 5):
         ret_frame = super(LuxDataFrame, self).head(n)
-        self._prev = self
         self._parent_df = self
        
         # save history on self and returned df
@@ -1006,7 +998,6 @@ class LuxDataFrame(pd.DataFrame):
 
     def tail(self, n: int = 5):
         ret_frame = super(LuxDataFrame, self).tail(n)
-        self._prev = self
         self._parent_df = self
         
         # save history on self and returned df

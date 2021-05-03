@@ -16,6 +16,8 @@ import lux
 from lux.interestingness.interestingness import interestingness
 from lux.processor.Compiler import Compiler
 from lux.utils import utils
+from lux.vis.VisList import VisList
+from lux.vis.Vis import Vis
 
 
 def enhance(ldf):
@@ -33,6 +35,24 @@ def enhance(ldf):
             object with a collection of visualizations that result from the Enhance action.
     """
 
+    # implicit enhances
+    _, implicit_col_list = ldf.history.get_implicit_intent(ldf.columns)
+    # vl_implicit = []
+    
+    # if implicit_col_list: #and not ldf.pre_aggregated:
+
+    #     col_vis_l = []
+    #     top_c = implicit_col_list[0]
+        
+    #     # other cols with this column
+    #     for c in implicit_col_list[1:]:
+    #         col_v = Vis( [lux.Clause(top_c), lux.Clause(c)] )
+    #         col_vis_l.append(col_v)
+            
+    #     vl_implicit = VisList(col_vis_l, ldf)
+    
+
+    ### Normal Enhance
     filters = utils.get_filter_specs(ldf._intent)
     # Collect variables that already exist in the intent
     attr_specs = list(filter(lambda x: x.value == "" and x.attribute != "Record", ldf._intent))
@@ -62,14 +82,13 @@ def enhance(ldf):
         clause.channel = ""
     intent = filters + attr_specs
     intent.append("?")
-    vlist = lux.vis.VisList.VisList(intent, ldf)
+    vlist = VisList(intent, ldf)
 
     # Then use the data populated in the vis list to compute score
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
 
-    _, col_order = ldf.history.get_implicit_intent(ldf.columns)
-    vlist.sort(intent_cols=col_order)
+    vlist.sort(intent_cols=implicit_col_list)
     vlist = vlist.showK()
     recommendation["collection"] = vlist
     return recommendation

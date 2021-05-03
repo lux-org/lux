@@ -14,16 +14,16 @@
 
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
-from lux.core.frame import LuxDataFrame
+# from lux.core.frame import LuxDataFrame
 from lux.implicit import implicit_plotter
 
 import lux
 
 from IPython.core.debugger import set_trace
 
-def implicit_tab(ldf: LuxDataFrame):
+def implicit_mre(ldf: lux.core.frame.LuxDataFrame):
     """
-    Generates vis based off recent implicit actions.
+    Generates vis based off only most recent implicit action.
 
     Parameters
     ----------
@@ -48,43 +48,6 @@ def implicit_tab(ldf: LuxDataFrame):
         
         lux_vis._collection.extend(vl._collection)
         str_desc += f"> Call to function '{most_recent_event.op_name}' in execution cell [{most_recent_event.ex_count}] <br/>"
-
-        
-    # get multiple vis for col refs
-    if col_list and not ldf.pre_aggregated:
-
-        col_vis_l = []
-        top_c = col_list[0]
-
-        # plot null columns 
-        # for c in col_list:
-        #     m = ldf[c].isna()
-        #     if m.any():
-        #         v = implicit_plotter.plot_filter_count(ldf, m, "Is null?", f"{c} is null?")
-        #         col_vis_l.append(v)
-
-        if not (len(used_cols) == 1 and used_cols[0] == top_c):
-            # univariate for top column 
-            col_v = Vis( [ lux.Clause(top_c) ] )
-            col_vis_l.append(col_v)
-            str_desc += f"> Reference(s) to '{top_c}' <br/>"
-
-            # other cols with this column
-            for c in col_list[1:]:
-                col_v = Vis( [lux.Clause(top_c), lux.Clause(c)] )
-                col_vis_l.append(col_v)
-                # str_desc += f"> '{top_c}' combined with '{c}' <br/>"
-            
-        vl_2 = VisList(col_vis_l, ldf)
-
-        if lux_vis:
-            lux_vis._collection.extend(vl_2._collection)
-        else:
-            lux_vis = vl_2
-        
-   
-    
-    # TODO how to deal with other col refs when ldf is pre aggregated? 
 
     recommendation = {
         "action": "Implicit",

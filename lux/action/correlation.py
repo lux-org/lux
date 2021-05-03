@@ -19,6 +19,8 @@ from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 from lux.utils import utils
 
+from IPython.core.debugger import set_trace
+
 
 # change ignore_transpose to false for now.
 def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):

@@ -320,7 +320,6 @@ class VisList:
         ----
         Function derives a new _inferred_intent by instantiating the intent specification on the new data
         """
-        # set_trace()
         if ldf is not None:
             from lux.processor.Parser import Parser
             from lux.processor.Validator import Validator
@@ -332,7 +331,6 @@ class VisList:
                 if self._is_vis_input():
                     compiled_collection = []
                     for vis in self._collection:
-                        # set_trace()
                         vis._inferred_intent = Parser.parse(vis._intent) 
                         Validator.validate_intent(vis._inferred_intent, ldf)
                         Compiler.compile_vis(ldf, vis)

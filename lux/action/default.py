@@ -6,7 +6,7 @@ def register_default_actions():
     from lux.action.enhance import enhance
     from lux.action.filter import add_filter
     from lux.action.generalize import generalize
-    from lux.action.implicit_tab import implicit_tab
+    # from lux.action.implicit_tab import implicit_mre
 
     # display conditions for default actions
     no_vis = lambda ldf: (ldf.current_vis is None) or (
@@ -23,10 +23,10 @@ def register_default_actions():
     lux.config.register_action("temporal", univariate, no_vis, "temporal")
     lux.config.register_action("geographical", univariate, no_vis, "geographical")
 
+    # TODO change this potentially to show enhance when there is history 
     lux.config.register_action("Enhance", enhance, one_current_vis)
     lux.config.register_action("Filter", add_filter, one_current_vis)
     lux.config.register_action("Generalize", generalize, one_current_vis)
 
     lux.config.register_action("Custom", custom, multiple_current_vis)
-
-    lux.config.register_action("Implicit", implicit_tab, always_show)
+    # lux.config.register_action("Implicit", implicit_mre, always_show)
