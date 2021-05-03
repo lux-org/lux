@@ -75,6 +75,17 @@ def test_series_recommendation():
     assert len(df.recommendation["Distribution"]) > 0, "Recommendation property empty for LuxSeries"
 
 
+def test_series_multivis_recommendation():
+    covid = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/covid-stringency.csv?raw=True"
+    )
+    covid = covid.rename(columns={"stringency_index": "stringency"})
+    covid["Day"] = pd.to_datetime(covid["Day"], format="%Y-%m-%d")
+    series = covid["Day"]
+    assert len(series.recommendation["Temporal"]) == 4, "Display 4 temporal vis based on `Day`"
+    assert hasattr(series, "current_vis") == False
+
+
 def test_unnamed_column():
     lux.config.plotting_backend = "matplotlib"
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
