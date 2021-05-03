@@ -1,0 +1,20 @@
+preview_query:SELECT * from {} LIMIT {}
+length_query:SELECT COUNT(*) as length FROM {} {}
+sample_query:SELECT {} FROM {} {} LIMIT {}
+count_query:SELECT COUNT(*) as length FROM {} {}
+scatter_query:SELECT {} FROM {} {}
+colored_barchart_counts:SELECT {}, {}, COUNT({}) as count FROM {} {} GROUP BY {}, {}
+colored_barchart_average:SELECT {}, {}, AVG({}) as {} FROM {} {} GROUP BY {}, {}
+colored_barchart_sum:SELECT {}, {}, SUM({}) as {} FROM {} {} GROUP BY {}, {}
+colored_barchart_max:SELECT {}, {}, MAX({}) as {} FROM {} {} GROUP BY {}, {}
+barchart_counts:SELECT {}, COUNT({}) as count FROM {} {} GROUP BY {}
+barchart_average:SELECT {}, AVG({}) as {} FROM {} {} GROUP BY {}
+barchart_sum:SELECT {}, SUM({}) as {} FROM {} {} GROUP BY {}
+barchart_max:SELECT {}, MAX({}) as {} FROM {} {} GROUP BY {}
+histogram_counts:SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket(CAST ({} AS FLOAT), {}) FROM {} {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket
+heatmap_counts:SELECT width_bucket1, width_bucket2, count(*) FROM (SELECT width_bucket(CAST ({} AS FLOAT), {}) as width_bucket1, width_bucket(CAST ({} AS FLOAT), {}) as width_bucket2 FROM {} {}) as foo GROUP BY width_bucket1, width_bucket2
+table_attributes_query:SELECT COLUMN_NAME as column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{}'
+min_max_query:SELECT MIN({}) as min, MAX({}) as max FROM {}
+cardinality_query:SELECT COUNT(Distinct({})) as count FROM {} WHERE {} IS NOT NULL
+unique_query:SELECT Distinct({}) FROM {} WHERE {} IS NOT NULL
+datatype_query:SELECT DATA_TYPE as data_type FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{}' AND COLUMN_NAME = '{}'

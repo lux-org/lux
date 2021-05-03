@@ -38,6 +38,7 @@ class Config:
         self.heatmap_bin_size = 40
         self.tracer_relevant_lines=[]
         self.tracer = LuxTracer()
+        self.query_templates = {}
 
     @property
     def topk(self):
@@ -346,14 +347,26 @@ class Config:
             connection : SQLAlchemy connectable, str, or sqlite3 connection
                 For more information, `see here <https://docs.sqlalchemy.org/en/13/core/connections.html>`__
         """
-        self.set_executor_type("SQL")
+        self.set_executor_type("GeneralDatabase")
         self.SQLconnection = connection
+
+    def read_query_template(self, query_file):
+        query_dict = {}
+        with open(query_file) as f:
+            for line in f:
+               (key, val) = line.split(":")
+               query_dict[key] = val.strip()
+        self.query_templates = query_dict
 
     def set_executor_type(self, exe):
         if exe == "SQL":
             from lux.executor.SQLExecutor import SQLExecutor
 
             self.executor = SQLExecutor()
+        elif exe == "GeneralDatabase":
+            from lux.executor.GeneralDatabaseExecutor import GeneralDatabaseExecutor
+
+            self.executor = GeneralDatabaseExecutor()
         elif exe == "Pandas":
             from lux.executor.PandasExecutor import PandasExecutor
 

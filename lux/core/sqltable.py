@@ -61,9 +61,11 @@ class LuxSQLTable(lux.LuxDataFrame):
 
     def __init__(self, *args, table_name="", **kw):
         super(LuxSQLTable, self).__init__(*args, **kw)
-        from lux.executor.SQLExecutor import SQLExecutor
 
-        lux.config.executor = SQLExecutor()
+        if lux.config.executor.name != 'GeneralDatabaseExecutor':
+            from lux.executor.SQLExecutor import SQLExecutor
+
+            lux.config.executor = SQLExecutor()
 
         self._length = 0
         self._setup_done = False
