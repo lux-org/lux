@@ -240,7 +240,7 @@ class VisList:
         elif lux.config.sort == "descending":
             descending = True
         # sort in-place by “score” by default if available, otherwise user-specified field to sort by
-        self._collection.sort(key=lambda x: x.score, reverse=descending)
+        self._collection.sort(key=lux.config.sorter, reverse=descending)
 
     def showK(self):
         k = lux.config.topk
