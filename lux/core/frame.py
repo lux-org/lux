@@ -355,7 +355,7 @@ class LuxDataFrame(pd.DataFrame):
             rec_infolist.append(recommendations)
 
     def show_all_column_vis(self):
-        if self.intent == [] or self.intent is None:
+        if len(self.columns) > 1 and len(self.columns) < 4 and self.intent == [] or self.intent is None:
             vis = Vis(list(self.columns), self)
             if vis.mark != "":
                 vis._all_column = True
