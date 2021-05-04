@@ -24,7 +24,7 @@ def register_default_actions():
     lux.config.register_action("correlation", correlation, correlation_check)
     lux.config.register_action("distribution", univariate, distribution_check, "quantitative")
     lux.config.register_action("occurrence", univariate, occurence_check, "nominal")
-    lux.config.register_action("temporal", univariate, temporal_check, "temporal")
+    lux.config.register_action("temporal", temporal, temporal_check)
     lux.config.register_action("geographical", univariate, no_vis, "geographical")
 
     lux.config.register_action("Enhance", enhance, enhance_check)
@@ -94,29 +94,22 @@ def distribution_check(ldf):
 
 
 def temporal_check(ldf):
-    import time
-    vlist = []
-    for c in ldf.columns:
-        if ldf.data_type[c] == "temporal":
-            try:
-                generated_vis = create_temporal_vis(ldf, c)
-                vlist.extend(generated_vis)
-            except:
-                pass
-
-    if len(vlist)==0:
-        filter_specs = utils.get_filter_specs(ldf._intent)
-        intent = [lux.Clause("?", data_type="temporal")]
-        intent.extend(filter_specs)
-        vlist = VisList(intent, ldf)
-        for vis in vlist:
-            vis.score = interestingness(vis, ldf)
-    else:
-        vlist = VisList(vlist)
-    vlist.sort()
     # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
     if len(ldf) < 3:
         return False
+
+    for c in ldf.columns:
+        if ldf.data_type[c] == "temporal":
+            return True
+
+    filter_specs = utils.get_filter_specs(ldf._intent)
+    intent = [lux.Clause("?", data_type="temporal")]
+    intent.extend(filter_specs)
+    vlist = VisList(intent, ldf)
+    for vis in vlist:
+        vis.score = interestingness(vis, ldf)
+    vlist.sort()
+
     if len(vlist) < 1:
         return False
     else:

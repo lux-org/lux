@@ -656,7 +656,7 @@ class LuxDataFrame(pd.DataFrame):
         i = 1
         for action_name in self.action_keys:
             rec = custom_action(self, action_name)
-            if (len(rec["collection"])) > 0:
+            if rec is not None and (len(rec["collection"])) > 0:
                 self._rec_info.pop(i)
                 self._rec_info.insert(i, rec)
 
