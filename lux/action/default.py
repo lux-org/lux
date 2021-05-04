@@ -5,7 +5,7 @@ from lux.action.univariate import univariate
 from lux.action.enhance import enhance
 from lux.action.filter import add_filter
 from lux.action.generalize import generalize
-from lux.action.temporal import temporal
+from lux.action.temporal import temporal, create_temporal_vis
 from lux.utils import utils
 from lux.vis.VisList import VisList
 from lux.interestingness.interestingness import interestingness
@@ -95,12 +95,24 @@ def distribution_check(ldf):
 
 def temporal_check(ldf):
     import time
-    filter_specs = utils.get_filter_specs(ldf._intent)
-    intent = [lux.Clause("?", data_type="temporal")]
-    intent.extend(filter_specs)
-    vlist = VisList(intent, ldf)
-    for vis in vlist:
-        vis.score = interestingness(vis, ldf)
+    vlist = []
+    for c in ldf.columns:
+        if ldf.data_type[c] == "temporal":
+            try:
+                generated_vis = create_temporal_vis(ldf, c)
+                vlist.extend(generated_vis)
+            except:
+                pass
+
+    if len(vlist)==0:
+        filter_specs = utils.get_filter_specs(ldf._intent)
+        intent = [lux.Clause("?", data_type="temporal")]
+        intent.extend(filter_specs)
+        vlist = VisList(intent, ldf)
+        for vis in vlist:
+            vis.score = interestingness(vis, ldf)
+    else:
+        vlist = VisList(vlist)
     vlist.sort()
     # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
     if len(ldf) < 3:
