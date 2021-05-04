@@ -259,7 +259,7 @@ class History:
                 
                 # filter out decayed history
                 # TODO I am filtering out history events that happen on child but should the 
-                # columns be included in the aggregate. They are not right now...
+                # columns be included in the aggregate. They are not right now....
                 if (e.kwargs.get("rank_type", None) != "parent" ) and (w >= col_thresh):
                     
                     # first event that is not just col ref is most recent for vis
