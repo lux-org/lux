@@ -14,6 +14,7 @@
 
 from lux.vislib.altair.AltairChart import AltairChart
 import altair as alt
+import lux
 
 alt.data_transformers.disable_max_rows()
 from lux.utils.utils import get_agg_title
@@ -101,14 +102,15 @@ class BarChart(AltairChart):
         k = 10
         self._topkcode = ""
         n_bars = len(self.data.iloc[:, 0].unique())
+        plotting_scale = lux.config.plotting_scale
 
         if n_bars > k:  # Truncating to only top k
             remaining_bars = n_bars - k
             self.data = self.data.nlargest(k, columns=measure_attr)
             self.data = AltairChart.sanitize_dataframe(self.data)
             self.text = alt.Chart(self.data).mark_text(
-                x=155,
-                y=142,
+                x=155 * plotting_scale,
+                y=142 * plotting_scale,
                 align="right",
                 color="#ff8e04",
                 fontSize=11,
@@ -116,8 +118,8 @@ class BarChart(AltairChart):
             )
 
             self._topkcode = f"""text = alt.Chart(visData).mark_text(
-			x=155, 
-			y=142,
+			x={155 * plotting_scale}, 
+			y={142 * plotting_scale},
 			align="right",
 			color = "#ff8e04",
 			fontSize = 11,

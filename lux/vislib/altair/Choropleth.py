@@ -62,8 +62,6 @@ class Choropleth(AltairChart):
             y_attr.attribute = y_attr.attribute.replace(".", "")
 
         self.data = AltairChart.sanitize_dataframe(self.data)
-        height = 175
-        width = int(height * (5 / 3))
 
         points = (
             alt.Chart(geo_map)
@@ -76,9 +74,7 @@ class Choropleth(AltairChart):
                 from_=alt.LookupData(self.data, str(x_attr.attribute), [str(y_attr.attribute)]),
             )
             .project(type=map_type)
-            .properties(
-                width=width, height=height, title=f"Mean of {y_attr_abv} across {geographical_name}"
-            )
+            .properties(title=f"Mean of {y_attr_abv} across {geographical_name}")
         )
 
         chart = background + points
@@ -101,8 +97,6 @@ background = {background_str}
 ).project(
     type="{map_type}"
 ).properties(
-    width={width},
-    height={height},
     title="Mean of {y_attr_abv} across {geographical_name}"
 )
 chart = background + points
@@ -124,14 +118,12 @@ chart = background + points
             ),
         }
         assert feature in maps
-        height = 175
         background = (
             alt.Chart(maps[feature][0])
             .mark_geoshape(fill="lightgray", stroke="white")
-            .properties(width=int(height * (5 / 3)), height=height)
             .project(maps[feature][1])
         )
-        background_str = f"(alt.Chart({maps[feature][2]}).mark_geoshape(fill='lightgray', stroke='white').properties(width=int({height} * (5 / 3)), height={height}).project('{maps[feature][1]}'))"
+        background_str = f"(alt.Chart({maps[feature][2]}).mark_geoshape(fill='lightgray', stroke='white').project('{maps[feature][1]}'))"
         return background, background_str
 
     def get_geomap(self, feature):
