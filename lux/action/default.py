@@ -47,19 +47,25 @@ def correlation_check(ldf):
     if len(ldf) < 5:
         return False
     else:
-        filter_specs = utils.get_filter_specs(ldf._intent)
-        intent = [
-            lux.Clause("?", data_model="measure"),
-            lux.Clause("?", data_model="measure"),
-        ]
-        intent.extend(filter_specs)
-        vlist = VisList(intent, ldf)
-        if len(vlist) < 1:
-            return False
-        else:
-            return (ldf.current_vis is None) or (
+        if (ldf.current_vis is None) or (
                 ldf.current_vis is not None and len(ldf.current_vis) == 0
-            )
+            ):
+            filter_specs = utils.get_filter_specs(ldf._intent)
+            intent = [
+                lux.Clause("?", data_model="measure"),
+                lux.Clause("?", data_model="measure"),
+            ]
+            intent.extend(filter_specs)
+            vlist = VisList(intent, ldf)
+            if len(vlist) < 1:
+                return False
+            print("correlation check true")
+            return True
+        else:
+            print("else condition")
+            print(ldf.current_vis)
+            print(len(ldf.current_vis))
+            return False
 
 
 def occurence_check(ldf):

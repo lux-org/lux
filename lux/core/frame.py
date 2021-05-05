@@ -652,7 +652,7 @@ class LuxDataFrame(pd.DataFrame):
     def compute_remaining_actions(self):
         # Lazily load the rest of the tabs
         from lux.action.custom import custom_action
-
+        
         i = 1
         for action_name in self.action_keys:
             rec = custom_action(self, action_name)
