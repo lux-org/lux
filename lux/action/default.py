@@ -59,12 +59,10 @@ def correlation_check(ldf):
             vlist = VisList(intent, ldf)
             if len(vlist) < 1:
                 return False
-            print("correlation check true")
             return True
         else:
-            print("else condition")
-            print(ldf.current_vis)
-            print(len(ldf.current_vis))
+            if len(ldf.columns) == 2:
+                return True
             return False
 
 
