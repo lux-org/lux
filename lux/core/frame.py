@@ -579,12 +579,11 @@ class LuxDataFrame(pd.DataFrame):
         vis = self._recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
         self.set_intent_as_vis(vis)
         self.maintain_recs()
+        self.compute_remaining_actions()
 
-        if len(self._widget.recommendations) <= 1:
-            self.compute_remaining_actions()
-
-        clear_output()
-        display(self._widget)
+        with self.output:
+            clear_output()
+            display(self._widget)
 
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
@@ -607,6 +606,9 @@ class LuxDataFrame(pd.DataFrame):
 
                     self.current_vis = Compiler.compile_intent(self, self._intent)
 
+            self.output = widgets.Output()
+            display(self.output)
+            
             # Initialized view before actions are computed
             self.loadingBar = widgets.IntProgress(
                 value=0,
@@ -617,13 +619,15 @@ class LuxDataFrame(pd.DataFrame):
                 style={"bar_color": "#add8e6"},
                 orientation="horizontal",
             )
-            display(self.loadingBar)
+            with self.output:
+                display(self.loadingBar)
 
             # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
             self.maintain_recs()
 
-            clear_output()
-            display(self._widget)
+            with self.output:
+                clear_output()
+                display(self._widget)
 
             # Observers(callback_function, listen_to_this_variable)
             self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
@@ -632,6 +636,7 @@ class LuxDataFrame(pd.DataFrame):
             if len(self._recommendation) > 0:
                 if hasattr(self, "action_keys"):
                     self.compute_remaining_actions()
+        
 
         except (KeyboardInterrupt, SystemExit):
             raise
