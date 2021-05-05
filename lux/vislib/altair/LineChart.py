@@ -61,8 +61,7 @@ class LineChart(AltairChart):
         # Remove NaNs only for Line Charts (offsets axis range)
         self.data = self.data.dropna(subset=[x_attr.attribute, y_attr.attribute])
         self.code += "import altair as alt\n"
-        self.code += "import pandas._libs.tslibs.timestamps\n"
-        self.code += "from pandas._libs.tslibs.timestamps import Timestamp\n"
+        self.code += "from pandas import Timestamp\n"
         self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
 
         if y_attr.data_model == "measure":
