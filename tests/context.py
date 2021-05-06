@@ -21,4 +21,3 @@ import lux
 
 lux.config.interestingness_fallback = False
 lux.config.pandas_fallback = False
-lux.config.read_query_template("postgres_query_template.txt")

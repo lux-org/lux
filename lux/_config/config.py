@@ -347,7 +347,7 @@ class Config:
             connection : SQLAlchemy connectable, str, or sqlite3 connection
                 For more information, `see here <https://docs.sqlalchemy.org/en/13/core/connections.html>`__
         """
-        self.set_executor_type("GeneralDatabase")
+        self.set_executor_type("SQL")
         self.SQLconnection = connection
 
     def read_query_template(self, query_file):
