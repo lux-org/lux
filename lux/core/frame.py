@@ -90,7 +90,7 @@ class LuxDataFrame(pd.DataFrame):
         self._min_max = None
         self.pre_aggregated = None
         self._type_override = {}
-        self.loadingBar = None
+        self.loading_bar = None
         warnings.formatwarning = lux.warning_format
 
     @property
@@ -430,7 +430,7 @@ class LuxDataFrame(pd.DataFrame):
             ):
                 from lux.action.custom import custom_action, filter_keys
 
-                self.action_keys = filter_keys(rec_df, self.loadingBar)
+                self.action_keys = filter_keys(rec_df, self.loading_bar)
 
                 if lux.config._streaming:
                     # Compute one tab to display on initial widget
@@ -466,7 +466,7 @@ class LuxDataFrame(pd.DataFrame):
             rec_df.show_all_column_vis()
 
             self._widget = rec_df.render_widget(
-                pandasHtml=rec_df.to_html(max_rows=5, classes="pandasStyle")
+                pandasHtml=rec_df.to_html(max_rows=10, classes="pandasStyle")
             )
 
         # re-render widget for the current dataframe if previous rec is not recomputed
@@ -474,7 +474,7 @@ class LuxDataFrame(pd.DataFrame):
             rec_df.show_all_column_vis()
             if lux.config.render_widget:
                 self._widget = rec_df.render_widget(
-                    pandasHtml=rec_df.to_html(max_rows=5, classes="pandasStyle")
+                    pandasHtml=rec_df.to_html(max_rows=10, classes="pandasStyle")
                 )
 
         self._recs_fresh = True
