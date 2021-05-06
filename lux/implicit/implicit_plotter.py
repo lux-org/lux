@@ -550,19 +550,19 @@ def plot_na_count(ldf, c_col_name, c_title):
 ######################
 def process_generic(signal, ldf):
     vl = []
-    all_cols = list(ldf.columns)
+    # all_cols = list(ldf.columns)
     for c in signal.cols:
         v = Vis( [lux.Clause(attribute=c)] )
         vl.append(v)
         
     # compare to rest, lux cant handle 4+ items 
-    if len(signal.cols) < 3:  
-        remaining_cols = set(all_cols) - set(signal.cols)
+    # if len(signal.cols) < 3:  
+    #     remaining_cols = set(all_cols) - set(signal.cols)
 
-        for rc in remaining_cols: # or could only look at ranked_cols
-            base_c = [ lux.Clause(attribute=c) for c in signal.cols] # HAVE to make new clause objects each time
-            v = Vis( base_c + [lux.Clause(attribute=rc)] )
-            vl.append(v)
+    #     for rc in remaining_cols: # or could only look at ranked_cols
+    #         base_c = [ lux.Clause(attribute=c) for c in signal.cols] # HAVE to make new clause objects each time
+    #         v = Vis( base_c + [lux.Clause(attribute=rc)] )
+    #         vl.append(v)
     
     # used_cols = set()
     # used_cols.update(signal.cols + all_cols)

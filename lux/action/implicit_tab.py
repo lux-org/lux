@@ -51,8 +51,8 @@ def implicit_mre(ldf: lux.core.frame.LuxDataFrame):
 
     recommendation = {
         "action": "Implicit",
-        "description": "Show visualizations based off your recent <p class='highlight-descriptor'>code history</p>.",
-        "long_description": str_desc,
+        "description": "",
+        "long_description": "",
         "collection": lux_vis
     }
     
