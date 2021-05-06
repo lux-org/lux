@@ -51,6 +51,10 @@ class Executor:
     def compute_data_type(self):
         return NotImplemented
 
+    @staticmethod
+    def compute_dataset_metadata(self, ldf):
+        return NotImplemented
+
     # @staticmethod
     # def compute_data_model(self):
     #     return NotImplemented

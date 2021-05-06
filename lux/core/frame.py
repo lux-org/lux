@@ -76,7 +76,7 @@ class LuxDataFrame(pd.DataFrame):
         else:
             from lux.executor.SQLExecutor import SQLExecutor
 
-            lux.config.executor = SQLExecutor()
+            #lux.config.executor = SQLExecutor()
 
         self._sampled = None
         self._toggle_pandas_display = True
@@ -116,25 +116,21 @@ class LuxDataFrame(pd.DataFrame):
         return self._data_type
 
     def maintain_metadata(self):
-        is_sql_tbl = lux.config.executor.name == "SQLExecutor"
+        is_sql_tbl = lux.config.executor.name != "PandasExecutor"
+
         if lux.config.SQLconnection != "" and is_sql_tbl:
             from lux.executor.SQLExecutor import SQLExecutor
 
-            lux.config.executor = SQLExecutor()
+            #lux.config.executor = SQLExecutor()
 
         # Check that metadata has not yet been computed
         if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
             # only compute metadata information if the dataframe is non-empty
-            if is_sql_tbl:
+            if len(self) > 0:
+                lux.config.executor.compute_stats(self)
                 lux.config.executor.compute_dataset_metadata(self)
                 self._infer_structure()
                 self._metadata_fresh = True
-            else:
-                if len(self) > 0:
-                    lux.config.executor.compute_stats(self)
-                    lux.config.executor.compute_dataset_metadata(self)
-                    self._infer_structure()
-                    self._metadata_fresh = True
 
     def expire_recs(self):
         """
@@ -185,7 +181,8 @@ class LuxDataFrame(pd.DataFrame):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels != 1
         not_int_index_flag = not pd.api.types.is_integer_dtype(self.index)
-        is_sql_tbl = lux.config.executor.name == "SQLExecutor"
+
+        is_sql_tbl = lux.config.executor.name != "PandasExecutor"
 
         small_df_flag = len(self) < 100 and is_sql_tbl
         if self.pre_aggregated == None:
@@ -344,6 +341,13 @@ class LuxDataFrame(pd.DataFrame):
         if recommendations["collection"] is not None and len(recommendations["collection"]) > 0:
             rec_infolist.append(recommendations)
 
+    def show_all_column_vis(self):
+        if self.intent == [] or self.intent is None:
+            vis = Vis(list(self.columns), self)
+            if vis.mark != "":
+                vis._all_column = True
+                self.current_vis = VisList([vis])
+
     def maintain_recs(self, is_series="DataFrame"):
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
@@ -389,7 +393,7 @@ class LuxDataFrame(pd.DataFrame):
 
         # Check that recs has not yet been computed
         if not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh:
-            is_sql_tbl = lux.config.executor.name == "SQLExecutor"
+            is_sql_tbl = lux.config.executor.name != "PandasExecutor"
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
@@ -418,9 +422,11 @@ class LuxDataFrame(pd.DataFrame):
                 if len(vlist) > 0:
                     rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
+            rec_df.show_all_column_vis()
             self._widget = rec_df.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
+            rec_df.show_all_column_vis()
             self._widget = rec_df.render_widget()
         self._recs_fresh = True
 
@@ -697,6 +703,10 @@ class LuxDataFrame(pd.DataFrame):
             current_vis_spec = vlist[0].to_code(language=lux.config.plotting_backend, prettyOutput=False)
         elif numVC > 1:
             pass
+        if vlist[0]._all_column:
+            current_vis_spec["allcols"] = True
+        else:
+            current_vis_spec["allcols"] = False
         return current_vis_spec
 
     @staticmethod
