@@ -28,7 +28,7 @@ class GeneralDatabaseExecutor(Executor):
     def execute_preview(tbl: LuxSQLTable, preview_size=5):
         preview_query = lux.config.query_templates['preview_query']
         output = pandas.read_sql(
-            preview_query.format(tbl.table_name, preview_size), lux.config.SQLconnection
+            preview_query.format(table_name = tbl.table_name, num_rows = preview_size), lux.config.SQLconnection
         )
         return output
 
@@ -40,12 +40,12 @@ class GeneralDatabaseExecutor(Executor):
         SAMPLE_FRAC = 0.2
 
         length_query = pandas.read_sql(
-            lux.config.query_templates['length_query'].format(tbl.table_name, ""),
+            lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = ""),
             lux.config.SQLconnection,
         )
         limit = int(list(length_query["length"])[0]) * SAMPLE_FRAC
         tbl._sampled = pandas.read_sql(
-            lux.config.query_templates['sample_query'].format(tbl.table_name, str(limit)), lux.config.SQLconnection
+            lux.config.query_templates['sample_query'].format(table_name = tbl.table_name, where_clause = "", num_rows = str(limit)), lux.config.SQLconnection
         )
 
     @staticmethod
@@ -67,7 +67,7 @@ class GeneralDatabaseExecutor(Executor):
             if view.mark == "scatter":
                 where_clause, filterVars = GeneralDatabaseExecutor.execute_filter(view)
                 length_query = pandas.read_sql(
-                    lux.config.query_templates['length_query'].format(tbl.table_name, where_clause),
+                    lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = where_clause),
                     lux.config.SQLconnection,
                 )
                 view_data_length = list(length_query["length"])[0]
@@ -113,7 +113,7 @@ class GeneralDatabaseExecutor(Executor):
         where_clause, filterVars = GeneralDatabaseExecutor.execute_filter(view)
 
         length_query = pandas.read_sql(
-            lux.config.query_templates['length_query'].format(tbl.table_name, where_clause),
+            lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = where_clause),
             lux.config.SQLconnection,
         )
 
@@ -125,17 +125,18 @@ class GeneralDatabaseExecutor(Executor):
         required_variables = ",".join(required_variables)
         row_count = list(
             pandas.read_sql(
-                lux.config.query_templates['length_query'].format(tbl.table_name, where_clause),
+                lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = where_clause),
                 lux.config.SQLconnection,
             )["length"]
         )[0]
         if row_count > lux.config.sampling_cap:
-            query = lux.config.query_templates['sample_query'].format(required_variables, tbl.table_name, where_clause, 10000)
+            query = lux.config.query_templates['sample_query'].format(columns = required_variables, table_name = tbl.table_name, where_clause = where_clause, num_rows = 10000)
             #query = f"SELECT {required_variables} FROM {tbl.table_name} {where_clause} ORDER BY random() LIMIT 10000"
         else:
-            query = lux.config.query_templates['scatter_query'].format(required_variables, tbl.table_name, where_clause)
+            query = lux.config.query_templates['scatter_query'].format(columns = required_variables, table_name = tbl.table_name, where_clause = where_clause)
         data = pandas.read_sql(query, lux.config.SQLconnection)
         view._vis_data = utils.pandas_to_lux(data)
+        view._query = query
         # view._vis_data.length = list(length_query["length"])[0]
 
         tbl._message.add_unique(
@@ -191,19 +192,19 @@ class GeneralDatabaseExecutor(Executor):
                 where_clause, filterVars = GeneralDatabaseExecutor.execute_filter(view)
 
                 length_query = pandas.read_sql(
-                    lux.config.query_templates['length_query'].format(tbl.table_name, where_clause),
+                    lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = where_clause),
                     lux.config.SQLconnection,
                 )
                 # generates query for colored barchart case
                 if has_color:
                     count_query = lux.config.query_templates['colored_barchart_counts'].format(
-                        groupby_attr.attribute,
-                        color_attr.attribute,
-                        groupby_attr.attribute,
-                        tbl.table_name,
-                        where_clause,
-                        groupby_attr.attribute,
-                        color_attr.attribute,
+                        groupby_attr = groupby_attr.attribute,
+                        color_attr = color_attr.attribute,
+                        #groupby_attr = groupby_attr.attribute,
+                        table_name = tbl.table_name,
+                        where_clause = where_clause,
+                        #groupby_attr = groupby_attr.attribute,
+                        #color_attr = color_attr.attribute,
                     )
                     view._vis_data = pandas.read_sql(count_query, lux.config.SQLconnection)
                     view._vis_data = view._vis_data.rename(columns={"count": "Record"})
@@ -211,21 +212,22 @@ class GeneralDatabaseExecutor(Executor):
                 # generates query for normal barchart case
                 else:
                     count_query = lux.config.query_templates['barchart_counts'].format(
-                        groupby_attr.attribute,
-                        groupby_attr.attribute,
-                        tbl.table_name,
-                        where_clause,
-                        groupby_attr.attribute,
+                        groupby_attr = groupby_attr.attribute,
+                        #groupby_attr = groupby_attr.attribute,
+                        table_name = tbl.table_name,
+                        where_clause = where_clause,
+                        #groupby_attr = groupby_attr.attribute,
                     )
                     view._vis_data = pandas.read_sql(count_query, lux.config.SQLconnection)
                     view._vis_data = view._vis_data.rename(columns={"count": "Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
+                view._query = count_query
                 # view._vis_data.length = list(length_query["length"])[0]
             # aggregate barchart case, need aggregate data (mean, sum, max) for each group
             else:
                 where_clause, filterVars = GeneralDatabaseExecutor.execute_filter(view)
                 length_query = pandas.read_sql(
-                    lux.config.query_templates['length_query'].format(tbl.table_name, where_clause),
+                    lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = where_clause),
                     lux.config.SQLconnection,
                 )
                 # generates query for colored barchart case
@@ -233,14 +235,14 @@ class GeneralDatabaseExecutor(Executor):
                     if agg_func == "mean":
                         agg_query = (
                             lux.config.query_templates['colored_barchart_average'].format(
-                                groupby_attr.attribute,
-                                color_attr.attribute,
-                                measure_attr.attribute,
-                                measure_attr.attribute,
-                                tbl.table_name,
-                                where_clause,
-                                groupby_attr.attribute,
-                                color_attr.attribute,
+                                groupby_attr = groupby_attr.attribute,
+                                color_attr = color_attr.attribute,
+                                measure_attr = measure_attr.attribute,
+                                #measure_attr = measure_attr.attribute,
+                                table_name = tbl.table_name,
+                                where_clause = where_clause,
+                                #groupby_attr = groupby_attr.attribute,
+                                #color_attr = color_attr.attribute,
                             )
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
@@ -249,14 +251,14 @@ class GeneralDatabaseExecutor(Executor):
                     if agg_func == "sum":
                         agg_query = (
                             lux.config.query_templates['colored_barchart_sum'].format(
-                                groupby_attr.attribute,
-                                color_attr.attribute,
-                                measure_attr.attribute,
-                                measure_attr.attribute,
-                                tbl.table_name,
-                                where_clause,
-                                groupby_attr.attribute,
-                                color_attr.attribute,
+                                groupby_attr = groupby_attr.attribute,
+                                color_attr = color_attr.attribute,
+                                measure_attr = measure_attr.attribute,
+                                #measure_attr = measure_attr.attribute,
+                                table_name = tbl.table_name,
+                                where_clause = where_clause,
+                                #groupby_attr = groupby_attr.attribute,
+                                #color_attr = color_attr.attribute,
                             )
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
@@ -264,14 +266,14 @@ class GeneralDatabaseExecutor(Executor):
                     if agg_func == "max":
                         agg_query = (
                             lux.config.query_templates['colored_barchart_max'].format(
-                                groupby_attr.attribute,
-                                color_attr.attribute,
-                                measure_attr.attribute,
-                                measure_attr.attribute,
-                                tbl.table_name,
-                                where_clause,
-                                groupby_attr.attribute,
-                                color_attr.attribute,
+                                groupby_attr = groupby_attr.attribute,
+                                color_attr = color_attr.attribute,
+                                measure_attr = measure_attr.attribute,
+                                #measure_attr = measure_attr.attribute,
+                                table_name = tbl.table_name,
+                                where_clause = where_clause,
+                                #groupby_attr = groupby_attr.attribute,
+                                #color_attr = color_attr.attribute,
                             )
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
@@ -280,37 +282,32 @@ class GeneralDatabaseExecutor(Executor):
                 else:
                     if agg_func == "mean":
                         agg_query = lux.config.query_templates['barchart_average'].format(
-                            groupby_attr.attribute,
-                            measure_attr.attribute,
-                            measure_attr.attribute,
-                            tbl.table_name,
-                            where_clause,
-                            groupby_attr.attribute,
+                            groupby_attr = groupby_attr.attribute,
+                            measure_attr = measure_attr.attribute,
+                            table_name = tbl.table_name,
+                            where_clause = where_clause,
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "sum":
                         agg_query = lux.config.query_templates['barchart_sum'].format(
-                            groupby_attr.attribute,
-                            measure_attr.attribute,
-                            measure_attr.attribute,
-                            tbl.table_name,
-                            where_clause,
-                            groupby_attr.attribute,
+                            groupby_attr = groupby_attr.attribute,
+                            measure_attr = measure_attr.attribute,
+                            table_name = tbl.table_name,
+                            where_clause = where_clause,
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "max":
                         agg_query = lux.config.query_templates['barchart_max'].format(
-                            groupby_attr.attribute,
-                            measure_attr.attribute,
-                            measure_attr.attribute,
-                            tbl.table_name,
-                            where_clause,
-                            groupby_attr.attribute,
+                            groupby_attr = groupby_attr.attribute,
+                            measure_attr = measure_attr.attribute,
+                            table_name = tbl.table_name,
+                            where_clause = where_clause,
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
+                view._query = agg_query
             result_vals = list(view._vis_data[groupby_attr.attribute])
             # create existing group by attribute combinations if color is specified
             # this is needed to check what combinations of group_by_attr and color_attr values have a non-zero number of elements in them
@@ -389,7 +386,7 @@ class GeneralDatabaseExecutor(Executor):
         where_clause, filterVars = GeneralDatabaseExecutor.execute_filter(view)
 
         length_query = pandas.read_sql(
-            lux.config.query_templates['length_query'].format(tbl.table_name, where_clause),
+            lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = where_clause),
             lux.config.SQLconnection,
         )
         # need to calculate the bin edges before querying for the relevant data
@@ -404,10 +401,10 @@ class GeneralDatabaseExecutor(Executor):
         upper_edges = ",".join(upper_edges)
         view_filter, filter_vars = GeneralDatabaseExecutor.execute_filter(view)
         bin_count_query = lux.config.query_templates['histogram_counts'].format(
-            bin_attribute.attribute,
-            "{" + upper_edges + "}",
-            tbl.table_name,
-            where_clause,
+            bin_attribute = bin_attribute.attribute,
+            upper_edges = "{" + upper_edges + "}",
+            table_name = tbl.table_name,
+            where_clause = where_clause,
         )
 
         bin_count_data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
@@ -491,12 +488,12 @@ class GeneralDatabaseExecutor(Executor):
         y_upper_edges_string = ",".join(y_upper_edges)
 
         bin_count_query = lux.config.query_templates['heatmap_counts'].format(
-            x_attribute.attribute,
-            "{" + x_upper_edges_string + "}",
-            y_attribute.attribute,
-            "{" + y_upper_edges_string + "}",
-            tbl.table_name,
-            where_clause,
+            x_attribute = x_attribute.attribute,
+            x_upper_edges_string = "{" + x_upper_edges_string + "}",
+            y_attribute = y_attribute.attribute,
+            y_upper_edges_string = "{" + y_upper_edges_string + "}",
+            table_name = tbl.table_name,
+            where_clause = where_clause,
         )
 
         # data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
@@ -607,7 +604,7 @@ class GeneralDatabaseExecutor(Executor):
         where_clause = clause_info[0]
         filter_intents = filter_specs[0]
         filtered_length = pandas.read_sql(
-            lux.config.query_templates['length_query'].format(tbl.table_name, where_clause),
+            lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = where_clause),
             lux.config.SQLconnection,
         )
         return list(filtered_length["length"])[0]
@@ -657,7 +654,7 @@ class GeneralDatabaseExecutor(Executor):
         else:
             table_name = tbl.table_name
         attr_query = lux.config.query_templates['table_attributes_query'].format(
-            table_name
+            table_name = table_name, 
         )
         attributes = list(pandas.read_sql(attr_query, lux.config.SQLconnection)["column_name"])
         for attr in attributes:
@@ -682,7 +679,7 @@ class GeneralDatabaseExecutor(Executor):
         tbl.unique_values = {}
         tbl._min_max = {}
         length_query = pandas.read_sql(
-            lux.config.query_templates['length_query'].format(tbl.table_name, ""),
+            lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = ""),
             lux.config.SQLconnection,
         )
         tbl._length = list(length_query["length"])[0]
@@ -692,7 +689,7 @@ class GeneralDatabaseExecutor(Executor):
             if tbl._data_type[attribute] == "quantitative":
                 min_max_query = pandas.read_sql(
                     lux.config.query_templates['min_max_query'].format(
-                        attribute, attribute, tbl.table_name
+                        attribute = attribute, table_name = tbl.table_name
                     ),
                     lux.config.SQLconnection,
                 )
@@ -718,7 +715,7 @@ class GeneralDatabaseExecutor(Executor):
         cardinality = {}
         for attr in list(tbl.columns):
             card_query = lux.config.query_templates['cardinality_query'].format(
-                attr, tbl.table_name, attr
+                attribute = attr, table_name = tbl.table_name
             )
             card_data = pandas.read_sql(
                 card_query,
@@ -744,7 +741,7 @@ class GeneralDatabaseExecutor(Executor):
         unique_vals = {}
         for attr in list(tbl.columns):
             unique_query = lux.config.query_templates['unique_query'].format(
-                attr, tbl.table_name, attr
+                attribute = attr, table_name = tbl.table_name
             )
             unique_data = pandas.read_sql(
                 unique_query,
@@ -776,7 +773,7 @@ class GeneralDatabaseExecutor(Executor):
         # get the data types of the attributes in the SQL table
         for attr in list(tbl.columns):
             datatype_query = lux.config.query_templates['datatype_query'].format(
-                table_name, attr
+                table_name = table_name, attribute = attr
             )
             datatype = list(pandas.read_sql(datatype_query, lux.config.SQLconnection)["data_type"])[0]
             if str(attr).lower() in {"month", "year"} or "time" in datatype or "date" in datatype:
