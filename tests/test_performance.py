@@ -25,9 +25,11 @@ def test_lazy_maintain_performance_census(global_var):
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/census.csv?raw=true")
     tic = time.perf_counter()
     df.maintain_recs()
+    df.compute_remaining_actions()
     toc = time.perf_counter()
     delta = toc - tic
     df.maintain_recs()
+    df.compute_remaining_actions()
     toc2 = time.perf_counter()
     delta2 = toc2 - toc
     print(f"1st display Performance: {delta:0.4f} seconds")
@@ -42,9 +44,11 @@ def test_lazy_maintain_performance_census(global_var):
     lux.config.lazy_maintain = False
     tic = time.perf_counter()
     df.maintain_recs()
+    df.compute_remaining_actions()
     toc = time.perf_counter()
     delta = toc - tic
     df.maintain_recs()
+    df.compute_remaining_actions()
     toc2 = time.perf_counter()
     delta2 = toc2 - toc
     print(f"1st display Performance: {delta:0.4f} seconds")

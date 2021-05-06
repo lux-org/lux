@@ -229,6 +229,7 @@ def test_sampling_flag_config():
     N = int(1.1 * lux.config.sampling_cap)
     df = pd.DataFrame({"col1": np.random.rand(N), "col2": np.random.rand(N)})
     df.maintain_recs()
+    df.compute_remaining_actions()
     assert len(df.recommendation["Correlation"][0].data) == lux.config.sampling_cap
     lux.config.sampling = True
     lux.config.heatmap = True

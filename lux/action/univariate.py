@@ -58,9 +58,6 @@ def univariate(ldf, *args):
             "description": "Show univariate histograms of <p class='highlight-descriptor'>quantitative</p>  attributes.",
             "long_description": f"Distribution displays univariate histogram distributions of all quantitative attributes{examples}. Visualizations are ranked from most to least skewed.",
         }
-        # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
-        if len(ldf) < 5:
-            ignore_rec_flag = True
     elif data_type_constraint == "nominal":
         possible_attributes = [
             c for c in ldf.columns if ldf.data_type[c] == "nominal" and c != "Number of Records"
@@ -88,6 +85,14 @@ def univariate(ldf, *args):
             "action": "Geographical",
             "description": "Show choropleth maps of <p class='highlight-descriptor'>geographic</p> attributes",
             "long_description": f"Occurence displays choropleths of averages for some geographic attribute{examples}. Visualizations are ranked by diversity of the geographic attribute.",
+        }
+    elif data_type_constraint == "temporal":
+        intent = [lux.Clause("?", data_type="temporal")]
+        intent.extend(filter_specs)
+        recommendation = {
+            "action": "Temporal",
+            "description": "Show trends over <p class='highlight-descriptor'>time-related</p> attributes.",
+            "long_description": "Temporal displays line charts for all attributes related to datetimes in the dataframe.",
         }
     if ignore_rec_flag:
         recommendation["collection"] = []

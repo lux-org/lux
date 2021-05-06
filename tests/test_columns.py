@@ -126,22 +126,24 @@ def test_abbrev_agg():
 def test_int_columns(global_var):
     df = pd.read_csv("lux/data/college.csv")
     df.columns = range(len(df.columns))
-    assert list(df.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
+    assert set(df.recommendation.keys()) == set(["Correlation", "Distribution", "Occurrence"])
     df.intent = [8, 3]
-    assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]
+    assert set(df.recommendation.keys()) == set(["Enhance", "Filter", "Generalize"])
     df.intent = [0]
-    assert list(df.recommendation.keys()) == ["Enhance", "Filter"]
+    assert set(df.recommendation.keys()) == set(["Enhance", "Filter"])
 
 
 def test_name_column(global_var):
     df = pd.read_csv("lux/data/car.csv")
     new_df = df.rename(columns={"Name": "name"})
-    assert list(new_df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(new_df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
     assert len(new_df.recommendation["Correlation"])
     assert new_df["name"][0] != None
     assert (new_df["name"].unique() != None)[0]

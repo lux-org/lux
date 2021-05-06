@@ -31,6 +31,8 @@ class Config:
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
+        self._streaming = True
+
         #####################################
         #### Optimization Configurations ####
         #####################################

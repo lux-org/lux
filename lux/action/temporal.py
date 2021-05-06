@@ -61,10 +61,6 @@ def temporal(ldf):
             + " followed by trends across other timescales (e.g., year, month, week, day)."
         )
 
-    # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
-    if len(ldf) < 3:
-        recommendation["collection"] = []
-        return recommendation
     vlist.sort()
     recommendation["collection"] = vlist
     return recommendation

@@ -132,12 +132,15 @@ def test_rename3(global_var):
         "col10",
     ]
     df._ipython_display_()
-    assert list(df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
+
     assert len(df.cardinality) == 10
     assert "col2" in list(df.cardinality.keys())
 
@@ -147,12 +150,16 @@ def test_concat(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = pd.concat([df.loc[:, "Name":"Cylinders"], df.loc[:, "Year":"Origin"]], axis="columns")
+
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == [
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(new_df.recommendation.keys()) == set(
+        [
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
+
     assert len(new_df.cardinality) == 5
 
 
@@ -220,7 +227,7 @@ def test_groupby_agg_very_small(global_var):
 #     df["Year"] = pd.to_datetime(df["Year"], format='%Y')
 #     new_df = df.groupby(["Year", "Cylinders"]).agg(sum).stack().reset_index()
 #     new_df._ipython_display_()
-#     assert list(new_df.recommendation.keys() ) == ['Column Groups'] # TODO
+#     assert set(new_df.recommendation.keys() ) == set(['Column Groups']) # TODO
 #     assert len(new_df.cardinality) == 7 # TODO
 
 
@@ -229,12 +236,15 @@ def test_query(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.query("Weight > 3000")
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(new_df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
+
     assert len(new_df.cardinality) == 10
 
 
@@ -243,12 +253,14 @@ def test_pop(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df.pop("Weight")
     df._ipython_display_()
-    assert list(df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
     assert len(df.cardinality) == 9
 
 
@@ -257,7 +269,7 @@ def test_transform(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.iloc[:, 1:].groupby("Origin").transform(sum)
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Occurrence"]
+    assert set(new_df.recommendation.keys()) == set(["Occurrence"])
     assert len(new_df.cardinality) == 7
 
 
@@ -267,12 +279,16 @@ def test_get_group(global_var):
     gbobj = df.groupby("Origin")
     new_df = gbobj.get_group("Japan")
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    new_df._ipython_display_()
+    assert set(new_df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
+
     assert len(new_df.cardinality) == 10
 
 
@@ -282,12 +298,14 @@ def test_applymap(global_var):
     mapping = {"USA": 0, "Europe": 1, "Japan": 2}
     df["Origin"] = df[["Origin"]].applymap(mapping.get)
     df._ipython_display_()
-    assert list(df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
     assert len(df.cardinality) == 10
 
 
@@ -296,12 +314,14 @@ def test_strcat(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["combined"] = df["Origin"].str.cat(df["Brand"], sep=", ")
     df._ipython_display_()
-    assert list(df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
     assert len(df.cardinality) == 11
 
 
@@ -314,7 +334,7 @@ def test_named_agg(global_var):
         mean_displacement=("Displacement", "mean"),
     )
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Column Groups"]
+    assert set(new_df.recommendation.keys()) == set(["Column Groups"])
     assert len(new_df.cardinality) == 4
 
 
@@ -323,12 +343,14 @@ def test_change_dtype(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df["Cylinders"] = pd.Series(df["Cylinders"], dtype="Int64")
     df._ipython_display_()
-    assert list(df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
     assert len(df.data_type) == 10
 
 
@@ -337,12 +359,14 @@ def test_get_dummies(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = pd.get_dummies(df)
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(new_df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
     assert len(new_df.data_type) == 339
 
 
@@ -352,12 +376,15 @@ def test_drop(global_var):
     new_df = df.drop([0, 1, 2], axis="rows")
     new_df2 = new_df.drop(["Name", "MilesPerGal", "Cylinders"], axis="columns")
     new_df2._ipython_display_()
-    assert list(new_df2.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(new_df2.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
+
     assert len(new_df2.cardinality) == 7
 
 
@@ -367,12 +394,15 @@ def test_merge(global_var):
     new_df = df.drop([0, 1, 2], axis="rows")
     new_df2 = pd.merge(df, new_df, how="left", indicator=True)
     new_df2._ipython_display_()
-    assert list(new_df2.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]  # TODO once bug is fixed
+    assert set(new_df2.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )  # TODO once bug is fixed
+
     assert len(new_df2.cardinality) == 11
 
 
@@ -381,12 +411,15 @@ def test_prefix(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.add_prefix("1_")
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(new_df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
+
     assert len(new_df.cardinality) == 10
     assert new_df.cardinality["1_Name"] == 300
 
@@ -396,32 +429,36 @@ def test_loc(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.loc[:, "Displacement":"Origin"]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(new_df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
     assert len(new_df.cardinality) == 6
     new_df = df.loc[0:10, "Displacement":"Origin"]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(new_df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
     assert len(new_df.cardinality) == 6
     new_df = df.loc[0:10, "Displacement":"Horsepower"]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution"]
+    assert set(new_df.recommendation.keys()) == set(["Correlation", "Distribution"])
     assert len(new_df.cardinality) == 2
     import numpy as np
 
     inter_df = df.groupby("Brand")[["Acceleration", "Weight", "Horsepower"]].agg(np.mean)
     new_df = inter_df.loc["chevrolet":"fiat", "Acceleration":"Weight"]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Column Groups"]
+    assert set(new_df.recommendation.keys()) == set(["Column Groups"])
     assert len(new_df.cardinality) == 3
 
 
@@ -430,32 +467,36 @@ def test_iloc(global_var):
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     new_df = df.iloc[:, 3:9]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(new_df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:9]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(new_df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:5]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution"]
+    assert set(new_df.recommendation.keys()) == set(["Correlation", "Distribution"])
     assert len(new_df.cardinality) == 2
     import numpy as np
 
     inter_df = df.groupby("Brand")[["Acceleration", "Weight", "Horsepower"]].agg(np.mean)
     new_df = inter_df.iloc[5:10, 0:2]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Column Groups"]
+    assert set(new_df.recommendation.keys()) == set(["Column Groups"])
     assert len(new_df.cardinality) == 3
 
 
@@ -638,12 +679,14 @@ def test_read_json(global_var):
     url = "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.json"
     df = pd.read_json(url)
     df._ipython_display_()
-    assert list(df.recommendation.keys()) == [
-        "Correlation",
-        "Distribution",
-        "Occurrence",
-        "Temporal",
-    ]
+    assert set(df.recommendation.keys()) == set(
+        [
+            "Correlation",
+            "Distribution",
+            "Occurrence",
+            "Temporal",
+        ]
+    )
     assert len(df.data_type) == 10
 
 
@@ -651,7 +694,7 @@ def test_read_sas(global_var):
     url = "https://github.com/lux-org/lux-datasets/blob/master/data/airline.sas7bdat?raw=true"
     df = pd.read_sas(url, format="sas7bdat")
     df._ipython_display_()
-    assert list(df.recommendation.keys()) == ["Correlation", "Distribution", "Temporal"]
+    assert set(df.recommendation.keys()) == set(["Correlation", "Distribution", "Temporal"])
     assert len(df.data_type) == 6
 
 

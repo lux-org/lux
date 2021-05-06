@@ -60,10 +60,6 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
             {examples}. The visualizations are ranked from most to least linearly correlated based on \
                 their Pearson’s correlation score.",
     }
-    ignore_rec_flag = False
-    # Doesn't make sense to compute correlation if less than 4 data values
-    if len(ldf) < 5:
-        ignore_rec_flag = True
     # Then use the data populated in the vis list to compute score
     for vis in vlist:
         measures = vis.get_attr_by_data_model("measure")
@@ -81,9 +77,6 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
             vis.score = interestingness(vis, ldf)
         else:
             vis.score = -1
-    if ignore_rec_flag:
-        recommendation["collection"] = []
-        return recommendation
     vlist.sort()
     vlist = vlist.showK()
     recommendation["collection"] = vlist
