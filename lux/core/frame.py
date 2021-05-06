@@ -608,7 +608,7 @@ class LuxDataFrame(pd.DataFrame):
 
             self.output = widgets.Output()
             display(self.output)
-            
+
             # Initialized view before actions are computed
             self.loadingBar = widgets.IntProgress(
                 value=0,
@@ -636,7 +636,6 @@ class LuxDataFrame(pd.DataFrame):
             if len(self._recommendation) > 0:
                 if hasattr(self, "action_keys"):
                     self.compute_remaining_actions()
-        
 
         except (KeyboardInterrupt, SystemExit):
             raise
@@ -657,7 +656,7 @@ class LuxDataFrame(pd.DataFrame):
     def compute_remaining_actions(self):
         # Lazily load the rest of the tabs
         from lux.action.custom import custom_action
-        
+
         i = 1
         for action_name in self.action_keys:
             rec = custom_action(self, action_name)

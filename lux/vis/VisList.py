@@ -272,7 +272,9 @@ class VisList:
         import luxwidget
 
         recJSON = LuxDataFrame.rec_to_JSON([recommendation])
-        self._widget = luxwidget.LuxWidget(currentVis={}, recommendations=recJSON, intent="", message="", pandasHtml="")
+        self._widget = luxwidget.LuxWidget(
+            currentVis={}, recommendations=recJSON, intent="", message="", pandasHtml=""
+        )
         display(self._widget)
 
     def refresh_source(self, ldf):

@@ -47,9 +47,7 @@ def correlation_check(ldf):
     if len(ldf) < 5:
         return False
     else:
-        if (ldf.current_vis is None) or (
-                ldf.current_vis is not None and len(ldf.current_vis) == 0
-            ):
+        if (ldf.current_vis is None) or (ldf.current_vis is not None and len(ldf.current_vis) == 0):
             filter_specs = utils.get_filter_specs(ldf._intent)
             intent = [
                 lux.Clause("?", data_model="measure"),

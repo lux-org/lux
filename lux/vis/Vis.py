@@ -131,7 +131,7 @@ class Vis:
                 recommendations=[],
                 intent="",
                 message="",
-                pandasHtml=""
+                pandasHtml="",
             )
             display(widget)
 
