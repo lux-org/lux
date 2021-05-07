@@ -258,20 +258,18 @@ class History:
                 w = weights[i]
                 
                 # filter out decayed history
-                # TODO I am filtering out history events that happen on child but should the 
-                # columns be included in the aggregate. They are not right now....
-                if (e.kwargs.get("rank_type", None) != "parent" ) and (w >= col_thresh):
-                    
-                    # first event that is not just col ref is most recent for vis
-                    if not mre:
-                        mre = e 
-                    
+                if w >= col_thresh:
+                    # include col ref even if for returned child df
                     for c in e.cols:
                         if c in agg_col_ref:
                             agg_col_ref[c] += w 
                         else:
                             agg_col_ref[c] = w
-            
+                    
+                    # only want mre to be child df or None
+                    if (e.kwargs.get("rank_type", None) != "parent" ) and not mre:
+                        mre = e 
+
             # get sorted column order by aggregate weight, thresholded 
             col_order = list(agg_col_ref.items())
             col_order.sort(key=lambda x: x[1], reverse=True)

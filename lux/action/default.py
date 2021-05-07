@@ -16,6 +16,8 @@ def register_default_actions():
     multiple_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
     always_show = lambda ldf: True
 
+    enhance_display = lambda ldf: (ldf.current_vis is not None and len(ldf.current_vis) == 1) or (len(ldf.history))
+
     # globally register default actions
     lux.config.register_action("correlation", correlation, no_vis)
     lux.config.register_action("distribution", univariate, no_vis, "quantitative")
@@ -24,7 +26,7 @@ def register_default_actions():
     lux.config.register_action("geographical", univariate, no_vis, "geographical")
 
     # TODO change this potentially to show enhance when there is history 
-    lux.config.register_action("Enhance", enhance, one_current_vis)
+    lux.config.register_action("Enhance", enhance, enhance_display)
     lux.config.register_action("Filter", add_filter, one_current_vis)
     lux.config.register_action("Generalize", generalize, one_current_vis)
 
