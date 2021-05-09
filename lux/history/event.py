@@ -12,8 +12,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# CodeHistoryItem = namedtuple("CodeHistoryItem", "cols f_name f_arg_dict ex_order code_str")
-
 class Event:
     """
     Event represents a single operation applied to the dataframe, with input arguments of operation recorded
@@ -48,4 +46,6 @@ class Event:
         return s
     
     def to_JSON(self):
-        return {"op_name": self.op_name, "cols": self.cols, "ex_count": self.ex_count}
+        returned_new_df = (self.kwargs.get("rank_type", None) == "parent")
+
+        return {"op_name": self.op_name, "cols": self.cols, "ex_count": self.ex_count, "ret_new_df": returned_new_df}

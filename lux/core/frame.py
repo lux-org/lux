@@ -90,6 +90,7 @@ class LuxDataFrame(pd.DataFrame):
         self._toggle_pandas_display = True
         self._message = Message()
         self._pandas_only = False
+        self.selectedHistoryIndex = None
         # Metadata
         self._data_type = {}
         self.unique_values = None
@@ -576,6 +577,7 @@ class LuxDataFrame(pd.DataFrame):
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices") # NOTE observe syncs with frontend
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
         self._widget.observe(self.remove_history_item, names="deletedHistoryItem") # TODO why does this need to be declared here too
+        self._widget.observe(self.set_history_on_click, names="selectedHistoryIdx")
 
     
     def remove_history_item(self, change):
@@ -588,6 +590,26 @@ class LuxDataFrame(pd.DataFrame):
         idx = mre_deleted["idx"]
         
         self.history.delete_at(idx)
+    
+    def set_history_on_click(self, change):
+        """
+        Update the history item being visualized
+        """
+        from IPython.display import display, clear_output
+
+        mre_updated = self._widget.selectedHistoryIdx
+        print("Setting history in lux api lib to idx: ", mre_updated)
+        self.selectedHistoryIndex = mre_updated
+        self.maintain_recs()
+
+        with self.output:
+            clear_output()
+            display(self._widget)
+        
+        self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
+        self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+        self._widget.observe(self.remove_history_item, names="deletedHistoryItem")
+        self._widget.observe(self.set_history_on_click, names="selectedHistoryIdx")
 
     # this is called by ipython when the object is displayed in the kernel post execution
     def _ipython_display_(self):
@@ -621,6 +643,7 @@ class LuxDataFrame(pd.DataFrame):
                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
                 self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
                 self._widget.observe(self.remove_history_item, names="deletedHistoryItem")
+                self._widget.observe(self.set_history_on_click, names="selectedHistoryIdx")
 
                 button = widgets.Button(
                     description="Toggle Pandas/Lux",
@@ -710,8 +733,11 @@ class LuxDataFrame(pd.DataFrame):
         
         # get single function vis
         from lux.action.implicit_tab import implicit_mre
-        implicit_mre_rec = [implicit_mre(self)]
-        implicit_mre_JSON = LuxDataFrame.rec_to_JSON(implicit_mre_rec)
+        implicit_mre_rec, curr_hist_index = implicit_mre(self, self.selectedHistoryIndex)
+        implicit_mre_JSON = LuxDataFrame.rec_to_JSON([implicit_mre_rec])
+
+        print("Render_widget: curr_hist_index --", curr_hist_index)
+        print("Render_widget: implicit_mre_rec --", implicit_mre_rec)
         
         return luxwidget.LuxWidget( 
             currentVis=widgetJSON["current_vis"],
@@ -719,7 +745,8 @@ class LuxDataFrame(pd.DataFrame):
             intent=LuxDataFrame.intent_to_string(self._intent),
             message=self._message.to_html(),
             history_list=hJSON,
-            implicit_vis_list=implicit_mre_JSON
+            implicit_vis_list=implicit_mre_JSON,
+            curr_hist_index=curr_hist_index
         )
 
     @staticmethod

@@ -34,6 +34,9 @@ class History:
         self._time_decay = .9
         self.parent_ldf = ldf
         self.kernel = get_ipython()
+        self.col_thresh = .25
+
+        self.selectedItemIdx = None
 
         # class variable TODO is there better way for this to be stored 
         self.base_weights = {
@@ -43,6 +46,11 @@ class History:
 
     def __getitem__(self, key):
         return self._events[key]
+    
+    def get_hist_item(self, key, valid_cols):
+        e = self._events[key]
+
+        return self.validate_mre(e, valid_cols)
 
     def __setitem__(self, key, value):
         if self._frozen_count == 0:
@@ -225,7 +233,7 @@ class History:
         
         return cleaned_e
 
-    def get_implicit_intent(self, valid_cols, col_thresh = .25):
+    def get_implicit_intent(self, valid_cols):
         """
         Iterates through history events and gets ordering of columns by user interest 
         and most recent signal.
@@ -246,7 +254,6 @@ class History:
             val_col_order: list 
                 ordered list of important columns (descending order) or empty list
         """
-        mre = None
         agg_col_ref = {}
         col_order = []
         
@@ -258,17 +265,13 @@ class History:
                 w = weights[i]
                 
                 # filter out decayed history
-                if w >= col_thresh:
+                if w >= self.col_thresh:
                     # include col ref even if for returned child df
                     for c in e.cols:
                         if c in agg_col_ref:
                             agg_col_ref[c] += w 
                         else:
                             agg_col_ref[c] = w
-                    
-                    # only want mre to be child df or None
-                    if (e.kwargs.get("rank_type", None) != "parent" ) and not mre:
-                        mre = e 
 
             # get sorted column order by aggregate weight, thresholded 
             col_order = list(agg_col_ref.items())
@@ -277,10 +280,32 @@ class History:
         
         # validate the returned signals
         val_col_order = [item for item in col_order if item in valid_cols]
+        
+        return val_col_order
+    
+    def get_mre(self, valid_cols):
+        mre = None
+        weights = self.get_weights()
+        i = len(self._events) - 1
+
+        while i >= 0 and not mre:
+            e = self._events[i]
+            w = weights[i]
+
+            if w >= self.col_thresh and (e.kwargs.get("rank_type", None) != "parent" ) and not mre:
+                mre = e
+                break
+            i -= 1 
+        
+        mre = self.validate_mre(mre, valid_cols)
+        
+        return mre, i
+    
+    def validate_mre(self, mre, valid_cols):
         if mre:
             val_mre_cols = [item for item in mre.cols if item in valid_cols]
             val_mre = mre.copy()
             val_mre.cols = val_mre_cols
             mre = val_mre
         
-        return mre, val_col_order
+        return mre

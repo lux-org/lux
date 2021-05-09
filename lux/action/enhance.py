@@ -33,7 +33,7 @@ def enhance(ldf):
     recommendations : Dict[str,obj]
             object with a collection of visualizations that result from the Enhance action.
     """
-    _, implicit_col_list = ldf.history.get_implicit_intent(ldf.columns) 
+    implicit_col_list = ldf.history.get_implicit_intent(ldf.columns) 
     
     intent = []
     intended_attrs = "columns"

@@ -107,7 +107,7 @@ def univariate(ldf, *args):
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
     
-    _, col_order = ldf.history.get_implicit_intent(ldf.columns)
+    col_order = ldf.history.get_implicit_intent(ldf.columns)
     vlist.sort(intent_cols=col_order)
     recommendation["collection"] = vlist
     return recommendation
