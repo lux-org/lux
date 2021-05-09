@@ -598,7 +598,6 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import display, clear_output
 
         mre_updated = self._widget.selectedHistoryIdx
-        print("Setting history in lux api lib to idx: ", mre_updated)
         self.selectedHistoryIndex = mre_updated
         self.maintain_recs()
 
@@ -636,6 +635,8 @@ class LuxDataFrame(pd.DataFrame):
                 else:
                     self._toggle_pandas_display = True
 
+                # clear history select. NOTE might be better to clear only when new history item added
+                self.selectedHistoryIndex = None
                 # compute recommendation tabs 
                 self.maintain_recs()
 
@@ -735,9 +736,6 @@ class LuxDataFrame(pd.DataFrame):
         from lux.action.implicit_tab import implicit_mre
         implicit_mre_rec, curr_hist_index = implicit_mre(self, self.selectedHistoryIndex)
         implicit_mre_JSON = LuxDataFrame.rec_to_JSON([implicit_mre_rec])
-
-        print("Render_widget: curr_hist_index --", curr_hist_index)
-        print("Render_widget: implicit_mre_rec --", implicit_mre_rec)
         
         return luxwidget.LuxWidget( 
             currentVis=widgetJSON["current_vis"],

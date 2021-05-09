@@ -37,21 +37,16 @@ def implicit_mre(ldf: lux.core.frame.LuxDataFrame, hist_index = None):
     """
     # these events are cleansed when fetched 
     col_list = ldf.history.get_implicit_intent(ldf.columns)
-    print("In implicit mre: hist index is ", hist_index)
-
     if hist_index is not None:
         most_recent_event = ldf.history.get_hist_item(hist_index, ldf.columns)
     else:
         most_recent_event, hist_index = ldf.history.get_mre(ldf.columns)
 
-    lux_vis = []
+    lux_vis = VisList([], ldf)
 
     # get unique vis for recent col ref 
     if most_recent_event:
-        lux_vis = VisList([], ldf)
-        vl, used_cols = implicit_plotter.generate_vis_from_signal(most_recent_event, ldf, col_list)
-        
-        lux_vis._collection.extend(vl._collection)
+        lux_vis, used_cols = implicit_plotter.generate_vis_from_signal(most_recent_event, ldf, col_list)
 
     recommendation = {
         "action": "Implicit",
