@@ -4,7 +4,7 @@ from lux.vis.Vis import Vis
 from lux.core.sqltable import LuxSQLTable
 from lux.executor.Executor import Executor
 from lux.utils import utils
-from lux.utils.utils import check_import_lux_widget, check_if_id_like
+from lux.utils.utils import check_import_lux_widget, check_if_id_like_for_sql
 import lux
 
 import math
@@ -635,7 +635,7 @@ class SQLExecutor(Executor):
             }:
                 if tbl.cardinality[attr] < 13:
                     data_type[attr] = "nominal"
-                elif check_if_id_like(tbl, attr):
+                elif check_if_id_like_for_sql(tbl, attr):
                     data_type[attr] = "id"
                 else:
                     data_type[attr] = "quantitative"
