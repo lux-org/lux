@@ -19,9 +19,10 @@ from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
 from lux.utils.date_utils import is_datetime_series
-from lux.utils.utils import check_import_lux_widget, check_if_id_like
+from lux.utils.utils import check_import_lux_widget, check_if_id_like, is_numeric_nan_column
 import warnings
 import lux
+from lux.utils.tracing_utils import LuxTracer
 
 
 class PandasExecutor(Executor):
@@ -81,9 +82,11 @@ class PandasExecutor(Executor):
         -------
         None
         """
+
         PandasExecutor.execute_sampling(ldf)
         for vis in vislist:
             # The vis data starts off being original or sampled dataframe
+            vis._source = ldf
             vis._vis_data = ldf._sampled
             filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
@@ -97,7 +100,7 @@ class PandasExecutor(Executor):
             if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
-                PandasExecutor.execute_binning(vis)
+                PandasExecutor.execute_binning(ldf, vis)
             elif vis.mark == "scatter":
                 HBIN_START = 5000
                 if lux.config.heatmap and len(ldf) > HBIN_START:
@@ -108,6 +111,7 @@ class PandasExecutor(Executor):
                     )
                     # vis._mark = "heatmap"
                     # PandasExecutor.execute_2D_binning(vis) # Lazy Evaluation (Early pruning based on interestingness)
+            vis.data.clear_intent()  # Ensure that intent is not propogated to the vis data
 
     @staticmethod
     def execute_aggregate(vis: Vis, isFiltered=True):
@@ -167,32 +171,17 @@ class PandasExecutor(Executor):
 
                 if has_color:
                     vis._vis_data = (
-                        vis.data.groupby(
-                            [groupby_attr.attribute, color_attr.attribute], dropna=False, history=False
-                        )
-                        .count()
-                        .reset_index()
-                        .rename(columns={index_name: "Record"})
-                    )
+                        vis.data.groupby([groupby_attr.attribute, color_attr.attribute], dropna=False, history=False).count().reset_index().rename(columns={index_name: "Record"}))
                     vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, "Record"]]
                 else:
-                    vis._vis_data = (
-                        vis.data.groupby(groupby_attr.attribute, dropna=False, history=False)
-                        .count()
-                        .reset_index()
-                        .rename(columns={index_name: "Record"})
-                    )
+                    vis._vis_data = (vis.data.groupby(groupby_attr.attribute, dropna=False, history=False).count().reset_index().rename(columns={index_name: "Record"}))
                     vis._vis_data = vis.data[[groupby_attr.attribute, "Record"]]
             else:
                 # if color is specified, need to group by groupby_attr and color_attr
                 if has_color:
-                    groupby_result = vis.data.groupby(
-                        [groupby_attr.attribute, color_attr.attribute], dropna=False, history=False
-                    )
+                    groupby_result = vis.data.groupby([groupby_attr.attribute, color_attr.attribute], dropna=False, history=False)
                 else:
-                    groupby_result = vis.data.groupby(
-                        groupby_attr.attribute, dropna=False, history=False
-                    )
+                    groupby_result = vis.data.groupby(groupby_attr.attribute, dropna=False, history=False)
                 groupby_result = groupby_result.agg(agg_func)
                 intermediate = groupby_result.reset_index()
                 vis._vis_data = intermediate.__finalize__(vis.data)
@@ -210,23 +199,11 @@ class PandasExecutor(Executor):
                 if len(result_vals) != N_unique_vals * color_cardinality:
                     columns = vis.data.columns
                     if has_color:
-                        df = pd.DataFrame(
-                            {
-                                columns[0]: attr_unique_vals * color_cardinality,
-                                columns[1]: pd.Series(color_attr_vals).repeat(N_unique_vals),
-                            }
-                        )
-                        vis._vis_data = vis.data.merge(
-                            df,
-                            on=[columns[0], columns[1]],
-                            how="right",
-                            suffixes=["", "_right"],
-                        )
+                        df = pd.DataFrame({columns[0]: attr_unique_vals * color_cardinality,columns[1]: pd.Series(color_attr_vals).repeat(N_unique_vals),})
+                        vis._vis_data = vis.data.merge(df,on=[columns[0], columns[1]],how="right",suffixes=["", "_right"],)
                         for col in columns[2:]:
                             vis.data[col] = vis.data[col].fillna(0)  # Triggers __setitem__
-                        assert len(list(vis.data[groupby_attr.attribute])) == N_unique_vals * len(
-                            color_attr_vals
-                        ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
+                        assert len(list(vis.data[groupby_attr.attribute])) == N_unique_vals * len(color_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
 
                         # Keep only the three relevant columns not the *_right columns resulting from merge
                         vis._vis_data = vis.data.iloc[:, :3]
@@ -234,15 +211,11 @@ class PandasExecutor(Executor):
                     else:
                         df = pd.DataFrame({columns[0]: attr_unique_vals})
 
-                        vis._vis_data = vis.data.merge(
-                            df, on=columns[0], how="right", suffixes=["", "_right"]
-                        )
+                        vis._vis_data = vis.data.merge(df, on=columns[0], how="right", suffixes=["", "_right"])
 
                         for col in columns[1:]:
                             vis.data[col] = vis.data[col].fillna(0)
-                        assert (
-                            len(list(vis.data[groupby_attr.attribute])) == N_unique_vals
-                        ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
+                        assert (len(list(vis.data[groupby_attr.attribute])) == N_unique_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
 
             vis._vis_data = vis._vis_data.dropna(subset=[measure_attr.attribute])
             try:
@@ -259,7 +232,7 @@ class PandasExecutor(Executor):
             vis._vis_data = vis._vis_data.drop(columns="index")
 
     @staticmethod
-    def execute_binning(vis: Vis):
+    def execute_binning(ldf, vis: Vis):
         """
         Binning of data points for generating histograms
 
@@ -276,32 +249,35 @@ class PandasExecutor(Executor):
         """
         import numpy as np
 
-        bin_attribute = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0]
+        #bin_attribute = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0]
+        bin_attribute = [x for x in vis._inferred_intent if x.bin_size != 0][0]
         bin_attr = bin_attribute.attribute
-        if not np.isnan(vis.data[bin_attr]).all():
-            # np.histogram breaks if array contain NaN
-            series = vis.data[bin_attr].dropna()
-            # TODO:binning runs for name attribte. Name attribute has datatype quantitative which is wrong.
-            counts, bin_edges = np.histogram(series, bins=bin_attribute.bin_size)
-            # bin_edges of size N+1, so need to compute bin_start as the bin location
-            bin_start = bin_edges[0:-1]
-            # TODO: Should vis.data be a LuxDataFrame or a Pandas DataFrame?
-            binned_result = np.array([bin_start, counts]).T
-            vis._vis_data = pd.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
+        series = vis.data[bin_attr]
+
+        if series.hasnans:
+            ldf._message.add_unique(
+                f"The column <code>{bin_attr}</code> contains missing values, not shown in the displayed histogram.",
+                priority=100,
+            )
+            series = series.dropna()
+        if pd.api.types.is_object_dtype(series):
+            series = series.astype("float", errors="ignore")
+
+        counts, bin_edges = np.histogram(series, bins=bin_attribute.bin_size)
+        # bin_edges of size N+1, so need to compute bin_start as the bin location
+        bin_start = bin_edges[0:-1]
+        binned_result = np.array([bin_start, counts]).T
+        vis._vis_data = pd.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
 
     @staticmethod
     def execute_filter(vis: Vis):
-        assert (
-            vis.data is not None
-        ), "execute_filter assumes input vis.data is populated (if not, populate with LuxDataFrame values)"
+        assert (vis.data is not None), "execute_filter assumes input vis.data is populated (if not, populate with LuxDataFrame values)"
         filters = utils.get_filter_specs(vis._inferred_intent)
 
         if filters:
             # TODO: Need to handle OR logic
             for filter in filters:
-                vis._vis_data = PandasExecutor.apply_filter(
-                    vis.data, filter.attribute, filter.filter_op, filter.value
-                )
+                vis._vis_data = PandasExecutor.apply_filter(vis.data, filter.attribute, filter.filter_op, filter.value)
             return True
         else:
             return False
@@ -368,16 +344,10 @@ class PandasExecutor(Executor):
                 if color_attr.data_type == "nominal":
                     # Compute mode and count. Mode aggregates each cell by taking the majority vote for the category variable. In cases where there is ties across categories, pick the first item (.iat[0])
                     result = groups.agg(
-                        [
-                            ("count", "count"),
-                            (color_attr.attribute, lambda x: pd.Series.mode(x).iat[0]),
-                        ]
-                    ).reset_index()
+                        [("count", "count"),(color_attr.attribute, lambda x: pd.Series.mode(x).iat[0]),]).reset_index()
                 elif color_attr.data_type == "quantitative" or color_attr.data_type == "temporal":
                     # Compute the average of all values in the bin
-                    result = groups.agg(
-                        [("count", "count"), (color_attr.attribute, "mean")]
-                    ).reset_index()
+                    result = groups.agg([("count", "count"), (color_attr.attribute, "mean")]).reset_index()
                 result = result.dropna()
             else:
                 groups = vis._vis_data.groupby(["xBin", "yBin"], history=False)[x_attr]
@@ -422,13 +392,8 @@ class PandasExecutor(Executor):
                 elif self._is_geographical_attribute(ldf[attr]):
                     ldf._data_type[attr] = "geographical"
                 elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
-                    # int columns gets coerced into floats if contain NaN
-                    convertible2int = pd.api.types.is_integer_dtype(ldf[attr].convert_dtypes())
-                    if (
-                        convertible2int
-                        and ldf.cardinality[attr] != len(ldf)
-                        and (len(ldf[attr].convert_dtypes().unique() < 20))
-                    ):
+
+                    if ldf.cardinality[attr] != len(ldf) and (ldf.cardinality[attr] < 20):
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
@@ -445,7 +410,17 @@ class PandasExecutor(Executor):
                         ldf._data_type[attr] = "id"
                 # Eliminate this clause because a single NaN value can cause the dtype to be object
                 elif pd.api.types.is_string_dtype(ldf.dtypes[attr]):
-                    if check_if_id_like(ldf, attr):
+                    # Check first if it's castable to float after removing NaN
+                    is_numeric_nan, series = is_numeric_nan_column(ldf[attr])
+                    if is_numeric_nan:
+                        # int columns gets coerced into floats if contain NaN
+                        ldf._data_type[attr] = "quantitative"
+                        # min max was not computed since object type, so recompute here
+                        ldf._min_max[attr] = (
+                            series.min(),
+                            series.max(),
+                        )
+                    elif check_if_id_like(ldf, attr):
                         ldf._data_type[attr] = "id"
                     else:
                         ldf._data_type[attr] = "nominal"
@@ -502,7 +477,8 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def _is_datetime_number(series):
-        if series.dtype == int or "int" in str(series.dtype):
+        is_int_dtype = pd.api.types.is_integer_dtype(series.dtype)
+        if is_int_dtype:
             try:
                 temp = series.astype(str)
                 pd.to_datetime(temp)
@@ -526,19 +502,11 @@ class PandasExecutor(Executor):
             else:
                 attribute_repr = attribute
 
-            if ldf.dtypes[attribute] != "float64" or ldf[attribute].isnull().values.any():
-                ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
-                ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute])
-            else:
-                ldf.cardinality[attribute_repr] = 999  # special value for non-numeric attribute
+            ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+            ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
 
-            if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(
-                ldf.dtypes[attribute]
-            ):
-                ldf._min_max[attribute_repr] = (
-                    ldf[attribute].min(),
-                    ldf[attribute].max(),
-                )
+            if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(ldf.dtypes[attribute]):
+                ldf._min_max[attribute_repr] = (ldf[attribute].min(),ldf[attribute].max(),)
 
         if not pd.api.types.is_integer_dtype(ldf.index):
             index_column_name = ldf.index.name

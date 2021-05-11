@@ -37,7 +37,7 @@ class Choropleth(AltairChart):
         super().__init__(dobj)
 
     def __repr__(self):
-        return f"Proportional Symbol Map <{str(self.vis)}>"
+        return f"Choropleth Map <{str(self.vis)}>"
 
     def initialize_chart(self):
         x_attr = self.vis.get_attr_by_channel("x")[0]

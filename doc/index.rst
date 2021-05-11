@@ -39,13 +39,16 @@ This website contains pages that overview of the basic and advanced functionalit
    :maxdepth: 1
    :caption: Advanced Topics
    
+   source/advanced/datatype
    source/advanced/date
+   source/advanced/map
    source/advanced/indexgroup
    source/advanced/custom
    source/advanced/architecture
-   source/advanced/interestingness
    source/advanced/executor
-   source/advanced/datatype
+   source/advanced/interestingness
+   
+   
 
 .. toctree::
    :maxdepth: 1

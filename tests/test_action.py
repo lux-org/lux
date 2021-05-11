@@ -20,6 +20,7 @@ from lux.vis.Vis import Vis
 
 
 def test_vary_filter_val(global_var):
+    lux.config.set_executor_type("Pandas")
     df = pytest.olympic
     vis = Vis(["Height", "SportType=Ball"], df)
     df.set_intent_as_vis(vis)
@@ -195,7 +196,7 @@ def test_year_filter_value(global_var):
     )
     vis = list_of_vis_with_year_filter[0]
     assert (
-        "T00:00:00.000000000" not in vis.to_Altair()
+        "T00:00:00.000000000" not in vis.to_altair()
     ), "Year filter title contains extraneous string, not displayed as summarized string"
     df.clear_intent()
 
@@ -274,3 +275,13 @@ def test_intent_retained():
 
     df._ipython_display_()
     assert list(df.recommendation.keys()) == ["Enhance", "Filter"]
+
+
+def test_metadata_propogate_invalid_intent():
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
+    df.intent = ["Attrition"]
+    new_df = df.groupby("BusinessTravel").mean()
+    assert new_df.intent[0].attribute == "Attrition", "User-specified intent is retained"
+    assert new_df._inferred_intent == [], "Invalid inferred intent is cleared"
+    new_df._ipython_display_()
+    assert new_df.current_vis == []

@@ -55,21 +55,29 @@ class LuxSQLTable(lux.LuxDataFrame):
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
+        "_length",
+        "_setup_done",
     ]
 
     def __init__(self, *args, table_name="", **kw):
         super(LuxSQLTable, self).__init__(*args, **kw)
-        from lux.executor.SQLExecutor import SQLExecutor
 
-        lux.config.executor = SQLExecutor()
+        if lux.config.executor.name != 'GeneralDatabaseExecutor':
+            from lux.executor.SQLExecutor import SQLExecutor
+
+            lux.config.executor = SQLExecutor()
 
         self._length = 0
+        self._setup_done = False
         if table_name != "":
             self.set_SQL_table(table_name)
         warnings.formatwarning = lux.warning_format
 
-    def len(self):
-        return self._length
+    def __len__(self):
+        if self._setup_done:
+            return self._length
+        else:
+            return super(LuxSQLTable, self).__len__()
 
     def set_SQL_table(self, t_name):
         # function that ties the Lux Dataframe to a SQL database table
@@ -80,7 +88,6 @@ class LuxSQLTable(lux.LuxDataFrame):
             )
         else:
             self.table_name = t_name
-        import psycopg2
 
         try:
             lux.config.executor.compute_dataset_metadata(self)
@@ -91,6 +98,25 @@ class LuxSQLTable(lux.LuxDataFrame):
                     f"\nThe table '{t_name}' does not exist in your database./",
                     stacklevel=2,
                 )
+
+    def maintain_metadata(self):
+        # Check that metadata has not yet been computed
+        if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
+            # only compute metadata information if the dataframe is non-empty
+            lux.config.executor.compute_dataset_metadata(self)
+            self._infer_structure()
+            self._metadata_fresh = True
+
+    def expire_metadata(self):
+        """
+        Expire all saved metadata to trigger a recomputation the next time the data is required.
+        """
+        # self._metadata_fresh = False
+        # self._data_type = None
+        # self.unique_values = None
+        # self.cardinality = None
+        # self._min_max = None
+        # self.pre_aggregated = None
 
     def _ipython_display_(self):
         from IPython.display import HTML, Markdown, display
@@ -126,7 +152,7 @@ class LuxSQLTable(lux.LuxDataFrame):
                 layout=widgets.Layout(width="200px", top="6px", bottom="6px"),
             )
             self.output = widgets.Output()
-            lux.config.executor.execute_preview(self)
+            self._sampled = lux.config.executor.execute_preview(self)
             display(button, self.output)
 
             def on_button_clicked(b):
@@ -178,19 +204,3 @@ class LuxSQLTable(lux.LuxDataFrame):
                 display(self.display_pandas())
             else:
                 raise
-
-    # Overridden Pandas Functions
-    def head(self, n: int = 5):
-        return
-
-    def tail(self, n: int = 5):
-        return
-
-    def info(self, *args, **kwargs):
-        return
-
-    def describe(self, *args, **kwargs):
-        return
-
-    def groupby(self, *args, **kwargs):
-        return

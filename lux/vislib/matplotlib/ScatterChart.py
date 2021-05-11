@@ -48,7 +48,7 @@ class ScatterChart(MatplotlibChart):
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
 
-        df = pd.DataFrame(self.data)
+        df = self.data.dropna()
 
         x_pts = df[x_attr.attribute]
         y_pts = df[y_attr.attribute]
@@ -66,7 +66,7 @@ class ScatterChart(MatplotlibChart):
             vals = [unique.index(i) for i in colors]
             if color_attr_type == "quantitative":
                 self.fig, self.ax = matplotlib_setup(7, 5)
-                set_fig_code = "fig, ax = plt.subplots(7, 5)\n"
+                set_fig_code = "fig, ax = plt.subplots(figsize=(7, 5))\n"
                 self.ax.scatter(x_pts, y_pts, c=vals, cmap="Blues", alpha=0.5)
                 plot_code += f"ax.scatter(x_pts, y_pts, c={vals}, cmap='Blues', alpha=0.5)\n"
                 my_cmap = plt.cm.get_cmap("Blues")
@@ -96,10 +96,10 @@ class ScatterChart(MatplotlibChart):
                         maxlen = len(unique[i])
                 if maxlen > 20:
                     self.fig, self.ax = matplotlib_setup(9, 5)
-                    set_fig_code = "fig, ax = plt.subplots(9, 5)\n"
+                    set_fig_code = "fig, ax = plt.subplots(figsize=(9, 5))\n"
                 else:
                     self.fig, self.ax = matplotlib_setup(7, 5)
-                    set_fig_code = "fig, ax = plt.subplots(7, 5)\n"
+                    set_fig_code = "fig, ax = plt.subplots(figsize=(7, 5))\n"
 
                 cmap = "Set1"
                 if len(unique) > 9:
@@ -131,7 +131,7 @@ class ScatterChart(MatplotlibChart):
                     fontsize='13')\n"""
                 plot_code += "scatter.set_alpha(0.5)\n"
         else:
-            set_fig_code = "fig, ax = plt.subplots(4.5, 4)\n"
+            set_fig_code = "fig, ax = plt.subplots(figsize=(4.5, 4))\n"
             self.ax.scatter(x_pts, y_pts, alpha=0.5)
             plot_code += f"ax.scatter(x_pts, y_pts, alpha=0.5)\n"
         self.ax.set_xlabel(x_attr_abv, fontsize="15")

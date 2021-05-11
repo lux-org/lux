@@ -1,4 +1,4 @@
-lux.core.series.LuxSeries
+﻿lux.core.series.LuxSeries
 =========================
 
 .. currentmodule:: lux.core.series
@@ -149,6 +149,7 @@ lux.core.series.LuxSeries
       ~LuxSeries.searchsorted
       ~LuxSeries.sem
       ~LuxSeries.set_axis
+      ~LuxSeries.set_flags
       ~LuxSeries.shift
       ~LuxSeries.skew
       ~LuxSeries.slice_shift
@@ -214,6 +215,8 @@ lux.core.series.LuxSeries
       ~LuxSeries.dtype
       ~LuxSeries.dtypes
       ~LuxSeries.empty
+      ~LuxSeries.exported
+      ~LuxSeries.flags
       ~LuxSeries.hasnans
       ~LuxSeries.iat
       ~LuxSeries.iloc
@@ -226,6 +229,7 @@ lux.core.series.LuxSeries
       ~LuxSeries.name
       ~LuxSeries.nbytes
       ~LuxSeries.ndim
+      ~LuxSeries.recommendation
       ~LuxSeries.shape
       ~LuxSeries.size
       ~LuxSeries.values

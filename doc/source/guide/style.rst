@@ -44,6 +44,42 @@ We now see that the displayed visualizations adopt these new imported settings.
   :width: 700
   :align: center 
 
+If we click on the visualization for `Displacement` v.s. `Weight` and export it. We see that the exported chart now contains code with these additional plot settings at the every end.
+
+.. code-block:: python
+	
+	# Before running this cell, click on Displacement v.s. Weight vis and export it.
+	vis = df.exported[0]
+	print (vis.to_altair())
+
+.. image:: ../img/style-3.png
+  :width: 700
+  :align: center 
+
+.. code-block:: python
+	
+	import altair as alt
+
+	chart = alt.Chart(df).mark_circle().encode(
+	    x=alt.X('Weight',scale=alt.Scale(domain=(1613, 5140)),type='quantitative'),
+	    y=alt.Y('Displacement',scale=alt.Scale(domain=(68.0, 455.0)),type='quantitative')
+	)
+	chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
+	chart = chart.interactive() # Enable Zooming and Panning
+	chart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')
+	chart = chart.configure_axis(titleFontWeight=500,titleFontSize=11,titleFont='Helvetica Neue',
+				labelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue',labelColor='#505050')
+	chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',
+				labelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue')
+	chart = chart.properties(width=160,height=150)
+	chart = chart.configure_mark(color="green") # change mark color to green
+	chart.title = "Custom Title" # add title to chart
+	chart
+
+.. image:: ../img/style-4.png
+  :width: 200
+  :align: center 
+
 Similarly, we can change the plot configurations for Matplotlib charts as well.
 The plotting_style attribute for Matplotlib charts takes in both the `fig` and `ax` as parameters.
 `fig` handles figure width and other plot size attributes. `ax` supports changing the chart title and other plot labels and configurations.
@@ -76,39 +112,47 @@ We now see that the displayed visualizations adopt these new imported settings.
   :width: 700
   :align: center 
 
-If we click on the visualization for `Displacement` v.s. `Weight` and export it. We see that the exported chart now contains code with these additional plot settings at the every end.
+We can also export these Matplotlib charts with the plotting style.
 
 .. code-block:: python
 	
 	# Before running this cell, click on Displacement v.s. Weight vis and export it.
 	vis = df.exported[0]
-	print (vis.to_Altair())
+	print (vis.to_matplotlib())
 
-.. image:: ../img/style-3.png
+.. image:: ../img/style-8.png
   :width: 700
   :align: center 
 
 .. code-block:: python
 	
-	import altair as alt
+	import matplotlib.pyplot as plt
+	plt.rcParams.update(
+				{
+					"axes.titlesize": 20,
+					"axes.titleweight": "bold",
+					"axes.labelweight": "bold",
+					"axes.labelsize": 16,
+					"legend.fontsize": 14,
+					"legend.title_fontsize": 15,
+					"xtick.labelsize": 13,
+					"ytick.labelsize": 13,
+				}
+			)
+	import numpy as np
+	from math import nan
+	from matplotlib.cm import ScalarMappable
+	fig, ax = plt.subplots(figsize=(4.5, 4))
+	x_pts = df['Displacement']
+	y_pts = df['Weight']
+	ax.scatter(x_pts, y_pts, alpha=0.5)
+	ax.set_xlabel('Displacement', fontsize='15')
+	ax.set_ylabel('Weight', fontsize='15')
+	fig.set_figwidth(7)
+	ax.set_title("Custom Title")
+	fig
 
-	chart = alt.Chart(df).mark_circle().encode(
-	    x=alt.X('Weight',scale=alt.Scale(domain=(1613, 5140)),type='quantitative'),
-	    y=alt.Y('Displacement',scale=alt.Scale(domain=(68.0, 455.0)),type='quantitative')
-	)
-	chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding')) # Setting tooltip as non-null
-	chart = chart.interactive() # Enable Zooming and Panning
-	chart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')
-	chart = chart.configure_axis(titleFontWeight=500,titleFontSize=11,titleFont='Helvetica Neue',
-				labelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue',labelColor='#505050')
-	chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',
-				labelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue')
-	chart = chart.properties(width=160,height=150)
-	chart = chart.configure_mark(color="green") # change mark color to green
-	chart.title = "Custom Title" # add title to chart
-	chart
-
-.. image:: ../img/style-4.png
+.. image:: ../img/style-9.png
   :width: 200
   :align: center 
 
