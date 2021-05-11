@@ -109,6 +109,8 @@ def check_if_id_like(df, attribute):
             almost_all_vals_unique = df.cardinality[attribute] >= 0.75 * len(df)
         return high_cardinality and (almost_all_vals_unique or evenly_spaced)
 
+def check_if_id_like_for_sql(df, attribute):
+    return df.cardinality[attribute] >= 0.98 * len(df)
 
 def like_nan(val):
     if isinstance(val, str):
