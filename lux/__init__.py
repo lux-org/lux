@@ -16,6 +16,7 @@
 from lux.vis.Clause import Clause
 from lux.core.frame import LuxDataFrame
 from lux.core.sqltable import LuxSQLTable
+from lux.core.joinedsqltable import JoinedSQLTable
 from ._version import __version__, version_info
 from lux._config import config
 from lux._config.config import warning_format
