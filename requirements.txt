@@ -6,7 +6,7 @@ pandas>=1.2.0
 scikit-learn>=0.22
 matplotlib>=3.0.0
 # lux-widget>=0.1.4
-git+git://github.com/willeppy/lux-widget.git@master#egg=lux-widget
+lux-widget @ git+git://github.com/willeppy/lux-widget.git@master
 us
 iso3166
 pyemd
