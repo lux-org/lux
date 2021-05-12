@@ -42,6 +42,7 @@ class History:
         self.base_weights = {
             "value_counts": 1,
             "col_ref": 0.5, 
+            "assign": 2
         }
 
     def __getitem__(self, key):
