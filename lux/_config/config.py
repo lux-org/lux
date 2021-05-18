@@ -25,10 +25,6 @@ class Config:
         # flags whether or not an action has been registered or removed and should be re-rendered by frame.py
         self.update_actions: Dict[str, bool] = {}
         self.update_actions["flag"] = False
-        self._sampling_start = 10000
-        self._sampling_cap = 30000
-        self._sampling_flag = True
-        self._heatmap_flag = True
         self._plotting_backend = "vegalite"
         self._plotting_scale = 1
         self._topk = 15
@@ -36,6 +32,20 @@ class Config:
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
+        #####################################
+        #### Optimization Configurations ####
+        #####################################
+        self._sampling_start = 100000
+        self._sampling_cap = 1000000
+        self._sampling_flag = True
+        self._heatmap_flag = True
+        self.lazy_maintain = True
+        self.early_pruning = True
+        self.early_pruning_sample_cap = 30000
+        # Apply sampling only if the dataset is 150% larger than the sample cap
+        self.early_pruning_sample_start = self.early_pruning_sample_cap * 1.5
+        self.streaming = False
+        self.render_widget = True
 
     @property
     def topk(self):

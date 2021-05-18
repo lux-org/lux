@@ -273,7 +273,15 @@ class Compiler:
             if measure.aggregation == "":
                 measure.set_aggregation("mean")
             if dim_type == "temporal" or dim_type == "oridinal":
-                return "line", {"x": dimension, "y": measure}
+                if isinstance(dimension.attribute, pd.Timestamp):
+                    # If timestamp, use the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+                    attr = str(dimension.attribute._date_repr)
+                else:
+                    attr = dimension.attribute
+                if ldf.cardinality[attr] == 1:
+                    return "bar", {"x": measure, "y": dimension}
+                else:
+                    return "line", {"x": dimension, "y": measure}
             else:  # unordered categorical
                 # if cardinality large than 5 then sort bars
                 if ldf.cardinality[dimension.attribute] > 5:
@@ -366,6 +374,15 @@ class Compiler:
             for attr in relevant_attributes
             if attr != "Record" and attr in ldf._min_max
         )
+        # Replace scatterplot with heatmap
+        HBIN_START = 5000
+        if vis.mark == "scatter" and lux.config.heatmap and len(ldf) > HBIN_START:
+            vis._postbin = True
+            ldf._message.add_unique(
+                f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
+                priority=98,
+            )
+            vis._mark = "heatmap"
         vis._min_max = relevant_min_max
         if auto_channel != {}:
             vis = Compiler.enforce_specified_channel(vis, auto_channel)

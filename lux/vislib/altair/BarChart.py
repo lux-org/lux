@@ -52,6 +52,13 @@ class BarChart(AltairChart):
             x_attr.attribute = x_attr.attribute.replace(".", "")
         if isinstance(y_attr.attribute, str):
             y_attr.attribute = y_attr.attribute.replace(".", "")
+        # To get datetime to display correctly on bar charts
+        if x_attr.data_type == "temporal":
+            x_attr.data_type = "nominal"
+            self.code += "from pandas import Timestamp\n"
+        if y_attr.data_type == "temporal":
+            y_attr.data_type = "nominal"
+            self.code += "from pandas import Timestamp\n"
 
         if x_attr.data_model == "measure":
             agg_title = get_agg_title(x_attr)

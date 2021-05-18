@@ -1,4 +1,4 @@
-lux.executor.Executor.Executor
+﻿lux.executor.Executor.Executor
 ==============================
 
 .. currentmodule:: lux.executor.Executor
@@ -19,6 +19,7 @@ lux.executor.Executor.Executor
       ~Executor.compute_data_type
       ~Executor.compute_stats
       ~Executor.execute
+      ~Executor.execute_2D_binning
       ~Executor.execute_aggregate
       ~Executor.execute_binning
       ~Executor.execute_filter

@@ -36,6 +36,7 @@ class Vis:
         self.title = title
         self.score = score
         self._all_column = False
+        self.approx = False
         self.refresh_source(self._source)
 
     def __repr__(self):

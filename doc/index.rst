@@ -33,7 +33,7 @@ This website contains pages that overview of the basic and advanced functionalit
    source/guide/export
    source/guide/style
    source/guide/FAQ
-.. source/guide/example
+   source/reference/gallery
 
 .. toctree::
    :maxdepth: 1
@@ -56,6 +56,7 @@ This website contains pages that overview of the basic and advanced functionalit
    
    source/reference/config
    source/reference/API
+   source/reference/about
    
 
 Indices and tables
