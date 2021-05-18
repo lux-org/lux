@@ -164,13 +164,11 @@ class Compiler:
         from lux.utils.date_utils import is_datetime_string
 
         data_model_lookup = lux.config.executor.compute_data_model_lookup(ldf.data_type)
-
         for vis in vlist:
             for clause in vis._inferred_intent:
                 if clause.description == "?":
                     clause.description = ""
                 # TODO: Note that "and not is_datetime_string(clause.attribute))" is a temporary hack and breaks the `test_row_column_group` example
-                # and not is_datetime_string(clause.attribute):
                 if clause.attribute != "" and clause.attribute != "Record":
                     if clause.data_type == "":
                         clause.data_type = ldf.data_type[clause.attribute]

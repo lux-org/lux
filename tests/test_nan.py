@@ -164,3 +164,12 @@ def test_numeric_with_nan():
     #     len(a.recommendation["Distribution"]) == 2
     # ), "Example where dtype might be off after dropna(), check if histograms are still displayed"
     assert "" in a._message.to_html(), "No warning message for NaN should be displayed"
+
+
+def test_empty_filter(global_var):
+    df = pytest.car_df
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    fdf = df[df["Origin"] == "U"]
+    fdf._ipython_display_()
+    assert fdf.data_type == None
+    assert len(df[df["Origin"] == "U"]) == 0
