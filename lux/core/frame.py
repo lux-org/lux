@@ -748,7 +748,7 @@ class LuxDataFrame(pd.DataFrame):
                 del rec_lst[idx]["collection"]
         return rec_lst
 
-    def save_as_html(self, filename: str = "export.html",output=False):
+    def save_as_html(self, filename: str = "export.html", output=False):
         """
         Save dataframe widget as static HTML file
 
@@ -836,7 +836,7 @@ class LuxDataFrame(pd.DataFrame):
             with open(filename, "w") as fp:
                 fp.write(rendered_template)
                 print(f"Saved HTML to {filename}")
-        
+
     # Overridden Pandas Functions
     def head(self, n: int = 5):
         ret_val = super(LuxDataFrame, self).head(n)
