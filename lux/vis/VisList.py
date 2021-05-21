@@ -277,9 +277,7 @@ class VisList:
             recommendations=recJSON,
             intent="",
             message="",
-            config={
-                "plottingScale": lux.config.plotting_scale
-            }
+            config={"plottingScale": lux.config.plotting_scale},
         )
         display(self._widget)
 
