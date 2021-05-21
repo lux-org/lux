@@ -131,7 +131,9 @@ class Vis:
                 recommendations=[],
                 intent="",
                 message="",
-                plottingScale=lux.config.plotting_scale,
+                config={
+                "plottingScale": lux.config.plotting_scale
+                }
             )
             display(widget)
 
