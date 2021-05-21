@@ -49,6 +49,9 @@ jobs:
         git clone https://github.com/lux-org/lux-widget.git
         cd lux-widget
         pip install .
+        cd ..
+        rm -rf lux-widget
+        ################
         pip install sqlalchemy
     - name: Upload data to Postgres
       run: |
