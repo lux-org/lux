@@ -73,6 +73,8 @@ class Executor:
 
     def mapping(self, rmap):
         group_map = {}
+        if rmap == {}:
+            return {}
         for val in ["quantitative", "id", "nominal", "temporal", "geographical"]:
             group_map[val] = list(filter(lambda x: rmap[x] == val, rmap))
         return group_map
