@@ -44,6 +44,7 @@ jobs:
         pip install wheel
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
+        pip install git+https://github.com/lux-org/lux-widget
         pip install sqlalchemy
     - name: Upload data to Postgres
       run: |
