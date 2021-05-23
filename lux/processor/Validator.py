@@ -36,7 +36,7 @@ class Validator:
         return f"<Validator>"
 
     @staticmethod
-    def validate_intent(intent: List[Clause], ldf: LuxDataFrame) -> None:
+    def validate_intent(intent: List[Clause], ldf: LuxDataFrame, suppress_warning=False):
         """
         Validates input specifications from the user to find inconsistencies and errors.
 
@@ -47,7 +47,8 @@ class Validator:
 
         Returns
         -------
-        None
+        Boolean
+                True if the intent passed in is valid, False otherwise.
 
         Raises
         ------
@@ -105,8 +106,10 @@ class Validator:
                     warn_msg += validate_clause(s)
             else:
                 warn_msg += validate_clause(clause)
-        if warn_msg != "":
+        if warn_msg != "" and not suppress_warning:
             warnings.warn(
                 "\nThe following issues are ecountered when validating the parsed intent:" + warn_msg,
                 stacklevel=2,
             )
+
+        return warn_msg == ""

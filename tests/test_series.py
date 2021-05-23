@@ -75,6 +75,17 @@ def test_series_recommendation():
     assert len(df.recommendation["Distribution"]) > 0, "Recommendation property empty for LuxSeries"
 
 
+def test_series_multivis_recommendation():
+    covid = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/covid-stringency.csv?raw=True"
+    )
+    covid = covid.rename(columns={"stringency_index": "stringency"})
+    covid["Day"] = pd.to_datetime(covid["Day"], format="%Y-%m-%d")
+    series = covid["Day"]
+    assert len(series.recommendation["Temporal"]) == 4, "Display 4 temporal vis based on `Day`"
+    assert hasattr(series, "current_vis") == False
+
+
 def test_unnamed_column():
     lux.config.plotting_backend = "matplotlib"
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
@@ -82,11 +93,11 @@ def test_unnamed_column():
     series = df["YearsAtCompany"] / df["TotalWorkingYears"]
     series.__repr__()
     axis_title = "Series (binned)"
-    exported_code_str = series.recommendation["Distribution"][0].to_matplotlib_code()
+    exported_code_str = series.recommendation["Distribution"][0].to_matplotlib()
     assert axis_title in exported_code_str, "Unnamed column should have 'Series' as placeholder"
 
     lux.config.plotting_backend = "vegalite"
     series = df["YearsAtCompany"] / df["TotalWorkingYears"]
     series.__repr__()
-    exported_code_str = series.recommendation["Distribution"][0].to_Altair()
+    exported_code_str = series.recommendation["Distribution"][0].to_altair()
     assert axis_title in exported_code_str, "Unnamed column should have 'Series' as placeholder"

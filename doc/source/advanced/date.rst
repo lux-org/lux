@@ -1,6 +1,6 @@
-********************************
-Working with Dates
-********************************
+***************************************
+Working with Temporal Datetime Columns 
+***************************************
 
 .. note:: You can follow along this tutorial in a Jupyter notebook. [`Github <https://github.com/lux-org/lux-binder/blob/master/tutorial/tutorial/5-datetime.ipynb>`_] [`Binder <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/tutorial/5-datetime.ipynb>`_]
 
@@ -88,6 +88,22 @@ After changing the Pandas data type to datetime, we see that date field is recog
   :width: 400
   :align: center
   :alt: add screenshot
+
+Visualizing Trends across Different Timescales
+----------------------------------------------
+
+Lux automatically detects the temporal attribute and plots the visualizations across different timescales to showcase any cyclical patterns. Here, we see that the `Temporal` tab displays the yearly, monthly, and weekly trends for the number of stock records.
+
+.. code-block:: python
+
+  from vega_datasets import data
+  df = data.stocks()
+
+  df.recommendation["Temporal"]
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/date-12.png?raw=true
+  :width: 600
+  :align: center
 
 Advanced Date Manipulation
 --------------------------
