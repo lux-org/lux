@@ -65,6 +65,31 @@ If you try to set the default_display to anything other than 'lux' or 'pandas,' 
   :width: 700
   :align: center
 
+
+Change the plotting scale 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We can set the :code:`plotting_scale` to scale the size of charts displayed in the Lux widget. In the following block, we set plotting scale to 2, therefore the Lux widget will display charts two times larger than the default. 
+
+.. code-block:: python
+
+    lux.config.plotting_scale = 2 
+    df
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/scale-1.png?raw=true
+  :width: 700
+  :align: center
+
+When specifiying intent, the plotting scale applies to both the current visualization and the chart gallery. 
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/scale-2.png?raw=true
+  :width: 700
+  :align: center
+
+The :code:`plotting_scale` config takes in any positive float or integer and functions for both Altair and Matplotlib plotting backends.
+
+
+
 Change plotting backend for rendering visualizations in Lux
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
