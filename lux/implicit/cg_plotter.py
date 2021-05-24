@@ -29,6 +29,31 @@ def plot_col_vis(index_column_name, attribute):
     )
     return vis
 
+def plot_std_bar(df, attribute):
+    """
+    In:
+        df: results of df.std() (as a dataframe) after converting Timedelta object to float64 (in days)
+        attribute: the column name where df.std() is stored
+    
+    Returns:
+        CustomVis of this object
+    """
+    df = df.reset_index()
+
+    x_name = attribute
+    y_name = "index"
+    
+    v = alt.Chart(df).mark_bar().encode(
+        x = alt.X(x_name, type = "quantitative"),
+        y = alt.Y(y_name, type = "nominal"))
+
+
+    intent = [lux.Clause(x_name, data_type="quantitative", data_model="measure"),
+                  lux.Clause(y_name, data_type="nominal", data_model="dimension")]
+
+    cv = CustomVis(intent, v, df)
+    
+    return cv
 
 def plot_gb_mean_errorbar(df_m, df_s):
     """
