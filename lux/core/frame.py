@@ -424,6 +424,7 @@ class LuxDataFrame(pd.DataFrame):
 
         # Compute recs from actions
         # --------------------
+
         if not hasattr(self, "_recs_fresh") or not self._recs_fresh:
             is_sql_tbl = lux.config.executor.name == "SQLExecutor"
             rec_infolist = []
@@ -432,6 +433,7 @@ class LuxDataFrame(pd.DataFrame):
             # from lux.action.implicit_tab import implicit_mre
 
             # TODO: Rewrite these as register action inside default actions
+            # set_trace()
             if self.pre_aggregated:
                 if self.columns.name is not None:
                     self._append_rec(rec_infolist, row_group(self))
@@ -456,6 +458,7 @@ class LuxDataFrame(pd.DataFrame):
                 vlist = rec_info["collection"]
                 if len(vlist) > 0:
                     self._recommendation[action_type] = vlist
+            set_trace()
             self._rec_info = rec_infolist
             self.show_all_column_vis()
             self._widget = self.render_widget()
@@ -1110,12 +1113,25 @@ class LuxDataFrame(pd.DataFrame):
         
         return ret_value
     
-    # @property
-    # def loc(self, *args, **kwargs):  # -> _LocIndexer from pd.core.indexing._LocIndexer
-    #     ret_value = super(LuxDataFrame, self).loc(*args, **kwargs)
+    @property
+    def loc(self, *args, **kwargs):  # -> _LocIndexer from pd.core.indexing._LocIndexer
+        # set_trace()
+        ret_value = super(LuxDataFrame, self).loc(*args, **kwargs)
         
-    #     return ret_value
+        return ret_value
     
+    def xs(self, *args, **kwargs):
+        '''
+        Aslo called by df.loc["a"] with inside variable as a single label,
+        but cannot override loc directly since loc returns a _LocIndexer not a dataframe
+        '''
+        with self.history.pause():
+            ret_value = super(LuxDataFrame, self).xs(*args, **kwargs)
+        self.history.append_event("xs", [], rank_type="parent", child_df=ret_value, filt_key=None)
+        if ret_value is not None: # i.e. inplace = True
+            ret_value.history.append_event("xs", [], rank_type="child", child_df=None, filt_key=None)
+        return ret_value
+
     def _slice(self: FrameOrSeries, slobj: slice, axis=0) -> FrameOrSeries:
         """
         Called whenever the df is accessed like df[1:3] or some slice. Also called by 
@@ -1129,7 +1145,6 @@ class LuxDataFrame(pd.DataFrame):
             ret_value.history.append_event("slice", [], rank_type="child", child_df=None, filt_key=None)
         
         return ret_value
-
     def groupby(self, *args, **kwargs):
         history_flag = False
         if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
