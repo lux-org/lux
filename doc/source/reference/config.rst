@@ -69,7 +69,13 @@ If you try to set the default_display to anything other than 'lux' or 'pandas,' 
 Change the plotting scale 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We can set the :code:`plotting_scale` to scale the size of charts displayed in the Lux widget. In the following block, we set plotting scale to 2, therefore the Lux widget will display charts two times larger than the default. 
+We can adjust the sizes of charts displayed in the Lux widget based on a :code:`plotting_scale` applied to all charts. The default plotting scale is set to 1, displayed as followed: 
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/scale-0.png?raw=true
+  :width: 700
+  :align: center
+
+In the following block, we set the :code:`plotting_scale` to 2. We see that the Lux widget displays charts two times larger than the default. 
 
 .. code-block:: python
 
@@ -80,9 +86,15 @@ We can set the :code:`plotting_scale` to scale the size of charts displayed in t
   :width: 700
   :align: center
 
-When specifiying intent, the plotting scale applies to both the current visualization and the chart gallery. 
+When further operations are performed (e.g., specifying intent), the user-defined plotting scale continues to apply to both the current visualization and recommended charts. In addition to specifying :code:`plotting_scale` as a positive float (i.e., >1.0, enlarging the charts), :code:`plotting_scale` can also take in any positive float between [0,1] to shrink the size of the charts.
 
-.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/scale-2.png?raw=true
+
+.. code-block:: python
+
+    lux.config.plotting_scale = 0.5
+    df
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/scale-3.png?raw=true
   :width: 700
   :align: center
 
