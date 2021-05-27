@@ -83,7 +83,8 @@ def compute_date_granularity(date_column: pd.core.series.Series):
             A str specifying the granularity of dates for the inspected temporal column
     """
     # supporting a limited set of Vega-Lite TimeUnit (https://vega.github.io/vega-lite/docs/timeunit.html)
-    date_fields = ["day", "month", "year"]
+    # corresponding to Pandas timescales
+    date_fields = ["day", "month", "year", "dayofweek"]
     date_index = pd.DatetimeIndex(date_column)
     for field in date_fields:
         # can be changed to sum(getattr(date_index, field)) != 0

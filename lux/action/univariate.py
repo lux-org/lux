@@ -89,17 +89,6 @@ def univariate(ldf, *args):
             "description": "Show choropleth maps of <p class='highlight-descriptor'>geographic</p> attributes",
             "long_description": f"Occurence displays choropleths of averages for some geographic attribute{examples}. Visualizations are ranked by diversity of the geographic attribute.",
         }
-    elif data_type_constraint == "temporal":
-        intent = [lux.Clause("?", data_type="temporal")]
-        intent.extend(filter_specs)
-        recommendation = {
-            "action": "Temporal",
-            "description": "Show trends over <p class='highlight-descriptor'>time-related</p> attributes.",
-            "long_description": "Temporal displays line charts for all attributes related to datetimes in the dataframe.",
-        }
-        # Doesn't make sense to generate a line chart if there is less than 3 datapoints (pre-aggregated)
-        if len(ldf) < 3:
-            ignore_rec_flag = True
     if ignore_rec_flag:
         recommendation["collection"] = []
         return recommendation

@@ -19,6 +19,56 @@ import pandas as pd
 from lux.vis.Vis import Vis
 
 
+def test_temporal_action(global_var):
+    airbnb_df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv"
+    )
+    flights_df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/flights.csv"
+    )
+    date_df = pd.DataFrame(
+        {
+            "date": [
+                "2019-01",
+                "2014-02",
+                "2020-03",
+                "2013-04",
+                "2012-05",
+                "2019-01",
+                "2020-02",
+                "2013-03",
+                "2020-04",
+                "2000-05",
+                "2000-01",
+                "2000-02",
+                "2004-12",
+                "2004-06",
+                "2020-05",
+                "2020-01",
+                "2020-02",
+                "2020-03",
+                "2020-04",
+                "2020-05",
+            ]
+        }
+    )
+    test_data = [airbnb_df, flights_df, date_df, pytest.car_df, pytest.olympic]
+    test_data_vis_count = [4, 4, 2, 1, 1]
+    for entry in zip(test_data, test_data_vis_count):
+        df, num_vis = entry[0], entry[1]
+        df._repr_html_()
+        assert ("Temporal" in df.recommendation, "Temporal visualizations should be generated.")
+        recommended = df.recommendation["Temporal"]
+        assert (len(recommended) == num_vis, "Incorrect number of temporal visualizations generated.")
+        temporal_col = [c for c in df.columns if df.data_type[c] == "temporal"]
+        overall_vis = [
+            vis.get_attr_by_channel("x")[0].attribute
+            for vis in recommended
+            if vis.score == 4 or vis.score == 5
+        ]
+        assert temporal_col.sort() == overall_vis.sort()
+
+
 def test_vary_filter_val(global_var):
     lux.config.set_executor_type("Pandas")
     df = pytest.olympic
@@ -202,6 +252,7 @@ def test_year_filter_value(global_var):
 
 
 def test_similarity(global_var):
+    lux.config.early_pruning = False
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df.set_intent(
@@ -229,6 +280,7 @@ def test_similarity(global_var):
     )[0]
     assert japan_vis.score > europe_vis.score
     df.clear_intent()
+    lux.config.early_pruning = True
 
 
 def test_similarity2():

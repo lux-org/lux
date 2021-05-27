@@ -87,6 +87,7 @@ class LuxDataFrame(pd.DataFrame):
             lux.config.executor = SQLExecutor()
 
         self._sampled = None
+        self._approx_sample = None
         self._toggle_pandas_display = True
         self._message = Message()
         self._pandas_only = False
@@ -146,51 +147,58 @@ class LuxDataFrame(pd.DataFrame):
             self.maintain_metadata()
         return self._data_type
 
-    def maintain_metadata(self):
+    def compute_metadata(self) -> None:
+        """
+        Compute dataset metadata and statistics
+        """
+        if len(self) > 0:
+            if lux.config.executor.name != "SQLExecutor":
+                lux.config.executor.compute_stats(self)
+            lux.config.executor.compute_dataset_metadata(self)
+            self._infer_structure()
+            self._metadata_fresh = True
+
+    def maintain_metadata(self) -> None:
+        """
+        Maintain dataset metadata and statistics (Compute only if needed)
+        """
         self.history.freeze()
         is_sql_tbl = lux.config.executor.name == "SQLExecutor"
         if lux.config.SQLconnection != "" and is_sql_tbl:
             from lux.executor.SQLExecutor import SQLExecutor
 
             lux.config.executor = SQLExecutor()
-
-        # Check that metadata has not yet been computed
-        if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
-            # only compute metadata information if the dataframe is non-empty
-            if is_sql_tbl:
-                lux.config.executor.compute_dataset_metadata(self)
-                self._infer_structure()
-                self._metadata_fresh = True        
-            else:
-                if len(self) > 0:
-                    lux.config.executor.compute_stats(self)
-                    lux.config.executor.compute_dataset_metadata(self)
-                    self._infer_structure()
-                    self._metadata_fresh = True
-        
+        if lux.config.lazy_maintain:
+            # Check that metadata has not yet been computed
+            if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
+                # only compute metadata information if the dataframe is non-empty
+                self.compute_metadata()
+        else:
+            self.compute_metadata()
         self.history.unfreeze()
 
-
-    def expire_recs(self):
+    def expire_recs(self) -> None:
         """
         Expires and resets all recommendations
         """
-        self._recs_fresh = False
-        self._recommendation = {}
-        self._widget = None
-        self._rec_info = None
-        self._sampled = None
+        if lux.config.lazy_maintain:
+            self._recs_fresh = False
+            self._recommendation = {}
+            self._widget = None
+            self._rec_info = None
+            self._sampled = None
 
-    def expire_metadata(self):
+    def expire_metadata(self) -> None:
         """
         Expire all saved metadata to trigger a recomputation the next time the data is required.
         """
-        self._metadata_fresh = False
-        self._data_type = None
-        self.unique_values = None
-        self.cardinality = None
-        self._min_max = None
-        # self.pre_aggregated = None
+        if lux.config.lazy_maintain:
+            self._metadata_fresh = False
+            self._data_type = None
+            self.unique_values = None
+            self.cardinality = None
+            self._min_max = None
+            # self.pre_aggregated = None
 
 
     def _infer_structure(self):
@@ -384,7 +392,7 @@ class LuxDataFrame(pd.DataFrame):
             rec_infolist.append(recommendations)
 
     def show_all_column_vis(self):
-        if self.intent == [] or self.intent is None:
+        if len(self.columns) > 1 and len(self.columns) < 4 and self.intent == [] or self.intent is None:
             vis = Vis(list(self.columns), self)
             if vis.mark != "":
                 vis._all_column = True
@@ -422,9 +430,14 @@ class LuxDataFrame(pd.DataFrame):
                 id_fields_str = id_fields_str[:-2]
                 self._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
 
-        # Compute recs from actions
-        # --------------------
-        if not hasattr(self, "_recs_fresh") or not self._recs_fresh:
+        # If lazy, check that recs has not yet been computed
+        lazy_but_not_computed = lux.config.lazy_maintain and (
+            not hasattr(self, "_recs_fresh") or not self._recs_fresh
+        )
+        eager = not lux.config.lazy_maintain
+
+        # Check that recs has not yet been computed
+        if lazy_but_not_computed or eager:
             is_sql_tbl = lux.config.executor.name == "SQLExecutor"
             rec_infolist = []
             from lux.action.row_group import row_group
@@ -740,9 +753,10 @@ class LuxDataFrame(pd.DataFrame):
             recommendations=widgetJSON["recommendation"],
             intent=LuxDataFrame.intent_to_string(self._intent),
             message=self._message.to_html(),
+            config={"plottingScale": lux.config.plotting_scale},
             history_list=hJSON,
             implicit_vis_list=implicit_mre_JSON,
-            curr_hist_index=curr_hist_index
+            curr_hist_index=curr_hist_index,
         )
 
     @staticmethod
@@ -811,7 +825,7 @@ class LuxDataFrame(pd.DataFrame):
                 del rec_lst[idx]["collection"]
         return rec_lst
 
-    def save_as_html(self, filename: str = "export.html") -> None:
+    def save_as_html(self, filename: str = "export.html", output=False):
         """
         Save dataframe widget as static HTML file
 
@@ -893,9 +907,12 @@ class LuxDataFrame(pd.DataFrame):
         rendered_template = html_template.format(
             header=header, manager_state=manager_state, widget_view=widget_view
         )
-        with open(filename, "w") as fp:
-            fp.write(rendered_template)
-            print(f"Saved HTML to {filename}")
+        if output:
+            return rendered_template
+        else:
+            with open(filename, "w") as fp:
+                fp.write(rendered_template)
+                print(f"Saved HTML to {filename}")
 
     #####################
     ## Override Pandas ##
