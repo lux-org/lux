@@ -367,14 +367,7 @@ class SQLExecutor(Executor):
         x_upper_edges_string = ",".join(x_upper_edges_string)
         y_upper_edges_string = ",".join(y_upper_edges)
 
-        bin_count_query = "SELECT width_bucket1, width_bucket2, count(*) FROM (SELECT width_bucket(CAST (\"{}\" AS FLOAT), '{}') as width_bucket1, width_bucket(CAST (\"{}\" AS FLOAT), '{}') as width_bucket2 FROM {} {}) as foo GROUP BY width_bucket1, width_bucket2".format(
-            x_attribute.attribute,
-            "{" + x_upper_edges_string + "}",
-            y_attribute.attribute,
-            "{" + y_upper_edges_string + "}",
-            tbl.table_name,
-            where_clause,
-        )
+        bin_count_query = "SELECT width_bucket1, width_bucket2, count(*) FROM (SELECT width_bucket(CAST (\"{}\" AS FLOAT), '{}') as width_bucket1, width_bucket(CAST (\"{}\" AS FLOAT), '{}') as width_bucket2 FROM {} {}) as foo GROUP BY width_bucket1, width_bucket2".format(x_attribute.attribute,"{" + x_upper_edges_string + "}",y_attribute.attribute,"{" + y_upper_edges_string + "}",tbl.table_name,where_clause,)
 
         # data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
 
@@ -514,7 +507,7 @@ class SQLExecutor(Executor):
         None
         """
         if "." in tbl.table_name:
-            table_name = tbl.table_name[self.table_name.index(".") + 1 :]
+            table_name = tbl.table_name[tbl.table_name.index(".") + 1 :]
         else:
             table_name = tbl.table_name
         attr_query = "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{}'".format(table_name)

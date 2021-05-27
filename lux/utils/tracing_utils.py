@@ -2,6 +2,7 @@ import inspect
 import sys
 import pickle as pkl
 import lux
+import autopep8
 
 class LuxTracer():            
     def profile_func(self, frame, event, arg):
@@ -60,21 +61,24 @@ class LuxTracer():
             codelines = open(filename).readlines()# TODO: do sharing of file content here
             if (funcname not in ['__init__']):
                 code = codelines[line_no]
-                ignore_construct = ['    if','elif','return', 'try'] # prune out these control flow programming constructs                    
+                ignore_construct = ['    if','elif','return', 'try', 'assert'] # prune out these control flow programming constructs                    
                 ignore_lux_keyword = ['self.code','self.name','__init__',"'''",'self.output_type', 'message.add_unique', 'Large scatterplots detected', 'priority=']# Lux-specific keywords to ignore
                 ignore = ignore_construct+ignore_lux_keyword
                 #print("PandasExecutor.apply_filter" in codelines[line_no].lstrip(), codelines[line_no].lstrip())
                 if not any(construct in code for construct in ignore):
                     #need to handle for loops, this keeps track of when a for loop shows up and when the for loop code is repeated
                     clean_code_line = codelines[line_no].lstrip()
-                    if clean_code_line not in selected:
+                    code_line = codelines[line_no].replace("    ", "", 2)
+                    if clean_code_line not in selected and "\t"+clean_code_line not in selected:
                         if "def add_quotes(var_name):" in clean_code_line:
                             clean_code_line = "def add_quotes(var_name):\n\treturn \'\"\' + var_name + \'\"\'\n"
                             selected[clean_code_line] = index
-                            selected_index[index] = clean_code_line.replace("    ", "", 3)
+                            selected_index[index] = clean_code_line.lstrip()
                         else:
+                            if code_line[0] == " ":
+                                clean_code_line = "\t" + code_line.lstrip()
+                            selected_index[index] = clean_code_line
                             selected[clean_code_line] = index
-                            selected_index[index] = codelines[line_no].replace("    ", "", 3)
                         index += 1
 
         curr_executor = lux.config.executor.name
@@ -93,4 +97,7 @@ class LuxTracer():
             output+="\nview"
         else:
             output+="\nvis"
+
+        options = autopep8.parse_args(['--max-line-length', '100000', '-'])
+        output = autopep8.fix_code(output, options)
         return(output)

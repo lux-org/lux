@@ -155,7 +155,7 @@ class JoinedSQLTable(lux.LuxSQLTable):
                 layout=widgets.Layout(width="200px", top="6px", bottom="6px"),
             )
             self.output = widgets.Output()
-            lux.config.executor.execute_preview(self)
+            self._sampled = lux.config.executor.execute_preview(self)
             display(button, self.output)
 
             def on_button_clicked(b):

@@ -44,8 +44,9 @@ class GeneralDatabaseExecutor(Executor):
             lux.config.SQLconnection,
         )
         limit = int(list(length_query["length"])[0]) * SAMPLE_FRAC
+        sample_query = lux.config.query_templates['sample_query'].format(table_name = tbl.table_name, where_clause = "", num_rows = str(int(limit)))
         tbl._sampled = pandas.read_sql(
-            lux.config.query_templates['sample_query'].format(table_name = tbl.table_name, where_clause = "", num_rows = str(limit)), lux.config.SQLconnection
+            sample_query, lux.config.SQLconnection
         )
 
     @staticmethod
@@ -121,8 +122,9 @@ class GeneralDatabaseExecutor(Executor):
             return '"' + var_name + '"'
 
         required_variables = attributes | set(filterVars)
-        required_variables = map(add_quotes, required_variables)
-        required_variables = ",".join(required_variables)
+        if lux.config.handle_quotes:
+            required_variables = map(add_quotes, required_variables)
+        required_variables_str = ",".join(required_variables)
         row_count = list(
             pandas.read_sql(
                 lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = where_clause),
@@ -130,11 +132,16 @@ class GeneralDatabaseExecutor(Executor):
             )["length"]
         )[0]
         if row_count > lux.config.sampling_cap:
-            query = lux.config.query_templates['sample_query'].format(columns = required_variables, table_name = tbl.table_name, where_clause = where_clause, num_rows = 10000)
+            query = lux.config.query_templates['sample_query'].format(columns = required_variables_str, table_name = tbl.table_name, where_clause = where_clause, num_rows = 10000)
             #query = f"SELECT {required_variables} FROM {tbl.table_name} {where_clause} ORDER BY random() LIMIT 10000"
         else:
-            query = lux.config.query_templates['scatter_query'].format(columns = required_variables, table_name = tbl.table_name, where_clause = where_clause)
+            query = lux.config.query_templates['scatter_query'].format(columns = required_variables_str, table_name = tbl.table_name, where_clause = where_clause)
         data = pandas.read_sql(query, lux.config.SQLconnection)
+
+        if len(required_variables) == 2:
+            assert(len(data.columns) == 2)
+        else:
+            assert(len(data.columns) == 3)
         view._vis_data = utils.pandas_to_lux(data)
         view._query = query
         # view._vis_data.length = list(length_query["length"])[0]
@@ -207,6 +214,7 @@ class GeneralDatabaseExecutor(Executor):
                         #color_attr = color_attr.attribute,
                     )
                     view._vis_data = pandas.read_sql(count_query, lux.config.SQLconnection)
+                    assert((len(view._vis_data.columns) == 3) & ("count" in view._vis_data.columns))
                     view._vis_data = view._vis_data.rename(columns={"count": "Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
                 # generates query for normal barchart case
@@ -219,6 +227,7 @@ class GeneralDatabaseExecutor(Executor):
                         #groupby_attr = groupby_attr.attribute,
                     )
                     view._vis_data = pandas.read_sql(count_query, lux.config.SQLconnection)
+                    assert((len(view._vis_data.columns) == 2) & ("count" in view._vis_data.columns))
                     view._vis_data = view._vis_data.rename(columns={"count": "Record"})
                     view._vis_data = utils.pandas_to_lux(view._vis_data)
                 view._query = count_query
@@ -246,7 +255,7 @@ class GeneralDatabaseExecutor(Executor):
                             )
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
-
+                        assert((len(view._vis_data.columns) == 3) & (measure_attr.attribute in view._vis_data.columns))
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "sum":
                         agg_query = (
@@ -262,6 +271,7 @@ class GeneralDatabaseExecutor(Executor):
                             )
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
+                        assert((len(view._vis_data.columns) == 3) & (measure_attr.attribute in view._vis_data.columns))
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "max":
                         agg_query = (
@@ -277,6 +287,7 @@ class GeneralDatabaseExecutor(Executor):
                             )
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
+                        assert((len(view._vis_data.columns) == 3) & (measure_attr.attribute in view._vis_data.columns))
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                 # generates query for normal barchart case
                 else:
@@ -288,6 +299,7 @@ class GeneralDatabaseExecutor(Executor):
                             where_clause = where_clause,
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
+                        assert((len(view._vis_data.columns) == 2) & (measure_attr.attribute in view._vis_data.columns))
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "sum":
                         agg_query = lux.config.query_templates['barchart_sum'].format(
@@ -297,6 +309,7 @@ class GeneralDatabaseExecutor(Executor):
                             where_clause = where_clause,
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
+                        assert((len(view._vis_data.columns) == 2) & (measure_attr.attribute in view._vis_data.columns))
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                     if agg_func == "max":
                         agg_query = lux.config.query_templates['barchart_max'].format(
@@ -306,6 +319,7 @@ class GeneralDatabaseExecutor(Executor):
                             where_clause = where_clause,
                         )
                         view._vis_data = pandas.read_sql(agg_query, lux.config.SQLconnection)
+                        assert((len(view._vis_data.columns) == 2) & (measure_attr.attribute in view._vis_data.columns))
                         view._vis_data = utils.pandas_to_lux(view._vis_data)
                 view._query = agg_query
             result_vals = list(view._vis_data[groupby_attr.attribute])
@@ -389,7 +403,7 @@ class GeneralDatabaseExecutor(Executor):
             lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = where_clause),
             lux.config.SQLconnection,
         )
-        # need to calculate the bin edges before querying for the relevant data
+
         bin_width = (attr_max - attr_min) / num_bins
         upper_edges = []
         for e in range(1, num_bins):
@@ -400,14 +414,35 @@ class GeneralDatabaseExecutor(Executor):
                 upper_edges.append(str(curr_edge))
         upper_edges = ",".join(upper_edges)
         view_filter, filter_vars = GeneralDatabaseExecutor.execute_filter(view)
-        bin_count_query = lux.config.query_templates['histogram_counts'].format(
-            bin_attribute = bin_attribute.attribute,
-            upper_edges = "{" + upper_edges + "}",
-            table_name = tbl.table_name,
-            where_clause = where_clause,
-        )
+
+        #handling for non postgres case
+        if "cases" in lux.config.query_templates['histogram_counts']:
+            bucket_edges = [attr_min]
+            for e in range(1, num_bins):
+                curr_edge = attr_min + e * bin_width
+                bucket_edges.append(str(curr_edge))
+            bucket_edges.append(attr_max)
+
+            when_line = "WHEN {column} BETWEEN {lower_edge} AND {upper_edge} THEN {label}"
+            when_lines = "CASE "
+            for i in range(1, len(bucket_edges)):
+                when_lines = when_lines + when_line.format(column = bin_attribute.attribute, lower_edge = bucket_edges[i-1], upper_edge = bucket_edges[i], label = str(i-1)) + " "
+
+            when_lines = when_lines + "end"
+
+            #hist_query = "select width_bucket, count(width_bucket) as count from (select ({bucket_cases}) as width_bucket from {table_name} {where_clause}) as buckets group by width_bucket order by width_bucket"
+            bin_count_query = lux.config.query_templates['histogram_counts'].format(bucket_cases = when_lines, table_name = "car", where_clause = where_clause)
+        # need to calculate the bin edges before querying for the relevant data
+        else:
+            bin_count_query = lux.config.query_templates['histogram_counts'].format(
+                bin_attribute = bin_attribute.attribute,
+                upper_edges = "{" + upper_edges + "}",
+                table_name = tbl.table_name,
+                where_clause = where_clause,
+            )
 
         bin_count_data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
+        assert((len(bin_count_data.columns) ==2) & (set(['width_bucket', 'count']).issubset(bin_count_data.columns)))
         if not bin_count_data["width_bucket"].isnull().values.any():
             # np.histogram breaks if data contain NaN
 
@@ -437,6 +472,7 @@ class GeneralDatabaseExecutor(Executor):
                         bin_count_data = bin_count_data.append(
                             pandas.DataFrame([[i, 0]], columns=bin_count_data.columns)
                         )
+
             view._vis_data = pandas.DataFrame(
                 np.array([bin_centers, list(bin_count_data["count"])]).T,
                 columns=[bin_attribute.attribute, "Number of Records"],
@@ -499,6 +535,7 @@ class GeneralDatabaseExecutor(Executor):
         # data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
 
         data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
+        assert((len(data.columns) == 3) & (set(['width_bucket1', 'width_bucket2', 'count']).issubset(data.columns)))
         # data = data[data["width_bucket1"] != num_bins - 1]
         # data = data[data["width_bucket2"] != num_bins - 1]
         if len(data) > 0:
@@ -549,7 +586,7 @@ class GeneralDatabaseExecutor(Executor):
                     where_clause.append("AND")
                 curr_value = str(filters[f].value)
                 curr_value = curr_value.replace("'", "''")
-                if lux.config.quoted_queries == True:
+                if lux.config.handle_quotes == True:
                     where_clause.extend(
                         [
                             '"' + str(filters[f].attribute) + '"',
@@ -578,7 +615,7 @@ class GeneralDatabaseExecutor(Executor):
                         where_clause.append("WHERE")
                     else:
                         where_clause.append("AND")
-                    if lux.config.quoted_queries == True:
+                    if lux.config.handle_quotes == True:
                         where_clause.extend(
                             [
                                 '"' + str(a.attribute) + '"',

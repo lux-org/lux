@@ -39,6 +39,7 @@ class Config:
         self.tracer_relevant_lines=[]
         self.tracer = LuxTracer()
         self.query_templates = {}
+        self.handle_quotes = True
 
     @property
     def topk(self):
@@ -351,12 +352,15 @@ class Config:
         self.SQLconnection = connection
 
     def read_query_template(self, query_file):
+        from lux.executor.GeneralDatabaseExecutor import GeneralDatabaseExecutor
+
         query_dict = {}
         with open(query_file) as f:
             for line in f:
                (key, val) = line.split(":")
                query_dict[key] = val.strip()
         self.query_templates = query_dict
+        self.executor = GeneralDatabaseExecutor()
 
     def set_executor_type(self, exe):
         if exe == "SQL":

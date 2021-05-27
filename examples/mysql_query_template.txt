@@ -1,6 +1,6 @@
 preview_query:SELECT * from {table_name} LIMIT {num_rows}
 length_query:SELECT COUNT(*) as length FROM {table_name} {where_clause}
-sample_query:SELECT {columns} FROM {table_name} {where_clause} LIMIT {num_rows}
+sample_query:SELECT * FROM {table_name} {where_clause} LIMIT {num_rows}
 scatter_query:SELECT {columns} FROM {table_name} {where_clause}
 colored_barchart_counts:SELECT {groupby_attr}, {color_attr}, COUNT({groupby_attr}) as count FROM {table_name} {where_clause} GROUP BY {groupby_attr}, {color_attr}
 colored_barchart_average:SELECT {groupby_attr}, {color_attr}, AVG({measure_attr}) as {measure_attr} FROM {table_name} {where_clause} GROUP BY {groupby_attr}, {color_attr}
@@ -10,7 +10,7 @@ barchart_counts:SELECT {groupby_attr}, COUNT({groupby_attr}) as count FROM {tabl
 barchart_average:SELECT {groupby_attr}, AVG({measure_attr}) as {measure_attr} FROM {table_name} {where_clause} GROUP BY {groupby_attr}
 barchart_sum:SELECT {groupby_attr}, SUM({measure_attr}) as {measure_attr} FROM {table_name} {where_clause} GROUP BY {groupby_attr}
 barchart_max:SELECT {groupby_attr}, MAX({measure_attr}) as {measure_attr} FROM {table_name} {where_clause} GROUP BY {groupby_attr}
-histogram_counts:SELECT width_bucket, COUNT(width_bucket) FROM (SELECT width_bucket(CAST ({} AS FLOAT), {}) FROM {} {}) as Buckets GROUP BY width_bucket ORDER BY width_bucket
+histogram_counts:select width_bucket, count(width_bucket) as count from (select ({bucket_cases}) as width_bucket from {table_name} {where_clause}) as buckets group by width_bucket order by width_bucket
 heatmap_counts:SELECT width_bucket1, width_bucket2, count(*) FROM (SELECT width_bucket(CAST ({} AS FLOAT), {}) as width_bucket1, width_bucket(CAST ({} AS FLOAT), {}) as width_bucket2 FROM {} {}) as foo GROUP BY width_bucket1, width_bucket2
 table_attributes_query:SELECT COLUMN_NAME as column_name FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '{table_name}'
 min_max_query:SELECT MIN({attribute}) as min, MAX({attribute}) as max FROM {table_name}

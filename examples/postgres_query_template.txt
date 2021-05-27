@@ -1,6 +1,6 @@
 preview_query:SELECT * from {table_name} LIMIT {num_rows}
 length_query:SELECT COUNT(1) as length FROM {table_name} {where_clause}
-sample_query:SELECT {columns} FROM {table_name} {where_clause} ORDER BY random() LIMIT {num_rows}
+sample_query:SELECT * FROM {table_name} {where_clause} ORDER BY random() LIMIT {num_rows}
 scatter_query:SELECT {columns} FROM {table_name} {where_clause}
 colored_barchart_counts:SELECT "{groupby_attr}", "{color_attr}", COUNT("{groupby_attr}") FROM {table_name} {where_clause} GROUP BY "{groupby_attr}", "{color_attr}"
 colored_barchart_average:SELECT "{groupby_attr}", "{color_attr}", AVG("{measure_attr}") as "{measure_attr}" FROM {table_name} {where_clause} GROUP BY "{groupby_attr}", "{color_attr}"
