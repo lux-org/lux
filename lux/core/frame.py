@@ -726,9 +726,7 @@ class LuxDataFrame(pd.DataFrame):
         """
         check_import_lux_widget()
         import luxwidget # widget code from other repo 
-
-        # set_trace()
-
+        
         hJSON = self.history.to_JSON()
         widgetJSON = self.to_JSON(input_current_vis=input_current_vis)
         
