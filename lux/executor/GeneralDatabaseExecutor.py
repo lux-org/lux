@@ -72,7 +72,7 @@ class GeneralDatabaseExecutor(Executor):
                     lux.config.SQLconnection,
                 )
                 view_data_length = list(length_query["length"])[0]
-                if len(view.get_attr_by_channel("color")) == 1 or view_data_length < 5000:
+                if len(view.get_attr_by_channel("color")) == 1 or view_data_length < 5:
                     # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
                     has_color = True
                     GeneralDatabaseExecutor.execute_scatter(view, tbl)
@@ -431,7 +431,7 @@ class GeneralDatabaseExecutor(Executor):
             when_lines = when_lines + "end"
 
             #hist_query = "select width_bucket, count(width_bucket) as count from (select ({bucket_cases}) as width_bucket from {table_name} {where_clause}) as buckets group by width_bucket order by width_bucket"
-            bin_count_query = lux.config.query_templates['histogram_counts'].format(bucket_cases = when_lines, table_name = "car", where_clause = where_clause)
+            bin_count_query = lux.config.query_templates['histogram_counts'].format(bucket_cases = when_lines, table_name = tbl.table_name, where_clause = where_clause)
         # need to calculate the bin edges before querying for the relevant data
         else:
             bin_count_query = lux.config.query_templates['histogram_counts'].format(
@@ -523,14 +523,39 @@ class GeneralDatabaseExecutor(Executor):
         x_upper_edges_string = ",".join(x_upper_edges_string)
         y_upper_edges_string = ",".join(y_upper_edges)
 
-        bin_count_query = lux.config.query_templates['heatmap_counts'].format(
-            x_attribute = x_attribute.attribute,
-            x_upper_edges_string = "{" + x_upper_edges_string + "}",
-            y_attribute = y_attribute.attribute,
-            y_upper_edges_string = "{" + y_upper_edges_string + "}",
-            table_name = tbl.table_name,
-            where_clause = where_clause,
-        )
+        if "cases" in lux.config.query_templates['histogram_counts']:
+            x_bucket_edges = [x_attr_min]
+            y_bucket_edges = [y_attr_min]
+            for e in range(1, num_bins):
+                x_curr_edge = x_attr_min + e * x_bin_width
+                x_bucket_edges.append(str(x_curr_edge))
+
+                y_curr_edge = y_attr_min + e * y_bin_width
+                y_bucket_edges.append(str(y_curr_edge))
+            x_bucket_edges.append(x_attr_max)
+            y_bucket_edges.append(y_attr_max)
+
+            when_line = "WHEN {column} BETWEEN {lower_edge} AND {upper_edge} THEN {label}"
+            x_when_lines = "CASE "
+            y_when_lines = "CASE "
+            for i in range(1, len(x_bucket_edges)):
+                x_when_lines = x_when_lines + when_line.format(column = x_attribute.attribute, lower_edge = x_bucket_edges[i-1], upper_edge = x_bucket_edges[i], label = str(i-1)) + " "
+                y_when_lines = y_when_lines + when_line.format(column = y_attribute.attribute, lower_edge = y_bucket_edges[i-1], upper_edge = y_bucket_edges[i], label = str(i-1)) + " "
+            x_when_lines = x_when_lines + "end"
+            y_when_lines = y_when_lines + "end"
+
+            #hist_query = "select width_bucket, count(width_bucket) as count from (select ({bucket_cases}) as width_bucket from {table_name} {where_clause}) as buckets group by width_bucket order by width_bucket"
+            bin_count_query = lux.config.query_templates['heatmap_counts'].format(bucket_cases1 = x_when_lines, bucket_cases2 = y_when_lines, table_name = tbl.table_name, where_clause = where_clause)
+
+        else:
+            bin_count_query = lux.config.query_templates['heatmap_counts'].format(
+                x_attribute = x_attribute.attribute,
+                x_upper_edges_string = "{" + x_upper_edges_string + "}",
+                y_attribute = y_attribute.attribute,
+                y_upper_edges_string = "{" + y_upper_edges_string + "}",
+                table_name = tbl.table_name,
+                where_clause = where_clause,
+            )
 
         # data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
 
