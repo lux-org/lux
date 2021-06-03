@@ -72,7 +72,7 @@ class GeneralDatabaseExecutor(Executor):
                     lux.config.SQLconnection,
                 )
                 view_data_length = list(length_query["length"])[0]
-                if len(view.get_attr_by_channel("color")) == 1 or view_data_length < 5:
+                if len(view.get_attr_by_channel("color")) == 1 or view_data_length < 5000:
                     # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
                     has_color = True
                     GeneralDatabaseExecutor.execute_scatter(view, tbl)
