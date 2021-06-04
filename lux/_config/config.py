@@ -26,11 +26,8 @@ class Config:
         # flags whether or not an action has been registered or removed and should be re-rendered by frame.py
         self.update_actions: Dict[str, bool] = {}
         self.update_actions["flag"] = False
-        self._sampling_start = 10000
-        self._sampling_cap = 30000
-        self._sampling_flag = True
-        self._heatmap_flag = True
         self._plotting_backend = "vegalite"
+        self._plotting_scale = 1
         self._topk = 15
         self._sort = "descending"
         self._pandas_fallback = True
@@ -40,6 +37,20 @@ class Config:
         self.tracer = LuxTracer()
         self.query_templates = {}
         self.handle_quotes = True
+        #####################################
+        #### Optimization Configurations ####
+        #####################################
+        self._sampling_start = 100000
+        self._sampling_cap = 1000000
+        self._sampling_flag = True
+        self._heatmap_flag = True
+        self.lazy_maintain = True
+        self.early_pruning = True
+        self.early_pruning_sample_cap = 30000
+        # Apply sampling only if the dataset is 150% larger than the sample cap
+        self.early_pruning_sample_start = self.early_pruning_sample_cap * 1.5
+        self.streaming = False
+        self.render_widget = True
 
     @property
     def topk(self):
@@ -287,6 +298,26 @@ class Config:
         else:
             warnings.warn(
                 "Unsupported plotting backend. Lux currently only support 'altair', 'vegalite', or 'matplotlib'",
+                stacklevel=2,
+            )
+
+    @property
+    def plotting_scale(self):
+        return self._plotting_scale
+
+    @plotting_scale.setter
+    def plotting_scale(self, scale: float) -> None:
+        """
+        Set the scale factor for charts displayed in Lux.
+        ----------
+        type : float (default = 1.0)
+        """
+        scale = float(scale) if isinstance(scale, int) else scale
+        if isinstance(scale, float) and scale > 0:
+            self._plotting_scale = scale
+        else:
+            warnings.warn(
+                "Scaling factor for charts must be a positive float.",
                 stacklevel=2,
             )
 

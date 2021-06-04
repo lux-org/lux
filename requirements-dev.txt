@@ -4,7 +4,7 @@ sphinx-automodapi>=0.13
 Sphinx>=3.0.2
 sphinx-rtd-theme>=0.4.3
 xlrd
-black
+black==20.8b1
 # Install to use SQLExecutor
 psycopg2>=2.8.5
 psycopg2-binary>=2.8.5

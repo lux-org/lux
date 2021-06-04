@@ -43,7 +43,7 @@ Here are some teaching resources on Lux. The materials are suited for a 1-1.5 ho
 
 2. How to create visualizations using :code:`Vis` and :code:`VisList`? [`Source <https://github.com/lux-org/lux-binder/blob/master/exercise/2-Quick-Vis.ipynb>`_] [`Live Notebook <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/exercise/2-Quick-Vis.ipynb>`_]
 
-3. How to export selected visualization(s) out of the notebook for sharing? [`Source <https://github.com/lux-org/lux-binder/blob/master/exercise/3-Export-Widget.ipynb>`_] [`Live Notebook <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/exercise/3-Export-Widget.ipynb>`_]
+3. How to export selected visualization for downstream sharing? [`Source <https://github.com/lux-org/lux-binder/blob/master/exercise/3-Export-Widget.ipynb>`_] [`Live Notebook <https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=tree/exercise/3-Export-Widget.ipynb>`_]
 
 Here are the `solutions <https://github.com/lux-org/lux-binder/blob/master/exercise/solution.txt>`_ to the notebook exercises.
 

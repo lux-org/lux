@@ -33,6 +33,7 @@ class Clause:
         bin_size: int = 0,
         weight: float = 1,
         sort: str = "",
+        timescale: str = "",
         exclude: typing.Union[str, list] = "",
     ):
         """
@@ -67,6 +68,9 @@ class Clause:
                 Number of bins for histograms, by default 0
         weight : float, optional
                 A number between 0 and 1 indicating the importance of this Clause, by default 1
+        timescale : str, optional
+                If data type is temporal, indicate whether temporal associated with timescale (if empty, then plot overall).
+                If timescale is present, the line chart axis is based on ordinal data type (non-date axis).
         sort : str, optional
                 Specifying whether and how the bar chart should be sorted
                 Possible values: 'ascending', 'descending', by default ""
@@ -86,6 +90,7 @@ class Clause:
         self.bin_size = bin_size
         self.weight = weight
         self.sort = sort
+        self.timescale = timescale
         self.exclude = exclude
 
     def get_attr(self):

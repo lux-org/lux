@@ -50,10 +50,13 @@ class AltairRenderer:
                 Output Altair Chart Object
         """
         # Lazy Evaluation for 2D Binning
-        if vis.mark == "scatter" and vis._postbin:
-            if lux.config.executor.name == "PandasExecutor":
+        if vis.approx:
+            if vis.mark == "scatter" and vis._postbin:
                 vis._mark = "heatmap"
                 lux.config.executor.execute_2D_binning(vis)
+            else:
+                # Exactly recompute the selected vis (e.g., top k) to display
+                lux.config.executor.execute([vis], vis._original_df, approx=False)
         # If a column has a Period dtype, or contains Period objects, convert it back to Datetime
         if vis.data is not None:
             for attr in list(vis.data.columns):
