@@ -352,7 +352,7 @@ class Config:
         self.SQLconnection = connection
 
     def read_query_template(self, query_file):
-        from lux.executor.GeneralDatabaseExecutor import GeneralDatabaseExecutor
+        from lux.executor.SQLExecutor import SQLExecutor
 
         query_dict = {}
         with open(query_file) as f:
@@ -360,17 +360,14 @@ class Config:
                (key, val) = line.split(":")
                query_dict[key] = val.strip()
         self.query_templates = query_dict
-        self.executor = GeneralDatabaseExecutor()
+        self.executor = SQLExecutor()
 
     def set_executor_type(self, exe):
         if exe == "SQL":
             from lux.executor.SQLExecutor import SQLExecutor
 
             self.executor = SQLExecutor()
-        elif exe == "GeneralDatabase":
-            from lux.executor.GeneralDatabaseExecutor import GeneralDatabaseExecutor
-
-            self.executor = GeneralDatabaseExecutor()
+            self.read_query_template("../lux/lux/_config/postgres_query_template.txt")
         elif exe == "Pandas":
             from lux.executor.PandasExecutor import PandasExecutor
 
