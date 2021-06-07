@@ -239,7 +239,7 @@ class PandasExecutor(Executor):
                         assert len(list(vis.data[groupby_attr.attribute])) == N_unique_vals * len(color_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
 
                         # Keep only the three relevant columns not the *_right columns resulting from merge
-                        vis._vis_data = vis.data.iloc[:, :3]
+                        vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, measure_attr.attribute]]
 
                     else:
                         df = pd.DataFrame({columns[0]: attr_unique_vals})
