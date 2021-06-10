@@ -235,15 +235,14 @@ class PandasExecutor(Executor):
                         df = pd.DataFrame({columns[0]: attr_unique_vals * color_cardinality,columns[1]: pd.Series(color_attr_vals).repeat(N_unique_vals),})
                         vis._vis_data = vis.data.merge(df,on=[columns[0], columns[1]],how="right",suffixes=["", "_right"],)
                         for col in columns[2:]:
-                            vis.data[col] = vis.data[col].fillna(0)  # Triggers __setitem__
+                            # Triggers __setitem__
+                            vis.data[col] = vis.data[col].fillna(0)
                         assert len(list(vis.data[groupby_attr.attribute])) == N_unique_vals * len(color_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
-
                         # Keep only the three relevant columns not the *_right columns resulting from merge
                         vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, measure_attr.attribute]]
 
                     else:
                         df = pd.DataFrame({columns[0]: attr_unique_vals})
-
                         vis._vis_data = vis.data.merge(df, on=columns[0], how="right", suffixes=["", "_right"])
 
                         for col in columns[1:]:

@@ -252,9 +252,11 @@ class SQLExecutor(Executor):
                         df = pandas.DataFrame({columns[0]: attr_unique_vals * color_cardinality,columns[1]: pandas.Series(color_attr_vals).repeat(N_unique_vals),})
                         view._vis_data = view._vis_data.merge(df,on=[columns[0], columns[1]],how="right",suffixes=["", "_right"],)
                         for col in columns[2:]:
-                            view._vis_data[col] = view._vis_data[col].fillna(0)  # Triggers __setitem__
+                            # Triggers __setitem__
+                            view._vis_data[col] = view._vis_data[col].fillna(0)
                         assert len(list(view._vis_data[groupby_attr.attribute])) == N_unique_vals * len(color_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
-                        view._vis_data = view._vis_data.iloc[:, :3]  # Keep only the three relevant columns not the *_right columns resulting from merge
+                        # Keep only the three relevant columns not the *_right columns resulting from merge
+                        view._vis_data = view._vis_data.iloc[:, :3]
                     else:
                         df = pandas.DataFrame({columns[0]: attr_unique_vals})
 
