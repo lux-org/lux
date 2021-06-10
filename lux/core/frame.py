@@ -458,7 +458,6 @@ class LuxDataFrame(pd.DataFrame):
                 vlist = rec_info["collection"]
                 if len(vlist) > 0:
                     self._recommendation[action_type] = vlist
-            set_trace()
             self._rec_info = rec_infolist
             self.show_all_column_vis()
             self._widget = self.render_widget()
