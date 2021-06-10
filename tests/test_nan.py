@@ -116,12 +116,35 @@ def test_nan_series_occurence():
 
 
 def test_numeric_with_nan():
-    df = pd.read_html(
-        "https://archive.ics.uci.edu/ml/datasets.php?format=&task=&att=&area=&numAtt=&numIns=&type=&sort=nameUp&view=table"
-    )[5]
-    df.columns = df.loc[0]
-    df = df.loc[1:]
-    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    # df = pd.read_html(
+    #     "http://web.archive.org/web/20200309053509/https://archive.ics.uci.edu/ml/datasets.php?format=&task=&att=&area=&numAtt=&numIns=&type=&sort=nameUp&view=table"
+    # )[7]
+    # df.columns = df.loc[0]
+    # df = df.loc[1:]
+    # df = df[['# Instances','# Attributes']]
+    # df = df.sample(15)
+    # df.to_dict(orient="records")
+    from numpy import nan
+
+    df = pd.DataFrame(
+        [
+            {"# Instances": nan, "# Attributes": nan},
+            {"# Instances": "989818", "# Attributes": nan},
+            {"# Instances": "303", "# Attributes": "75"},
+            {"# Instances": nan, "# Attributes": nan},
+            {"# Instances": nan, "# Attributes": nan},
+            {"# Instances": "745000", "# Attributes": "411"},
+            {"# Instances": "65554", "# Attributes": "29"},
+            {"# Instances": "640", "# Attributes": nan},
+            {"# Instances": "6435", "# Attributes": "36"},
+            {"# Instances": "270", "# Attributes": "13"},
+            {"# Instances": "182", "# Attributes": "13"},
+            {"# Instances": "22632", "# Attributes": "70"},
+            {"# Instances": "3960456", "# Attributes": "4"},
+            {"# Instances": "2500", "# Attributes": "10000"},
+            {"# Instances": "3850505", "# Attributes": "52"},
+        ]
+    )
     assert (
         df.data_type["# Instances"] == "quantitative"
     ), "Testing a numeric columns with NaN, check if type can be detected correctly"
@@ -141,3 +164,12 @@ def test_numeric_with_nan():
     #     len(a.recommendation["Distribution"]) == 2
     # ), "Example where dtype might be off after dropna(), check if histograms are still displayed"
     assert "" in a._message.to_html(), "No warning message for NaN should be displayed"
+
+
+def test_empty_filter(global_var):
+    df = pytest.car_df
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    fdf = df[df["Origin"] == "U"]
+    fdf._ipython_display_()
+    assert fdf.data_type == None
+    assert len(df[df["Origin"] == "U"]) == 0

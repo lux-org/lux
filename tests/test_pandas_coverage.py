@@ -405,7 +405,12 @@ def test_loc(global_var):
     assert len(new_df.cardinality) == 6
     new_df = df.loc[0:10, "Displacement":"Origin"]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
+    assert list(new_df.recommendation.keys()) == [
+        "Correlation",
+        "Distribution",
+        "Occurrence",
+        "Temporal",
+    ]
     assert len(new_df.cardinality) == 6
     new_df = df.loc[0:10, "Displacement":"Horsepower"]
     new_df._ipython_display_()
@@ -434,7 +439,12 @@ def test_iloc(global_var):
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:9]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
+    assert list(new_df.recommendation.keys()) == [
+        "Correlation",
+        "Distribution",
+        "Occurrence",
+        "Temporal",
+    ]
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:5]
     new_df._ipython_display_()
@@ -503,12 +513,17 @@ def compare_vis(vis1, vis2):
     assert len(vis1._inferred_intent) == len(vis2._inferred_intent)
     for j in range(len(vis1._inferred_intent)):
         compare_clauses(vis1._inferred_intent[j], vis2._inferred_intent[j])
-    assert vis1._source == vis2._source
+    compare_df(vis1._source, vis2._source)
     assert vis1._code == vis2._code
     assert vis1._mark == vis2._mark
     assert vis1._min_max == vis2._min_max
     assert vis1.title == vis2.title
     assert vis1.score == vis2.score
+
+
+def compare_df(df1, df2):
+    if df1 is not None and df2 is not None:
+        assert df1.head().to_dict() == df2.head().to_dict()
 
 
 def test_index(global_var):

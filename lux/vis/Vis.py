@@ -35,6 +35,7 @@ class Vis:
         self.title = title
         self.score = score
         self._all_column = False
+        self.approx = False
         self.refresh_source(self._source)
 
     def __repr__(self):
@@ -130,6 +131,7 @@ class Vis:
                 intent="",
                 message="",
                 history_list=[],
+                config={"plottingScale": lux.config.plotting_scale},
             )
             display(widget)
 
