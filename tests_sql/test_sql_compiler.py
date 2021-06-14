@@ -38,6 +38,7 @@ def test_underspecified_no_vis(global_var, test_recs):
 
 def test_underspecified_single_vis(global_var, test_recs):
     one_vis_actions = ["Enhance", "Filter", "Generalize"]
+    lux.config.heatmap = False
     sql_df = lux.LuxSQLTable(table_name="cars")
     sql_df.set_intent([lux.Clause(attribute="milespergal"), lux.Clause(attribute="weight")])
     test_recs(sql_df, one_vis_actions)

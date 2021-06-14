@@ -64,13 +64,15 @@ class SQLExecutor(Executor):
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
                 length_query = pandas.read_sql(lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = where_clause),lux.config.SQLconnection,)
                 view_data_length = list(length_query["length"])[0]
-                if len(view.get_attr_by_channel("color")) == 1 or view_data_length < 5000:
+                if not lux.config.heatmap:
                     # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
                     has_color = True
                     SQLExecutor.execute_scatter(view, tbl)
                 else:
                     view._mark = "heatmap"
                     SQLExecutor.execute_2D_binning(view, tbl)
+            elif view.mark == "heatmap":
+                SQLExecutor.execute_2D_binning(view, tbl)
             elif view.mark == "bar" or view.mark == "line":
                 SQLExecutor.execute_aggregate(view, tbl)
             elif view.mark == "histogram":
@@ -434,14 +436,7 @@ class SQLExecutor(Executor):
             bin_count_query = lux.config.query_templates['heatmap_counts'].format(bucket_cases1 = x_when_lines, bucket_cases2 = y_when_lines, table_name = tbl.table_name, where_clause = where_clause)
 
         else:
-            bin_count_query = lux.config.query_templates['heatmap_counts'].format(
-                x_attribute = x_attribute.attribute,
-                x_upper_edges_string = "{" + x_upper_edges_string + "}",
-                y_attribute = y_attribute.attribute,
-                y_upper_edges_string = "{" + y_upper_edges_string + "}",
-                table_name = tbl.table_name,
-                where_clause = where_clause,
-            )
+            bin_count_query = lux.config.query_templates['heatmap_counts'].format(x_attribute = x_attribute.attribute,x_upper_edges_string = "{" + x_upper_edges_string + "}",y_attribute = y_attribute.attribute,y_upper_edges_string = "{" + y_upper_edges_string + "}",table_name = tbl.table_name,where_clause = where_clause,)
 
         # data = pandas.read_sql(bin_count_query, lux.config.SQLconnection)
 
