@@ -74,10 +74,9 @@ class LuxTracer():
                             selected[clean_code_line] = index
                             selected_index[index] = clean_code_line.lstrip()
                         else:
-                            #if "    for" not in code_line:
                             leading_spaces = len(code_line)-len(code_line.lstrip())
                             num_tabs = math.ceil(leading_spaces/8)
-                            if num_tabs > 0: num_tabs = num_tabs-1
+                            #if num_tabs > 0: num_tabs = num_tabs-1
                             #clean_code_line = "\t" + code_line.lstrip()
                             #clean_code_line = code_line.replace("    ", "\t")
                             clean_code_line = "\t"*num_tabs + code_line.lstrip()
