@@ -27,9 +27,7 @@ class SQLExecutor(Executor):
     @staticmethod
     def execute_preview(tbl: LuxSQLTable, preview_size=5):
         preview_query = lux.config.query_templates['preview_query']
-        output = pandas.read_sql(
-            preview_query.format(table_name = tbl.table_name, num_rows = preview_size), lux.config.SQLconnection
-        )
+        output = pandas.read_sql(preview_query.format(table_name = tbl.table_name, num_rows = preview_size), lux.config.SQLconnection)
         return output
 
     @staticmethod
