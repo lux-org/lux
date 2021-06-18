@@ -115,6 +115,14 @@ def column_group(ldf):
                     else:
                         vis = cg_plotter.plot_col_vis(index_column_name, attribute)
                         collection.append(vis)
+                elif ldf[attribute].dtype ==  "object" and (attribute != "index"):
+                    if ((attribute in f_map) and (f_map[attribute] == "std") and 
+                        all(ldf[attribute].map(lambda x: isinstance(x, pd._libs.tslibs.timedeltas.Timedelta) or pd.api.types.is_float_dtype(x)))):
+                            timedelta_index  = ldf_flat[attribute].map(lambda x: isinstance(x, pd._libs.tslibs.timedeltas.Timedelta))
+                            ldf_flat[attribute][timedelta_index] = ldf_flat[attribute][timedelta_index] / pd.to_timedelta(1, unit='D')
+                            ldf_flat[attribute] = ldf_flat[attribute].astype("float64")
+                            vis = cg_plotter.plot_std_bar(ldf_flat, attribute)
+                            mean_collection.append(vis)
             vlst = VisList(collection, ldf_flat)
             vlst._collection.extend(mean_collection)
     # Note that we are not computing interestingness score here because we want to preserve the arrangement of the aggregated ldf
