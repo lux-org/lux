@@ -1125,25 +1125,18 @@ class LuxDataFrame(pd.DataFrame):
             ret_value.history.append_event("fillna", affected_cols, rank_type="child")
         
         return ret_value
-    
-    @property
-    def loc(self, *args, **kwargs):  # -> _LocIndexer from pd.core.indexing._LocIndexer
-        # set_trace()
-        ret_value = super(LuxDataFrame, self).loc(*args, **kwargs)
         
-        return ret_value
-    
-    def xs(self, *args, **kwargs):
-        '''
-        Aslo called by df.loc["a"] with inside variable as a single label,
-        but cannot override loc directly since loc returns a _LocIndexer not a dataframe
-        '''
-        with self.history.pause():
-            ret_value = super(LuxDataFrame, self).xs(*args, **kwargs)
-        self.history.append_event("xs", [], rank_type="parent", child_df=ret_value, filt_key=None)
-        if ret_value is not None: # i.e. inplace = True
-            ret_value.history.append_event("xs", [], rank_type="child", child_df=None, filt_key=None)
-        return ret_value
+    # def xs(self, *args, **kwargs):
+    #     '''
+    #     Aslo called by df.loc["a"] with inside variable as a single label,
+    #     but cannot override loc directly since loc returns a _LocIndexer not a dataframe
+    #     '''
+    #     with self.history.pause():
+    #         ret_value = super(LuxDataFrame, self).xs(*args, **kwargs)
+    #     self.history.append_event("xs", [], rank_type="parent", child_df=ret_value, filt_key=None)
+    #     if ret_value is not None: # i.e. inplace = True
+    #         ret_value.history.append_event("xs", [], rank_type="child", child_df=None, filt_key=None)
+    #     return ret_value
 
     def _slice(self: FrameOrSeries, slobj: slice, axis=0) -> FrameOrSeries:
         """
@@ -1158,6 +1151,25 @@ class LuxDataFrame(pd.DataFrame):
             ret_value.history.append_event("slice", [], rank_type="child", child_df=None, filt_key=None)
         
         return ret_value
+    
+    @property
+    def loc(self, *args, **kwargs):  # -> _LocIndexer from pd.core.indexing._LocIndexer
+        history_flag = False
+        if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
+            history_flag = True
+        if "history" in kwargs:
+            del kwargs["history"]
+        locIndexer_obj = super(LuxDataFrame, self).loc(*args, **kwargs)
+        for attr in self._metadata:
+            locIndexer_obj.__dict__[attr] = getattr(self, attr, None)
+        if history_flag:
+            locIndexer_obj.history = locIndexer_obj.history.copy()
+            # locIndexer_obj.history.append_event("loc", [], *args, **kwargs)
+            # is this needed in the LocIndexer case?
+        locIndexer_obj._parent_df = self
+        set_trace()
+        return locIndexer_obj
+
     def groupby(self, *args, **kwargs):
         history_flag = False
         if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
