@@ -350,7 +350,7 @@ Exporting to Panel
 After running :code:`panel serve app.ipynb` or :code:`panel serve app.py` in the command line, you should find the Panel app hosted in your browser (e.g., :code:`http://localhost:5006/app`):
 
 
-.. image:: https://user-images.githubusercontent.com/42288570/122705585-56c98580-d256-11eb-9bd6-a259cc2af5d6.png
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/export-panel.png?raw=true
   :width: 700
   :align: center
 
