@@ -345,7 +345,7 @@ Exporting to Panel
   lux_panel = to_lux_panel(df)
 
   # Can display as app with panel serve
-  pn.template.FastListTemplate(title="💡 Lux meets Panel", main=[lux_panel]).servable()
+  pn.template.FastListTemplate(title="💡 Lux meets Panel", main=[lux_panel]).servable();
 
 After running :code:`panel serve app.ipynb` or :code:`panel serve app.py` in the command line, you should find the Panel app hosted in your browser (e.g., :code:`http://localhost:5006/app`):
 
