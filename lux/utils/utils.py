@@ -26,6 +26,76 @@ def convert_to_list(x):
     else:
         return x
 
+def convert_slice_to_list(x, stop):
+    # stop should ideally be the length of columns
+    ifnone = lambda a, b: b if a is None else a
+    step = ifnone(x.step, 1)
+    # for slice like 'a':'e'
+    if isinstance(x.start, str) or isinstance(x.stop, str):
+        return [chr(i) for i in range(ord(ifnone(x.start, chr(0))), ord(x.stop) + step, step)]
+    # for normal slice like 1:5
+    else:
+        return list(range(ifnone(x.start, 0), ifnone(x.stop, stop)+ step, step))
+
+def convert_indices_to_columns(column_names, tup):
+    '''
+    convert column indices that might be used in iloc function to corresponding column names
+    the supported `index` could be int, a list, a slice object  
+    '''
+    if len(tup) == 1:
+        # here it is of the tupe type, but the length is only 1, for example (1,)
+        tup = (tup[0], slice(None, None, None))
+    
+    index = tup[1]
+    if isinstance(index, int):
+        return [column_names[index]]
+    elif isinstance(index, list):
+        return [column_names[col_index] for col_index in index]
+    elif isinstance(index, slice):
+        column_indices = convert_slice_to_list(index, len(column_names)) # do not know why the end is not included
+        columns = []
+        for col_index in column_indices:
+            if col_index < len(column_names): 
+                # it is allowed that some indices in the slice object not in the columns of the dataframe
+                columns.append(column_names[col_index])
+        if len(columns) == len(column_names):
+            # then it does not provide any more information
+            columns = []
+        return columns
+    else:
+        return None # in case it is multi-index
+
+
+
+def convert_names_to_columns(column_names, tup):
+    '''
+    convert column indices that might be used in loc function to corresponding column names
+    the supported `index` could be int, a list, a slice object  
+    '''
+    if len(tup) == 1:
+        # here it is of the tupe type, but the length is only 1, for example (1,)
+        tup = (tup[0], slice(None, None, None))
+    
+    index = tup[1]
+    if isinstance(index, str):
+        return [index]
+    elif isinstance(index, list):
+        return index
+    elif isinstance(index, slice):
+        # for slice object, loc allows that some columns to be extracted does not exist
+        # while loc will examine whether all columns exist in the list case.
+        columns = convert_slice_to_list(index, len(column_names))
+        ret_columns = []
+        for col_name in columns:
+            if col_name in column_names:
+                ret_columns.append(col_name)
+        if len(ret_columns) == len(column_names):
+            # then it does not provide any more information
+            return []
+        else:
+            return ret_columns
+    else:
+        return None
 
 def pandas_to_lux(df):
     from lux.core.frame import LuxDataFrame

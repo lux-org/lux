@@ -15,6 +15,7 @@
 import pandas as pd
 from .frame import LuxDataFrame
 from .groupby import LuxDataFrameGroupBy, LuxSeriesGroupBy
+from .loc import LuxLocIndexer, iLuxLocIndexer
 from .series import LuxSeries
 
 global originalDF
@@ -61,6 +62,8 @@ def setOption(overridePandas=True):
         pd.Series = pd.core.series.Series = pd.core.groupby.ops.Series = pd._testing.Series = LuxSeries
         pd.core.groupby.generic.DataFrameGroupBy = LuxDataFrameGroupBy
         pd.core.groupby.generic.SeriesGroupBy = LuxSeriesGroupBy
+        pd.core.indexing._LocIndexer = LuxLocIndexer
+        pd.core.indexing._iLocIndexer = iLuxLocIndexer
     else:
         pd.DataFrame = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = originalDF
         pd.Series = originalSeries

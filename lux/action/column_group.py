@@ -27,7 +27,6 @@ from IPython.core.debugger import set_trace
 
 
 def column_group(ldf):
-
     recommendation = {
         "action": "Column Groups",
         "description": "Shows charts of possible visualizations with respect to the column-wise index.",
