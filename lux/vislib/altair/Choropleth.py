@@ -14,7 +14,7 @@
 
 from lux.vislib.altair.AltairChart import AltairChart
 import altair as alt
-import us
+import pandas as pd
 from iso3166 import countries
 
 alt.data_transformers.disable_max_rows()
@@ -66,9 +66,7 @@ class Choropleth(AltairChart):
         points = (
             alt.Chart(geo_map)
             .mark_geoshape()
-            .encode(
-                color=f"{str(y_attr.attribute)}:Q",
-            )
+            .encode(color=f"{str(y_attr.attribute)}:Q",)
             .transform_lookup(
                 lookup="id",
                 from_=alt.LookupData(self.data, str(x_attr.attribute), [str(y_attr.attribute)]),
@@ -148,12 +146,72 @@ chart = background + points
 
     def get_us_fips_code(self, attribute):
         """Returns FIPS code given a US state"""
+        usa = pd.DataFrame(
+            [
+                {"fips": 1, "state": "alabama", "abbrev": "al"},
+                {"fips": 2, "state": "alaska", "abbrev": "ak"},
+                {"fips": 4, "state": "arizona", "abbrev": "az"},
+                {"fips": 5, "state": "arkansas", "abbrev": "ar"},
+                {"fips": 6, "state": "california", "abbrev": "ca"},
+                {"fips": 8, "state": "colorado", "abbrev": "co"},
+                {"fips": 9, "state": "connecticut", "abbrev": "ct"},
+                {"fips": 10, "state": "delaware", "abbrev": "de"},
+                {"fips": 11, "state": "district of columbia", "abbrev": "dc"},
+                {"fips": 12, "state": "florida", "abbrev": "fl"},
+                {"fips": 13, "state": "georgia", "abbrev": "ga"},
+                {"fips": 15, "state": "hawaii", "abbrev": "hi"},
+                {"fips": 16, "state": "idaho", "abbrev": "id"},
+                {"fips": 17, "state": "illinois", "abbrev": "il"},
+                {"fips": 18, "state": "indiana", "abbrev": "in"},
+                {"fips": 19, "state": "iowa", "abbrev": "ia"},
+                {"fips": 20, "state": "kansas", "abbrev": "ks"},
+                {"fips": 21, "state": "kentucky", "abbrev": "ky"},
+                {"fips": 22, "state": "louisiana", "abbrev": "la"},
+                {"fips": 23, "state": "maine", "abbrev": "me"},
+                {"fips": 24, "state": "maryland", "abbrev": "md"},
+                {"fips": 25, "state": "massachusetts", "abbrev": "ma"},
+                {"fips": 26, "state": "michigan", "abbrev": "mi"},
+                {"fips": 27, "state": "minnesota", "abbrev": "mn"},
+                {"fips": 28, "state": "mississippi", "abbrev": "ms"},
+                {"fips": 29, "state": "missouri", "abbrev": "mo"},
+                {"fips": 30, "state": "montana", "abbrev": "mt"},
+                {"fips": 31, "state": "nebraska", "abbrev": "ne"},
+                {"fips": 32, "state": "nevada", "abbrev": "nv"},
+                {"fips": 33, "state": "new hampshire", "abbrev": "nh"},
+                {"fips": 34, "state": "new jersey", "abbrev": "nj"},
+                {"fips": 35, "state": "new mexico", "abbrev": "nm"},
+                {"fips": 36, "state": "new york", "abbrev": "ny"},
+                {"fips": 37, "state": "north carolina", "abbrev": "nc"},
+                {"fips": 38, "state": "north dakota", "abbrev": "nd"},
+                {"fips": 39, "state": "ohio", "abbrev": "oh"},
+                {"fips": 40, "state": "oklahoma", "abbrev": "ok"},
+                {"fips": 41, "state": "oregon", "abbrev": "or"},
+                {"fips": 42, "state": "pennsylvania", "abbrev": "pa"},
+                {"fips": 44, "state": "rhode island", "abbrev": "ri"},
+                {"fips": 45, "state": "south carolina", "abbrev": "sc"},
+                {"fips": 46, "state": "south dakota", "abbrev": "sd"},
+                {"fips": 47, "state": "tennessee", "abbrev": "tn"},
+                {"fips": 48, "state": "texas", "abbrev": "tx"},
+                {"fips": 49, "state": "utah", "abbrev": "ut"},
+                {"fips": 50, "state": "vermont", "abbrev": "vt"},
+                {"fips": 51, "state": "virginia", "abbrev": "va"},
+                {"fips": 53, "state": "washington", "abbrev": "wa"},
+                {"fips": 54, "state": "west virginia", "abbrev": "wv"},
+                {"fips": 55, "state": "wisconsin", "abbrev": "wi"},
+                {"fips": 56, "state": "wyoming", "abbrev": "wy"},
+            ]
+        )
+        attribute = attribute.lower()
         if not isinstance(attribute, str):
             return attribute
-        try:
-            return int(us.states.lookup(attribute).fips)
-        except:
-            return attribute
+        match = usa[(usa.state == attribute) | (usa.abbrev == attribute)]
+        if len(match) == 1:
+            return match["fips"].values[0]
+        else:
+            if attribute in ["washington d.c.", "washington dc", "d.c.", "d.c"]:
+                return 11
+            else:
+                return attribute
 
     def get_country_iso_code(self, attribute):
         """Returns country ISO code given a country"""
