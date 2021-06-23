@@ -20,6 +20,7 @@ import psycopg2
 from lux.vis.Vis import Vis
 from lux.executor.SQLExecutor import SQLExecutor
 
+
 def test_scatter_code_export():
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
@@ -28,11 +29,12 @@ def test_scatter_code_export():
     SQLExecutor.execute([vis], tbl)
     code = vis.to_code("python")
     try:
-        code = code.replace("\'insert your LuxSQLTable variable here\'", 'tbl')
-        code = code.replace("\'insert the name of your Vis object here\'", 'vis')
+        code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
+        code = code.replace("'insert the name of your Vis object here'", "vis")
         exec(code)
     except:
         print("failed to run Vis code")
+
 
 def test_color_scatter_code_export():
     tbl = lux.LuxSQLTable()
@@ -42,11 +44,12 @@ def test_color_scatter_code_export():
     SQLExecutor.execute([vis], tbl)
     code = vis.to_code("python")
     try:
-        code = code.replace("\'insert your LuxSQLTable variable here\'", 'tbl')
-        code = code.replace("\'insert the name of your Vis object here\'", 'vis')
+        code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
+        code = code.replace("'insert the name of your Vis object here'", "vis")
         exec(code)
     except:
         print("failed to run Vis code")
+
 
 def test_histogram_code_export():
     tbl = lux.LuxSQLTable()
@@ -56,11 +59,12 @@ def test_histogram_code_export():
     SQLExecutor.execute([vis], tbl)
     code = vis.to_code("python")
     try:
-        code = code.replace("\'insert your LuxSQLTable variable here\'", 'tbl')
-        code = code.replace("\'insert the name of your Vis object here\'", 'vis')
+        code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
+        code = code.replace("'insert the name of your Vis object here'", "vis")
         exec(code)
     except:
         print("failed to run Vis code")
+
 
 def test_barchart_code_export():
     tbl = lux.LuxSQLTable()
@@ -70,11 +74,12 @@ def test_barchart_code_export():
     SQLExecutor.execute([vis], tbl)
     code = vis.to_code("python")
     try:
-        code = code.replace("\'insert your LuxSQLTable variable here\'", 'tbl')
-        code = code.replace("\'insert the name of your Vis object here\'", 'vis')
+        code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
+        code = code.replace("'insert the name of your Vis object here'", "vis")
         exec(code)
     except:
         print("failed to run Vis code")
+
 
 def test_color_barchart_code_export():
     tbl = lux.LuxSQLTable()
@@ -84,11 +89,12 @@ def test_color_barchart_code_export():
     SQLExecutor.execute([vis], tbl)
     code = vis.to_code("python")
     try:
-        code = code.replace("\'insert your LuxSQLTable variable here\'", 'tbl')
-        code = code.replace("\'insert the name of your Vis object here\'", 'vis')
+        code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
+        code = code.replace("'insert the name of your Vis object here'", "vis")
         exec(code)
     except:
         print("failed to run Vis code")
+
 
 def test_heatmap_code_export():
     tbl = lux.LuxSQLTable()
@@ -99,8 +105,8 @@ def test_heatmap_code_export():
     code = vis.to_code("python")
 
     try:
-        code = code.replace("\'insert your LuxSQLTable variable here\'", 'tbl')
-        code = code.replace("\'insert the name of your Vis object here\'", 'vis')
+        code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
+        code = code.replace("'insert the name of your Vis object here'", "vis")
         exec(code)
     except:
-        assert(False)
+        assert False

@@ -76,7 +76,7 @@ class LuxDataFrame(pd.DataFrame):
         else:
             from lux.executor.SQLExecutor import SQLExecutor
 
-            #lux.config.executor = SQLExecutor()
+            # lux.config.executor = SQLExecutor()
 
         self._sampled = None
         self._approx_sample = None
@@ -136,7 +136,7 @@ class LuxDataFrame(pd.DataFrame):
         if lux.config.SQLconnection != "" and is_sql_tbl:
             from lux.executor.SQLExecutor import SQLExecutor
 
-            #lux.config.executor = SQLExecutor()
+            # lux.config.executor = SQLExecutor()
 
         # Check that metadata has not yet been computed
         if lux.config.lazy_maintain:

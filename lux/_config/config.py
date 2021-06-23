@@ -33,7 +33,7 @@ class Config:
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
-        self.tracer_relevant_lines=[]
+        self.tracer_relevant_lines = []
         self.tracer = LuxTracer()
         self.query_templates = {}
         self.handle_quotes = True
@@ -388,8 +388,8 @@ class Config:
         query_dict = {}
         with open(query_file) as f:
             for line in f:
-               (key, val) = line.split(":")
-               query_dict[key] = val.strip()
+                (key, val) = line.split(":")
+                query_dict[key] = val.strip()
         self.query_templates = query_dict
         self.executor = SQLExecutor()
 

@@ -56,17 +56,17 @@ class JoinedSQLTable(lux.LuxSQLTable):
         "pre_aggregated",
         "_type_override",
         "joins",
-        "using_view"
+        "using_view",
     ]
 
     def __init__(self, *args, joins=[], **kw):
         super(JoinedSQLTable, self).__init__(*args, **kw)
         from lux.executor.SQLExecutor import SQLExecutor
-        
+
         lux.config.executor = SQLExecutor()
         # self._metadata.joins = []
         tables = self.extract_tables(joins)
-        if (len(tables) > 4):
+        if len(tables) > 4:
             warnings.warn(
                 f"\nPlease provide a maximum of 4 (Four) unique tables to ensure optimal performance.",
                 stacklevel=2,
@@ -84,34 +84,38 @@ class JoinedSQLTable(lux.LuxSQLTable):
     def extract_tables(self, joins):
         tables = set()
         for condition in joins:
-            lhs = condition[0:condition.index("=")].strip()
-            rhs = condition[condition.index("=") + 1:].strip()
-            table1 = lhs[0:lhs.index(".")].strip()
-            table2 = rhs[0:rhs.index(".")].strip()
+            lhs = condition[0 : condition.index("=")].strip()
+            rhs = condition[condition.index("=") + 1 :].strip()
+            table1 = lhs[0 : lhs.index(".")].strip()
+            table2 = rhs[0 : rhs.index(".")].strip()
             tables.add(table1)
             tables.add(table2)
         return tables
 
     def create_view(self, tables, joins):
         import psycopg2
+
         dbc = lux.config.SQLconnection.cursor()
         import time
+
         curr_time = str(int(time.time()))
         viewname = "lux_view_" + curr_time
         table_entry = ""
         for idx, table in enumerate(tables, 1):
             table_entry += table
-            if (idx < len(tables)):
+            if idx < len(tables):
                 table_entry += ", "
-        
+
         condition_entry = ""
         for idx, join in enumerate(joins, 1):
             condition_entry += join
-            if (idx < len(joins)):
+            if idx < len(joins):
                 condition_entry += " AND "
         try:
-        #     # s = "CREATE VIEW {} AS SELECT * FROM cars_join cj JOIN cars_power_join cpj using (id)".format(viewname)
-            s = "CREATE VIEW {} AS SELECT * FROM {} where {}".format(viewname, table_entry, condition_entry)
+            #     # s = "CREATE VIEW {} AS SELECT * FROM cars_join cj JOIN cars_power_join cpj using (id)".format(viewname)
+            s = "CREATE VIEW {} AS SELECT * FROM {} where {}".format(
+                viewname, table_entry, condition_entry
+            )
             # lux.config.executor.create_view(self)
             dbc.execute(s)
             lux.config.SQLconnection.commit()
