@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 import altair as alt
 from lux.utils.date_utils import compute_date_granularity
+import lux
 
 
 class AltairChart:
@@ -69,7 +70,8 @@ class AltairChart:
             labelFontSize=9,
             labelFont="Helvetica Neue",
         )
-        self.chart = self.chart.properties(width=160, height=150)
+        plotting_scale = lux.config.plotting_scale
+        self.chart = self.chart.properties(width=160 * plotting_scale, height=150 * plotting_scale)
         self.code += (
             "\nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
         )
@@ -77,7 +79,9 @@ class AltairChart:
         self.code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue',labelColor='#505050')\n"
         self.code += "chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',\n"
         self.code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue')\n"
-        self.code += "chart = chart.properties(width=160,height=150)\n"
+        self.code += (
+            f"chart = chart.properties(width={160 * plotting_scale},height={150 * plotting_scale})\n"
+        )
 
     def encode_color(self):
         color_attr = self.vis.get_attr_by_channel("color")

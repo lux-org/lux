@@ -26,19 +26,31 @@ class Config:
         # flags whether or not an action has been registered or removed and should be re-rendered by frame.py
         self.update_actions: Dict[str, bool] = {}
         self.update_actions["flag"] = False
-        self._sampling_start = 10000
-        self._sampling_cap = 30000
-        self._sampling_flag = True
-        self._heatmap_flag = True
         self._plotting_backend = "vegalite"
+        self._plotting_scale = 1
         self._topk = 15
         self._sort = "descending"
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
-        self.tracer_relevant_lines=[]
+        self.tracer_relevant_lines = []
         self.tracer = LuxTracer()
         self.query_templates = {}
+        self.handle_quotes = True
+        #####################################
+        #### Optimization Configurations ####
+        #####################################
+        self._sampling_start = 100000
+        self._sampling_cap = 1000000
+        self._sampling_flag = True
+        self._heatmap_flag = True
+        self.lazy_maintain = True
+        self.early_pruning = True
+        self.early_pruning_sample_cap = 30000
+        # Apply sampling only if the dataset is 150% larger than the sample cap
+        self.early_pruning_sample_start = self.early_pruning_sample_cap * 1.5
+        self.streaming = False
+        self.render_widget = True
 
     @property
     def topk(self):
@@ -289,6 +301,26 @@ class Config:
                 stacklevel=2,
             )
 
+    @property
+    def plotting_scale(self):
+        return self._plotting_scale
+
+    @plotting_scale.setter
+    def plotting_scale(self, scale: float) -> None:
+        """
+        Set the scale factor for charts displayed in Lux.
+        ----------
+        type : float (default = 1.0)
+        """
+        scale = float(scale) if isinstance(scale, int) else scale
+        if isinstance(scale, float) and scale > 0:
+            self._plotting_scale = scale
+        else:
+            warnings.warn(
+                "Scaling factor for charts must be a positive float.",
+                stacklevel=2,
+            )
+
     def _get_action(self, pat: str, silent: bool = False):
         return lux.actions[pat]
 
@@ -351,22 +383,22 @@ class Config:
         self.SQLconnection = connection
 
     def read_query_template(self, query_file):
+        from lux.executor.SQLExecutor import SQLExecutor
+
         query_dict = {}
         with open(query_file) as f:
             for line in f:
-               (key, val) = line.split(":")
-               query_dict[key] = val.strip()
+                (key, val) = line.split(":")
+                query_dict[key] = val.strip()
         self.query_templates = query_dict
+        self.executor = SQLExecutor()
 
     def set_executor_type(self, exe):
         if exe == "SQL":
             from lux.executor.SQLExecutor import SQLExecutor
 
             self.executor = SQLExecutor()
-        elif exe == "GeneralDatabase":
-            from lux.executor.GeneralDatabaseExecutor import GeneralDatabaseExecutor
-
-            self.executor = GeneralDatabaseExecutor()
+            self.read_query_template("../lux/lux/_config/postgres_query_template.txt")
         elif exe == "Pandas":
             from lux.executor.PandasExecutor import PandasExecutor
 

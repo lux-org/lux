@@ -89,6 +89,22 @@ After changing the Pandas data type to datetime, we see that date field is recog
   :align: center
   :alt: add screenshot
 
+Visualizing Trends across Different Timescales
+----------------------------------------------
+
+Lux automatically detects the temporal attribute and plots the visualizations across different timescales to showcase any cyclical patterns. Here, we see that the `Temporal` tab displays the yearly, monthly, and weekly trends for the number of stock records.
+
+.. code-block:: python
+
+  from vega_datasets import data
+  df = data.stocks()
+
+  df.recommendation["Temporal"]
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/date-12.png?raw=true
+  :width: 600
+  :align: center
+
 Advanced Date Manipulation
 --------------------------
 

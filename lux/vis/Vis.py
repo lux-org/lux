@@ -36,6 +36,7 @@ class Vis:
         self.title = title
         self.score = score
         self._all_column = False
+        self.approx = False
         self.refresh_source(self._source)
 
     def __repr__(self):
@@ -130,6 +131,7 @@ class Vis:
                 recommendations=[],
                 intent="",
                 message="",
+                config={"plottingScale": lux.config.plotting_scale},
             )
             display(widget)
 
@@ -315,15 +317,15 @@ class Vis:
         elif language == "python":
             lux.config.tracer.start_tracing()
             lux.config.executor.execute(lux.vis.VisList.VisList(input_lst=[self]), self._source)
-            lux.config.tracer.stop_tracing() 
+            lux.config.tracer.stop_tracing()
             self._trace_code = lux.config.tracer.process_executor_code(lux.config.tracer_relevant_lines)
             lux.config.tracer_relevant_lines = []
-            return(self._trace_code)
+            return self._trace_code
         elif language == "SQL":
             if self._query:
                 return self._query
             else:
-                 warnings.warn(
+                warnings.warn(
                     "The data for this Vis was not collected via a SQL database. Use the 'python' parameter to view the code used to generate the data.",
                     stacklevel=2,
                 )
