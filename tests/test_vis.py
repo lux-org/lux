@@ -218,7 +218,6 @@ def test_bar_chart(global_var):
     lux.config.plotting_backend = "matplotlib"
     vis = Vis(["Origin", "Acceleration"], df)
     vis_code = vis.to_matplotlib()
-    assert "ax.barh(bars, measurements, align='center')" in vis_code
     assert "ax.set_xlabel('Acceleration')" in vis_code
     assert "ax.set_ylabel('Origin')" in vis_code
 
