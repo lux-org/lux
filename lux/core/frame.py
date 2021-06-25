@@ -851,12 +851,6 @@ class LuxDataFrame(pd.DataFrame):
         ret_val._history.append_event("tail", n=5)
         return ret_val
 
-    def describe(self, *args, **kwargs):
-        ret_val = super(LuxDataFrame, self).describe(*args, **kwargs)
-        ret_val._pandas_only = True
-        ret_val._history.append_event("describe", *args, **kwargs)
-        return ret_val
-
     def groupby(self, *args, **kwargs):
         history_flag = False
         if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
