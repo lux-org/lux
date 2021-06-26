@@ -1155,23 +1155,13 @@ class LuxDataFrame(pd.DataFrame):
     @property
     def loc(self, *args, **kwargs):  # -> _LocIndexer from pd.core.indexing._LocIndexer
         locIndexer_obj = super(LuxDataFrame, self).loc(*args, **kwargs)
-        for attr in self._metadata:
-            locIndexer_obj.__dict__[attr] = getattr(self, attr, None)
-        locIndexer_obj.history = locIndexer_obj.history.copy()
-        # locIndexer_obj.history.append_event("loc", [], *args, **kwargs)
-        # is this needed in the LocIndexer case?
         locIndexer_obj._parent_df = self
-        set_trace()
         return locIndexer_obj
 
     @property
     def iloc(self, *args, **kwargs):
         iLocIndexer_obj = super(LuxDataFrame, self).iloc(*args, **kwargs)
-        for attr in self._metadata:
-            iLocIndexer_obj.__dict__[attr] = getattr(self, attr, None)
-        iLocIndexer_obj.history = iLocIndexer_obj.history.copy()
         iLocIndexer_obj._parent_df = self
-        # set_trace()
         return iLocIndexer_obj
 
     def groupby(self, *args, **kwargs):
