@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import lux
 
@@ -50,8 +51,12 @@ def convert_indices_to_columns(column_names, tup):
     ret_columns = []
     if isinstance(index, int):
         ret_columns = [column_names[index]]
-    elif isinstance(index, list):
-        ret_columns = [column_names[col_index] for col_index in index]
+    elif isinstance(index, list) or isinstance(index, np.ndarray):
+        # it could be possible that `index` is a list of boolean values or integers. 
+        if all(isinstance(x, bool) for x in index):
+            ret_columns = [column_names[col_index] for col_index, included in enumerate(index) if included]
+        elif all(isinstance(x, int) for x in index):
+            ret_columns = [column_names[col_index] for col_index in index]
     elif isinstance(index, slice):
         column_indices = convert_slice_to_list(index, len(column_names)) # do not know why the end is not included
         for col_index in column_indices:
@@ -80,8 +85,12 @@ def convert_names_to_columns(column_names, tup):
     ret_columns = []
     if isinstance(index, str):
         ret_columns = [index]
-    elif isinstance(index, list):
-        ret_columns =  index
+    elif isinstance(index, list) or isinstance(index, np.ndarray):
+        # it could be possible that `index` is a list of boolean values. 
+        if all(isinstance(x, bool) for x in index):
+            ret_columns = [column_names[col_index] for col_index, included in enumerate(index) if included]
+        else:
+            ret_columns =  index
     elif isinstance(index, slice):
         # for slice object, loc allows that some columns to be extracted does not exist
         # while loc will examine whether all columns exist in the list case.
