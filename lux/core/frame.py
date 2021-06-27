@@ -1026,7 +1026,17 @@ class LuxDataFrame(pd.DataFrame):
         ret_value.history.append_event("filter", [], rank_type="child", child_df=None, filt_key=key)
 
         return ret_value
-    
+
+    def __repr__(self) -> str:
+        '''
+        Called after print(df).
+        '''
+        with self.history.pause():
+            # inside __repr__, iloc function will be called at least for each column one by one. 
+            # which will then log each column in the dataframe history but provide no much information
+            ret_str = super(LuxDataFrame, self).__repr__()
+        return ret_str
+
     # History logging functions 
     def head(self, n: int = 5):
         ret_frame = super(LuxDataFrame, self).head(n)
