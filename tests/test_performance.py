@@ -55,10 +55,10 @@ def test_lazy_maintain_performance_census(global_var):
     print(f"2nd display Performance: {delta2:0.4f} seconds")
 
     assert (
-        delta > 2
+        delta > 1
     ), "The recompute of recommendations on Census dataset took a total of {delta:0.4f} seconds, shorter than expected."
     assert (
-        delta2 > 2
+        delta > 1
     ), "Subsequent recompute of recommendations on Census dataset took a total of {delta2:0.4f} seconds, shorter than expected."
 
     assert df.data_type == {

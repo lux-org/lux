@@ -42,6 +42,13 @@ def test_describe(global_var):
     assert len(summary.columns) == 10
 
 
+def test_groupby_describe(global_var):
+    df = pytest.college_df
+    result = df.groupby("FundingModel")["AdmissionRate"].describe()
+    result._ipython_display_()
+    assert result.shape == (3, 8)
+
+
 def test_convert_dtype(global_var):
     df = pytest.college_df
     cdf = df.convert_dtypes()

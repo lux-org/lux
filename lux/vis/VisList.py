@@ -273,7 +273,12 @@ class VisList:
 
         recJSON = LuxDataFrame.rec_to_JSON([recommendation])
         self._widget = luxwidget.LuxWidget(
-            currentVis={}, recommendations=recJSON, intent="", message="", pandasHtml=""
+            currentVis={},
+            recommendations=recJSON,
+            intent="",
+            message="",
+            pandasHtml="",
+            config={"plottingScale": lux.config.plotting_scale},
         )
         display(self._widget)
 

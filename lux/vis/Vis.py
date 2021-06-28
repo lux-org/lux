@@ -132,6 +132,7 @@ class Vis:
                 intent="",
                 message="",
                 pandasHtml="",
+                config={"plottingScale": lux.config.plotting_scale}
             )
             display(widget)
 

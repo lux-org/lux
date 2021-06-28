@@ -26,6 +26,7 @@ class Config:
         self.update_actions: Dict[str, bool] = {}
         self.update_actions["flag"] = False
         self._plotting_backend = "vegalite"
+        self._plotting_scale = 1
         self._topk = 15
         self._sort = "descending"
         self._pandas_fallback = True
@@ -294,6 +295,26 @@ class Config:
         else:
             warnings.warn(
                 "Unsupported plotting backend. Lux currently only support 'altair', 'vegalite', or 'matplotlib'",
+                stacklevel=2,
+            )
+
+    @property
+    def plotting_scale(self):
+        return self._plotting_scale
+
+    @plotting_scale.setter
+    def plotting_scale(self, scale: float) -> None:
+        """
+        Set the scale factor for charts displayed in Lux.
+        ----------
+        type : float (default = 1.0)
+        """
+        scale = float(scale) if isinstance(scale, int) else scale
+        if isinstance(scale, float) and scale > 0:
+            self._plotting_scale = scale
+        else:
+            warnings.warn(
+                "Scaling factor for charts must be a positive float.",
                 stacklevel=2,
             )
 
