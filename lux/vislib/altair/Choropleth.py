@@ -40,6 +40,9 @@ class Choropleth(AltairChart):
         return f"Choropleth Map <{str(self.vis)}>"
 
     def initialize_chart(self):
+        # Override default width and height
+        self.width = 200
+
         x_attr = self.vis.get_attr_by_channel("x")[0]
         y_attr = self.vis.get_attr_by_channel("y")[0]
 
