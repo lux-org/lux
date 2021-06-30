@@ -7,6 +7,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 import lux
 import warnings
 from lux.utils.tracing_utils import LuxTracer
+import os
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
@@ -398,7 +399,8 @@ class Config:
             from lux.executor.SQLExecutor import SQLExecutor
 
             self.executor = SQLExecutor()
-            self.read_query_template("../lux/lux/_config/postgres_query_template.txt")
+            template_path = os.path.join("..", "lux", "lux", "_config", "postgres_query_template.txt")
+            self.read_query_template(template_path)
         elif exe == "Pandas":
             from lux.executor.PandasExecutor import PandasExecutor
 

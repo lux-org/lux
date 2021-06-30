@@ -4,6 +4,7 @@ import pickle as pkl
 import lux
 import autopep8
 import math
+import os
 
 
 class LuxTracer:
@@ -19,8 +20,8 @@ class LuxTracer:
                 fcode = frame.f_code
                 line_no = frame.f_lineno
                 func_name = fcode.co_name
-                # includeMod = ['lux/vis', 'lux/action', 'lux/vislib', 'lux/executor', 'lux/interestingness']
-                includeMod = ["lux\\vis", "lux\\vislib", "lux\\executor"]
+
+                includeMod = [os.path.join("lux", "vis"), os.path.join("lux", "vislib"), os.path.join("lux", "executor")]
                 includeFunc = [
                     "add_quotes",
                     "execute_sampling",
