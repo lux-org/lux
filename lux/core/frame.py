@@ -610,7 +610,7 @@ class LuxDataFrame(pd.DataFrame):
             display(self.output)
 
             # Initialized view before actions are computed
-            self.loadingBar = widgets.IntProgress(
+            self.loading_bar = widgets.IntProgress(
                 value=0,
                 min=0,
                 max=10,
@@ -620,7 +620,7 @@ class LuxDataFrame(pd.DataFrame):
                 orientation="horizontal",
             )
             with self.output:
-                display(self.loadingBar)
+                display(self.loading_bar)
 
             # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
             self.maintain_recs()
