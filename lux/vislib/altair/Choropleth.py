@@ -216,7 +216,7 @@ chart = background + points
             if attribute in ["washington d.c.", "washington dc", "d.c.", "d.c"]:
                 return 11
             else:
-                return attribute
+                return 0  # any unmatching value (e.g. nan)
 
     def get_country_iso_code(self, attribute):
         """Returns country ISO code given a country"""
