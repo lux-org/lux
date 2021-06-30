@@ -21,7 +21,11 @@ class LuxTracer:
                 line_no = frame.f_lineno
                 func_name = fcode.co_name
 
-                includeMod = [os.path.join("lux", "vis"), os.path.join("lux", "vislib"), os.path.join("lux", "executor")]
+                includeMod = [
+                    os.path.join("lux", "vis"),
+                    os.path.join("lux", "vislib"),
+                    os.path.join("lux", "executor"),
+                ]
                 includeFunc = [
                     "add_quotes",
                     "execute_sampling",
