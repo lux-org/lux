@@ -148,6 +148,8 @@ chart = background + points
 
     def get_us_fips_code(self, attribute):
         """Returns FIPS code given a US state"""
+        if not isinstance(attribute, str):
+            return attribute
         usa = pd.DataFrame(
             [
                 {"fips": 1, "state": "alabama", "abbrev": "al"},
@@ -204,8 +206,6 @@ chart = background + points
             ]
         )
         attribute = attribute.lower()
-        if not isinstance(attribute, str):
-            return attribute
         match = usa[(usa.state == attribute) | (usa.abbrev == attribute)]
         if len(match) == 1:
             return match["fips"].values[0]
