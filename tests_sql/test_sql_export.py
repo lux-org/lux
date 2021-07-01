@@ -21,7 +21,7 @@ from lux.vis.Vis import Vis
 from lux.executor.SQLExecutor import SQLExecutor
 
 
-def test_scatter_code_export():
+def test_scatter_code_export(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -36,7 +36,7 @@ def test_scatter_code_export():
         print("failed to run Vis code")
 
 
-def test_color_scatter_code_export():
+def test_color_scatter_code_export(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -51,7 +51,7 @@ def test_color_scatter_code_export():
         print("failed to run Vis code")
 
 
-def test_histogram_code_export():
+def test_histogram_code_export(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -66,7 +66,7 @@ def test_histogram_code_export():
         print("failed to run Vis code")
 
 
-def test_barchart_code_export():
+def test_barchart_code_export(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -81,7 +81,7 @@ def test_barchart_code_export():
         print("failed to run Vis code")
 
 
-def test_color_barchart_code_export():
+def test_color_barchart_code_export(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -96,14 +96,14 @@ def test_color_barchart_code_export():
         print("failed to run Vis code")
 
 
-def test_heatmap_code_export():
+def test_heatmap_code_export(global_var):
+    lux.config.heatmap = True
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("airbnb")
 
     vis = Vis(["price", "longitude"], tbl)
     SQLExecutor.execute([vis], tbl)
     code = vis.to_code("python")
-
     try:
         code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
         code = code.replace("'insert the name of your Vis object here'", "vis")

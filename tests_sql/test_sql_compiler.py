@@ -17,13 +17,9 @@ import pytest
 import pandas as pd
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
-import psycopg2
 
 
 def test_underspecified_no_vis(global_var, test_recs):
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    lux.config.set_SQL_connection(connection)
-
     no_vis_actions = ["Correlation", "Distribution", "Occurrence", "Temporal"]
     sql_df = lux.LuxSQLTable(table_name="cars")
 
