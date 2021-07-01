@@ -3,6 +3,7 @@ import pandas as pd
 import psycopg2
 import lux
 
+
 @pytest.fixture(scope="session")
 def global_var():
     connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
