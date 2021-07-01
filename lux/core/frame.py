@@ -1037,6 +1037,16 @@ class LuxDataFrame(pd.DataFrame):
             ret_str = super(LuxDataFrame, self).__repr__()
         return ret_str
 
+    def _repr_html_(self) -> str:
+        '''
+        Called after df._repr_html_.
+        '''
+        with self.history.pause():
+            # inside _repr_html_, iloc function will be called at least for each column one by one. 
+            # which will then log each column in the dataframe history but provide no much information
+            ret_str = super(LuxDataFrame, self)._repr_html_()
+        return ret_str
+
     # History logging functions 
     def head(self, n: int = 5):
         ret_frame = super(LuxDataFrame, self).head(n)
