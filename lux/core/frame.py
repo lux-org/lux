@@ -1180,7 +1180,11 @@ class LuxDataFrame(pd.DataFrame):
             history_flag = True
         if "history" in kwargs:
             del kwargs["history"]
+        if self.history is not None:
+            self.history.freeze()
         groupby_obj = super(LuxDataFrame, self).groupby(*args, **kwargs)
+        if self.history is not None:
+            self.history.unfreeze()
         for attr in self._metadata:
             groupby_obj.__dict__[attr] = getattr(self, attr, None)
         if history_flag:
