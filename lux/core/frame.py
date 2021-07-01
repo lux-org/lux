@@ -1049,7 +1049,10 @@ class LuxDataFrame(pd.DataFrame):
 
     # History logging functions 
     def head(self, n: int = 5):
-        ret_frame = super(LuxDataFrame, self).head(n)
+        with self.history.pause():
+            # inside the head function, iloc[:n] will be called
+            # so pause the history to avoid the logging of iloc
+            ret_frame = super(LuxDataFrame, self).head(n)
         self._parent_df = self
        
         # save history on self and returned df
