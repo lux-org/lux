@@ -65,3 +65,15 @@ def test_query(global_var):
     assert df.history[-1].op_name == "query", "The query() call is not logged to the parent dataframe."
     assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
     assert df.history[-1].kwargs.get("rank_type", None) == "parent"
+
+def test_isna(global_var):
+    df = pytest.car_df.copy(deep=True)
+    new_df = pd.isna(df)
+    # child dataframe
+    assert new_df.history[-1].op_name == "isna", "The isna() call is not logged to the child dataframe."
+    assert len(new_df.history) == 1, "Other function calls are logged to the child dataframe unnecessarily."
+    assert new_df.history[-1].kwargs.get("rank_type", None) == "child"
+    # parent dataframe
+    assert df.history[-1].op_name == "isna", "The isna() call is not logged to the parent dataframe."
+    assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
+    assert df.history[-1].kwargs.get("rank_type", None) == "parent"
