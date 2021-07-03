@@ -16,76 +16,61 @@ from .context import lux
 import pytest
 import pandas as pd
 
+def _check_log(df, op_name, parent_status=None):
+    assert df.history[-1].op_name == op_name, "The %s() call is not logged to the child dataframe." % op_name
+    assert len(df.history) == 1, "Other function calls are logged to the child dataframe unnecessarily."
+    if parent_status is not None:
+        assert df.history[-1].kwargs.get("rank_type", None) == parent_status
+
 def test_head(global_var):
     df = pytest.car_df.copy(deep=True)
     new_df = df.head()
     # child dataframe
-    assert new_df.history[-1].op_name == "head", "The head() call is not logged to the child dataframe."
-    assert len(new_df.history) == 1, "Other function calls are logged to the child dataframe unnecessarily."
+    _check_log(new_df, "head")
     # parent dataframe
-    assert df.history[-1].op_name == "head", "The head() call is not logged to the parent dataframe."
-    assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
+    _check_log(df, "head")
 
 def test_tail(global_var):
     df = pytest.car_df.copy(deep=True)
     new_df = df.tail()
     # child dataframe
-    assert new_df.history[-1].op_name == "tail", "The tail() call is not logged to the child dataframe."
-    assert len(new_df.history) == 1, "Other function calls are logged to the child dataframe unnecessarily."
+    _check_log(new_df, "tail")
     # parent dataframe
-    assert df.history[-1].op_name == "tail", "The tail() call is not logged to the parent dataframe."
-    assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
+    _check_log(df, "tail")
 
 def test_info(global_var):
     df = pytest.car_df.copy(deep=True)
     df.info()
-    assert df.history[-1].op_name == "info", "The info() call is not logged to the dataframe."
-    assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
+    _check_log(df, "info")
 
 def test_describe(global_var):
     df = pytest.car_df.copy(deep=True)
     new_df = df.describe()
     # child dataframe
-    assert new_df.history[-1].op_name == "describe", "The describe() call is not logged to the child dataframe."
-    assert len(new_df.history) == 1, "Other function calls are logged to the child dataframe unnecessarily."
-    assert new_df.history[-1].kwargs.get("rank_type", None) == "child"
+    _check_log(new_df, "describe", parent_status="child")
     # parent dataframe
-    assert df.history[-1].op_name == "describe", "The describe() call is not logged to the parent dataframe."
-    assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
-    assert df.history[-1].kwargs.get("rank_type", None) == "parent"
+    _check_log(df, "describe", parent_status="parent")
 
 def test_query(global_var):
     df = pytest.car_df.copy(deep=True)
     new_df = df.query("Origin == \"Europe\"")
     # child dataframe
-    assert new_df.history[-1].op_name == "query", "The query() call is not logged to the child dataframe."
-    assert len(new_df.history) == 1, "Other function calls are logged to the child dataframe unnecessarily."
-    assert new_df.history[-1].kwargs.get("rank_type", None) == "child"
+    _check_log(new_df, "query", parent_status="child")
     # parent dataframe
-    assert df.history[-1].op_name == "query", "The query() call is not logged to the parent dataframe."
-    assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
-    assert df.history[-1].kwargs.get("rank_type", None) == "parent"
+    _check_log(df, "query", parent_status="parent")
 
 def test_isna(global_var):
     df = pytest.car_df.copy(deep=True)
     new_df = pd.isna(df)
     # child dataframe
-    assert new_df.history[-1].op_name == "isna", "The isna() call is not logged to the child dataframe."
-    assert len(new_df.history) == 1, "Other function calls are logged to the child dataframe unnecessarily."
-    assert new_df.history[-1].kwargs.get("rank_type", None) == "child"
+    _check_log(new_df, "isna", parent_status="child")
     # parent dataframe
-    assert df.history[-1].op_name == "isna", "The isna() call is not logged to the parent dataframe."
-    assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
-    assert df.history[-1].kwargs.get("rank_type", None) == "parent"
+    _check_log(df, "isna", parent_status="parent")
 
 def test_isnull(global_var):
     df = pytest.car_df.copy(deep=True)
     new_df = pd.isnull(df)
     # child dataframe
-    assert new_df.history[-1].op_name == "isna", "The isna() call is not logged to the child dataframe."
-    assert len(new_df.history) == 1, "Other function calls are logged to the child dataframe unnecessarily."
-    assert new_df.history[-1].kwargs.get("rank_type", None) == "child"
+    _check_log(new_df, "isna", parent_status="child")
     # parent dataframe
-    assert df.history[-1].op_name == "isna", "The isna() call is not logged to the parent dataframe."
-    assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
-    assert df.history[-1].kwargs.get("rank_type", None) == "parent"
+    _check_log(df, "isna", parent_status="parent")
