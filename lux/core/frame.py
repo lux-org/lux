@@ -1100,7 +1100,7 @@ class LuxDataFrame(pd.DataFrame):
         with self.history.pause():
             # inside query, loc function will be called
             ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
-q
+
         if ret_value is not None: # i.e. inplace = True
             ret_value._parent_df = self
             ret_value.history = self.history.copy()
