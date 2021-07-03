@@ -1097,12 +1097,15 @@ class LuxDataFrame(pd.DataFrame):
         return ret_frame
     
     def query(self, expr: str, inplace: bool = False, **kwargs):
-        ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
-
-        self.history.append_event("query", [], rank_type="parent", child_df=ret_value, filt_key=None)
+        with self.history.pause():
+            # inside query, loc function will be called
+            ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
+q
         if ret_value is not None: # i.e. inplace = True
+            ret_value._parent_df = self
+            ret_value.history = self.history.copy()
             ret_value.history.append_event("query", [], rank_type="child", child_df=None, filt_key=None)
-
+        self.history.append_event("query", [], rank_type="parent", child_df=ret_value, filt_key=None)
         return ret_value
     
     # null check functions 
