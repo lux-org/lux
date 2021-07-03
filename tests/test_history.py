@@ -61,7 +61,7 @@ def test_query(global_var):
 
 def test_isna(global_var):
     df = pytest.car_df.copy(deep=True)
-    new_df = pd.isna(df)
+    new_df = df.isna()
     # child dataframe
     _check_log(new_df, "isna", parent_status="child")
     # parent dataframe
@@ -69,8 +69,16 @@ def test_isna(global_var):
 
 def test_isnull(global_var):
     df = pytest.car_df.copy(deep=True)
-    new_df = pd.isnull(df)
+    new_df = df.isnull()
     # child dataframe
     _check_log(new_df, "isna", parent_status="child")
     # parent dataframe
     _check_log(df, "isna", parent_status="parent")
+
+def test_notnull(global_var):
+    df = pytest.car_df.copy(deep=True)
+    new_df = df.notnull()
+    # child dataframe
+    _check_log(new_df, "notnull", parent_status="child")
+    # parent dataframe
+    _check_log(df, "notnull", parent_status="parent")
