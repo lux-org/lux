@@ -1057,6 +1057,7 @@ class LuxDataFrame(pd.DataFrame):
         ret_frame.history = self.history.copy() 
         # some other functions will be called unnecessarily, for example, _slice and iloc. 
         # copy the history of the parent dataframe to avoid log these functions. 
+        # not sure about whether the child dataframe should copy the history of the parent.
         
         # save history on self and returned df
         self.history.append_event("head", [], n)
@@ -1067,7 +1068,6 @@ class LuxDataFrame(pd.DataFrame):
         with self.history.pause():
             ret_frame = super(LuxDataFrame, self).tail(n)
         self._parent_df = self # why do we need to change the parent dataframe here?
-        
         ret_frame.history = self.history.copy() 
         # save history on self and returned df
         self.history.append_event("tail", [], n)
