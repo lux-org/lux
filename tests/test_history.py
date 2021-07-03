@@ -21,20 +21,44 @@ def test_head(global_var):
     df._ipython_display_()
     new_df = df.head()
     new_df._ipython_display_()
-    assert new_df.history[0].op_name == "head"
-    assert df.history[-1].op_name == "head"
+    # child dataframe
+    assert new_df.history[-1].op_name == "head", "The head() call is not logged to the child dataframe."
+    assert len(new_df.history) == 1, "Other function calls are logged to the child dataframe unnecessarily."
+    # parent dataframe
+    assert df.history[-1].op_name == "head", "The head() call is not logged to the parent dataframe."
+    assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
 
 def test_tail(global_var):
     df = pytest.car_df.copy(deep=True)
     df._ipython_display_()
     new_df = df.tail()
     new_df._ipython_display_()
-    assert new_df.history[0].op_name == "tail"
-    assert df.history[-1].op_name == "tail"
+    # child dataframe
+    assert new_df.history[-1].op_name == "tail", "The tail() call is not logged to the child dataframe."
+    assert len(new_df.history) == 1, "Other function calls are logged to the child dataframe unnecessarily."
+    # parent dataframe
+    assert df.history[-1].op_name == "tail", "The tail() call is not logged to the parent dataframe."
+    assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
 
 def test_info(global_var):
     df = pytest.car_df.copy(deep=True)
     df._ipython_display_()
     df.info()
-    assert df.history[-1].op_name == "info"
+    assert df.history[-1].op_name == "info", "The info() call is not logged to the dataframe."
+    assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
+
+def test_describe(global_var):
+    df = pytest.car_df.copy(deep=True)
+    df._ipython_display_()
+    new_df = df.describe()
+    new_df._ipython_display_()
+    # child dataframe
+    assert new_df.history[-1].op_name == "describe", "The describe() call is not logged to the child dataframe."
+    assert len(new_df.history) == 1, "Other function calls are logged to the child dataframe unnecessarily."
+    assert new_df.history[-1].kwargs.get("rank_type", None) == "child"
+    # parent dataframe
+    assert df.history[-1].op_name == "describe", "The describe() call is not logged to the parent dataframe."
+    assert len(df.history) == 1, "Other function calls are logged to the parent dataframe unnecessarily."
+    assert df.history[-1].kwargs.get("rank_type", None) == "parent"
+
 
