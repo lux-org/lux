@@ -1180,9 +1180,7 @@ class LuxDataFrame(pd.DataFrame):
 
     def _slice(self: FrameOrSeries, slobj: slice, axis=0) -> FrameOrSeries:
         """
-        Called whenever the df is accessed like df[1:3] or some slice. Also called by 
-        df.loc[33:55] but cannot override loc directly since loc returns a _LocIndexer
-        not a dataframe
+        Called whenever the df is accessed like df[1:3] or some slice.
         """
         ret_value = super(LuxDataFrame, self)._slice(slobj, axis)
         

@@ -122,5 +122,10 @@ def test_fillna(global_var):
     # parent dataframe
     _check_log(df, "fillna", parent_status="parent", cols=['Miles_per_Gallon', 'Horsepower'])
 
-
-
+def test_slice(global_var):
+    df = pytest.car_df.copy(deep=True)
+    new_df = df[1:3]
+    # child dataframe
+    _check_log(new_df, "slice", parent_status="child")
+    # parent dataframe
+    _check_log(df, "slice", parent_status="parent")
