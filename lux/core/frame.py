@@ -1053,8 +1053,11 @@ class LuxDataFrame(pd.DataFrame):
             # inside the head function, iloc[:n] will be called
             # so pause the history to avoid the logging of iloc
             ret_frame = super(LuxDataFrame, self).head(n)
-        self._parent_df = self
-       
+        self._parent_df = self # why do we need to change the parent dataframe here?
+        ret_frame.history = self.history.copy() 
+        # some other functions will be called unnecessarily, for example, _slice and iloc. 
+        # copy the history of the parent dataframe to avoid log these functions. 
+        
         # save history on self and returned df
         self.history.append_event("head", [], n)
         ret_frame.history.append_event("head", [], n)
