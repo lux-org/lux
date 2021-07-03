@@ -1064,9 +1064,11 @@ class LuxDataFrame(pd.DataFrame):
         return ret_frame
 
     def tail(self, n: int = 5):
-        ret_frame = super(LuxDataFrame, self).tail(n)
-        self._parent_df = self
+        with self.history.pause():
+            ret_frame = super(LuxDataFrame, self).tail(n)
+        self._parent_df = self # why do we need to change the parent dataframe here?
         
+        ret_frame.history = self.history.copy() 
         # save history on self and returned df
         self.history.append_event("tail", [], n)
         ret_frame.history.append_event("tail", [], n)
@@ -1074,8 +1076,10 @@ class LuxDataFrame(pd.DataFrame):
 
     def info(self, *args, **kwargs):
         self._pandas_only = True
+        with self.history.pause():
+            ret_value = super(LuxDataFrame, self).info(*args, **kwargs)
         self.history.append_event("info", [], *args, **kwargs)
-        return super(LuxDataFrame, self).info(*args, **kwargs) # returns None
+        return ret_value # returns None
 
     def describe(self, *args, **kwargs):
         with self.history.pause(): # calls unique internally
