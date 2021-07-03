@@ -1133,6 +1133,15 @@ class LuxDataFrame(pd.DataFrame):
 
         return ret_value
     
+    def notna(self, *args, **kwargs):
+        with self.history.pause():
+            ret_value = super(LuxDataFrame, self).notna(*args, **kwargs)
+        self.history.append_event("notnull", [], rank_type="parent")
+        ret_value.history.delete_at(-1) # isna gets added before
+        ret_value.history.append_event("notnull", [], rank_type="child")
+
+        return ret_value
+
     def dropna(self, *args, **kwargs):
         with self.history.pause():
             ret_value = super(LuxDataFrame, self).dropna(*args, **kwargs)
