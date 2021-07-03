@@ -22,7 +22,6 @@ def test_agg(global_var):
     df._ipython_display_()
     new_df = df[["Horsepower", "Brand"]].groupby("Brand").agg(sum)
     new_df._ipython_display_()
-    print(new_df.history)
     assert new_df.history[0].op_name == "groupby"
     assert new_df.pre_aggregated
 
