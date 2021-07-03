@@ -129,3 +129,40 @@ def test_slice(global_var):
     _check_log(new_df, "slice", parent_status="child")
     # parent dataframe
     _check_log(df, "slice", parent_status="parent")
+
+def test_loc(global_var):
+    # case 1: no child dataframe
+    df = pytest.car_df.copy(deep=True)
+    new_df = df.loc[0,"Weight"]
+    _check_log(df, "loc", parent_status="parent", cols=["Weight"])
+    
+    # case 2: access columns in list
+    df = pytest.car_df.copy(deep=True)
+    new_df = df.loc[0,["Weight", "Origin"]]
+    _check_log(df, "loc", parent_status="parent", cols=["Weight", "Origin"], )
+    _check_log(new_df, "loc", parent_status="child", cols=["Weight", "Origin"])
+    
+    # case 3: access columns in slice
+    df = pytest.car_df.copy(deep=True)
+    new_df = df.loc[0,:]
+    _check_log(df, "loc", parent_status="parent", cols=[])
+    _check_log(new_df, "loc", parent_status="child", cols=[])
+    
+    # case 4: access columns in a tuple of length 1
+    df = pytest.car_df.copy(deep=True)
+    new_df = df.loc[0,]
+    _check_log(df, "loc", parent_status="parent", cols=[])
+    _check_log(new_df, "loc", parent_status="child", cols=[])
+    
+    # case 5: when the child and the parent dataframe are actually the same
+    df = pytest.car_df.copy(deep=True)
+    new_df = df.loc[:,:]
+    _check_log(df, "loc", parent_status="parent", cols=[])
+    _check_log(new_df, "loc", parent_status="parent", cols=[])
+    
+    # case 6: access only by rows
+    df = pytest.car_df.copy(deep=True)
+    new_df = df.loc[0:2]
+    _check_log(df, "loc", parent_status="parent", cols=[])
+    _check_log(new_df, "loc", parent_status="child", cols=[])
+
