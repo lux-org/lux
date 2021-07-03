@@ -1159,11 +1159,11 @@ class LuxDataFrame(pd.DataFrame):
             affected_cols = list(m.index[m])
         
         ret_value = super(LuxDataFrame, self).fillna(*args, **kwargs)
-
         if affected_cols:
+            # only log the function call if the number of affected columns is greater than 0
+            if ret_value is not None:# i.e. inplace = True
+                ret_value.history.append_event("fillna", affected_cols, rank_type="child")
             self.history.append_event("fillna", affected_cols, rank_type="parent")
-            ret_value.history.append_event("fillna", affected_cols, rank_type="child")
-        
         return ret_value
         
     # def xs(self, *args, **kwargs):

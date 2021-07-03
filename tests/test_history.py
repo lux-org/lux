@@ -82,3 +82,19 @@ def test_notnull(global_var):
     _check_log(new_df, "notnull", parent_status="child")
     # parent dataframe
     _check_log(df, "notnull", parent_status="parent")
+
+def test_notna(global_var):
+    df = pytest.car_df.copy(deep=True)
+    new_df = df.notna()
+    # child dataframe
+    _check_log(new_df, "notnull", parent_status="child")
+    # parent dataframe
+    _check_log(df, "notnull", parent_status="parent")
+
+def test_dropna(global_var):
+    df = pytest.car_df.copy(deep=True)
+    new_df = df.dropna()
+    # child dataframe
+    _check_log(new_df, "dropna", parent_status="child")
+    # parent dataframe
+    _check_log(df, "dropna", parent_status="parent")
