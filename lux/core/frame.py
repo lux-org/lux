@@ -1121,7 +1121,8 @@ class LuxDataFrame(pd.DataFrame):
         with self.history.pause():
             ret_value = super(LuxDataFrame, self).isnull(*args, **kwargs)
         self.history.append_event("isna", [], rank_type="parent")
-        ret_value.history.delete_at(-1) # isna gets added twice
+        ret_value.history.delete_at(-1) # isna gets added twice 
+        ## is it? It seems that deletion of this sentence does not make a difference here.
         ret_value.history.append_event("isna", [], rank_type="child")
 
         return ret_value
