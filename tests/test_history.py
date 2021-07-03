@@ -22,3 +22,19 @@ def test_head(global_var):
     new_df = df.head()
     new_df._ipython_display_()
     assert new_df.history[0].op_name == "head"
+    assert df.history[-1].op_name == "head"
+
+def test_tail(global_var):
+    df = pytest.car_df.copy(deep=True)
+    df._ipython_display_()
+    new_df = df.tail()
+    new_df._ipython_display_()
+    assert new_df.history[0].op_name == "tail"
+    assert df.history[-1].op_name == "tail"
+
+def test_info(global_var):
+    df = pytest.car_df.copy(deep=True)
+    df._ipython_display_()
+    df.info()
+    assert df.history[-1].op_name == "info"
+
