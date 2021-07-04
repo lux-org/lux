@@ -61,90 +61,90 @@ def test_agg(global_var):
 
 def test_agg_size(global_var):
     df = pytest.car_df.copy(deep=True)
-    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    df_groupby = df[["Horsepower", "Brand", "Year"]].groupby("Brand")
     _check_log(df_groupby, "groupby")
     new_df = df_groupby.size()
-    _check_log(new_df, "size", parent_status="child", expected_length=2)
+    _check_log(new_df, "size", parent_status="child", cols=[], expected_length=2)
     assert new_df.pre_aggregated
 
 def test_agg_mean(global_var):
     df = pytest.car_df.copy(deep=True)
-    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    df_groupby = df[["Horsepower", "Brand", "Year"]].groupby("Brand")
     _check_log(df_groupby, "groupby")
     new_df = df_groupby.mean()
-    _check_log(new_df, "mean", parent_status="child", expected_length=2)
+    _check_log(new_df, "mean", parent_status="child", cols=["Horsepower"], expected_length=2)
     assert new_df.pre_aggregated
 
 def test_agg_min(global_var):
     df = pytest.car_df.copy(deep=True)
-    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    df_groupby = df[["Horsepower", "Brand", "Year"]].groupby("Brand")
     _check_log(df_groupby, "groupby")
     new_df = df_groupby.min()
-    _check_log(new_df, "min", parent_status="child", expected_length=2)
+    _check_log(new_df, "min", parent_status="child", cols=["Horsepower", "Year"], expected_length=2)
     assert new_df.pre_aggregated
 
 def test_agg_max(global_var):
     df = pytest.car_df.copy(deep=True)
-    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    df_groupby = df[["Horsepower", "Brand", "Year"]].groupby("Brand")
     _check_log(df_groupby, "groupby")
     new_df = df_groupby.max()
-    _check_log(new_df, "max", parent_status="child", expected_length=2)
+    _check_log(new_df, "max", parent_status="child", cols=["Horsepower", "Year"], expected_length=2)
     assert new_df.pre_aggregated
 
 def test_agg_count(global_var):
     df = pytest.car_df.copy(deep=True)
-    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    df_groupby = df[["Horsepower", "Brand", "Year"]].groupby("Brand")
     _check_log(df_groupby, "groupby")
     new_df = df_groupby.count()
-    _check_log(new_df, "count", parent_status="child", expected_length=2)
+    _check_log(new_df, "count", parent_status="child", cols=[], expected_length=2)
     assert new_df.pre_aggregated
 
 def test_agg_sum(global_var):
     df = pytest.car_df.copy(deep=True)
-    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    df_groupby = df[["Horsepower", "Brand", "Year"]].groupby("Brand")
     _check_log(df_groupby, "groupby")
     new_df = df_groupby.sum()
-    _check_log(new_df, "sum", parent_status="child", expected_length=2)
+    _check_log(new_df, "sum", parent_status="child", cols=["Horsepower"], expected_length=2)
     assert new_df.pre_aggregated
 
 def test_agg_prod(global_var):
     df = pytest.car_df.copy(deep=True)
-    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    df_groupby = df[["Horsepower", "Brand", "Year"]].groupby("Brand")
     _check_log(df_groupby, "groupby")
     new_df = df_groupby.prod()
-    _check_log(new_df, "prod", parent_status="child", expected_length=2)
+    _check_log(new_df, "prod", parent_status="child", cols=["Horsepower"], expected_length=2)
     assert new_df.pre_aggregated
 
 def test_agg_median(global_var):
     df = pytest.car_df.copy(deep=True)
-    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    df_groupby = df[["Horsepower", "Brand", "Year"]].groupby("Brand")
     _check_log(df_groupby, "groupby")
     new_df = df_groupby.median()
-    _check_log(new_df, "median", parent_status="child", expected_length=2)
+    _check_log(new_df, "median", parent_status="child", cols=["Horsepower"], expected_length=2)
     assert new_df.pre_aggregated
 
 def test_agg_std(global_var):
     df = pytest.car_df.copy(deep=True)
-    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    df_groupby = df[["Horsepower", "Brand", "Year"]].groupby("Brand")
     _check_log(df_groupby, "groupby")
     new_df = df_groupby.std()
-    _check_log(new_df, "std", parent_status="child", expected_length=2)
+    _check_log(new_df, "std", parent_status="child", cols=["Horsepower"], expected_length=2)
     assert new_df.pre_aggregated
 
 def test_agg_var(global_var):
     df = pytest.car_df.copy(deep=True)
-    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    df_groupby = df[["Horsepower", "Brand", "Year"]].groupby("Brand")
     _check_log(df_groupby, "groupby")
     new_df = df_groupby.var()
-    _check_log(new_df, "var", parent_status="child", expected_length=2)
+    _check_log(new_df, "var", parent_status="child", cols=["Horsepower"], expected_length=2)
     assert new_df.pre_aggregated
 
 def test_agg_sem(global_var):
     df = pytest.car_df.copy(deep=True)
-    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    df_groupby = df[["Horsepower", "Brand", "Year"]].groupby("Brand")
     _check_log(df_groupby, "groupby")
     new_df = df_groupby.sem()
-    _check_log(new_df, "sem", parent_status="child", expected_length=2)
+    _check_log(new_df, "sem", parent_status="child", cols=["Horsepower"], expected_length=2)
     assert new_df.pre_aggregated
 
 
