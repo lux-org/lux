@@ -148,6 +148,13 @@ def test_agg_sem(global_var):
     _check_log(new_df, "sem", parent_status="child", cols=[], expected_length=2)
     assert new_df.pre_aggregated
 
+def test_agg_skew(global_var):
+    df = pytest.car_df.copy(deep=True)
+    df_groupby = df[["Horsepower", "Brand", "Year"]].groupby("Brand")
+    _check_log(df_groupby, "groupby")
+    new_df = df_groupby.skew()
+    _check_log(new_df, "skew", parent_status="child", cols=[], expected_length=2)
+    assert new_df.pre_aggregated
 
 def test_filter(global_var):
     df = pytest.car_df.copy(deep=True)
