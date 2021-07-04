@@ -140,7 +140,7 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
 
         ret_value = self._lux_copymd(ret_value) 
         cols = []
-        if func_name != "size":
+        if hasattr(ret_value, "columns") and func_name != "size":
             # in groupby case, when the function is size, the returned object is a Series;
             # while for others, the returned object is a DataFrame with the affected columns as its columns
             cols = ret_value.columns.tolist()
