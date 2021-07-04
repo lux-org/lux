@@ -201,3 +201,16 @@ def test_iloc(global_var):
     new_df = df.iloc[0:2]
     _check_log(df, "iloc", parent_status="parent", cols=[])
     _check_log(new_df, "iloc", parent_status="child", cols=[])
+
+def test_aggregate(global_var):
+    # case 1: when a list was passed
+    df = pytest.car_df.copy(deep=True)
+    new_df = df.aggregate(["min"])
+    _check_log(df, "min", parent_status="parent", cols=[])
+    _check_log(new_df, "min", parent_status="child", cols=[])
+
+    # case 2: when a dict was passed
+    df = pytest.car_df.copy(deep=True)
+    new_df = df.aggregate({"Year": ["max"]})
+    _check_log(df, "max", parent_status="parent", cols=["Year"])
+    _check_log(new_df, "max", parent_status="child", cols=["Year"])
