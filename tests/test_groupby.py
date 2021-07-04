@@ -171,10 +171,9 @@ def test_get_group(global_var):
     _check_log(new_df, "groupby")
     assert not new_df.pre_aggregated
 
-
 def test_series_groupby(global_var):
     df = pytest.car_df.copy(deep=True)
     df._repr_html_()
     new_ser = df.set_index("Brand")["Displacement"].groupby(level=0).agg("mean")
-    assert new_ser.history[1].op_name == "groupby"
+    _check_log(new_ser, "mean", parent_status="child", cols=[], expected_length=3)
     assert new_ser.pre_aggregated
