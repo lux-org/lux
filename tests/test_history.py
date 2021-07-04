@@ -277,3 +277,20 @@ def test_kurt(global_var):
     new_df = df.kurt()
     _check_log(df, "kurt", parent_status="parent", cols=["Cylinders", "Horsepower"])
     _check_log(new_df, "kurt", parent_status="child", cols=["Cylinders", "Horsepower"])
+
+def test_std(global_var):
+    df = pytest.car_df.copy(deep=True)
+    with df.history.pause():
+        df = df[["Name", "Cylinders", "Horsepower", "Origin"]]
+    new_df = df.std()
+    _check_log(df, "std", parent_status="parent", cols=["Cylinders", "Horsepower"])
+    _check_log(new_df, "std", parent_status="child", cols=["Cylinders", "Horsepower"])
+
+def test_sem(global_var):
+    df = pytest.car_df.copy(deep=True)
+    with df.history.pause():
+        df = df[["Name", "Cylinders", "Horsepower", "Origin"]]
+    new_df = df.sem()
+    _check_log(df, "sem", parent_status="parent", cols=["Cylinders", "Horsepower"])
+    _check_log(new_df, "sem", parent_status="child", cols=["Cylinders", "Horsepower"])
+
