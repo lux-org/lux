@@ -214,3 +214,66 @@ def test_aggregate(global_var):
     new_df = df.aggregate({"Year": ["max"]})
     _check_log(df, "max", parent_status="parent", cols=["Year"])
     _check_log(new_df, "max", parent_status="child", cols=["Year"])
+
+def test_sum(global_var):
+    df = pytest.car_df.copy(deep=True)
+    with df.history.pause():
+        df = df[["Name", "Cylinders", "Horsepower", "Origin"]]
+    new_df = df.sum()
+    _check_log(df, "sum", parent_status="parent", cols=[])
+    _check_log(new_df, "sum", parent_status="child", cols=[])
+
+def test_prod(global_var):
+    df = pytest.car_df.copy(deep=True)
+    with df.history.pause():
+        df = df[["Name", "Cylinders", "Horsepower", "Origin"]]
+    new_df = df.prod(axis=0)
+    _check_log(df, "prod", parent_status="parent", cols=["Cylinders", "Horsepower"])
+    _check_log(new_df, "prod", parent_status="child", cols=["Cylinders", "Horsepower"])
+
+def test_max(global_var):
+    # df.max()
+    df = pytest.car_df.copy(deep=True)
+    new_df = df.max()
+    _check_log(df, "max", parent_status="parent", cols=[])
+    _check_log(new_df, "max", parent_status="child", cols=[])
+
+def test_min(global_var):
+    df = pytest.car_df.copy(deep=True)
+    with df.history.pause():
+        df = df[["Name", "Cylinders", "Horsepower", "Origin"]]
+    new_df = df.min()
+    _check_log(df, "min", parent_status="parent", cols=[])
+    _check_log(new_df, "min", parent_status="child", cols=[])
+
+def test_mean(global_var):
+    df = pytest.car_df.copy(deep=True)
+    with df.history.pause():
+        df = df[["Name", "Cylinders", "Horsepower", "Origin"]]
+    new_df = df.mean()
+    _check_log(df, "mean", parent_status="parent", cols=["Cylinders", "Horsepower"])
+    _check_log(new_df, "mean", parent_status="child", cols=["Cylinders", "Horsepower"])
+
+def test_median(global_var):
+    df = pytest.car_df.copy(deep=True)
+    with df.history.pause():
+        df = df[["Name", "Cylinders", "Horsepower", "Origin"]]
+    new_df = df.median()
+    _check_log(df, "median", parent_status="parent", cols=["Cylinders", "Horsepower"])
+    _check_log(new_df, "median", parent_status="child", cols=["Cylinders", "Horsepower"])
+
+def test_skew(global_var):
+    df = pytest.car_df.copy(deep=True)
+    with df.history.pause():
+        df = df[["Name", "Cylinders", "Horsepower", "Origin"]]
+    new_df = df.skew()
+    _check_log(df, "skew", parent_status="parent", cols=["Cylinders", "Horsepower"])
+    _check_log(new_df, "skew", parent_status="child", cols=["Cylinders", "Horsepower"])
+
+def test_kurt(global_var):
+    df = pytest.car_df.copy(deep=True)
+    with df.history.pause():
+        df = df[["Name", "Cylinders", "Horsepower", "Origin"]]
+    new_df = df.kurt()
+    _check_log(df, "kurt", parent_status="parent", cols=["Cylinders", "Horsepower"])
+    _check_log(new_df, "kurt", parent_status="child", cols=["Cylinders", "Horsepower"])
