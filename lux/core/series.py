@@ -332,6 +332,12 @@ class LuxSeries(pd.Series):
 
         # add to history
         self._history.append_event("value_counts", [self.name]) # df.col
+        if ret_value.history.check_event(-1, op_name="col_ref", cols=[self.name]):
+            ret_value.history.edit_event(-1, "value_counts", [self.name], rank_type="child")
+        else: 
+            ret_value.history.append_event("value_counts", [self.name], rank_type="child")
+        ## otherwise, there are two logs, one for col_ref, the othere for value_counts
+        ## because it directly copies the history of the parent dataframe
         ret_value._history.append_event("value_counts", [self.name], rank_type = "child") # df.col.value_counts
         self.add_to_parent_history("value_counts", [self.name]) # df
 
