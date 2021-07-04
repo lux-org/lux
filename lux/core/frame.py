@@ -1232,26 +1232,33 @@ class LuxDataFrame(pd.DataFrame):
         ret_value.history = self.history.copy()
         ret_value._parent_df = self
        
+        def get_func_name(func):
+            if callable(func):
+                return func.__name__
+            else: # it should be of the string type
+                return func
         # Not already logged since history frozen
         if isinstance(func, str):
             # ret value got history in child func but parent was frozen       
             self.history.append_event(func, [], rank_type="parent", child_df=ret_value)
-
+        elif callable(func):
+            # it could be possible that users directly pass the function variable to aggregate
+            self.history.append_event(func.__name__, [], rank_type="parent", child_df=ret_value)
         # for some reason is_list_like(dict) == True so MUST compare dict first 
         elif is_dict_like(func):
             for col, aggs in func.items():
                 if is_list_like(aggs):
                     for a in aggs:
-                        ret_value.history.append_event(a, [col], rank_type="child", child_df=None)
-                        self.history.append_event(a, [col], rank_type="parent", child_df=ret_value)
+                        ret_value.history.append_event(get_func_name(a), [col], rank_type="child", child_df=None)
+                        self.history.append_event(get_func_name(a), [col], rank_type="parent", child_df=ret_value)
                 else: # is aggs is str
-                    ret_value.history.append_event(aggs, [col], rank_type="child", child_df=None)
-                    self.history.append_event(aggs, [col], rank_type="parent", child_df=ret_value)
+                    ret_value.history.append_event(get_func_name(aggs), [col], rank_type="child", child_df=None)
+                    self.history.append_event(get_func_name(aggs), [col], rank_type="parent", child_df=ret_value)
         
         elif is_list_like(func):
             for f_name in func:
-                ret_value.history.append_event(f_name, [], rank_type="child", child_df=None)
-                self.history.append_event(f_name, [], rank_type="parent", child_df=ret_value)
+                ret_value.history.append_event(get_func_name(f_name), [], rank_type="child", child_df=None)
+                self.history.append_event(get_func_name(f_name), [], rank_type="parent", child_df=ret_value)
 
         return ret_value
     
