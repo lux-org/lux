@@ -16,15 +16,46 @@ from .context import lux
 import pytest
 import pandas as pd
 
+def _check_log(df, op_name, parent_status=None, cols=None, expected_length=1):
+    assert df.history[-1].op_name == op_name, "The %s() call is not logged to the child dataframe." % op_name
+    assert len(df.history) == expected_length, "Other function calls are logged to the child dataframe unnecessarily."
+    if parent_status is not None:
+        assert df.history[-1].kwargs.get("rank_type", None) == parent_status, "The rank type is supposed to be set as %s" % parent_status 
+    if cols is not None:
+        assert set(df.history[-1].cols) == set(cols), "These columns should be logged as attributes of the event {}".format(cols)
 
 def test_agg(global_var):
+    # case 1 when passes a single function
     df = pytest.car_df.copy(deep=True)
-    df._ipython_display_()
-    new_df = df[["Horsepower", "Brand"]].groupby("Brand").agg(sum)
-    new_df._ipython_display_()
-    assert new_df.history[0].op_name == "groupby"
+    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    _check_log(df_groupby, "groupby")
+    new_df = df_groupby.agg(sum)
+    _check_log(new_df, "sum", parent_status="child", expected_length=2)
     assert new_df.pre_aggregated
 
+    # case 2 when passes a single function string
+    df = pytest.car_df.copy(deep=True)
+    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    _check_log(df_groupby, "groupby")
+    new_df = df_groupby.agg("mean")
+    _check_log(new_df, "mean", parent_status="child", expected_length=2)
+    assert new_df.pre_aggregated
+
+    # case 3 when passes a list of functions
+    df = pytest.car_df.copy(deep=True)
+    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    _check_log(df_groupby, "groupby")
+    new_df = df_groupby.agg(["std"])
+    _check_log(new_df, "std", parent_status="child", expected_length=2)
+    assert new_df.pre_aggregated
+
+    # case 4 when passes a dict
+    df = pytest.car_df.copy(deep=True)
+    df_groupby = df[["Horsepower", "Brand"]].groupby("Brand")
+    _check_log(df_groupby, "groupby")
+    new_df = df_groupby.agg({"Horsepower": "var"})
+    _check_log(new_df, "var", parent_status="child", cols=["Horsepower"], expected_length=2)
+    assert new_df.pre_aggregated
 
 def test_shortcut_agg(global_var):
     df = pytest.car_df.copy(deep=True)
@@ -75,6 +106,5 @@ def test_series_groupby(global_var):
     df = pytest.car_df.copy(deep=True)
     df._repr_html_()
     new_ser = df.set_index("Brand")["Displacement"].groupby(level=0).agg("mean")
-    print(new_ser.history)
     assert new_ser.history[1].op_name == "groupby"
     assert new_ser.pre_aggregated
