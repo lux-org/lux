@@ -139,7 +139,15 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
             ret_value = method(*args, **kwargs)  
 
         ret_value = self._lux_copymd(ret_value) 
-        ret_value.history.append_event(func_name, [], rank_type="child", child_df=None)
+        cols = []
+        if func_name != "size":
+            # in groupby case, when the function is size, the returned object is a Series;
+            # while for others, the returned object is a DataFrame with the affected columns as its columns
+            cols = ret_value.columns.tolist()
+            # if so, the func has been applied to each column, we do not need to log column information
+            if self._parent_df is not None and (len(cols) == len(self._parent_df.columns) - 1):
+                cols = []
+        ret_value.history.append_event(func_name, cols, rank_type="child", child_df=None)
         ret_value._parent_df = self 
 
         return ret_value
@@ -177,6 +185,11 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
     def sem(self, *args, **kwargs):
         return self._eval_agg_function_lux("sem", *args, **kwargs)
 
+    def skew(self, *args, **kwargs):
+        return self._eval_agg_function_lux("skew", *args, **kwargs)
+
+    def kurt(self, *args, **kwargs):
+        return self._eval_agg_function_lux("kurt", *args, **kwargs)
 
 class LuxDataFrameGroupBy(LuxGroupBy, pd.core.groupby.generic.DataFrameGroupBy):
     def __init__(self, *args, **kwargs):
