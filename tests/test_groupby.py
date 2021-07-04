@@ -158,10 +158,10 @@ def test_agg_skew(global_var):
 
 def test_filter(global_var):
     df = pytest.car_df.copy(deep=True)
-    df._ipython_display_()
-    new_df = df.groupby("Origin").filter(lambda x: x["Weight"].mean() > 3000)
-    new_df._ipython_display_()
-    assert new_df.history[0].op_name == "groupby"
+    df_groupby = df.groupby("Origin")
+    _check_log(df_groupby, "groupby")
+    new_df = df_groupby.filter(lambda x: x["Weight"].mean() > 3000)
+    _check_log(new_df, "gb_filter", parent_status="child", cols=[], expected_length=2)
     assert not new_df.pre_aggregated
 
 
