@@ -164,13 +164,11 @@ def test_filter(global_var):
     _check_log(new_df, "gb_filter", parent_status="child", cols=[], expected_length=2)
     assert not new_df.pre_aggregated
 
-
 def test_get_group(global_var):
     df = pytest.car_df.copy(deep=True)
-    df._ipython_display_()
     new_df = df.groupby("Origin").get_group("Japan")
-    new_df._ipython_display_()
     assert new_df.history[0].op_name == "groupby"
+    _check_log(new_df, "groupby")
     assert not new_df.pre_aggregated
 
 
