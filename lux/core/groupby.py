@@ -188,9 +188,6 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
     def skew(self, *args, **kwargs):
         return self._eval_agg_function_lux("skew", *args, **kwargs)
 
-    def kurt(self, *args, **kwargs):
-        return self._eval_agg_function_lux("kurt", *args, **kwargs)
-
 class LuxDataFrameGroupBy(LuxGroupBy, pd.core.groupby.generic.DataFrameGroupBy):
     def __init__(self, *args, **kwargs):
         super(LuxDataFrameGroupBy, self).__init__(*args, **kwargs)
