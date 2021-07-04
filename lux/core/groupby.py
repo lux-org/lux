@@ -56,11 +56,9 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
             else: # it should be of the string type
                 return func
 
-        if isinstance(func, str):     
-            ret_value.history.append_event(func, [], rank_type="child", child_df=None)
-        elif callable(func):
-            # it could be possible that users directly pass the function variable to aggregate
-            ret_value.history.append_event(func.__name__, [], rank_type="child", child_df=None)
+        if isinstance(func, str) or callable(func):
+             # it could be possible that users directly pass the function variable to aggregate
+            ret_value.history.append_event(get_func_name(func), [], rank_type="child", child_df=None)
         # for some reason is_list_like({}) == True so MUST compare dict first 
         elif is_dict_like(func):
             for col, aggs in func.items():
