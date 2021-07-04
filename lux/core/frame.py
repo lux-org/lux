@@ -1287,8 +1287,15 @@ class LuxDataFrame(pd.DataFrame):
         ret_value.history = self.history.copy()
         ret_value.pre_aggregated = True
 
+        cols = []
+        if args[1] is None or args[1] == 0:
+            # then the function was applied to each column, we could retrieve these affected columns from the ret_value
+            cols = ret_value.index.tolist()
+            # if so, the func has been applied to each column, we do not need to log column information
+            if len(cols) == len(self.columns):
+                cols = []
         # history
-        ret_value.history.append_event(name, [], rank_type="child", child_df=None)
-        self.history.append_event(name, [], rank_type="parent", child_df=ret_value) # TODO Logging this on parent may be misleading and not using for vis rn
+        ret_value.history.append_event(name, cols, rank_type="child", child_df=None)
+        self.history.append_event(name, cols, rank_type="parent", child_df=ret_value) # TODO Logging this on parent may be misleading and not using for vis rn
 
         return ret_value
