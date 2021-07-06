@@ -243,7 +243,7 @@ class VisList:
         elif lux.config.sort == "descending":
             descending = True
         # sort in-place by “score” by default if available, otherwise user-specified field to sort by
-        
+
         # add more weight to columns in implicit intent
         if intent_cols:
             self.normalize_score()
@@ -251,12 +251,12 @@ class VisList:
 
             for i, c in enumerate(intent_cols):
                 ic_map[c] = len(intent_cols) - i
-            
+
             for vis in self._collection:
                 new_s = 0
                 for intnt in vis._inferred_intent:
                     new_s += ic_map.get(intnt.attribute, 0)
-                
+
                 vis.score += new_s
 
         self._collection.sort(key=lambda x: x.score, reverse=descending)
@@ -272,13 +272,13 @@ class VisList:
     def normalize_score(self, invert_order=False):
         try:
             max_score = max(list(self.get("score")))
-            # only reassign if max score isnt none or 0 
-            if max_score: 
+            # only reassign if max score isnt none or 0
+            if max_score:
                 for dobj in self._collection:
                     dobj.score = dobj.score / max_score
                     if invert_order:
                         dobj.score = 1 - dobj.score
-        except ValueError: 
+        except ValueError:
             # fails if self._collection is empty
             pass
 
@@ -303,7 +303,7 @@ class VisList:
             intent="",
             message="",
             config={"plottingScale": lux.config.plotting_scale},
-            history_list=[]
+            history_list=[],
         )
         display(self._widget)
 
@@ -339,13 +339,13 @@ class VisList:
                 if self._is_vis_input():
                     compiled_collection = []
                     for vis in self._collection:
-                        vis._inferred_intent = Parser.parse(vis._intent) 
+                        vis._inferred_intent = Parser.parse(vis._intent)
                         Validator.validate_intent(vis._inferred_intent, ldf)
                         Compiler.compile_vis(ldf, vis)
                         compiled_collection.append(vis)
                     self._collection = compiled_collection
                 else:
-                    self._inferred_intent = Parser.parse(self._intent) # same as input if valid
+                    self._inferred_intent = Parser.parse(self._intent)  # same as input if valid
                     Validator.validate_intent(self._inferred_intent, ldf)
                     self._collection = Compiler.compile_intent(ldf, self._inferred_intent)
 

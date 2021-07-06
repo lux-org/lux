@@ -37,7 +37,6 @@ import lux
 from IPython.core.debugger import set_trace
 
 
-
 class LuxDataFrame(pd.DataFrame):
     """
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
@@ -107,7 +106,6 @@ class LuxDataFrame(pd.DataFrame):
             # note assigning to self here does nothing since local
             self.__finalize__(args[0])
             rename_from_history(self, args[0])
-            
 
     @property
     def _constructor(self):
@@ -119,8 +117,8 @@ class LuxDataFrame(pd.DataFrame):
         # return f
         return LuxDataFrame
 
-    # 
-    # This is called when a series is returned from the df 
+    #
+    # This is called when a series is returned from the df
     @property
     def _constructor_sliced(self):
         def f(*args, **kwargs):
@@ -136,7 +134,7 @@ class LuxDataFrame(pd.DataFrame):
     @property
     def history(self):
         return self._history
-    
+
     @history.setter
     def history(self, history: History):
         self._history = history
@@ -200,7 +198,6 @@ class LuxDataFrame(pd.DataFrame):
             self._min_max = None
             # self.pre_aggregated = None
 
-
     def _infer_structure(self):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels != 1
@@ -212,7 +209,9 @@ class LuxDataFrame(pd.DataFrame):
             self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
             if "Number of Records" in self.columns:
                 self.pre_aggregated = True
-            self.pre_aggregated = "groupby" in [event.op_name for event in self.history] and not is_sql_tbl
+            self.pre_aggregated = (
+                "groupby" in [event.op_name for event in self.history] and not is_sql_tbl
+            )
 
     @property
     def intent(self):
@@ -249,14 +248,12 @@ class LuxDataFrame(pd.DataFrame):
         self.intent = []
         self.expire_recs()
 
-
     def set_intent(self, intent: List[Union[str, Clause]]):
         self.expire_recs()
         self._intent = intent
         self._parse_validate_compile_intent()
         self.log_current_intent_to_history()
-        
-    
+
     def set_intent_as_vis(self, vis: Vis):
         """
         Set intent of the dataframe based on the intent of a Vis
@@ -269,15 +266,14 @@ class LuxDataFrame(pd.DataFrame):
         self.expire_recs()
         self._intent = vis._inferred_intent
         self._current_vis = [vis]
-        
+
         if type(vis) == CustomVis:
-            self._parse_validate_compile_intent(update_curr_vis=False) 
+            self._parse_validate_compile_intent(update_curr_vis=False)
         else:
             self._parse_validate_compile_intent(update_curr_vis=True)
 
         self.log_current_intent_to_history()
 
-    
     def log_current_intent_to_history(self):
 
         attrs = []
@@ -289,7 +285,7 @@ class LuxDataFrame(pd.DataFrame):
                 for a in clause.attribute:
                     if a and a in self.columns:
                         attrs.append(a)
-        
+
         if attrs:
             self.history.append_event("intent_set", attrs)
 
@@ -403,10 +399,10 @@ class LuxDataFrame(pd.DataFrame):
         # check to see if globally defined actions have been registered/removed
         if lux.config.update_actions["flag"] == True:
             self._recs_fresh = False
-        
+
         self._message = Message()
 
-        # Add warning messages 
+        # Add warning messages
         # --------------------
         if len(self) == 0:
             self._message.add(f"Lux cannot operate on an empty {is_series}.")
@@ -442,6 +438,7 @@ class LuxDataFrame(pd.DataFrame):
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
+
             # from lux.action.implicit_tab import implicit_mre
 
             # TODO: Rewrite these as register action inside default actions
@@ -475,7 +472,6 @@ class LuxDataFrame(pd.DataFrame):
         # re-render widget for the current dataframe if previous rec is not recomputed
         self._recs_fresh = True
         self.history.unfreeze()
-
 
     #######################################################
     ############## LuxWidget Result Display ###############
@@ -561,6 +557,7 @@ class LuxDataFrame(pd.DataFrame):
                 stacklevel=2,
             )
             return []
+
     #####################
     # UI event handlers #
     #####################
@@ -587,23 +584,26 @@ class LuxDataFrame(pd.DataFrame):
             clear_output()
             display(self._widget)
 
-        self._widget.observe(self.remove_deleted_recs, names="deletedIndices") # NOTE observe syncs with frontend
+        self._widget.observe(
+            self.remove_deleted_recs, names="deletedIndices"
+        )  # NOTE observe syncs with frontend
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
-        self._widget.observe(self.remove_history_item, names="deletedHistoryItem") # TODO why does this need to be declared here too
+        self._widget.observe(
+            self.remove_history_item, names="deletedHistoryItem"
+        )  # TODO why does this need to be declared here too
         self._widget.observe(self.set_history_on_click, names="selectedHistoryIdx")
 
-    
     def remove_history_item(self, change):
         """
-        Delete history item. 
+        Delete history item.
         """
         mre_deleted = self._widget.deletedHistoryItem
 
         # obj = mre_deleted["item"]
         idx = mre_deleted["idx"]
-        
+
         self.history.delete_at(idx)
-    
+
     def set_history_on_click(self, change):
         """
         Update the history item being visualized
@@ -617,7 +617,7 @@ class LuxDataFrame(pd.DataFrame):
         with self.output:
             clear_output()
             display(self._widget)
-        
+
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
         self._widget.observe(self.remove_history_item, names="deletedHistoryItem")
@@ -650,7 +650,7 @@ class LuxDataFrame(pd.DataFrame):
 
                 # clear history select. NOTE might be better to clear only when new history item added
                 self.selectedHistoryIndex = None
-                # compute recommendation tabs 
+                # compute recommendation tabs
                 self.maintain_recs()
 
                 # Observers(callback_function, listen_to_this_variable)
@@ -738,17 +738,18 @@ class LuxDataFrame(pd.DataFrame):
 
         """
         check_import_lux_widget()
-        import luxwidget # widget code from other repo 
-        
+        import luxwidget  # widget code from other repo
+
         hJSON = self.history.to_JSON()
         widgetJSON = self.to_JSON(input_current_vis=input_current_vis)
-        
+
         # get single function vis
         from lux.action.implicit_tab import implicit_mre
+
         implicit_mre_rec, curr_hist_index = implicit_mre(self, self.selectedHistoryIndex)
         implicit_mre_JSON = LuxDataFrame.rec_to_JSON([implicit_mre_rec])
-        
-        return luxwidget.LuxWidget( 
+
+        return luxwidget.LuxWidget(
             currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
             intent=LuxDataFrame.intent_to_string(self._intent),
@@ -787,7 +788,7 @@ class LuxDataFrame(pd.DataFrame):
             )
         else:
             widget_spec["current_vis"] = {}
-        
+
         # Recommended Collection
         widget_spec["recommendation"] = LuxDataFrame.rec_to_JSON(self._rec_info)
 
@@ -811,8 +812,9 @@ class LuxDataFrame(pd.DataFrame):
     def rec_to_JSON(recs):
         rec_lst = []
         import copy
+
         rec_copy = copy.deepcopy(recs)
-        # TODO is this copy creating large memory footprint? 
+        # TODO is this copy creating large memory footprint?
 
         for idx, rec in enumerate(rec_copy):
             if len(rec["collection"]) > 0:
@@ -918,7 +920,7 @@ class LuxDataFrame(pd.DataFrame):
     ## Override Pandas ##
     #####################
 
-    ## state overrides 
+    ## state overrides
     # NOTE: whats rationale for expiring on these?
     def _set_axis(self, axis, labels):
         super(LuxDataFrame, self)._set_axis(axis, labels)
@@ -940,17 +942,17 @@ class LuxDataFrame(pd.DataFrame):
         """
         Called when:
             df.col
-        
+
         This calls  __getitem__ internally.
         """
         ret_value = super(LuxDataFrame, self).__getattr__(name)
 
-        # lux 
+        # lux
         # self.expire_metadata()
         # self.expire_recs()
 
         return ret_value
-    
+
     def __getitem__(self, key):
         """
         Called when selecting like below
@@ -962,45 +964,44 @@ class LuxDataFrame(pd.DataFrame):
         # single item like str "col_name"
         if is_hashable(key) and key in self.columns:
             self.history.append_event("col_ref", [key])
-        
+
         elif is_list_like(key):
             checked_keys = []
             for item in key:
                 if is_hashable(item) and item in self.columns:
                     checked_keys.append(item)
-            
+
             if len(checked_keys):
                 self.history.append_event("col_ref", checked_keys)
-        
+
         return ret_value
-    
+
     def __setitem__(self, key, value):
         """
         Called when assigning new item to df like below.
             df["new_col"] = ...
 
-        Note: for assignments to and from same column (like df.A = df.A + 1), this results in two logs. 
+        Note: for assignments to and from same column (like df.A = df.A + 1), this results in two logs.
         One here and one in the __getitem__
         """
         super(LuxDataFrame, self).__setitem__(key, value)
 
         if is_hashable(key) and key in self.columns:
             self.history.append_event("assign", [key])
-        
+
         # # when assiging to same col, dont log twice
         # if self.history.check_event(-1, op_name="col_ref", cols=[key]):
         #     self.history.edit_event(-1, "col_ref", [key])
-
 
     def __finalize__(
         self: FrameOrSeries, other, method: Optional[str] = None, **kwargs
     ) -> FrameOrSeries:
         """
-        Finalize gets called a LOT by pandas. It is used to copy over anything defined in the 
-        class _metadata array when a new df is returned on a call to the original df. 
-        Since the history is an instance variable it's a bit hacky to attach it to the metadata 
-        so we have to override and make sure we use a copy of history and not the same object. 
-        
+        Finalize gets called a LOT by pandas. It is used to copy over anything defined in the
+        class _metadata array when a new df is returned on a call to the original df.
+        Since the history is an instance variable it's a bit hacky to attach it to the metadata
+        so we have to override and make sure we use a copy of history and not the same object.
+
         Since histories are pretty small this shouldnt cause too much overhead.
         """
         _this = super(LuxDataFrame, self).__finalize__(other, method, **kwargs)
@@ -1009,7 +1010,7 @@ class LuxDataFrame(pd.DataFrame):
         _this._parent_df = other
 
         return _this
-    
+
     def _getitem_bool_array(self, key):
         """
         Called after a filter.
@@ -1025,12 +1026,12 @@ class LuxDataFrame(pd.DataFrame):
         ret_value.history.append_event("filter", [], rank_type="child", child_df=None, filt_key=key)
 
         return ret_value
-    
-    # History logging functions 
+
+    # History logging functions
     def head(self, n: int = 5):
         ret_frame = super(LuxDataFrame, self).head(n)
         self._parent_df = self
-       
+
         # save history on self and returned df
         self.history.append_event("head", [], n)
         ret_frame.history.append_event("head", [], n)
@@ -1039,7 +1040,7 @@ class LuxDataFrame(pd.DataFrame):
     def tail(self, n: int = 5):
         ret_frame = super(LuxDataFrame, self).tail(n)
         self._parent_df = self
-        
+
         # save history on self and returned df
         self.history.append_event("tail", [], n)
         ret_frame.history.append_event("tail", [], n)
@@ -1048,33 +1049,33 @@ class LuxDataFrame(pd.DataFrame):
     def info(self, *args, **kwargs):
         self._pandas_only = True
         self.history.append_event("info", [], *args, **kwargs)
-        return super(LuxDataFrame, self).info(*args, **kwargs) # returns None
+        return super(LuxDataFrame, self).info(*args, **kwargs)  # returns None
 
     def describe(self, *args, **kwargs):
-        with self.history.pause(): # calls unique internally
-            ret_frame =  super(LuxDataFrame, self).describe(*args, **kwargs)
+        with self.history.pause():  # calls unique internally
+            ret_frame = super(LuxDataFrame, self).describe(*args, **kwargs)
 
         ret_frame._parent_df = self
         ret_frame.history = self.history.copy()
 
         used_cols = list(ret_frame.columns)
-        
+
         # save history on self and returned df
         self.history.append_event("describe", used_cols, rank_type="parent", *args, **kwargs)
         ret_frame.history.append_event("describe", used_cols, rank_type="child")
-        ret_frame.pre_aggregated = True # this doesnt do anything rn to affect plotting
+        ret_frame.pre_aggregated = True  # this doesnt do anything rn to affect plotting
         return ret_frame
-    
+
     def query(self, expr: str, inplace: bool = False, **kwargs):
         ret_value = super(LuxDataFrame, self).query(expr, inplace, **kwargs)
 
         self.history.append_event("query", [], rank_type="parent", child_df=ret_value, filt_key=None)
-        if ret_value is not None: # i.e. inplace = True
+        if ret_value is not None:  # i.e. inplace = True
             ret_value.history.append_event("query", [], rank_type="child", child_df=None, filt_key=None)
 
         return ret_value
-    
-    # null check functions 
+
+    # null check functions
     def isna(self, *args, **kwargs):
         with self.history.pause():
             ret_value = super(LuxDataFrame, self).isna(*args, **kwargs)
@@ -1082,67 +1083,67 @@ class LuxDataFrame(pd.DataFrame):
         ret_value.history.append_event("isna", [], rank_type="child")
 
         return ret_value
-    
+
     def isnull(self, *args, **kwargs):
         with self.history.pause():
             ret_value = super(LuxDataFrame, self).isnull(*args, **kwargs)
         self.history.append_event("isna", [], rank_type="parent")
-        ret_value.history.delete_at(-1) # isna gets added twice
+        ret_value.history.delete_at(-1)  # isna gets added twice
         ret_value.history.append_event("isna", [], rank_type="child")
 
         return ret_value
-    
+
     def notnull(self, *args, **kwargs):
         with self.history.pause():
             ret_value = super(LuxDataFrame, self).notnull(*args, **kwargs)
         self.history.append_event("notnull", [], rank_type="parent")
-        ret_value.history.delete_at(-1) # isna gets added twice
+        ret_value.history.delete_at(-1)  # isna gets added twice
         ret_value.history.append_event("notnull", [], rank_type="child")
 
         return ret_value
-    
+
     def dropna(self, *args, **kwargs):
         with self.history.pause():
             ret_value = super(LuxDataFrame, self).dropna(*args, **kwargs)
-        
+
         self.history.append_event("dropna", [], rank_type="parent", child_df=ret_value, filt_key=None)
-        if ret_value is not None: # i.e. inplace = True
+        if ret_value is not None:  # i.e. inplace = True
             ret_value.history.append_event("dropna", [], rank_type="child", child_df=None, filt_key=None)
 
         return ret_value
-    
+
     def fillna(self, *args, **kwargs):
         affected_cols = []
         with self.history.pause():
             m = self.isna().any()
             affected_cols = list(m.index[m])
-        
+
         ret_value = super(LuxDataFrame, self).fillna(*args, **kwargs)
 
         if affected_cols:
             self.history.append_event("fillna", affected_cols, rank_type="parent")
             ret_value.history.append_event("fillna", affected_cols, rank_type="child")
-        
+
         return ret_value
-    
+
     # @property
     # def loc(self, *args, **kwargs):  # -> _LocIndexer from pd.core.indexing._LocIndexer
     #     ret_value = super(LuxDataFrame, self).loc(*args, **kwargs)
-        
+
     #     return ret_value
-    
+
     def _slice(self: FrameOrSeries, slobj: slice, axis=0) -> FrameOrSeries:
         """
-        Called whenever the df is accessed like df[1:3] or some slice. Also called by 
+        Called whenever the df is accessed like df[1:3] or some slice. Also called by
         df.loc[33:55] but cannot override loc directly since loc returns a _LocIndexer
         not a dataframe
         """
         ret_value = super(LuxDataFrame, self)._slice(slobj, axis)
-        
+
         self.history.append_event("slice", [], rank_type="parent", child_df=ret_value, filt_key=None)
-        if ret_value is not None: # i.e. inplace = True
+        if ret_value is not None:  # i.e. inplace = True
             ret_value.history.append_event("slice", [], rank_type="child", child_df=None, filt_key=None)
-        
+
         return ret_value
 
     def groupby(self, *args, **kwargs):
@@ -1157,69 +1158,70 @@ class LuxDataFrame(pd.DataFrame):
         if history_flag:
             groupby_obj.history = groupby_obj.history.copy()
             groupby_obj.history.append_event("groupby", [], *args, **kwargs)
-        
+
         groupby_obj.pre_aggregated = True
         groupby_obj._parent_df = self
         return groupby_obj
-    
-    # agg functions 
+
+    # agg functions
     def aggregate(self, func=None, axis=0, *args, **kwargs):
         with self.history.pause():
             ret_value = super(LuxDataFrame, self).aggregate(func, axis, *args, **kwargs)
-        
+
         ret_value.pre_aggregated = True
         ret_value.history = self.history.copy()
         ret_value._parent_df = self
-       
+
         # Not already logged since history frozen
         if isinstance(func, str):
-            # ret value got history in child func but parent was frozen       
+            # ret value got history in child func but parent was frozen
             self.history.append_event(func, [], rank_type="parent", child_df=ret_value)
 
-        # for some reason is_list_like(dict) == True so MUST compare dict first 
+        # for some reason is_list_like(dict) == True so MUST compare dict first
         elif is_dict_like(func):
             for col, aggs in func.items():
                 if is_list_like(aggs):
                     for a in aggs:
                         ret_value.history.append_event(a, [col], rank_type="child", child_df=None)
                         self.history.append_event(a, [col], rank_type="parent", child_df=ret_value)
-                else: # is aggs is str
+                else:  # is aggs is str
                     ret_value.history.append_event(aggs, [col], rank_type="child", child_df=None)
                     self.history.append_event(aggs, [col], rank_type="parent", child_df=ret_value)
-        
+
         elif is_list_like(func):
             for f_name in func:
                 ret_value.history.append_event(f_name, [], rank_type="child", child_df=None)
                 self.history.append_event(f_name, [], rank_type="parent", child_df=ret_value)
 
         return ret_value
-    
+
     agg = aggregate
-    
+
     """
     called for min, max, mean, median, skew, kurt (kurtosis)
     """
+
     def _stat_function(self, name: str, *args, **kwargs):
         return self._eval_agg_function_lux(name, "_stat_function", *args, **kwargs)
 
-    
     """
     called for sum, prod
     """
+
     def _min_count_stat_function(self, name: str, *args, **kwargs):
         return self._eval_agg_function_lux(name, "_min_count_stat_function", *args, **kwargs)
-    
+
     """
     called for std, var, sem
     """
+
     def _stat_function_ddof(self, name: str, *args, **kwargs):
         return self._eval_agg_function_lux(name, "_stat_function_ddof", *args, **kwargs)
 
-    
     def _eval_agg_function_lux(self, name: str, func_name: str, *args, **kwargs):
         with self.history.pause():
             method = getattr(super(LuxDataFrame, self), func_name)
-            ret_value = method(name, *args, **kwargs)        
+            ret_value = method(name, *args, **kwargs)
 
         # meta data
         ret_value._parent_df = self
@@ -1228,6 +1230,8 @@ class LuxDataFrame(pd.DataFrame):
 
         # history
         ret_value.history.append_event(name, [], rank_type="child", child_df=None)
-        self.history.append_event(name, [], rank_type="parent", child_df=ret_value) # TODO Logging this on parent may be misleading and not using for vis rn
+        self.history.append_event(
+            name, [], rank_type="parent", child_df=ret_value
+        )  # TODO Logging this on parent may be misleading and not using for vis rn
 
         return ret_value

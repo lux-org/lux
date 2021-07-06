@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+
 class Event:
     """
     Event represents a single operation applied to the dataframe, with input arguments of operation recorded
@@ -20,20 +21,16 @@ class Event:
     def __init__(self, op_name, cols, ex_count, *args, **kwargs):
         if type(cols) != list:
             cols = [cols]
-        
+
         self.op_name = op_name
         self.cols = cols
         self.ex_count = ex_count
         self.args = args
         self.kwargs = kwargs
-    
+
     def copy(self):
-        event_copy = Event(self.op_name, 
-                            self.cols, 
-                            self.ex_count,
-                            *self.args,
-                            **self.kwargs)
-        
+        event_copy = Event(self.op_name, self.cols, self.ex_count, *self.args, **self.kwargs)
+
         return event_copy
 
     def __repr__(self):
@@ -44,8 +41,13 @@ class Event:
             s += f", args={self.args}, kwargs={self.kwargs.keys()}"
         s += ">"
         return s
-    
-    def to_JSON(self):
-        returned_new_df = (self.kwargs.get("rank_type", None) == "parent")
 
-        return {"op_name": self.op_name, "cols": self.cols, "ex_count": self.ex_count, "ret_new_df": returned_new_df}
+    def to_JSON(self):
+        returned_new_df = self.kwargs.get("rank_type", None) == "parent"
+
+        return {
+            "op_name": self.op_name,
+            "cols": self.cols,
+            "ex_count": self.ex_count,
+            "ret_new_df": returned_new_df,
+        }

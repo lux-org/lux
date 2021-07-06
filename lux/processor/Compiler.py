@@ -27,6 +27,7 @@ import lux
 
 from IPython.core.debugger import set_trace
 
+
 class Compiler:
     """
     Given a intent with underspecified inputs, compile the intent into fully specified visualizations for visualization.
@@ -34,12 +35,12 @@ class Compiler:
 
     # static var for count col bc used a lot
     count_col = Clause(
-            attribute="Record",
-            aggregation="count",
-            data_model="measure",
-            data_type="quantitative",
-        )
-    
+        attribute="Record",
+        aggregation="count",
+        data_model="measure",
+        data_type="quantitative",
+    )
+
     def __init__(self):
         self.name = "Compiler"
         warnings.formatwarning = lux.warning_format
@@ -64,7 +65,9 @@ class Compiler:
         """
         if vis:
             # autofill data type/model information
-            Compiler.populate_data_type_model(ldf, [vis]) # DEBUG NOTE this doesnt count the record as measure if already present
+            Compiler.populate_data_type_model(
+                ldf, [vis]
+            )  # DEBUG NOTE this doesnt count the record as measure if already present
             # remove invalid visualizations from collection
             Compiler.remove_all_invalid([vis])
             # autofill viz related information
@@ -103,9 +106,9 @@ class Compiler:
             for vis in vis_collection:
                 # autofill viz related information
                 Compiler.determine_encoding(ldf, vis)
-                        
+
             vis_collection = Compiler.enforce_mark_type(_inferred_intent, vis_collection)
-            vis_collection.remove_duplicates() # BUG this doesnt remove dups where the intent may look different but vis is the same
+            vis_collection.remove_duplicates()  # BUG this doesnt remove dups where the intent may look different but vis is the same
 
             ldf._compiled = True
             return vis_collection
@@ -114,24 +117,22 @@ class Compiler:
 
     @staticmethod
     def enforce_mark_type(_inferred_intent: List[Clause], vis_collection: VisList) -> VisList:
-        """ 
-        Hacky way to make sure the returned vis in viscollection comply with the intent. 
-        The vis compiler default to another vis if unable to make the right one so migtht not all be the 
+        """
+        Hacky way to make sure the returned vis in viscollection comply with the intent.
+        The vis compiler default to another vis if unable to make the right one so migtht not all be the
         right mark.
         """
 
         enforce_mark = ""
 
-        for c in _inferred_intent: 
-            if c.mark_type: 
+        for c in _inferred_intent:
+            if c.mark_type:
                 enforce_mark = c.mark_type
                 break
-        
+
         if enforce_mark:
-            vis_collection = list(
-                filter(lambda x: x.mark == enforce_mark, vis_collection)
-            )
-        
+            vis_collection = list(filter(lambda x: x.mark == enforce_mark, vis_collection))
+
         return VisList(vis_collection)
 
     @staticmethod
@@ -228,7 +229,9 @@ class Compiler:
                 if clause.value == "":
                     if clause.data_model == "dimension":
                         vis._ndim += 1
-                    elif clause.data_model == "measure" and clause.attribute != "Record": # NOTE Will - I think record should be counted but that breaks other stuff
+                    elif (
+                        clause.data_model == "measure" and clause.attribute != "Record"
+                    ):  # NOTE Will - I think record should be counted but that breaks other stuff
                         vis._nmsr += 1
 
     @staticmethod
@@ -271,9 +274,9 @@ class Compiler:
 
     @staticmethod
     def fill_mark_encoding(mark_channel_clause: Clause, ldf: LuxDataFrame, vis: Vis):
-        """ 
-        User has specified mark type. Make sure is valid and try to fill in gaps 
-        
+        """
+        User has specified mark type. Make sure is valid and try to fill in gaps
+
         BUG
         Leads to some redundancies if enumerate_collection returns different data slices that arent used
 
@@ -286,35 +289,35 @@ class Compiler:
         if vis.mark == "histogram":
             if vis.get_attr_by_data_model("measure", exclude_record=True):
                 auto_channel = Compiler.make_histogram(vis)
-        
+
         elif vis.mark == "bar" or vis.mark == "line":
             if vis._ndim >= 1:
                 auto_channel = Compiler.make_line_or_bar(vis, ldf)
-        
+
         elif vis.mark == "scatter":
             if vis._nmsr >= 2:
                 auto_channel = Compiler.make_scatter(vis)
-        
-        elif vis.mark == "heatmap": 
-            if vis._nmsr >= 2: # TODO loosen this restriction 
+
+        elif vis.mark == "heatmap":
+            if vis._nmsr >= 2:  # TODO loosen this restriction
                 auto_channel = Compiler.make_heatmap(vis)
                 # lux.config.heatmap_bin_size # TODO change this too with ldf.cardinality[dimension.attribute]
-        
+
         elif vis.mark == "boxplot":
             if mark_channel_clause.attribute and mark_channel_clause.data_type == "measure":
                 auto_channel["y"] = mark_channel_clause
             elif vis.get_attr_by_data_model("measure"):
                 m_clause = vis.get_attr_by_data_model("measure")[0]
                 auto_channel["y"] = m_clause
-        
+
         return auto_channel
-    
+
     @staticmethod
     def make_histogram(vis: Vis):
         measure = vis.get_attr_by_data_model("measure", exclude_record=True)[0]
         if not len(vis.get_attr_by_attr_name("Record")):
             vis._inferred_intent.append(Compiler.count_col)
-            #vis._nmsr += 1
+            # vis._nmsr += 1
         # If no bin specified, then default as 10
         if measure.bin_size == 0:
             measure.bin_size = 10
@@ -322,24 +325,26 @@ class Compiler:
         vis._mark = "histogram"
 
         return auto_channel
-    
+
     @staticmethod
     def make_line_or_bar(vis: Vis, ldf: LuxDataFrame):
         dimensions = vis.get_attr_by_data_model("dimension")
         d1 = dimensions[0]
         d2 = None
         color_attr = None
-        
+
         if len(dimensions) > 1:
             d2 = dimensions[1]
 
         if (vis._nmsr == 0) and not len(vis.get_attr_by_attr_name("Record")):
-            vis._inferred_intent.append(Compiler.count_col) # TODO this causes redundancy sometimes?? only add if record not in therrrrr
-            #vis._nmsr += 1
-        
+            vis._inferred_intent.append(
+                Compiler.count_col
+            )  # TODO this causes redundancy sometimes?? only add if record not in therrrrr
+            # vis._nmsr += 1
+
         measure = vis.get_attr_by_data_model("measure")[0]
-        
-        if d2: # line or bar broken down by dimension
+
+        if d2:  # line or bar broken down by dimension
             if ldf.cardinality[d1.attribute] < ldf.cardinality[d2.attribute]:
                 # d1.channel = "color"
                 vis.remove_column_from_spec(d1.attribute)
@@ -353,7 +358,7 @@ class Compiler:
                     vis.remove_column_from_spec(d2.attribute)
                 dimension = d1
                 color_attr = d2
-            
+
             # if not ldf.pre_aggregated: # what happens if is pre-aggregated?
         else:
             dimension = d1
@@ -367,11 +372,10 @@ class Compiler:
         #     vis._mark = override_mark
 
         if color_attr:
-             auto_channel["color"] = color_attr
-        
+            auto_channel["color"] = color_attr
+
         return auto_channel
 
-  
     @staticmethod
     def line_bar_geo_helper(ldf: LuxDataFrame, dimension: Clause, measure: Clause):
         dim_type = dimension.data_type
@@ -385,9 +389,9 @@ class Compiler:
             if ldf.cardinality[dimension.attribute] > 5:
                 dimension.sort = "ascending"
             if utils.like_geo(dimension.get_attr()):
-                    return "geographical", {"x": dimension, "y": measure}
+                return "geographical", {"x": dimension, "y": measure}
             return "bar", {"x": measure, "y": dimension}
-    
+
     @staticmethod
     def make_scatter(vis: Vis):
         measures = vis.get_attr_by_data_model("measure")
@@ -396,13 +400,13 @@ class Compiler:
         m1 = measures[0]
         m2 = measures[1]
 
-        m1.set_aggregation(None) # this should set in the og vis object too by reference
+        m1.set_aggregation(None)  # this should set in the og vis object too by reference
         m2.set_aggregation(None)
 
         vis._mark = "scatter"
-        auto_channel = {"x": m1, "y": m2 }
+        auto_channel = {"x": m1, "y": m2}
 
-        # use color if available. Prefer dimension then measure attribute 
+        # use color if available. Prefer dimension then measure attribute
         if dims:
             vis.remove_column_from_spec(dims[0])
             auto_channel["color"] = dims[0]
@@ -410,9 +414,8 @@ class Compiler:
             m3 = measures[2]
             auto_channel["color"] = m3
 
-        
         return auto_channel
-    
+
     @staticmethod
     # TODO using the same metrics as scatter rn but can likely loosen
     def make_heatmap(vis: Vis):
@@ -422,13 +425,13 @@ class Compiler:
         m1 = measures[0]
         m2 = measures[1]
 
-        m1.set_aggregation(None) # this should set in the og vis object too by reference
+        m1.set_aggregation(None)  # this should set in the og vis object too by reference
         m2.set_aggregation(None)
 
         vis._mark = "heatmap"
-        auto_channel = {"x": m1, "y": m2 }
+        auto_channel = {"x": m1, "y": m2}
 
-        # use color if available. Prefer dimension then measure attribute 
+        # use color if available. Prefer dimension then measure attribute
         if dims:
             vis.remove_column_from_spec(dims[0])
             auto_channel["color"] = dims[0]
@@ -437,7 +440,7 @@ class Compiler:
             auto_channel["color"] = m3
 
         return auto_channel
-    
+
     @staticmethod
     def determine_encoding(ldf: LuxDataFrame, vis: Vis):
         """
@@ -476,30 +479,29 @@ class Compiler:
         mark_channel_clause = None
         mark_type = ""
 
-        # see if user has specified vis type 
+        # see if user has specified vis type
         for clause in vis._inferred_intent:
-            if clause.mark_type: 
+            if clause.mark_type:
                 mark_type = clause.mark_type
                 mark_channel_clause = clause
-        
+
         if mark_type:
             vis._mark = mark_type
             auto_channel = Compiler.fill_mark_encoding(mark_channel_clause, ldf, vis)
 
-        # ShowMe logic + additional heuristics        
+        # ShowMe logic + additional heuristics
         if not auto_channel:
             if ndim == 0 and nmsr == 1:
                 # Histogram
                 auto_channel = Compiler.make_histogram(vis)
-            
+
             elif (ndim == 1 or ndim == 2) and (nmsr == 0 or nmsr == 1):
                 # Line or Bar Chart
                 auto_channel = Compiler.make_line_or_bar(vis, ldf)
-            
+
             elif (ndim == 0 or ndim == 1) and (nmsr == 2 or nmsr == 3):
                 # Scatterplot
                 auto_channel = Compiler.make_scatter(vis)
-            
 
         relevant_attributes = [auto_channel[channel].attribute for channel in auto_channel]
         relevant_min_max = dict(

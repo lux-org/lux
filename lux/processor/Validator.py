@@ -60,10 +60,17 @@ class Validator:
         def validate_clause(clause, g_mark_type):
             warn_msg = ""
 
-            # check that specified vis types are consistent 
+            # check that specified vis types are consistent
 
-            # TODO move this list of valid vis somewhere dynamic 
-            if clause.mark_type and clause.mark_type not in ['histogram', 'bar', 'scatter', 'line', 'heatmap', 'boxplot']:
+            # TODO move this list of valid vis somewhere dynamic
+            if clause.mark_type and clause.mark_type not in [
+                "histogram",
+                "bar",
+                "scatter",
+                "line",
+                "heatmap",
+                "boxplot",
+            ]:
                 warn_msg = "\n -Vis type must be in ['histogram', 'bar', 'scatter', 'line', 'heatmap', 'boxplot']"
             elif not g_mark_type and clause.mark_type:
                 g_mark_type = clause.mark_type
@@ -130,4 +137,3 @@ class Validator:
                 stacklevel=2,
             )
         return warn_msg == ""
-

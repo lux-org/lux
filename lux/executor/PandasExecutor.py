@@ -96,7 +96,6 @@ class PandasExecutor(Executor):
                 ldf._approx_sample = ldf._sampled
         ldf.history.unfreeze()
 
-
     @staticmethod
     def execute(vislist: VisList, ldf: LuxDataFrame, approx=False):
         """
@@ -150,7 +149,6 @@ class PandasExecutor(Executor):
                     PandasExecutor.execute_2D_binning(vis)
             vis.data.clear_intent()  # Ensure that intent is not propogated to the vis data
         ldf.history.unfreeze()
-
 
     @staticmethod
     def execute_aggregate(vis: Vis, isFiltered=True):
@@ -501,7 +499,7 @@ class PandasExecutor(Executor):
                 elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
                     # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                     if ldf.pre_aggregated:
-                        if ldf.cardinality[attr] == len(ldf): # TODO why does this make sense?
+                        if ldf.cardinality[attr] == len(ldf):  # TODO why does this make sense?
                             ldf._data_type[attr] = "nominal"
                     if ldf.cardinality[attr] / len(ldf) < 0.4 and ldf.cardinality[attr] < 20:
                         ldf._data_type[attr] = "nominal"
@@ -621,5 +619,5 @@ class PandasExecutor(Executor):
             index_column_name = ldf.index.name
             ldf.unique_values[index_column_name] = list(ldf.index)
             ldf.cardinality[index_column_name] = len(ldf.index)
-        
+
         ldf.history.unfreeze()

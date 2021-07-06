@@ -17,6 +17,7 @@ from lux.vis.VisList import VisList
 import lux
 from lux.utils import utils
 
+
 def univariate(ldf, *args):
     """
     Generates bar chart distributions of different attributes in the dataframe.
@@ -36,7 +37,6 @@ def univariate(ldf, *args):
     """
     import numpy as np
 
-
     if len(args) == 0:
         data_type_constraint = "quantitative"
     else:
@@ -44,7 +44,7 @@ def univariate(ldf, *args):
 
     filter_specs = utils.get_filter_specs(ldf._intent)
     ignore_rec_flag = False
-    if data_type_constraint == "quantitative": # this should use pre aggregated somehow imo
+    if data_type_constraint == "quantitative":  # this should use pre aggregated somehow imo
         possible_attributes = [
             c for c in ldf.columns if ldf.data_type[c] == "quantitative" and c != "Number of Records"
         ]
@@ -95,7 +95,7 @@ def univariate(ldf, *args):
     vlist = VisList(intent, ldf)
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
-    
+
     col_order = ldf.history.get_implicit_intent(ldf.columns)
     vlist.sort(intent_cols=col_order)
     recommendation["collection"] = vlist

@@ -86,7 +86,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
     if ignore_rec_flag:
         recommendation["collection"] = []
         return recommendation
-    
+
     col_order = ldf.history.get_implicit_intent(ldf.columns)
     vlist.sort(intent_cols=col_order)
     vlist = vlist.showK()

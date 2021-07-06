@@ -115,17 +115,22 @@ class Parser:
                     clause.attribute = clause.description
                 else:  # then it is probably a value
                     clause.value = clause.description
-            
+
             ## add data model filters for certain vis types, overwrite user if they gave invalid input
             if clause.mark_type in ["histogram", "scatter", "heatmap", "boxplot"]:
                 clause.data_model = "measure"
                 clause.data_type = ""
-            
-            # need 2 vars for these chart types so make sure 2 intents 
+
+            # need 2 vars for these chart types so make sure 2 intents
             if clause.mark_type in ["scatter", "heatmap"]:
                 need_2_intents = True
-        
+
         if need_2_intents and n_intent < 2:
-            c = Clause(description="?", attribute="?", mark_type= intent[0].mark_type, data_model= intent[0].data_model)
+            c = Clause(
+                description="?",
+                attribute="?",
+                mark_type=intent[0].mark_type,
+                data_model=intent[0].data_model,
+            )
             intent.append(c)
         return intent

@@ -14,6 +14,7 @@
 
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
+
 # from lux.core.frame import LuxDataFrame
 from lux.implicit import implicit_plotter
 
@@ -21,7 +22,8 @@ import lux
 
 from IPython.core.debugger import set_trace
 
-def implicit_mre(ldf: lux.core.frame.LuxDataFrame, hist_index = None):
+
+def implicit_mre(ldf: lux.core.frame.LuxDataFrame, hist_index=None):
     """
     Generates vis based off only most recent implicit action.
 
@@ -35,7 +37,7 @@ def implicit_mre(ldf: lux.core.frame.LuxDataFrame, hist_index = None):
     recommendations : Dict[str,obj]
             object with a collection of visualizations that result from the Implicit action.
     """
-    # these events are cleansed when fetched 
+    # these events are cleansed when fetched
     col_list = ldf.history.get_implicit_intent(ldf.columns)
     if hist_index is not None:
         most_recent_event = ldf.history.get_hist_item(hist_index, ldf.columns)
@@ -44,7 +46,7 @@ def implicit_mre(ldf: lux.core.frame.LuxDataFrame, hist_index = None):
 
     lux_vis = VisList([], ldf)
 
-    # get unique vis for recent col ref 
+    # get unique vis for recent col ref
     if most_recent_event:
         lux_vis, used_cols = implicit_plotter.generate_vis_from_signal(most_recent_event, ldf, col_list)
 
@@ -52,7 +54,7 @@ def implicit_mre(ldf: lux.core.frame.LuxDataFrame, hist_index = None):
         "action": "Implicit",
         "description": "",
         "long_description": "",
-        "collection": lux_vis
+        "collection": lux_vis,
     }
-    
+
     return recommendation, hist_index

@@ -25,16 +25,7 @@ from pandas._typing import (
     FrameOrSeries,
     ArrayLike,
 )
-from typing import (
-    Optional,
-    Tuple,
-    Union,
-    Hashable,
-    Dict, 
-    Union, 
-    List, 
-    Callable
-)
+from typing import Optional, Tuple, Union, Hashable, Dict, Union, List, Callable
 from lux.vis.VisList import VisList
 
 from IPython.core.debugger import set_trace
@@ -71,7 +62,7 @@ class LuxSeries(pd.Series):
 
     def __init__(self, *args, **kw):
         super(LuxSeries, self).__init__(*args, **kw)
-        
+
         # defaults
         self._intent = []
         self._inferred_intent = []
@@ -83,19 +74,19 @@ class LuxSeries(pd.Series):
         self._history = History(self)
         self._message = Message()
 
-        # others 
-        self._data_type  = None
-        self.unique_values  = None 
-        self.cardinality  = None 
-        self._rec_info  = None 
-        self._min_max  = None 
-        self.plotting_style  = None 
-        self._widget  = None 
-        self._prev  = None 
-        self._saved_export  = None 
-        self._sampled  = None 
-        self.pre_aggregated  = None  
-        self._parent_df = None # if series comes from a df this will be populated with ref to df
+        # others
+        self._data_type = None
+        self.unique_values = None
+        self.cardinality = None
+        self._rec_info = None
+        self._min_max = None
+        self.plotting_style = None
+        self._widget = None
+        self._prev = None
+        self._saved_export = None
+        self._sampled = None
+        self.pre_aggregated = None
+        self._parent_df = None  # if series comes from a df this will be populated with ref to df
 
     @property
     def _constructor(self):
@@ -117,11 +108,11 @@ class LuxSeries(pd.Series):
 
         f._get_axis_number = LuxDataFrame._get_axis_number
         return f
-    
+
     @property
     def history(self):
         return self._history
-    
+
     @history.setter
     def history(self, history: History):
         self._history = history
@@ -168,9 +159,11 @@ class LuxSeries(pd.Series):
         # Default column name 0 causes errors
         if self.name is None:
             self.name = " "
-        
+
         ldf = LuxDataFrame(self)
-        ldf._parent_df = self._parent_df # tbd if this is good or bad, dont think I ever need the series itself
+        ldf._parent_df = (
+            self._parent_df
+        )  # tbd if this is good or bad, dont think I ever need the series itself
         self._ldf = ldf
 
         try:
@@ -255,7 +248,7 @@ class LuxSeries(pd.Series):
             ldf.maintain_recs()
             self._recommendation = ldf._recommendation
         return self._recommendation
-    
+
     @property
     def exported(self) -> Union[Dict[str, VisList], VisList]:
         """
@@ -319,20 +312,23 @@ class LuxSeries(pd.Series):
     The fix is to catch this the first time a column is pulled into the cache and either clear the history or 
     something else
     """
+
     def value_counts(self, *args, **kwargs):
         ret_value = super(LuxSeries, self).value_counts(*args, **kwargs)
-        
-        ret_value._parent_df = self 
-        ret_value._history = self._parent_df._history.copy() 
-        ret_value.pre_aggregated = True 
+
+        ret_value._parent_df = self
+        ret_value._history = self._parent_df._history.copy()
+        ret_value.pre_aggregated = True
 
         # add to history
-        self._history.append_event("value_counts", [self.name]) # df.col
-        ret_value._history.append_event("value_counts", [self.name], rank_type = "child") # df.col.value_counts
-        self.add_to_parent_history("value_counts", [self.name]) # df
+        self._history.append_event("value_counts", [self.name])  # df.col
+        ret_value._history.append_event(
+            "value_counts", [self.name], rank_type="child"
+        )  # df.col.value_counts
+        self.add_to_parent_history("value_counts", [self.name])  # df
 
         return ret_value
-    
+
     def unique(self, *args, **kwargs):
         """
         Returns a numpy array so makes things more tricky
@@ -342,21 +338,20 @@ class LuxSeries(pd.Series):
         self.add_to_parent_history("unique", [self.name])
 
         return ret_value
-    
-    
+
     #################
     # History Utils #
     #################
-    
+
     def add_to_parent_history(self, op, cols):
         """
         Utility function for updating parent history
 
-        N.B.: for df.col.value_counts() this is actually adding to the parent of df.col, 
+        N.B.: for df.col.value_counts() this is actually adding to the parent of df.col,
         not df.col.value_counts() so works how we want but is a subtle distinction.
         """
         if self._parent_df is not None:
             if self._parent_df.history.check_event(-1, op_name="col_ref", cols=cols):
                 self._parent_df.history.edit_event(-1, op, cols, rank_type="parent")
-            else: 
+            else:
                 self._parent_df._history.append_event(op, cols, rank_type="parent")

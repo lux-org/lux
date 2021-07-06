@@ -28,7 +28,7 @@ class BoxPlot(AltairChart):
 
     def __repr__(self):
         return f"Boxplot <{str(self.vis)}>"
-    
+
     def apply_default_config(self):
         super(BoxPlot, self).apply_default_config()
         self.chart = self.chart.properties(width=80, height=150)
@@ -51,7 +51,6 @@ class BoxPlot(AltairChart):
         if isinstance(y_attr.attribute, str):
             y_attr.attribute = y_attr.attribute.replace(".", "")
 
-
         chart = (
             alt.Chart(self.data)
             .mark_boxplot()
@@ -64,7 +63,7 @@ class BoxPlot(AltairChart):
             )
         )
         # Setting tooltip as non-null
-        #chart = chart.configure_mark(tooltip=alt.TooltipContent("encoding"))
+        # chart = chart.configure_mark(tooltip=alt.TooltipContent("encoding"))
         chart = chart.interactive()  # Enable Zooming and Panning
 
         ####################################
