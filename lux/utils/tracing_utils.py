@@ -72,6 +72,7 @@ class LuxTracer:
         in_loop = False
         loop_end = 0
         output = ""
+        function_code = ""
 
         for l in range(0, len(executor_lines)):
             line = executor_lines[l]
@@ -129,18 +130,22 @@ class LuxTracer:
         else:
             import_code = "from lux.utils import utils\nfrom lux.executor.PandasExecutor import PandasExecutor\nimport pandas\nimport math\n"
             var_init_code = "ldf = 'insert your LuxDataFrame variable here'\nvis = 'insert the name of your Vis object here'\nvis._vis_data = ldf\n"
-        output += import_code
-        output += var_init_code
+        function_code += "\t" + import_code
         for key in selected_index.keys():
-            output += selected_index[key]
+            function_code += selected_index[key]
 
         if curr_executor != "PandasExecutor":
-            output += "\nview"
+            output += "def create_chart_data(tbl, view):\n"
+            function_code += "\nreturn view._vis_data"
         else:
-            output += "\nvis"
+            output += "def create_chart_data(ldf, vis):\n"
+            function_code += "\nreturn vis._vis_data"
 
         # options = autopep8.parse_args(['--max-line-length', '100000', '-', "--ignore", "E231,E225,E226,E227,E228,E22"])
         # options = autopep8.parse_args(['--max-line-length', '100000', '-', "--ignore", "E101,E128,E211,E22,E27,W191,E231"])
         options = autopep8.parse_args(["--max-line-length", "100000", "-", "--select", "E20,E1"])
-        output = autopep8.fix_code(output, options)
+        function_code = autopep8.fix_code(function_code, options)
+
+        for line in function_code.split("\n"):
+            output += "\t" + line + "\n"
         return output

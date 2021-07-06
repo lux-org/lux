@@ -8,6 +8,7 @@ import lux
 import warnings
 from lux.utils.tracing_utils import LuxTracer
 import os
+from lux._config.template import postgres_template, mysql_template
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
@@ -383,14 +384,19 @@ class Config:
         self.set_executor_type("SQL")
         self.SQLconnection = connection
 
-    def read_query_template(self, query_file):
+    def read_query_template(self, query_template):
         from lux.executor.SQLExecutor import SQLExecutor
 
         query_dict = {}
-        with open(query_file) as f:
-            for line in f:
+        if(type(query_template) is str):
+            for line in query_template.split("\n"):
                 (key, val) = line.split(":")
                 query_dict[key] = val.strip()
+        else:
+            with open(query_file) as f:
+                for line in f:
+                    (key, val) = line.split(":")
+                    query_dict[key] = val.strip()
         self.query_templates = query_dict
         self.executor = SQLExecutor()
 
@@ -399,8 +405,7 @@ class Config:
             from lux.executor.SQLExecutor import SQLExecutor
 
             self.executor = SQLExecutor()
-            template_path = os.path.join("..", "lux", "lux", "_config", "postgres_query_template.txt")
-            self.read_query_template(template_path)
+            self.read_query_template(postgres_template)
         elif exe == "Pandas":
             from lux.executor.PandasExecutor import PandasExecutor
 
