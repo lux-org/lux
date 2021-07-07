@@ -238,7 +238,22 @@ class Vis:
 
         renderer = AltairRenderer(output_type="Altair")
         self._code = renderer.create_vis(self, standalone)
-        return self._code
+
+        if lux.config.executor.name == "PandasExecutor":
+            function_code = "def plot_data(source_df, vis):\n"
+            function_code += "\timport altair as alt\n"
+            function_code += "\tvisData = create_chart_data(source_df, vis)\n"
+        else:
+            function_code = "def plot_data(tbl, vis):\n"
+            function_code += "\timport altair as alt\n"
+            function_code += "\tvisData = create_chart_data(tbl, vis)\n"
+
+        vis_code_lines = self._code.split("\n")
+        for i in range(2, len(vis_code_lines)-1):
+            function_code += ("\t"+vis_code_lines[i]+"\n")
+        function_code += "\treturn chart"
+        function_code = function_code.replace("alt.Chart(tbl)", "alt.Chart(visData)")
+        return function_code
 
     def to_matplotlib(self) -> str:
         """

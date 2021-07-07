@@ -203,8 +203,7 @@ class PandasExecutor(Executor):
                 # if color is specified, need to group by groupby_attr and color_attr
 
                 if has_color:
-                    vis._vis_data = (
-                        vis.data.groupby([groupby_attr.attribute, color_attr.attribute], dropna=False, history=False).count().reset_index().rename(columns={index_name: "Record"}))
+                    vis._vis_data = (vis.data.groupby([groupby_attr.attribute, color_attr.attribute], dropna=False, history=False).count().reset_index().rename(columns={index_name: "Record"}))
                     vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, "Record"]]
                 else:
                     vis._vis_data = (vis.data.groupby(groupby_attr.attribute, dropna=False, history=False).count().reset_index().rename(columns={index_name: "Record"}))
