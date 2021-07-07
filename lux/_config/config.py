@@ -388,7 +388,7 @@ class Config:
         from lux.executor.SQLExecutor import SQLExecutor
 
         query_dict = {}
-        if(type(query_template) is str):
+        if type(query_template) is str:
             for line in query_template.split("\n"):
                 (key, val) = line.split(":")
                 query_dict[key] = val.strip()

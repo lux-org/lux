@@ -249,8 +249,8 @@ class Vis:
             function_code += "\tvisData = create_chart_data(tbl, vis)\n"
 
         vis_code_lines = self._code.split("\n")
-        for i in range(2, len(vis_code_lines)-1):
-            function_code += ("\t"+vis_code_lines[i]+"\n")
+        for i in range(2, len(vis_code_lines) - 1):
+            function_code += "\t" + vis_code_lines[i] + "\n"
         function_code += "\treturn chart"
         function_code = function_code.replace("alt.Chart(tbl)", "alt.Chart(visData)")
         return function_code
