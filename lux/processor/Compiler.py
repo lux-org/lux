@@ -313,7 +313,11 @@ class Compiler:
     def make_histogram(vis: Vis):
         measure = vis.get_attr_by_data_model("measure", exclude_record=True)[0]
         if not len(vis.get_attr_by_attr_name("Record")):
-            vis._inferred_intent.append(Compiler.count_col)
+            import copy
+            my_count_col = copy.copy(Compiler.count_col)
+            if hasattr(measure, "channel") and measure.channel == "x":
+                my_count_col.channel = "y"
+            vis._inferred_intent.append(my_count_col)
             #vis._nmsr += 1
         # If no bin specified, then default as 10
         if measure.bin_size == 0:
