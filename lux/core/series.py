@@ -129,24 +129,6 @@ class LuxSeries(pd.Series):
 
         return lux.core.originalSeries(self, copy=False)
 
-    def unique(self):
-        """
-        Overridden method for pd.Series.unique with cached results.
-        Return unique values of Series object.
-        Uniques are returned in order of appearance. Hash table-based unique,
-        therefore does NOT sort.
-        Returns
-        -------
-        ndarray or ExtensionArray
-            The unique values returned as a NumPy array.
-        See Also
-        --------
-        https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.unique.html
-        """
-        if self.unique_values and self.name in self.unique_values.keys():
-            return np.array(self.unique_values[self.name])
-        else:
-            return super(LuxSeries, self).unique()
 
     def _ipython_display_(self):
         from IPython.display import display
@@ -331,9 +313,23 @@ class LuxSeries(pd.Series):
 
     def unique(self, *args, **kwargs):
         """
-        Returns a numpy array so makes things more tricky
+        Overridden method for pd.Series.unique with cached results.
+        Return unique values of Series object.
+        Uniques are returned in order of appearance. Hash table-based unique,
+        therefore does NOT sort.
+        Returns
+        -------
+        ndarray or ExtensionArray
+            The unique values returned as a NumPy array.
+        See Also
+        --------
+        https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.unique.html
         """
-        ret_value = super(LuxSeries, self).unique(*args, **kwargs)
+        if self.unique_values and self.name in self.unique_values.keys():
+            ret_value = np.array(self.unique_values[self.name])
+        else:
+            ret_value = super(LuxSeries, self).unique(*args, **kwargs)
+        
         self._history.append_event("unique", [self.name])
         self.add_to_parent_history("unique", [self.name])
 
