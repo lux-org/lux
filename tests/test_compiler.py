@@ -423,7 +423,7 @@ def test_autoencoding_color_scatter_chart(global_var):
         df,
     )
     check_attribute_on_channel(vis, "Origin", "color")
-
+    # although it could pass the compiler, we could not draw the vis due to the Originn is not 
     vis = Vis(
         [
             lux.Clause(attribute="Horsepower"),
