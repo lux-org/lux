@@ -262,6 +262,7 @@ class Compiler:
                 num_temporal_specs < 2
                 and all_distinct_specs
                 and not (vis._nmsr == 2 and num_temporal_specs == 1)
+                and not (vis._nmsr == 3 and vis._ndim == 1)
             ):
                 new_vc.append(vis)
             # else:
