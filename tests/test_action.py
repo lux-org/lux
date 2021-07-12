@@ -53,20 +53,33 @@ def test_temporal_action(global_var):
         }
     )
     test_data = [airbnb_df, flights_df, date_df, pytest.car_df, pytest.olympic]
-    test_data_vis_count = [4, 4, 2, 1, 1]
+    test_data_vis_count = [4, 4, 4, 1, 1]
     for entry in zip(test_data, test_data_vis_count):
         df, num_vis = entry[0], entry[1]
         df._repr_html_()
-        assert ("Temporal" in df.recommendation, "Temporal visualizations should be generated.")
+        assert "Temporal" in df.recommendation, "Temporal visualizations should be generated."
         recommended = df.recommendation["Temporal"]
-        assert (len(recommended) == num_vis, "Incorrect number of temporal visualizations generated.")
+        assert len(recommended) == num_vis, "Incorrect number of temporal visualizations generated."
         temporal_col = [c for c in df.columns if df.data_type[c] == "temporal"]
-        overall_vis = [
+        
+        # the original test codes
+        '''overall_vis = [
             vis.get_attr_by_channel("x")[0].attribute
             for vis in recommended
             if vis.score == 4 or vis.score == 5
         ]
-        assert temporal_col.sort() == overall_vis.sort()
+        assert temporal_col.sort() == overall_vis.sort()'''
+        # does not see why it makes sense, since sort() fo list returns nothing. 
+        # even if it returns the sorted list, these two variables will be equal,
+        # for the first dataframe, 
+        # the former being ['last_review'], while the latter being ['last_review', 'last_review (year)']
+
+        overall_vis = [
+            vis.get_attr_by_channel("x")[0].attribute
+            for vis in recommended
+            if vis.score == 5
+        ]
+        assert sorted(temporal_col) == sorted(overall_vis)
 
 
 def test_vary_filter_val(global_var):
