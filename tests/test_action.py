@@ -291,7 +291,7 @@ def test_similarity(global_var):
             ranked_list,
         )
     )[0]
-    assert japan_vis.score > europe_vis.score
+    assert japan_vis.score < europe_vis.score
     df.clear_intent()
     lux.config.early_pruning = True
 
@@ -332,7 +332,7 @@ def test_intent_retained():
     df.intent = ["Attrition"]
     df._ipython_display_()
 
-    df["%WorkingYearsAtCompany"] = df["YearsAtCompany"] / df["TotalWorkingYears"]
+    df["WorkingYearsAtCompany"] = df["YearsAtCompany"] / df["TotalWorkingYears"]
     assert df.current_vis != None
     assert df.intent != None
     assert df._recs_fresh == False
