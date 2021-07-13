@@ -105,7 +105,13 @@ class VisList:
         """
         Removes duplicate visualizations in VisList
         """
-        self._collection = list(set(self._collection))
+        from collections import OrderedDict
+        # self._collection = list(set(self._collection))
+        self._collection = list(OrderedDict.fromkeys(self._collection))
+        # use Ordered Dict instead so to preserve the original order of figures 
+        # while still maintaining the original efficiency
+        # The lost of the original order is problematic in the unit tests.
+        # when a visualization is returned in an unexpected order
 
     def remove_index(self, index):
         self._collection.pop(index)
