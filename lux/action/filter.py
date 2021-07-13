@@ -135,9 +135,14 @@ def add_filter(ldf):
             "long_description": "Show other charts that are visually similar to the Current vis.",
         }
         last = get_filter_specs(ldf.intent)[-1]
-        output = ldf.intent.copy()[0:-1]
+        # originally the code is:
+        #   output = ldf.intent.copy()[0:-1]
+        # but we cannot guarantee that the filter clause is always the last one
+        output = [intent for intent in ldf.intent.copy() if not (intent.attribute == last.attribute and hasattr(intent, "value") and (last.value == intent.value))]
         # array of possible values for attribute
         arr = ldf[last.attribute].unique().tolist()
+        # remove the one with the exactly same filter as current vis
+        arr = [_arr for _arr in arr if _arr != last.value]
         output.append(lux.Clause(last.attribute, last.attribute, arr))
 
     vlist = lux.vis.VisList.VisList(output, ldf)
@@ -148,7 +153,7 @@ def add_filter(ldf):
     vlist.sort(intent_cols=col_order)
     vlist = vlist.showK()
     if recommendation["action"] == "Similarity":
-        recommendation["collection"] = vlist[1:]
+        recommendation["collection"] = vlist
     else:
         recommendation["collection"] = vlist
     return recommendation
