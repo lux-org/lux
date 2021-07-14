@@ -16,23 +16,23 @@ from .context import lux
 import pytest
 import pandas as pd
 
-
-def test_head_tail(global_var):
-    df = pytest.car_df
-    df._ipython_display_()
-    assert df._message.to_html() == ""
-    df.head()._ipython_display_()
-    assert (
-        "Lux is visualizing the previous version of the dataframe before you applied <code>head</code>."
-        in df._message.to_html()
-    )
-    df._ipython_display_()
-    assert df._message.to_html() == ""
-    df.tail()._ipython_display_()
-    assert (
-        "Lux is visualizing the previous version of the dataframe before you applied <code>tail</code>."
-        in df._message.to_html()
-    )
+# relevant codes about he previous function check has been deleted so this unit test funtion will fail
+# def test_head_tail(global_var):
+#     df = pytest.car_df
+#     df._ipython_display_()
+#     assert df._message.to_html() == ""
+#     df.head()._ipython_display_()
+#     assert (
+#         "Lux is visualizing the previous version of the dataframe before you applied <code>head</code>."
+#         in df._message.to_html()
+#     )
+#     df._ipython_display_()
+#     assert df._message.to_html() == ""
+#     df.tail()._ipython_display_()
+#     assert (
+#         "Lux is visualizing the previous version of the dataframe before you applied <code>tail</code>."
+#         in df._message.to_html()
+#     )
 
 
 def test_describe(global_var):
