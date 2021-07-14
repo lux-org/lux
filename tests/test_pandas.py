@@ -46,4 +46,4 @@ def test_convert_dtype(global_var):
     df = pytest.college_df
     cdf = df.convert_dtypes()
     cdf._ipython_display_()
-    assert list(cdf.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
+    assert list(cdf.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence", "Enhance"]
