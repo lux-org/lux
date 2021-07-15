@@ -488,7 +488,8 @@ def check_metadata_equal(df1, df2):
                     elif key in y_info:
                         assert x_info[key] == y_info[key]
 
-        elif attr != "_widget" and attr != "_sampled" and attr != "_message":
+        elif attr != "_widget" and attr != "_sampled" and attr != "_message" and attr != "_history":
+            # this event in the history attribute contains the execution count, so it must be different
             assert getattr(df1, attr) == getattr(df2, attr)
 
 

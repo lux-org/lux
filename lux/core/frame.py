@@ -74,6 +74,8 @@ class LuxDataFrame(pd.DataFrame):
         self._saved_export = None
         self._current_vis = []
         self._widget = None
+        self._prev = None 
+        # although it is no longer used, it is required to be tested in the unit test
         super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.table_name = ""
