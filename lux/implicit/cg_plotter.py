@@ -27,7 +27,6 @@ def plot_col_vis(index_column_name, attribute):
             ),
         ]
     )
-    vis.mark = "bar"
     return vis
 
 def plot_std_bar(df, attribute):
