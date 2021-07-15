@@ -27,6 +27,7 @@ def plot_col_vis(index_column_name, attribute):
             ),
         ]
     )
+    vis.mark = "bar"
     return vis
 
 def plot_std_bar(df, attribute):
@@ -52,7 +53,7 @@ def plot_std_bar(df, attribute):
                   lux.Clause(y_name, data_type="nominal", data_model="dimension")]
 
     cv = CustomVis(intent, v, df)
-    
+    cv.mark = "bar"
     return cv
 
 def plot_gb_mean_errorbar(df_m, df_s):
@@ -82,9 +83,9 @@ def plot_gb_mean_errorbar(df_m, df_s):
         v = b + err
         intent = [lux.Clause(c_m, data_type="quantitative", data_model="measure"),
                   lux.Clause(index_col, data_type="nominal", data_model="dimension")]
-
-        vl.append(CustomVis(intent, v, tog))
-    
+        cv = CustomVis(intent, v, tog)
+        cv.mark = "bar"
+        vl.append(cv)
     return vl
 
 def plot_df_mean_errorbar(df_m, df_s):
@@ -116,7 +117,7 @@ def plot_df_mean_errorbar(df_m, df_s):
                   lux.Clause(y_name, data_type="nominal", data_model="dimension")]
 
     cv = CustomVis(intent, v, tog)
-    
+    cv.mark = "bar"
     return cv
 
 ##########
