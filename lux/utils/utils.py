@@ -27,16 +27,21 @@ def convert_to_list(x):
     else:
         return x
 
-def convert_slice_to_list(x, stop):
+def convert_slice_to_list(x, columns):
     # stop should ideally be the length of columns
+    columns = columns.tolist()
     ifnone = lambda a, b: b if a is None else a
     step = ifnone(x.step, 1)
-    # for slice like 'a':'e'
+    # for slice like 'a':'e', or "Name":"Cylinders"
     if isinstance(x.start, str) or isinstance(x.stop, str):
-        return [chr(i) for i in range(ord(ifnone(x.start, chr(0))), ord(x.stop) + step, step)]
+        start_index = columns.index(ifnone(x.start, columns[0])) 
+        # since the loc is successful, we are sure that this index won't raise an error
+        stop_index = columns.index(ifnone(x.stop, columns[-1]))
+        return [columns[i] for i in range(start_index, stop_index + 1)]
+        # +1 since in range, this point is excluded
     # for normal slice like 1:5
     else:
-        return list(range(ifnone(x.start, 0), ifnone(x.stop, stop)+ step, step))
+        return list(range(ifnone(x.start, 0), ifnone(x.stop, len(columns))+ step, step))
 
 def convert_indices_to_columns(column_names, tup):
     '''
@@ -58,7 +63,7 @@ def convert_indices_to_columns(column_names, tup):
         elif all(isinstance(x, int) for x in index):
             ret_columns = [column_names[col_index] for col_index in index]
     elif isinstance(index, slice):
-        column_indices = convert_slice_to_list(index, len(column_names)) # do not know why the end is not included
+        column_indices = convert_slice_to_list(index, column_names) # do not know why the end is not included
         for col_index in column_indices:
             if col_index < len(column_names): 
                 # it is allowed that some indices in the slice object not in the columns of the dataframe
@@ -94,7 +99,7 @@ def convert_names_to_columns(column_names, tup):
     elif isinstance(index, slice):
         # for slice object, loc allows that some columns to be extracted does not exist
         # while loc will examine whether all columns exist in the list case.
-        columns = convert_slice_to_list(index, len(column_names))
+        columns = convert_slice_to_list(index, column_names)
         for col_name in columns:
             if col_name in column_names:
                 ret_columns.append(col_name)
