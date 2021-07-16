@@ -97,7 +97,11 @@ def test_intent_cleared_after_vis_data():
     df._ipython_display_()
 
     vis = df.recommendation["Similarity"][0]
-    vis.data._ipython_display_()
-    all_column_vis = vis.data.current_vis[0]
+    visdata = vis.data
+    visdata.data_type["PctForeclosured"] = "quantitative"
+    # otherwise because of the small size of the dataframe, the cardinality of PctForeclosured is less than 20
+    # and thereby this attribute will be considered as nominal
+    visdata._ipython_display_()
+    all_column_vis = visdata.current_vis[0]
     assert all_column_vis.get_attr_by_channel("x")[0].attribute == "Year"
     assert all_column_vis.get_attr_by_channel("y")[0].attribute == "PctForeclosured"
