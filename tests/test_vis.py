@@ -536,6 +536,8 @@ def test_vegalite_heatmap_flag_config():
 
 
 def test_matplotlib_heatmap_flag_config():
+    prev_heatmap_config = lux.config.heatmap
+    lux.config.heatmap = True # in case it is turned off
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "matplotlib"
     df._ipython_display_()
@@ -545,7 +547,7 @@ def test_matplotlib_heatmap_flag_config():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df = df.copy()
     assert not df.recommendation["Correlation"][0]._postbin
-    lux.config.heatmap = True
+    lux.config.heatmap = prev_heatmap_config
     lux.config.plotting_backend = "vegalite"
 
 
