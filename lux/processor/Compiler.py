@@ -23,6 +23,7 @@ from lux.utils import utils
 import pandas as pd
 import numpy as np
 import warnings
+import copy
 import lux
 
 from IPython.core.debugger import set_trace
@@ -316,17 +317,19 @@ class Compiler:
     @staticmethod
     def make_histogram(vis: Vis):
         measure = vis.get_attr_by_data_model("measure", exclude_record=True)[0]
+        my_count_col = None # to avoid the shared statis class object
         if not len(vis.get_attr_by_attr_name("Record")):
-            import copy
             my_count_col = copy.copy(Compiler.count_col)
             if hasattr(measure, "channel") and measure.channel == "x":
                 my_count_col.channel = "y"
             vis._inferred_intent.append(my_count_col)
             #vis._nmsr += 1
+        else:
+            my_count_col = vis.get_attr_by_attr_name("Record")[0]
         # If no bin specified, then default as 10
         if measure.bin_size == 0:
             measure.bin_size = 10
-        auto_channel = {"x": measure, "y": Compiler.count_col}
+        auto_channel = {"x": measure, "y": my_count_col}
         vis._mark = "histogram"
 
         return auto_channel
@@ -342,9 +345,10 @@ class Compiler:
             d2 = dimensions[1]
 
         if (vis._nmsr == 0) and not len(vis.get_attr_by_attr_name("Record")):
+            my_count_col = copy.copy(Compiler.count_col)
             vis._inferred_intent.append(
-                Compiler.count_col
-            )  # TODO this causes redundancy sometimes?? only add if record not in therrrrr
+                my_count_col
+            )  # TODO this causes redundancy sometimes?? only add ifg record not in therrrrr
             # vis._nmsr += 1
 
         measure = vis.get_attr_by_data_model("measure")[0]
