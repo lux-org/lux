@@ -173,12 +173,12 @@ def test_groupby_agg_big(global_var):
     assert len(new_df.cardinality) == 8
     year_vis = list(
         filter(
-            lambda vis: vis.get_attr_by_attr_name("Year") != [],
+            lambda vis: vis.get_attr_by_attr_name("Year (sum)") != [],
             new_df.recommendation["Column Groups"],
         )
     )[0]
     assert year_vis.mark == "bar"
-    assert year_vis.get_attr_by_channel("x")[0].attribute == "Year"
+    assert year_vis.get_attr_by_channel("x")[0].attribute == "Year (sum)"
     new_df = new_df.T
     new_df._ipython_display_()
     year_vis = list(
