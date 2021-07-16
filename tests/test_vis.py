@@ -496,7 +496,7 @@ def test_matplotlib_default_actions_registered(global_var):
 
     # Scatter Chart
     assert "Correlation" in df.recommendation
-    assert len(df.recommendation["Correlation"]) > 0
+    assert len(df.recommendation["Correlation"]) > 0g
 
 
 def test_matplotlib_default_actions_registered_2(global_var):
@@ -522,6 +522,8 @@ def test_matplotlib_default_actions_registered_2(global_var):
 
 
 def test_vegalite_heatmap_flag_config():
+    prev_heatmap_config = lux.config.heatmap
+    lux.config.heatmap = True
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "vegalite"
     df._ipython_display_()
@@ -532,8 +534,7 @@ def test_vegalite_heatmap_flag_config():
     df = df.copy()
     assert not df.recommendation["Correlation"][0]._postbin
     assert "Geographical" not in df.recommendation
-    lux.config.heatmap = True
-
+    lux.config.heatmap = prev_heatmap_config
 
 def test_matplotlib_heatmap_flag_config():
     prev_heatmap_config = lux.config.heatmap
