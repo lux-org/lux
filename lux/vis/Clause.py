@@ -76,7 +76,7 @@ class Clause:
                 Specifying whether and how the bar chart should be sorted
                 Possible values: 'ascending', 'descending', by default ""
         mark_type: str, optional
-                What type of visualization do you want this included in. limited to 
+                What type of visualization do you want this included in. limited to
                 Possible values: 'histogram', 'bar', 'scatter', 'line', 'heatmap', 'boxplot', default is ''
         """
         # Descriptor

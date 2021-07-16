@@ -4,6 +4,7 @@ from lux.history.history import History
 
 from IPython.core.debugger import set_trace
 
+
 class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
 
     _metadata = [
@@ -31,19 +32,19 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
 
     def __init__(self, *args, **kwargs):
         super(LuxGroupBy, self).__init__(*args, **kwargs)
-        self._history = History(self) 
+        self._history = History(self)
         self._parent_df = None
-    
+
     @property
     def history(self):
         return self._history
-    
+
     @history.setter
     def history(self, history: History):
         self._history = history
 
     ####################
-    ## Different aggs  # 
+    ## Different aggs  #
     ####################
     def aggregate(self, func=None, *args, **kwargs):
         ret_value = super(LuxGroupBy, self).aggregate(func, *args, **kwargs)
@@ -67,13 +68,12 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
                         ret_value.history.append_event(get_func_name(a), [col], rank_type="child", child_df=None)
                 else: # aggs is str
                     ret_value.history.append_event(get_func_name(aggs), [col], rank_type="child", child_df=None)
-        
         elif is_list_like(func):
             for f_name in func:
                 ret_value.history.append_event(get_func_name(f_name), [], rank_type="child", child_df=None)
 
         return ret_value
-    
+
     agg = aggregate
 
     def _agg_general(self, *args, **kwargs):
@@ -86,20 +86,20 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
 
         return ret_value
 
-    def _cython_agg_general(self, how:str, *args, **kwargs):
+    def _cython_agg_general(self, how: str, *args, **kwargs):
         ret_value = super(LuxGroupBy, self)._cython_agg_general(how, *args, **kwargs)
         ret_value = self._lux_copymd(ret_value)
         ret_value._parent_df = self
 
         return ret_value
-    
+
     #################
-    ## Utils, etc   # 
+    ## Utils, etc   #
     #################
     def _lux_copymd(self, ret_value):
         for attr in self._metadata:
             ret_value.__dict__[attr] = getattr(self, attr, None)
-        
+
         ret_value.history = ret_value.history.copy()
         return ret_value
 
@@ -113,13 +113,13 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         ret_value = super(LuxGroupBy, self).__getitem__(*args, **kwargs)
         ret_value = self._lux_copymd(ret_value)
         return ret_value
-    
+
     def filter(self, *args, **kwargs):
         ret_value = super(LuxGroupBy, self).filter(*args, **kwargs)
         ret_value = self._lux_copymd(ret_value)
         ret_value.history.append_event("gb_filter", [], rank_type="child", child_df=None, filt_key=None)
         ret_value.pre_aggregated = False  # Returned LuxDataFrame isn't pre_aggregated
-        ret_value._parent_df = self 
+        ret_value._parent_df = self
         return ret_value
 
     def apply(self, *args, **kwargs):
@@ -127,16 +127,16 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
         ret_value = self._lux_copymd(ret_value)
         ret_value.history.append_event("gb_apply", [], rank_type="child", child_df=None)
         ret_value.pre_aggregated = False  # Returned LuxDataFrame isn't pre_aggregated
-        ret_value._parent_df = self 
+        ret_value._parent_df = self
         return ret_value
-    
+
     ##################
-    ## agg functions # 
+    ## agg functions #
     ##################
     def _eval_agg_function_lux(self, func_name: str, *args, **kwargs):
         with self.history.pause():
             method = getattr(super(LuxGroupBy, self), func_name)
-            ret_value = method(*args, **kwargs)  
+            ret_value = method(*args, **kwargs)
 
         ret_value = self._lux_copymd(ret_value) 
         cols = []
@@ -157,10 +157,10 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
 
     def mean(self, *args, **kwargs):
         return self._eval_agg_function_lux("mean", *args, **kwargs)
-    
+
     def min(self, *args, **kwargs):
         return self._eval_agg_function_lux("min", *args, **kwargs)
-    
+
     def max(self, *args, **kwargs):
         return self._eval_agg_function_lux("max", *args, **kwargs)
 
@@ -169,7 +169,7 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
 
     def sum(self, *args, **kwargs):
         return self._eval_agg_function_lux("sum", *args, **kwargs)
-    
+
     def prod(self, *args, **kwargs):
         return self._eval_agg_function_lux("prod", *args, **kwargs)
 

@@ -19,15 +19,16 @@ import lux
 import altair as alt
 import warnings
 
+
 class CustomVis:
     """
     Lightweight wrapper for altair charts to be plotted directly into the widget without intents or anything.
 
-    TODO: add more property studs so this can be passed into VisList successfully, 
+    TODO: add more property studs so this can be passed into VisList successfully,
     right now have to init an vislist then manually extend the collection
     """
 
-    def __init__(self, intent, altChart, data, width = 160, height = 150, override_c_config = None):
+    def __init__(self, intent, altChart, data, width=160, height=150, override_c_config=None):
         # local properties
         self._inferred_intent = intent
         self._intent = intent
@@ -40,12 +41,12 @@ class CustomVis:
         self.intent = intent
         self.min_max = {}
         self.mark = ""
-        
+
         # vis defaults
         self.chart_width = width
         self.chart_height = height
 
-        # chart config 
+        # chart config
         base_chart_config = {"interactive": True, "tooltip": True}
         if override_c_config and isinstance(override_c_config, dict):
             base_chart_config.update(override_c_config)
@@ -54,12 +55,12 @@ class CustomVis:
         if self.chart:
             self.apply_default_config()
             self.code = self.to_code()
-    
+
     # def generate_code_str(self):
     #     self.code += "import altair as alt\n"
     #     ### self.code += f"visData = pd.DataFrame({str(self.data.to_dict(orient='records'))})\n"
     #     # self.code += f"visData = pd.DataFrame({str(self.data.to_dict())})\n"
-        
+
     def _repr_html_(self):
         from IPython.display import display
 
@@ -69,14 +70,10 @@ class CustomVis:
         from lux.core.frame import LuxDataFrame
 
         widget = luxwidget.LuxWidget(
-            currentVis= self.to_code(),
-            recommendations=[],
-            intent="",
-            message="",
-            history_list=[]
+            currentVis=self.to_code(), recommendations=[], intent="", message="", history_list=[]
         )
         display(widget)
-    
+
     def apply_default_config(self):
         self.chart = self.chart.configure_title(fontWeight=500, fontSize=13, font="Helvetica Neue")
         self.chart = self.chart.configure_axis(
@@ -97,13 +94,13 @@ class CustomVis:
             labelFont="Helvetica Neue",
         )
         self.chart = self.chart.properties(width=self.chart_width, height=self.chart_height)
-        
+
         if self.chart_config["tooltip"]:
             self.chart = self.chart.configure_mark(tooltip=alt.TooltipContent("encoding"))
-        
+
         if self.chart_config["interactive"]:
             self.chart = self.chart.interactive()  # Enable Zooming and Panning
-        
+
         # self.code += (
         #     "\nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
         # )
@@ -112,7 +109,6 @@ class CustomVis:
         # self.code += "chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',\n"
         # self.code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue')\n"
         # self.code += "chart = chart.properties(width=160,height=150)\n"
-
 
     def to_code(self, language="vegalite", **kwargs):
         """
@@ -130,10 +126,10 @@ class CustomVis:
         """
         if self.chart is None:
             return None
-        
+
         if lux.config.plotting_style and (
-                lux.config.plotting_backend == "vegalite" or lux.config.plotting_backend == "altair"
-            ):
+            lux.config.plotting_backend == "vegalite" or lux.config.plotting_backend == "altair"
+        ):
             chart = lux.config.plotting_style(self.chart)
         else:
             chart = self.chart
@@ -141,5 +137,3 @@ class CustomVis:
         chart_dict = chart.to_dict()
         chart_dict["vislib"] = "vegalite"
         return chart_dict
-
-

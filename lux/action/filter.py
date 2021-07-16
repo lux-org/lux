@@ -22,6 +22,7 @@ from lux.utils.utils import get_filter_specs
 
 from IPython.core.debugger import set_trace
 
+
 def add_filter(ldf):
     """
     Iterates over all possible values of a categorical variable and generates visualizations where each categorical value filters the data.
@@ -46,7 +47,7 @@ def add_filter(ldf):
     recommendation = {
         "action": "",
         "description": "",
-        "long_description":  "",
+        "long_description": "",
     }
     if len(filters) == 1:
         # get unique values for all categorical values specified and creates corresponding filters

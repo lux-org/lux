@@ -19,6 +19,7 @@ from lux.utils import utils
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 
+
 def enhance(ldf):
     """
     Given a set of vis, generates possible visualizations when an additional attribute is added to the current vis.
@@ -33,13 +34,13 @@ def enhance(ldf):
     recommendations : Dict[str,obj]
             object with a collection of visualizations that result from the Enhance action.
     """
-    implicit_col_list = ldf.history.get_implicit_intent(ldf.columns) 
-    
+    implicit_col_list = ldf.history.get_implicit_intent(ldf.columns)
+
     intent = []
     intended_attrs = "columns"
 
     # Normal enhance
-    if ldf._intent: 
+    if ldf._intent:
         filters = utils.get_filter_specs(ldf._intent)
         attr_specs = list(filter(lambda x: x.value == "" and x.attribute != "Record", ldf._intent))
         fltr_str = [fltr.attribute + fltr.filter_op + str(fltr.value) for fltr in filters]
@@ -52,12 +53,12 @@ def enhance(ldf):
             clause.channel = ""
         intent = filters + attr_specs
         intent.append("?")
-    
+
     # implicit enhance
     elif implicit_col_list:
         intended_attrs = f'<p class="highlight-intent">{implicit_col_list[0]}</p>'
         intent = [implicit_col_list[0], "?"]
- 
+
     vlist = VisList(intent, ldf)
 
     for vis in vlist:
@@ -66,13 +67,13 @@ def enhance(ldf):
     vlist.sort(intent_cols=implicit_col_list)
     vlist = vlist.showK()
 
-    recommendation = { 
+    recommendation = {
         "action": "Enhance",
         "collection": vlist,
         "description": f"Augmenting {intended_attrs} with an additional attribute.",
         "long_description": f"""Enhance adds an additional attribute displaying how 
         {intended_attrs} changes with respect to other attributes. 
-        Visualizations are ranked based on interestingness and implicit interest."""
+        Visualizations are ranked based on interestingness and implicit interest.""",
     }
 
     return recommendation

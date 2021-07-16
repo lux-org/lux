@@ -65,7 +65,7 @@ def temporal(ldf):
     if len(ldf) < 3:
         recommendation["collection"] = []
         return recommendation
-    
+
     col_order = ldf.history.get_implicit_intent(ldf.columns)
     vlist.sort(intent_cols=col_order)
     recommendation["collection"] = vlist
