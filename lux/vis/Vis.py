@@ -254,13 +254,13 @@ class Vis:
         function_code += "\treturn chart\n#plot_data(your_df, vis) this creates an Altair plot using your source data and vis specification"
         function_code = function_code.replace("alt.Chart(tbl)", "alt.Chart(visData)")
 
-        if ("mark_circle" in function_code):
+        if "mark_circle" in function_code:
             function_code = function_code.replace("plot_data", "plot_scatterplot")
-        elif("mark_bar" in function_code):
+        elif "mark_bar" in function_code:
             function_code = function_code.replace("plot_data", "plot_barchart")
-        elif("mark_line" in function_code):
+        elif "mark_line" in function_code:
             function_code = function_code.replace("plot_data", "plot_linechart")
-        elif("mark_rect" in function_code):
+        elif "mark_rect" in function_code:
             function_code = function_code.replace("plot_data", "plot_heatmap")
         return function_code
 
