@@ -144,7 +144,8 @@ class PandasExecutor(Executor):
                 else:
                     vis._mark = "heatmap"
                     PandasExecutor.execute_2D_binning(vis)
-            vis.data.clear_intent()  # Ensure that intent is not propogated to the vis data
+            # Ensure that intent is not propogated to the vis data (bypass intent setter, since trigger vis.data metadata recompute)
+            vis.data._intent = []
 
     @staticmethod
     def execute_aggregate(vis: Vis, isFiltered=True):
@@ -492,7 +493,7 @@ class PandasExecutor(Executor):
         elif len(non_datetime_attrs) > 1:
             warn_msg += f"\nLux detects that attributes {non_datetime_attrs} may be temporal.\n"
         if len(non_datetime_attrs) > 0:
-            warn_msg += "To display visualizations for these attributes accurately, please convert temporal attributes to Pandas Datetime objects using the pd.to_datetime function and provide a 'format' parameter to specify the datetime format of the attribute.\nFor example, you can convert a year-only attribute (e.g., 1998, 1971, 1982) to Datetime type by specifying the `format` as '%Y'.\n\nHere is a starter template that you can use for converting the temporal fields:\n"
+            warn_msg += "To display visualizations for these attributes accurately, please convert temporal attributes to Datetime objects.\nFor example, you can convert a Year attribute (e.g., 1998, 1971, 1982) using pd.to_datetime by specifying the `format` as '%Y'.\n\nHere is a starter template that you can use for converting the temporal fields:\n"
             for attr in non_datetime_attrs:
                 warn_msg += f"\tdf['{attr}'] = pd.to_datetime(df['{attr}'], format='<replace-with-datetime-format>')\n"
             warn_msg += "\nSee more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html"

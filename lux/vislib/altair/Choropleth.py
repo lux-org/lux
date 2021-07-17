@@ -40,6 +40,9 @@ class Choropleth(AltairChart):
         return f"Choropleth Map <{str(self.vis)}>"
 
     def initialize_chart(self):
+        # Override default width and height
+        self.width = 200
+
         x_attr = self.vis.get_attr_by_channel("x")[0]
         y_attr = self.vis.get_attr_by_channel("y")[0]
 
@@ -148,6 +151,8 @@ chart = background + points
 
     def get_us_fips_code(self, attribute):
         """Returns FIPS code given a US state"""
+        if not isinstance(attribute, str):
+            return attribute
         usa = pd.DataFrame(
             [
                 {"fips": 1, "state": "alabama", "abbrev": "al"},
@@ -204,8 +209,6 @@ chart = background + points
             ]
         )
         attribute = attribute.lower()
-        if not isinstance(attribute, str):
-            return attribute
         match = usa[(usa.state == attribute) | (usa.abbrev == attribute)]
         if len(match) == 1:
             return match["fips"].values[0]
@@ -213,7 +216,7 @@ chart = background + points
             if attribute in ["washington d.c.", "washington dc", "d.c.", "d.c"]:
                 return 11
             else:
-                return attribute
+                return 0  # any unmatching value (e.g. nan)
 
     def get_country_iso_code(self, attribute):
         """Returns country ISO code given a country"""
