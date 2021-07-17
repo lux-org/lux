@@ -251,8 +251,17 @@ class Vis:
         vis_code_lines = self._code.split("\n")
         for i in range(2, len(vis_code_lines) - 1):
             function_code += "\t" + vis_code_lines[i] + "\n"
-        function_code += "\treturn chart"
+        function_code += "\treturn chart\n#plot_data(your_df, vis) this creates an Altair plot using your source data and vis specification"
         function_code = function_code.replace("alt.Chart(tbl)", "alt.Chart(visData)")
+
+        if ("mark_circle" in function_code):
+            function_code = function_code.replace("plot_data", "plot_scatterplot")
+        elif("mark_bar" in function_code):
+            function_code = function_code.replace("plot_data", "plot_barchart")
+        elif("mark_line" in function_code):
+            function_code = function_code.replace("plot_data", "plot_linechart")
+        elif("mark_rect" in function_code):
+            function_code = function_code.replace("plot_data", "plot_heatmap")
         return function_code
 
     def to_matplotlib(self) -> str:
