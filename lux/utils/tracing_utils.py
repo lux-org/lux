@@ -28,6 +28,7 @@ class LuxTracer:
                 ]
                 includeFunc = [
                     "add_quotes",
+                    "execute",
                     "execute_sampling",
                     "execute_filter",
                     "execute_binning",
@@ -84,11 +85,12 @@ class LuxTracer:
             if funcname not in ["__init__"]:
                 code = codelines[line_no]
                 ignore_construct = [
-                    "    if",
+                    "if",
                     "elif",
                     "return",
                     "try",
                     "assert",
+                    "with"
                 ]  # prune out these control flow programming constructs
                 ignore_lux_keyword = [
                     "self.code",
@@ -99,6 +101,10 @@ class LuxTracer:
                     "message.add_unique",
                     "Large scatterplots detected",
                     "priority=",
+                    "for vis in vislist",
+                    "execute_aggregate",
+                    "execute_binning",
+                    "execute_2D_binning"
                 ]  # Lux-specific keywords to ignore
                 ignore = ignore_construct + ignore_lux_keyword
                 if not any(construct in code for construct in ignore):
@@ -114,9 +120,6 @@ class LuxTracer:
                         else:
                             leading_spaces = len(code_line) - len(code_line.lstrip())
                             num_tabs = math.ceil(leading_spaces / 8)
-                            # if num_tabs > 0: num_tabs = num_tabs-1
-                            # clean_code_line = "\t" + code_line.lstrip()
-                            # clean_code_line = code_line.replace("    ", "\t")
                             clean_code_line = "\t" * num_tabs + code_line.lstrip()
                             if clean_code_line.lstrip() not in selected:
                                 selected_index[index] = clean_code_line
@@ -131,8 +134,26 @@ class LuxTracer:
             import_code = "from lux.utils import utils\nfrom lux.executor.PandasExecutor import PandasExecutor\nimport pandas\nimport math\n"
             var_init_code = "ldf = 'insert your LuxDataFrame variable here'\nvis = 'insert the name of your Vis object here'\nvis._vis_data = ldf\n"
         function_code += "\t" + import_code
+
+        #need to do some preprocessing before we give the code to autopep8 for formatting
+        #there are some cases that the formatter does not handle correctly which we need to handle on our own
+
+        prev_line = ""
         for key in selected_index.keys():
-            function_code += selected_index[key]
+            line = selected_index[key]
+            leading_spaces = len(line) - len(line.lstrip())
+            if leading_spaces > 0:
+                leading_spaces = leading_spaces-1
+            if prev_line != "":
+                construct_check = prev_line.lstrip().startswith(("if", "else", "with", "for")) or line.lstrip().startswith(("if", "else", "with", "for"))
+                prev_leading_spaces = len(prev_line) - len(prev_line.lstrip())
+
+                if not construct_check:
+                    if prev_leading_spaces < leading_spaces:
+                        leading_spaces = prev_leading_spaces
+            line = "\t" * leading_spaces + line.lstrip()
+            function_code += line
+            prev_line = line
 
         if curr_executor != "PandasExecutor":
             output += "def create_chart_data(tbl, view):\n"
@@ -143,7 +164,7 @@ class LuxTracer:
 
         # options = autopep8.parse_args(['--max-line-length', '100000', '-', "--ignore", "E231,E225,E226,E227,E228,E22"])
         # options = autopep8.parse_args(['--max-line-length', '100000', '-', "--ignore", "E101,E128,E211,E22,E27,W191,E231"])
-        options = autopep8.parse_args(["--max-line-length", "100000", "-", "--select", "E20,E1"])
+        options = autopep8.parse_args(["--max-line-length", "100000", "-", "--select", "E20,E113,E117"])
         function_code = autopep8.fix_code(function_code, options)
 
         for line in function_code.split("\n"):
