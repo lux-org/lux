@@ -90,7 +90,7 @@ class LuxTracer:
                     "return",
                     "try",
                     "assert",
-                    "with"
+                    "with",
                 ]  # prune out these control flow programming constructs
                 ignore_lux_keyword = [
                     "self.code",
@@ -104,11 +104,13 @@ class LuxTracer:
                     "for vis in vislist",
                     "execute_aggregate",
                     "execute_binning",
-                    "execute_2D_binning"
+                    "execute_2D_binning",
                 ]  # Lux-specific keywords to ignore
-                whitelist = ["if clause.attribute != \"Record\":", "bin_attribute ="]
+                whitelist = ['if clause.attribute != "Record":', "bin_attribute ="]
                 ignore = ignore_construct + ignore_lux_keyword
-                if not any(construct in code for construct in ignore) or any(construct in code for construct in whitelist):
+                if not any(construct in code for construct in ignore) or any(
+                    construct in code for construct in whitelist
+                ):
                     clean_code_line = codelines[line_no].lstrip()
                     code_line = codelines[line_no].replace("    ", "", 2)
                     if clean_code_line.lstrip() not in selected:
@@ -136,16 +138,22 @@ class LuxTracer:
             var_init_code = "ldf = 'insert your LuxDataFrame variable here'\nvis = 'insert the name of your Vis object here'\nvis._vis_data = ldf\n"
         function_code += "\t" + import_code
 
-        #need to do some preprocessing before we give the code to autopep8 for formatting
-        #there are some cases that the formatter does not handle correctly which we need to handle on our own
+        # need to do some preprocessing before we give the code to autopep8 for formatting
+        # there are some cases that the formatter does not handle correctly which we need to handle on our own
         prev_line = ""
         for key in selected_index.keys():
             line = selected_index[key]
             leading_spaces = len(line) - len(line.lstrip())
-            if leading_spaces > 0 and not line.lstrip().startswith("if") and not line.lstrip().startswith("attributes.add"):
-                leading_spaces = leading_spaces-1
+            if (
+                leading_spaces > 0
+                and not line.lstrip().startswith("if")
+                and not line.lstrip().startswith("attributes.add")
+            ):
+                leading_spaces = leading_spaces - 1
             if prev_line != "":
-                construct_check = prev_line.lstrip().startswith(("if", "else", "with", "for")) or line.lstrip().startswith(("if", "else", "with", "for"))
+                construct_check = prev_line.lstrip().startswith(
+                    ("if", "else", "with", "for")
+                ) or line.lstrip().startswith(("if", "else", "with", "for"))
                 prev_leading_spaces = len(prev_line) - len(prev_line.lstrip())
 
                 if not construct_check:
@@ -164,7 +172,9 @@ class LuxTracer:
 
         # options = autopep8.parse_args(['--max-line-length', '100000', '-', "--ignore", "E231,E225,E226,E227,E228,E22"])
         # options = autopep8.parse_args(['--max-line-length', '100000', '-', "--ignore", "E101,E128,E211,E22,E27,W191,E231"])
-        options = autopep8.parse_args(["--max-line-length", "100000", "-", "--select", "E20,E112,E113,E117"])
+        options = autopep8.parse_args(
+            ["--max-line-length", "100000", "-", "--select", "E20,E112,E113,E117"]
+        )
         function_code = autopep8.fix_code(function_code, options)
 
         for line in function_code.split("\n"):
