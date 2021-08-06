@@ -131,7 +131,7 @@ class PandasExecutor(Executor):
                 if clause.attribute != "Record":
                     attributes.add(clause.attribute)
             # TODO: Add some type of cap size on Nrows ?
-            vis._vis_data = vis.data[list(attributes)]
+            vis._vis_data = vis._vis_data[list(attributes)]
 
             if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
@@ -281,7 +281,6 @@ class PandasExecutor(Executor):
         """
         import numpy as np
 
-        #bin_attribute = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0]
         bin_attribute = [x for x in vis._inferred_intent if x.bin_size != 0][0]
         bin_attr = bin_attribute.attribute
         series = vis.data[bin_attr]
