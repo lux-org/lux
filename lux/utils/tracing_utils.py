@@ -102,6 +102,7 @@ class LuxTracer:
                     "Large scatterplots detected",
                     "priority=",
                     "for vis in vislist",
+                    "for view in view_collection",
                     "execute_aggregate",
                     "execute_binning",
                     "execute_2D_binning",
@@ -143,22 +144,25 @@ class LuxTracer:
         prev_line = ""
         for key in selected_index.keys():
             line = selected_index[key]
-            leading_spaces = len(line) - len(line.lstrip())
+            line_stripped = line.lstrip()
+            leading_spaces = len(line) - len(line_stripped)
             if (
                 leading_spaces > 0
-                and not line.lstrip().startswith("if")
-                and not line.lstrip().startswith("attributes.add")
+                and not prev_line.lstrip().startswith("for")
+                and not line_stripped.startswith("attributes.add")
             ):
                 leading_spaces = leading_spaces - 1
             if prev_line != "":
                 construct_check = prev_line.lstrip().startswith(
                     ("if", "else", "with", "for")
-                ) or line.lstrip().startswith(("if", "else", "with", "for"))
+                ) or line_stripped.startswith(("if", "else", "with", "for"))
                 prev_leading_spaces = len(prev_line) - len(prev_line.lstrip())
 
                 if not construct_check:
                     if prev_leading_spaces < leading_spaces:
                         leading_spaces = prev_leading_spaces
+            if("curr_edge" in line):
+                leading_spaces = leading_spaces + 1
             line = "\t" * leading_spaces + line.lstrip()
             function_code += line
             prev_line = line

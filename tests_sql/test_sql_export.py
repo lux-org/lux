@@ -29,11 +29,10 @@ def test_scatter_code_export(global_var):
     SQLExecutor.execute([vis], tbl)
     code = vis.to_code("python")
     try:
-        code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
-        code = code.replace("'insert the name of your Vis object here'", "vis")
-        exec(code)
+        exec(code, globals())
+        create_chart_data(tbl, vis)
     except:
-        print("failed to run Vis code")
+        assert False
 
 
 def test_color_scatter_code_export(global_var):
@@ -44,11 +43,10 @@ def test_color_scatter_code_export(global_var):
     SQLExecutor.execute([vis], tbl)
     code = vis.to_code("python")
     try:
-        code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
-        code = code.replace("'insert the name of your Vis object here'", "vis")
-        exec(code)
+        exec(code, globals())
+        create_chart_data(tbl, vis)
     except:
-        print("failed to run Vis code")
+        assert False
 
 
 def test_histogram_code_export(global_var):
@@ -59,11 +57,10 @@ def test_histogram_code_export(global_var):
     SQLExecutor.execute([vis], tbl)
     code = vis.to_code("python")
     try:
-        code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
-        code = code.replace("'insert the name of your Vis object here'", "vis")
-        exec(code)
+        exec(code, globals())
+        create_chart_data(tbl, vis)
     except:
-        print("failed to run Vis code")
+        assert False
 
 
 def test_barchart_code_export(global_var):
@@ -74,11 +71,10 @@ def test_barchart_code_export(global_var):
     SQLExecutor.execute([vis], tbl)
     code = vis.to_code("python")
     try:
-        code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
-        code = code.replace("'insert the name of your Vis object here'", "vis")
-        exec(code)
+        exec(code, globals())
+        create_chart_data(tbl, vis)
     except:
-        print("failed to run Vis code")
+        assert False
 
 
 def test_color_barchart_code_export(global_var):
@@ -89,15 +85,13 @@ def test_color_barchart_code_export(global_var):
     SQLExecutor.execute([vis], tbl)
     code = vis.to_code("python")
     try:
-        code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
-        code = code.replace("'insert the name of your Vis object here'", "vis")
-        exec(code)
+        exec(code, globals())
+        create_chart_data(tbl, vis)
     except:
-        print("failed to run Vis code")
+        assert False
 
 
 def test_heatmap_code_export(global_var):
-    lux.config.heatmap = True
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("airbnb")
 
@@ -105,8 +99,7 @@ def test_heatmap_code_export(global_var):
     SQLExecutor.execute([vis], tbl)
     code = vis.to_code("python")
     try:
-        code = code.replace("'insert your LuxSQLTable variable here'", "tbl")
-        code = code.replace("'insert the name of your Vis object here'", "vis")
-        exec(code)
+        exec(code, globals())
+        create_chart_data(tbl, vis)
     except:
         assert False
