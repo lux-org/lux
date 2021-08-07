@@ -46,6 +46,7 @@ class Config:
         self._sampling_cap = 1000000
         self._sampling_flag = True
         self._heatmap_flag = True
+        self._heatmap_start = 5000
         self.lazy_maintain = True
         self.early_pruning = True
         self.early_pruning_sample_cap = 30000

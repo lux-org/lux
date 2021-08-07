@@ -94,6 +94,7 @@ def test_color_barchart_code_export(global_var):
 def test_heatmap_code_export(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("airbnb")
+    lux.config._heatmap_start = 100
 
     vis = Vis(["price", "longitude"], tbl)
     SQLExecutor.execute([vis], tbl)

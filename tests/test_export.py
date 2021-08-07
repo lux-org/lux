@@ -88,6 +88,7 @@ def test_color_barchart_code_export(global_var):
 
 def test_heatmap_code_export(global_var):
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    lux.config._heatmap_start = 100
 
     vis = Vis(["price", "longitude"], df)
     PandasExecutor.execute([vis], df)
