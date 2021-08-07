@@ -161,7 +161,7 @@ class LuxTracer:
                 if not construct_check:
                     if prev_leading_spaces < leading_spaces:
                         leading_spaces = prev_leading_spaces
-            if("curr_edge" in line):
+            if "curr_edge" in line:
                 leading_spaces = leading_spaces + 1
             line = "\t" * leading_spaces + line.lstrip()
             function_code += line
