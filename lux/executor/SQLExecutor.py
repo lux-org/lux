@@ -50,11 +50,11 @@ class SQLExecutor(Executor):
         2) Query necessary data, applying appropriate aggregation for the chart type
         3) populates vis' data with a DataFrame with relevant results
         """
-
         for view in view_collection:
             # choose execution method depending on vis mark type
 
             # when mark is empty, deal with lazy execution by filling the data with a small sample of the dataframe
+
             if view.mark == "":
                 SQLExecutor.execute_sampling(tbl)
                 view._vis_data = tbl._sampled
@@ -62,7 +62,7 @@ class SQLExecutor(Executor):
                 where_clause, filterVars = SQLExecutor.execute_filter(view)
                 length_query = pandas.read_sql(lux.config.query_templates['length_query'].format(table_name = tbl.table_name, where_clause = where_clause),lux.config.SQLconnection,)
                 view_data_length = list(length_query["length"])[0]
-                if not lux.config.heatmap:
+                if view_data_length >= lux.config._heatmap_start:
                     # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
                     has_color = True
                     SQLExecutor.execute_scatter(view, tbl)
