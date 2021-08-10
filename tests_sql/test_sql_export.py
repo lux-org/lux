@@ -104,3 +104,5 @@ def test_heatmap_code_export(global_var):
         create_chart_data(tbl, vis)
     except:
         assert False
+
+    lux.config._heatmap_start = 5000
