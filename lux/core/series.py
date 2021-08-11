@@ -43,13 +43,13 @@ class LuxSeries(pd.Series):
         "_prev",
         "_history",
         "_saved_export",
+        "name",
         "_sampled",
         "_toggle_pandas_display",
         "_message",
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
-        "name",
     ]
 
     _default_metadata = {
@@ -104,6 +104,25 @@ class LuxSeries(pd.Series):
         import lux.core
 
         return lux.core.originalSeries(self, copy=False)
+
+    def unique(self):
+        """
+        Overridden method for pd.Series.unique with cached results.
+        Return unique values of Series object.
+        Uniques are returned in order of appearance. Hash table-based unique,
+        therefore does NOT sort.
+        Returns
+        -------
+        ndarray or ExtensionArray
+            The unique values returned as a NumPy array.
+        See Also
+        --------
+        https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.unique.html
+        """
+        if self.unique_values and self.name in self.unique_values.keys():
+            return np.array(self.unique_values[self.name])
+        else:
+            return super(LuxSeries, self).unique()
 
     def _ipython_display_(self):
         from IPython.display import display

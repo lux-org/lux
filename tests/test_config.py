@@ -51,6 +51,7 @@ def register_new_action(validator: bool = True):
 
 
 def test_default_actions_registered(global_var):
+    lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     df._ipython_display_()
     assert "Distribution" in df.recommendation
@@ -198,7 +199,7 @@ def test_matplotlib_set_default_plotting_style():
     lux.config.plotting_style = add_title
     df._ipython_display_()
     title_addition = 'ax.set_title("Test Title")'
-    exported_code_str = df.recommendation["Correlation"][0].to_Altair()
+    exported_code_str = df.recommendation["Correlation"][0].to_altair()
     assert title_addition in exported_code_str
 
 
@@ -215,20 +216,24 @@ def test_set_default_plotting_style():
     df._ipython_display_()
     config_mark_addition = 'chart = chart.configure_mark(color="green", opacity=0.2)'
     title_addition = 'chart.title = "Test Title"'
-    exported_code_str = df.recommendation["Correlation"][0].to_Altair()
+    exported_code_str = df.recommendation["Correlation"][0].to_altair()
     assert config_mark_addition in exported_code_str
     assert title_addition in exported_code_str
 
 
 def test_sampling_flag_config():
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
-    df._ipython_display_()
-    assert df.recommendation["Correlation"][0].data.shape[0] == 30000
-    lux.config.sampling = False
-    df = df.copy()
-    df._ipython_display_()
-    assert df.recommendation["Correlation"][0].data.shape[0] == 48895
+    lux.config.heatmap = False
     lux.config.sampling = True
+    lux.config.early_pruning = False
+    import numpy as np
+
+    N = int(1.1 * lux.config.sampling_cap)
+    df = pd.DataFrame({"col1": np.random.rand(N), "col2": np.random.rand(N)})
+    df.maintain_recs()
+    assert len(df.recommendation["Correlation"][0].data) == lux.config.sampling_cap
+    lux.config.sampling = True
+    lux.config.heatmap = True
+    lux.config.early_pruning = True
 
 
 def test_sampling_parameters_config():
@@ -245,6 +250,7 @@ def test_sampling_parameters_config():
 
 
 def test_heatmap_flag_config():
+    lux.config.heatmap = True
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df._ipython_display_()
     assert df.recommendation["Correlation"][0]._postbin
@@ -330,6 +336,6 @@ def test_sorter(global_var):
 
 # 	df._ipython_display_()
 
-# 	vis_code = df.recommendation["Correlation"][0].to_Altair()
+# 	vis_code = df.recommendation["Correlation"][0].to_altair()
 # 	print (vis_code)
 # 	assert 'chart = chart.configure_mark(color="green")' in vis_code, "Exported chart does not have additional plot style setting."

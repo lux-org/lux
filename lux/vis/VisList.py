@@ -272,7 +272,13 @@ class VisList:
         import luxwidget
 
         recJSON = LuxDataFrame.rec_to_JSON([recommendation])
-        self._widget = luxwidget.LuxWidget(currentVis={}, recommendations=recJSON, intent="", message="")
+        self._widget = luxwidget.LuxWidget(
+            currentVis={},
+            recommendations=recJSON,
+            intent="",
+            message="",
+            config={"plottingScale": lux.config.plotting_scale},
+        )
         display(self._widget)
 
     def refresh_source(self, ldf):
@@ -303,6 +309,7 @@ class VisList:
             self._source = ldf
             self._source.maintain_metadata()
             if len(self._input_lst) > 0:
+                approx = False
                 if self._is_vis_input():
                     compiled_collection = []
                     for vis in self._collection:
@@ -315,4 +322,15 @@ class VisList:
                     self._inferred_intent = Parser.parse(self._intent)
                     Validator.validate_intent(self._inferred_intent, ldf)
                     self._collection = Compiler.compile_intent(ldf, self._inferred_intent)
-                lux.config.executor.execute(self._collection, ldf)
+
+                # Early pruning determination criteria
+                width_criteria = len(self._collection) > (lux.config.topk + 3)
+                length_criteria = len(ldf) > lux.config.early_pruning_sample_start
+                if lux.config.early_pruning and width_criteria and length_criteria:
+                    # print("Apply approx to this VisList")
+                    ldf._message.add_unique(
+                        "Large search space detected: Lux is approximating the interestingness of recommended visualizations.",
+                        priority=1,
+                    )
+                    approx = True
+                lux.config.executor.execute(self._collection, ldf, approx=approx)

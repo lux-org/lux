@@ -11,8 +11,9 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
+from lux.vis.Vis import Vis
 from lux.utils import utils
 
 
@@ -28,19 +29,38 @@ class Executor:
         return f"<Executor>"
 
     @staticmethod
-    def execute(vis_collection: VisList, ldf):
+    def execute(vislist: VisList, ldf: LuxDataFrame, approx: bool = False):
+        """
+        Given a VisList, fetch the data required to render the vis.
+        """
         return NotImplemented
 
     @staticmethod
-    def execute_aggregate(vis, ldf):
+    def execute_aggregate(vis: Vis, ldf: LuxDataFrame):
+        """
+        Aggregate data points on an axis for bar or line charts
+        """
         return NotImplemented
 
     @staticmethod
-    def execute_binning(vis, ldf):
+    def execute_binning(ldf: LuxDataFrame, vis: Vis):
+        """
+        Binning of data points for generating histograms
+        """
         return NotImplemented
 
     @staticmethod
-    def execute_filter(vis, ldf):
+    def execute_filter(vis: Vis):
+        """
+        Apply a Vis's filter to vis.data
+        """
+        return NotImplemented
+
+    @staticmethod
+    def execute_2D_binning(vis: Vis):
+        """
+        Apply 2D binning (heatmap) to vis.data
+        """
         return NotImplemented
 
     @staticmethod
@@ -51,12 +71,10 @@ class Executor:
     def compute_data_type(self):
         return NotImplemented
 
-    # @staticmethod
-    # def compute_data_model(self):
-    #     return NotImplemented
-
     def mapping(self, rmap):
         group_map = {}
+        if rmap == {}:
+            return {}
         for val in ["quantitative", "id", "nominal", "temporal", "geographical"]:
             group_map[val] = list(filter(lambda x: rmap[x] == val, rmap))
         return group_map

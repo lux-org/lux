@@ -43,7 +43,6 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
     int
             Interestingness Score
     """
-
     if vis.data is None or len(vis.data) == 0:
         return -1
         # raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
@@ -151,10 +150,9 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
                 color_cardinality = ldf.cardinality[color_column]
                 groupby_cardinality = ldf.cardinality[groupby_column]
                 # scale down score based on number of categories
-                chi2_score = chi2_contingency(contingency_tbl)[0] * 0.9 ** (
+                score = chi2_contingency(contingency_tbl)[0] * 0.9 ** (
                     color_cardinality + groupby_cardinality
                 )
-                score = min(0.01, chi2_score)
             except (ValueError, KeyError):
                 # ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in a category having no counts
                 score = -1
@@ -225,13 +223,19 @@ def deviation_from_overall(
     int
             Score describing how different the vis is from the overall vis
     """
-    v_filter_size = get_filtered_size(filter_specs, ldf)
+    if lux.config.executor.name == "PandasExecutor":
+        if exclude_nan:
+            vdata = vis.data.dropna()
+        else:
+            vdata = vis.data
+        v_filter_size = get_filtered_size(filter_specs, ldf)
+        v_size = len(vis.data)
+    elif lux.config.executor.name == "SQLExecutor":
+        from lux.executor.SQLExecutor import SQLExecutor
 
-    if exclude_nan:
-        vdata = vis.data.dropna()
-    else:
+        v_filter_size = SQLExecutor.get_filtered_size(filter_specs, ldf)
+        v_size = len(ldf)
         vdata = vis.data
-    v_size = len(vdata)
     v_filter = vdata[msr_attribute]
     total = v_filter.sum()
     v_filter = v_filter / total  # normalize by total to get ratio
@@ -307,10 +311,7 @@ def unevenness(vis: Vis, ldf: LuxDataFrame, measure_lst: list, dimension_lst: li
     v_flat = pd.Series([1 / C] * len(v))
     if is_datetime(v):
         v = v.astype("int")
-    try:
-        return D * euclidean(v, v_flat)
-    except (ValueError):
-        return 0.01
+    return D * euclidean(v, v_flat)
 
 
 def mutual_information(v_x: list, v_y: list) -> int:
