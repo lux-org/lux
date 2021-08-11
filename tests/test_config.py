@@ -295,6 +295,7 @@ def test_sort(global_var):
     assert sorted(scorelst) != scorelst, "unsorted setting"
     lux.config.sort = "descending"
 
+
 def test_ordering(global_var):
     df = pd.read_csv("lux/data/college.csv")
     lux.config.topk = 5
@@ -321,23 +322,33 @@ def test_ordering(global_var):
     lux.config.sorter = "interestingness"
     lux.config.topk = 15
 
+
 def test_custom_ordering(global_var):
     lux.config.topk = 5
     lux.config.sort = "ascending"
 
     def sort_by_multiple(collection, desc):
         collection.sort(
-            key=lambda x: (x.get_attr_by_channel("x")[0].attribute, x.get_attr_by_channel("y")[0].attribute),
-            reverse=lux.config.sort)
+            key=lambda x: (
+                x.get_attr_by_channel("x")[0].attribute,
+                x.get_attr_by_channel("y")[0].attribute,
+            ),
+            reverse=lux.config.sort,
+        )
 
     lux.config.ordering = sort_by_multiple
     df = pd.read_csv("lux/data/college.csv")
     df._ipython_display_()
-    cmp = (df.recommendation["Correlation"][0].get_attr_by_channel("x")[0].attribute,
-            df.recommendation["Correlation"][0].get_attr_by_channel("y")[0].attribute)
+    cmp = (
+        df.recommendation["Correlation"][0].get_attr_by_channel("x")[0].attribute,
+        df.recommendation["Correlation"][0].get_attr_by_channel("y")[0].attribute,
+    )
 
     for vis in df.recommendation["Correlation"]:
-        assert (vis.get_attr_by_channel("x")[0].attribute, vis.get_attr_by_channel("y")[0].attribute) >= cmp
+        assert (
+            vis.get_attr_by_channel("x")[0].attribute,
+            vis.get_attr_by_channel("y")[0].attribute,
+        ) >= cmp
         cmp = (vis.get_attr_by_channel("x")[0].attribute, vis.get_attr_by_channel("y")[0].attribute)
 
     lux.config.sort = "descending"
