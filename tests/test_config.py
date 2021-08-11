@@ -353,7 +353,7 @@ def test_custom_ordering(global_var):
 
     lux.config.sort = "descending"
     lux.config.topk = 15
-    lux.config.sorter = "interestingness"
+    lux.config.ordering = "interestingness"
 
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.
