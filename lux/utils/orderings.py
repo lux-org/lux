@@ -13,19 +13,19 @@
 #  limitations under the License.
 
 
-class Sorter:
+class Ordering:
     @staticmethod
-    def interestingness():
-        return lambda x: x.score
+    def interestingness(collection, desc):
+        collection.sort(key=lambda x: x.score, reverse=desc)
 
     @staticmethod
-    def title():
-        return lambda x: x.title
+    def title(collection, desc):
+        collection.sort(key=lambda x: x.title, reverse=desc)
 
     @staticmethod
-    def x_alpha():
-        return lambda x: x.get_attr_by_channel("x")[0].attribute
+    def x_alpha(collection, desc):
+        collection.sort(key=lambda x: x.get_attr_by_channel("x")[0].attribute, reverse=desc)
 
     @staticmethod
-    def y_alpha():
-        return lambda x: x.get_attr_by_channel("y")[0].attribute
+    def y_alpha(collection, desc):
+        collection.sort(key=lambda x: x.get_attr_by_channel("y")[0].attribute, reverse=desc)

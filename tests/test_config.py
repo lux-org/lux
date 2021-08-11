@@ -17,7 +17,7 @@ import pytest
 import pandas as pd
 import time
 from lux.vis.VisList import VisList
-from lux.utils.sorters import Sorter
+from lux.utils.orderings import Ordering
 import lux
 
 
@@ -295,8 +295,7 @@ def test_sort(global_var):
     assert sorted(scorelst) != scorelst, "unsorted setting"
     lux.config.sort = "descending"
 
-
-def test_sorter(global_var):
+def test_ordering(global_var):
     df = pd.read_csv("lux/data/college.csv")
     lux.config.topk = 5
     df._ipython_display_()
@@ -305,22 +304,45 @@ def test_sorter(global_var):
     for vis in df.recommendation["Correlation"]:
         assert vis.score <= score
         score = vis.score
-    lux.config.sorter = Sorter.x_alpha()
+    lux.config.ordering = "x_attr"
     df = pd.read_csv("lux/data/college.csv")
     string = df.recommendation["Correlation"][0].get_attr_by_channel("x")[0].attribute
     assert len(df.recommendation["Correlation"]) == 5, "Show top 5"
     for vis in df.recommendation["Correlation"]:
         assert vis.get_attr_by_channel("x")[0].attribute <= string
         string = vis.get_attr_by_channel("x")[0].attribute
-    lux.config.sorter = Sorter.y_alpha()
+    lux.config.ordering = "y_attr"
     df = pd.read_csv("lux/data/college.csv")
     string = df.recommendation["Correlation"][0].get_attr_by_channel("y")[0].attribute
     assert len(df.recommendation["Correlation"]) == 5, "Show top 5"
     for vis in df.recommendation["Correlation"]:
         assert vis.get_attr_by_channel("y")[0].attribute <= string
         string = vis.get_attr_by_channel("y")[0].attribute
-    lux.config.sorter = Sorter.interestingness()
+    lux.config.sorter = "interestingness"
     lux.config.topk = 15
+
+def test_custom_ordering(global_var):
+    lux.config.topk = 5
+    lux.config.sort = "ascending"
+
+    def sort_by_multiple(collection, desc):
+        collection.sort(
+            key=lambda x: (x.get_attr_by_channel("x")[0].attribute, x.get_attr_by_channel("y")[0].attribute),
+            reverse=lux.config.sort)
+
+    lux.config.ordering = sort_by_multiple
+    df = pd.read_csv("lux/data/college.csv")
+    df._ipython_display_()
+    cmp = (df.recommendation["Correlation"][0].get_attr_by_channel("x")[0].attribute,
+            df.recommendation["Correlation"][0].get_attr_by_channel("y")[0].attribute)
+
+    for vis in df.recommendation["Correlation"]:
+        assert (vis.get_attr_by_channel("x")[0].attribute, vis.get_attr_by_channel("y")[0].attribute) >= cmp
+        cmp = (vis.get_attr_by_channel("x")[0].attribute, vis.get_attr_by_channel("y")[0].attribute)
+
+    lux.config.sort = "descending"
+    lux.config.topk = 15
+    lux.config.sorter = "interestingness"
 
 
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.

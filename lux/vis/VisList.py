@@ -233,14 +233,9 @@ class VisList:
         # remove the items that have invalid (-1) score
         if remove_invalid:
             self._collection = list(filter(lambda x: x.score != -1, self._collection))
-        if lux.config.sort == "none":
-            return
-        elif lux.config.sort == "ascending":
-            descending = False
-        elif lux.config.sort == "descending":
-            descending = True
-        # sort in-place by “score” by default if available, otherwise user-specified field to sort by
-        self._collection.sort(key=lux.config.sorter, reverse=descending)
+        if lux.config.sort is not None:
+            # sort in-place by “score” by default if available, otherwise user-specified field to sort by
+            lux.config.ordering(self._collection, lux.config.sort)
 
     def showK(self):
         k = lux.config.topk

@@ -6,7 +6,7 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 import lux
 import warnings
-from lux.utils.sorters import Sorter
+from lux.utils.orderings import Ordering
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
@@ -29,8 +29,9 @@ class Config:
         self._plotting_backend = "vegalite"
         self._plotting_scale = 1
         self._topk = 15
-        self._sort = "descending"
-        self._sorter = Sorter.interestingness()
+        # self._sort = "descending"
+        self._sort = True
+        self._ordering = Ordering.interestingness
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
@@ -89,7 +90,12 @@ class Config:
         """
         flag = flag.lower()
         if isinstance(flag, str) and flag in ["none", "ascending", "descending"]:
-            self._sort = flag
+            if flag == "none":
+                self._sort = None
+            elif flag == "ascending":
+                self._sort = False
+            else:
+                self._sort = True
         else:
             warnings.warn(
                 "Parameter to lux.config.sort must be one of the following: 'none', 'ascending', or 'descending'.",
@@ -97,21 +103,31 @@ class Config:
             )
 
     @property
-    def sorter(self):
-        return self._sorter
+    def ordering(self):
+        return self._ordering
 
-    @sorter.setter
-    def sorter(self, sorting_function):
+    @ordering.setter
+    def ordering(self, ordering_function):
         """
         Setting parameter to determine sort function of each action
 
         Parameters
         ----------
-        flag : Union[str]
-            "none", "ascending","descending"
-            No sorting, sort by ascending order, sort by descending order
+        ordering_function : Union[str, Callable]
+            "interestingness", "title", "x_alpha", "y_alpha", Callable
+            Use interestingness score, title, x attribute, y attribute, or any other function
         """
-        self._sorter = sorting_function
+        if type(ordering_function) is str:
+            if ordering_function == "interestingness":
+                self._ordering = Ordering.interestingness
+            elif ordering_function == "title":
+                self._ordering = Ordering.title
+            elif ordering_function == "x_attr":
+                self._ordering = Ordering.x_alpha
+            elif ordering_function == "y_attr":
+                self._ordering = Ordering.y_alpha
+        else:
+            self._ordering = ordering_function
 
     @property
     def pandas_fallback(self):
