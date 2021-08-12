@@ -6,7 +6,7 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 import lux
 import warnings
-from lux.utils.orderings import Ordering
+from lux.utils.orderings import Ordering, OrderingDict, resolve_value
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
@@ -29,9 +29,9 @@ class Config:
         self._plotting_backend = "vegalite"
         self._plotting_scale = 1
         self._topk = 15
-        # self._sort = "descending"
         self._sort = True
         self._ordering = Ordering.interestingness
+        self._ordering_actions = OrderingDict({})
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
@@ -107,27 +107,12 @@ class Config:
         return self._ordering
 
     @ordering.setter
-    def ordering(self, ordering_function):
-        """
-        Setting parameter to determine sort function of each action
+    def ordering(self, value):
+        self._ordering = resolve_value(value)
 
-        Parameters
-        ----------
-        ordering_function : Union[str, Callable]
-            "interestingness", "title", "x_alpha", "y_alpha", Callable
-            Use interestingness score, title, x attribute, y attribute, or any other function
-        """
-        if type(ordering_function) is str:
-            if ordering_function == "interestingness":
-                self._ordering = Ordering.interestingness
-            elif ordering_function == "title":
-                self._ordering = Ordering.title
-            elif ordering_function == "x_attr":
-                self._ordering = Ordering.x_alpha
-            elif ordering_function == "y_attr":
-                self._ordering = Ordering.y_alpha
-        else:
-            self._ordering = ordering_function
+    @property
+    def ordering_actions(self):
+        return self._ordering_actions
 
     @property
     def pandas_fallback(self):

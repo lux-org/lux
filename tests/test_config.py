@@ -356,6 +356,33 @@ def test_custom_ordering(global_var):
     lux.config.ordering = "interestingness"
 
 
+def test_ordering_actions(global_var):
+    lux.config.topk = 5
+
+    lux.config.ordering_actions["correlation"] = "x_attr"
+
+    df = pd.read_csv("lux/data/college.csv")
+    string = df.recommendation["Correlation"][0].get_attr_by_channel("x")[0].attribute
+    assert len(df.recommendation["Correlation"]) == 5, "Show top 5"
+    for vis in df.recommendation["Correlation"]:
+        assert vis.get_attr_by_channel("x")[0].attribute <= string
+        string = vis.get_attr_by_channel("x")[0].attribute
+
+    score = float("inf")
+    for vis in df.recommendation["Distribution"]:
+        assert vis.score <= score
+        score = vis.score
+
+    score = float("inf")
+    for vis in df.recommendation["Occurrence"]:
+        assert vis.score <= score
+        score = vis.score
+
+    lux.config.ordering_actions.pop("correlation")
+    lux.config.topk = 15
+    lux.config.sort = "descending"
+
+
 # TODO: This test does not pass in pytest but is working in Jupyter notebook.
 # def test_plot_setting(global_var):
 # 	df = pytest.car_df

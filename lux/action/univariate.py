@@ -92,7 +92,7 @@ def univariate(ldf, *args):
     if ignore_rec_flag:
         recommendation["collection"] = []
         return recommendation
-    vlist = VisList(intent, ldf)
+    vlist = VisList(intent, ldf, recommendation["action"].lower())
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
     vlist.sort()
