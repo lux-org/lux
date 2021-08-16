@@ -52,7 +52,7 @@ def enhance(ldf):
             "long_description": f"Enhance adds an additional attribute as the color to break down the {intended_attrs} distribution",
         }
     # if there are too many column attributes, return don't generate Enhance recommendations
-    elif len(attr_specs) > 2:
+    else:
         recommendation = {"action": "Enhance"}
         recommendation["collection"] = []
         return recommendation

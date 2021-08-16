@@ -38,7 +38,19 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def execute_sampling(ldf: LuxDataFrame):
-        # General Sampling for entire dataframe
+        """
+        Compute and cache a sample for the overall dataframe
+
+        - When # of rows exceeds lux.config.sampling_start, take 75% df as sample
+        - When # of rows exceeds lux.config.sampling_cap, cap the df at {lux.config.sampling_cap} rows
+
+        lux.config.sampling_start = 100k rows
+        lux.config.sampling_cap = 1M rows
+
+        Parameters
+        ----------
+        ldf : LuxDataFrame
+        """
         SAMPLE_FLAG = lux.config.sampling
         SAMPLE_START = lux.config.sampling_start
         SAMPLE_CAP = lux.config.sampling_cap
@@ -48,21 +60,39 @@ class PandasExecutor(Executor):
             if ldf._sampled is None:  # memoize unfiltered sample df
                 ldf._sampled = ldf.sample(n=SAMPLE_CAP, random_state=1)
             ldf._message.add_unique(
-                f"Large dataframe detected: Lux is only visualizing a random sample capped at {SAMPLE_CAP} rows.",
+                f"Large dataframe detected: Lux is only visualizing a sample capped at {SAMPLE_CAP} rows.",
                 priority=99,
             )
         elif SAMPLE_FLAG and len(ldf) > SAMPLE_START:
             if ldf._sampled is None:  # memoize unfiltered sample df
                 ldf._sampled = ldf.sample(frac=SAMPLE_FRAC, random_state=1)
             ldf._message.add_unique(
-                f"Large dataframe detected: Lux is only visualizing a random sample of {len(ldf._sampled)} rows.",
+                f"Large dataframe detected: Lux is visualizing a sample of {SAMPLE_FRAC}% of the dataframe ({len(ldf._sampled)} rows).",
                 priority=99,
             )
         else:
             ldf._sampled = ldf
 
     @staticmethod
-    def execute(vislist: VisList, ldf: LuxDataFrame):
+    def execute_approx_sample(ldf: LuxDataFrame):
+        """
+        Compute and cache an approximate sample of the overall dataframe
+        for the purpose of early pruning of the visualization search space
+
+        Parameters
+        ----------
+        ldf : LuxDataFrame
+        """
+        if ldf._approx_sample is None:
+            if len(ldf._sampled) > lux.config.early_pruning_sample_start:
+                ldf._approx_sample = ldf._sampled.sample(
+                    n=lux.config.early_pruning_sample_cap, random_state=1
+                )
+            else:
+                ldf._approx_sample = ldf._sampled
+
+    @staticmethod
+    def execute(vislist: VisList, ldf: LuxDataFrame, approx=False):
         """
         Given a VisList, fetch the data required to render the vis.
         1) Apply filters
@@ -85,6 +115,12 @@ class PandasExecutor(Executor):
         for vis in vislist:
             # The vis data starts off being original or sampled dataframe
             vis._vis_data = ldf._sampled
+            # Approximating vis for early pruning
+            if approx:
+                vis._original_df = vis._vis_data
+                PandasExecutor.execute_approx_sample(ldf)
+                vis._vis_data = ldf._approx_sample
+                vis.approx = True
             filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
             attributes = set([])
@@ -98,16 +134,15 @@ class PandasExecutor(Executor):
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
                 PandasExecutor.execute_binning(ldf, vis)
-            elif vis.mark == "scatter":
-                HBIN_START = 5000
-                if lux.config.heatmap and len(ldf) > HBIN_START:
-                    vis._postbin = True
-                    ldf._message.add_unique(
-                        f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
-                        priority=98,
-                    )
-                    # vis._mark = "heatmap"
-                    # PandasExecutor.execute_2D_binning(vis) # Lazy Evaluation (Early pruning based on interestingness)
+            elif vis.mark == "heatmap":
+                # Early pruning based on interestingness of scatterplots
+                if approx:
+                    vis._mark = "scatter"
+                else:
+                    vis._mark = "heatmap"
+                    PandasExecutor.execute_2D_binning(vis)
+            # Ensure that intent is not propogated to the vis data (bypass intent setter, since trigger vis.data metadata recompute)
+            vis.data._intent = []
 
     @staticmethod
     def execute_aggregate(vis: Vis, isFiltered=True):
@@ -259,7 +294,7 @@ class PandasExecutor(Executor):
             vis._vis_data = vis._vis_data.drop(columns="index")
 
     @staticmethod
-    def execute_binning(ldf, vis: Vis):
+    def execute_binning(ldf: LuxDataFrame, vis: Vis):
         """
         Binning of data points for generating histograms
 
@@ -296,7 +331,19 @@ class PandasExecutor(Executor):
         vis._vis_data = pd.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
 
     @staticmethod
-    def execute_filter(vis: Vis):
+    def execute_filter(vis: Vis) -> bool:
+        """
+        Apply a Vis's filter to vis.data
+
+        Parameters
+        ----------
+        vis : Vis
+
+        Returns
+        -------
+        bool
+            Boolean flag indicating if any filter was applied
+        """
         assert (
             vis.data is not None
         ), "execute_filter assumes input vis.data is populated (if not, populate with LuxDataFrame values)"
@@ -358,7 +405,14 @@ class PandasExecutor(Executor):
         return df
 
     @staticmethod
-    def execute_2D_binning(vis: Vis):
+    def execute_2D_binning(vis: Vis) -> None:
+        """
+        Apply 2D binning (heatmap) to vis.data
+
+        Parameters
+        ----------
+        vis : Vis
+        """
         pd.reset_option("mode.chained_assignment")
         with pd.option_context("mode.chained_assignment", None):
             x_attr = vis.get_attr_by_channel("x")[0].attribute
@@ -478,7 +532,7 @@ class PandasExecutor(Executor):
         elif len(non_datetime_attrs) > 1:
             warn_msg += f"\nLux detects that attributes {non_datetime_attrs} may be temporal.\n"
         if len(non_datetime_attrs) > 0:
-            warn_msg += "To display visualizations for these attributes accurately, please convert temporal attributes to Pandas Datetime objects using the pd.to_datetime function and provide a 'format' parameter to specify the datetime format of the attribute.\nFor example, you can convert a year-only attribute (e.g., 1998, 1971, 1982) to Datetime type by specifying the `format` as '%Y'.\n\nHere is a starter template that you can use for converting the temporal fields:\n"
+            warn_msg += "To display visualizations for these attributes accurately, please convert temporal attributes to Datetime objects.\nFor example, you can convert a Year attribute (e.g., 1998, 1971, 1982) using pd.to_datetime by specifying the `format` as '%Y'.\n\nHere is a starter template that you can use for converting the temporal fields:\n"
             for attr in non_datetime_attrs:
                 warn_msg += f"\tdf['{attr}'] = pd.to_datetime(df['{attr}'], format='<replace-with-datetime-format>')\n"
             warn_msg += "\nSee more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html"
