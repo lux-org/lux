@@ -1,4 +1,4 @@
-lux.core.frame.LuxDataFrame
+﻿lux.core.frame.LuxDataFrame
 ===========================
 
 .. currentmodule:: lux.core.frame
@@ -41,9 +41,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.combine
       ~LuxDataFrame.combine_first
       ~LuxDataFrame.compare
-      ~LuxDataFrame.compute_SQL_data_type
-      ~LuxDataFrame.compute_SQL_dataset_metadata
-      ~LuxDataFrame.compute_SQL_stats
+      ~LuxDataFrame.compute_metadata
       ~LuxDataFrame.convert_dtypes
       ~LuxDataFrame.copy
       ~LuxDataFrame.copy_intent
@@ -85,9 +83,6 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.from_records
       ~LuxDataFrame.ge
       ~LuxDataFrame.get
-      ~LuxDataFrame.get_SQL_attributes
-      ~LuxDataFrame.get_SQL_cardinality
-      ~LuxDataFrame.get_SQL_unique_values
       ~LuxDataFrame.groupby
       ~LuxDataFrame.gt
       ~LuxDataFrame.head
@@ -174,14 +169,15 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.save_as_html
       ~LuxDataFrame.select_dtypes
       ~LuxDataFrame.sem
-      ~LuxDataFrame.set_SQL_table
       ~LuxDataFrame.set_axis
       ~LuxDataFrame.set_data_type
+      ~LuxDataFrame.set_flags
       ~LuxDataFrame.set_index
       ~LuxDataFrame.set_intent
       ~LuxDataFrame.set_intent_as_vis
       ~LuxDataFrame.set_intent_on_click
       ~LuxDataFrame.shift
+      ~LuxDataFrame.show_all_column_vis
       ~LuxDataFrame.skew
       ~LuxDataFrame.slice_shift
       ~LuxDataFrame.sort_index
@@ -251,6 +247,7 @@ lux.core.frame.LuxDataFrame
       ~LuxDataFrame.dtypes
       ~LuxDataFrame.empty
       ~LuxDataFrame.exported
+      ~LuxDataFrame.flags
       ~LuxDataFrame.history
       ~LuxDataFrame.iat
       ~LuxDataFrame.iloc

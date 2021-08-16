@@ -15,6 +15,7 @@
 from lux.vis import Clause
 from typing import List, Dict, Union
 from lux.vis.Vis import Vis
+from lux.processor.Validator import Validator
 from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 from lux.utils import date_utils
@@ -82,7 +83,8 @@ class Compiler:
         vis_collection: list[lux.Vis]
                 vis list with compiled lux.Vis objects.
         """
-        if _inferred_intent:
+        valid_intent = _inferred_intent  # ensures intent is non-empty
+        if valid_intent and Validator.validate_intent(_inferred_intent, ldf, True):
             vis_collection = Compiler.enumerate_collection(_inferred_intent, ldf)
             # autofill data type/model information
             Compiler.populate_data_type_model(ldf, vis_collection)
@@ -94,6 +96,8 @@ class Compiler:
                 Compiler.determine_encoding(ldf, vis)
             ldf._compiled = True
             return vis_collection
+        elif _inferred_intent:
+            return []
 
     @staticmethod
     def enumerate_collection(_inferred_intent: List[Clause], ldf: LuxDataFrame) -> VisList:
@@ -160,13 +164,11 @@ class Compiler:
         from lux.utils.date_utils import is_datetime_string
 
         data_model_lookup = lux.config.executor.compute_data_model_lookup(ldf.data_type)
-
         for vis in vlist:
             for clause in vis._inferred_intent:
                 if clause.description == "?":
                     clause.description = ""
                 # TODO: Note that "and not is_datetime_string(clause.attribute))" is a temporary hack and breaks the `test_row_column_group` example
-                # and not is_datetime_string(clause.attribute):
                 if clause.attribute != "" and clause.attribute != "Record":
                     if clause.data_type == "":
                         clause.data_type = ldf.data_type[clause.attribute]
@@ -269,7 +271,15 @@ class Compiler:
             if measure.aggregation == "":
                 measure.set_aggregation("mean")
             if dim_type == "temporal" or dim_type == "oridinal":
-                return "line", {"x": dimension, "y": measure}
+                if isinstance(dimension.attribute, pd.Timestamp):
+                    # If timestamp, use the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+                    attr = str(dimension.attribute._date_repr)
+                else:
+                    attr = dimension.attribute
+                if ldf.cardinality[attr] == 1:
+                    return "bar", {"x": measure, "y": dimension}
+                else:
+                    return "line", {"x": dimension, "y": measure}
             else:  # unordered categorical
                 # if cardinality large than 5 then sort bars
                 if ldf.cardinality[dimension.attribute] > 5:
@@ -362,6 +372,15 @@ class Compiler:
             for attr in relevant_attributes
             if attr != "Record" and attr in ldf._min_max
         )
+        # Replace scatterplot with heatmap
+        HBIN_START = 5000
+        if vis.mark == "scatter" and lux.config.heatmap and len(ldf) > HBIN_START:
+            vis._postbin = True
+            ldf._message.add_unique(
+                f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
+                priority=98,
+            )
+            vis._mark = "heatmap"
         vis._min_max = relevant_min_max
         if auto_channel != {}:
             vis = Compiler.enforce_specified_channel(vis, auto_channel)

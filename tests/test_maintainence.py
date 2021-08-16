@@ -81,3 +81,23 @@ def test_recs_inplace_operation(global_var):
     df._ipython_display_()
     assert len(df.recommendation["Occurrence"]) == 5
     assert df._recs_fresh == True, "Failed to maintain recommendation after display df"
+
+
+def test_intent_cleared_after_vis_data():
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
+    )
+    df["Month"] = pd.to_datetime(df["Month"], format="%m")
+    df["Year"] = pd.to_datetime(df["Year"], format="%Y")
+    df.intent = [
+        lux.Clause("Year"),
+        lux.Clause("PctForeclosured"),
+        lux.Clause("City=Crofton"),
+    ]
+    df._ipython_display_()
+
+    vis = df.recommendation["Similarity"][0]
+    vis.data._ipython_display_()
+    all_column_vis = vis.data.current_vis[0]
+    assert all_column_vis.get_attr_by_channel("x")[0].attribute == "Year"
+    assert all_column_vis.get_attr_by_channel("y")[0].attribute == "PctForeclosured"

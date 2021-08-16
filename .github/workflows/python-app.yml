@@ -45,6 +45,15 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
         pip install sqlalchemy
+
+        # pip uninstall -y  lux-widget
+        # pip install git+git://github.com/lux-org/lux-widget.git
+        # # Temporary Fix (#372)
+        # cd /opt/hostedtoolcache/Python/3.7.10/x64/lib/python3.7/site-packages/luxwidget/
+        # mkdir labextension
+        # cd labextension
+        # wget https://raw.githubusercontent.com/lux-org/lux-widget/master/luxwidget/nbextension/package.json
+
     - name: Upload data to Postgres
       run: |
         python lux/data/upload_car_data.py

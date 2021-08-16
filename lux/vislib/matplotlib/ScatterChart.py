@@ -48,7 +48,7 @@ class ScatterChart(MatplotlibChart):
         if len(y_attr.attribute) > 25:
             y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
 
-        df = self.data
+        df = self.data.dropna()
 
         x_pts = df[x_attr.attribute]
         y_pts = df[y_attr.attribute]
@@ -140,7 +140,7 @@ class ScatterChart(MatplotlibChart):
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
         self.code += "from matplotlib.cm import ScalarMappable\n"
-
+        self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
         self.code += set_fig_code
         self.code += f"x_pts = df['{x_attr.attribute}']\n"
         self.code += f"y_pts = df['{y_attr.attribute}']\n"
