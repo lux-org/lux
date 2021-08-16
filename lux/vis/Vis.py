@@ -111,7 +111,7 @@ class Vis:
         self._intent = intent
         self.refresh_source(self._source)
 
-    def _repr_html_(self):
+    def _ipython_display_(self):
         from IPython.display import display
 
         check_import_lux_widget()
@@ -351,6 +351,7 @@ class Vis:
             self._source = ldf
             self._inferred_intent = Parser.parse(self._intent)
             Validator.validate_intent(self._inferred_intent, ldf)
+
             Compiler.compile_vis(ldf, self)
             lux.config.executor.execute([self], ldf)
 

@@ -21,6 +21,7 @@ import warnings
 
 # Suite of test that checks if data_type inferred correctly by Lux
 def test_check_cars():
+    lux.config.set_SQL_connection("")
     df = pd.read_csv("lux/data/car.csv")
     df.maintain_metadata()
     assert df.data_type["Name"] == "nominal"
@@ -38,7 +39,7 @@ def test_check_int_id():
     df = pd.read_csv(
         "https://github.com/lux-org/lux-datasets/blob/master/data/instacart_sample.csv?raw=true"
     )
-    df._repr_html_()
+    df._ipython_display_()
     inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
     assert len(inverted_data_type["id"]) == 3
     assert (
@@ -49,7 +50,7 @@ def test_check_int_id():
 
 def test_check_str_id():
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/churn.csv?raw=true")
-    df._repr_html_()
+    df._ipython_display_()
     assert (
         "<code>customerID</code> is not visualized since it resembles an ID field.</li>"
         in df._message.to_html()
@@ -228,7 +229,7 @@ def test_set_data_type():
         "https://github.com/lux-org/lux-datasets/blob/master/data/real_estate_tutorial.csv?raw=true"
     )
     with pytest.warns(UserWarning) as w:
-        df._repr_html_()
+        df._ipython_display_()
         assert "starter template that you can use" in str(w[-1].message)
         assert "df.set_data_type" in str(w[-1].message)
 
@@ -237,7 +238,7 @@ def test_set_data_type():
     assert df.data_type["Year"] == "nominal"
     with warnings.catch_warnings() as w:
         warnings.simplefilter("always")
-        df._repr_html_()
+        df._ipython_display_()
         assert not w
 
 

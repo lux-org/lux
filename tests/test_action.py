@@ -20,10 +20,11 @@ from lux.vis.Vis import Vis
 
 
 def test_vary_filter_val(global_var):
+    lux.config.set_executor_type("Pandas")
     df = pytest.olympic
     vis = Vis(["Height", "SportType=Ball"], df)
     df.set_intent_as_vis(vis)
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.recommendation["Filter"]) == len(df["SportType"].unique()) - 1
     linechart = list(filter(lambda x: x.mark == "line", df.recommendation["Enhance"]))[0]
     assert (
@@ -42,7 +43,7 @@ def test_filter_inequality(global_var):
             lux.Clause(attribute="Acceleration", filter_op=">", value=10),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
 
     from lux.utils.utils import get_filter_specs
 
@@ -59,7 +60,7 @@ def test_generalize_action(global_var):
         df["Year"], format="%Y"
     )  # change pandas dtype for the column "Year" to datetype
     df.set_intent(["Acceleration", "MilesPerGal", "Cylinders", "Origin=USA"])
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.recommendation["Generalize"]) == 4
     v1 = df.recommendation["Generalize"][0]
     v2 = df.recommendation["Generalize"][1]
@@ -86,14 +87,14 @@ def test_row_column_group(global_var):
     tseries[tseries.columns.min()] = tseries[tseries.columns.min()].fillna(0)
     tseries[tseries.columns.max()] = tseries[tseries.columns.max()].fillna(tseries.max(axis=1))
     tseries = tseries.interpolate("zero", axis=1)
-    tseries._repr_html_()
+    tseries._ipython_display_()
     assert list(tseries.recommendation.keys()) == ["Temporal"]
 
 
 def test_groupby(global_var):
     df = pytest.college_df
     groupbyResult = df.groupby("Region").sum()
-    groupbyResult._repr_html_()
+    groupbyResult._ipython_display_()
     assert list(groupbyResult.recommendation.keys()) == ["Column Groups"]
 
 
@@ -160,7 +161,7 @@ def test_crosstab():
 
     df = pd.DataFrame(d, columns=["Name", "Exam", "Subject", "Result"])
     result = pd.crosstab([df.Exam], df.Result)
-    result._repr_html_()
+    result._ipython_display_()
     assert list(result.recommendation.keys()) == ["Row Groups", "Column Groups"]
 
 
@@ -169,7 +170,7 @@ def test_custom_aggregation(global_var):
 
     df = pytest.college_df
     df.set_intent(["HighestDegree", lux.Clause("AverageCost", aggregation=np.ptp)])
-    df._repr_html_()
+    df._ipython_display_()
     assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]
     df.clear_intent()
 
@@ -178,7 +179,7 @@ def test_year_filter_value(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df.set_intent(["Acceleration", "Horsepower"])
-    df._repr_html_()
+    df._ipython_display_()
     list_of_vis_with_year_filter = list(
         filter(
             lambda vis: len(
@@ -210,7 +211,7 @@ def test_similarity(global_var):
             lux.Clause("Origin=USA"),
         ]
     )
-    df._repr_html_()
+    df._ipython_display_()
     assert len(df.recommendation["Similarity"]) == 2
     ranked_list = df.recommendation["Similarity"]
 
@@ -264,7 +265,7 @@ def test_similarity2():
 def test_intent_retained():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
     df.intent = ["Attrition"]
-    df._repr_html_()
+    df._ipython_display_()
 
     df["%WorkingYearsAtCompany"] = df["YearsAtCompany"] / df["TotalWorkingYears"]
     assert df.current_vis != None
@@ -272,5 +273,5 @@ def test_intent_retained():
     assert df._recs_fresh == False
     assert df._metadata_fresh == False
 
-    df._repr_html_()
+    df._ipython_display_()
     assert list(df.recommendation.keys()) == ["Enhance", "Filter"]
