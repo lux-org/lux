@@ -18,7 +18,7 @@ import lux
 import math
 
 alt.data_transformers.disable_max_rows()
-from lux.utils.utils import check_if_id_like, get_agg_title
+from lux.utils.utils import get_agg_title
 
 
 class BarChart(AltairChart):
