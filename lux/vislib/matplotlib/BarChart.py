@@ -16,11 +16,13 @@ from lux.vislib.matplotlib.MatplotlibChart import MatplotlibChart
 from lux.utils.utils import get_agg_title
 import pandas as pd
 import numpy as np
+import math
 import matplotlib.pyplot as plt
 from lux.utils.utils import matplotlib_setup
 from matplotlib.cm import ScalarMappable
 from lux.utils.date_utils import compute_date_granularity
 from matplotlib.ticker import MaxNLocator
+import lux
 
 
 class BarChart(MatplotlibChart):
@@ -44,13 +46,16 @@ class BarChart(MatplotlibChart):
         x_attr = self.vis.get_attr_by_channel("x")[0]
         y_attr = self.vis.get_attr_by_channel("y")[0]
 
-        x_attr_abv = x_attr.attribute
-        y_attr_abv = y_attr.attribute
-
-        if len(x_attr.attribute) > 25:
-            x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
-        if len(y_attr.attribute) > 25:
-            y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
+        # Deal with overlong string axes labels
+        x_attr_abv = str(x_attr.attribute)
+        y_attr_abv = str(y_attr.attribute)
+        label_len = lux.config.label_len
+        prefix_len = prefix_len = math.ceil(3.0 * label_len / 5.0)
+        suffix_len = label_len - prefix_len
+        if len(x_attr_abv) > label_len:
+            x_attr_abv = x_attr.attribute[:prefix_len] + "..." + x_attr.attribute[-suffix_len:]
+        if len(y_attr_abv) > label_len:
+            y_attr_abv = y_attr.attribute[:prefix_len] + "..." + y_attr.attribute[-suffix_len:]
 
         if x_attr.data_model == "measure":
             agg_title = get_agg_title(x_attr)
@@ -61,7 +66,7 @@ class BarChart(MatplotlibChart):
             measure_attr = y_attr.attribute
             bar_attr = x_attr.attribute
 
-        k = 10
+        k = lux.config.number_of_bars
         n_bars = len(self.data.iloc[:, 0].unique())
         if n_bars > k:  # Truncating to only top k
             remaining_bars = n_bars - k
