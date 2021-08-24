@@ -32,6 +32,8 @@ class Config:
         self._sort = True
         self._ordering = Ordering.interestingness
         self._ordering_actions = OrderingDict({})
+        self._number_of_bars = 10  # max no of bars displayed (rest shown as "+ k more")
+        self._label_len = 25  # max length of x and y axis labels
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
@@ -49,6 +51,46 @@ class Config:
         self.early_pruning_sample_start = self.early_pruning_sample_cap * 1.5
         self.streaming = False
         self.render_widget = True
+
+    @property
+    def number_of_bars(self):
+        return self._number_of_bars
+
+    @number_of_bars.setter
+    def number_of_bars(self, k: int) -> None:
+        """
+        Parameters
+        ----------
+        k : int
+            Number of bars in output bar charts; rest are not displayed
+        """
+        if type(k) == int:
+            self._number_of_bars = k
+        else:
+            warnings.warn(
+                "The number of bars must be an integer.",
+                stacklevel=2,
+            )
+
+    @property
+    def label_len(self):
+        return self._label_len
+
+    @label_len.setter
+    def label_len(self, l: int) -> None:
+        """
+        Parameters
+        ----------
+        l : int
+            Maximum length of string axis labels
+        """
+        if type(l) == int:
+            self._label_len = l
+        else:
+            warnings.warn(
+                "The maximum length must be an integer.",
+                stacklevel=2,
+            )
 
     @property
     def topk(self):
