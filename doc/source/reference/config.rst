@@ -254,3 +254,19 @@ In Lux, large scatterplots are displayed as heatmaps that are 40x40 by default. 
     lux.config.heatmap_bin_size = 100
 
 This generates heatmap visualizations that are binned into a 100x100 grid. 
+
+
+
+Change the maximum number of bars displayed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In Lux, we limit the maximum number of bars displayed in a bar chart to 10 bars to avoid cluttering. 
+If you want Lux to display more bars in each chart, we can set the :code:`number_of_bars` to increase the maximum number of bars displayed. 
+
+.. code-block:: python
+
+    lux.config.number_of_bars = 20
+
+.. image:: https://github.com/lux-org/lux-resources/blob/master/doc_img/config_bars.png?raw=true
+  :width: 400
+  :align: left

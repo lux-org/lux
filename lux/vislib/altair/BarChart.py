@@ -15,6 +15,7 @@
 from lux.vislib.altair.AltairChart import AltairChart
 import altair as alt
 import lux
+import math
 
 alt.data_transformers.disable_max_rows()
 from lux.utils.utils import get_agg_title
@@ -41,17 +42,22 @@ class BarChart(AltairChart):
         x_attr = self.vis.get_attr_by_channel("x")[0]
         y_attr = self.vis.get_attr_by_channel("y")[0]
 
+        # Deal with overlong string axes labels
         x_attr_abv = str(x_attr.attribute)
         y_attr_abv = str(y_attr.attribute)
+        label_len = lux.config.label_len
+        prefix_len = math.ceil(3.0 * label_len / 5.0)
+        suffix_len = label_len - prefix_len
+        if len(x_attr_abv) > label_len:
+            x_attr_abv = x_attr.attribute[:prefix_len] + "..." + x_attr.attribute[-suffix_len:]
+        if len(y_attr_abv) > label_len:
+            y_attr_abv = y_attr.attribute[:prefix_len] + "..." + y_attr.attribute[-suffix_len:]
 
-        if len(x_attr_abv) > 25:
-            x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
-        if len(y_attr_abv) > 25:
-            y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
         if isinstance(x_attr.attribute, str):
             x_attr.attribute = x_attr.attribute.replace(".", "")
         if isinstance(y_attr.attribute, str):
             y_attr.attribute = y_attr.attribute.replace(".", "")
+
         # To get datetime to display correctly on bar charts
         if x_attr.data_type == "temporal":
             x_attr.data_type = "nominal"
@@ -99,7 +105,8 @@ class BarChart(AltairChart):
             if x_attr.sort == "ascending":
                 x_attr_field.sort = "-y"
                 x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{x_attr_abv}'),sort='-y')"
-        k = 10
+
+        k = lux.config.number_of_bars
         self._topkcode = ""
         n_bars = len(self.data.iloc[:, 0].unique())
         plotting_scale = lux.config.plotting_scale
