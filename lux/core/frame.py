@@ -572,13 +572,14 @@ class LuxDataFrame(pd.DataFrame):
             if self._pandas_only:
                 display(self.display_pandas())
                 self._pandas_only = False
-            # else:
-            if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-                self.maintain_metadata()
+            else:
+                if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
+                    self.maintain_metadata()
 
-                if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
-                    from lux.processor.Compiler import Compiler
-                    self.current_vis = Compiler.compile_intent(self, self._intent)
+                    if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
+                        from lux.processor.Compiler import Compiler
+
+                        self.current_vis = Compiler.compile_intent(self, self._intent)
 
                 if lux.config.default_display == "lux":
                     self._toggle_pandas_display = False
