@@ -31,6 +31,15 @@ def test_deepcopy(global_var):
     saved_df._ipython_display_()
     check_metadata_equal(df, saved_df)
 
+def test_create_ldf_from_ldf(global_var):
+    import pandas._testing as tm
+    df = tm.makeDataFrame()
+    df._ipython_display_()
+    saved_df = lux.LuxDataFrame(df)
+    saved_df._ipython_display_()
+    assert len(df.columns) == len(saved_df.columns)
+    assert all([a == b for a, b in zip(df.columns, saved_df.columns)])
+
 
 def test_rename_inplace(global_var):
     df = pd.read_csv("lux/data/car.csv")
