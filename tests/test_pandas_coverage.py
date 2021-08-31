@@ -31,8 +31,10 @@ def test_deepcopy(global_var):
     saved_df._ipython_display_()
     check_metadata_equal(df, saved_df)
 
+
 def test_create_ldf_from_ldf(global_var):
     import pandas._testing as tm
+
     df = tm.makeDataFrame()
     df._ipython_display_()
     saved_df = lux.LuxDataFrame(df)
