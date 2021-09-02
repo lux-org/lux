@@ -153,49 +153,36 @@ class LuxSeries(pd.Series):
                 print(series_repr)
                 ldf._pandas_only = False
             else:
-                if not self.index.nlevels >= 2:
-                    ldf.maintain_metadata()
 
-                if lux.config.default_display == "lux":
-                    self._toggle_pandas_display = False
-                else:
-                    self._toggle_pandas_display = True
+                # Initialized view before actions are computed
+                self.loadingBar = widgets.IntProgress(
+                    value=0,
+                    min=0,
+                    max=10,
+                    description="Loading:",
+                    bar_style="info",
+                    style={"bar_color": "#add8e6"},
+                    orientation="horizontal",
+                )
+                display(self.loadingBar)
+
+                if ldf._intent != [] and (not hasattr(ldf, "_compiled") or not ldf._compiled):
+                    from lux.processor.Compiler import Compiler
+
+                    ldf.current_vis = Compiler.compile_intent(ldf, ldf._intent)
 
                 # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
                 ldf.maintain_recs(is_series="Series")
+
+                clear_output()
+                display(self._widget)
 
                 # Observers(callback_function, listen_to_this_variable)
                 ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")
                 ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
 
-                self._widget = ldf._widget
-                self._recommendation = ldf._recommendation
-
-                # box = widgets.Box(layout=widgets.Layout(display='inline'))
-                button = widgets.Button(
-                    description="Toggle Pandas/Lux",
-                    layout=widgets.Layout(width="140px", top="5px"),
-                )
-                ldf.output = widgets.Output()
-                # box.children = [button,output]
-                # output.children = [button]
-                # display(box)
-                display(button, ldf.output)
-
-                def on_button_clicked(b):
-                    with ldf.output:
-                        if b:
-                            self._toggle_pandas_display = not self._toggle_pandas_display
-                        clear_output()
-                        if self._toggle_pandas_display:
-                            print(series_repr)
-                        else:
-                            # b.layout.display = "none"
-                            display(ldf._widget)
-                            # b.layout.display = "inline-block"
-
-                button.on_click(on_button_clicked)
-                on_button_clicked(None)
+                if len(ldf._widget.recommendations) <= 1 and hasattr(ldf, "action_keys"):
+                    ldf.compute_remaining_actions()
 
         except (KeyboardInterrupt, SystemExit):
             raise

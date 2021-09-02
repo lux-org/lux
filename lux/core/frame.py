@@ -90,6 +90,7 @@ class LuxDataFrame(pd.DataFrame):
         self._min_max = None
         self.pre_aggregated = None
         self._type_override = {}
+        self.loading_bar = None
         warnings.formatwarning = lux.warning_format
 
     @property
@@ -324,6 +325,7 @@ class LuxDataFrame(pd.DataFrame):
             self.maintain_metadata()
             self.current_vis = Compiler.compile_intent(self, self._intent)
             self.maintain_recs()
+            self.compute_remaining_actions()
         return self._recommendation
 
     @recommendation.setter
@@ -426,12 +428,32 @@ class LuxDataFrame(pd.DataFrame):
             elif not (len(rec_df) < 5 and not rec_df.pre_aggregated and not is_sql_tbl) and not (
                 self.index.nlevels >= 2 or self.columns.nlevels >= 2
             ):
-                from lux.action.custom import custom_actions
+                from lux.action.custom import custom_action, filter_keys
 
-                # generate vis from globally registered actions and append to dataframe
-                custom_action_collection = custom_actions(rec_df)
-                for rec in custom_action_collection:
-                    rec_df._append_rec(rec_infolist, rec)
+                self.action_keys = filter_keys(rec_df, self.loading_bar)
+
+                if lux.config._streaming:
+                    # Compute one tab to display on initial widget
+                    if len(self.action_keys) > 0:
+                        rec = custom_action(rec_df, self.action_keys[0])
+                        rec_df._append_rec(rec_infolist, rec)
+                        self.action_keys.pop(0)
+
+                        # Fill the rest of the tabs with empty (non-clickable) tabs
+                        for action_name in self.action_keys:
+                            rec = {
+                                "action": action_name.capitalize(),
+                                "description": "",
+                                "long_description": "",
+                                "collection": [],
+                            }
+                            rec_infolist.append(rec)
+                else:
+                    for action_name in self.action_keys:
+                        rec = custom_action(rec_df, action_name)
+                        rec_df._append_rec(rec_infolist, rec)
+                    self.action_keys = []
+
                 lux.config.update_actions["flag"] = False
 
             # Store _rec_info into a more user-friendly dictionary form
@@ -439,17 +461,22 @@ class LuxDataFrame(pd.DataFrame):
             for rec_info in rec_infolist:
                 action_type = rec_info["action"]
                 vlist = rec_info["collection"]
-                if len(vlist) > 0:
-                    rec_df._recommendation[action_type] = vlist
+                rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
             rec_df.show_all_column_vis()
-            if lux.config.render_widget:
-                self._widget = rec_df.render_widget()
+
+            self._widget = rec_df.render_widget(
+                pandasHtml=rec_df.to_html(max_rows=10, classes="pandasStyle")
+            )
+
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
             rec_df.show_all_column_vis()
             if lux.config.render_widget:
-                self._widget = rec_df.render_widget()
+                self._widget = rec_df.render_widget(
+                    pandasHtml=rec_df.to_html(max_rows=10, classes="pandasStyle")
+                )
+
         self._recs_fresh = True
 
     #######################################################
@@ -551,10 +578,8 @@ class LuxDataFrame(pd.DataFrame):
         intent_action = list(self._widget.selectedIntentIndex.keys())[0]
         vis = self._recommendation[intent_action][self._widget.selectedIntentIndex[intent_action][0]]
         self.set_intent_as_vis(vis)
-
-        self.maintain_metadata()
-        self.current_vis = Compiler.compile_intent(self, self._intent)
         self.maintain_recs()
+        self.compute_remaining_actions()
 
         with self.output:
             clear_output()
@@ -572,53 +597,51 @@ class LuxDataFrame(pd.DataFrame):
             if self._pandas_only:
                 display(self.display_pandas())
                 self._pandas_only = False
-            else:
-                if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-                    self.maintain_metadata()
 
-                    if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
-                        from lux.processor.Compiler import Compiler
+            if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
+                self.maintain_metadata()
 
-                        self.current_vis = Compiler.compile_intent(self, self._intent)
+                if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
+                    from lux.processor.Compiler import Compiler
 
-                if lux.config.default_display == "lux":
-                    self._toggle_pandas_display = False
-                else:
-                    self._toggle_pandas_display = True
+                    self.current_vis = Compiler.compile_intent(self, self._intent)
 
-                # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-                self.maintain_recs()
+            self.output = widgets.Output()
+            display(self.output)
 
-                # Observers(callback_function, listen_to_this_variable)
-                self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
-                self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+            # Initialized view before actions are computed
+            self.loading_bar = widgets.IntProgress(
+                value=0,
+                min=0,
+                max=10,
+                description="Loading:",
+                bar_style="info",
+                style={"bar_color": "#add8e6"},
+                orientation="horizontal",
+            )
+            with self.output:
+                display(self.loading_bar)
 
-                button = widgets.Button(
-                    description="Toggle Pandas/Lux",
-                    layout=widgets.Layout(width="140px", top="5px"),
-                )
-                self.output = widgets.Output()
-                display(button, self.output)
+            # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+            self.maintain_recs()
 
-                def on_button_clicked(b):
-                    with self.output:
-                        if b:
-                            self._toggle_pandas_display = not self._toggle_pandas_display
-                        clear_output()
-                        if self._toggle_pandas_display:
-                            display(self.display_pandas())
-                        else:
-                            # b.layout.display = "none"
-                            display(self._widget)
-                            # b.layout.display = "inline-block"
+            with self.output:
+                clear_output()
+                display(self._widget)
 
-                button.on_click(on_button_clicked)
-                on_button_clicked(None)
+            # Observers(callback_function, listen_to_this_variable)
+            self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
+            self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+
+            if len(self._recommendation) > 0:
+                if hasattr(self, "action_keys"):
+                    self.compute_remaining_actions()
 
         except (KeyboardInterrupt, SystemExit):
             raise
         except Exception:
             if lux.config.pandas_fallback:
+                clear_output()
                 warnings.warn(
                     "\nUnexpected error in rendering Lux widget and recommendations. "
                     "Falling back to Pandas display.\n"
@@ -630,10 +653,33 @@ class LuxDataFrame(pd.DataFrame):
             else:
                 raise
 
+    def compute_remaining_actions(self):
+        # Lazily load the rest of the tabs
+        from lux.action.custom import custom_action
+
+        i = 1
+        for action_name in self.action_keys:
+            rec = custom_action(self, action_name)
+            if rec is not None and (len(rec["collection"])) > 0:
+                self._rec_info.pop(i)
+                self._rec_info.insert(i, rec)
+
+                vlist = self._rec_info[i]["collection"]
+                if len(vlist) > 0:
+                    self._recommendation[rec["action"]] = vlist
+
+                new_widget = self.render_widget()
+                self._widget.recommendations = new_widget.recommendations
+                self._widget.loadNewTab = action_name.capitalize()
+
+                i += 1
+
+        self.action_keys = []
+
     def display_pandas(self):
         return self.to_pandas()
 
-    def render_widget(self, renderer: str = "altair", input_current_vis=""):
+    def render_widget(self, renderer: str = "altair", input_current_vis="", pandasHtml=""):
         """
         Generate a LuxWidget based on the LuxDataFrame
 
@@ -675,11 +721,15 @@ class LuxDataFrame(pd.DataFrame):
         import luxwidget
 
         widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
+        if pandasHtml is None:
+            pandasHtml = ""
+
         return luxwidget.LuxWidget(
             currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
             intent=LuxDataFrame.intent_to_string(self._intent),
             message=self._message.to_html(),
+            pandasHtml=pandasHtml,
             config={"plottingScale": lux.config.plotting_scale},
         )
 
@@ -739,14 +789,14 @@ class LuxDataFrame(pd.DataFrame):
 
         rec_copy = copy.deepcopy(recs)
         for idx, rec in enumerate(rec_copy):
-            if len(rec["collection"]) > 0:
-                rec["vspec"] = []
-                for vis in rec["collection"]:
-                    chart = vis.to_code(language=lux.config.plotting_backend, prettyOutput=False)
-                    rec["vspec"].append(chart)
-                rec_lst.append(rec)
-                # delete since not JSON serializable
-                del rec_lst[idx]["collection"]
+            rec["vspec"] = []
+            for vis in rec["collection"]:
+                chart = vis.to_code(language=lux.config.plotting_backend, prettyOutput=False)
+                rec["vspec"].append(chart)
+            rec_lst.append(rec)
+            # delete since not JSON serializable
+            del rec_lst[idx]["collection"]
+
         return rec_lst
 
     def save_as_html(self, filename: str = "export.html", output=False):
@@ -762,6 +812,7 @@ class LuxDataFrame(pd.DataFrame):
         if self.widget is None:
             self.maintain_metadata()
             self.maintain_recs()
+            self.compute_remaining_actions()
 
         from ipywidgets.embed import embed_data
 

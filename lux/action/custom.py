@@ -45,36 +45,67 @@ def custom(ldf):
     lux.config.executor.execute(vlist, ldf)
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
-    # ldf.clear_intent()
     vlist.sort(remove_invalid=True)
     return recommendation
 
 
-def custom_actions(ldf):
+def custom_action(ldf, action):
     """
-    Generates user-defined vis based on globally defined actions.
+    Computing initial custom_action for lazy streaming of the rest of the actions
 
     Parameters
     ----------
     ldf : lux.core.frame
         LuxDataFrame with underspecified intent.
 
+    action: action_name as string
+        e.g "Correlation"
+
     Returns
     -------
-    recommendations : Dict[str,obj]
-        object with a collection of visualizations that were previously registered.
+    One recommendation
     """
-    if len(lux.config.actions) > 0 and (len(ldf) > 0 or lux.config.executor.name != "PandasExecutor"):
-        recommendations = []
+    recommendation = None
+    display_condition = lux.config.actions[action].display_condition
+    if display_condition is None or (display_condition is not None and display_condition(ldf)):
+        args = lux.config.actions[action].args
+        if args:
+            recommendation = lux.config.actions[action].action(ldf, args)
+        else:
+            recommendation = lux.config.actions[action].action(ldf)
+    return recommendation
+
+
+def filter_keys(ldf, loading_bar=None):
+    """
+    Filters out actions before beginning computations so we know which tabs to display.
+    Logic to filter out actions in lux/action/default.py
+    """
+
+    keys = []
+    data_types = set(ldf._data_type.values())
+    progress = 0
+    if loading_bar is not None:
+        loading_bar.max = len(lux.config.actions.keys())
+    if len(ldf) > 0 or lux.config.executor.name != "PandasExecutor":
         for action_name in lux.config.actions.keys():
             display_condition = lux.config.actions[action_name].display_condition
             if display_condition is None or (display_condition is not None and display_condition(ldf)):
-                args = lux.config.actions[action_name].args
-                if args:
-                    recommendation = lux.config.actions[action_name].action(ldf, args)
-                else:
-                    recommendation = lux.config.actions[action_name].action(ldf)
-                recommendations.append(recommendation)
-        return recommendations
-    else:
-        return []
+                if lux.config.actions[action_name].args:
+                    if not lux.config.actions[action_name].args[0] in data_types:
+                        continue
+                keys.append(action_name)
+            progress += 1
+            if loading_bar is not None:
+                loading_bar.value = progress
+
+    # # Pushing back correlation and geographical actions for performance reasons
+    if "correlation" in keys:
+        keys.pop(keys.index("correlation"))
+        keys.append("correlation")
+
+    if "geographical" in keys:
+        keys.pop(keys.index("geographical"))
+        keys.append("geographical")
+
+    return keys
