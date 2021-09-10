@@ -791,8 +791,11 @@ class LuxDataFrame(pd.DataFrame):
             </script>
 
             <!-- Load IPywidgets bundle for embedding. -->
-            <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.18.0/dist/embed-amd.js" 
-                    crossorigin="anonymous">
+            <script
+                data-jupyter-widgets-cdn="https://unpkg.com/"
+                data-jupyter-widgets-cdn-only
+                src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js" 
+                crossorigin="anonymous">
             </script>
             
             <style type="text/css">
