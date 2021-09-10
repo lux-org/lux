@@ -187,5 +187,3 @@ Drop us a note [here](https://docs.google.com/forms/d/e/1FAIpQLSe4YL2WsblqjB13Fp
 - Join our community [Slack](https://communityinviter.com/apps/lux-project/lux) to discuss and ask questions.
 - Check out [our paper](https://arxiv.org/pdf/2105.00121.pdf) for more details on how Lux works under the hoods.
 - Report any bugs, issues, or requests through [Github Issues](https://github.com/lux-org/lux/issues). 
-
-[![Analytics](https://ga-beacon.appspot.com/UA-188430203-1/readme?pixel)](https://github.com/igrigorik/ga-beacon)

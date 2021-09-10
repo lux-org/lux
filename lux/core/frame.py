@@ -774,6 +774,7 @@ class LuxDataFrame(pd.DataFrame):
         import json
 
         manager_state = json.dumps(data["manager_state"])
+        # manager_state = manager_state.replace('"current_vis": {}','current_vis: '+json.dumps(self.widget.current_vis))
         widget_view = json.dumps(data["view_specs"][0])
 
         # Separate out header since CSS file conflict with {} notation in Python format strings
@@ -791,7 +792,7 @@ class LuxDataFrame(pd.DataFrame):
             </script>
 
             <!-- Load IPywidgets bundle for embedding. -->
-            <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.18.0/dist/embed-amd.js" 
+            <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.21.0/dist/embed-amd.js" 
                     crossorigin="anonymous">
             </script>
             
