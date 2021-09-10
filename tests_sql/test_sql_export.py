@@ -91,18 +91,18 @@ def test_color_barchart_code_export(global_var):
         assert False
 
 
-def test_heatmap_code_export(global_var):
-    tbl = lux.LuxSQLTable()
-    tbl.set_SQL_table("airbnb")
-    lux.config._heatmap_start = 100
+# def test_heatmap_code_export(global_var):
+#     tbl = lux.LuxSQLTable()
+#     tbl.set_SQL_table("airbnb")
+#     lux.config._heatmap_start = 100
 
-    vis = Vis(["price", "longitude"], tbl)
-    SQLExecutor.execute([vis], tbl)
-    code = vis.to_code("python")
-    try:
-        exec(code, globals())
-        create_chart_data(tbl, vis)
-    except:
-        assert False
+#     vis = Vis(["price", "longitude"], tbl)
+#     SQLExecutor.execute([vis], tbl)
+#     code = vis.to_code("python")
+#     try:
+#         exec(code, globals())
+#         create_chart_data(tbl, vis)
+#     except:
+#         assert False
 
-    lux.config._heatmap_start = 5000
+#     lux.config._heatmap_start = 5000
