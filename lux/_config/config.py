@@ -6,6 +6,9 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 import lux
 import warnings
+from lux.utils.tracing_utils import LuxTracer
+import os
+from lux._config.template import postgres_template, mysql_template
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
@@ -34,6 +37,10 @@ class Config:
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
+        self.tracer_relevant_lines = []
+        self.tracer = LuxTracer()
+        self.query_templates = {}
+        self.handle_quotes = True
         #####################################
         #### Optimization Configurations ####
         #####################################
@@ -41,6 +48,7 @@ class Config:
         self._sampling_cap = 1000000
         self._sampling_flag = True
         self._heatmap_flag = True
+        self._heatmap_start = 5000
         self.lazy_maintain = True
         self.early_pruning = True
         self.early_pruning_sample_cap = 30000
@@ -419,11 +427,28 @@ class Config:
         self.set_executor_type("SQL")
         self.SQLconnection = connection
 
+    def read_query_template(self, query_template):
+        from lux.executor.SQLExecutor import SQLExecutor
+
+        query_dict = {}
+        if type(query_template) is str:
+            for line in query_template.split("\n"):
+                (key, val) = line.split(":")
+                query_dict[key] = val.strip()
+        else:
+            with open(query_file) as f:
+                for line in f:
+                    (key, val) = line.split(":")
+                    query_dict[key] = val.strip()
+        self.query_templates = query_dict
+        self.executor = SQLExecutor()
+
     def set_executor_type(self, exe):
         if exe == "SQL":
             from lux.executor.SQLExecutor import SQLExecutor
 
             self.executor = SQLExecutor()
+            self.read_query_template(postgres_template)
         elif exe == "Pandas":
             from lux.executor.PandasExecutor import PandasExecutor
 
