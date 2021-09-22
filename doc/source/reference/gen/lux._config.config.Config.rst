@@ -32,6 +32,8 @@
       ~Config.interestingness_fallback
       ~Config.ordering
       ~Config.ordering_actions
+      ~Config.label_len
+      ~Config.number_of_bars
       ~Config.pandas_fallback
       ~Config.plotting_backend
       ~Config.plotting_scale

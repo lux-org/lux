@@ -22,7 +22,7 @@ from lux.vis.VisList import VisList
 import psycopg2
 
 
-def test_lazy_execution():
+def test_lazy_execution(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -37,7 +37,7 @@ def test_lazy_execution():
     assert type(vis.data) == lux.core.frame.LuxDataFrame
 
 
-def test_selection():
+def test_selection(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -50,7 +50,7 @@ def test_selection():
     assert all(vislist[2].data.columns == ["year", "acceleration"])
 
 
-def test_aggregation():
+def test_aggregation(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -79,7 +79,7 @@ def test_aggregation():
     assert int(result_df[result_df["origin"] == "Europe"]["horsepower"]) == 133
 
 
-def test_colored_bar_chart():
+def test_colored_bar_chart(global_var):
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
 
@@ -100,7 +100,7 @@ def test_colored_bar_chart():
     )  # Not color_carsdinality*group_by_carsdinality since some combinations have 0 values
 
 
-def test_colored_line_chart():
+def test_colored_line_chart(global_var):
     from lux.vis.Vis import Vis
     from lux.vis.Vis import Clause
 
@@ -122,7 +122,7 @@ def test_colored_line_chart():
     )  # Not color_carsdinality*group_by_carsdinality since some combinations have 0 values
 
 
-def test_filter():
+def test_filter(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -144,7 +144,7 @@ def test_filter():
     assert filter_output[1] == ["origin"]
 
 
-def test_inequalityfilter():
+def test_inequalityfilter(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -170,7 +170,7 @@ def test_inequalityfilter():
     assert filter_output[1] == ["horsepower"]
 
 
-def test_binning():
+def test_binning(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -179,7 +179,7 @@ def test_binning():
     assert len(vis.data) == nbins
 
 
-def test_record():
+def test_record(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -187,7 +187,7 @@ def test_record():
     assert len(vis.data) == len(tbl.unique_values["cylinders"])
 
 
-def test_filter_aggregation_fillzero_aligned():
+def test_filter_aggregation_fillzero_aligned(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -202,7 +202,7 @@ def test_filter_aggregation_fillzero_aligned():
     assert result[result["cylinders"] == 8]["milespergal"].values[0] == 0
 
 
-def test_exclude_attribute():
+def test_exclude_attribute(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
@@ -215,7 +215,7 @@ def test_exclude_attribute():
         assert vis.get_attr_by_channel("y")[0].attribute != "year"
 
 
-def test_null_values():
+def test_null_values(global_var):
     # checks that the SQLExecutor has filtered out any None or Null values from its metadata
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("aug_test_table")

@@ -373,8 +373,7 @@ class Compiler:
             if attr != "Record" and attr in ldf._min_max
         )
         # Replace scatterplot with heatmap
-        HBIN_START = 5000
-        if vis.mark == "scatter" and lux.config.heatmap and len(ldf) > HBIN_START:
+        if vis.mark == "scatter" and lux.config.heatmap and len(ldf) > lux.config._heatmap_start:
             vis._postbin = True
             ldf._message.add_unique(
                 f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
