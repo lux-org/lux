@@ -235,7 +235,7 @@ class VisList:
         if remove_invalid:
             self._collection = list(filter(lambda x: x.score != -1, self._collection))
         if lux.config.sort is not None:
-            if self._action is None or lux.config._ordering_actions.get(self._action) is None:
+            if self._action is None or lux.config.ordering_actions.get(self._action) is None:
                 ordering_function = lux.config.ordering
             else:
                 ordering_function = lux.config.ordering_actions.get(self._action)

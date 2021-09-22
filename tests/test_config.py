@@ -305,21 +305,21 @@ def test_ordering(global_var):
     for vis in df.recommendation["Correlation"]:
         assert vis.score <= score
         score = vis.score
-    lux.config.ordering = "x_attr"
+    lux.config.ordering = "alphabetical_by_x"
     df = pd.read_csv("lux/data/college.csv")
     string = df.recommendation["Correlation"][0].get_attr_by_channel("x")[0].attribute
     assert len(df.recommendation["Correlation"]) == 5, "Show top 5"
     for vis in df.recommendation["Correlation"]:
         assert vis.get_attr_by_channel("x")[0].attribute <= string
         string = vis.get_attr_by_channel("x")[0].attribute
-    lux.config.ordering = "y_attr"
+    lux.config.ordering = "alphabetical_by_y"
     df = pd.read_csv("lux/data/college.csv")
     string = df.recommendation["Correlation"][0].get_attr_by_channel("y")[0].attribute
     assert len(df.recommendation["Correlation"]) == 5, "Show top 5"
     for vis in df.recommendation["Correlation"]:
         assert vis.get_attr_by_channel("y")[0].attribute <= string
         string = vis.get_attr_by_channel("y")[0].attribute
-    lux.config.sorter = "interestingness"
+    lux.config.ordering = "interestingness"
     lux.config.topk = 15
 
 
@@ -358,15 +358,15 @@ def test_custom_ordering(global_var):
 
 def test_ordering_actions(global_var):
     lux.config.topk = 5
-
-    lux.config.ordering_actions["correlation"] = "x_attr"
-
+    lux.config.sort = "descending"
+    lux.config.ordering_actions["correlation"] = "alphabetical_by_x"
     df = pd.read_csv("lux/data/college.csv")
-    string = df.recommendation["Correlation"][0].get_attr_by_channel("x")[0].attribute
+    x_str = df.recommendation["Correlation"][0].get_attr_by_channel("x")[0].attribute
     assert len(df.recommendation["Correlation"]) == 5, "Show top 5"
     for vis in df.recommendation["Correlation"]:
-        assert vis.get_attr_by_channel("x")[0].attribute <= string
-        string = vis.get_attr_by_channel("x")[0].attribute
+        assert vis.get_attr_by_channel("x")[0].attribute <= x_str
+        x_str = vis.get_attr_by_channel("x")[0].attribute
+        print(x_str)
 
     score = float("inf")
     for vis in df.recommendation["Distribution"]:

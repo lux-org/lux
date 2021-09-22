@@ -39,11 +39,11 @@ def resolve_value(value):
     if type(value) is str:
         if value == "interestingness":
             return Ordering.interestingness
-        elif value == "title":
+        elif value == "alphabetical_by_title":
             return Ordering.title
-        elif value == "x_attr":
+        elif value == "alphabetical_by_x":
             return Ordering.x_alpha
-        elif value == "y_attr":
+        elif value == "alphabetical_by_y":
             return Ordering.y_alpha
     else:
         assert callable(value), "You must pass in a default string or a custom function."
