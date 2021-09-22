@@ -47,6 +47,7 @@ This website contains pages that overview of the basic and advanced functionalit
    source/advanced/architecture
    source/advanced/executor
    source/advanced/interestingness
+   source/advanced/sorting
    
    
 

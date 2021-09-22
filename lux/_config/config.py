@@ -80,8 +80,6 @@ class Config:
     @sort.setter
     def sort(self, flag: Union[str]):
         """
-        Setting parameter to determine sort order of each action
-
         Parameters
         ----------
         flag : Union[str]
@@ -108,6 +106,13 @@ class Config:
 
     @ordering.setter
     def ordering(self, value):
+        """
+        Parameters
+        ----------
+        value : Union[str, Callable]
+                "interestingness", “alphabetical_by_title”, “alphabetical_by_x”, “alphabetical_by_y” , or Callable
+                Default available sorters or custom sorter
+        """
         self._ordering = resolve_value(value)
 
     @property

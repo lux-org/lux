@@ -30,6 +30,8 @@
       ~Config.default_display
       ~Config.heatmap
       ~Config.interestingness_fallback
+      ~Config.ordering
+      ~Config.ordering_actions
       ~Config.pandas_fallback
       ~Config.plotting_backend
       ~Config.plotting_scale
