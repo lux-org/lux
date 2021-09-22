@@ -37,7 +37,7 @@ class Config:
         self._ordering_actions = OrderingDict({})
         self._number_of_bars = 10  # max no of bars displayed (rest shown as "+ k more")
         self._label_len = 25  # max length of x and y axis labels
-        self._sort = "descending"
+        self._sort = True
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
