@@ -30,6 +30,8 @@
       ~Config.default_display
       ~Config.heatmap
       ~Config.interestingness_fallback
+      ~Config.ordering
+      ~Config.ordering_actions
       ~Config.label_len
       ~Config.number_of_bars
       ~Config.pandas_fallback

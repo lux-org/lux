@@ -76,7 +76,7 @@ class LuxDataFrame(pd.DataFrame):
         else:
             from lux.executor.SQLExecutor import SQLExecutor
 
-            lux.config.executor = SQLExecutor()
+            # lux.config.executor = SQLExecutor()
 
         self._sampled = None
         self._approx_sample = None
@@ -127,15 +127,18 @@ class LuxDataFrame(pd.DataFrame):
             self._infer_structure()
             self._metadata_fresh = True
 
-    def maintain_metadata(self) -> None:
+    def maintain_metadata(self):
         """
         Maintain dataset metadata and statistics (Compute only if needed)
         """
-        is_sql_tbl = lux.config.executor.name == "SQLExecutor"
+        is_sql_tbl = lux.config.executor.name != "PandasExecutor"
+
         if lux.config.SQLconnection != "" and is_sql_tbl:
             from lux.executor.SQLExecutor import SQLExecutor
 
-            lux.config.executor = SQLExecutor()
+            # lux.config.executor = SQLExecutor()
+
+        # Check that metadata has not yet been computed
         if lux.config.lazy_maintain:
             # Check that metadata has not yet been computed
             if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
@@ -195,7 +198,8 @@ class LuxDataFrame(pd.DataFrame):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
         is_multi_index_flag = self.index.nlevels != 1
         not_int_index_flag = not pd.api.types.is_integer_dtype(self.index)
-        is_sql_tbl = lux.config.executor.name == "SQLExecutor"
+
+        is_sql_tbl = lux.config.executor.name != "PandasExecutor"
 
         small_df_flag = len(self) < 100 and is_sql_tbl
         if self.pre_aggregated == None:
@@ -787,8 +791,11 @@ class LuxDataFrame(pd.DataFrame):
             </script>
 
             <!-- Load IPywidgets bundle for embedding. -->
-            <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.18.0/dist/embed-amd.js" 
-                    crossorigin="anonymous">
+            <script
+                data-jupyter-widgets-cdn="https://unpkg.com/"
+                data-jupyter-widgets-cdn-only
+                src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js" 
+                crossorigin="anonymous">
             </script>
             
             <style type="text/css">
