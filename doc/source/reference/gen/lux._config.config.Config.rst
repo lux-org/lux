@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~Config.__init__
+      ~Config.read_query_template
       ~Config.register_action
       ~Config.remove_action
       ~Config.set_SQL_connection
@@ -30,10 +31,10 @@
       ~Config.default_display
       ~Config.heatmap
       ~Config.interestingness_fallback
-      ~Config.ordering
-      ~Config.ordering_actions
       ~Config.label_len
       ~Config.number_of_bars
+      ~Config.ordering
+      ~Config.ordering_actions
       ~Config.pandas_fallback
       ~Config.plotting_backend
       ~Config.plotting_scale
