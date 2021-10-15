@@ -37,7 +37,7 @@ lux/
 ```
 
 # Code Formatting
-In order to keep our codebase clean and readible, we are using PEP8 guidelines. To help us maintain and check code style currently we use `pre-commit` hooks to automatically format the code on every commit and enforce its formatting on CI:
+In order to keep our codebase clean and readible, we are using PEP8 guidelines. To help us maintain and check code style currently we use the following `pre-commit` hooks to automatically format the code on every commit and enforce its formatting on CI:
 
 * [black](https://github.com/psf/black)
 * [isort](https://github.com/PyCQA/isort)
