@@ -20,7 +20,7 @@ from typing import Callable, Dict, List, Union
 
 import pandas as pd
 
-import lux
+from lux.core.frame import LuxDataFrame
 from lux.core.series import LuxSeries
 from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
@@ -31,7 +31,7 @@ from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 
 
-class LuxSQLTable(lux.LuxDataFrame):
+class LuxSQLTable(LuxDataFrame):
     """
     A subclass of Lux.LuxDataFrame that houses other variables and functions for generating visual recommendations. Does not support normal pandas functionality.
     """
