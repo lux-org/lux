@@ -1,7 +1,7 @@
-import pandas as pd
-import psycopg2
 import csv
 
+import pandas as pd
+import psycopg2
 from sqlalchemy import create_engine
 
 data = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.csv")

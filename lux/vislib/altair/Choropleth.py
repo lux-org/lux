@@ -12,10 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.vislib.altair.AltairChart import AltairChart
 import altair as alt
 import pandas as pd
 from iso3166 import countries
+
+from lux.vislib.altair.AltairChart import AltairChart
 
 alt.data_transformers.disable_max_rows()
 

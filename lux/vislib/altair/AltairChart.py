@@ -12,11 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import pandas as pd
-import numpy as np
 import altair as alt
-from lux.utils.date_utils import compute_date_granularity
+import numpy as np
+import pandas as pd
+
 import lux
+from lux.utils.date_utils import compute_date_granularity
 
 
 class AltairChart:

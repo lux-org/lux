@@ -12,12 +12,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import lux
-import pandas as pd
 import math
+
 import numpy as np
-from lux.vis.VisList import VisList
+import pandas as pd
+
+import lux
 from lux.utils.utils import get_filter_specs
+from lux.vis.VisList import VisList
 
 
 def interpolate(vis, length):

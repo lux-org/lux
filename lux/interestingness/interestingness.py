@@ -12,20 +12,21 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.core.frame import LuxDataFrame
-from lux.vis.Vis import Vis
-from lux.executor.PandasExecutor import PandasExecutor
-from lux.utils import utils
+import warnings
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from scipy.spatial.distance import euclidean
+
 import lux
+from lux.core.frame import LuxDataFrame
+from lux.executor.PandasExecutor import PandasExecutor
+from lux.interestingness.similarity import euclidean_dist, preprocess
+from lux.utils import utils
 from lux.utils.utils import get_filter_specs
-from lux.interestingness.similarity import preprocess, euclidean_dist
+from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
-import warnings
 
 
 def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:

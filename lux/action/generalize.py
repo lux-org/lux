@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 import lux
-from lux.vis.Vis import Vis
+from lux.interestingness.interestingness import interestingness
 from lux.processor.Compiler import Compiler
 from lux.utils import utils
-from lux.interestingness.interestingness import interestingness
+from lux.vis.Vis import Vis
 
 
 def generalize(ldf):

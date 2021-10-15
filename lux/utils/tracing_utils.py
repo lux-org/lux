@@ -1,10 +1,12 @@
 import inspect
-import sys
-import pickle as pkl
-import lux
-import autopep8
 import math
 import os
+import pickle as pkl
+import sys
+
+import autopep8
+
+import lux
 
 
 class LuxTracer:

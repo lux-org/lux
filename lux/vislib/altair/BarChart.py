@@ -12,10 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.vislib.altair.AltairChart import AltairChart
-import altair as alt
-import lux
 import math
+
+import altair as alt
+
+import lux
+from lux.vislib.altair.AltairChart import AltairChart
 
 alt.data_transformers.disable_max_rows()
 from lux.utils.utils import get_agg_title

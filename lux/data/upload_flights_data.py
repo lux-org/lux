@@ -1,9 +1,8 @@
-import pandas as pd
-from sqlalchemy import create_engine
-import psycopg2
 import csv
 
+import pandas as pd
 import psycopg2
+from sqlalchemy import create_engine
 
 conn = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
 cur = conn.cursor()

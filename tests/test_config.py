@@ -12,12 +12,15 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
-import pytest
-import pandas as pd
 import time
-from lux.vis.VisList import VisList
+
+import pandas as pd
+import pytest
+
 import lux
+from lux.vis.VisList import VisList
+
+from .context import lux
 
 
 def register_new_action(validator: bool = True):

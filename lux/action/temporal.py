@@ -12,13 +12,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import lux
-from lux.vis.VisList import VisList
-from lux.vis.Vis import Vis
 import pandas as pd
+
+import lux
 from lux.core.frame import LuxDataFrame
 from lux.interestingness.interestingness import interestingness
 from lux.utils import utils
+from lux.vis.Vis import Vis
+from lux.vis.VisList import VisList
 
 
 def temporal(ldf):

@@ -12,20 +12,21 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import lux
-import pandas as pd
-from lux.executor.PandasExecutor import PandasExecutor
-from lux.vislib.matplotlib.BarChart import BarChart
-from lux.vislib.matplotlib.ScatterChart import ScatterChart
-from lux.vislib.matplotlib.LineChart import LineChart
-from lux.vislib.matplotlib.Histogram import Histogram
-from lux.vislib.matplotlib.Heatmap import Heatmap
-from lux.vislib.altair.AltairRenderer import AltairRenderer
-import matplotlib.pyplot as plt
-from lux.utils.utils import matplotlib_setup
-
 import base64
 from io import BytesIO
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+import lux
+from lux.executor.PandasExecutor import PandasExecutor
+from lux.utils.utils import matplotlib_setup
+from lux.vislib.altair.AltairRenderer import AltairRenderer
+from lux.vislib.matplotlib.BarChart import BarChart
+from lux.vislib.matplotlib.Heatmap import Heatmap
+from lux.vislib.matplotlib.Histogram import Histogram
+from lux.vislib.matplotlib.LineChart import LineChart
+from lux.vislib.matplotlib.ScatterChart import ScatterChart
 
 
 class MatplotlibRenderer:

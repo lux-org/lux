@@ -12,12 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.vislib.matplotlib.MatplotlibChart import MatplotlibChart
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-from lux.utils.utils import matplotlib_setup
+import numpy as np
+import pandas as pd
 from matplotlib.cm import ScalarMappable
+
+from lux.utils.utils import matplotlib_setup
+from lux.vislib.matplotlib.MatplotlibChart import MatplotlibChart
 
 
 class ScatterChart(MatplotlibChart):

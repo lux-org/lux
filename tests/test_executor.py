@@ -12,12 +12,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
-import pytest
 import pandas as pd
+import pytest
+
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
+
+from .context import lux
 
 
 def test_lazy_execution(global_var):
@@ -74,8 +76,7 @@ def test_aggregation(global_var):
 
 
 def test_colored_bar_chart(global_var):
-    from lux.vis.Vis import Vis
-    from lux.vis.Vis import Clause
+    from lux.vis.Vis import Clause, Vis
 
     df = pytest.car_df
 
@@ -93,8 +94,7 @@ def test_colored_bar_chart(global_var):
 
 
 def test_colored_line_chart(global_var):
-    from lux.vis.Vis import Vis
-    from lux.vis.Vis import Clause
+    from lux.vis.Vis import Clause, Vis
 
     df = pytest.car_df
     # change pandas dtype for the column "Year" to datetype

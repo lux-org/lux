@@ -13,10 +13,12 @@
 #  limitations under the License.
 
 
-from .context import lux
-import pytest
 import pandas as pd
+import pytest
+
 from lux.vis.Vis import Vis
+
+from .context import lux
 
 
 def test_metadata_subsequent_display(global_var):

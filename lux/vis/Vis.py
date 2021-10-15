@@ -12,11 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import List, Callable, Union
-from lux.vis.Clause import Clause
-from lux.utils.utils import check_import_lux_widget
-import lux
 import warnings
+from typing import Callable, List, Union
+
+import lux
+from lux.utils.utils import check_import_lux_widget
+from lux.vis.Clause import Clause
 
 
 class Vis:
@@ -304,6 +305,7 @@ class Vis:
                 String or Dictionary of the VegaLite JSON specification
         """
         import json
+
         from lux.vislib.altair.AltairRenderer import AltairRenderer
 
         renderer = AltairRenderer(output_type="VegaLite")
@@ -383,9 +385,9 @@ class Vis:
         Function derives a new _inferred_intent by instantiating the intent specification on the new data
         """
         if ldf is not None:
+            from lux.processor.Compiler import Compiler
             from lux.processor.Parser import Parser
             from lux.processor.Validator import Validator
-            from lux.processor.Compiler import Compiler
 
             self.check_not_vislist_intent()
 

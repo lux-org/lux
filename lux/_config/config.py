@@ -2,13 +2,14 @@
 This config file was largely borrowed from Pandas config.py set_action functionality.
 For more resources, see https://github.com/pandas-dev/pandas/blob/master/pandas/_config
 """
+import os
+import warnings
 from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
+
 import lux
-import warnings
+from lux._config.template import mysql_template, postgres_template
 from lux.utils.tracing_utils import LuxTracer
-import os
-from lux._config.template import postgres_template, mysql_template
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 

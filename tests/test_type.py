@@ -12,11 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
-import pytest
 import random
-import pandas as pd
 import warnings
+
+import pandas as pd
+import pytest
+
+from .context import lux
 
 
 # Suite of test that checks if data_type inferred correctly by Lux

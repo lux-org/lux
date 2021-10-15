@@ -5,7 +5,10 @@ Sphinx>=3.0.2
 sphinx-rtd-theme>=0.4.3
 xlrd
 black==20.8b1
+pre-commit>=2.15.0
+isort==5.9.3
 # Install to use SQLExecutor
 psycopg2>=2.8.5
 psycopg2-binary>=2.8.5
 lxml
+

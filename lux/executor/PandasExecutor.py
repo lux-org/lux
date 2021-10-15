@@ -12,17 +12,23 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import warnings
+
 import pandas as pd
-from lux.vis.VisList import VisList
-from lux.vis.Vis import Vis
+
+import lux
 from lux.core.frame import LuxDataFrame
 from lux.executor.Executor import Executor
 from lux.utils import utils
 from lux.utils.date_utils import is_datetime_series
-from lux.utils.utils import check_import_lux_widget, check_if_id_like, is_numeric_nan_column
-import warnings
-import lux
 from lux.utils.tracing_utils import LuxTracer
+from lux.utils.utils import (
+    check_if_id_like,
+    check_import_lux_widget,
+    is_numeric_nan_column,
+)
+from lux.vis.Vis import Vis
+from lux.vis.VisList import VisList
 
 
 class PandasExecutor(Executor):
@@ -204,17 +210,33 @@ class PandasExecutor(Executor):
                 # if color is specified, need to group by groupby_attr and color_attr
 
                 if has_color:
-                    vis._vis_data = (vis.data.groupby([groupby_attr.attribute, color_attr.attribute], dropna=False, history=False).count().reset_index().rename(columns={index_name: "Record"}))
+                    vis._vis_data = (
+                        vis.data.groupby(
+                            [groupby_attr.attribute, color_attr.attribute], dropna=False, history=False
+                        )
+                        .count()
+                        .reset_index()
+                        .rename(columns={index_name: "Record"})
+                    )
                     vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, "Record"]]
                 else:
-                    vis._vis_data = (vis.data.groupby(groupby_attr.attribute, dropna=False, history=False).count().reset_index().rename(columns={index_name: "Record"}))
+                    vis._vis_data = (
+                        vis.data.groupby(groupby_attr.attribute, dropna=False, history=False)
+                        .count()
+                        .reset_index()
+                        .rename(columns={index_name: "Record"})
+                    )
                     vis._vis_data = vis.data[[groupby_attr.attribute, "Record"]]
             else:
                 # if color is specified, need to group by groupby_attr and color_attr
                 if has_color:
-                    groupby_result = vis.data.groupby([groupby_attr.attribute, color_attr.attribute], dropna=False, history=False)
+                    groupby_result = vis.data.groupby(
+                        [groupby_attr.attribute, color_attr.attribute], dropna=False, history=False
+                    )
                 else:
-                    groupby_result = vis.data.groupby(groupby_attr.attribute, dropna=False, history=False)
+                    groupby_result = vis.data.groupby(
+                        groupby_attr.attribute, dropna=False, history=False
+                    )
                 groupby_result = groupby_result.agg(agg_func)
                 intermediate = groupby_result.reset_index()
                 vis._vis_data = intermediate.__finalize__(vis.data)
@@ -232,22 +254,40 @@ class PandasExecutor(Executor):
                 if len(result_vals) != N_unique_vals * color_cardinality:
                     columns = vis.data.columns
                     if has_color:
-                        df = pd.DataFrame({columns[0]: attr_unique_vals * color_cardinality,columns[1]: pd.Series(color_attr_vals).repeat(N_unique_vals),})
-                        vis._vis_data = vis.data.merge(df,on=[columns[0], columns[1]],how="right",suffixes=["", "_right"],)
+                        df = pd.DataFrame(
+                            {
+                                columns[0]: attr_unique_vals * color_cardinality,
+                                columns[1]: pd.Series(color_attr_vals).repeat(N_unique_vals),
+                            }
+                        )
+                        vis._vis_data = vis.data.merge(
+                            df,
+                            on=[columns[0], columns[1]],
+                            how="right",
+                            suffixes=["", "_right"],
+                        )
                         for col in columns[2:]:
                             # Triggers __setitem__
                             vis.data[col] = vis.data[col].fillna(0)
-                        assert len(list(vis.data[groupby_attr.attribute])) == N_unique_vals * len(color_attr_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
+                        assert len(list(vis.data[groupby_attr.attribute])) == N_unique_vals * len(
+                            color_attr_vals
+                        ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute, color_attr.attribute}`."
                         # Keep only the three relevant columns not the *_right columns resulting from merge
-                        vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, measure_attr.attribute]]
+                        vis._vis_data = vis.data[
+                            [groupby_attr.attribute, color_attr.attribute, measure_attr.attribute]
+                        ]
 
                     else:
                         df = pd.DataFrame({columns[0]: attr_unique_vals})
-                        vis._vis_data = vis.data.merge(df, on=columns[0], how="right", suffixes=["", "_right"])
+                        vis._vis_data = vis.data.merge(
+                            df, on=columns[0], how="right", suffixes=["", "_right"]
+                        )
 
                         for col in columns[1:]:
                             vis.data[col] = vis.data[col].fillna(0)
-                        assert (len(list(vis.data[groupby_attr.attribute])) == N_unique_vals), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
+                        assert (
+                            len(list(vis.data[groupby_attr.attribute])) == N_unique_vals
+                        ), f"Aggregated data missing values compared to original range of values of `{groupby_attr.attribute}`."
 
             vis._vis_data = vis._vis_data.dropna(subset=[measure_attr.attribute])
             try:
@@ -314,13 +354,17 @@ class PandasExecutor(Executor):
         bool
             Boolean flag indicating if any filter was applied
         """
-        assert (vis.data is not None), "execute_filter assumes input vis.data is populated (if not, populate with LuxDataFrame values)"
+        assert (
+            vis.data is not None
+        ), "execute_filter assumes input vis.data is populated (if not, populate with LuxDataFrame values)"
         filters = utils.get_filter_specs(vis._inferred_intent)
 
         if filters:
             # TODO: Need to handle OR logic
             for filter in filters:
-                vis._vis_data = PandasExecutor.apply_filter(vis.data, filter.attribute, filter.filter_op, filter.value)
+                vis._vis_data = PandasExecutor.apply_filter(
+                    vis.data, filter.attribute, filter.filter_op, filter.value
+                )
             return True
         else:
             return False
@@ -394,10 +438,16 @@ class PandasExecutor(Executor):
                 if color_attr.data_type == "nominal":
                     # Compute mode and count. Mode aggregates each cell by taking the majority vote for the category variable. In cases where there is ties across categories, pick the first item (.iat[0])
                     result = groups.agg(
-                        [("count", "count"),(color_attr.attribute, lambda x: pd.Series.mode(x).iat[0]),]).reset_index()
+                        [
+                            ("count", "count"),
+                            (color_attr.attribute, lambda x: pd.Series.mode(x).iat[0]),
+                        ]
+                    ).reset_index()
                 elif color_attr.data_type == "quantitative" or color_attr.data_type == "temporal":
                     # Compute the average of all values in the bin
-                    result = groups.agg([("count", "count"), (color_attr.attribute, "mean")]).reset_index()
+                    result = groups.agg(
+                        [("count", "count"), (color_attr.attribute, "mean")]
+                    ).reset_index()
                 result = result.dropna()
             else:
                 groups = vis._vis_data.groupby(["xBin", "yBin"], history=False)[x_attr]
@@ -555,8 +605,13 @@ class PandasExecutor(Executor):
             ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
             ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
 
-            if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(ldf.dtypes[attribute]):
-                ldf._min_max[attribute_repr] = (ldf[attribute].min(),ldf[attribute].max(),)
+            if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(
+                ldf.dtypes[attribute]
+            ):
+                ldf._min_max[attribute_repr] = (
+                    ldf[attribute].min(),
+                    ldf[attribute].max(),
+                )
 
         if not pd.api.types.is_integer_dtype(ldf.index):
             index_column_name = ldf.index.name

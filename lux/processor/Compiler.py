@@ -12,18 +12,19 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.vis import Clause
-from typing import List, Dict, Union
-from lux.vis.Vis import Vis
-from lux.processor.Validator import Validator
-from lux.core.frame import LuxDataFrame
-from lux.vis.VisList import VisList
-from lux.utils import date_utils
-from lux.utils import utils
-import pandas as pd
-import numpy as np
 import warnings
+from typing import Dict, List, Union
+
+import numpy as np
+import pandas as pd
+
 import lux
+from lux.core.frame import LuxDataFrame
+from lux.processor.Validator import Validator
+from lux.utils import date_utils, utils
+from lux.vis import Clause
+from lux.vis.Vis import Vis
+from lux.vis.VisList import VisList
 
 
 class Compiler:
@@ -461,6 +462,7 @@ class Compiler:
                 a dictionary that holds the attributes and filters generated from wildcards and constraints.
         """
         import copy
+
         from lux.utils.utils import convert_to_list
 
         inverted_data_type = lux.config.executor.invert_data_type(ldf.data_type)

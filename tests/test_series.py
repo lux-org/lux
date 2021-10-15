@@ -11,10 +11,12 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from .context import lux
-import pytest
-import pandas as pd
 import warnings
+
+import pandas as pd
+import pytest
+
+from .context import lux
 
 
 def test_df_to_series():

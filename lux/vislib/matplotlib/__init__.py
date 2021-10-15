@@ -12,8 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.utils.utils import matplotlib_setup
 import matplotlib.pyplot as plt
+
+from lux.utils.utils import matplotlib_setup
 
 plt.rcParams.update({"figure.max_open_warning": 0})
 plt.rcParams.update(

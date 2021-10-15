@@ -13,8 +13,9 @@
 #  limitations under the License.
 
 import pandas as pd
-import lux
 import pytest
+
+import lux
 
 
 def test_case1(global_var):

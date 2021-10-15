@@ -13,13 +13,15 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
-import pytest
 import pandas as pd
+import psycopg2
+import pytest
+
 from lux.executor.SQLExecutor import SQLExecutor
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
-import psycopg2
+
+from .context import lux
 
 
 def test_lazy_execution(global_var):
@@ -80,8 +82,7 @@ def test_aggregation(global_var):
 
 
 def test_colored_bar_chart(global_var):
-    from lux.vis.Vis import Vis
-    from lux.vis.Vis import Clause
+    from lux.vis.Vis import Clause, Vis
 
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
@@ -101,8 +102,7 @@ def test_colored_bar_chart(global_var):
 
 
 def test_colored_line_chart(global_var):
-    from lux.vis.Vis import Vis
-    from lux.vis.Vis import Clause
+    from lux.vis.Vis import Clause, Vis
 
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")

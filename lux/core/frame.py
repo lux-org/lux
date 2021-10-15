@@ -12,21 +12,23 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import traceback
+
+# from lux.executor.Executor import *
+import warnings
+from typing import Callable, Dict, List, Union
+
 import pandas as pd
+
+import lux
 from lux.core.series import LuxSeries
-from lux.vis.Clause import Clause
-from lux.vis.Vis import Vis
-from lux.vis.VisList import VisList
 from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
-from typing import Dict, Union, List, Callable
-
-# from lux.executor.Executor import *
-import warnings
-import traceback
-import lux
+from lux.vis.Clause import Clause
+from lux.vis.Vis import Vis
+from lux.vis.VisList import VisList
 
 
 class LuxDataFrame(pd.DataFrame):
@@ -419,8 +421,8 @@ class LuxDataFrame(pd.DataFrame):
         if lazy_but_not_computed or eager:
             is_sql_tbl = lux.config.executor.name == "SQLExecutor"
             rec_infolist = []
-            from lux.action.row_group import row_group
             from lux.action.column_group import column_group
+            from lux.action.row_group import row_group
 
             # TODO: Rewrite these as register action inside default actions
             if rec_df.pre_aggregated:
@@ -549,7 +551,8 @@ class LuxDataFrame(pd.DataFrame):
                 deletedSoFar += 1
 
     def set_intent_on_click(self, change):
-        from IPython.display import display, clear_output
+        from IPython.display import clear_output, display
+
         from lux.processor.Compiler import Compiler
 
         intent_action = list(self._widget.selectedIntentIndex.keys())[0]
@@ -568,9 +571,8 @@ class LuxDataFrame(pd.DataFrame):
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
     def _ipython_display_(self):
-        from IPython.display import display
-        from IPython.display import clear_output
         import ipywidgets as widgets
+        from IPython.display import clear_output, display
 
         try:
             if self._pandas_only:

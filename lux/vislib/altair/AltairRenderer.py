@@ -12,15 +12,17 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import lux
-import pandas as pd
 from typing import Callable
+
+import pandas as pd
+
+import lux
 from lux.vislib.altair.BarChart import BarChart
-from lux.vislib.altair.ScatterChart import ScatterChart
-from lux.vislib.altair.LineChart import LineChart
-from lux.vislib.altair.Histogram import Histogram
-from lux.vislib.altair.Heatmap import Heatmap
 from lux.vislib.altair.Choropleth import Choropleth
+from lux.vislib.altair.Heatmap import Heatmap
+from lux.vislib.altair.Histogram import Histogram
+from lux.vislib.altair.LineChart import LineChart
+from lux.vislib.altair.ScatterChart import ScatterChart
 
 
 class AltairRenderer:

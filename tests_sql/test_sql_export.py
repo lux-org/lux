@@ -12,13 +12,15 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
 import psycopg2
-from lux.vis.Vis import Vis
+import pytest
+
 from lux.executor.SQLExecutor import SQLExecutor
+from lux.vis.Vis import Vis
+
+from .context import lux
 
 
 def test_scatter_code_export(global_var):

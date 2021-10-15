@@ -12,11 +12,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.interestingness.interestingness import interestingness
 import lux
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.executor.SQLExecutor import SQLExecutor
-import lux
+from lux.interestingness.interestingness import interestingness
 
 
 def custom(ldf):

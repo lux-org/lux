@@ -12,9 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from lux.core.frame import LuxDataFrame
-from lux.vis.VisList import VisList
-from lux.vis.Vis import Vis
 from lux.utils import utils
+from lux.vis.Vis import Vis
+from lux.vis.VisList import VisList
 
 
 class Executor:

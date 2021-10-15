@@ -1,6 +1,7 @@
-import pytest
 import pandas as pd
 import psycopg2
+import pytest
+
 import lux
 
 

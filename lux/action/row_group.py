@@ -12,14 +12,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import pandas as pd
+
 import lux
 from lux.interestingness.interestingness import interestingness
 from lux.processor.Compiler import Compiler
 from lux.utils import utils
-
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
-import pandas as pd
 
 
 def row_group(ldf):

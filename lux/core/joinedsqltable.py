@@ -12,21 +12,23 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import traceback
+
+# from lux.executor.Executor import *
+import warnings
+from typing import Callable, Dict, List, Union
+
 import pandas as pd
+
+import lux
 from lux.core.series import LuxSeries
-from lux.vis.Clause import Clause
-from lux.vis.Vis import Vis
-from lux.vis.VisList import VisList
 from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
-from typing import Dict, Union, List, Callable
-
-# from lux.executor.Executor import *
-import warnings
-import traceback
-import lux
+from lux.vis.Clause import Clause
+from lux.vis.Vis import Vis
+from lux.vis.VisList import VisList
 
 
 class JoinedSQLTable(lux.LuxSQLTable):
@@ -126,9 +128,8 @@ class JoinedSQLTable(lux.LuxSQLTable):
         return viewname
 
     def _ipython_display_(self):
-        from IPython.display import HTML, Markdown, display
-        from IPython.display import clear_output
         import ipywidgets as widgets
+        from IPython.display import HTML, Markdown, clear_output, display
 
         try:
             if self._pandas_only:

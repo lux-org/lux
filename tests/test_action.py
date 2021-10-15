@@ -12,11 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
-import pytest
 import pandas as pd
+import pytest
 
 from lux.vis.Vis import Vis
+
+from .context import lux
 
 
 def test_temporal_action(global_var):

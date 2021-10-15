@@ -12,10 +12,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.interestingness.interestingness import interestingness
-from lux.vis.VisList import VisList
 import lux
+from lux.interestingness.interestingness import interestingness
 from lux.utils import utils
+from lux.vis.VisList import VisList
 
 
 def univariate(ldf, *args):

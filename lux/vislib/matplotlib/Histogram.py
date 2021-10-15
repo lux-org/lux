@@ -12,10 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.vislib.matplotlib.MatplotlibChart import MatplotlibChart
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+from lux.vislib.matplotlib.MatplotlibChart import MatplotlibChart
 
 
 class Histogram(MatplotlibChart):

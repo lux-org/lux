@@ -12,9 +12,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.vis.Clause import Clause
-from lux.core.frame import LuxDataFrame
 from typing import List, Union
+
+from lux.core.frame import LuxDataFrame
+from lux.vis.Clause import Clause
 
 
 class Parser:

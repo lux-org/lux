@@ -12,12 +12,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
 import psycopg2
+import pytest
+
 from lux.interestingness.interestingness import interestingness
+
+from .context import lux
 
 
 # The following test cases are labelled for vis with <Ndim, Nmsr, Nfilter>
@@ -209,9 +211,8 @@ def test_interestingness_1_1_1(global_var):
 
 
 def test_interestingness_1_2_0(global_var):
-    from lux.vis.Vis import Vis
-    from lux.vis.Vis import Clause
     from lux.interestingness.interestingness import interestingness
+    from lux.vis.Vis import Clause, Vis
 
     lux.config.set_executor_type("Pandas")
     df = pytest.car_df

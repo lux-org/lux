@@ -14,11 +14,11 @@
 
 import lux
 from lux.interestingness.interestingness import interestingness
-from lux.vis.Vis import Vis
-from lux.vis.VisList import VisList
 from lux.processor.Compiler import Compiler
 from lux.utils import utils
 from lux.utils.utils import get_filter_specs
+from lux.vis.Vis import Vis
+from lux.vis.VisList import VisList
 
 
 def add_filter(ldf):

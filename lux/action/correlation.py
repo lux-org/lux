@@ -13,11 +13,11 @@
 #  limitations under the License.
 
 import lux
+from lux.core.frame import LuxDataFrame
 from lux.interestingness.interestingness import interestingness
 from lux.processor.Compiler import Compiler
-from lux.core.frame import LuxDataFrame
-from lux.vis.VisList import VisList
 from lux.utils import utils
+from lux.vis.VisList import VisList
 
 
 # change ignore_transpose to false for now.

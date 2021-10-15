@@ -12,15 +12,17 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import pandas as pd
-import lux
-import warnings
 import traceback
+import warnings
+from typing import Callable, Dict, List, Union
+
 import numpy as np
+import pandas as pd
+
+import lux
 from lux.history.history import History
 from lux.utils.message import Message
 from lux.vis.VisList import VisList
-from typing import Dict, Union, List, Callable
 
 
 class LuxSeries(pd.Series):
@@ -126,9 +128,9 @@ class LuxSeries(pd.Series):
             return super(LuxSeries, self).unique()
 
     def _ipython_display_(self):
-        from IPython.display import display
-        from IPython.display import clear_output
         import ipywidgets as widgets
+        from IPython.display import clear_output, display
+
         from lux.core.frame import LuxDataFrame
 
         series_repr = super(LuxSeries, self).__repr__()

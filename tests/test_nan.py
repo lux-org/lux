@@ -12,12 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
 
 from lux.vis.Vis import Vis
+
+from .context import lux
 
 
 def test_nan_column(global_var):
@@ -65,9 +66,9 @@ def test_nan_data_type_detection():
 
 
 def test_apply_nan_filter():
-    from lux.vis.Vis import Vis
-
     import numpy as np
+
+    from lux.vis.Vis import Vis
 
     dataset = [
         {"fully_nan": np.nan, "some_nan": 3.0, "some_nan2": np.nan},
@@ -89,8 +90,9 @@ def test_apply_nan_filter():
 
 
 def test_nan_series_occurence():
-    from lux.core.series import LuxSeries
     from math import nan
+
+    from lux.core.series import LuxSeries
 
     dvalues = {
         1: " dummy ",

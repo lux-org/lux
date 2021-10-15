@@ -12,13 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.vislib.matplotlib.MatplotlibChart import MatplotlibChart
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from lux.utils.utils import get_agg_title
 import altair as alt
-from lux.utils.utils import matplotlib_setup
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+from lux.utils.utils import get_agg_title, matplotlib_setup
+from lux.vislib.matplotlib.MatplotlibChart import MatplotlibChart
 
 
 class LineChart(MatplotlibChart):

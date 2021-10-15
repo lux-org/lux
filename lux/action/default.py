@@ -1,12 +1,12 @@
 def register_default_actions():
     import lux
-    from lux.action.custom import custom
     from lux.action.correlation import correlation
-    from lux.action.univariate import univariate
+    from lux.action.custom import custom
     from lux.action.enhance import enhance
     from lux.action.filter import add_filter
     from lux.action.generalize import generalize
     from lux.action.temporal import temporal
+    from lux.action.univariate import univariate
 
     # display conditions for default actions
     no_vis = lambda ldf: (ldf.current_vis is None) or (

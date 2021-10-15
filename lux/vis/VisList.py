@@ -13,13 +13,14 @@
 #  limitations under the License.
 
 
-from lux.vislib.altair.AltairRenderer import AltairRenderer
-from lux.utils.utils import check_import_lux_widget
-from typing import List, Union, Callable, Dict
-from lux.vis.Vis import Vis
-from lux.vis.Clause import Clause
 import warnings
+from typing import Callable, Dict, List, Union
+
 import lux
+from lux.utils.utils import check_import_lux_widget
+from lux.vis.Clause import Clause
+from lux.vis.Vis import Vis
+from lux.vislib.altair.AltairRenderer import AltairRenderer
 
 
 class VisList:
@@ -260,6 +261,7 @@ class VisList:
     def _ipython_display_(self):
         self._widget = None
         from IPython.display import display
+
         from lux.core.frame import LuxDataFrame
 
         recommendation = {
@@ -302,9 +304,9 @@ class VisList:
         Function derives a new _inferred_intent by instantiating the intent specification on the new data
         """
         if ldf is not None:
+            from lux.processor.Compiler import Compiler
             from lux.processor.Parser import Parser
             from lux.processor.Validator import Validator
-            from lux.processor.Compiler import Compiler
 
             self._source = ldf
             self._source.maintain_metadata()

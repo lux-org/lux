@@ -12,11 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
-import pytest
 import pandas as pd
-from lux.vis.VisList import VisList
+import pytest
+
 from lux.vis.Vis import Vis
+from lux.vis.VisList import VisList
+
+from .context import lux
 
 
 def test_vis(global_var):
@@ -96,8 +98,9 @@ def test_vis_custom_aggregation_as_str(global_var):
 
 def test_vis_custom_aggregation_as_numpy_func(global_var):
     df = pytest.college_df
-    from lux.vis.Vis import Vis
     import numpy as np
+
+    from lux.vis.Vis import Vis
 
     vis = Vis(["HighestDegree", lux.Clause("AverageCost", aggregation=np.ptp)], df)
     assert vis.get_attr_by_data_model("measure")[0].aggregation == np.ptp
@@ -108,8 +111,8 @@ def test_vis_collection_via_list_of_vis(global_var):
     df = pytest.olympic
     # change pandas dtype for the column "Year" to datetype
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
-    from lux.vis.VisList import VisList
     from lux.vis.Vis import Vis
+    from lux.vis.VisList import VisList
 
     vcLst = []
     for attribute in ["Sport", "Year", "Height", "HostRegion", "SportType"]:

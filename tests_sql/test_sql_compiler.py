@@ -12,11 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
-import pytest
 import pandas as pd
+import pytest
+
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
+
+from .context import lux
 
 
 def test_underspecified_no_vis(global_var, test_recs):

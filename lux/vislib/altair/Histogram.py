@@ -12,8 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.vislib.altair.AltairChart import AltairChart
 import altair as alt
+
+from lux.vislib.altair.AltairChart import AltairChart
 
 alt.data_transformers.disable_max_rows()
 
@@ -126,6 +127,7 @@ def compute_bin_width(series):
     Source: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
     """
     import math
+
     import numpy as np
 
     data = np.asarray(series)
