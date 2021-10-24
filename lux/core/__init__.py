@@ -28,7 +28,7 @@ def setOption(overridePandas=True):
         pd.DataFrame = (
             pd.io.json._json.DataFrame
         ) = (
-            pd.io.parsers.DataFrame
+            pd.io.parsers.readers.DataFrame
         ) = (
             pd.io.sql.DataFrame
         ) = (
