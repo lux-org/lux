@@ -58,7 +58,7 @@ def setOption(overridePandas=True):
         ) = (
             pd.io.stata.DataFrame
         ) = pd.io.api.DataFrame = pd.core.frame.DataFrame = pd._testing.DataFrame = LuxDataFrame
-        if pd.__version__ < '1.3.0':
+        if pd.__version__ < "1.3.0":
             pd.io.parsers.DataFrame = LuxDataFrame
         else:
             pd.io.parsers.readers.DataFrame = LuxDataFrame
