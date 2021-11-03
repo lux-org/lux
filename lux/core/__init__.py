@@ -28,8 +28,6 @@ def setOption(overridePandas=True):
         pd.DataFrame = (
             pd.io.json._json.DataFrame
         ) = (
-            pd.io.parsers.DataFrame
-        ) = (
             pd.io.sql.DataFrame
         ) = (
             pd.io.excel.DataFrame
@@ -60,6 +58,10 @@ def setOption(overridePandas=True):
         ) = (
             pd.io.stata.DataFrame
         ) = pd.io.api.DataFrame = pd.core.frame.DataFrame = pd._testing.DataFrame = LuxDataFrame
+        if pd.__version__ < "1.3.0":
+            pd.io.parsers.DataFrame = LuxDataFrame
+        else:
+            pd.io.parsers.readers.DataFrame = LuxDataFrame
         pd.Series = pd.core.series.Series = pd.core.groupby.ops.Series = pd._testing.Series = LuxSeries
         pd.core.groupby.generic.DataFrameGroupBy = LuxDataFrameGroupBy
         pd.core.groupby.generic.SeriesGroupBy = LuxSeriesGroupBy
