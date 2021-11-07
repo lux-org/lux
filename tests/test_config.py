@@ -69,8 +69,7 @@ def test_default_actions_registered(global_var):
 def test_fail_validator():
     df = register_new_action()
     df._ipython_display_()
-    assert (
-        "bars" not in df.recommendation,
+    assert "bars" not in df.recommendation, (
         "Bars should not be rendered when there is no intent 'horsepower' specified.",
     )
 
@@ -80,8 +79,7 @@ def test_pass_validator():
     df.set_intent(["Acceleration", "Horsepower"])
     df._ipython_display_()
     assert len(df.recommendation["bars"]) > 0
-    assert (
-        "bars" in df.recommendation,
+    assert "bars" in df.recommendation, (
         "Bars should be rendered when intent 'horsepower' is specified.",
     )
 
@@ -123,18 +121,16 @@ def test_remove_action():
     df = register_new_action()
     df.set_intent(["Acceleration", "Horsepower"])
     df._ipython_display_()
-    assert (
-        "bars" in df.recommendation,
+    assert "bars" in df.recommendation, (
         "Bars should be rendered after it has been registered with correct intent.",
     )
-    assert (
-        len(df.recommendation["bars"]) > 0,
+    assert len(df.recommendation["bars"]) > 0, (
+        
         "Bars should be rendered after it has been registered with correct intent.",
     )
     lux.config.remove_action("bars")
     df._ipython_display_()
-    assert (
-        "bars" not in df.recommendation,
+    assert "bars" not in df.recommendation, (
         "Bars should not be rendered after it has been removed.",
     )
     df.clear_intent()
@@ -167,16 +163,14 @@ def test_remove_default_actions(global_var):
     df._ipython_display_()
     assert "Correlation" not in df.recommendation
 
-    assert (
-        len(df.recommendation) == 0,
+    assert len(df.recommendation) == 0, (
         "Default actions should not be rendered after it has been removed.",
     )
 
     df = register_new_action()
     df.set_intent(["Acceleration", "Horsepower"])
     df._ipython_display_()
-    assert (
-        "bars" in df.recommendation,
+    assert "bars" in df.recommendation, (
         "Bars should be rendered after it has been registered with correct intent.",
     )
     assert len(df.recommendation["bars"]) > 0

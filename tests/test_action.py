@@ -57,9 +57,9 @@ def test_temporal_action(global_var):
     for entry in zip(test_data, test_data_vis_count):
         df, num_vis = entry[0], entry[1]
         df._repr_html_()
-        assert ("Temporal" in df.recommendation, "Temporal visualizations should be generated.")
+        assert "Temporal" in df.recommendation, "Temporal visualizations should be generated."
         recommended = df.recommendation["Temporal"]
-        assert (len(recommended) == num_vis, "Incorrect number of temporal visualizations generated.")
+        assert len(recommended) == num_vis, "Incorrect number of temporal visualizations generated."
         temporal_col = [c for c in df.columns if df.data_type[c] == "temporal"]
         overall_vis = [
             vis.get_attr_by_channel("x")[0].attribute
