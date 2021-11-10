@@ -53,22 +53,13 @@ class PandasExecutor(Executor):
         ldf : LuxDataFrame
         """
         SAMPLE_FLAG = lux.config.sampling
-        SAMPLE_START = lux.config.sampling_start
-        SAMPLE_CAP = lux.config.sampling_cap
-        SAMPLE_FRAC = 0.75
+        SAMPLE_THRESH = lux.config.sampling_thresh
 
-        if SAMPLE_FLAG and len(ldf) > SAMPLE_CAP:
+        if SAMPLE_FLAG and len(ldf) > SAMPLE_THRESH:
             if ldf._sampled is None:  # memoize unfiltered sample df
-                ldf._sampled = ldf.sample(n=SAMPLE_CAP, random_state=1)
+                ldf._sampled = ldf.sample(n=SAMPLE_THRESH, random_state=1)
             ldf._message.add_unique(
-                f"Large dataframe detected: Lux is only visualizing a sample capped at {SAMPLE_CAP} rows.",
-                priority=99,
-            )
-        elif SAMPLE_FLAG and len(ldf) > SAMPLE_START:
-            if ldf._sampled is None:  # memoize unfiltered sample df
-                ldf._sampled = ldf.sample(frac=SAMPLE_FRAC, random_state=1)
-            ldf._message.add_unique(
-                f"Large dataframe detected: Lux is visualizing a sample of {SAMPLE_FRAC}% of the dataframe ({len(ldf._sampled)} rows).",
+                f"Large dataframe detected: Lux is only visualizing a sample of {SAMPLE_THRESH} rows.",
                 priority=99,
             )
         else:
