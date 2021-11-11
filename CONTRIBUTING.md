@@ -37,7 +37,21 @@ lux/
 ```
 
 # Code Formatting
-In order to keep our codebase clean and readible, we are using PEP8 guidelines. To help us maintain and check code style, we are using [black](https://github.com/psf/black). Simply run `black .` before commiting. Without running black,  the checks on the continuous integration tests can fail. `black` should be installed for you as part of [requirements-dev](https://github.com/lux-org/lux/blob/master/requirements-dev.txt). 
+In order to keep our codebase clean and readible, we are using PEP8 guidelines. To help us maintain and check code style currently we use the following `pre-commit` hooks to automatically format the code on every commit and enforce its formatting on CI:
+
+* [black](https://github.com/psf/black)
+
+Precommit hooks are installed for you as part of [requirements-dev.txt](https://github.com/lux-org/lux/blob/master/requirements-dev.txt). To ensure precommit hooks run on every commit, run the install command:
+
+```bash
+pre-commit install
+```
+
+To manually run precommit hooks use:
+
+```bash
+pre-commit run --all-files
+``` 
 
 # Running the Test Suite
 
