@@ -13,7 +13,27 @@
 #  limitations under the License.
 import pandas as pd
 import matplotlib.pyplot as plt
-import lux
+# import lux
+import functools
+
+
+def patch(cls):
+    """
+    Decorator to patch a class with a new method.
+    """
+
+    def decorator(f):
+        name = f.fget.__name__ if isinstance(f, property) else f.__name__
+        old_f = getattr(cls, name, None)
+
+        if old_f is not None:
+            setattr(cls, f"_super_{name}", old_f)
+
+        setattr(cls, name, f)
+
+        return f
+
+    return decorator
 
 
 def convert_to_list(x):
@@ -78,7 +98,8 @@ def check_if_id_like(df, attribute):
     # Strong signals
     # so that aggregated reset_index fields don't get misclassified
     high_cardinality = df.cardinality[attribute] > 500
-    attribute_contain_id = re.search(r"id|ID|iD|Id", str(attribute)) is not None
+    attribute_contain_id = re.search(
+        r"id|ID|iD|Id", str(attribute)) is not None
     almost_all_vals_unique = df.cardinality[attribute] >= 0.98 * len(df)
     is_string = pd.api.types.is_string_dtype(df[attribute])
     if is_string:
@@ -92,7 +113,8 @@ def check_if_id_like(df, attribute):
                 sampled = SQLExecutor.execute_preview(df, preview_size=50)
         else:
             sampled = df[attribute]
-        str_length_uniformity = sampled.apply(lambda x: type(x) == str and len(x)).std() < 3
+        str_length_uniformity = sampled.apply(
+            lambda x: type(x) == str and len(x)).std() < 3
         return (
             high_cardinality
             and (attribute_contain_id or almost_all_vals_unique)
@@ -106,7 +128,8 @@ def check_if_id_like(df, attribute):
         else:
             evenly_spaced = True
         if attribute_contain_id:
-            almost_all_vals_unique = df.cardinality[attribute] >= 0.75 * len(df)
+            almost_all_vals_unique = df.cardinality[attribute] >= 0.75 * len(
+                df)
         return high_cardinality and (almost_all_vals_unique or evenly_spaced)
 
 
