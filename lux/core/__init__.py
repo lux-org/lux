@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import pandas as pd
-from .frame import LuxDataFrame
+# from .frame import LuxDataFrame
 from .groupby import LuxDataFrameGroupBy, LuxSeriesGroupBy
 from .series import LuxSeries
+from . import frame

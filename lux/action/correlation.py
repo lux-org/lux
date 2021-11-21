@@ -15,13 +15,12 @@
 import lux
 from lux.interestingness.interestingness import interestingness
 from lux.processor.Compiler import Compiler
-from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 from lux.utils import utils
 
 
 # change ignore_transpose to false for now.
-def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
+def correlation(ldf, ignore_transpose: bool = True):
     """
     Generates bivariate visualizations that represent all pairwise relationships in the data.
 
@@ -93,7 +92,8 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 def check_transpose_not_computed(vlist: VisList, a: str, b: str):
     transpose_exist = list(
         filter(
-            lambda x: (x._inferred_intent[0].attribute == b) and (x._inferred_intent[1].attribute == a),
+            lambda x: (x._inferred_intent[0].attribute == b) and (
+                x._inferred_intent[1].attribute == a),
             vlist,
         )
     )

@@ -12,24 +12,24 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import traceback
+# from lux.executor.Executor import *
+import warnings
+from typing import Callable, Dict, List, Union
+
 import pandas as pd
 from lux.core.series import LuxSeries
-from lux.vis.Clause import Clause
-from lux.vis.Vis import Vis
-from lux.vis.VisList import VisList
+from lux.core.sqltable import LuxSQLTable
 from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
-from typing import Dict, Union, List, Callable
-
-# from lux.executor.Executor import *
-import warnings
-import traceback
-import lux
+from lux.vis.Clause import Clause
+from lux.vis.Vis import Vis
+from lux.vis.VisList import VisList
 
 
-class JoinedSQLTable(lux.LuxSQLTable):
+class JoinedSQLTable(LuxSQLTable):
     """
     A subclass of Lux.LuxDataFrame that houses other variables and functions for generating visual recommendations. Does not support normal pandas functionality.
     """
@@ -84,10 +84,10 @@ class JoinedSQLTable(lux.LuxSQLTable):
     def extract_tables(self, joins):
         tables = set()
         for condition in joins:
-            lhs = condition[0 : condition.index("=")].strip()
-            rhs = condition[condition.index("=") + 1 :].strip()
-            table1 = lhs[0 : lhs.index(".")].strip()
-            table2 = rhs[0 : rhs.index(".")].strip()
+            lhs = condition[0: condition.index("=")].strip()
+            rhs = condition[condition.index("=") + 1:].strip()
+            table1 = lhs[0: lhs.index(".")].strip()
+            table2 = rhs[0: rhs.index(".")].strip()
             tables.add(table1)
             tables.add(table2)
         return tables
@@ -126,9 +126,8 @@ class JoinedSQLTable(lux.LuxSQLTable):
         return viewname
 
     def _ipython_display_(self):
-        from IPython.display import HTML, Markdown, display
-        from IPython.display import clear_output
         import ipywidgets as widgets
+        from IPython.display import HTML, Markdown, clear_output, display
 
         try:
             if self._pandas_only:
@@ -140,7 +139,8 @@ class JoinedSQLTable(lux.LuxSQLTable):
                 if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
                     from lux.processor.Compiler import Compiler
 
-                    self.current_vis = Compiler.compile_intent(self, self._intent)
+                    self.current_vis = Compiler.compile_intent(
+                        self, self._intent)
 
             if lux.config.default_display == "lux":
                 self._toggle_pandas_display = False
@@ -151,8 +151,10 @@ class JoinedSQLTable(lux.LuxSQLTable):
             self.maintain_recs()
 
             # Observers(callback_function, listen_to_this_variable)
-            self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
-            self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+            self._widget.observe(self.remove_deleted_recs,
+                                 names="deletedIndices")
+            self._widget.observe(self.set_intent_on_click,
+                                 names="selectedIntentIndex")
 
             button = widgets.Button(
                 description="Toggle Table/Lux",
@@ -188,7 +190,8 @@ class JoinedSQLTable(lux.LuxSQLTable):
                         notification = "Here is a preview of the **{}** database table: **{}**".format(
                             self.table_name, connect_str
                         )
-                        display(Markdown(notification), self._sampled.display_pandas())
+                        display(Markdown(notification),
+                                self._sampled.display_pandas())
                     else:
                         # b.layout.display = "none"
                         display(self._widget)

@@ -24,7 +24,8 @@ import pandas as pd
 import typing_extensions as tpe
 from IPython.display import clear_output, display
 from ipywidgets.embed import embed_data
-from lux import config, warning_format
+from lux import warning_format
+from lux._config import config
 from lux.executor.Executor import Executor
 from lux.processor.Compiler import Compiler
 from lux.processor.Parser import Parser
@@ -37,30 +38,11 @@ from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 from pandas.core.dtypes.common import is_integer_dtype
 
-# from lux.executor.Executor import *
+# TODO:
+# 1. Make all LuxDataFrame members private
+# 2. Properly initialize all LuxDataFrame members in __init__
 
 
-def patch(cls):
-    """
-    Decorator to patch a class with a new method.
-    """
-
-    def decorator(f):
-        name = f.fget.__name__ if isinstance(f, property) else f.__name__
-        old_f = getattr(cls, name, None)
-
-        if old_f is not None:
-            setattr(cls, f"_super_{name}" if not name.startswith(
-                "_") else f"_super{name}", old_f)
-
-        setattr(cls, name, f)
-
-        return f
-
-    return decorator
-
-
-# @tpe.runtime_checkable
 class LuxDataFrame(pd.DataFrame):
     _metadata: tp.List[str]
     _intent: tp.Any
@@ -98,27 +80,29 @@ DataFrame = tp.cast(tp.Type[LuxDataFrame], DataFrame)
 # -------------------------------------------------------
 
 # MUST register here for new properties!!
-DataFrame._metadata.extend([
-    "_intent",
-    "_inferred_intent",
-    "_data_type",
-    "unique_values",
-    "cardinality",
-    "_rec_info",
-    "_min_max",
-    "_current_vis",
-    "_widget",
-    "_recommendation",
-    "_prev",
-    "_history",
-    "_saved_export",
-    "_sampled",
-    "_toggle_pandas_display",
-    "_message",
-    "_pandas_only",
-    "pre_aggregated",
-    "_type_override",
-])
+DataFrame._metadata.extend(
+    [
+        "_intent",
+        "_inferred_intent",
+        "_data_type",
+        "unique_values",
+        "cardinality",
+        "_rec_info",
+        "_min_max",
+        "_current_vis",
+        "_widget",
+        "_recommendation",
+        "_prev",
+        "_history",
+        "_saved_export",
+        "_sampled",
+        "_toggle_pandas_display",
+        "_message",
+        "_pandas_only",
+        "pre_aggregated",
+        "_type_override",
+    ]
+)
 
 
 @patch(DataFrame)
@@ -130,9 +114,11 @@ def __init__(self: LuxDataFrame, *args, **kwargs):
     executor: Executor
     if config.SQLconnection == "":
         from lux.executor.PandasExecutor import PandasExecutor
+
         executor = PandasExecutor()
     else:
         from lux.executor.SQLExecutor import SQLExecutor
+
         executor = SQLExecutor()
 
     self.executor = executor
@@ -140,7 +126,7 @@ def __init__(self: LuxDataFrame, *args, **kwargs):
     self._sampled = None
     self._approx_sample = None
     self._toggle_pandas_display = True
-    self.df._message = Message()
+    self._message = Message()
     self._pandas_only = False
     # Metadata
     self._data_type = {}
@@ -178,6 +164,13 @@ def _constructor_sliced(self: LuxDataFrame):
         return s
 
     return _construct_and_copy
+
+# this is not strictly necessary, but debugging during testing fails without it
+
+
+@patch(DataFrame)
+def __setattr__(self: LuxDataFrame, key, value):
+    self.__dict__[key] = value
 
 
 @patch(DataFrame)
@@ -234,10 +227,12 @@ def _ipython_display_(self):
             self.maintain_recs()
 
             # Observers(callback_function, listen_to_this_variable)
-            self.df._widget.observe(lambda change: remove_deleted_recs(self, change),
-                                    names="deletedIndices")
-            self.df._widget.observe(lambda change: set_intent_on_click(self, change),
-                                    names="selectedIntentIndex")
+            self.df._widget.observe(
+                lambda change: remove_deleted_recs(self, change), names="deletedIndices"
+            )
+            self.df._widget.observe(
+                lambda change: set_intent_on_click(self, change), names="selectedIntentIndex"
+            )
 
             button = widgets.Button(
                 description="Toggle Pandas/Lux",
@@ -548,7 +543,12 @@ class LuxDataFrameMethods:
             rec_infolist.append(recommendations)
 
     def show_all_column_vis(self):
-        if len(self.df.columns) > 1 and len(self.df.columns) < 4 and self.df._intent == [] or self.df._intent is None:
+        if (
+            len(self.df.columns) > 1
+            and len(self.df.columns) < 4
+            and self.df._intent == []
+            or self.df._intent is None
+        ):
             vis = Vis(list(self.df.columns), self)
             if vis.mark != "":
                 vis._all_column = True
@@ -649,9 +649,9 @@ class LuxDataFrameMethods:
                 self.df._widget = rec_df.render_widget()
         self.df._recs_fresh = True
 
-#######################################################
-############## LuxWidget Result Display ###############
-#######################################################
+    #######################################################
+    ############## LuxWidget Result Display ###############
+    #######################################################
 
     @property
     def widget(self):
@@ -747,7 +747,9 @@ class LuxDataFrameMethods:
     def set_intent_on_click(self, change):
 
         intent_action = list(self.df._widget.selectedIntentIndex.keys())[0]
-        vis = self.df._recommendation[intent_action][self.df._widget.selectedIntentIndex[intent_action][0]]
+        vis = self.df._recommendation[intent_action][
+            self.df._widget.selectedIntentIndex[intent_action][0]
+        ]
         self.set_intent_as_vis(vis)
 
         self.maintain_metadata()

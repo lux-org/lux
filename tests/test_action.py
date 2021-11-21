@@ -57,9 +57,11 @@ def test_temporal_action(global_var):
     for entry in zip(test_data, test_data_vis_count):
         df, num_vis = entry[0], entry[1]
         df._repr_html_()
-        assert ("Temporal" in df.recommendation, "Temporal visualizations should be generated.")
+        assert ("Temporal" in df.lux.recommendation,
+                "Temporal visualizations should be generated.")
         recommended = df.recommendation["Temporal"]
-        assert (len(recommended) == num_vis, "Incorrect number of temporal visualizations generated.")
+        assert (len(recommended) == num_vis,
+                "Incorrect number of temporal visualizations generated.")
         temporal_col = [c for c in df.columns if df.data_type[c] == "temporal"]
         overall_vis = [
             vis.get_attr_by_channel("x")[0].attribute
@@ -75,8 +77,10 @@ def test_vary_filter_val(global_var):
     vis = Vis(["Height", "SportType=Ball"], df)
     df.set_intent_as_vis(vis)
     df._ipython_display_()
-    assert len(df.recommendation["Filter"]) == len(df["SportType"].unique()) - 1
-    linechart = list(filter(lambda x: x.mark == "line", df.recommendation["Enhance"]))[0]
+    assert len(df.recommendation["Filter"]) == len(
+        df["SportType"].unique()) - 1
+    linechart = list(filter(lambda x: x.mark == "line",
+                     df.recommendation["Enhance"]))[0]
     assert (
         linechart.get_attr_by_channel("x")[0].attribute == "Year"
     ), "Ensure recommended vis does not inherit input vis channel"
@@ -135,7 +139,8 @@ def test_row_column_group(global_var):
     tseries = df.pivot(index="State", columns="Date", values="Value")
     # Interpolating missing values
     tseries[tseries.columns.min()] = tseries[tseries.columns.min()].fillna(0)
-    tseries[tseries.columns.max()] = tseries[tseries.columns.max()].fillna(tseries.max(axis=1))
+    tseries[tseries.columns.max()] = tseries[tseries.columns.max()
+                                             ].fillna(tseries.max(axis=1))
     tseries = tseries.interpolate("zero", axis=1)
     tseries._ipython_display_()
     assert list(tseries.recommendation.keys()) == ["Temporal"]
@@ -220,9 +225,11 @@ def test_custom_aggregation(global_var):
     import numpy as np
 
     df = pytest.college_df
-    df.set_intent(["HighestDegree", lux.Clause("AverageCost", aggregation=np.ptp)])
+    df.set_intent(["HighestDegree", lux.Clause(
+        "AverageCost", aggregation=np.ptp)])
     df._ipython_display_()
-    assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]
+    assert list(df.recommendation.keys()) == [
+        "Enhance", "Filter", "Generalize"]
     df.clear_intent()
 
 
@@ -269,13 +276,15 @@ def test_similarity(global_var):
 
     japan_vis = list(
         filter(
-            lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Japan",
+            lambda vis: vis.get_attr_by_attr_name(
+                "Origin")[0].value == "Japan",
             ranked_list,
         )
     )[0]
     europe_vis = list(
         filter(
-            lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Europe",
+            lambda vis: vis.get_attr_by_attr_name(
+                "Origin")[0].value == "Europe",
             ranked_list,
         )
     )[0]
@@ -302,13 +311,15 @@ def test_similarity2():
 
     morrisville_vis = list(
         filter(
-            lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Morrisville",
+            lambda vis: vis.get_attr_by_attr_name(
+                "City")[0].value == "Morrisville",
             ranked_list,
         )
     )[0]
     watertown_vis = list(
         filter(
-            lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Watertown",
+            lambda vis: vis.get_attr_by_attr_name(
+                "City")[0].value == "Watertown",
             ranked_list,
         )
     )[0]
@@ -316,7 +327,8 @@ def test_similarity2():
 
 
 def test_intent_retained():
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
     df.intent = ["Attrition"]
     df._ipython_display_()
 
@@ -331,7 +343,8 @@ def test_intent_retained():
 
 
 def test_metadata_propogate_invalid_intent():
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
     df.intent = ["Attrition"]
     new_df = df.groupby("BusinessTravel").mean()
     assert new_df.intent[0].attribute == "Attrition", "User-specified intent is retained"

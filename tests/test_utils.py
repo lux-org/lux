@@ -14,6 +14,7 @@ class TestUtils:
                 nonlocal N
                 N += 1
                 return DataFrame(*args, **kwargs)
+
             return new_constructor
 
         df = pd.DataFrame()._constructor({"a": [1, 2, 3]})

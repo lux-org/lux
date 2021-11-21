@@ -12,8 +12,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# from ..luxDataFrame.LuxDataframe import LuxDataFrame
-from lux.core.frame import LuxDataFrame
 from lux.vis.Clause import Clause
 from typing import List
 from lux.utils.date_utils import is_datetime_series, is_datetime_string
@@ -36,7 +34,7 @@ class Validator:
         return f"<Validator>"
 
     @staticmethod
-    def validate_intent(intent: List[Clause], ldf: LuxDataFrame, suppress_warning=False):
+    def validate_intent(intent: List[Clause], ldf, suppress_warning=False):
         """
         Validates input specifications from the user to find inconsistencies and errors.
 

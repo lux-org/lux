@@ -16,7 +16,6 @@ import lux
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 import pandas as pd
-from lux.core.frame import LuxDataFrame
 from lux.interestingness.interestingness import interestingness
 from lux.utils import utils
 
@@ -88,11 +87,14 @@ def create_temporal_vis(ldf, col):
     """
     formatted_date = pd.to_datetime(ldf[col], format="%Y-%m-%d")
 
-    overall_vis = Vis([lux.Clause(col, data_type="temporal")], source=ldf, score=5)
+    overall_vis = Vis(
+        [lux.Clause(col, data_type="temporal")], source=ldf, score=5)
 
     year_col = col + " (year)"
-    year_df = LuxDataFrame({year_col: pd.to_datetime(formatted_date.dt.year, format="%Y")})
-    year_vis = Vis([lux.Clause(year_col, data_type="temporal")], source=year_df, score=4)
+    year_df = LuxDataFrame(
+        {year_col: pd.to_datetime(formatted_date.dt.year, format="%Y")})
+    year_vis = Vis([lux.Clause(year_col, data_type="temporal")],
+                   source=year_df, score=4)
 
     month_col = col + " (month)"
     month_df = LuxDataFrame({month_col: formatted_date.dt.month})
@@ -105,7 +107,8 @@ def create_temporal_vis(ldf, col):
     day_df.set_data_type(
         {day_col: "nominal"}
     )  # Since day is high cardinality 1-31, it can get recognized as quantitative
-    day_vis = Vis([lux.Clause(day_col, data_type="temporal", timescale="day")], source=day_df, score=2)
+    day_vis = Vis([lux.Clause(day_col, data_type="temporal",
+                  timescale="day")], source=day_df, score=2)
 
     week_col = col + " (day of week)"
     week_df = lux.LuxDataFrame({week_col: formatted_date.dt.dayofweek})

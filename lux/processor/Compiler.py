@@ -16,7 +16,6 @@ from lux.vis import Clause
 from typing import List, Dict, Union
 from lux.vis.Vis import Vis
 from lux.processor.Validator import Validator
-from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 from lux.utils import date_utils
 from lux.utils import utils
@@ -39,7 +38,7 @@ class Compiler:
         return f"<Compiler>"
 
     @staticmethod
-    def compile_vis(ldf: LuxDataFrame, vis: Vis) -> Vis:
+    def compile_vis(ldf, vis: Vis) -> Vis:
         """
         Root method for compiling visualizations
 
@@ -64,7 +63,7 @@ class Compiler:
             return vis
 
     @staticmethod
-    def compile_intent(ldf: LuxDataFrame, _inferred_intent: List[Clause]) -> VisList:
+    def compile_intent(ldf, _inferred_intent: List[Clause]) -> VisList:
         """
         Compiles input specifications in the intent of the ldf into a collection of lux.vis objects for visualization.
         1) Enumerate a collection of visualizations interested by the user to generate a vis list
@@ -85,7 +84,8 @@ class Compiler:
         """
         valid_intent = _inferred_intent  # ensures intent is non-empty
         if valid_intent and Validator.validate_intent(_inferred_intent, ldf, True):
-            vis_collection = Compiler.enumerate_collection(_inferred_intent, ldf)
+            vis_collection = Compiler.enumerate_collection(
+                _inferred_intent, ldf)
             # autofill data type/model information
             Compiler.populate_data_type_model(ldf, vis_collection)
             # remove invalid visualizations from collection
@@ -100,7 +100,7 @@ class Compiler:
             return []
 
     @staticmethod
-    def enumerate_collection(_inferred_intent: List[Clause], ldf: LuxDataFrame) -> VisList:
+    def enumerate_collection(_inferred_intent: List[Clause], ldf) -> VisList:
         """
         Given specifications that have been expanded thorught populateOptions,
         recursively iterate over the resulting list combinations to generate a vis list.
@@ -135,7 +135,8 @@ class Compiler:
                     # if we have filters, generate combinations for each row.
                     if len(filters) > 0:
                         for row in filters:
-                            _inferred_intent = copy.deepcopy(column_list + [row])
+                            _inferred_intent = copy.deepcopy(
+                                column_list + [row])
                             vis = Vis(_inferred_intent)
                             collection.append(vis)
                     else:
@@ -163,7 +164,8 @@ class Compiler:
         # TODO: copy might not be neccesary
         from lux.utils.date_utils import is_datetime_string
 
-        data_model_lookup = lux.config.executor.compute_data_model_lookup(ldf.data_type)
+        data_model_lookup = lux.config.executor.compute_data_model_lookup(
+            ldf.data_type)
         for vis in vlist:
             for clause in vis._inferred_intent:
                 if clause.description == "?":
@@ -182,7 +184,8 @@ class Compiler:
                     # If user provided title for Vis, then don't override.
                     if vis.title == "":
                         if isinstance(clause.value, np.datetime64):
-                            chart_title = date_utils.date_formatter(clause.value, ldf)
+                            chart_title = date_utils.date_formatter(
+                                clause.value, ldf)
                         else:
                             chart_title = clause.value
                         vis.title = f"{clause.attribute} {clause.filter_op} {chart_title}"
@@ -222,7 +225,8 @@ class Compiler:
                 attribute_set.add(clause.attribute)
                 if clause.data_type == "temporal":
                     num_temporal_specs += 1
-            all_distinct_specs = 0 == len(vis._inferred_intent) - len(attribute_set)
+            all_distinct_specs = 0 == len(
+                vis._inferred_intent) - len(attribute_set)
             if (
                 num_temporal_specs < 2
                 and all_distinct_specs
@@ -235,7 +239,7 @@ class Compiler:
         return VisList(new_vc)
 
     @staticmethod
-    def determine_encoding(ldf: LuxDataFrame, vis: Vis):
+    def determine_encoding(ldf, vis: Vis):
         """
         Populates Vis with the appropriate mark type and channel information based on ShowMe logic
         Currently support up to 3 dimensions or measures
@@ -299,7 +303,8 @@ class Compiler:
         auto_channel = {}
         if ndim == 0 and nmsr == 1:
             # Histogram with Count
-            measure = vis.get_attr_by_data_model("measure", exclude_record=True)[0]
+            measure = vis.get_attr_by_data_model(
+                "measure", exclude_record=True)[0]
             if len(vis.get_attr_by_attr_name("Record")) < 0:
                 vis._inferred_intent.append(count_col)
             # If no bin specified, then default as 10
@@ -313,7 +318,8 @@ class Compiler:
                 vis._inferred_intent.append(count_col)
             dimension = vis.get_attr_by_data_model("dimension")[0]
             measure = vis.get_attr_by_data_model("measure")[0]
-            vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
+            vis._mark, auto_channel = line_or_bar_or_geo(
+                ldf, dimension, measure)
         elif ndim == 2 and (nmsr == 0 or nmsr == 1):
             # Line or Bar chart broken down by the dimension
             dimensions = vis.get_attr_by_data_model("dimension")
@@ -337,14 +343,16 @@ class Compiler:
                 if nmsr == 0 and not ldf.pre_aggregated:
                     vis._inferred_intent.append(count_col)
                 measure = vis.get_attr_by_data_model("measure")[0]
-                vis._mark, auto_channel = line_or_bar_or_geo(ldf, dimension, measure)
+                vis._mark, auto_channel = line_or_bar_or_geo(
+                    ldf, dimension, measure)
                 auto_channel["color"] = color_attr
         elif ndim == 0 and nmsr == 2:
             # Scatterplot
             vis._mark = "scatter"
             vis._inferred_intent[0].set_aggregation(None)
             vis._inferred_intent[1].set_aggregation(None)
-            auto_channel = {"x": vis._inferred_intent[0], "y": vis._inferred_intent[1]}
+            auto_channel = {
+                "x": vis._inferred_intent[0], "y": vis._inferred_intent[1]}
         elif ndim == 1 and nmsr == 2:
             # Scatterplot broken down by the dimension
             measure = vis.get_attr_by_data_model("measure")
@@ -366,7 +374,8 @@ class Compiler:
                 "y": vis._inferred_intent[1],
                 "color": vis._inferred_intent[2],
             }
-        relevant_attributes = [auto_channel[channel].attribute for channel in auto_channel]
+        relevant_attributes = [
+            auto_channel[channel].attribute for channel in auto_channel]
         relevant_min_max = dict(
             (attr, ldf._min_max[attr])
             for attr in relevant_attributes
@@ -383,7 +392,8 @@ class Compiler:
         vis._min_max = relevant_min_max
         if auto_channel != {}:
             vis = Compiler.enforce_specified_channel(vis, auto_channel)
-            vis._inferred_intent.extend(filters)  # add back the preserved filters
+            # add back the preserved filters
+            vis._inferred_intent.extend(filters)
 
     @staticmethod
     def enforce_specified_channel(vis: Vis, auto_channel: Dict[str, str]):
@@ -436,7 +446,8 @@ class Compiler:
         # For the leftover channels that are still unspecified in result_dict,
         # and the leftovers in the auto_channel specification,
         # step through them together and fill it automatically.
-        leftover_channels = list(filter(lambda x: result_dict[x] == "", result_dict))
+        leftover_channels = list(
+            filter(lambda x: result_dict[x] == "", result_dict))
         for leftover_channel, leftover_encoding in zip(leftover_channels, auto_channel.values()):
             leftover_encoding.channel = leftover_channel
             result_dict[leftover_channel] = leftover_encoding
@@ -444,8 +455,8 @@ class Compiler:
         return vis
 
     @staticmethod
-    # def populate_wildcard_options(ldf: LuxDataFrame) -> dict:
-    def populate_wildcard_options(_inferred_intent: List[Clause], ldf: LuxDataFrame) -> dict:
+    # def populate_wildcard_options(ldf) -> dict:
+    def populate_wildcard_options(_inferred_intent: List[Clause], ldf) -> dict:
         """
         Given wildcards and constraints in the LuxDataFrame's intent,
         return the list of available values that satisfies the data_type or data_model constraints.
@@ -463,7 +474,8 @@ class Compiler:
         import copy
         from lux.utils.utils import convert_to_list
 
-        inverted_data_type = lux.config.executor.invert_data_type(ldf.data_type)
+        inverted_data_type = lux.config.executor.invert_data_type(
+            ldf.data_type)
         data_model = lux.config.executor.compute_data_model(ldf.data_type)
 
         intent = {"attributes": [], "filters": []}
@@ -473,9 +485,11 @@ class Compiler:
                 if clause.attribute == "?":
                     options = set(list(ldf.columns))  # all attributes
                     if clause.data_type != "":
-                        options = options.intersection(set(inverted_data_type[clause.data_type]))
+                        options = options.intersection(
+                            set(inverted_data_type[clause.data_type]))
                     if clause.data_model != "":
-                        options = options.intersection(set(data_model[clause.data_model]))
+                        options = options.intersection(
+                            set(data_model[clause.data_model]))
                     options = list(options)
                 else:
                     options = convert_to_list(clause.attribute)

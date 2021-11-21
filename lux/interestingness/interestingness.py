@@ -12,7 +12,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.core.frame import LuxDataFrame
 from lux.vis.Vis import Vis
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.utils import utils
@@ -28,7 +27,7 @@ from lux.vis.VisList import VisList
 import warnings
 
 
-def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
+def interestingness(vis: Vis, ldf) -> int:
     """
     Compute the interestingness score of the vis.
     The interestingness metric is dependent on the vis type.
@@ -52,7 +51,8 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         n_dim = vis._ndim
         n_msr = vis._nmsr
         n_filter = len(filter_specs)
-        attr_specs = [clause for clause in vis_attrs_specs if clause.attribute != "Record"]
+        attr_specs = [
+            clause for clause in vis_attrs_specs if clause.attribute != "Record"]
         dimension_lst = vis.get_attr_by_data_model("dimension")
         measure_lst = vis.get_attr_by_data_model("measure")
         v_size = len(vis.data)
@@ -163,7 +163,8 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
     except:
         if lux.config.interestingness_fallback:
             # Supress interestingness related issues
-            warnings.warn(f"An error occurred when computing interestingness for: {vis}")
+            warnings.warn(
+                f"An error occurred when computing interestingness for: {vis}")
             return -1
         else:
             raise
@@ -198,7 +199,7 @@ def weighted_correlation(x, y, w):
 
 def deviation_from_overall(
     vis: Vis,
-    ldf: LuxDataFrame,
+    ldf,
     filter_specs: list,
     msr_attribute: str,
     exclude_nan: bool = True,
@@ -246,7 +247,8 @@ def deviation_from_overall(
 
     unfiltered_vis = copy.copy(vis)
     # Remove filters, keep only attribute intent
-    unfiltered_vis._inferred_intent = utils.get_attrs_specs(vis._inferred_intent)
+    unfiltered_vis._inferred_intent = utils.get_attrs_specs(
+        vis._inferred_intent)
     lux.config.executor.execute([unfiltered_vis], ldf)
     if exclude_nan:
         uv = unfiltered_vis.data.dropna()
@@ -254,7 +256,8 @@ def deviation_from_overall(
         uv = unfiltered_vis.data
     v = uv[msr_attribute]
     v = v / v.sum()
-    assert len(v) == len(v_filter), "Data for filtered and unfiltered vis have unequal length."
+    assert len(v) == len(
+        v_filter), "Data for filtered and unfiltered vis have unequal length."
     sig = v_filter_size / v_size  # significance factor
     # Euclidean distance as L2 function
 
@@ -279,7 +282,7 @@ def deviation_from_overall(
     return sig * rankSig * euclidean(v, v_filter)
 
 
-def unevenness(vis: Vis, ldf: LuxDataFrame, measure_lst: list, dimension_lst: list) -> int:
+def unevenness(vis: Vis, ldf, measure_lst: list, dimension_lst: list) -> int:
     """
     Measure the unevenness of a bar chart vis.
     If a bar chart is highly uneven across the possible values, then it may be interesting. (e.g., USA produces lots of cars compared to Japan and Europe)

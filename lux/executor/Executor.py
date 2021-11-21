@@ -11,7 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.utils import utils
@@ -29,21 +28,21 @@ class Executor:
         return f"<Executor>"
 
     @staticmethod
-    def execute(vislist: VisList, ldf: LuxDataFrame, approx: bool = False):
+    def execute(vislist: VisList, ldf, approx: bool = False):
         """
         Given a VisList, fetch the data required to render the vis.
         """
         return NotImplemented
 
     @staticmethod
-    def execute_aggregate(vis: Vis, ldf: LuxDataFrame):
+    def execute_aggregate(vis: Vis, ldf):
         """
         Aggregate data points on an axis for bar or line charts
         """
         return NotImplemented
 
     @staticmethod
-    def execute_binning(ldf: LuxDataFrame, vis: Vis):
+    def execute_binning(ldf, vis: Vis):
         """
         Binning of data points for generating histograms
         """
@@ -64,15 +63,15 @@ class Executor:
         return NotImplemented
 
     @staticmethod
-    def compute_stats(self):
+    def compute_stats():
         return NotImplemented
 
     @staticmethod
-    def compute_data_type(self):
+    def compute_data_type():
         return NotImplemented
 
     @staticmethod
-    def compute_dataset_metadata(self, ldf):
+    def compute_dataset_metadata(ldf):
         return NotImplemented
 
     def mapping(self, rmap):
