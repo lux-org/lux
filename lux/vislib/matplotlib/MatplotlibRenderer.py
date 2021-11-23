@@ -66,7 +66,8 @@ class MatplotlibRenderer:
                     vis.data[attr].iloc[0], pd.Period
                 ):
                     dateColumn = vis.data[attr]
-                    vis.data[attr] = pd.PeriodIndex(dateColumn.values).to_timestamp()
+                    vis.data[attr] = pd.PeriodIndex(
+                        dateColumn.values).to_timestamp()
                 if pd.api.types.is_interval_dtype(vis.data.dtypes[attr]) or isinstance(
                     vis.data[attr].iloc[0], pd.Interval
                 ):
@@ -89,11 +90,11 @@ class MatplotlibRenderer:
             return chart
         if chart:
             plt.tight_layout()
-            if lux.config.plotting_style and (
-                lux.config.plotting_backend == "matplotlib"
-                or lux.config.plotting_backend == "matplotlib_svg"
+            if lux.CONFIG.plotting_style and (
+                lux.CONFIG.plotting_backend == "matplotlib"
+                or lux.CONFIG.plotting_backend == "matplotlib_svg"
             ):
-                chart.ax = lux.config.plotting_style(chart.fig, chart.ax)
+                chart.ax = lux.CONFIG.plotting_style(chart.fig, chart.ax)
             plt.tight_layout()
             tmpfile = BytesIO()
             chart.fig.savefig(tmpfile, format="png")
@@ -103,11 +104,12 @@ class MatplotlibRenderer:
             if self.output_type == "matplotlib_svg":
                 return {"config": chart.chart, "vislib": "matplotlib"}
             if self.output_type == "matplotlib":
-                if lux.config.plotting_style:
+                if lux.CONFIG.plotting_style:
                     import inspect
 
                     chart.code += "\n".join(
-                        inspect.getsource(lux.config.plotting_style).split("\n    ")[1:-1]
+                        inspect.getsource(lux.CONFIG.plotting_style).split(
+                            "\n    ")[1:-1]
                     )
                 chart.code += "\nfig"
                 chart.code = chart.code.replace("\n\t\t", "\n")

@@ -21,8 +21,9 @@ import time
 # To run the script and see the printed result, run:
 # python -m pytest -s tests/test_performance.py
 def test_lazy_maintain_performance_census(global_var):
-    lux.config.lazy_maintain = True
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/census.csv?raw=true")
+    lux.CONFIG.lazy_maintain = True
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/census.csv?raw=true")
     tic = time.perf_counter()
     df.maintain_recs()
     toc = time.perf_counter()
@@ -39,7 +40,7 @@ def test_lazy_maintain_performance_census(global_var):
         delta2 < 0.1 < delta
     ), "Subsequent display of recommendations on Census dataset took a total of {delta2:0.4f} seconds, longer than expected."
 
-    lux.config.lazy_maintain = False
+    lux.CONFIG.lazy_maintain = False
     tic = time.perf_counter()
     df.maintain_recs()
     toc = time.perf_counter()
@@ -77,10 +78,11 @@ def test_lazy_maintain_performance_census(global_var):
 
 
 def test_early_prune_performance_spotify():
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/spotify.csv?raw=True")
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/spotify.csv?raw=True")
     df.maintain_metadata()
     # With Early Pruning
-    lux.config.early_pruning = True
+    lux.CONFIG.early_pruning = True
     df.clear_intent()
     start = time.time()
     df.maintain_recs()
@@ -88,7 +90,7 @@ def test_early_prune_performance_spotify():
     with_prune_time = end - start
     assert "Large search space detected" in df._message.to_html()
     # Without Early Pruning
-    lux.config.early_pruning = False
+    lux.CONFIG.early_pruning = False
     df.clear_intent()
     start = time.time()
     df.maintain_recs()

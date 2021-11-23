@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from lux.vis import Clause
+from lux.vis.Clause import Clause
 from typing import List, Dict, Union
 from lux.vis.Vis import Vis
 from lux.processor.Validator import Validator
@@ -22,7 +22,6 @@ from lux.utils import utils
 import pandas as pd
 import numpy as np
 import warnings
-import lux
 
 
 class Compiler:
@@ -163,9 +162,10 @@ class Compiler:
         """
         # TODO: copy might not be neccesary
         from lux.utils.date_utils import is_datetime_string
+        from lux._config import CONFIG
 
-        data_model_lookup = lux.config.executor.compute_data_model_lookup(
-            ldf.data_type)
+        data_model_lookup = CONFIG.executor.compute_data_model_lookup(
+            ldf.lux.data_type)
         for vis in vlist:
             for clause in vis._inferred_intent:
                 if clause.description == "?":
@@ -173,7 +173,7 @@ class Compiler:
                 # TODO: Note that "and not is_datetime_string(clause.attribute))" is a temporary hack and breaks the `test_row_column_group` example
                 if clause.attribute != "" and clause.attribute != "Record":
                     if clause.data_type == "":
-                        clause.data_type = ldf.data_type[clause.attribute]
+                        clause.data_type = ldf.lux.data_type[clause.attribute]
                     if clause.data_type == "id":
                         clause.data_type = "nominal"
                     if clause.data_type == "geographical":
@@ -262,6 +262,8 @@ class Compiler:
         IEEE Transactions on Visualization and Computer Graphics, 13(6), 1137–1144.
         https://doi.org/10.1109/TVCG.2007.70594
         """
+        from lux._config import CONFIG
+
         # Count number of measures and dimensions
         ndim = vis._ndim
         nmsr = vis._nmsr
@@ -280,13 +282,13 @@ class Compiler:
                     attr = str(dimension.attribute._date_repr)
                 else:
                     attr = dimension.attribute
-                if ldf.cardinality[attr] == 1:
+                if ldf.lux.cardinality[attr] == 1:
                     return "bar", {"x": measure, "y": dimension}
                 else:
                     return "line", {"x": dimension, "y": measure}
             else:  # unordered categorical
                 # if cardinality large than 5 then sort bars
-                if ldf.cardinality[dimension.attribute] > 5:
+                if ldf.lux.cardinality[dimension.attribute] > 5:
                     dimension.sort = "ascending"
                 if utils.like_geo(dimension.get_attr()):
                     return "geographical", {"x": dimension, "y": measure}
@@ -325,7 +327,7 @@ class Compiler:
             dimensions = vis.get_attr_by_data_model("dimension")
             d1 = dimensions[0]
             d2 = dimensions[1]
-            if ldf.cardinality[d1.attribute] < ldf.cardinality[d2.attribute]:
+            if ldf.lux.cardinality[d1.attribute] < ldf.lux.cardinality[d2.attribute]:
                 # d1.channel = "color"
                 vis.remove_column_from_spec(d1.attribute)
                 dimension = d2
@@ -339,8 +341,8 @@ class Compiler:
                 dimension = d1
                 color_attr = d2
             # Colored Bar/Line chart with Count as default measure
-            if not ldf.pre_aggregated:
-                if nmsr == 0 and not ldf.pre_aggregated:
+            if not ldf.lux.pre_aggregated:
+                if nmsr == 0 and not ldf.lux.pre_aggregated:
                     vis._inferred_intent.append(count_col)
                 measure = vis.get_attr_by_data_model("measure")[0]
                 vis._mark, auto_channel = line_or_bar_or_geo(
@@ -377,14 +379,14 @@ class Compiler:
         relevant_attributes = [
             auto_channel[channel].attribute for channel in auto_channel]
         relevant_min_max = dict(
-            (attr, ldf._min_max[attr])
+            (attr, ldf.lux._min_max[attr])
             for attr in relevant_attributes
-            if attr != "Record" and attr in ldf._min_max
+            if attr != "Record" and attr in ldf.lux._min_max
         )
         # Replace scatterplot with heatmap
-        if vis.mark == "scatter" and lux.config.heatmap and len(ldf) > lux.config._heatmap_start:
+        if vis.mark == "scatter" and CONFIG.heatmap and len(ldf) > CONFIG._heatmap_start:
             vis._postbin = True
-            ldf._message.add_unique(
+            ldf.lux._message.add_unique(
                 f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
                 priority=98,
             )
@@ -473,10 +475,11 @@ class Compiler:
         """
         import copy
         from lux.utils.utils import convert_to_list
+        from lux._config import CONFIG
 
-        inverted_data_type = lux.config.executor.invert_data_type(
-            ldf.data_type)
-        data_model = lux.config.executor.compute_data_model(ldf.data_type)
+        inverted_data_type = CONFIG.executor.invert_data_type(
+            ldf.lux.data_type)
+        data_model = CONFIG.executor.compute_data_model(ldf.lux.data_type)
 
         intent = {"attributes": [], "filters": []}
         for clause in _inferred_intent:
@@ -504,7 +507,7 @@ class Compiler:
                 for attr in attr_lst:
                     options = []
                     if clause.value == "?":
-                        options = ldf.unique_values[attr]
+                        options = ldf.lux.unique_values[attr]
                         specInd = _inferred_intent.index(clause)
                         _inferred_intent[specInd] = Clause(
                             attribute=clause.attribute,

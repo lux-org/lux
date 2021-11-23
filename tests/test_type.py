@@ -21,7 +21,7 @@ import warnings
 
 # Suite of test that checks if data_type inferred correctly by Lux
 def test_check_cars():
-    lux.config.set_SQL_connection("")
+    lux.CONFIG.set_SQL_connection("")
     df = pd.read_csv("lux/data/car.csv")
     df.maintain_metadata()
     assert df.data_type["Name"] == "nominal"
@@ -40,7 +40,7 @@ def test_check_int_id():
         "https://github.com/lux-org/lux-datasets/blob/master/data/instacart_sample.csv?raw=true"
     )
     df._ipython_display_()
-    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    inverted_data_type = lux.CONFIG.executor.invert_data_type(df.data_type)
     assert len(inverted_data_type["id"]) == 3
     assert (
         "<code>order_id</code>, <code>product_id</code>, <code>user_id</code> is not visualized since it resembles an ID field."
@@ -49,7 +49,8 @@ def test_check_int_id():
 
 
 def test_check_str_id():
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/churn.csv?raw=true")
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/churn.csv?raw=true")
     df._ipython_display_()
     assert (
         "<code>customerID</code> is not visualized since it resembles an ID field.</li>"
@@ -58,7 +59,8 @@ def test_check_str_id():
 
 
 def test_check_hpi():
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/hpi.csv?raw=true")
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/hpi.csv?raw=true")
     df.maintain_metadata()
 
     assert df.data_type == {
@@ -79,7 +81,8 @@ def test_check_hpi():
 
 
 def test_check_airbnb():
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/airbnb_nyc.csv?raw=true")
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/airbnb_nyc.csv?raw=true")
     df.maintain_metadata()
     assert df.data_type == {
         "id": "id",
@@ -159,7 +162,8 @@ def test_check_datetime_numeric_values():
 
 
 def test_check_stock():
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/stocks.csv?raw=true")
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/stocks.csv?raw=true")
     df.maintain_metadata()
     assert df.data_type == {
         "symbol": "nominal",
@@ -211,7 +215,7 @@ def test_float_categorical():
     ]
     df = pd.DataFrame(values)
     df.maintain_metadata()
-    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    inverted_data_type = lux.CONFIG.executor.invert_data_type(df.data_type)
     assert inverted_data_type["nominal"] == [
         "A",
         "B",
@@ -263,13 +267,15 @@ def test_id_with_label():
         "https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true"
     )
     df.maintain_metadata()
-    assert df.data_type == {"Date": "temporal", "State": "geographical", "Value": "quantitative"}
+    assert df.data_type == {"Date": "temporal",
+                            "State": "geographical", "Value": "quantitative"}
 
 
 def test_ID_random():
     """Tests whether a ID column not satisfying other properties of an ID gets recognized."""
     values = [
-        {"ID": random.randint(0, 1000), "A": 6.0, "B": 1.0, "C": 1.0, "D": 3.0, "E": 2.0, "F": 5.0}
+        {"ID": random.randint(0, 1000), "A": 6.0, "B": 1.0,
+         "C": 1.0, "D": 3.0, "E": 2.0, "F": 5.0}
         for x in range(1000)
     ]
     df = pd.DataFrame(values)
@@ -287,7 +293,8 @@ def test_ID_random():
 
 def test_ID():
     """Tests different ways of writing id"""
-    values = [{"ID": x, "A": 6.0, "B": 1.0, "C": 1.0, "D": 3.0, "E": 2.0, "F": 5.0} for x in range(1000)]
+    values = [{"ID": x, "A": 6.0, "B": 1.0, "C": 1.0,
+               "D": 3.0, "E": 2.0, "F": 5.0} for x in range(1000)]
     df = pd.DataFrame(values)
     df.maintain_metadata()
     assert df.data_type == {
@@ -305,7 +312,8 @@ def test_id_aug_test():
     """Tests in a different dataset
     Reference: https://www.kaggle.com/arashnic/hr-analytics-job-change-of-data-scientists
     """
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/aug_test.csv?raw=true")
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/aug_test.csv?raw=true")
     df.maintain_metadata()
     assert df.data_type == {
         "enrollee_id": "id",
@@ -328,7 +336,8 @@ def test_id_music_data():
     """Tests in a different dataset if a column not named as an ID is recognized as an identification.
     Reference: https://www.kaggle.com/yamaerenay/spotify-dataset-19212020-160k-tracks
     """
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/spotify.csv?raw=true")
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/spotify.csv?raw=true")
     df["unique_num"] = df["id"]
     df.drop(columns=["id"])
     df.maintain_metadata()
@@ -358,7 +367,8 @@ def test_id_music_data():
 
 def test_id_absenteeism_data():
     """ Tests whether an id named column is not recognized because even though it is named an id, it is not with its nature. """
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/absenteeism.csv?raw=true")
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/absenteeism.csv?raw=true")
     df.maintain_metadata()
     assert df.data_type == {
         "ID": "quantitative",

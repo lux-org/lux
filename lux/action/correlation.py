@@ -12,11 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import lux
 from lux.interestingness.interestingness import interestingness
 from lux.processor.Compiler import Compiler
-from lux.vis.VisList import VisList
 from lux.utils import utils
+from lux.vis.Clause import Clause
+from lux.vis.VisList import VisList
 
 
 # change ignore_transpose to false for now.
@@ -40,10 +40,10 @@ def correlation(ldf, ignore_transpose: bool = True):
 
     import numpy as np
 
-    filter_specs = utils.get_filter_specs(ldf._intent)
+    filter_specs = utils.get_filter_specs(ldf.lux._intent)
     intent = [
-        lux.Clause("?", data_model="measure"),
-        lux.Clause("?", data_model="measure"),
+        Clause("?", data_model="measure"),
+        Clause("?", data_model="measure"),
     ]
     intent.extend(filter_specs)
     vlist = VisList(intent, ldf)

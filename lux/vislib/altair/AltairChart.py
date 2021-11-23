@@ -54,7 +54,8 @@ class AltairChart:
             self.chart = self.chart.encode(tooltip=list(self.vis.data.columns))
 
     def apply_default_config(self):
-        self.chart = self.chart.configure_title(fontWeight=500, fontSize=13, font="Helvetica Neue")
+        self.chart = self.chart.configure_title(
+            fontWeight=500, fontSize=13, font="Helvetica Neue")
         self.chart = self.chart.configure_axis(
             titleFontWeight=500,
             titleFontSize=11,
@@ -72,7 +73,7 @@ class AltairChart:
             labelFontSize=9,
             labelFont="Helvetica Neue",
         )
-        plotting_scale = lux.config.plotting_scale
+        plotting_scale = lux.CONFIG.plotting_scale
         self.chart = self.chart.properties(
             width=self.width * plotting_scale, height=self.height * plotting_scale
         )
@@ -91,7 +92,8 @@ class AltairChart:
             color_attr_name = color_attr[0].attribute
             color_attr_type = color_attr[0].data_type
             if color_attr_type == "temporal":
-                timeUnit = compute_date_granularity(self.vis.data[color_attr_name])
+                timeUnit = compute_date_granularity(
+                    self.vis.data[color_attr_name])
                 self.chart = self.chart.encode(
                     color=alt.Color(
                         str(color_attr_name),

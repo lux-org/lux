@@ -53,10 +53,11 @@ class AltairRenderer:
         if vis.approx:
             if vis.mark == "scatter" and vis._postbin:
                 vis._mark = "heatmap"
-                lux.config.executor.execute_2D_binning(vis)
+                lux.CONFIG.executor.execute_2D_binning(vis)
             else:
                 # Exactly recompute the selected vis (e.g., top k) to display
-                lux.config.executor.execute([vis], vis._original_df, approx=False)
+                lux.CONFIG.executor.execute(
+                    [vis], vis._original_df, approx=False)
         # If a column has a Period dtype, or contains Period objects, convert it back to Datetime
         if vis.data is not None:
             for attr in list(vis.data.columns):
@@ -64,7 +65,8 @@ class AltairRenderer:
                     vis.data[attr].iloc[0], pd.Period
                 ):
                     dateColumn = vis.data[attr]
-                    vis.data[attr] = pd.PeriodIndex(dateColumn.values).to_timestamp()
+                    vis.data[attr] = pd.PeriodIndex(
+                        dateColumn.values).to_timestamp()
                 if pd.api.types.is_interval_dtype(vis.data.dtypes[attr]) or isinstance(
                     vis.data[attr].iloc[0], pd.Interval
                 ):
@@ -74,7 +76,8 @@ class AltairRenderer:
                         attr_clause = vis.get_attr_by_attr_name(attr)[0]
                         # Suppress special character ".", not displayable in Altair
                         # attr_clause.attribute = attr_clause.attribute.replace(".", "")
-                        vis._vis_data = vis.data.rename(columns={attr: attr.replace(".", "")})
+                        vis._vis_data = vis.data.rename(
+                            columns={attr: attr.replace(".", "")})
         if vis.mark == "histogram":
             chart = Histogram(vis)
         elif vis.mark == "bar":
@@ -91,10 +94,10 @@ class AltairRenderer:
             chart = None
 
         if chart:
-            if lux.config.plotting_style and (
-                lux.config.plotting_backend == "vegalite" or lux.config.plotting_backend == "altair"
+            if lux.CONFIG.plotting_style and (
+                lux.CONFIG.plotting_backend == "vegalite" or lux.CONFIG.plotting_backend == "altair"
             ):
-                chart.chart = lux.config.plotting_style(chart.chart)
+                chart.chart = lux.CONFIG.plotting_style(chart.chart)
             if self.output_type == "VegaLite":
                 chart_dict = chart.chart.to_dict()
                 # this is a bit of a work around because altair must take a pandas dataframe and we can only generate a luxDataFrame
@@ -106,9 +109,10 @@ class AltairRenderer:
             elif self.output_type == "Altair":
                 import inspect
 
-                if lux.config.plotting_style:
+                if lux.CONFIG.plotting_style:
                     chart.code += "\n".join(
-                        inspect.getsource(lux.config.plotting_style).split("\n    ")[1:-1]
+                        inspect.getsource(lux.CONFIG.plotting_style).split(
+                            "\n    ")[1:-1]
                     )
                 chart.code += "\nchart"
                 chart.code = chart.code.replace("\n\t\t", "\n")
@@ -144,5 +148,6 @@ class AltairRenderer:
                     )
                 else:
                     # TODO: Placeholder (need to read dynamically via locals())
-                    chart.code = chart.code.replace("placeholder_variable", found_variable)
+                    chart.code = chart.code.replace(
+                        "placeholder_variable", found_variable)
                 return chart.code

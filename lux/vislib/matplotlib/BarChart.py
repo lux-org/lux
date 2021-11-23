@@ -49,13 +49,15 @@ class BarChart(MatplotlibChart):
         # Deal with overlong string axes labels
         x_attr_abv = str(x_attr.attribute)
         y_attr_abv = str(y_attr.attribute)
-        label_len = lux.config.label_len
+        label_len = lux.CONFIG.label_len
         prefix_len = prefix_len = math.ceil(3.0 * label_len / 5.0)
         suffix_len = label_len - prefix_len
         if len(x_attr_abv) > label_len:
-            x_attr_abv = x_attr.attribute[:prefix_len] + "..." + x_attr.attribute[-suffix_len:]
+            x_attr_abv = x_attr.attribute[:prefix_len] + \
+                "..." + x_attr.attribute[-suffix_len:]
         if len(y_attr_abv) > label_len:
-            y_attr_abv = y_attr.attribute[:prefix_len] + "..." + y_attr.attribute[-suffix_len:]
+            y_attr_abv = y_attr.attribute[:prefix_len] + \
+                "..." + y_attr.attribute[-suffix_len:]
 
         if x_attr.data_model == "measure":
             agg_title = get_agg_title(x_attr)
@@ -66,7 +68,7 @@ class BarChart(MatplotlibChart):
             measure_attr = y_attr.attribute
             bar_attr = x_attr.attribute
 
-        k = lux.config.number_of_bars
+        k = lux.CONFIG.number_of_bars
         n_bars = len(self.data.iloc[:, 0].unique())
         if n_bars > k:  # Truncating to only top k
             remaining_bars = n_bars - k
@@ -122,7 +124,8 @@ class BarChart(MatplotlibChart):
             self.ax.barh(bar, df[measure_attr], align="center")
             plot_code += f"ax.barh({bar}, {df[measure_attr]}, align='center')\n"
 
-        y_ticks_abbev = df[bar_attr].apply(lambda x: str(x)[:10] + "..." if len(str(x)) > 10 else str(x))
+        y_ticks_abbev = df[bar_attr].apply(lambda x: str(
+            x)[:10] + "..." if len(str(x)) > 10 else str(x))
         self.ax.set_yticks(bars)
         self.ax.set_yticklabels(y_ticks_abbev)
 

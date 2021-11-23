@@ -2,15 +2,18 @@
 This config file was largely borrowed from Pandas config.py set_action functionality.
 For more resources, see https://github.com/pandas-dev/pandas/blob/master/pandas/_config
 """
+import os
+import warnings
 from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
-import lux
-import warnings
-from lux.utils.tracing_utils import LuxTracer
-import os
-from lux._config.template import postgres_template, mysql_template
 
-RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
+import lux
+from lux._config.template import mysql_template, postgres_template
+
+from lux.utils.tracing_utils import LuxTracer
+
+RegisteredOption = namedtuple(
+    "RegisteredOption", "name action display_condition args")
 
 
 class Config:
@@ -19,10 +22,12 @@ class Config:
     """
 
     def __init__(self):
+        from lux.executor.PandasExecutor import PandasExecutor
+
         self._default_display = "pandas"
         self.plotting_style = None
         self.SQLconnection = ""
-        self.executor = None
+        self.executor = PandasExecutor()
         # holds registered option metadata
         self.actions: Dict[str, RegisteredOption] = {}
         # flags whether or not an action has been registered or removed and should be re-rendered by frame.py
@@ -31,7 +36,8 @@ class Config:
         self._plotting_backend = "vegalite"
         self._plotting_scale = 1
         self._topk = 15
-        self._number_of_bars = 10  # max no of bars displayed (rest shown as "+ k more")
+        # max no of bars displayed (rest shown as "+ k more")
+        self._number_of_bars = 10
         self._label_len = 25  # max length of x and y axis labels
         self._sort = "descending"
         self._pandas_fallback = True

@@ -58,30 +58,34 @@ def test_rename_inplace(global_var):
 
     assert df.data_type["Name"] == new_df.data_type["Car Name"]
 
-    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
-    new_inverted_data_type = lux.config.executor.invert_data_type(new_df.data_type)
+    inverted_data_type = lux.CONFIG.executor.invert_data_type(df.data_type)
+    new_inverted_data_type = lux.CONFIG.executor.invert_data_type(
+        new_df.data_type)
 
     assert inverted_data_type != new_inverted_data_type
 
     assert inverted_data_type["nominal"][0] == "Name"
     assert new_inverted_data_type["nominal"][0] == "Car Name"
 
-    data_model_lookup = lux.config.executor.compute_data_model_lookup(df.data_type)
-    new_data_model_lookup = lux.config.executor.compute_data_model_lookup(new_df.data_type)
+    data_model_lookup = lux.CONFIG.executor.compute_data_model_lookup(
+        df.data_type)
+    new_data_model_lookup = lux.CONFIG.executor.compute_data_model_lookup(
+        new_df.data_type)
 
     assert data_model_lookup != new_data_model_lookup
 
     assert data_model_lookup["Name"] == new_data_model_lookup["Car Name"]
 
-    data_model = lux.config.executor.compute_data_model(df.data_type)
-    new_data_model = lux.config.executor.compute_data_model(new_df.data_type)
+    data_model = lux.CONFIG.executor.compute_data_model(df.data_type)
+    new_data_model = lux.CONFIG.executor.compute_data_model(new_df.data_type)
 
     assert data_model != new_data_model
 
     assert data_model["dimension"][0] == "Name"
     assert new_data_model["dimension"][0] == "Car Name"
 
-    assert list(df.unique_values.values()) == list(new_df.unique_values.values())
+    assert list(df.unique_values.values()) == list(
+        new_df.unique_values.values())
     assert list(df.cardinality.values()) == list(new_df.cardinality.values())
     assert df._min_max == new_df._min_max
     assert df.pre_aggregated == new_df.pre_aggregated
@@ -97,30 +101,34 @@ def test_rename(global_var):
 
     assert df.data_type["Name"] == new_df.data_type["Car Name"]
 
-    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
-    new_inverted_data_type = lux.config.executor.invert_data_type(new_df.data_type)
+    inverted_data_type = lux.CONFIG.executor.invert_data_type(df.data_type)
+    new_inverted_data_type = lux.CONFIG.executor.invert_data_type(
+        new_df.data_type)
 
     assert inverted_data_type != new_inverted_data_type
 
     assert inverted_data_type["nominal"][0] == "Name"
     assert new_inverted_data_type["nominal"][0] == "Car Name"
 
-    data_model_lookup = lux.config.executor.compute_data_model_lookup(df.data_type)
-    new_data_model_lookup = lux.config.executor.compute_data_model_lookup(new_df.data_type)
+    data_model_lookup = lux.CONFIG.executor.compute_data_model_lookup(
+        df.data_type)
+    new_data_model_lookup = lux.CONFIG.executor.compute_data_model_lookup(
+        new_df.data_type)
 
     assert data_model_lookup != new_data_model_lookup
 
     assert data_model_lookup["Name"] == new_data_model_lookup["Car Name"]
 
-    data_model = lux.config.executor.compute_data_model(df.data_type)
-    new_data_model = lux.config.executor.compute_data_model(new_df.data_type)
+    data_model = lux.CONFIG.executor.compute_data_model(df.data_type)
+    new_data_model = lux.CONFIG.executor.compute_data_model(new_df.data_type)
 
     assert data_model != new_data_model
 
     assert data_model["dimension"][0] == "Name"
     assert new_data_model["dimension"][0] == "Car Name"
 
-    assert list(df.unique_values.values()) == list(new_df.unique_values.values())
+    assert list(df.unique_values.values()) == list(
+        new_df.unique_values.values())
     assert list(df.cardinality.values()) == list(new_df.cardinality.values())
     assert df._min_max == new_df._min_max
     assert df.pre_aggregated == new_df.pre_aggregated
@@ -157,7 +165,8 @@ def test_concat(global_var):
 
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
-    new_df = pd.concat([df.loc[:, "Name":"Cylinders"], df.loc[:, "Year":"Origin"]], axis="columns")
+    new_df = pd.concat([df.loc[:, "Name":"Cylinders"],
+                       df.loc[:, "Year":"Origin"]], axis="columns")
     new_df._ipython_display_()
     assert list(new_df.recommendation.keys()) == [
         "Distribution",
@@ -211,7 +220,8 @@ def test_qcut(global_var):
 
 def test_cut(global_var):
     df = pd.read_csv("lux/data/car.csv")
-    df["Weight"] = pd.cut(df["Weight"], bins=[0, 2500, 7500, 10000], labels=["small", "medium", "large"])
+    df["Weight"] = pd.cut(df["Weight"], bins=[0, 2500, 7500, 10000], labels=[
+                          "small", "medium", "large"])
     df._ipython_display_()
 
 
@@ -425,11 +435,13 @@ def test_loc(global_var):
     assert len(new_df.cardinality) == 6
     new_df = df.loc[0:10, "Displacement":"Horsepower"]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution"]
+    assert list(new_df.recommendation.keys()) == [
+        "Correlation", "Distribution"]
     assert len(new_df.cardinality) == 2
     import numpy as np
 
-    inter_df = df.groupby("Brand")[["Acceleration", "Weight", "Horsepower"]].agg(np.mean)
+    inter_df = df.groupby(
+        "Brand")[["Acceleration", "Weight", "Horsepower"]].agg(np.mean)
     new_df = inter_df.loc["chevrolet":"fiat", "Acceleration":"Weight"]
     new_df._ipython_display_()
     assert list(new_df.recommendation.keys()) == ["Column Groups"]
@@ -459,11 +471,13 @@ def test_iloc(global_var):
     assert len(new_df.cardinality) == 6
     new_df = df.iloc[0:11, 3:5]
     new_df._ipython_display_()
-    assert list(new_df.recommendation.keys()) == ["Correlation", "Distribution"]
+    assert list(new_df.recommendation.keys()) == [
+        "Correlation", "Distribution"]
     assert len(new_df.cardinality) == 2
     import numpy as np
 
-    inter_df = df.groupby("Brand")[["Acceleration", "Weight", "Horsepower"]].agg(np.mean)
+    inter_df = df.groupby(
+        "Brand")[["Acceleration", "Weight", "Horsepower"]].agg(np.mean)
     new_df = inter_df.iloc[5:10, 0:2]
     new_df._ipython_display_()
     assert list(new_df.recommendation.keys()) == ["Column Groups"]
@@ -604,7 +618,8 @@ def test_df_to_series(global_var):
     df._ipython_display_()  # compute metadata
     assert df.cardinality is not None
     series = df["Weight"]
-    assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
+    assert isinstance(
+        series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
     df["Weight"]._metadata
     assert (
         df["Weight"]._metadata == pytest.metadata
@@ -632,7 +647,8 @@ def test_str_replace(global_var):
     df._ipython_display_()  # compute metadata
     assert df.cardinality is not None
     series = df["Brand"].str.replace("chevrolet", "chevy")
-    assert isinstance(series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
+    assert isinstance(
+        series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
     assert (
         df["Brand"]._metadata == pytest.metadata
     ), "Metadata is lost when going from Dataframe to Series."
@@ -662,7 +678,8 @@ def test_read_sas(global_var):
     url = "https://github.com/lux-org/lux-datasets/blob/master/data/airline.sas7bdat?raw=true"
     df = pd.read_sas(url, format="sas7bdat")
     df._ipython_display_()
-    assert list(df.recommendation.keys()) == ["Correlation", "Distribution", "Temporal"]
+    assert list(df.recommendation.keys()) == [
+        "Correlation", "Distribution", "Temporal"]
     assert len(df.data_type) == 6
 
 
@@ -671,4 +688,5 @@ def test_read_multi_dtype(global_var):
     df = pd.read_excel(url)
     with pytest.warns(UserWarning, match="mixed type") as w:
         df._ipython_display_()
-        assert "df['Car Type'] = df['Car Type'].astype(str)" in str(w[-1].message)
+        assert "df['Car Type'] = df['Car Type'].astype(str)" in str(
+            w[-1].message)

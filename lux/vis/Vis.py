@@ -26,9 +26,11 @@ class Vis:
 
     def __init__(self, intent, source=None, title="", score=0.0):
         self._intent = intent  # user's original intent to Vis
-        self._inferred_intent = intent  # re-written, expanded version of user's original intent
+        # re-written, expanded version of user's original intent
+        self._inferred_intent = intent
         self._source = source  # original data attached to the Vis
-        self._vis_data = None  # processed data for Vis (e.g., selected, aggregated, binned)
+        # processed data for Vis (e.g., selected, aggregated, binned)
+        self._vis_data = None
         self._code = None
         self._mark = ""
         self._min_max = {}
@@ -40,7 +42,8 @@ class Vis:
         self.refresh_source(self._source)
 
     def __repr__(self):
-        all_clause = all([isinstance(unit, lux.Clause) for unit in self._inferred_intent])
+        all_clause = all([isinstance(unit, Clause)
+                         for unit in self._inferred_intent])
         if all_clause:
             filter_intents = None
             channels, additional_channels = [], []
@@ -62,7 +65,8 @@ class Vis:
                         elif clause.channel == "y":
                             channels.insert(1, [clause.channel, attribute])
                         elif clause.channel != "":
-                            additional_channels.append([clause.channel, attribute])
+                            additional_channels.append(
+                                [clause.channel, attribute])
 
             channels.extend(additional_channels)
             str_channels = ""
@@ -131,7 +135,7 @@ class Vis:
                 recommendations=[],
                 intent="",
                 message="",
-                config={"plottingScale": lux.config.plotting_scale},
+                config={"plottingScale": lux.CONFIG.plotting_scale},
             )
             display(widget)
 
@@ -141,7 +145,8 @@ class Vis:
     def get_attr_by_channel(self, channel):
         spec_obj = list(
             filter(
-                lambda x: x.channel == channel and x.value == "" if hasattr(x, "channel") else False,
+                lambda x: x.channel == channel and x.value == "" if hasattr(
+                    x, "channel") else False,
                 self._inferred_intent,
             )
         )
@@ -170,13 +175,15 @@ class Vis:
     def get_attr_by_data_type(self, dtype):
         return list(
             filter(
-                lambda x: x.data_type == dtype and x.value == "" if hasattr(x, "data_type") else False,
+                lambda x: x.data_type == dtype and x.value == "" if hasattr(
+                    x, "data_type") else False,
                 self._inferred_intent,
             )
         )
 
     def remove_filter_from_spec(self, value):
-        new_intent = list(filter(lambda x: x.value != value, self._inferred_intent))
+        new_intent = list(filter(lambda x: x.value !=
+                          value, self._inferred_intent))
         self.set_intent(new_intent)
 
     def remove_column_from_spec(self, attribute, remove_first: bool = False):
@@ -191,14 +198,16 @@ class Vis:
                 Boolean flag to determine whether to remove all instances of the attribute or only one (first) instance, by default False
         """
         if not remove_first:
-            new_inferred = list(filter(lambda x: x.attribute != attribute, self._inferred_intent))
+            new_inferred = list(
+                filter(lambda x: x.attribute != attribute, self._inferred_intent))
             self._inferred_intent = new_inferred
             self._intent = new_inferred
         elif remove_first:
             new_inferred = []
             skip_check = False
             for i in range(0, len(self._inferred_intent)):
-                if self._inferred_intent[i].value == "":  # clause is type attribute
+                # clause is type attribute
+                if self._inferred_intent[i].value == "":
                     column_spec = []
                     column_names = self._inferred_intent[i].attribute
                     # if only one variable in a column, columnName results in a string and not a list so
@@ -239,7 +248,7 @@ class Vis:
         renderer = AltairRenderer(output_type="Altair")
         self._code = renderer.create_vis(self, standalone)
 
-        if lux.config.executor.name == "PandasExecutor":
+        if lux.CONFIG.executor.name == "PandasExecutor":
             function_code = "def plot_data(source_df, vis):\n"
             function_code += "\timport altair as alt\n"
             function_code += "\tvisData = create_chart_data(source_df, vis)\n"
@@ -252,14 +261,17 @@ class Vis:
         for i in range(2, len(vis_code_lines) - 1):
             function_code += "\t" + vis_code_lines[i] + "\n"
         function_code += "\treturn chart\n#plot_data(your_df, vis) this creates an Altair plot using your source data and vis specification"
-        function_code = function_code.replace("alt.Chart(tbl)", "alt.Chart(visData)")
+        function_code = function_code.replace(
+            "alt.Chart(tbl)", "alt.Chart(visData)")
 
         if "mark_circle" in function_code:
-            function_code = function_code.replace("plot_data", "plot_scatterplot")
+            function_code = function_code.replace(
+                "plot_data", "plot_scatterplot")
         elif "mark_bar" in function_code:
             function_code = function_code.replace("plot_data", "plot_barchart")
         elif "mark_line" in function_code:
-            function_code = function_code.replace("plot_data", "plot_linechart")
+            function_code = function_code.replace(
+                "plot_data", "plot_linechart")
         elif "mark_rect" in function_code:
             function_code = function_code.replace("plot_data", "plot_heatmap")
         return function_code
@@ -339,11 +351,13 @@ class Vis:
         elif language == "matplotlib_svg":
             return self._to_matplotlib_svg()
         elif language == "python":
-            lux.config.tracer.start_tracing()
-            lux.config.executor.execute(lux.vis.VisList.VisList(input_lst=[self]), self._source)
-            lux.config.tracer.stop_tracing()
-            self._trace_code = lux.config.tracer.process_executor_code(lux.config.tracer_relevant_lines)
-            lux.config.tracer_relevant_lines = []
+            lux.CONFIG.tracer.start_tracing()
+            lux.CONFIG.executor.execute(
+                lux.vis.VisList.VisList(input_lst=[self]), self._source)
+            lux.CONFIG.tracer.stop_tracing()
+            self._trace_code = lux.CONFIG.tracer.process_executor_code(
+                lux.CONFIG.tracer_relevant_lines)
+            lux.CONFIG.tracer_relevant_lines = []
             return self._trace_code
         elif language == "SQL":
             if self._query:
@@ -395,7 +409,7 @@ class Vis:
             Validator.validate_intent(self._inferred_intent, ldf)
 
             Compiler.compile_vis(ldf, self)
-            lux.config.executor.execute([self], ldf)
+            lux.CONFIG.executor.execute([self], ldf)
 
     def check_not_vislist_intent(self):
 

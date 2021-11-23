@@ -56,12 +56,11 @@ def test_temporal_action(global_var):
     test_data_vis_count = [4, 4, 2, 1, 1]
     for entry in zip(test_data, test_data_vis_count):
         df, num_vis = entry[0], entry[1]
-        df._repr_html_()
-        assert ("Temporal" in df.lux.recommendation,
-                "Temporal visualizations should be generated.")
+        df._ipython_display_()
+        assert "Temporal" in df.lux.recommendation, "Temporal visualizations should be generated."
         recommended = df.recommendation["Temporal"]
-        assert (len(recommended) == num_vis,
-                "Incorrect number of temporal visualizations generated.")
+        assert len(
+            recommended) == num_vis, "Incorrect number of temporal visualizations generated."
         temporal_col = [c for c in df.columns if df.data_type[c] == "temporal"]
         overall_vis = [
             vis.get_attr_by_channel("x")[0].attribute
@@ -72,7 +71,7 @@ def test_temporal_action(global_var):
 
 
 def test_vary_filter_val(global_var):
-    lux.config.set_executor_type("Pandas")
+    lux.CONFIG.set_executor_type("Pandas")
     df = pytest.olympic
     vis = Vis(["Height", "SportType=Ball"], df)
     df.set_intent_as_vis(vis)
@@ -260,7 +259,7 @@ def test_year_filter_value(global_var):
 
 
 def test_similarity(global_var):
-    lux.config.early_pruning = False
+    lux.CONFIG.early_pruning = False
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     df.set_intent(
@@ -290,7 +289,7 @@ def test_similarity(global_var):
     )[0]
     assert japan_vis.score > europe_vis.score
     df.clear_intent()
-    lux.config.early_pruning = True
+    lux.CONFIG.early_pruning = True
 
 
 def test_similarity2():
@@ -351,3 +350,7 @@ def test_metadata_propogate_invalid_intent():
     assert new_df._inferred_intent == [], "Invalid inferred intent is cleared"
     new_df._ipython_display_()
     assert new_df.current_vis == []
+
+
+if __name__ == "__main__":
+    test_temporal_action(None)

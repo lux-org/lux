@@ -15,6 +15,13 @@
 from typing import List, Union, Callable, Dict
 from lux.history.event import Event
 
+# TODO: History can be simplified to:
+#
+# class History(List[Event]):
+#     ...
+#
+# and implement only append_event and copy
+
 
 class History:
     """

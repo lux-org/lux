@@ -44,7 +44,7 @@ class LuxTracer:
                             x in f"{frame.f_code.co_filename}--{func_name}--{line_no}"
                             for x in includeFunc
                         ):
-                            lux.config.tracer_relevant_lines.append(
+                            lux.CONFIG.tracer_relevant_lines.append(
                                 [frame.f_code.co_filename, func_name, line_no]
                             )
                             # print(f"{frame.f_code.co_filename}--{func_name}--{line_no}")
@@ -81,7 +81,8 @@ class LuxTracer:
             funcname = line[1]
             line_no = line[2] - 1
 
-            codelines = open(filename).readlines()  # TODO: do sharing of file content here
+            # TODO: do sharing of file content here
+            codelines = open(filename).readlines()
             if funcname not in ["__init__"]:
                 code = codelines[line_no]
                 ignore_construct = [
@@ -107,7 +108,8 @@ class LuxTracer:
                     "execute_binning",
                     "execute_2D_binning",
                 ]  # Lux-specific keywords to ignore
-                whitelist = ['if clause.attribute != "Record":', "bin_attribute ="]
+                whitelist = [
+                    'if clause.attribute != "Record":', "bin_attribute ="]
                 ignore = ignore_construct + ignore_lux_keyword
                 if not any(construct in code for construct in ignore) or any(
                     construct in code for construct in whitelist
@@ -122,7 +124,8 @@ class LuxTracer:
                             selected[clean_code_line] = index
                             selected_index[index] = clean_code_line.lstrip()
                         else:
-                            leading_spaces = len(code_line) - len(code_line.lstrip())
+                            leading_spaces = len(
+                                code_line) - len(code_line.lstrip())
                             num_tabs = math.ceil(leading_spaces / 8)
                             clean_code_line = "\t" * num_tabs + code_line.lstrip()
                             if clean_code_line.lstrip() not in selected:
@@ -130,7 +133,7 @@ class LuxTracer:
                                 selected[clean_code_line.lstrip()] = index
                         index += 1
 
-        curr_executor = lux.config.executor.name
+        curr_executor = lux.CONFIG.executor.name
         if curr_executor != "PandasExecutor":
             import_code = "from lux.utils import utils\nfrom lux.executor.SQLExecutor import SQLExecutor\nimport pandas\nimport math\n"
             var_init_code = "tbl = 'insert your LuxSQLTable variable here'\nview = 'insert the name of your Vis object here'\n"

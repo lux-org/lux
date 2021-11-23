@@ -35,17 +35,17 @@ def add_filter(ldf):
     recommendations : Dict[str,obj]
             object with a collection of visualizations that result from the Filter action.
     """
-    filters = utils.get_filter_specs(ldf._intent)
+    filters = utils.get_filter_specs(ldf.lux._intent)
     filter_values = []
     output = []
     # if fltr is specified, create visualizations where data is filtered by all values of the fltr's categorical variable
-    column_spec = utils.get_attrs_specs(ldf._intent)
+    column_spec = utils.get_attrs_specs(ldf.lux._intent)
     column_spec_attr = list(map(lambda x: x.attribute, column_spec))
     if len(filters) == 1:
         # get unique values for all categorical values specified and creates corresponding filters
         fltr = filters[0]
 
-        if ldf.data_type[fltr.attribute] == "nominal":
+        if ldf.lux.data_type[fltr.attribute] == "nominal":
             recommendation = {
                 "action": "Filter",
                 "description": f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative value.",
@@ -57,11 +57,12 @@ def add_filter(ldf):
             for val in unique_values:
                 if val not in filter_values:
                     new_spec = column_spec.copy()
-                    new_filter = lux.Clause(attribute=fltr.attribute, value=val)
+                    new_filter = lux.Clause(
+                        attribute=fltr.attribute, value=val)
                     new_spec.append(new_filter)
                     temp_vis = Vis(new_spec)
                     output.append(temp_vis)
-        elif ldf.data_type[fltr.attribute] == "quantitative":
+        elif ldf.lux.data_type[fltr.attribute] == "quantitative":
             recommendation = {
                 "action": "Filter",
                 "description": f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative inequality operation.",
@@ -94,7 +95,7 @@ def add_filter(ldf):
         intended_attrs = ", ".join(
             [
                 str(clause.attribute)
-                for clause in ldf._intent
+                for clause in ldf.lux._intent
                 if clause.value == "" and clause.attribute != "Record"
             ]
         )
@@ -106,20 +107,21 @@ def add_filter(ldf):
         categorical_vars = []
         for col in list(ldf.columns):
             # if cardinality is not too high, and attribute is not one of the X,Y (specified) column
-            if 1 < ldf.cardinality[col] < 30 and col not in column_spec_attr:
+            if 1 < ldf.lux.cardinality[col] < 30 and col not in column_spec_attr:
                 categorical_vars.append(col)
         for cat in categorical_vars:
             unique_values = ldf.unique_values[cat]
             for val in unique_values:
                 new_spec = column_spec.copy()
-                new_filter = lux.Clause(attribute=cat, filter_op="=", value=val)
+                new_filter = lux.Clause(
+                    attribute=cat, filter_op="=", value=val)
                 new_spec.append(new_filter)
                 temp_vis = Vis(new_spec)
                 output.append(temp_vis)
     if (
-        ldf.current_vis is not None
-        and len(ldf.current_vis) == 1
-        and ldf.current_vis[0].mark == "line"
+        ldf.lux.current_vis is not None
+        and len(ldf.lux.current_vis) == 1
+        and ldf.lux.current_vis[0].mark == "line"
         and len(get_filter_specs(ldf.intent)) > 0
     ):
         recommendation = {

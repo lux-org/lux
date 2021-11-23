@@ -12,13 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from lux.utils.utils import get_agg_title
 from lux.vislib.altair.AltairChart import AltairChart
 import altair as alt
 import lux
 import math
 
 alt.data_transformers.disable_max_rows()
-from lux.utils.utils import get_agg_title
 
 
 class BarChart(AltairChart):
@@ -45,13 +45,15 @@ class BarChart(AltairChart):
         # Deal with overlong string axes labels
         x_attr_abv = str(x_attr.attribute)
         y_attr_abv = str(y_attr.attribute)
-        label_len = lux.config.label_len
+        label_len = lux.CONFIG.label_len
         prefix_len = math.ceil(3.0 * label_len / 5.0)
         suffix_len = label_len - prefix_len
         if len(x_attr_abv) > label_len:
-            x_attr_abv = x_attr.attribute[:prefix_len] + "..." + x_attr.attribute[-suffix_len:]
+            x_attr_abv = x_attr.attribute[:prefix_len] + \
+                "..." + x_attr.attribute[-suffix_len:]
         if len(y_attr_abv) > label_len:
-            y_attr_abv = y_attr.attribute[:prefix_len] + "..." + y_attr.attribute[-suffix_len:]
+            y_attr_abv = y_attr.attribute[:prefix_len] + \
+                "..." + y_attr.attribute[-suffix_len:]
 
         if isinstance(x_attr.attribute, str):
             x_attr.attribute = x_attr.attribute.replace(".", "")
@@ -106,10 +108,10 @@ class BarChart(AltairChart):
                 x_attr_field.sort = "-y"
                 x_attr_field_code = f"alt.X('{x_attr.attribute}', type= '{x_attr.data_type}', axis=alt.Axis(labelOverlap=True, title='{x_attr_abv}'),sort='-y')"
 
-        k = lux.config.number_of_bars
+        k = lux.CONFIG.number_of_bars
         self._topkcode = ""
         n_bars = len(self.data.iloc[:, 0].unique())
-        plotting_scale = lux.config.plotting_scale
+        plotting_scale = lux.CONFIG.plotting_scale
 
         if n_bars > k:  # Truncating to only top k
             remaining_bars = n_bars - k
@@ -134,7 +136,8 @@ class BarChart(AltairChart):
 		)
 		chart = chart + text\n"""
         self.data = AltairChart.sanitize_dataframe(self.data)
-        chart = alt.Chart(self.data).mark_bar().encode(y=y_attr_field, x=x_attr_field)
+        chart = alt.Chart(self.data).mark_bar().encode(
+            y=y_attr_field, x=x_attr_field)
 
         # TODO: tooltip messes up the count() bar charts
         # Can not do interactive whenever you have default count measure otherwise output strange error (Javascript Error: Cannot read property 'length' of undefined)
@@ -160,5 +163,6 @@ class BarChart(AltairChart):
         AltairChart.encode_color(self)
         self.add_text()
         # Setting tooltip as non-null
-        self.chart = self.chart.configure_mark(tooltip=alt.TooltipContent("encoding"))
+        self.chart = self.chart.configure_mark(
+            tooltip=alt.TooltipContent("encoding"))
         self.code += f"""chart = chart.configure_mark(tooltip=alt.TooltipContent('encoding'))"""

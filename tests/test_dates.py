@@ -50,10 +50,11 @@ def test_period_selection(global_var):
         ]
     )
 
-    lux.config.executor.execute(ldf.current_vis, ldf)
+    lux.CONFIG.executor.execute(ldf.lux.current_vis, ldf)
 
-    assert all([type(vlist.data) == lux.core.frame.LuxDataFrame for vlist in ldf.current_vis])
-    assert all(ldf.current_vis[2].data.columns == ["Year", "Acceleration"])
+    assert all(
+        [type(vlist.data) == lux.core.frame.LuxDataFrame for vlist in ldf.lux.current_vis])
+    assert all(ldf.lux.current_vis[2].data.columns == ["Year", "Acceleration"])
 
 
 def test_period_filter(global_var):
@@ -64,7 +65,7 @@ def test_period_filter(global_var):
     from lux.vis.Vis import Vis
 
     vis = Vis(["Acceleration", "Horsepower", "Year=1972"], ldf)
-    assert ldf.data_type["Year"] == "temporal"
+    assert ldf.lux.data_type["Year"] == "temporal"
     assert isinstance(vis._inferred_intent[2].value, str)
 
 
@@ -97,7 +98,7 @@ def test_refresh_inplace():
 
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     df.maintain_metadata()
-    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    inverted_data_type = lux.CONFIG.executor.invert_data_type(df.data_type)
     assert inverted_data_type["temporal"][0] == "date"
 
     vis.refresh_source(df)

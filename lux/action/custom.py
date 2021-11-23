@@ -13,10 +13,8 @@
 #  limitations under the License.
 
 from lux.interestingness.interestingness import interestingness
-import lux
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.executor.SQLExecutor import SQLExecutor
-import lux
 
 
 def custom(ldf):
@@ -33,16 +31,18 @@ def custom(ldf):
     recommendations : Dict[str,obj]
         object with a collection of visualizations that result from the Distribution action.
     """
+    from lux._config import CONFIG
+
     recommendation = {
         "action": "Current Vis",
         "description": "Shows the list of visualizations generated based on user specified intent",
         "long_description": "Shows the list of visualizations generated based on user specified intent",
     }
 
-    recommendation["collection"] = ldf.current_vis
+    recommendation["collection"] = ldf.lux.current_vis
 
-    vlist = ldf.current_vis
-    lux.config.executor.execute(vlist, ldf)
+    vlist = ldf.lux.current_vis
+    CONFIG.executor.execute(vlist, ldf)
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
     # ldf.clear_intent()
@@ -64,16 +64,20 @@ def custom_actions(ldf):
     recommendations : Dict[str,obj]
         object with a collection of visualizations that were previously registered.
     """
-    if len(lux.config.actions) > 0 and (len(ldf) > 0 or lux.config.executor.name != "PandasExecutor"):
+    from lux._config import CONFIG
+
+    if len(CONFIG.actions) > 0 and (len(ldf) > 0 or CONFIG.executor.name != "PandasExecutor"):
         recommendations = []
-        for action_name in lux.config.actions.keys():
-            display_condition = lux.config.actions[action_name].display_condition
+        for action_name in CONFIG.actions.keys():
+            display_condition = CONFIG.actions[action_name].display_condition
             if display_condition is None or (display_condition is not None and display_condition(ldf)):
-                args = lux.config.actions[action_name].args
+                args = CONFIG.actions[action_name].args
                 if args:
-                    recommendation = lux.config.actions[action_name].action(ldf, args)
+                    recommendation = CONFIG.actions[action_name].action(
+                        ldf, args)
                 else:
-                    recommendation = lux.config.actions[action_name].action(ldf)
+                    recommendation = CONFIG.actions[action_name].action(
+                        ldf)
                 recommendations.append(recommendation)
         return recommendations
     else:

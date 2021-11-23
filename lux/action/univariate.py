@@ -16,6 +16,7 @@ from lux.interestingness.interestingness import interestingness
 from lux.vis.VisList import VisList
 import lux
 from lux.utils import utils
+from lux.vis.Clause import Clause
 
 
 def univariate(ldf, *args):
@@ -42,13 +43,13 @@ def univariate(ldf, *args):
     else:
         data_type_constraint = args[0][0]
 
-    filter_specs = utils.get_filter_specs(ldf._intent)
+    filter_specs = utils.get_filter_specs(ldf.lux._intent)
     ignore_rec_flag = False
     if data_type_constraint == "quantitative":
         possible_attributes = [
-            c for c in ldf.columns if ldf.data_type[c] == "quantitative" and c != "Number of Records"
+            c for c in ldf.columns if ldf.lux.data_type[c] == "quantitative" and c != "Number of Records"
         ]
-        intent = [lux.Clause(possible_attributes)]
+        intent = [Clause(possible_attributes)]
         intent.extend(filter_specs)
         examples = ""
         if len(possible_attributes) >= 1:
@@ -63,12 +64,12 @@ def univariate(ldf, *args):
             ignore_rec_flag = True
     elif data_type_constraint == "nominal":
         possible_attributes = [
-            c for c in ldf.columns if ldf.data_type[c] == "nominal" and c != "Number of Records"
+            c for c in ldf.columns if ldf.lux.data_type[c] == "nominal" and c != "Number of Records"
         ]
         examples = ""
         if len(possible_attributes) >= 1:
             examples = f" (e.g., {possible_attributes[0]})"
-        intent = [lux.Clause(possible_attributes)]
+        intent = [Clause(possible_attributes)]
         intent.extend(filter_specs)
         recommendation = {
             "action": "Occurrence",
@@ -77,12 +78,13 @@ def univariate(ldf, *args):
         }
     elif data_type_constraint == "geographical":
         possible_attributes = [
-            c for c in ldf.columns if ldf.data_type[c] == "geographical" and c != "Number of Records"
+            c for c in ldf.columns if ldf.lux.data_type[c] == "geographical" and c != "Number of Records"
         ]
         examples = ""
         if len(possible_attributes) >= 1:
             examples = f" (e.g., {possible_attributes[0]})"
-        intent = [lux.Clause("?", data_type="geographical"), lux.Clause("?", data_model="measure")]
+        intent = [Clause("?", data_type="geographical"),
+                  Clause("?", data_model="measure")]
         intent.extend(filter_specs)
         recommendation = {
             "action": "Geographical",

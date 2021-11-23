@@ -15,4 +15,3 @@
 # from .frame import LuxDataFrame
 from .groupby import LuxDataFrameGroupBy, LuxSeriesGroupBy
 from .series import LuxSeries
-from . import frame

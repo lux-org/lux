@@ -37,7 +37,8 @@ def test_scatter_code_export(global_var):
 def test_color_scatter_code_export(global_var):
     df = pytest.car_df
 
-    vis = Vis([lux.Clause("Horsepower"), lux.Clause("Acceleration"), lux.Clause("Origin")], df)
+    vis = Vis([lux.Clause("Horsepower"), lux.Clause(
+        "Acceleration"), lux.Clause("Origin")], df)
     PandasExecutor.execute([vis], df)
     code = vis.to_code("python")
     try:
@@ -87,8 +88,9 @@ def test_color_barchart_code_export(global_var):
 
 
 def test_heatmap_code_export(global_var):
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
-    lux.config._heatmap_start = 100
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    lux.CONFIG._heatmap_start = 100
 
     vis = Vis(["price", "longitude"], df)
     PandasExecutor.execute([vis], df)
@@ -100,4 +102,4 @@ def test_heatmap_code_export(global_var):
     except:
         assert False
 
-    lux.config._heatmap_start = 5000
+    lux.CONFIG._heatmap_start = 5000
