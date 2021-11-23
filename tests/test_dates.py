@@ -52,7 +52,8 @@ def test_period_selection(global_var):
 
     lux.config.executor.execute(ldf.current_vis, ldf)
 
-    assert all([type(vlist.data) == lux.core.frame.LuxDataFrame for vlist in ldf.current_vis])
+    assert all(
+        [type(vlist.data) == lux.core.frame.LuxDataFrame for vlist in ldf.current_vis])
     assert all(ldf.current_vis[2].data.columns == ["Year", "Acceleration"])
 
 
@@ -64,7 +65,7 @@ def test_period_filter(global_var):
     from lux.vis.Vis import Vis
 
     vis = Vis(["Acceleration", "Horsepower", "Year=1972"], ldf)
-    assert ldf.data_type["Year"] == "temporal"
+    assert ldf.lux.data_type["Year"] == "temporal"
     assert isinstance(vis._inferred_intent[2].value, str)
 
 

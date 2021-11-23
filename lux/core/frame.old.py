@@ -12,9 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-
 import pandas as pd
-import typing as tp
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
@@ -22,9 +20,8 @@ from lux.vis.VisList import VisList
 from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
-from lux.utils.utils import check_import_lux_widget, patch
+from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
-from lux.core.lux_methods import LuxMethods
 
 # from lux.executor.Executor import *
 import warnings
@@ -33,25 +30,34 @@ import lux
 
 
 class LuxDataFrame(pd.DataFrame):
-    _metadata: tp.List[str]
-    _LUX_: "LuxDataFrameMethods"
+    """
+    A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
+    """
 
-    @property
-    def lux(self) -> "LuxDataFrameMethods":
-        ...
+    # MUST register here for new properties!!
+    _metadata = [
+        "_intent",
+        "_inferred_intent",
+        "_data_type",
+        "unique_values",
+        "cardinality",
+        "_rec_info",
+        "_min_max",
+        "_current_vis",
+        "_widget",
+        "_recommendation",
+        "_prev",
+        "_history",
+        "_saved_export",
+        "_sampled",
+        "_toggle_pandas_display",
+        "_message",
+        "_pandas_only",
+        "pre_aggregated",
+        "_type_override",
+    ]
 
-
-# ------------------------------------------------------------------------------
-# Override Pandas
-# ------------------------------------------------------------------------------
-
-
-class LuxDataFrameMethods(LuxMethods):
-    df: LuxDataFrame
-
-    def __init__(self, df):
-        self.df = df
-
+    def __init__(self, *args, **kw):
         self._history = History()
         self._intent = []
         self._inferred_intent = []
@@ -60,6 +66,7 @@ class LuxDataFrameMethods(LuxMethods):
         self._current_vis = []
         self._prev = None
         self._widget = None
+        super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.table_name = ""
         if lux.config.SQLconnection == "":
@@ -86,6 +93,20 @@ class LuxDataFrameMethods(LuxMethods):
         warnings.formatwarning = lux.warning_format
 
     @property
+    def _constructor(self):
+        return LuxDataFrame
+
+    @property
+    def _constructor_sliced(self):
+        def f(*args, **kwargs):
+            s = LuxSeries(*args, **kwargs)
+            for attr in self._metadata:  # propagate metadata
+                s.__dict__[attr] = getattr(self, attr, None)
+            return s
+
+        return f
+
+    @property
     def history(self):
         return self._history
 
@@ -101,8 +122,8 @@ class LuxDataFrameMethods(LuxMethods):
         """
         if len(self.df) > 0:
             if lux.config.executor.name != "SQLExecutor":
-                lux.config.executor.compute_stats(self.df)
-            lux.config.executor.compute_dataset_metadata(self.df)
+                lux.config.executor.compute_stats(self)
+            lux.config.executor.compute_dataset_metadata(self)
             self._infer_structure()
             self._metadata_fresh = True
 
@@ -149,18 +170,42 @@ class LuxDataFrameMethods(LuxMethods):
             self._min_max = None
             self.pre_aggregated = None
 
+    #####################
+    ## Override Pandas ##
+    #####################
+    def __getattr__(self, name):
+        ret_value = super(LuxDataFrame, self).__getattr__(name)
+        self.expire_metadata()
+        self.expire_recs()
+        return ret_value
+
+    def _set_axis(self, axis, labels):
+        super(LuxDataFrame, self)._set_axis(axis, labels)
+        self.expire_metadata()
+        self.expire_recs()
+
+    def _update_inplace(self, *args, **kwargs):
+        super(LuxDataFrame, self)._update_inplace(*args, **kwargs)
+        self.expire_metadata()
+        self.expire_recs()
+
+    def _set_item(self, key, value):
+        super(LuxDataFrame, self)._set_item(key, value)
+        self.expire_metadata()
+        self.expire_recs()
+
     def _infer_structure(self):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
-        is_multi_index_flag = self.df.index.nlevels != 1
-        not_int_index_flag = not pd.api.types.is_integer_dtype(self.df.index)
+        is_multi_index_flag = self.index.nlevels != 1
+        not_int_index_flag = not pd.api.types.is_integer_dtype(self.index)
 
         is_sql_tbl = lux.config.executor.name != "PandasExecutor"
 
-        small_df_flag = len(self.df) < 100 and is_sql_tbl
+        small_df_flag = len(self) < 100 and is_sql_tbl
         if self.pre_aggregated == None:
             self.pre_aggregated = (
                 is_multi_index_flag or not_int_index_flag) and small_df_flag
-            if "Number of Records" in self.df.columns:
+            if "Number of Records" in self.columns:
                 self.pre_aggregated = True
             self.pre_aggregated = "groupby" in [
                 event.name for event in self.history] and not is_sql_tbl
@@ -211,11 +256,11 @@ class LuxDataFrameMethods(LuxMethods):
         from lux.processor.Validator import Validator
 
         self._intent = Parser.parse(self._intent)
-        Validator.validate_intent(self._intent, self.df)
+        Validator.validate_intent(self._intent, self)
         self.maintain_metadata()
         from lux.processor.Compiler import Compiler
 
-        self.current_vis = Compiler.compile_intent(self.df, self._intent)
+        self.current_vis = Compiler.compile_intent(self, self._intent)
 
     def copy_intent(self):
         # creates a true copy of the dataframe's intent
@@ -316,8 +361,8 @@ class LuxDataFrameMethods(LuxMethods):
             rec_infolist.append(recommendations)
 
     def show_all_column_vis(self):
-        if len(self.df.columns) > 1 and len(self.df.columns) < 4 and self.intent == [] or self.intent is None:
-            vis = Vis(list(self.df.columns), self)
+        if len(self.columns) > 1 and len(self.columns) < 4 and self.intent == [] or self.intent is None:
+            vis = Vis(list(self.columns), self)
             if vis.mark != "":
                 vis._all_column = True
                 self.current_vis = VisList([vis])
@@ -348,7 +393,7 @@ class LuxDataFrameMethods(LuxMethods):
             rec_df._message.add(
                 f"The {is_series} is too small to visualize. To generate visualizations in Lux, the {is_series} must contain at least 5 rows."
             )
-        elif self.df.index.nlevels >= 2 or self.df.columns.nlevels >= 2:
+        elif self.index.nlevels >= 2 or self.columns.nlevels >= 2:
             rec_df._message.add(
                 f"Lux does not currently support visualizations in a {is_series} "
                 f"with hierarchical indexes.\n"
@@ -387,7 +432,7 @@ class LuxDataFrameMethods(LuxMethods):
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
             elif not (len(rec_df) < 5 and not rec_df.pre_aggregated and not is_sql_tbl) and not (
-                self.df.index.nlevels >= 2 or self.df.columns.nlevels >= 2
+                self.index.nlevels >= 2 or self.columns.nlevels >= 2
             ):
                 from lux.action.custom import custom_actions
 
@@ -526,6 +571,76 @@ class LuxDataFrameMethods(LuxMethods):
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
         self._widget.observe(self.set_intent_on_click,
                              names="selectedIntentIndex")
+
+    def _ipython_display_(self):
+        from IPython.display import display
+        from IPython.display import clear_output
+        import ipywidgets as widgets
+
+        try:
+            if self._pandas_only:
+                display(self.display_pandas())
+                self._pandas_only = False
+            else:
+                if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
+                    self.maintain_metadata()
+
+                    if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
+                        from lux.processor.Compiler import Compiler
+
+                        self.current_vis = Compiler.compile_intent(
+                            self, self._intent)
+
+                if lux.config.default_display == "lux":
+                    self._toggle_pandas_display = False
+                else:
+                    self._toggle_pandas_display = True
+
+                # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+                self.maintain_recs()
+
+                # Observers(callback_function, listen_to_this_variable)
+                self._widget.observe(
+                    self.remove_deleted_recs, names="deletedIndices")
+                self._widget.observe(
+                    self.set_intent_on_click, names="selectedIntentIndex")
+
+                button = widgets.Button(
+                    description="Toggle Pandas/Lux",
+                    layout=widgets.Layout(width="140px", top="5px"),
+                )
+                self.output = widgets.Output()
+                display(button, self.output)
+
+                def on_button_clicked(b):
+                    with self.output:
+                        if b:
+                            self._toggle_pandas_display = not self._toggle_pandas_display
+                        clear_output()
+                        if self._toggle_pandas_display:
+                            display(self.display_pandas())
+                        else:
+                            # b.layout.display = "none"
+                            display(self._widget)
+                            # b.layout.display = "inline-block"
+
+                button.on_click(on_button_clicked)
+                on_button_clicked(None)
+
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception:
+            if lux.config.pandas_fallback:
+                warnings.warn(
+                    "\nUnexpected error in rendering Lux widget and recommendations. "
+                    "Falling back to Pandas display.\n"
+                    "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
+                    stacklevel=2,
+                )
+                warnings.warn(traceback.format_exc())
+                display(self.display_pandas())
+            else:
+                raise
 
     def display_pandas(self):
         return self.to_pandas()

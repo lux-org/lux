@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 # Register the commonly used modules (similar to how pandas does it: https://github.com/pandas-dev/pandas/blob/master/pandas/__init__.py)
+# fmt: off
 from lux.vis.Clause import Clause
 from lux.core.frame import LuxDataFrame
 from lux.core.sqltable import LuxSQLTable
@@ -29,3 +30,6 @@ config = Config()
 from lux.action.default import register_default_actions
 
 register_default_actions()
+
+import lux.patch.frame
+import lux.patch.series

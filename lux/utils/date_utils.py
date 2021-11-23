@@ -40,7 +40,8 @@ def date_formatter(time_stamp, ldf):
             A reformatted version of the time_stamp according to granularity
     """
 
-    inverted_data_type = lux.config.executor.invert_data_type(ldf.data_type)
+    inverted_data_type = lux.config.executor.invert_data_type(
+        ldf.lux.data_type)
     # TODO: method for data_type_lookup to data_type
     datetime = pd.to_datetime(time_stamp)
     if inverted_data_type["temporal"]:
@@ -54,7 +55,8 @@ def date_formatter(time_stamp, ldf):
     elif granularity == "month":
         date_str += str(datetime.year) + "-" + str(datetime.month)
     elif granularity == "day":
-        date_str += str(datetime.year) + "-" + str(datetime.month) + "-" + str(datetime.day)
+        date_str += str(datetime.year) + "-" + \
+            str(datetime.month) + "-" + str(datetime.day)
     else:
         # non supported granularity
         return datetime.date()
@@ -94,7 +96,6 @@ def compute_date_granularity(date_column: pd.core.series.Series):
 
 
 def is_datetime_series(series: pd.Series) -> bool:
-
     """
     Check if the Series object is of datetime type
 

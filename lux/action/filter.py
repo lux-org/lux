@@ -45,7 +45,7 @@ def add_filter(ldf):
         # get unique values for all categorical values specified and creates corresponding filters
         fltr = filters[0]
 
-        if ldf.data_type[fltr.attribute] == "nominal":
+        if ldf.lux.data_type[fltr.attribute] == "nominal":
             recommendation = {
                 "action": "Filter",
                 "description": f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative value.",
@@ -57,11 +57,12 @@ def add_filter(ldf):
             for val in unique_values:
                 if val not in filter_values:
                     new_spec = column_spec.copy()
-                    new_filter = lux.Clause(attribute=fltr.attribute, value=val)
+                    new_filter = lux.Clause(
+                        attribute=fltr.attribute, value=val)
                     new_spec.append(new_filter)
                     temp_vis = Vis(new_spec)
                     output.append(temp_vis)
-        elif ldf.data_type[fltr.attribute] == "quantitative":
+        elif ldf.lux.data_type[fltr.attribute] == "quantitative":
             recommendation = {
                 "action": "Filter",
                 "description": f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative inequality operation.",
@@ -112,7 +113,8 @@ def add_filter(ldf):
             unique_values = ldf.unique_values[cat]
             for val in unique_values:
                 new_spec = column_spec.copy()
-                new_filter = lux.Clause(attribute=cat, filter_op="=", value=val)
+                new_filter = lux.Clause(
+                    attribute=cat, filter_op="=", value=val)
                 new_spec.append(new_filter)
                 temp_vis = Vis(new_spec)
                 output.append(temp_vis)
