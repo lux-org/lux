@@ -104,18 +104,19 @@ class PandasExecutor(Executor):
         None
         """
 
-        PandasExecutor.execute_sampling(ldf)
+        filter_executed = {}
         for vis in vislist:
             # The vis data starts off being original or sampled dataframe
             vis._source = ldf
-            vis._vis_data = ldf._sampled
+            vis._vis_data = ldf
             # Approximating vis for early pruning
             if approx:
                 vis._original_df = vis._vis_data
                 PandasExecutor.execute_approx_sample(ldf)
                 vis._vis_data = ldf._approx_sample
                 vis.approx = True
-            filter_executed = PandasExecutor.execute_filter(vis)
+            print(vis.data.columns)
+            filter_executed[vis] = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
             attributes = set([])
             for clause in vis._inferred_intent:
@@ -123,9 +124,11 @@ class PandasExecutor(Executor):
                     attributes.add(clause.attribute)
             # TODO: Add some type of cap size on Nrows ?
             vis._vis_data = vis._vis_data[list(attributes)]
-
+        PandasExecutor.execute_sampling(ldf)
+        for vis in vislist:
+            vis._vis_data = ldf._sampled
             if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
-                PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
+                PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed[vis])
             elif vis.mark == "histogram":
                 PandasExecutor.execute_binning(ldf, vis)
             elif vis.mark == "heatmap":
@@ -338,27 +341,28 @@ class PandasExecutor(Executor):
             Dataframe resulting from the filter operation
         """
         # Handling NaN filter values
-        if utils.like_nan(val):
-            if op != "=" and op != "!=":
-                warnings.warn("Filter on NaN must be used with equality operations (i.e., `=` or `!=`)")
-            else:
-                if op == "=":
-                    return df[df[attribute].isna()]
-                elif op == "!=":
-                    return df[~df[attribute].isna()]
-        # Applying filter in regular, non-NaN cases
-        if op == "=":
-            return df[df[attribute] == val]
-        elif op == "<":
-            return df[df[attribute] < val]
-        elif op == ">":
-            return df[df[attribute] > val]
-        elif op == "<=":
-            return df[df[attribute] <= val]
-        elif op == ">=":
-            return df[df[attribute] >= val]
-        elif op == "!=":
-            return df[df[attribute] != val]
+        if attribute in df.columns:
+            if utils.like_nan(val):
+                if op != "=" and op != "!=":
+                    warnings.warn("Filter on NaN must be used with equality operations (i.e., `=` or `!=`)")
+                else:
+                    if op == "=":
+                        return df[df[attribute].isna()]
+                    elif op == "!=":
+                        return df[~df[attribute].isna()]
+            # Applying filter in regular, non-NaN cases
+            if op == "=":
+                return df[df[attribute] == val]
+            elif op == "<":
+                return df[df[attribute] < val]
+            elif op == ">":
+                return df[df[attribute] > val]
+            elif op == "<=":
+                return df[df[attribute] <= val]
+            elif op == ">=":
+                return df[df[attribute] >= val]
+            elif op == "!=":
+                return df[df[attribute] != val]
         return df
 
     @staticmethod
