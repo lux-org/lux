@@ -102,6 +102,5 @@ def test_intent_cleared_after_vis_data():
     vis.data._ipython_display_()
     all_column_vis = vis.data.current_vis[0]
     assert all_column_vis.get_attr_by_channel("x")[0].attribute == "Year"
-    print(all_column_vis.get_attr_by_channel("y"))
     assert all_column_vis.get_attr_by_channel("y")[0].attribute == "PctForeclosured"
     lux.config.sampling_thresh = old_sampling_thresh

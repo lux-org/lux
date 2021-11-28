@@ -186,13 +186,6 @@ class Config:
 
     @property
     def sampling_thresh(self):
-        """
-        Parameters
-        ----------
-        sample_number : int
-            Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
-
-        """
         return self._sampling_thresh
 
     @sampling_thresh.setter
