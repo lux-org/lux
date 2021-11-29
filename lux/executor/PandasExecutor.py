@@ -57,13 +57,14 @@ class PandasExecutor(Executor):
 
         if SAMPLE_FLAG and len(ldf) > SAMPLE_THRESH:
             if ldf._sampled is None:  # memoize unfiltered sample df
-                ldf._sampled = ldf.sample(n=SAMPLE_THRESH, random_state=1)
+                final_df = ldf.sample(n=SAMPLE_THRESH, random_state=1)
             ldf._message.add_unique(
                 f"Large dataframe detected: Lux is only visualizing a sample of {SAMPLE_THRESH} rows.",
                 priority=99,
             )
         else:
-            ldf._sampled = ldf
+            final_df = ldf
+        return final_df
 
     @staticmethod
     def execute_approx_sample(ldf: LuxDataFrame):
@@ -76,12 +77,13 @@ class PandasExecutor(Executor):
         ldf : LuxDataFrame
         """
         if ldf._approx_sample is None:
-            if len(ldf._sampled) > lux.config.early_pruning_sample_start:
-                ldf._approx_sample = ldf._sampled.sample(
+            ldf_sampled = PandasExecutor.execute_sampling(ldf)
+            if len(ldf_sampled) > lux.config.early_pruning_sample_start:
+                ldf._approx_sample = ldf_sampled.sample(
                     n=lux.config.early_pruning_sample_cap, random_state=1
                 )
             else:
-                ldf._approx_sample = ldf._sampled
+                ldf._approx_sample = ldf_sampled
 
     @staticmethod
     def execute(vislist: VisList, ldf: LuxDataFrame, approx=False):
@@ -115,7 +117,6 @@ class PandasExecutor(Executor):
                 PandasExecutor.execute_approx_sample(ldf)
                 vis._vis_data = ldf._approx_sample
                 vis.approx = True
-            print(vis.data.columns)
             filter_executed[vis] = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
             attributes = set([])
@@ -124,9 +125,7 @@ class PandasExecutor(Executor):
                     attributes.add(clause.attribute)
             # TODO: Add some type of cap size on Nrows ?
             vis._vis_data = vis._vis_data[list(attributes)]
-        PandasExecutor.execute_sampling(ldf)
-        for vis in vislist:
-            vis._vis_data = ldf._sampled
+            vis._vis_data = PandasExecutor.execute_sampling(vis._vis_data)
             if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed[vis])
             elif vis.mark == "histogram":
@@ -341,28 +340,27 @@ class PandasExecutor(Executor):
             Dataframe resulting from the filter operation
         """
         # Handling NaN filter values
-        if attribute in df.columns:
-            if utils.like_nan(val):
-                if op != "=" and op != "!=":
-                    warnings.warn("Filter on NaN must be used with equality operations (i.e., `=` or `!=`)")
-                else:
-                    if op == "=":
-                        return df[df[attribute].isna()]
-                    elif op == "!=":
-                        return df[~df[attribute].isna()]
-            # Applying filter in regular, non-NaN cases
-            if op == "=":
-                return df[df[attribute] == val]
-            elif op == "<":
-                return df[df[attribute] < val]
-            elif op == ">":
-                return df[df[attribute] > val]
-            elif op == "<=":
-                return df[df[attribute] <= val]
-            elif op == ">=":
-                return df[df[attribute] >= val]
-            elif op == "!=":
-                return df[df[attribute] != val]
+        if utils.like_nan(val):
+            if op != "=" and op != "!=":
+                warnings.warn("Filter on NaN must be used with equality operations (i.e., `=` or `!=`)")
+            else:
+                if op == "=":
+                    return df[df[attribute].isna()]
+                elif op == "!=":
+                    return df[~df[attribute].isna()]
+        # Applying filter in regular, non-NaN cases
+        if op == "=":
+            return df[df[attribute] == val]
+        elif op == "<":
+            return df[df[attribute] < val]
+        elif op == ">":
+            return df[df[attribute] > val]
+        elif op == "<=":
+            return df[df[attribute] <= val]
+        elif op == ">=":
+            return df[df[attribute] >= val]
+        elif op == "!=":
+            return df[df[attribute] != val]
         return df
 
     @staticmethod
@@ -533,6 +531,12 @@ class PandasExecutor(Executor):
         return False
 
     def compute_stats(self, ldf: LuxDataFrame):
+        # use sample to compute statistics
+        if ldf._sampled is None:
+            ldf_sampled = PandasExecutor.execute_sampling(ldf)
+        else:
+            ldf_sampled = ldf._sampled
+
         # precompute statistics
         ldf.unique_values = {}
         ldf._min_max = {}
@@ -547,13 +551,13 @@ class PandasExecutor(Executor):
             else:
                 attribute_repr = attribute
 
-            ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+            ldf.unique_values[attribute_repr] = list(ldf_sampled[attribute].unique())
             ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
 
-            if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(ldf.dtypes[attribute]):
-                ldf._min_max[attribute_repr] = (ldf[attribute].min(),ldf[attribute].max(),)
+            if pd.api.types.is_float_dtype(ldf_sampled.dtypes[attribute]) or pd.api.types.is_integer_dtype(ldf_sampled.dtypes[attribute]):
+                ldf._min_max[attribute_repr] = (ldf_sampled[attribute].min(),ldf_sampled[attribute].max(),)
 
-        if not pd.api.types.is_integer_dtype(ldf.index):
-            index_column_name = ldf.index.name
-            ldf.unique_values[index_column_name] = list(ldf.index)
-            ldf.cardinality[index_column_name] = len(ldf.index)
+        if not pd.api.types.is_integer_dtype(ldf_sampled.index):
+            index_column_name = ldf_sampled.index.name
+            ldf.unique_values[index_column_name] = list(ldf_sampled.index)
+            ldf.cardinality[index_column_name] = len(ldf_sampled.index)
