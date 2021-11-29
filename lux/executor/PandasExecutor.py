@@ -436,16 +436,16 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "geographical"
                 elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
 
-                    if ldf.cardinality[attr] != len(ldf) and (ldf.cardinality[attr] < 20):
+                    if ldf.cardinality[attr] != ldf._length and (ldf.cardinality[attr] < 20):
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
                 elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
                     # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                     if ldf.pre_aggregated:
-                        if ldf.cardinality[attr] == len(ldf):
+                        if ldf.cardinality[attr] == ldf._length:
                             ldf._data_type[attr] = "nominal"
-                    if ldf.cardinality[attr] / len(ldf) < 0.4 and ldf.cardinality[attr] < 20:
+                    if ldf.cardinality[attr] / ldf._length < 0.4 and ldf.cardinality[attr] < 20:
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
@@ -541,7 +541,7 @@ class PandasExecutor(Executor):
         ldf.unique_values = {}
         ldf._min_max = {}
         ldf.cardinality = {}
-        ldf._length = len(ldf)
+        ldf._length = len(ldf_sampled)
 
         for attribute in ldf.columns:
 
