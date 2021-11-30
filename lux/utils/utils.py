@@ -93,7 +93,6 @@ def check_if_id_like(df, attribute):
         else:
             sampled = df[attribute]
         str_length_uniformity = sampled.apply(lambda x: type(x) == str and len(x)).std() < 3
-        print(high_cardinality, almost_all_vals_unique, str_length_uniformity, attribute)
         return (
             high_cardinality
             and (attribute_contain_id or almost_all_vals_unique)
