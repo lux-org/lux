@@ -15,6 +15,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import lux
 import typing as tp
+from contextlib import contextmanager
 
 
 def get_all_annotations(cls: type, bound: tp.Optional[type] = None) -> tp.Dict[str, type]:
@@ -26,6 +27,17 @@ def get_all_annotations(cls: type, bound: tp.Optional[type] = None) -> tp.Dict[s
         if hasattr(c, "__annotations__"):
             d.update(**c.__annotations__)
     return d
+
+
+@contextmanager
+def remove_method(cls, method_name):
+    method = getattr(cls, method_name)
+
+    try:
+        delattr(cls, method_name)
+        yield
+    finally:
+        setattr(cls, method_name, method)
 
 
 def patch(cls, name: tp.Optional[str] = None):

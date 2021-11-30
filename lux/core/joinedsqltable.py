@@ -84,10 +84,10 @@ class JoinedSQLTable(lux.LuxSQLTable):
     def extract_tables(self, joins):
         tables = set()
         for condition in joins:
-            lhs = condition[0 : condition.index("=")].strip()
-            rhs = condition[condition.index("=") + 1 :].strip()
-            table1 = lhs[0 : lhs.index(".")].strip()
-            table2 = rhs[0 : rhs.index(".")].strip()
+            lhs = condition[0: condition.index("=")].strip()
+            rhs = condition[condition.index("=") + 1:].strip()
+            table1 = lhs[0: lhs.index(".")].strip()
+            table2 = rhs[0: rhs.index(".")].strip()
             tables.add(table1)
             tables.add(table2)
         return tables
@@ -132,7 +132,7 @@ class JoinedSQLTable(lux.LuxSQLTable):
 
         try:
             if self._pandas_only:
-                display(self.display_pandas())
+                self.display_pandas()
                 self._pandas_only = False
             if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
                 self.maintain_metadata()
@@ -140,7 +140,8 @@ class JoinedSQLTable(lux.LuxSQLTable):
                 if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
                     from lux.processor.Compiler import Compiler
 
-                    self.current_vis = Compiler.compile_intent(self, self._intent)
+                    self.current_vis = Compiler.compile_intent(
+                        self, self._intent)
 
             if lux.config.default_display == "lux":
                 self._toggle_pandas_display = False
@@ -151,8 +152,10 @@ class JoinedSQLTable(lux.LuxSQLTable):
             self.maintain_recs()
 
             # Observers(callback_function, listen_to_this_variable)
-            self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
-            self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+            self._widget.observe(self.remove_deleted_recs,
+                                 names="deletedIndices")
+            self._widget.observe(self.set_intent_on_click,
+                                 names="selectedIntentIndex")
 
             button = widgets.Button(
                 description="Toggle Table/Lux",
@@ -188,7 +191,8 @@ class JoinedSQLTable(lux.LuxSQLTable):
                         notification = "Here is a preview of the **{}** database table: **{}**".format(
                             self.table_name, connect_str
                         )
-                        display(Markdown(notification), self._sampled.display_pandas())
+                        display(Markdown(notification),
+                                self._sampled.display_pandas())
                     else:
                         # b.layout.display = "none"
                         display(self._widget)

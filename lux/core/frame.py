@@ -22,7 +22,7 @@ from lux.vis.VisList import VisList
 from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
-from lux.utils.utils import check_import_lux_widget, patch
+from lux.utils.utils import check_import_lux_widget, patch, remove_method
 from typing import Dict, Union, List, Callable
 from lux.core.lux_methods import LuxMethods
 
@@ -40,6 +40,9 @@ class LuxDataFrame(pd.DataFrame):
     def lux(self) -> "LuxDataFrameMethods":
         ...
 
+    def _ipython_display_(self):
+        ...
+
 
 # ------------------------------------------------------------------------------
 # Override Pandas
@@ -48,6 +51,7 @@ class LuxDataFrame(pd.DataFrame):
 
 class LuxDataFrameMethods(LuxMethods):
     df: LuxDataFrame
+    _prev: tp.Optional[LuxDataFrame]
 
     def __init__(self, df):
         self.df = df
@@ -272,10 +276,10 @@ class LuxDataFrameMethods(LuxMethods):
 
         self.expire_recs()
 
-    def to_pandas(self):
-        import lux.core
+    # def to_pandas(self):
+    #     import lux.core
 
-        return lux.core.originalDF(self, copy=False)
+    #     return lux.core.originalDF(self, copy=False)
 
     @property
     def recommendation(self):
@@ -331,25 +335,27 @@ class LuxDataFrameMethods(LuxMethods):
 
         if self._prev is not None:
             rec_df = self._prev
-            rec_df._message = Message()
-            rec_df.maintain_metadata()  # the prev dataframe may not have been printed before
+            rec_df.lux._message = Message()
+            # the prev dataframe may not have been printed before
+            rec_df.lux.maintain_metadata()
             last_event = self.history._events[-1].name
-            rec_df._message.add(
+            rec_df.lux._message.add(
                 f"Lux is visualizing the previous version of the dataframe before you applied <code>{last_event}</code>."
             )
             show_prev = True
         else:
-            rec_df = self
-            rec_df._message = Message()
+            rec_df = self.df
+            rec_df.lux._message = Message()
         # Add warning message if there exist ID fields
         if len(rec_df) == 0:
-            rec_df._message.add(f"Lux cannot operate on an empty {is_series}.")
-        elif len(rec_df) < 5 and not rec_df.pre_aggregated:
-            rec_df._message.add(
+            rec_df.lux._message.add(
+                f"Lux cannot operate on an empty {is_series}.")
+        elif len(rec_df) < 5 and not rec_df.lux.pre_aggregated:
+            rec_df.lux._message.add(
                 f"The {is_series} is too small to visualize. To generate visualizations in Lux, the {is_series} must contain at least 5 rows."
             )
         elif self.df.index.nlevels >= 2 or self.df.columns.nlevels >= 2:
-            rec_df._message.add(
+            rec_df.lux._message.add(
                 f"Lux does not currently support visualizations in a {is_series} "
                 f"with hierarchical indexes.\n"
                 f"Please convert the {is_series} into a flat "
@@ -358,19 +364,19 @@ class LuxDataFrameMethods(LuxMethods):
         else:
             id_fields_str = ""
             inverted_data_type = lux.config.executor.invert_data_type(
-                rec_df.data_type)
+                rec_df.lux.data_type)
             if len(inverted_data_type["id"]) > 0:
                 for id_field in inverted_data_type["id"]:
                     id_fields_str += f"<code>{id_field}</code>, "
                 id_fields_str = id_fields_str[:-2]
-                rec_df._message.add(
+                rec_df.lux._message.add(
                     f"{id_fields_str} is not visualized since it resembles an ID field.")
 
-        rec_df._prev = None  # reset _prev
+        rec_df.lux._prev = None  # reset _prev
 
         # If lazy, check that recs has not yet been computed
         lazy_but_not_computed = lux.config.lazy_maintain and (
-            not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh
+            not hasattr(rec_df, "_recs_fresh") or not rec_df.lux._recs_fresh
         )
         eager = not lux.config.lazy_maintain
 
@@ -382,11 +388,11 @@ class LuxDataFrameMethods(LuxMethods):
             from lux.action.column_group import column_group
 
             # TODO: Rewrite these as register action inside default actions
-            if rec_df.pre_aggregated:
+            if rec_df.lux.pre_aggregated:
                 if rec_df.columns.name is not None:
-                    rec_df._append_rec(rec_infolist, row_group(rec_df))
-                rec_df._append_rec(rec_infolist, column_group(rec_df))
-            elif not (len(rec_df) < 5 and not rec_df.pre_aggregated and not is_sql_tbl) and not (
+                    rec_df.lux._append_rec(rec_infolist, row_group(rec_df))
+                rec_df.lux._append_rec(rec_infolist, column_group(rec_df))
+            elif not (len(rec_df) < 5 and not rec_df.lux.pre_aggregated and not is_sql_tbl) and not (
                 self.df.index.nlevels >= 2 or self.df.columns.nlevels >= 2
             ):
                 from lux.action.custom import custom_actions
@@ -394,25 +400,25 @@ class LuxDataFrameMethods(LuxMethods):
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
                 for rec in custom_action_collection:
-                    rec_df._append_rec(rec_infolist, rec)
+                    rec_df.lux._append_rec(rec_infolist, rec)
                 lux.config.update_actions["flag"] = False
 
             # Store _rec_info into a more user-friendly dictionary form
-            rec_df._recommendation = {}
+            rec_df.lux._recommendation = {}
             for rec_info in rec_infolist:
                 action_type = rec_info["action"]
                 vlist = rec_info["collection"]
                 if len(vlist) > 0:
-                    rec_df._recommendation[action_type] = vlist
-            rec_df._rec_info = rec_infolist
-            rec_df.show_all_column_vis()
+                    rec_df.lux._recommendation[action_type] = vlist
+            rec_df.lux._rec_info = rec_infolist
+            rec_df.lux.show_all_column_vis()
             if lux.config.render_widget:
-                self._widget = rec_df.render_widget()
+                self._widget = rec_df.lux.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
-            rec_df.show_all_column_vis()
+            rec_df.lux.show_all_column_vis()
             if lux.config.render_widget:
-                self._widget = rec_df.render_widget()
+                self._widget = rec_df.lux.render_widget()
         self._recs_fresh = True
 
     #######################################################
@@ -528,7 +534,12 @@ class LuxDataFrameMethods(LuxMethods):
                              names="selectedIntentIndex")
 
     def display_pandas(self):
-        return self.to_pandas()
+        from IPython.display import display
+
+        df = self.df.copy()
+
+        with remove_method(df.__class__, "_ipython_display_"):
+            display(df)
 
     def render_widget(self, renderer: str = "altair", input_current_vis=""):
         """
@@ -576,7 +587,7 @@ class LuxDataFrameMethods(LuxMethods):
         return luxwidget.LuxWidget(
             currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
-            intent=LuxDataFrame.intent_to_string(self._intent),
+            intent=self.intent_to_string(self._intent),
             message=self._message.to_html(),
             config={"plottingScale": lux.config.plotting_scale},
         )
@@ -603,8 +614,8 @@ class LuxDataFrameMethods(LuxMethods):
     def to_JSON(self, rec_infolist, input_current_vis=""):
         widget_spec = {}
         if self.current_vis:
-            lux.config.executor.execute(self.current_vis, self)
-            widget_spec["current_vis"] = LuxDataFrame.current_vis_to_JSON(
+            lux.config.executor.execute(self.current_vis, self.df)
+            widget_spec["current_vis"] = self.current_vis_to_JSON(
                 self.current_vis, input_current_vis
             )
         else:
@@ -612,7 +623,7 @@ class LuxDataFrameMethods(LuxMethods):
         widget_spec["recommendation"] = []
 
         # Recommended Collection
-        recCollection = LuxDataFrame.rec_to_JSON(rec_infolist)
+        recCollection = self.rec_to_JSON(rec_infolist)
         widget_spec["recommendation"].extend(recCollection)
         return widget_spec
 

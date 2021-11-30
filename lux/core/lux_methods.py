@@ -35,7 +35,6 @@ class LuxMethods:
     _current_vis: tp.Any
     _widget: tp.Any
     _recommendation: tp.Any
-    _prev: tp.Any
     _history: tp.Any
     _saved_export: tp.Any
     _sampled: tp.Any
@@ -47,6 +46,7 @@ class LuxMethods:
     plotting_style: tp.Any
     name: tp.Any
     _compiled: bool
+    output: tp.Any
 
     @classmethod
     def from_lux_object(cls, field: str, obj: tp.Any, other: "LuxMethods"):

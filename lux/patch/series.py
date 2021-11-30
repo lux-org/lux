@@ -1,6 +1,7 @@
 import traceback
 import typing as tp
 import warnings
+from copy import copy, deepcopy
 
 import pandas as pd
 import numpy as np
@@ -42,6 +43,14 @@ def _constructor_expanddim(self: LuxSeries):
     return _construct_and_copy
 
 
+@patch(Series, name="copy")
+def _copy(self: LuxSeries, *args, **kwargs):
+    df = self._super_copy(*args, **kwargs)
+    # df._LUX_ = deepcopy(self.lux)
+    df._LUX_ = copy(self.lux)
+    return df
+
+
 @patch(Series)
 def _ipython_display_(self):
     from IPython.display import display
@@ -72,7 +81,7 @@ def _ipython_display_(self):
             ldf.lux._pandas_only = False
         else:
             if not self.index.nlevels >= 2:
-                ldf.maintain_metadata()
+                ldf.lux.maintain_metadata()
 
             if lux.config.default_display == "lux":
                 self.lux._toggle_pandas_display = False

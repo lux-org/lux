@@ -25,7 +25,7 @@ def test_dateformatter(global_var):
     # change pandas dtype for the column "Year" to datetype
     ldf["Year"] = pd.to_datetime(ldf["Year"], format="%Y")
     timestamp = np.datetime64("2019-08-26")
-    ldf.maintain_metadata()
+    ldf.lux.maintain_metadata()
     assert date_utils.date_formatter(timestamp, ldf) == "2019"
 
     ldf["Year"][0] = np.datetime64("1970-03-01")  # make month non unique

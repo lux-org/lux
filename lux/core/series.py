@@ -35,6 +35,7 @@ class LuxSeries(pd.Series):
 
 class LuxSeriesMethods(LuxMethods):
     series: pd.Series
+    _prev: tp.Optional[LuxSeries]
 
     def __init__(self, series: pd.Series):
         self.series = series
@@ -91,7 +92,7 @@ class LuxSeriesMethods(LuxMethods):
                 self.name = " "
             ldf = LuxDataFrame(self)
 
-            ldf.maintain_metadata()
+            ldf.lux.maintain_metadata()
             ldf.maintain_recs()
             self._recommendation = ldf.lux._recommendation
         return self._recommendation

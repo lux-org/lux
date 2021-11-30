@@ -1,6 +1,7 @@
 import traceback
 import typing as tp
 import warnings
+from copy import copy, deepcopy
 
 import pandas as pd
 import numpy as np
@@ -60,6 +61,14 @@ def _constructor_sliced(self: LuxDataFrame):
     return _create_and_copy
 
 
+@patch(DataFrame, name="copy")
+def _copy(self: LuxDataFrame, *args, **kwargs):
+    df = self._super_copy(*args, **kwargs)
+    df._LUX_ = copy(self.lux)
+    # df._LUX_ = deepcopy(self.lux)
+    return df
+
+
 @patch(DataFrame)
 def __getattr__(self: LuxDataFrame, name):
     ret_value = self._super__getattr__(name)
@@ -106,7 +115,7 @@ def _ipython_display_(self: LuxDataFrame):
             self.lux._pandas_only = False
         else:
             if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-                self.maintain_metadata()
+                self.lux.maintain_metadata()
 
                 if self.lux._intent != [] and (not hasattr(self.lux, "_compiled") or not self.lux._compiled):
                     from lux.processor.Compiler import Compiler
@@ -119,24 +128,24 @@ def _ipython_display_(self: LuxDataFrame):
             else:
                 self.lux._toggle_pandas_display = True
 
-            # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-            self.maintain_recs()
+            # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self.lux._widget)
+            self.lux.maintain_recs()
 
             # Observers(callback_function, listen_to_this_variable)
-            self._widget.observe(
-                self.remove_deleted_recs, names="deletedIndices")
-            self._widget.observe(
-                self.set_intent_on_click, names="selectedIntentIndex")
+            self.lux._widget.observe(
+                self.lux.remove_deleted_recs, names="deletedIndices")
+            self.lux._widget.observe(
+                self.lux.set_intent_on_click, names="selectedIntentIndex")
 
             button = widgets.Button(
                 description="Toggle Pandas/Lux",
                 layout=widgets.Layout(width="140px", top="5px"),
             )
-            self.output = widgets.Output()
-            display(button, self.output)
+            self.lux.output = widgets.Output()
+            display(button, self.lux.output)
 
             def on_button_clicked(b):
-                with self.output:
+                with self.lux.output:
                     if b:
                         self.lux._toggle_pandas_display = not self.lux._toggle_pandas_display
                     clear_output()
@@ -144,7 +153,7 @@ def _ipython_display_(self: LuxDataFrame):
                         display(self.lux.display_pandas())
                     else:
                         # b.layout.display = "none"
-                        display(self._widget)
+                        display(self.lux._widget)
                         # b.layout.display = "inline-block"
 
             button.on_click(on_button_clicked)
