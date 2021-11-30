@@ -50,7 +50,7 @@ def temporal(ldf):
     # If no temporal visualizations were generated via parsing datetime, fallback to default behavior.
     if len(vlist) == 0:
         intent = [lux.Clause("?", data_type="temporal")]
-        intent.extend(utils.get_filter_specs(ldf._intent))
+        intent.extend(utils.get_filter_specs(ldf.lux._intent))
         vlist = VisList(intent, ldf)
         for vis in vlist:
             vis.score = interestingness(vis, ldf)

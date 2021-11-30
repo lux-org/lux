@@ -41,7 +41,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 
     import numpy as np
 
-    filter_specs = utils.get_filter_specs(ldf._intent)
+    filter_specs = utils.get_filter_specs(ldf.lux._intent)
     intent = [
         lux.Clause("?", data_model="measure"),
         lux.Clause("?", data_model="measure"),
@@ -93,7 +93,8 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
 def check_transpose_not_computed(vlist: VisList, a: str, b: str):
     transpose_exist = list(
         filter(
-            lambda x: (x._inferred_intent[0].attribute == b) and (x._inferred_intent[1].attribute == a),
+            lambda x: (x._inferred_intent[0].attribute == b) and (
+                x._inferred_intent[1].attribute == a),
             vlist,
         )
     )

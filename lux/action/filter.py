@@ -35,11 +35,11 @@ def add_filter(ldf):
     recommendations : Dict[str,obj]
             object with a collection of visualizations that result from the Filter action.
     """
-    filters = utils.get_filter_specs(ldf._intent)
+    filters = utils.get_filter_specs(ldf.lux._intent)
     filter_values = []
     output = []
     # if fltr is specified, create visualizations where data is filtered by all values of the fltr's categorical variable
-    column_spec = utils.get_attrs_specs(ldf._intent)
+    column_spec = utils.get_attrs_specs(ldf.lux._intent)
     column_spec_attr = list(map(lambda x: x.attribute, column_spec))
     if len(filters) == 1:
         # get unique values for all categorical values specified and creates corresponding filters
@@ -51,7 +51,7 @@ def add_filter(ldf):
                 "description": f"Changing the <p class='highlight-intent'>{fltr.attribute}</p> filter to an alternative value.",
                 "long_description": f"Swap out the filter value for {fltr.attribute} to other possible values, while keeping all else the same. Visualizations are ranked based on interestingness",
             }
-            unique_values = ldf.unique_values[fltr.attribute]
+            unique_values = ldf.lux.unique_values[fltr.attribute]
             filter_values.append(fltr.value)
             # creates vis with new filters
             for val in unique_values:
@@ -95,7 +95,7 @@ def add_filter(ldf):
         intended_attrs = ", ".join(
             [
                 str(clause.attribute)
-                for clause in ldf._intent
+                for clause in ldf.lux._intent
                 if clause.value == "" and clause.attribute != "Record"
             ]
         )
@@ -107,10 +107,10 @@ def add_filter(ldf):
         categorical_vars = []
         for col in list(ldf.columns):
             # if cardinality is not too high, and attribute is not one of the X,Y (specified) column
-            if 1 < ldf.cardinality[col] < 30 and col not in column_spec_attr:
+            if 1 < ldf.lux.cardinality[col] < 30 and col not in column_spec_attr:
                 categorical_vars.append(col)
         for cat in categorical_vars:
-            unique_values = ldf.unique_values[cat]
+            unique_values = ldf.lux.unique_values[cat]
             for val in unique_values:
                 new_spec = column_spec.copy()
                 new_filter = lux.Clause(
@@ -119,18 +119,18 @@ def add_filter(ldf):
                 temp_vis = Vis(new_spec)
                 output.append(temp_vis)
     if (
-        ldf.current_vis is not None
-        and len(ldf.current_vis) == 1
-        and ldf.current_vis[0].mark == "line"
-        and len(get_filter_specs(ldf.intent)) > 0
+        ldf.lux.current_vis is not None
+        and len(ldf.lux.current_vis) == 1
+        and ldf.lux.current_vis[0].mark == "line"
+        and len(get_filter_specs(ldf.lux.intent)) > 0
     ):
         recommendation = {
             "action": "Similarity",
             "description": "Show other charts that are visually similar to the Current vis.",
             "long_description": "Show other charts that are visually similar to the Current vis.",
         }
-        last = get_filter_specs(ldf.intent)[-1]
-        output = ldf.intent.copy()[0:-1]
+        last = get_filter_specs(ldf.lux.intent)[-1]
+        output = ldf.lux.intent.copy()[0:-1]
         # array of possible values for attribute
         arr = ldf[last.attribute].unique().tolist()
         output.append(lux.Clause(last.attribute, last.attribute, arr))

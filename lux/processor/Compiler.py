@@ -60,7 +60,7 @@ class Compiler:
             Compiler.remove_all_invalid([vis])
             # autofill viz related information
             Compiler.determine_encoding(ldf, vis)
-            ldf._compiled = True
+            ldf.lux._compiled = True
             return vis
 
     @staticmethod
@@ -95,7 +95,7 @@ class Compiler:
             for vis in vis_collection:
                 # autofill viz related information
                 Compiler.determine_encoding(ldf, vis)
-            ldf._compiled = True
+            ldf.lux._compiled = True
             return vis_collection
         elif _inferred_intent:
             return []
@@ -281,13 +281,13 @@ class Compiler:
                     attr = str(dimension.attribute._date_repr)
                 else:
                     attr = dimension.attribute
-                if ldf.cardinality[attr] == 1:
+                if ldf.lux.cardinality[attr] == 1:
                     return "bar", {"x": measure, "y": dimension}
                 else:
                     return "line", {"x": dimension, "y": measure}
             else:  # unordered categorical
                 # if cardinality large than 5 then sort bars
-                if ldf.cardinality[dimension.attribute] > 5:
+                if ldf.lux.cardinality[dimension.attribute] > 5:
                     dimension.sort = "ascending"
                 if utils.like_geo(dimension.get_attr()):
                     return "geographical", {"x": dimension, "y": measure}
@@ -326,7 +326,7 @@ class Compiler:
             dimensions = vis.get_attr_by_data_model("dimension")
             d1 = dimensions[0]
             d2 = dimensions[1]
-            if ldf.cardinality[d1.attribute] < ldf.cardinality[d2.attribute]:
+            if ldf.lux.cardinality[d1.attribute] < ldf.lux.cardinality[d2.attribute]:
                 # d1.channel = "color"
                 vis.remove_column_from_spec(d1.attribute)
                 dimension = d2
@@ -378,14 +378,14 @@ class Compiler:
         relevant_attributes = [
             auto_channel[channel].attribute for channel in auto_channel]
         relevant_min_max = dict(
-            (attr, ldf._min_max[attr])
+            (attr, ldf.lux._min_max[attr])
             for attr in relevant_attributes
-            if attr != "Record" and attr in ldf._min_max
+            if attr != "Record" and attr in ldf.lux._min_max
         )
         # Replace scatterplot with heatmap
         if vis.mark == "scatter" and lux.config.heatmap and len(ldf) > lux.config._heatmap_start:
             vis._postbin = True
-            ldf._message.add_unique(
+            ldf.lux._message.add_unique(
                 f"Large scatterplots detected: Lux is automatically binning scatterplots to heatmaps.",
                 priority=98,
             )
@@ -505,7 +505,7 @@ class Compiler:
                 for attr in attr_lst:
                     options = []
                     if clause.value == "?":
-                        options = ldf.unique_values[attr]
+                        options = ldf.lux.unique_values[attr]
                         specInd = _inferred_intent.index(clause)
                         _inferred_intent[specInd] = Clause(
                             attribute=clause.attribute,

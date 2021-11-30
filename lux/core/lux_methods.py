@@ -31,6 +31,7 @@ class LuxMethods:
     cardinality: tp.Any
     _rec_info: tp.Any
     _min_max: tp.Any
+    # pending find + replace
     _current_vis: tp.Any
     _widget: tp.Any
     _recommendation: tp.Any

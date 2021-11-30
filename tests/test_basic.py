@@ -7,6 +7,7 @@ import pandas as pd
 class TestBasic:
 
     def test_basic(self):
+        df: lux.LuxDataFrame
         df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
 
         assert hasattr(df, "lux")

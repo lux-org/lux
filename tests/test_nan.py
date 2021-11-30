@@ -56,7 +56,8 @@ def test_nan_data_type_detection():
     ], "Categorical columns containing NaNs should be treated as nominal data type"
     nona_test = test.dropna(subset=["some_nan"])
     nona_test.maintain_metadata()
-    inverted_data_type = lux.config.executor.invert_data_type(nona_test.data_type)
+    inverted_data_type = lux.config.executor.invert_data_type(
+        nona_test.data_type)
     assert inverted_data_type["nominal"] == [
         "fully_nan",
         "some_nan",
@@ -112,7 +113,7 @@ def test_nan_series_occurence():
     nan_series = LuxSeries(dvalues)
     ldf = pd.DataFrame(nan_series, columns=["col"])
     ldf._ipython_display_()
-    assert ldf.recommendation["Occurrence"][0].mark == "bar"
+    assert ldf.lux.recommendation["Occurrence"][0].mark == "bar"
 
 
 def test_numeric_with_nan():
@@ -156,7 +157,8 @@ def test_numeric_with_nan():
     assert (
         len(a.recommendation["Distribution"]) == 2
     ), "Testing a numeric columns with NaN, check that histograms are displayed"
-    assert "contains missing values" in a._message.to_html(), "Warning message for NaN displayed"
+    assert "contains missing values" in a._message.to_html(
+    ), "Warning message for NaN displayed"
     # a = a.dropna()
     # # TODO: Needs to be explicitly called, possible problem with metadata prpogation
     # a._ipython_display_()

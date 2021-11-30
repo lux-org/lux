@@ -144,14 +144,15 @@ class LuxSeries(pd.Series):
             # Ignore recommendations when Series a results of:
             # 1) Values of the series are of dtype objects (df.dtypes)
             is_dtype_series = (
-                all(isinstance(val, np.dtype) for val in self.values) and len(self.values) != 0
+                all(isinstance(val, np.dtype)
+                    for val in self.values) and len(self.values) != 0
             )
             # 2) Mixed type, often a result of a "row" acting as a series (df.iterrows, df.iloc[0])
             # Tolerant for NaNs + 1 type
             mixed_dtype = len(set([type(val) for val in self.values])) > 2
-            if ldf._pandas_only or is_dtype_series or mixed_dtype:
+            if ldf.lux._pandas_only or is_dtype_series or mixed_dtype:
                 print(series_repr)
-                ldf._pandas_only = False
+                ldf.lux._pandas_only = False
             else:
                 if not self.index.nlevels >= 2:
                     ldf.maintain_metadata()
@@ -165,11 +166,13 @@ class LuxSeries(pd.Series):
                 ldf.maintain_recs(is_series="Series")
 
                 # Observers(callback_function, listen_to_this_variable)
-                ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")
-                ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
+                ldf.lux._widget.observe(
+                    ldf.remove_deleted_recs, names="deletedIndices")
+                ldf.lux._widget.observe(
+                    ldf.set_intent_on_click, names="selectedIntentIndex")
 
-                self._widget = ldf._widget
-                self._recommendation = ldf._recommendation
+                self._widget = ldf.lux._widget
+                self._recommendation = ldf.lux._recommendation
 
                 # box = widgets.Box(layout=widgets.Layout(display='inline'))
                 button = widgets.Button(
@@ -191,7 +194,7 @@ class LuxSeries(pd.Series):
                             print(series_repr)
                         else:
                             # b.layout.display = "none"
-                            display(ldf._widget)
+                            display(ldf.lux._widget)
                             # b.layout.display = "inline-block"
 
                 button.on_click(on_button_clicked)
@@ -220,7 +223,7 @@ class LuxSeries(pd.Series):
 
             ldf.maintain_metadata()
             ldf.maintain_recs()
-            self._recommendation = ldf._recommendation
+            self._recommendation = ldf.lux._recommendation
         return self._recommendation
 
     @property

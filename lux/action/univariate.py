@@ -42,7 +42,7 @@ def univariate(ldf, *args):
     else:
         data_type_constraint = args[0][0]
 
-    filter_specs = utils.get_filter_specs(ldf._intent)
+    filter_specs = utils.get_filter_specs(ldf.lux._intent)
     ignore_rec_flag = False
     if data_type_constraint == "quantitative":
         possible_attributes = [

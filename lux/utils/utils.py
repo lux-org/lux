@@ -112,10 +112,10 @@ def check_if_id_like(df, attribute):
 
     # Strong signals
     # so that aggregated reset_index fields don't get misclassified
-    high_cardinality = df.cardinality[attribute] > 500
+    high_cardinality = df.lux.cardinality[attribute] > 500
     attribute_contain_id = re.search(
         r"id|ID|iD|Id", str(attribute)) is not None
-    almost_all_vals_unique = df.cardinality[attribute] >= 0.98 * len(df)
+    almost_all_vals_unique = df.lux.cardinality[attribute] >= 0.98 * len(df)
     is_string = pd.api.types.is_string_dtype(df[attribute])
     if is_string:
         # For string IDs, usually serial numbers or codes with alphanumerics have a consistent length (eg., CG-39405) with little deviation. For a high cardinality string field but not ID field (like Name or Brand), there is less uniformity across the string lengths.
@@ -143,13 +143,13 @@ def check_if_id_like(df, attribute):
         else:
             evenly_spaced = True
         if attribute_contain_id:
-            almost_all_vals_unique = df.cardinality[attribute] >= 0.75 * len(
+            almost_all_vals_unique = df.lux.cardinality[attribute] >= 0.75 * len(
                 df)
         return high_cardinality and (almost_all_vals_unique or evenly_spaced)
 
 
 def check_if_id_like_for_sql(df, attribute):
-    return df.cardinality[attribute] >= 0.98 * len(df)
+    return df.lux.cardinality[attribute] >= 0.98 * len(df)
 
 
 def like_nan(val):

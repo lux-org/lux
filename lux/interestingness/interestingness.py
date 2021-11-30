@@ -52,7 +52,8 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         n_dim = vis._ndim
         n_msr = vis._nmsr
         n_filter = len(filter_specs)
-        attr_specs = [clause for clause in vis_attrs_specs if clause.attribute != "Record"]
+        attr_specs = [
+            clause for clause in vis_attrs_specs if clause.attribute != "Record"]
         dimension_lst = vis.get_attr_by_data_model("dimension")
         measure_lst = vis.get_attr_by_data_model("measure")
         v_size = len(vis.data)
@@ -60,13 +61,13 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
         if (
             n_dim == 1
             and (n_msr == 0 or n_msr == 1)
-            and ldf.current_vis is not None
+            and ldf.lux.current_vis is not None
             and vis.get_attr_by_channel("y")[0].data_type == "quantitative"
-            and len(ldf.current_vis) == 1
-            and ldf.current_vis[0].mark == "line"
-            and len(get_filter_specs(ldf.intent)) > 0
+            and len(ldf.lux.current_vis) == 1
+            and ldf.lux.current_vis[0].mark == "line"
+            and len(get_filter_specs(ldf.lux.intent)) > 0
         ):
-            query_vc = VisList(ldf.current_vis, ldf)
+            query_vc = VisList(ldf.lux.current_vis, ldf)
             query_vis = query_vc[0]
             preprocess(query_vis)
             preprocess(vis)
@@ -114,7 +115,7 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
                 return -1
             color_attr = vis.get_attr_by_channel("color")[0].attribute
 
-            C = ldf.cardinality[color_attr]
+            C = ldf.lux.cardinality[color_attr]
             if C < 40:
                 return 1 / C
             else:
@@ -147,8 +148,8 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
             )
 
             try:
-                color_cardinality = ldf.cardinality[color_column]
-                groupby_cardinality = ldf.cardinality[groupby_column]
+                color_cardinality = ldf.lux.cardinality[color_column]
+                groupby_cardinality = ldf.lux.cardinality[groupby_column]
                 # scale down score based on number of categories
                 score = chi2_contingency(contingency_tbl)[0] * 0.9 ** (
                     color_cardinality + groupby_cardinality
@@ -163,7 +164,8 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
     except:
         if lux.config.interestingness_fallback:
             # Supress interestingness related issues
-            warnings.warn(f"An error occurred when computing interestingness for: {vis}")
+            warnings.warn(
+                f"An error occurred when computing interestingness for: {vis}")
             return -1
         else:
             raise
@@ -246,7 +248,8 @@ def deviation_from_overall(
 
     unfiltered_vis = copy.copy(vis)
     # Remove filters, keep only attribute intent
-    unfiltered_vis._inferred_intent = utils.get_attrs_specs(vis._inferred_intent)
+    unfiltered_vis._inferred_intent = utils.get_attrs_specs(
+        vis._inferred_intent)
     lux.config.executor.execute([unfiltered_vis], ldf)
     if exclude_nan:
         uv = unfiltered_vis.data.dropna()
@@ -254,7 +257,8 @@ def deviation_from_overall(
         uv = unfiltered_vis.data
     v = uv[msr_attribute]
     v = v / v.sum()
-    assert len(v) == len(v_filter), "Data for filtered and unfiltered vis have unequal length."
+    assert len(v) == len(
+        v_filter), "Data for filtered and unfiltered vis have unequal length."
     sig = v_filter_size / v_size  # significance factor
     # Euclidean distance as L2 function
 
@@ -267,7 +271,7 @@ def deviation_from_overall(
         v_rank = uv.rank()
         v_filter_rank = vdata.rank()
         # go through and count the number of ranking changes between the filtered and unfiltered data
-        numCategories = ldf.cardinality[dimList[0].attribute]
+        numCategories = ldf.lux.cardinality[dimList[0].attribute]
         for r in range(0, numCategories - 1):
             if v_rank[msr_attribute][r] != v_filter_rank[msr_attribute][r]:
                 rankSig += 1
@@ -306,7 +310,7 @@ def unevenness(vis: Vis, ldf: LuxDataFrame, measure_lst: list, dimension_lst: li
     if isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
         # If timestamp, use the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
         attr = str(attr._date_repr)
-    C = ldf.cardinality[attr]
+    C = ldf.lux.cardinality[attr]
     D = (0.9) ** C  # cardinality-based discounting factor
     v_flat = pd.Series([1 / C] * len(v))
     if is_datetime(v):

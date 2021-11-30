@@ -93,7 +93,7 @@ class LuxSeriesMethods(LuxMethods):
 
             ldf.maintain_metadata()
             ldf.maintain_recs()
-            self._recommendation = ldf._recommendation
+            self._recommendation = ldf.lux._recommendation
         return self._recommendation
 
     @property
