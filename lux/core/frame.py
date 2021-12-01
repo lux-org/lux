@@ -255,7 +255,8 @@ class LuxDataFrameMethods(LuxMethods):
 
         Example
         ----------
-        df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/absenteeism.csv")
+        df = pd.read_csv(
+            "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/absenteeism.csv")
         df.set_data_type({"ID":"id",
                           "Reason for absence":"nominal"})
         """
@@ -321,7 +322,7 @@ class LuxDataFrameMethods(LuxMethods):
 
     def show_all_column_vis(self):
         if len(self.df.columns) > 1 and len(self.df.columns) < 4 and self.intent == [] or self.intent is None:
-            vis = Vis(list(self.df.columns), self)
+            vis = Vis(list(self.df.columns), source=self.df)
             if vis.mark != "":
                 vis._all_column = True
                 self.current_vis = VisList([vis])
@@ -426,8 +427,7 @@ class LuxDataFrameMethods(LuxMethods):
     #######################################################
     @property
     def widget(self):
-        if self._widget:
-            return self._widget
+        return self._widget
 
     @property
     def exported(self) -> Union[Dict[str, VisList], VisList]:
@@ -534,12 +534,9 @@ class LuxDataFrameMethods(LuxMethods):
                              names="selectedIntentIndex")
 
     def display_pandas(self):
-        from IPython.display import display
+        from IPython.display import display, HTML
 
-        df = self.df.copy()
-
-        with remove_method(df.__class__, "_ipython_display_"):
-            display(df)
+        display(HTML(self.df._repr_html_()))
 
     def render_widget(self, renderer: str = "altair", input_current_vis=""):
         """
@@ -592,7 +589,7 @@ class LuxDataFrameMethods(LuxMethods):
             config={"plottingScale": lux.config.plotting_scale},
         )
 
-    @staticmethod
+    @ staticmethod
     def intent_to_JSON(intent):
         from lux.utils import utils
 
@@ -604,7 +601,7 @@ class LuxDataFrameMethods(LuxMethods):
         intent["filters"] = [clause.attribute for clause in filter_specs]
         return intent
 
-    @staticmethod
+    @ staticmethod
     def intent_to_string(intent):
         if intent:
             return ", ".join([clause.to_string() for clause in intent])
@@ -627,7 +624,7 @@ class LuxDataFrameMethods(LuxMethods):
         widget_spec["recommendation"].extend(recCollection)
         return widget_spec
 
-    @staticmethod
+    @ staticmethod
     def current_vis_to_JSON(vlist, input_current_vis=""):
         current_vis_spec = {}
         numVC = len(vlist)  # number of visualizations in the vis list
@@ -642,7 +639,7 @@ class LuxDataFrameMethods(LuxMethods):
             current_vis_spec["allcols"] = False
         return current_vis_spec
 
-    @staticmethod
+    @ staticmethod
     def rec_to_JSON(recs):
         rec_lst = []
         import copy
@@ -691,9 +688,9 @@ class LuxDataFrameMethods(LuxMethods):
             <link rel="lux" type="image/png" sizes="96x96" href="https://github.com/lux-org/lux-resources/blob/master/logo/favicon-96x96.png?raw=True">
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
             <!-- Load RequireJS, used by the IPywidgets for dependency management -->
-            <script 
-            src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js" 
-            integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" 
+            <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"
+            integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA="
             crossorigin="anonymous">
             </script>
 
@@ -701,18 +698,18 @@ class LuxDataFrameMethods(LuxMethods):
             <script
                 data-jupyter-widgets-cdn="https://unpkg.com/"
                 data-jupyter-widgets-cdn-only
-                src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js" 
+                src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js"
                 crossorigin="anonymous">
             </script>
-            
+
             <style type="text/css">
-                #intentBtn, #warnBtn, #exportBtn{
+                # intentBtn, #warnBtn, #exportBtn{
                 display: none;
                 }
-                #deleteBtn {
-                right: 10px !important; 
+                # deleteBtn {
+                right: 10px !important;
                 }
-                #footer-description{
+                # footer-description{
                 margin: 10px;
                 text-align: right;
                 }
@@ -723,7 +720,7 @@ class LuxDataFrameMethods(LuxMethods):
         <html>
         {header}
         <body>
-            
+
             <script type="application/vnd.jupyter.widget-state+json">
             {manager_state}
             </script>
@@ -731,7 +728,7 @@ class LuxDataFrameMethods(LuxMethods):
             <script type="application/vnd.jupyter.widget-view+json">
                 {widget_view}
             </script>
-            
+
             <div id="footer-description">
             These visualizations were generated by <a href="https://github.com/lux-org/lux/" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/lux-org/lux-resources/master/logo/logo.png" width="65px" style="vertical-align: middle;"></img></a>
             </div>

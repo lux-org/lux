@@ -39,7 +39,7 @@ class Vis:
         self.score = score
         self._all_column = False
         self.approx = False
-        self.refresh_source(self._source.df)
+        self.refresh_source(self._source)
 
     def __repr__(self):
         all_clause = all([isinstance(unit, lux.Clause)

@@ -125,7 +125,7 @@ class LuxSQLTable(lux.LuxDataFrame):
 
         try:
             if self._pandas_only:
-                display(self.display_pandas())
+                self.display_pandas()
                 self._pandas_only = False
             if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
                 self.maintain_metadata()
@@ -133,7 +133,8 @@ class LuxSQLTable(lux.LuxDataFrame):
                 if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
                     from lux.processor.Compiler import Compiler
 
-                    self.current_vis = Compiler.compile_intent(self, self._intent)
+                    self.current_vis = Compiler.compile_intent(
+                        self, self._intent)
 
             if lux.config.default_display == "lux":
                 self._toggle_pandas_display = False
@@ -144,8 +145,10 @@ class LuxSQLTable(lux.LuxDataFrame):
             self.maintain_recs()
 
             # Observers(callback_function, listen_to_this_variable)
-            self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
-            self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+            self._widget.observe(self.remove_deleted_recs,
+                                 names="deletedIndices")
+            self._widget.observe(self.set_intent_on_click,
+                                 names="selectedIntentIndex")
 
             button = widgets.Button(
                 description="Toggle Table/Lux",
@@ -181,7 +184,8 @@ class LuxSQLTable(lux.LuxDataFrame):
                         notification = "Here is a preview of the **{}** database table: **{}**".format(
                             self.table_name, connect_str
                         )
-                        display(Markdown(notification), self._sampled.display_pandas())
+                        display(Markdown(notification),
+                                self._sampled.display_pandas())
                     else:
                         # b.layout.display = "none"
                         display(self._widget)
@@ -201,6 +205,6 @@ class LuxSQLTable(lux.LuxDataFrame):
                     stacklevel=2,
                 )
                 warnings.warn(traceback.format_exc())
-                display(self.display_pandas())
+                self.display_pandas()
             else:
                 raise

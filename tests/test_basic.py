@@ -1,14 +1,17 @@
 
+from IPython.core.display import display
 from .context import lux
 import pytest
 import pandas as pd
+import numpy as np
 
 
 class TestBasic:
 
     def test_basic(self):
         df: lux.LuxDataFrame
-        df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+        df = pd.DataFrame({"a": np.random.randint(0, 5, size=(
+            20,)), "b": np.random.randint(0, 5, size=(20,))})
 
         assert hasattr(df, "lux")
 
@@ -27,10 +30,29 @@ class TestBasic:
         assert series.lux._intent is not None
         assert series.lux._intent[0].attribute == "a"
 
-    def test_basic(self):
+    def test_ipython_display(self):
         df: lux.LuxDataFrame
-        df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+        df = pd.DataFrame({"a": np.random.randint(0, 5, size=(
+            20,)), "b": np.random.randint(0, 5, size=(20,))})
 
         assert hasattr(df, "lux")
 
         df._ipython_display_()
+
+    def test_display_widget(self):
+        df: lux.LuxDataFrame
+        df = pd.DataFrame({"a": np.random.randint(0, 5, size=(
+            20,)), "b": np.random.randint(0, 5, size=(20,))})
+
+        assert hasattr(df, "lux")
+
+        display(df.lux.widget)
+
+    def test_rename(self):
+
+        df = pd.DataFrame({"a": np.random.randint(0, 5, size=(
+            20,)), "b": np.random.randint(0, 5, size=(20,))})
+
+        df = df.rename(columns={"a": "c"})
+
+        assert "c" in df.columns

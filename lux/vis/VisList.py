@@ -312,7 +312,7 @@ class VisList:
             from lux.processor.Compiler import Compiler
 
             self._source = ldf
-            self._source.maintain_metadata()
+            self._source.lux.maintain_metadata()
             if len(self._input_lst) > 0:
                 approx = False
                 if self._is_vis_input():

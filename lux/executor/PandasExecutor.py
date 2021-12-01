@@ -182,13 +182,13 @@ class PandasExecutor(Executor):
             groupby_attr = y_attr
             measure_attr = x_attr
             agg_func = x_attr.aggregation
-        if groupby_attr.attribute in vis.data.unique_values.keys():
-            attr_unique_vals = vis.data.unique_values.get(
+        if groupby_attr.attribute in vis.data.lux.unique_values.keys():
+            attr_unique_vals = vis.data.lux.unique_values.get(
                 groupby_attr.attribute)
         # checks if color is specified in the Vis
         if len(vis.get_attr_by_channel("color")) == 1:
             color_attr = vis.get_attr_by_channel("color")[0]
-            color_attr_vals = vis.data.unique_values[color_attr.attribute]
+            color_attr_vals = vis.data.lux.unique_values[color_attr.attribute]
             color_cardinality = len(color_attr_vals)
             # NOTE: might want to have a check somewhere to not use categorical variables with greater than some number of categories as a Color variable----------------
             has_color = True
