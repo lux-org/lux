@@ -83,7 +83,7 @@ def check_if_id_like(df, attribute):
     is_string = pd.api.types.is_string_dtype(df[attribute])
     if is_string:
         # For string IDs, usually serial numbers or codes with alphanumerics have a consistent length (eg., CG-39405) with little deviation. For a high cardinality string field but not ID field (like Name or Brand), there is less uniformity across the string lengths.
-        if df._length > 50:
+        if len(df) > 50:
             if lux.config.executor.name == "PandasExecutor":
                 sampled = df[attribute].sample(50, random_state=99)
             else:
