@@ -106,7 +106,6 @@ class PandasExecutor(Executor):
         None
         """
 
-        filter_executed = {}
         for vis in vislist:
             # The vis data starts off being original or sampled dataframe
             vis._source = ldf
@@ -117,7 +116,7 @@ class PandasExecutor(Executor):
                 PandasExecutor.execute_approx_sample(ldf)
                 vis._vis_data = ldf._approx_sample
                 vis.approx = True
-            filter_executed[vis] = PandasExecutor.execute_filter(vis)
+            filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
             attributes = set([])
             for clause in vis._inferred_intent:
@@ -127,7 +126,7 @@ class PandasExecutor(Executor):
             vis._vis_data = vis._vis_data[list(attributes)]
             vis._vis_data = PandasExecutor.execute_sampling(vis._vis_data)
             if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
-                PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed[vis])
+                PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
                 PandasExecutor.execute_binning(ldf, vis)
             elif vis.mark == "heatmap":
