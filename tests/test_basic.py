@@ -56,3 +56,14 @@ class TestBasic:
         df = df.rename(columns={"a": "c"})
 
         assert "c" in df.columns
+
+    def test_from_lux_object(self):
+
+        df = pd.DataFrame({"a": np.random.randint(0, 5, size=(
+            20,)), "b": np.random.randint(0, 5, size=(20,))})
+
+        df.lux._intent = ["x"]
+
+        lux2 = df.lux.from_lux_object("df", df, df.lux)
+
+        assert lux2.df is df.lux.df

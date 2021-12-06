@@ -47,17 +47,19 @@ class LuxMethods:
     name: tp.Any
     _compiled: bool
     output: tp.Any
+    _length: tp.Optional[int]
 
     @classmethod
     def from_lux_object(cls, field: str, obj: tp.Any, other: "LuxMethods"):
         annotations = get_all_annotations(cls, bound=LuxMethods)
         attributes = {}
 
-        for field in annotations:
-            attributes[field] = getattr(other, field, None)
+        for annotation_field in annotations:
+            attributes[annotation_field] = getattr(
+                other, annotation_field, None)
 
         attributes[field] = obj
 
-        series_methods = cls.__new__(cls)
-        series_methods.__dict__.update(attributes)
-        return series_methods
+        lux_methods = cls.__new__(cls)
+        lux_methods.__dict__.update(attributes)
+        return lux_methods

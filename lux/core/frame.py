@@ -124,7 +124,7 @@ class LuxDataFrameMethods(LuxMethods):
         # Check that metadata has not yet been computed
         if lux.config.lazy_maintain:
             # Check that metadata has not yet been computed
-            if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
+            if not self._metadata_fresh:
                 # only compute metadata information if the dataframe is non-empty
                 self.compute_metadata()
         else:
@@ -308,8 +308,8 @@ class LuxDataFrameMethods(LuxMethods):
             and self._current_vis[0].data is None
             and self._current_vis[0].intent
         )
-        if valid_current_vis and Validator.validate_intent(self._current_vis[0].intent, self):
-            lux.config.executor.execute(self._current_vis, self)
+        if valid_current_vis and Validator.validate_intent(self._current_vis[0].intent, self.df):
+            lux.config.executor.execute(self._current_vis, self.df)
         return self._current_vis
 
     @current_vis.setter
@@ -377,7 +377,7 @@ class LuxDataFrameMethods(LuxMethods):
 
         # If lazy, check that recs has not yet been computed
         lazy_but_not_computed = lux.config.lazy_maintain and (
-            not hasattr(rec_df, "_recs_fresh") or not rec_df.lux._recs_fresh
+            not rec_df.lux._recs_fresh
         )
         eager = not lux.config.lazy_maintain
 

@@ -57,10 +57,12 @@ def test_temporal_action(global_var):
     for entry in zip(test_data, test_data_vis_count):
         df, num_vis = entry[0], entry[1]
         df._repr_html_()
-        assert ("Temporal" in df.recommendation, "Temporal visualizations should be generated.")
-        recommended = df.recommendation["Temporal"]
-        assert (len(recommended) == num_vis, "Incorrect number of temporal visualizations generated.")
-        temporal_col = [c for c in df.columns if df.data_type[c] == "temporal"]
+        assert "Temporal" in df.lux.recommendation, "Temporal visualizations should be generated."
+        recommended = df.lux.recommendation["Temporal"]
+        assert len(
+            recommended) == num_vis, "Incorrect number of temporal visualizations generated."
+        temporal_col = [
+            c for c in df.columns if df.lux.data_type[c] == "temporal"]
         overall_vis = [
             vis.get_attr_by_channel("x")[0].attribute
             for vis in recommended
@@ -73,20 +75,21 @@ def test_vary_filter_val(global_var):
     lux.config.set_executor_type("Pandas")
     df = pytest.olympic
     vis = Vis(["Height", "SportType=Ball"], df)
-    df.set_intent_as_vis(vis)
+    df.lux.set_intent_as_vis(vis)
     df._ipython_display_()
-    assert len(df.recommendation["Filter"]) == len(df["SportType"].unique()) - 1
-    linechart = list(filter(lambda x: x.mark == "line", df.recommendation["Enhance"]))[0]
-    assert (
-        linechart.get_attr_by_channel("x")[0].attribute == "Year"
-    ), "Ensure recommended vis does not inherit input vis channel"
+    assert len(df.lux.recommendation["Filter"]) == len(
+        df["SportType"].unique()) - 1
+    linechart = list(filter(lambda x: x.mark == "line",
+                     df.lux.recommendation["Enhance"]))[0]
+    assert linechart.get_attr_by_channel(
+        "x")[0].attribute == "Year", "Ensure recommended vis does not inherit input vis channel"
 
 
 def test_filter_inequality(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.set_intent(
+    df.lux.set_intent(
         [
             lux.Clause(attribute="Horsepower"),
             lux.Clause(attribute="MilesPerGal"),
@@ -97,7 +100,7 @@ def test_filter_inequality(global_var):
 
     from lux.utils.utils import get_filter_specs
 
-    complement_vis = df.recommendation["Filter"][0]
+    complement_vis = df.lux.recommendation["Filter"][0]
     fltr_clause = get_filter_specs(complement_vis._intent)[0]
     assert fltr_clause.filter_op == "<="
     assert fltr_clause.value == 10
@@ -109,13 +112,14 @@ def test_generalize_action(global_var):
     df["Year"] = pd.to_datetime(
         df["Year"], format="%Y"
     )  # change pandas dtype for the column "Year" to datetype
-    df.set_intent(["Acceleration", "MilesPerGal", "Cylinders", "Origin=USA"])
+    df.lux.set_intent(["Acceleration", "MilesPerGal",
+                      "Cylinders", "Origin=USA"])
     df._ipython_display_()
-    assert len(df.recommendation["Generalize"]) == 4
-    v1 = df.recommendation["Generalize"][0]
-    v2 = df.recommendation["Generalize"][1]
-    v3 = df.recommendation["Generalize"][2]
-    v4 = df.recommendation["Generalize"][3]
+    assert len(df.lux.recommendation["Generalize"]) == 4
+    v1 = df.lux.recommendation["Generalize"][0]
+    v2 = df.lux.recommendation["Generalize"][1]
+    v3 = df.lux.recommendation["Generalize"][2]
+    v4 = df.lux.recommendation["Generalize"][3]
 
     for clause in v4._inferred_intent:
         assert clause.value == ""  # No filter value
@@ -133,12 +137,14 @@ def test_row_column_group(global_var):
     )
     df["Date"] = pd.to_datetime(df["Date"])
     tseries = df.pivot(index="State", columns="Date", values="Value")
+    assert tseries.lux.df is not None
     # Interpolating missing values
     tseries[tseries.columns.min()] = tseries[tseries.columns.min()].fillna(0)
-    tseries[tseries.columns.max()] = tseries[tseries.columns.max()].fillna(tseries.max(axis=1))
+    tseries[tseries.columns.max()] = tseries[tseries.columns.max()
+                                             ].fillna(tseries.max(axis=1))
     tseries = tseries.interpolate("zero", axis=1)
     tseries._ipython_display_()
-    assert list(tseries.recommendation.keys()) == ["Temporal"]
+    assert list(tseries.lux.recommendation.keys()) == ["Temporal"]
 
 
 def test_groupby(global_var):
@@ -220,16 +226,18 @@ def test_custom_aggregation(global_var):
     import numpy as np
 
     df = pytest.college_df
-    df.set_intent(["HighestDegree", lux.Clause("AverageCost", aggregation=np.ptp)])
+    df.lux.set_intent(["HighestDegree", lux.Clause(
+        "AverageCost", aggregation=np.ptp)])
     df._ipython_display_()
-    assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]
+    assert list(df.lux.recommendation.keys()) == [
+        "Enhance", "Filter", "Generalize"]
     df.clear_intent()
 
 
 def test_year_filter_value(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
-    df.set_intent(["Acceleration", "Horsepower"])
+    df.lux.set_intent(["Acceleration", "Horsepower"])
     df._ipython_display_()
     list_of_vis_with_year_filter = list(
         filter(
@@ -242,7 +250,7 @@ def test_year_filter_value(global_var):
                 )
             )
             != 0,
-            df.recommendation["Filter"],
+            df.lux.recommendation["Filter"],
         )
     )
     vis = list_of_vis_with_year_filter[0]
@@ -256,7 +264,7 @@ def test_similarity(global_var):
     lux.config.early_pruning = False
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
-    df.set_intent(
+    df.lux.set_intent(
         [
             lux.Clause("Year", channel="x"),
             lux.Clause("Displacement", channel="y"),
@@ -264,18 +272,20 @@ def test_similarity(global_var):
         ]
     )
     df._ipython_display_()
-    assert len(df.recommendation["Similarity"]) == 2
-    ranked_list = df.recommendation["Similarity"]
+    assert len(df.lux.recommendation["Similarity"]) == 2
+    ranked_list = df.lux.recommendation["Similarity"]
 
     japan_vis = list(
         filter(
-            lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Japan",
+            lambda vis: vis.get_attr_by_attr_name(
+                "Origin")[0].value == "Japan",
             ranked_list,
         )
     )[0]
     europe_vis = list(
         filter(
-            lambda vis: vis.get_attr_by_attr_name("Origin")[0].value == "Europe",
+            lambda vis: vis.get_attr_by_attr_name(
+                "Origin")[0].value == "Europe",
             ranked_list,
         )
     )[0]
@@ -298,17 +308,19 @@ def test_similarity2():
         lux.Clause("City=Crofton"),
     ]
 
-    ranked_list = df.recommendation["Similarity"]
+    ranked_list = df.lux.recommendation["Similarity"]
 
     morrisville_vis = list(
         filter(
-            lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Morrisville",
+            lambda vis: vis.get_attr_by_attr_name(
+                "City")[0].value == "Morrisville",
             ranked_list,
         )
     )[0]
     watertown_vis = list(
         filter(
-            lambda vis: vis.get_attr_by_attr_name("City")[0].value == "Watertown",
+            lambda vis: vis.get_attr_by_attr_name(
+                "City")[0].value == "Watertown",
             ranked_list,
         )
     )[0]
@@ -316,7 +328,8 @@ def test_similarity2():
 
 
 def test_intent_retained():
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
     df.intent = ["Attrition"]
     df._ipython_display_()
 
@@ -327,11 +340,12 @@ def test_intent_retained():
     assert df._metadata_fresh == False
 
     df._ipython_display_()
-    assert list(df.recommendation.keys()) == ["Enhance", "Filter"]
+    assert list(df.lux.recommendation.keys()) == ["Enhance", "Filter"]
 
 
 def test_metadata_propogate_invalid_intent():
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
     df.intent = ["Attrition"]
     new_df = df.groupby("BusinessTravel").mean()
     assert new_df.intent[0].attribute == "Attrition", "User-specified intent is retained"

@@ -43,7 +43,8 @@ def register_new_action(validator: bool = True):
         return False
 
     if validator:
-        lux.config.register_action("bars", random_categorical, contain_horsepower)
+        lux.config.register_action(
+            "bars", random_categorical, contain_horsepower)
     else:
         lux.config.register_action("bars", random_categorical)
     return df
@@ -77,7 +78,7 @@ def test_fail_validator():
 
 def test_pass_validator():
     df = register_new_action()
-    df.set_intent(["Acceleration", "Horsepower"])
+    df.lux.set_intent(["Acceleration", "Horsepower"])
     df._ipython_display_()
     assert len(df.recommendation["bars"]) > 0
     assert (
@@ -116,12 +117,13 @@ def test_invalid_validator(global_var):
         }
 
     with pytest.raises(ValueError, match="Display condition must be a callable"):
-        lux.config.register_action("bars", random_categorical, "not a Callable")
+        lux.config.register_action(
+            "bars", random_categorical, "not a Callable")
 
 
 def test_remove_action():
     df = register_new_action()
-    df.set_intent(["Acceleration", "Horsepower"])
+    df.lux.set_intent(["Acceleration", "Horsepower"])
     df._ipython_display_()
     assert (
         "bars" in df.recommendation,
@@ -173,7 +175,7 @@ def test_remove_default_actions(global_var):
     )
 
     df = register_new_action()
-    df.set_intent(["Acceleration", "Horsepower"])
+    df.lux.set_intent(["Acceleration", "Horsepower"])
     df._ipython_display_()
     assert (
         "bars" in df.recommendation,
@@ -229,7 +231,8 @@ def test_sampling_flag_config():
     N = int(1.1 * lux.config.sampling_cap)
     df = pd.DataFrame({"col1": np.random.rand(N), "col2": np.random.rand(N)})
     df.maintain_recs()
-    assert len(df.recommendation["Correlation"][0].data) == lux.config.sampling_cap
+    assert len(df.recommendation["Correlation"]
+               [0].data) == lux.config.sampling_cap
     lux.config.sampling = True
     lux.config.heatmap = True
     lux.config.early_pruning = True
@@ -250,11 +253,13 @@ def test_sampling_parameters_config():
 
 def test_heatmap_flag_config():
     lux.config.heatmap = True
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df._ipython_display_()
     assert df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = False
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df._ipython_display_()
     assert not df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True

@@ -19,7 +19,7 @@ import pytest
 
 def test_case1(global_var):
     df = pytest.car_df
-    df.set_intent(["Horsepower"])
+    df.lux.set_intent(["Horsepower"])
     assert type(df._intent[0]) is lux.Clause
     assert df._intent[0].attribute == "Horsepower"
     df.clear_intent()
@@ -27,7 +27,7 @@ def test_case1(global_var):
 
 def test_case2(global_var):
     df = pytest.car_df
-    df.set_intent(["Horsepower", lux.Clause("MilesPerGal", channel="x")])
+    df.lux.set_intent(["Horsepower", lux.Clause("MilesPerGal", channel="x")])
     assert type(df._intent[0]) is lux.Clause
     assert df._intent[0].attribute == "Horsepower"
     assert type(df._intent[1]) is lux.Clause
@@ -37,7 +37,7 @@ def test_case2(global_var):
 
 def test_case3(global_var):
     df = pytest.car_df
-    df.set_intent(["Horsepower", "Origin=USA"])
+    df.lux.set_intent(["Horsepower", "Origin=USA"])
     assert type(df._intent[0]) is lux.Clause
     assert df._intent[0].attribute == "Horsepower"
     assert type(df._intent[1]) is lux.Clause
@@ -48,7 +48,7 @@ def test_case3(global_var):
 
 def test_case4(global_var):
     df = pytest.car_df
-    df.set_intent(["Horsepower", "Origin=USA|Japan"])
+    df.lux.set_intent(["Horsepower", "Origin=USA|Japan"])
     assert type(df._intent[0]) is lux.Clause
     assert df._intent[0].attribute == "Horsepower"
     assert type(df._intent[1]) is lux.Clause
@@ -59,14 +59,14 @@ def test_case4(global_var):
 
 def test_case5(global_var):
     df = pytest.car_df
-    df.set_intent([["Horsepower", "MilesPerGal", "Weight"], "Origin=USA"])
+    df.lux.set_intent([["Horsepower", "MilesPerGal", "Weight"], "Origin=USA"])
     assert type(df._intent[0]) is lux.Clause
     assert df._intent[0].attribute == ["Horsepower", "MilesPerGal", "Weight"]
     assert type(df._intent[1]) is lux.Clause
     assert df._intent[1].attribute == "Origin"
     assert df._intent[1].value == "USA"
 
-    df.set_intent(["Horsepower|MilesPerGal|Weight", "Origin=USA"])
+    df.lux.set_intent(["Horsepower|MilesPerGal|Weight", "Origin=USA"])
     assert type(df._intent[0]) is lux.Clause
     assert df._intent[0].attribute == ["Horsepower", "MilesPerGal", "Weight"]
     assert type(df._intent[1]) is lux.Clause
@@ -77,7 +77,7 @@ def test_case5(global_var):
 
 def test_case6(global_var):
     df = pytest.car_df
-    df.set_intent(["Horsepower", "Origin=?"])
+    df.lux.set_intent(["Horsepower", "Origin=?"])
     df._ipython_display_()
     assert type(df._intent[0]) is lux.Clause
     assert df._intent[0].attribute == "Horsepower"

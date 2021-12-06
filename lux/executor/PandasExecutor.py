@@ -84,13 +84,13 @@ class PandasExecutor(Executor):
         ----------
         ldf : LuxDataFrame
         """
-        if ldf._approx_sample is None:
+        if ldf.lux._approx_sample is None:
             if len(ldf.lux._sampled) > lux.config.early_pruning_sample_start:
-                ldf._approx_sample = ldf.lux._sampled.sample(
+                ldf.lux._approx_sample = ldf.lux._sampled.sample(
                     n=lux.config.early_pruning_sample_cap, random_state=1
                 )
             else:
-                ldf._approx_sample = ldf.lux._sampled
+                ldf.lux._approx_sample = ldf.lux._sampled
 
     @staticmethod
     def execute(vislist: VisList, ldf: LuxDataFrame, approx=False):
@@ -122,7 +122,7 @@ class PandasExecutor(Executor):
             if approx:
                 vis._original_df = vis._vis_data
                 PandasExecutor.execute_approx_sample(ldf)
-                vis._vis_data = ldf._approx_sample
+                vis._vis_data = ldf.lux._approx_sample
                 vis.approx = True
             filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
@@ -146,7 +146,7 @@ class PandasExecutor(Executor):
                     vis._mark = "heatmap"
                     PandasExecutor.execute_2D_binning(vis)
             # Ensure that intent is not propogated to the vis data (bypass intent setter, since trigger vis.data metadata recompute)
-            vis.data._intent = []
+            vis.data.lux._intent = []
 
     @staticmethod
     def execute_aggregate(vis: Vis, isFiltered=True):
@@ -572,7 +572,7 @@ class PandasExecutor(Executor):
         ldf.lux.unique_values = {}
         ldf.lux._min_max = {}
         ldf.lux.cardinality = {}
-        ldf._length = len(ldf)
+        ldf.lux._length = len(ldf)
 
         for attribute in ldf.columns:
 

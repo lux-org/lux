@@ -37,12 +37,14 @@ def test_vis_set_specs(global_var):
 def test_vis_collection(global_var):
     df = pytest.olympic
     vlist = VisList(["Height", "SportType=Ball", "?"], df)
-    vis_with_year = list(filter(lambda x: x.get_attr_by_attr_name("Year") != [], vlist))[0]
+    vis_with_year = list(
+        filter(lambda x: x.get_attr_by_attr_name("Year") != [], vlist))[0]
     assert vis_with_year.get_attr_by_channel("x")[0].attribute == "Year"
     # remove 1 for vis with same filter attribute and remove 1 vis with for same attribute
     assert len(vlist) == len(df.columns) - 1 - 1
     vlist = VisList(["Height", "?"], df)
-    assert len(vlist) == len(df.columns) - 1  # remove 1 for vis with for same attribute
+    # remove 1 for vis with for same attribute
+    assert len(vlist) == len(df.columns) - 1
 
 
 def test_vis_collection_set_intent(global_var):
@@ -50,7 +52,8 @@ def test_vis_collection_set_intent(global_var):
     vlist = VisList(["Height", "SportType=Ice", "?"], df)
     vlist.set_intent(["Height", "SportType=Boat", "?"])
     for v in vlist._collection:
-        filter_vspec = list(filter(lambda x: x.channel == "", v._inferred_intent))[0]
+        filter_vspec = list(
+            filter(lambda x: x.channel == "", v._inferred_intent))[0]
         assert filter_vspec.value == "Boat"
     df.clear_intent()
 
@@ -78,7 +81,8 @@ def test_remove_identity(global_var):
 def test_refresh_collection(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
-    df.set_intent([lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")])
+    df.lux.set_intent([lux.Clause(attribute="Acceleration"),
+                      lux.Clause(attribute="Horsepower")])
     df._ipython_display_()
     enhanceCollection = df.recommendation["Enhance"]
     enhanceCollection.refresh_source(df[df["Origin"] == "USA"])
@@ -89,7 +93,8 @@ def test_vis_custom_aggregation_as_str(global_var):
     df = pytest.college_df
     import numpy as np
 
-    vis = Vis(["HighestDegree", lux.Clause("AverageCost", aggregation="max")], df)
+    vis = Vis(["HighestDegree", lux.Clause(
+        "AverageCost", aggregation="max")], df)
     assert vis.get_attr_by_data_model("measure")[0].aggregation == "max"
     assert vis.get_attr_by_data_model("measure")[0]._aggregation_name == "max"
 
@@ -99,7 +104,8 @@ def test_vis_custom_aggregation_as_numpy_func(global_var):
     from lux.vis.Vis import Vis
     import numpy as np
 
-    vis = Vis(["HighestDegree", lux.Clause("AverageCost", aggregation=np.ptp)], df)
+    vis = Vis(["HighestDegree", lux.Clause(
+        "AverageCost", aggregation=np.ptp)], df)
     assert vis.get_attr_by_data_model("measure")[0].aggregation == np.ptp
     assert vis.get_attr_by_data_model("measure")[0]._aggregation_name == "ptp"
 
@@ -379,7 +385,8 @@ def test_histogram_uniform():
 
 
 def test_heatmap_chart(global_var):
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["price", "longitude"], df)
     vis_code = vis.to_altair()
@@ -406,7 +413,8 @@ def test_heatmap_chart(global_var):
 
 
 def test_colored_heatmap_chart(global_var):
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["price", "longitude", "availability_365"], df)
     vis_code = vis.to_altair()
@@ -521,13 +529,15 @@ def test_matplotlib_default_actions_registered_2(global_var):
 
 
 def test_vegalite_heatmap_flag_config():
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "vegalite"
     df._ipython_display_()
     # Heatmap Chart
     assert df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = False
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df = df.copy()
     assert not df.recommendation["Correlation"][0]._postbin
     assert "Geographical" not in df.recommendation
@@ -535,13 +545,15 @@ def test_vegalite_heatmap_flag_config():
 
 
 def test_matplotlib_heatmap_flag_config():
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "matplotlib"
     df._ipython_display_()
     # Heatmap Chart
     assert df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = False
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df = df.copy()
     assert not df.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True
@@ -561,7 +573,8 @@ def test_all_column_current_vis():
 
 
 def test_all_column_current_vis_filter():
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     two_col_df = df[["Year", "Displacement"]]
     two_col_df._ipython_display_()

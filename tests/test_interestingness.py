@@ -25,7 +25,7 @@ def test_interestingness_1_0_0(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.set_intent([lux.Clause(attribute="Origin")])
+    df.lux.set_intent([lux.Clause(attribute="Origin")])
     df._ipython_display_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
@@ -64,7 +64,7 @@ def test_interestingness_1_0_1(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.set_intent(
+    df.lux.set_intent(
         [
             lux.Clause(attribute="Origin", filter_op="=", value="USA"),
             lux.Clause(attribute="Cylinders"),
@@ -80,7 +80,7 @@ def test_interestingness_0_1_0(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.set_intent([lux.Clause(attribute="Horsepower")])
+    df.lux.set_intent([lux.Clause(attribute="Horsepower")])
     df._ipython_display_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
@@ -125,7 +125,7 @@ def test_interestingness_0_1_1(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.set_intent(
+    df.lux.set_intent(
         [
             lux.Clause(attribute="Origin", filter_op="=", value="?"),
             lux.Clause(attribute="MilesPerGal"),
@@ -133,7 +133,8 @@ def test_interestingness_0_1_1(global_var):
     )
     df._ipython_display_()
     assert interestingness(df.recommendation["Current Vis"][0], df) != None
-    assert str(df.recommendation["Current Vis"][0]._inferred_intent[2].value) == "USA"
+    assert str(df.recommendation["Current Vis"]
+               [0]._inferred_intent[2].value) == "USA"
     df.clear_intent()
 
 
@@ -142,7 +143,8 @@ def test_interestingness_1_1_0(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.set_intent([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Year")])
+    df.lux.set_intent([lux.Clause(attribute="Horsepower"),
+                      lux.Clause(attribute="Year")])
     df._ipython_display_()
     # check that top recommended Enhance graph score is not none (all graphs here have same score)
     assert interestingness(df.recommendation["Enhance"][0], df) != None
@@ -173,10 +175,11 @@ def test_interestingness_1_1_1(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.set_intent(
+    df.lux.set_intent(
         [
             lux.Clause(attribute="Horsepower"),
-            lux.Clause(attribute="Origin", filter_op="=", value="USA", bin_size=20),
+            lux.Clause(attribute="Origin", filter_op="=",
+                       value="USA", bin_size=20),
         ]
     )
     df._ipython_display_()
@@ -187,17 +190,20 @@ def test_interestingness_1_1_1(global_var):
     rank3 = -1
     for f in range(0, len(df.recommendation["Enhance"])):
         if (
-            str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
+            str(df.recommendation["Enhance"]
+                [f]._inferred_intent[2].value) == "USA"
             and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Cylinders"
         ):
             rank1 = f
         if (
-            str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
+            str(df.recommendation["Enhance"]
+                [f]._inferred_intent[2].value) == "USA"
             and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Weight"
         ):
             rank2 = f
         if (
-            str(df.recommendation["Enhance"][f]._inferred_intent[2].value) == "USA"
+            str(df.recommendation["Enhance"]
+                [f]._inferred_intent[2].value) == "USA"
             and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Horsepower"
         ):
             rank3 = f
@@ -230,7 +236,8 @@ def test_interestingness_0_2_0(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.set_intent([lux.Clause(attribute="Horsepower"), lux.Clause(attribute="Acceleration")])
+    df.lux.set_intent([lux.Clause(attribute="Horsepower"),
+                      lux.Clause(attribute="Acceleration")])
     df._ipython_display_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
     assert interestingness(df.recommendation["Enhance"][0], df) != None
@@ -238,12 +245,14 @@ def test_interestingness_0_2_0(global_var):
     rank2 = -1
     for f in range(0, len(df.recommendation["Enhance"])):
         if (
-            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Origin"
+            str(df.recommendation["Enhance"]
+                [f]._inferred_intent[2].attribute) == "Origin"
             and str(df.recommendation["Enhance"][f].mark) == "scatter"
         ):
             rank1 = f
         if (
-            str(df.recommendation["Enhance"][f]._inferred_intent[2].attribute) == "Displacement"
+            str(df.recommendation["Enhance"]
+                [f]._inferred_intent[2].attribute) == "Displacement"
             and str(df.recommendation["Enhance"][f].mark) == "scatter"
         ):
             rank2 = f
@@ -260,7 +269,7 @@ def test_interestingness_0_2_1(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.set_intent(
+    df.lux.set_intent(
         [
             lux.Clause(attribute="Horsepower"),
             lux.Clause(attribute="MilesPerGal"),
