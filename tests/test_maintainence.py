@@ -22,33 +22,33 @@ from lux.vis.Vis import Vis
 def test_metadata_subsequent_display(global_var):
     df = pytest.car_df
     df._ipython_display_()
-    assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
+    assert df.lux._metadata_fresh == True, "Failed to maintain metadata after display df"
     df._ipython_display_()
-    assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
+    assert df.lux._metadata_fresh == True, "Failed to maintain metadata after display df"
 
 
 def test_metadata_subsequent_vis(global_var):
     df = pytest.car_df
     df._ipython_display_()
-    assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
+    assert df.lux._metadata_fresh == True, "Failed to maintain metadata after display df"
     vis = Vis(["Acceleration", "Horsepower"], df)
-    assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
+    assert df.lux._metadata_fresh == True, "Failed to maintain metadata after display df"
 
 
 def test_metadata_inplace_operation(global_var):
     df = pytest.car_df
     df._ipython_display_()
-    assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
+    assert df.lux._metadata_fresh == True, "Failed to maintain metadata after display df"
     df.dropna(inplace=True)
-    assert df._metadata_fresh == False, "Failed to expire metadata after in-place Pandas operation"
+    assert df.lux._metadata_fresh == False, "Failed to expire metadata after in-place Pandas operation"
 
 
 def test_metadata_new_df_operation(global_var):
     df = pytest.car_df
     df._ipython_display_()
-    assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
+    assert df.lux._metadata_fresh == True, "Failed to maintain metadata after display df"
     df[["MilesPerGal", "Acceleration"]]
-    assert df._metadata_fresh == True, "Failed to maintain metadata after display df"
+    assert df.lux._metadata_fresh == True, "Failed to maintain metadata after display df"
     df2 = df[["MilesPerGal", "Acceleration"]]
     assert not hasattr(df2, "_metadata_fresh")
 
@@ -101,4 +101,5 @@ def test_intent_cleared_after_vis_data():
     vis.data._ipython_display_()
     all_column_vis = vis.data.current_vis[0]
     assert all_column_vis.get_attr_by_channel("x")[0].attribute == "Year"
-    assert all_column_vis.get_attr_by_channel("y")[0].attribute == "PctForeclosured"
+    assert all_column_vis.get_attr_by_channel(
+        "y")[0].attribute == "PctForeclosured"

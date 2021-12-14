@@ -337,7 +337,7 @@ def test_intent_retained():
     assert df.current_vis != None
     assert df.intent != None
     assert df._recs_fresh == False
-    assert df._metadata_fresh == False
+    assert df.lux._metadata_fresh == False
 
     df._ipython_display_()
     assert list(df.lux.recommendation.keys()) == ["Enhance", "Filter"]

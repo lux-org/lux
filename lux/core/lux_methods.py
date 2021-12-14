@@ -48,6 +48,7 @@ class LuxMethods:
     _compiled: bool
     output: tp.Any
     _length: tp.Optional[int]
+    _metadata_fresh: bool
 
     @classmethod
     def from_lux_object(cls, field: str, obj: tp.Any, other: "LuxMethods"):
