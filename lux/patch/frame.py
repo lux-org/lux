@@ -175,21 +175,21 @@ def patch_library(DataFrame: tp.Type[LuxDataFrame], Series: tp.Type[LuxSeries]) 
         ret_val._history.append_event("tail", n=5)
         return ret_val
 
-    @patch(DataFrame)
-    def groupby(self: LuxDataFrame, *args, **kwargs):
-        history_flag = False
-        if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
-            history_flag = True
-        if "history" in kwargs:
-            del kwargs["history"]
-        groupby_obj = self._super_groupby(*args, **kwargs)
-        for attr in self._metadata:
-            groupby_obj.__dict__[attr] = getattr(self, attr, None)
-        if history_flag:
-            groupby_obj._history = groupby_obj._history.copy()
-            groupby_obj._history.append_event("groupby", *args, **kwargs)
-        groupby_obj.pre_aggregated = True
-        return groupby_obj
+    # @patch(DataFrame)
+    # def groupby(self: LuxDataFrame, *args, **kwargs):
+    #     history_flag = False
+    #     if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
+    #         history_flag = True
+    #     if "history" in kwargs:
+    #         del kwargs["history"]
+    #     groupby_obj = self._super_groupby(*args, **kwargs)
+    #     for attr in self._metadata:
+    #         groupby_obj.__dict__[attr] = getattr(self, attr, None)
+    #     if history_flag:
+    #         groupby_obj._history = groupby_obj._history.copy()
+    #         groupby_obj._history.append_event("groupby", *args, **kwargs)
+    #     groupby_obj.pre_aggregated = True
+    #     return groupby_obj
 
 
 # patch pandas
