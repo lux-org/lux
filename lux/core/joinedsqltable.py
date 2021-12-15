@@ -141,7 +141,7 @@ class JoinedSQLTable(lux.LuxSQLTable):
                     from lux.processor.Compiler import Compiler
 
                     self.current_vis = Compiler.compile_intent(
-                        self, self.lux._intent)
+                        self.df, self.lux._intent)
 
             if lux.config.default_display == "lux":
                 self.lux._toggle_pandas_display = False

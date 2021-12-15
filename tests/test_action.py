@@ -231,7 +231,7 @@ def test_custom_aggregation(global_var):
     df._ipython_display_()
     assert list(df.lux.recommendation.keys()) == [
         "Enhance", "Filter", "Generalize"]
-    df.clear_intent()
+    df.lux.clear_intent()
 
 
 def test_year_filter_value(global_var):
@@ -257,7 +257,7 @@ def test_year_filter_value(global_var):
     assert (
         "T00:00:00.000000000" not in vis.to_altair()
     ), "Year filter title contains extraneous string, not displayed as summarized string"
-    df.clear_intent()
+    df.lux.clear_intent()
 
 
 def test_similarity(global_var):
@@ -290,19 +290,19 @@ def test_similarity(global_var):
         )
     )[0]
     assert japan_vis.score > europe_vis.score
-    df.clear_intent()
+    df.lux.clear_intent()
     lux.config.early_pruning = True
 
 
 def test_similarity2():
-    df = pd.read_csv(
+    df: lux.LuxDataFrame = pd.read_csv(
         "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/real_estate_tutorial.csv"
     )
 
     df["Month"] = pd.to_datetime(df["Month"], format="%m")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
 
-    df.intent = [
+    df.lux.intent = [
         lux.Clause("Year"),
         lux.Clause("PctForeclosured"),
         lux.Clause("City=Crofton"),
@@ -330,13 +330,13 @@ def test_similarity2():
 def test_intent_retained():
     df = pd.read_csv(
         "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
-    df.intent = ["Attrition"]
+    df.lux.intent = ["Attrition"]
     df._ipython_display_()
 
     df["%WorkingYearsAtCompany"] = df["YearsAtCompany"] / df["TotalWorkingYears"]
-    assert df.current_vis != None
-    assert df.intent != None
-    assert df._recs_fresh == False
+    assert df.lux.current_vis != None
+    assert df.lux.intent != None
+    assert df.lux._recs_fresh == False
     assert df.lux._metadata_fresh == False
 
     df._ipython_display_()
@@ -346,9 +346,9 @@ def test_intent_retained():
 def test_metadata_propogate_invalid_intent():
     df = pd.read_csv(
         "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
-    df.intent = ["Attrition"]
+    df.lux.intent = ["Attrition"]
     new_df = df.groupby("BusinessTravel").mean()
-    assert new_df.intent[0].attribute == "Attrition", "User-specified intent is retained"
-    assert new_df._inferred_intent == [], "Invalid inferred intent is cleared"
+    assert new_df.lux.intent[0].attribute == "Attrition", "User-specified intent is retained"
+    assert new_df.lux._inferred_intent == [], "Invalid inferred intent is cleared"
     new_df._ipython_display_()
-    assert new_df.current_vis == []
+    assert new_df.lux.current_vis == []

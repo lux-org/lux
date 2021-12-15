@@ -258,7 +258,7 @@ class LuxDataFrameMethods(LuxMethods):
         ----------
         df = pd.read_csv(
             "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/absenteeism.csv")
-        df.set_data_type({"ID":"id",
+        df.lux.set_data_type({"ID":"id",
                           "Reason for absence":"nominal"})
         """
         if self._type_override == None:
@@ -289,7 +289,7 @@ class LuxDataFrameMethods(LuxMethods):
             from lux.processor.Compiler import Compiler
 
             self.maintain_metadata()
-            self.current_vis = Compiler.compile_intent(self, self._intent)
+            self.current_vis = Compiler.compile_intent(self.df, self._intent)
             self.maintain_recs()
         return self._recommendation
 
@@ -523,7 +523,7 @@ class LuxDataFrameMethods(LuxMethods):
         self.set_intent_as_vis(vis)
 
         self.maintain_metadata()
-        self.current_vis = Compiler.compile_intent(self, self._intent)
+        self.current_vis = Compiler.compile_intent(self.df, self._intent)
         self.maintain_recs()
 
         with self.output:
@@ -749,31 +749,3 @@ class LuxDataFrameMethods(LuxMethods):
             with open(filename, "w") as fp:
                 fp.write(rendered_template)
                 print(f"Saved HTML to {filename}")
-
-    # Overridden Pandas Functions
-    def head(self, n: int = 5):
-        ret_val = super(LuxDataFrame, self).head(n)
-        ret_val._prev = self
-        ret_val._history.append_event("head", n=5)
-        return ret_val
-
-    def tail(self, n: int = 5):
-        ret_val = super(LuxDataFrame, self).tail(n)
-        ret_val._prev = self
-        ret_val._history.append_event("tail", n=5)
-        return ret_val
-
-    def groupby(self, *args, **kwargs):
-        history_flag = False
-        if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
-            history_flag = True
-        if "history" in kwargs:
-            del kwargs["history"]
-        groupby_obj = super(LuxDataFrame, self).groupby(*args, **kwargs)
-        for attr in self._metadata:
-            groupby_obj.__dict__[attr] = getattr(self, attr, None)
-        if history_flag:
-            groupby_obj._history = groupby_obj._history.copy()
-            groupby_obj._history.append_event("groupby", *args, **kwargs)
-        groupby_obj.pre_aggregated = True
-        return groupby_obj

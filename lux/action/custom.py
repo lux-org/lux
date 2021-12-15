@@ -45,7 +45,7 @@ def custom(ldf):
     lux.config.executor.execute(vlist, ldf)
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
-    # ldf.clear_intent()
+    # ldf.lux.clear_intent()
     vlist.sort(remove_invalid=True)
     return recommendation
 

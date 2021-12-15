@@ -85,11 +85,12 @@ def test_colored_bar_chart(global_var):
 
     new_vis = Vis([x_clause, y_clause, color_clause], df)
     # make sure dimention of the data is correct
-    color_cardinality = len(df.unique_values["Cylinders"])
-    group_by_cardinality = len(df.unique_values["Origin"])
+    color_cardinality = len(df.lux.unique_values["Cylinders"])
+    group_by_cardinality = len(df.lux.unique_values["Origin"])
     assert len(new_vis.data.columns) == 3
     # Not color_cardinality*group_by_cardinality since some combinations have 0 values
-    assert len(new_vis.data) == 15 > group_by_cardinality < color_cardinality * group_by_cardinality
+    assert len(new_vis.data) == 15 > group_by_cardinality < color_cardinality * \
+        group_by_cardinality
 
 
 def test_colored_line_chart(global_var):
@@ -107,11 +108,12 @@ def test_colored_line_chart(global_var):
     new_vis = Vis([x_clause, y_clause, color_clause], df)
 
     # make sure dimention of the data is correct
-    color_cardinality = len(df.unique_values["Cylinders"])
-    group_by_cardinality = len(df.unique_values["Year"])
+    color_cardinality = len(df.lux.unique_values["Cylinders"])
+    group_by_cardinality = len(df.lux.unique_values["Year"])
     assert len(new_vis.data.columns) == 3
     # Not color_cardinality*group_by_cardinality since some combinations have 0 values
-    assert len(new_vis.data) == 60 > group_by_cardinality < color_cardinality * group_by_cardinality
+    assert len(new_vis.data) == 60 > group_by_cardinality < color_cardinality * \
+        group_by_cardinality
 
 
 def test_filter(global_var):
@@ -153,14 +155,16 @@ def test_inequalityfilter(global_var):
 
     # Test end-to-end
     PandasExecutor.execute([vis], df)
-    Nbins = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0].bin_size
+    Nbins = list(filter(lambda x: x.bin_size != 0,
+                 vis._inferred_intent))[0].bin_size
     assert len(vis.data) == Nbins
 
 
 def test_binning(global_var):
     df = pytest.car_df
     vis = Vis([lux.Clause(attribute="Horsepower")], df)
-    nbins = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0].bin_size
+    nbins = list(filter(lambda x: x.bin_size != 0,
+                 vis._inferred_intent))[0].bin_size
     assert len(vis.data) == nbins
 
 
@@ -179,17 +183,22 @@ def test_filter_aggregation_fillzero_aligned(global_var):
     ]
     vis = Vis(intent, df)
     result = vis.data
-    externalValidation = df[df["Origin"] == "Japan"].groupby("Cylinders").mean()["MilesPerGal"]
+    externalValidation = df[df["Origin"] == "Japan"].groupby("Cylinders").mean()[
+        "MilesPerGal"]
     assert result[result["Cylinders"] == 5]["MilesPerGal"].values[0] == 0
     assert result[result["Cylinders"] == 8]["MilesPerGal"].values[0] == 0
-    assert result[result["Cylinders"] == 3]["MilesPerGal"].values[0] == externalValidation[3]
-    assert result[result["Cylinders"] == 4]["MilesPerGal"].values[0] == externalValidation[4]
-    assert result[result["Cylinders"] == 6]["MilesPerGal"].values[0] == externalValidation[6]
+    assert result[result["Cylinders"] ==
+                  3]["MilesPerGal"].values[0] == externalValidation[3]
+    assert result[result["Cylinders"] ==
+                  4]["MilesPerGal"].values[0] == externalValidation[4]
+    assert result[result["Cylinders"] ==
+                  6]["MilesPerGal"].values[0] == externalValidation[6]
 
 
 def test_exclude_attribute(global_var):
     df = pytest.car_df
-    intent = [lux.Clause("?", exclude=["Name", "Year"]), lux.Clause("Horsepower")]
+    intent = [lux.Clause("?", exclude=["Name", "Year"]),
+              lux.Clause("Horsepower")]
     vislist = VisList(intent, df)
     for vis in vislist:
         assert vis.get_attr_by_channel("x")[0].attribute != "Year"

@@ -93,7 +93,7 @@ class LuxSeriesMethods(LuxMethods):
             ldf = LuxDataFrame(self)
 
             ldf.lux.maintain_metadata()
-            ldf.maintain_recs()
+            ldf.lux.maintain_recs()
             self._recommendation = ldf.lux._recommendation
         return self._recommendation
 

@@ -126,11 +126,13 @@ def test_abbrev_agg():
 def test_int_columns(global_var):
     df = pd.read_csv("lux/data/college.csv")
     df.columns = range(len(df.columns))
-    assert list(df.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
-    df.intent = [8, 3]
-    assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]
-    df.intent = [0]
-    assert list(df.recommendation.keys()) == ["Enhance", "Filter"]
+    assert list(df.lux.recommendation.keys()) == [
+        "Correlation", "Distribution", "Occurrence"]
+    df.lux.intent = [8, 3]
+    assert list(df.lux.recommendation.keys()) == [
+        "Enhance", "Filter", "Generalize"]
+    df.lux.intent = [0]
+    assert list(df.lux.recommendation.keys()) == ["Enhance", "Filter"]
 
 
 def test_name_column(global_var):

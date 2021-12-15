@@ -243,7 +243,7 @@ def deviation_from_overall(
     v_filter = v_filter / total  # normalize by total to get ratio
     if total == 0:
         return 0
-    # Generate an "Overall" Vis (TODO: This is computed multiple times for every vis, alternative is to directly access df.current_vis but we do not have guaruntee that will always be unfiltered vis (in the non-Filter action scenario))
+    # Generate an "Overall" Vis (TODO: This is computed multiple times for every vis, alternative is to directly access df.lux.current_vis but we do not have guaruntee that will always be unfiltered vis (in the non-Filter action scenario))
     import copy
 
     unfiltered_vis = copy.copy(vis)

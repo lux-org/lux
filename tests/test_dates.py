@@ -43,7 +43,7 @@ def test_period_selection(global_var):
 
     ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq="A")
 
-    ldf.set_intent(
+    ldf.lux.set_intent(
         [
             lux.Clause(attribute=["Horsepower", "Weight", "Acceleration"]),
             lux.Clause(attribute="Year"),
@@ -90,15 +90,15 @@ def test_refresh_inplace():
     )
     with pytest.warns(UserWarning, match="Lux detects that the attribute 'date' may be temporal."):
         df._ipython_display_()
-    assert df.data_type["date"] == "temporal"
+    assert df.lux.data_type["date"] == "temporal"
 
     from lux.vis.Vis import Vis
 
     vis = Vis(["date", "value"], df)
 
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
-    df.maintain_metadata()
-    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    df.lux.maintain_metadata()
+    inverted_data_type = lux.config.executor.invert_data_type(df.lux.data_type)
     assert inverted_data_type["temporal"][0] == "date"
 
     vis.refresh_source(df)

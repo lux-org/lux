@@ -25,8 +25,8 @@ def test_nan_column(global_var):
     old_geo = df["Geography"]
     df["Geography"] = np.nan
     df._ipython_display_()
-    for visList in df.recommendation.keys():
-        for vis in df.recommendation[visList]:
+    for visList in df.lux.recommendation.keys():
+        for vis in df.lux.recommendation[visList]:
             assert vis.get_attr_by_attr_name("Geography") == []
     df["Geography"] = old_geo
 
@@ -147,10 +147,10 @@ def test_numeric_with_nan():
         ]
     )
     assert (
-        df.data_type["# Instances"] == "quantitative"
+        df.lux.data_type["# Instances"] == "quantitative"
     ), "Testing a numeric columns with NaN, check if type can be detected correctly"
     assert (
-        df.data_type["# Attributes"] == "quantitative"
+        df.lux.data_type["# Attributes"] == "quantitative"
     ), "Testing a numeric columns with NaN, check if type can be detected correctly"
     a = df[["# Instances", "# Attributes"]]
     a._ipython_display_()

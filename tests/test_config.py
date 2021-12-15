@@ -37,7 +37,7 @@ def register_new_action(validator: bool = True):
         }
 
     def contain_horsepower(df):
-        for clause in df.intent:
+        for clause in df.lux.intent:
             if clause.get_attr() == "Horsepower":
                 return True
         return False
@@ -54,24 +54,24 @@ def test_default_actions_registered(global_var):
     lux.config.set_executor_type("Pandas")
     df = pytest.car_df
     df._ipython_display_()
-    assert "Distribution" in df.recommendation
-    assert len(df.recommendation["Distribution"]) > 0
+    assert "Distribution" in df.lux.recommendation
+    assert len(df.lux.recommendation["Distribution"]) > 0
 
-    assert "Occurrence" in df.recommendation
-    assert len(df.recommendation["Occurrence"]) > 0
+    assert "Occurrence" in df.lux.recommendation
+    assert len(df.lux.recommendation["Occurrence"]) > 0
 
-    assert "Temporal" in df.recommendation
-    assert len(df.recommendation["Temporal"]) > 0
+    assert "Temporal" in df.lux.recommendation
+    assert len(df.lux.recommendation["Temporal"]) > 0
 
-    assert "Correlation" in df.recommendation
-    assert len(df.recommendation["Correlation"]) > 0
+    assert "Correlation" in df.lux.recommendation
+    assert len(df.lux.recommendation["Correlation"]) > 0
 
 
 def test_fail_validator():
     df = register_new_action()
     df._ipython_display_()
     assert (
-        "bars" not in df.recommendation,
+        "bars" not in df.lux.recommendation,
         "Bars should not be rendered when there is no intent 'horsepower' specified.",
     )
 
@@ -80,9 +80,9 @@ def test_pass_validator():
     df = register_new_action()
     df.lux.set_intent(["Acceleration", "Horsepower"])
     df._ipython_display_()
-    assert len(df.recommendation["bars"]) > 0
+    assert len(df.lux.recommendation["bars"]) > 0
     assert (
-        "bars" in df.recommendation,
+        "bars" in df.lux.recommendation,
         "Bars should be rendered when intent 'horsepower' is specified.",
     )
 
@@ -90,8 +90,8 @@ def test_pass_validator():
 def test_no_validator():
     df = register_new_action(False)
     df._ipython_display_()
-    assert len(df.recommendation["bars"]) > 0
-    assert "bars" in df.recommendation
+    assert len(df.lux.recommendation["bars"]) > 0
+    assert "bars" in df.lux.recommendation
 
 
 def test_invalid_function(global_var):
@@ -126,20 +126,20 @@ def test_remove_action():
     df.lux.set_intent(["Acceleration", "Horsepower"])
     df._ipython_display_()
     assert (
-        "bars" in df.recommendation,
+        "bars" in df.lux.recommendation,
         "Bars should be rendered after it has been registered with correct intent.",
     )
     assert (
-        len(df.recommendation["bars"]) > 0,
+        len(df.lux.recommendation["bars"]) > 0,
         "Bars should be rendered after it has been registered with correct intent.",
     )
     lux.config.remove_action("bars")
     df._ipython_display_()
     assert (
-        "bars" not in df.recommendation,
+        "bars" not in df.lux.recommendation,
         "Bars should not be rendered after it has been removed.",
     )
-    df.clear_intent()
+    df.lux.clear_intent()
 
 
 def test_remove_invalid_action(global_var):
@@ -155,22 +155,22 @@ def test_remove_default_actions(global_var):
 
     lux.config.remove_action("distribution")
     df._ipython_display_()
-    assert "Distribution" not in df.recommendation
+    assert "Distribution" not in df.lux.recommendation
 
     lux.config.remove_action("occurrence")
     df._ipython_display_()
-    assert "Occurrence" not in df.recommendation
+    assert "Occurrence" not in df.lux.recommendation
 
     lux.config.remove_action("temporal")
     df._ipython_display_()
-    assert "Temporal" not in df.recommendation
+    assert "Temporal" not in df.lux.recommendation
 
     lux.config.remove_action("correlation")
     df._ipython_display_()
-    assert "Correlation" not in df.recommendation
+    assert "Correlation" not in df.lux.recommendation
 
     assert (
-        len(df.recommendation) == 0,
+        len(df.lux.recommendation) == 0,
         "Default actions should not be rendered after it has been removed.",
     )
 
@@ -178,11 +178,11 @@ def test_remove_default_actions(global_var):
     df.lux.set_intent(["Acceleration", "Horsepower"])
     df._ipython_display_()
     assert (
-        "bars" in df.recommendation,
+        "bars" in df.lux.recommendation,
         "Bars should be rendered after it has been registered with correct intent.",
     )
-    assert len(df.recommendation["bars"]) > 0
-    df.clear_intent()
+    assert len(df.lux.recommendation["bars"]) > 0
+    df.lux.clear_intent()
 
     from lux.action.default import register_default_actions
 
@@ -200,7 +200,7 @@ def test_matplotlib_set_default_plotting_style():
     lux.config.plotting_style = add_title
     df._ipython_display_()
     title_addition = 'ax.set_title("Test Title")'
-    exported_code_str = df.recommendation["Correlation"][0].to_altair()
+    exported_code_str = df.lux.recommendation["Correlation"][0].to_altair()
     assert title_addition in exported_code_str
 
 
@@ -217,7 +217,7 @@ def test_set_default_plotting_style():
     df._ipython_display_()
     config_mark_addition = 'chart = chart.configure_mark(color="green", opacity=0.2)'
     title_addition = 'chart.title = "Test Title"'
-    exported_code_str = df.recommendation["Correlation"][0].to_altair()
+    exported_code_str = df.lux.recommendation["Correlation"][0].to_altair()
     assert config_mark_addition in exported_code_str
     assert title_addition in exported_code_str
 
@@ -230,8 +230,8 @@ def test_sampling_flag_config():
 
     N = int(1.1 * lux.config.sampling_cap)
     df = pd.DataFrame({"col1": np.random.rand(N), "col2": np.random.rand(N)})
-    df.maintain_recs()
-    assert len(df.recommendation["Correlation"]
+    df.lux.maintain_recs()
+    assert len(df.lux.recommendation["Correlation"]
                [0].data) == lux.config.sampling_cap
     lux.config.sampling = True
     lux.config.heatmap = True
@@ -241,12 +241,12 @@ def test_sampling_flag_config():
 def test_sampling_parameters_config():
     df = pd.read_csv("lux/data/car.csv")
     df._ipython_display_()
-    assert df.recommendation["Correlation"][0].data.shape[0] == 392
+    assert df.lux.recommendation["Correlation"][0].data.shape[0] == 392
     lux.config.sampling_start = 50
     lux.config.sampling_cap = 100
     df = pd.read_csv("lux/data/car.csv")
     df._ipython_display_()
-    assert df.recommendation["Correlation"][0].data.shape[0] == 100
+    assert df.lux.recommendation["Correlation"][0].data.shape[0] == 100
     lux.config.sampling_cap = 30000
     lux.config.sampling_start = 10000
 
@@ -256,12 +256,12 @@ def test_heatmap_flag_config():
     df = pd.read_csv(
         "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df._ipython_display_()
-    assert df.recommendation["Correlation"][0]._postbin
+    assert df.lux.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = False
     df = pd.read_csv(
         "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df._ipython_display_()
-    assert not df.recommendation["Correlation"][0]._postbin
+    assert not df.lux.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True
 
 
@@ -269,12 +269,12 @@ def test_topk(global_var):
     df = pd.read_csv("lux/data/college.csv")
     lux.config.topk = False
     df._ipython_display_()
-    assert len(df.recommendation["Correlation"]) == 45, "Turn off top K"
+    assert len(df.lux.recommendation["Correlation"]) == 45, "Turn off top K"
     lux.config.topk = 20
     df = pd.read_csv("lux/data/college.csv")
     df._ipython_display_()
-    assert len(df.recommendation["Correlation"]) == 20, "Show top 20"
-    for vis in df.recommendation["Correlation"]:
+    assert len(df.lux.recommendation["Correlation"]) == 20, "Show top 20"
+    for vis in df.lux.recommendation["Correlation"]:
         assert vis.score > 0.2
 
 
@@ -282,20 +282,20 @@ def test_sort(global_var):
     df = pd.read_csv("lux/data/college.csv")
     lux.config.topk = 15
     df._ipython_display_()
-    assert len(df.recommendation["Correlation"]) == 15, "Show top 15"
-    for vis in df.recommendation["Correlation"]:
+    assert len(df.lux.recommendation["Correlation"]) == 15, "Show top 15"
+    for vis in df.lux.recommendation["Correlation"]:
         assert vis.score > 0.5
     df = pd.read_csv("lux/data/college.csv")
     lux.config.sort = "ascending"
     df._ipython_display_()
-    assert len(df.recommendation["Correlation"]) == 15, "Show bottom 15"
-    for vis in df.recommendation["Correlation"]:
+    assert len(df.lux.recommendation["Correlation"]) == 15, "Show bottom 15"
+    for vis in df.lux.recommendation["Correlation"]:
         assert vis.score < 0.35
 
     lux.config.sort = "none"
     df = pd.read_csv("lux/data/college.csv")
     df._ipython_display_()
-    scorelst = [x.score for x in df.recommendation["Distribution"]]
+    scorelst = [x.score for x in df.lux.recommendation["Distribution"]]
     assert sorted(scorelst) != scorelst, "unsorted setting"
     lux.config.sort = "descending"
 
@@ -313,6 +313,6 @@ def test_sort(global_var):
 
 # 	df._ipython_display_()
 
-# 	vis_code = df.recommendation["Correlation"][0].to_altair()
+# 	vis_code = df.lux.recommendation["Correlation"][0].to_altair()
 # 	print (vis_code)
 # 	assert 'chart = chart.configure_mark(color="green")' in vis_code, "Exported chart does not have additional plot style setting."

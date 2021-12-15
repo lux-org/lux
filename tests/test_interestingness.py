@@ -28,12 +28,12 @@ def test_interestingness_1_0_0(global_var):
     df.lux.set_intent([lux.Clause(attribute="Origin")])
     df._ipython_display_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
-    assert interestingness(df.recommendation["Enhance"][0], df) != None
+    assert interestingness(df.lux.recommendation["Enhance"][0], df) != None
     rank1 = -1
     rank2 = -1
     rank3 = -1
-    for f in range(0, len(df.recommendation["Enhance"])):
-        vis = df.recommendation["Enhance"][f]
+    for f in range(0, len(df.lux.recommendation["Enhance"])):
+        vis = df.lux.recommendation["Enhance"][f]
         if vis.get_attr_by_channel("x")[0].attribute == "Displacement":
             rank1 = f
         if vis.get_attr_by_channel("x")[0].attribute == "Weight":
@@ -43,21 +43,21 @@ def test_interestingness_1_0_0(global_var):
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
     # check that top recommended filter graph score is not none and that ordering makes intuitive sense
-    assert interestingness(df.recommendation["Filter"][0], df) != None
+    assert interestingness(df.lux.recommendation["Filter"][0], df) != None
     rank1 = -1
     rank2 = -1
     rank3 = -1
-    for f in range(0, len(df.recommendation["Filter"])):
-        vis = df.recommendation["Filter"][f]
+    for f in range(0, len(df.lux.recommendation["Filter"])):
+        vis = df.lux.recommendation["Filter"][f]
         if len(vis.get_attr_by_attr_name("Cylinders")) > 0:
             if int(vis._inferred_intent[2].value) == 8:
                 rank1 = f
             if int(vis._inferred_intent[2].value) == 6:
                 rank3 = f
-        if "ford" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
+        if "ford" in str(df.lux.recommendation["Filter"][f]._inferred_intent[2].value):
             rank2 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
-    df.clear_intent()
+    df.lux.clear_intent()
 
 
 def test_interestingness_1_0_1(global_var):
@@ -71,8 +71,8 @@ def test_interestingness_1_0_1(global_var):
         ]
     )
     df._ipython_display_()
-    assert df.current_vis[0].score == 0
-    df.clear_intent()
+    assert df.lux.current_vis[0].score == 0
+    df.lux.clear_intent()
 
 
 def test_interestingness_0_1_0(global_var):
@@ -83,42 +83,42 @@ def test_interestingness_0_1_0(global_var):
     df.lux.set_intent([lux.Clause(attribute="Horsepower")])
     df._ipython_display_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
-    assert interestingness(df.recommendation["Enhance"][0], df) != None
+    assert interestingness(df.lux.recommendation["Enhance"][0], df) != None
     rank1 = -1
     rank2 = -1
     rank3 = -1
-    for f in range(0, len(df.recommendation["Enhance"])):
+    for f in range(0, len(df.lux.recommendation["Enhance"])):
         if (
-            df.recommendation["Enhance"][f].mark == "scatter"
-            and df.recommendation["Enhance"][f]._inferred_intent[1].attribute == "Weight"
+            df.lux.recommendation["Enhance"][f].mark == "scatter"
+            and df.lux.recommendation["Enhance"][f]._inferred_intent[1].attribute == "Weight"
         ):
             rank1 = f
         if (
-            df.recommendation["Enhance"][f].mark == "scatter"
-            and df.recommendation["Enhance"][f]._inferred_intent[1].attribute == "Acceleration"
+            df.lux.recommendation["Enhance"][f].mark == "scatter"
+            and df.lux.recommendation["Enhance"][f]._inferred_intent[1].attribute == "Acceleration"
         ):
             rank2 = f
         if (
-            df.recommendation["Enhance"][f].mark == "line"
-            and df.recommendation["Enhance"][f]._inferred_intent[0].attribute == "Year"
+            df.lux.recommendation["Enhance"][f].mark == "line"
+            and df.lux.recommendation["Enhance"][f]._inferred_intent[0].attribute == "Year"
         ):
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
     # check that top recommended filter graph score is not none and that ordering makes intuitive sense
-    assert interestingness(df.recommendation["Filter"][0], df) != None
+    assert interestingness(df.lux.recommendation["Filter"][0], df) != None
     rank1 = -1
     rank2 = -1
     rank3 = -1
-    for f in range(0, len(df.recommendation["Filter"])):
-        if df.recommendation["Filter"][f]._inferred_intent[2].value == 4:
+    for f in range(0, len(df.lux.recommendation["Filter"])):
+        if df.lux.recommendation["Filter"][f]._inferred_intent[2].value == 4:
             rank1 = f
-        if str(df.recommendation["Filter"][f]._inferred_intent[2].value) == "Europe":
+        if str(df.lux.recommendation["Filter"][f]._inferred_intent[2].value) == "Europe":
             rank2 = f
-        if "1970" in str(df.recommendation["Filter"][f]._inferred_intent[2].value):
+        if "1970" in str(df.lux.recommendation["Filter"][f]._inferred_intent[2].value):
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
-    df.clear_intent()
+    df.lux.clear_intent()
 
 
 def test_interestingness_0_1_1(global_var):
@@ -132,10 +132,10 @@ def test_interestingness_0_1_1(global_var):
         ]
     )
     df._ipython_display_()
-    assert interestingness(df.recommendation["Current Vis"][0], df) != None
-    assert str(df.recommendation["Current Vis"]
+    assert interestingness(df.lux.recommendation["Current Vis"][0], df) != None
+    assert str(df.lux.recommendation["Current Vis"]
                [0]._inferred_intent[2].value) == "USA"
-    df.clear_intent()
+    df.lux.clear_intent()
 
 
 def test_interestingness_1_1_0(global_var):
@@ -147,15 +147,15 @@ def test_interestingness_1_1_0(global_var):
                       lux.Clause(attribute="Year")])
     df._ipython_display_()
     # check that top recommended Enhance graph score is not none (all graphs here have same score)
-    assert interestingness(df.recommendation["Enhance"][0], df) != None
+    assert interestingness(df.lux.recommendation["Enhance"][0], df) != None
 
     # check that top recommended filter graph score is not none and that ordering makes intuitive sense
-    assert interestingness(df.recommendation["Filter"][0], df) != None
+    assert interestingness(df.lux.recommendation["Filter"][0], df) != None
     rank1 = -1
     rank2 = -1
     rank3 = -1
-    for f in range(0, len(df.recommendation["Filter"])):
-        vis = df.recommendation["Filter"][f]
+    for f in range(0, len(df.lux.recommendation["Filter"])):
+        vis = df.lux.recommendation["Filter"][f]
         if len(vis.get_attr_by_attr_name("Cylinders")) > 0:
             if int(vis._inferred_intent[2].value) == 6:
                 rank1 = f
@@ -167,8 +167,8 @@ def test_interestingness_1_1_0(global_var):
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
     # check that top recommended generalize graph score is not none
-    assert interestingness(df.recommendation["Filter"][0], df) != None
-    df.clear_intent()
+    assert interestingness(df.lux.recommendation["Filter"][0], df) != None
+    df.lux.clear_intent()
 
 
 def test_interestingness_1_1_1(global_var):
@@ -184,34 +184,34 @@ def test_interestingness_1_1_1(global_var):
     )
     df._ipython_display_()
     # check that top recommended Enhance graph score is not none and that ordering makes intuitive sense
-    assert interestingness(df.recommendation["Enhance"][0], df) != None
+    assert interestingness(df.lux.recommendation["Enhance"][0], df) != None
     rank1 = -1
     rank2 = -1
     rank3 = -1
-    for f in range(0, len(df.recommendation["Enhance"])):
+    for f in range(0, len(df.lux.recommendation["Enhance"])):
         if (
-            str(df.recommendation["Enhance"]
+            str(df.lux.recommendation["Enhance"]
                 [f]._inferred_intent[2].value) == "USA"
-            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Cylinders"
+            and str(df.lux.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Cylinders"
         ):
             rank1 = f
         if (
-            str(df.recommendation["Enhance"]
+            str(df.lux.recommendation["Enhance"]
                 [f]._inferred_intent[2].value) == "USA"
-            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Weight"
+            and str(df.lux.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Weight"
         ):
             rank2 = f
         if (
-            str(df.recommendation["Enhance"]
+            str(df.lux.recommendation["Enhance"]
                 [f]._inferred_intent[2].value) == "USA"
-            and str(df.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Horsepower"
+            and str(df.lux.recommendation["Enhance"][f]._inferred_intent[1].attribute) == "Horsepower"
         ):
             rank3 = f
     assert rank1 < rank2 and rank1 < rank3 and rank2 < rank3
 
     # check for top recommended Filter graph score is not none
-    assert interestingness(df.recommendation["Filter"][0], df) != None
-    df.clear_intent()
+    assert interestingness(df.lux.recommendation["Filter"][0], df) != None
+    df.lux.clear_intent()
 
 
 def test_interestingness_1_2_0(global_var):
@@ -240,29 +240,29 @@ def test_interestingness_0_2_0(global_var):
                       lux.Clause(attribute="Acceleration")])
     df._ipython_display_()
     # check that top recommended enhance graph score is not none and that ordering makes intuitive sense
-    assert interestingness(df.recommendation["Enhance"][0], df) != None
+    assert interestingness(df.lux.recommendation["Enhance"][0], df) != None
     rank1 = -1
     rank2 = -1
-    for f in range(0, len(df.recommendation["Enhance"])):
+    for f in range(0, len(df.lux.recommendation["Enhance"])):
         if (
-            str(df.recommendation["Enhance"]
+            str(df.lux.recommendation["Enhance"]
                 [f]._inferred_intent[2].attribute) == "Origin"
-            and str(df.recommendation["Enhance"][f].mark) == "scatter"
+            and str(df.lux.recommendation["Enhance"][f].mark) == "scatter"
         ):
             rank1 = f
         if (
-            str(df.recommendation["Enhance"]
+            str(df.lux.recommendation["Enhance"]
                 [f]._inferred_intent[2].attribute) == "Displacement"
-            and str(df.recommendation["Enhance"][f].mark) == "scatter"
+            and str(df.lux.recommendation["Enhance"][f].mark) == "scatter"
         ):
             rank2 = f
     assert rank1 < rank2
 
     # check that top recommended filter graph score is not none and that ordering makes intuitive sense
-    assert interestingness(df.recommendation["Filter"][0], df) != None
+    assert interestingness(df.lux.recommendation["Filter"][0], df) != None
     # check that top recommended Generalize graph score is not none
-    assert interestingness(df.recommendation["Generalize"][0], df) != None
-    df.clear_intent()
+    assert interestingness(df.lux.recommendation["Generalize"][0], df) != None
+    df.lux.clear_intent()
 
 
 def test_interestingness_0_2_1(global_var):
@@ -278,8 +278,8 @@ def test_interestingness_0_2_1(global_var):
     )
     df._ipython_display_()
     # check that top recommended Generalize graph score is not none
-    assert interestingness(df.recommendation["Generalize"][0], df) != None
-    df.clear_intent()
+    assert interestingness(df.lux.recommendation["Generalize"][0], df) != None
+    df.lux.clear_intent()
 
 
 def test_interestingness_deviation_nan():

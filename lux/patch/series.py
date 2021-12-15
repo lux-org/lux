@@ -89,12 +89,12 @@ def _ipython_display_(self):
                 self.lux._toggle_pandas_display = True
 
             # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-            ldf.maintain_recs(is_series="Series")
+            ldf.lux.maintain_recs(is_series="Series")
 
             # Observers(callback_function, listen_to_this_variable)
-            ldf.lux._widget.observe(ldf.remove_deleted_recs,
+            ldf.lux._widget.observe(ldf.lux.remove_deleted_recs,
                                     names="deletedIndices")
-            ldf.lux._widget.observe(ldf.set_intent_on_click,
+            ldf.lux._widget.observe(ldf.lux.set_intent_on_click,
                                     names="selectedIntentIndex")
 
             self._widget = ldf.lux._widget

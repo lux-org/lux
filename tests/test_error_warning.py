@@ -22,13 +22,13 @@ from lux.vis.Vis import Vis
 def test_intent_str_error(global_var):
     df = pytest.college_df
     with pytest.raises(TypeError, match="Input intent must be either a list"):
-        df.intent = "bad string input"
+        df.lux.intent = "bad string input"
 
 
 def test_export_b4_widget_created(global_var):
     df = pd.read_csv("lux/data/college.csv")
     with pytest.warns(UserWarning, match="No widget attached to the dataframe"):
-        df.exported
+        df.lux.exported
 
 
 def test_multi_vis(global_var):
@@ -78,11 +78,11 @@ def test_vis_private_properties(global_var):
 def test_lux_warnings(global_var):
     df = pd.DataFrame()
     df._ipython_display_()
-    assert df._widget.message == f"<ul><li>Lux cannot operate on an empty DataFrame.</li></ul>"
+    assert df.lux._widget.message == f"<ul><li>Lux cannot operate on an empty DataFrame.</li></ul>"
     df = pd.DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
     df._ipython_display_()
     assert (
-        df._widget.message
+        df.lux._widget.message
         == f"<ul><li>The DataFrame is too small to visualize. To generate visualizations in Lux, the DataFrame must contain at least 5 rows.</li></ul>"
     )
     df = pytest.car_df
