@@ -88,6 +88,7 @@ class LuxDataFrameMethods(LuxMethods):
         self.pre_aggregated = None
         self._type_override = {}
         self._metadata_fresh = False
+        self._recs_fresh = False
         warnings.formatwarning = lux.warning_format
 
     @property
