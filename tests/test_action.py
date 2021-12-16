@@ -350,5 +350,9 @@ def test_metadata_propogate_invalid_intent():
     new_df = df.groupby("BusinessTravel").mean()
     assert new_df.lux.intent[0].attribute == "Attrition", "User-specified intent is retained"
     assert new_df.lux._inferred_intent == [], "Invalid inferred intent is cleared"
-    new_df._ipython_display_()
-    assert new_df.lux.current_vis == []
+
+    # TEST column group (preaggregated is not supported for now)
+    # NOTE: once history is restored uncomment this:
+    # new_df._ipython_display_()
+    # assert new_df.lux.pre_aggregated == True
+    # assert new_df.lux.current_vis == []
