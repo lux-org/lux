@@ -57,7 +57,7 @@ def test_vis_private_properties(global_var):
     df = pytest.car_df
     vis = Vis(["Horsepower", "Weight"], df)
     vis._ipython_display_()
-    assert isinstance(vis.data, lux.core.frame.LuxDataFrame)
+    assert isinstance(vis.data, pd.DataFrame)
     with pytest.raises(AttributeError, match="can't set attribute"):
         vis.data = "some val"
 

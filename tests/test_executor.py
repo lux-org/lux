@@ -30,7 +30,7 @@ def test_lazy_execution(global_var):
     # Check data field in vis is empty before calling executor
     assert vis.data is None
     PandasExecutor.execute([vis], df)
-    assert type(vis.data) == lux.core.frame.LuxDataFrame
+    assert isinstance(vis.data, pd.DataFrame)
 
 
 def test_selection(global_var):
@@ -42,7 +42,7 @@ def test_selection(global_var):
         lux.Clause(attribute="Year"),
     ]
     vislist = VisList(intent, df)
-    assert all([type(vis.data) == lux.core.frame.LuxDataFrame for vis in vislist])
+    assert all([isinstance(vis.data, pd.DataFrame) for vis in vislist])
     assert all(vislist[2].data.columns == ["Year", "Acceleration"])
 
 

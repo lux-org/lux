@@ -23,8 +23,7 @@ def test_df_to_series():
     df._ipython_display_()  # compute metadata
     assert df.lux.cardinality is not None
     series = df["Weight"]
-    assert isinstance(
-        series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
+    assert isinstance(series, pd.Series), "Derived series is type pd.Series."
     print(df["Weight"]._metadata)
     assert df["Weight"]._metadata == [
         "_intent",

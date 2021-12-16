@@ -53,7 +53,7 @@ def test_period_selection(global_var):
     lux.config.executor.execute(ldf.lux.current_vis, ldf)
 
     assert all(
-        [type(vlist.data) == lux.core.frame.LuxDataFrame for vlist in ldf.lux.current_vis])
+        [isinstance(vlist.data, pd.DataFrame) for vlist in ldf.lux.current_vis])
     assert all(ldf.lux.current_vis[2].data.columns == ["Year", "Acceleration"])
 
 

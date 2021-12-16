@@ -32,17 +32,6 @@ def test_deepcopy(global_var):
     check_metadata_equal(df, saved_df)
 
 
-def test_create_ldf_from_ldf(global_var):
-    import pandas._testing as tm
-
-    df = tm.makeDataFrame()
-    df._ipython_display_()
-    saved_df = lux.LuxDataFrame(df)
-    saved_df._ipython_display_()
-    assert len(df.columns) == len(saved_df.columns)
-    assert all([a == b for a, b in zip(df.columns, saved_df.columns)])
-
-
 def test_rename_inplace(global_var):
     df = pd.read_csv("lux/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
@@ -620,12 +609,9 @@ def test_df_to_series(global_var):
     df._ipython_display_()  # compute metadata
     assert df.lux.cardinality is not None
     series = df["Weight"]
-    assert isinstance(
-        series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
+    assert isinstance(series, pd.Series), "Derived series is type pd.Series."
     df["Weight"]._metadata
-    assert (
-        df["Weight"]._metadata == pytest.metadata
-    ), "Metadata is lost when going from Dataframe to Series."
+    assert df["Weight"]._metadata == pytest.metadata, "Metadata is lost when going from Dataframe to Series."
     assert df.lux.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
 
@@ -636,10 +622,7 @@ def test_value_counts(global_var):
     assert df.lux.cardinality is not None
     series = df["Weight"]
     series.value_counts()
-    assert type(df["Brand"].value_counts()) == lux.core.series.LuxSeries
-    assert (
-        df["Weight"]._metadata == pytest.metadata
-    ), "Metadata is lost when going from Dataframe to Series."
+    assert isinstance(df["Brand"].value_counts(), pd.Series)
     assert df.lux.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Weight", "Pandas Series original `name` property not retained."
 
@@ -649,11 +632,8 @@ def test_str_replace(global_var):
     df._ipython_display_()  # compute metadata
     assert df.lux.cardinality is not None
     series = df["Brand"].str.replace("chevrolet", "chevy")
-    assert isinstance(
-        series, lux.core.series.LuxSeries), "Derived series is type LuxSeries."
-    assert (
-        df["Brand"]._metadata == pytest.metadata
-    ), "Metadata is lost when going from Dataframe to Series."
+    assert isinstance(series, pd.Series), "Derived series is type pd.Series."
+    assert df["Brand"]._metadata == pytest.metadata, "Metadata is lost when going from Dataframe to Series."
     assert df.lux.cardinality is not None, "Metadata is lost when going from Dataframe to Series."
     assert series.name == "Brand", "Pandas Series original `name` property not retained."
 

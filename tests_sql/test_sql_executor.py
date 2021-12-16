@@ -34,7 +34,7 @@ def test_lazy_execution(global_var):
     # Check data field in vis is empty before calling executor
     assert vis.data is None
     SQLExecutor.execute([vis], tbl)
-    assert type(vis.data) == lux.core.frame.LuxDataFrame
+    assert isinstance(vis.data, pd.DataFrame)
 
 
 def test_selection(global_var):
@@ -46,7 +46,7 @@ def test_selection(global_var):
         lux.Clause(attribute="year"),
     ]
     vislist = VisList(intent, tbl)
-    assert all([type(vis.data) == lux.core.frame.LuxDataFrame for vis in vislist])
+    assert all([isinstance(vis.data, pd.DataFrame) for vis in vislist])
     assert all(vislist[2].data.columns == ["year", "acceleration"])
 
 
@@ -96,7 +96,8 @@ def test_colored_bar_chart(global_var):
     group_by_carsdinality = len(tbl.unique_values["origin"])
     assert len(new_vis.data.columns) == 3
     assert (
-        len(new_vis.data) == 15 > group_by_carsdinality < color_carsdinality * group_by_carsdinality
+        len(new_vis.data) == 15 > group_by_carsdinality < color_carsdinality *
+        group_by_carsdinality
     )  # Not color_carsdinality*group_by_carsdinality since some combinations have 0 values
 
 
@@ -118,7 +119,8 @@ def test_colored_line_chart(global_var):
     group_by_carsdinality = len(tbl.unique_values["year"])
     assert len(new_vis.data.columns) == 3
     assert (
-        len(new_vis.data) == 60 > group_by_carsdinality < color_carsdinality * group_by_carsdinality
+        len(new_vis.data) == 60 > group_by_carsdinality < color_carsdinality *
+        group_by_carsdinality
     )  # Not color_carsdinality*group_by_carsdinality since some combinations have 0 values
 
 
@@ -175,7 +177,8 @@ def test_binning(global_var):
     tbl.set_SQL_table("cars")
 
     vis = Vis([lux.Clause(attribute="horsepower")], tbl)
-    nbins = list(filter(lambda x: x.bin_size != 0, vis._inferred_intent))[0].bin_size
+    nbins = list(filter(lambda x: x.bin_size != 0,
+                 vis._inferred_intent))[0].bin_size
     assert len(vis.data) == nbins
 
 
@@ -206,7 +209,8 @@ def test_exclude_attribute(global_var):
     tbl = lux.LuxSQLTable()
     tbl.set_SQL_table("cars")
 
-    intent = [lux.Clause("?", exclude=["Name", "year"]), lux.Clause("horsepower")]
+    intent = [lux.Clause("?", exclude=["Name", "year"]),
+              lux.Clause("horsepower")]
     vislist = VisList(intent, tbl)
     for vis in vislist:
         assert vis.get_attr_by_channel("x")[0].attribute != "year"
