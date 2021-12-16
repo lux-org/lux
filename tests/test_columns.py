@@ -138,12 +138,12 @@ def test_int_columns(global_var):
 def test_name_column(global_var):
     df = pd.read_csv("lux/data/car.csv")
     new_df = df.rename(columns={"Name": "name"})
-    assert list(new_df.recommendation.keys()) == [
+    assert list(new_df.lux.recommendation.keys()) == [
         "Correlation",
         "Distribution",
         "Occurrence",
         "Temporal",
     ]
-    assert len(new_df.recommendation["Correlation"])
+    assert len(new_df.lux.recommendation["Correlation"])
     assert new_df["name"][0] != None
     assert (new_df["name"].unique() != None)[0]

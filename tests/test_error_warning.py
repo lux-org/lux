@@ -90,6 +90,6 @@ def test_lux_warnings(global_var):
     new_df = df.set_index(["Name", "Cylinders"])
     new_df._ipython_display_()
     assert (
-        new_df._widget.message
+        new_df.lux._widget.message
         == f"<ul><li>Lux does not currently support visualizations in a DataFrame with hierarchical indexes.\nPlease convert the DataFrame into a flat table via pandas.DataFrame.reset_index.</li></ul>"
     )

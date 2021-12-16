@@ -75,7 +75,7 @@ def test_series_recommendation():
     df.plot_config = None
     df = df["YearsAtCompany"] / df["TotalWorkingYears"]
     assert len(df.lux.recommendation["Distribution"]
-               ) > 0, "Recommendation property empty for LuxSeries"
+               ) > 0, "Recommendation property empty for Series"
 
 
 def test_series_multivis_recommendation():
