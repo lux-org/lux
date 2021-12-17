@@ -357,13 +357,13 @@ def test_drop(global_var):
     new_df = df.drop([0, 1, 2], axis="rows")
     new_df2 = new_df.drop(["Name", "MilesPerGal", "Cylinders"], axis="columns")
     new_df2._ipython_display_()
-    assert list(new_df2.recommendation.keys()) == [
+    assert list(new_df2.lux.recommendation.keys()) == [
         "Correlation",
         "Distribution",
         "Occurrence",
         "Temporal",
     ]
-    assert len(new_df2.cardinality) == 7
+    assert len(new_df2.lux.cardinality) == 7
 
 
 def test_merge(global_var):
@@ -372,13 +372,13 @@ def test_merge(global_var):
     new_df = df.drop([0, 1, 2], axis="rows")
     new_df2 = pd.merge(df, new_df, how="left", indicator=True)
     new_df2._ipython_display_()
-    assert list(new_df2.recommendation.keys()) == [
+    assert list(new_df2.lux.recommendation.keys()) == [
         "Correlation",
         "Distribution",
         "Occurrence",
         "Temporal",
     ]  # TODO once bug is fixed
-    assert len(new_df2.cardinality) == 11
+    assert len(new_df2.lux.cardinality) == 11
 
 
 def test_prefix(global_var):

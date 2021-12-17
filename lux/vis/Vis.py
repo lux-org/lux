@@ -128,10 +128,10 @@ class Vis:
                 "No data is populated in Vis. In order to generate data required for the vis, use the 'refresh_source' function to populate the Vis with a data source (e.g., vis.refresh_source(df))."
             )
         else:
-            from lux.core.frame import LuxDataFrame
+            from lux.core.frame import LuxDataFrame, LuxDataFrameMethods
 
             widget = luxwidget.LuxWidget(
-                currentVis=LuxDataFrame.current_vis_to_JSON([self]),
+                currentVis=LuxDataFrameMethods.current_vis_to_JSON([self]),
                 recommendations=[],
                 intent="",
                 message="",

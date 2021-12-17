@@ -77,5 +77,5 @@ def test_series_groupby(global_var):
     df._repr_html_()
     new_ser = df.set_index("Brand")["Displacement"].groupby(
         level=0).agg("mean")
-    assert new_ser._history[0].name == "groupby"
-    assert new_ser.pre_aggregated
+    assert new_ser.lux._history[0].name == "groupby"
+    assert new_ser.lux.pre_aggregated

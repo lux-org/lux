@@ -67,3 +67,22 @@ class TestBasic:
         lux2 = df.lux.from_lux_object("df", df, df.lux)
 
         assert lux2.df is df.lux.df
+
+    def test_grouby_series(self):
+
+        df = pd.DataFrame(
+            dict(x=np.arange(100), c=np.random.choice(7, size=100)))
+
+        df["y"] = df.x ** 2 + 1 + 200 * np.random.normal(size=df.x.shape)
+        df["z"] = (100 - df.x) ** 2 + 1 + 200 * \
+            np.random.normal(size=df.x.shape)
+
+        gdf = df.groupby("c")
+        sg = gdf["x"]
+
+        # def apply_f(x):
+        #     return x.mean()
+
+        # res = sg.apply(apply_f)
+
+        res = sg.describe()

@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from lux.core.frame import LuxDataFrame
 from .context import lux
 import pytest
 import pandas as pd
@@ -302,11 +303,11 @@ def test_interestingness_deviation_nan():
         {"date": "2017-07-25", "category": "F", "value": 1.0},
         {"date": "2017-07-25", "category": "B", "value": 0.1},
     ]
-    test = pd.DataFrame(dataset)
+    test: LuxDataFrame = pd.DataFrame(dataset)
     from lux.vis.Vis import Vis
 
     test["date"] = pd.to_datetime(test["date"], format="%Y-%M-%d")
-    test.set_data_type({"value": "quantitative"})
+    test.lux.set_data_type({"value": "quantitative"})
 
     vis = Vis(["date", "value", "category=A"], test)
     vis2 = Vis(["date", "value", "category=B"], test)

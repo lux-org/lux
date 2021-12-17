@@ -47,17 +47,18 @@ def test_nan_data_type_detection():
         {"fully_nan": np.nan, "some_nan": 11.0, "some_nan2": 0.0},
     ]
     test = pd.DataFrame(dataset)
-    test.maintain_metadata()
-    inverted_data_type = lux.config.executor.invert_data_type(test.data_type)
+    test.lux.maintain_metadata()
+    inverted_data_type = lux.config.executor.invert_data_type(
+        test.lux.data_type)
     assert inverted_data_type["nominal"] == [
         "fully_nan",
         "some_nan",
         "some_nan2",
     ], "Categorical columns containing NaNs should be treated as nominal data type"
     nona_test = test.dropna(subset=["some_nan"])
-    nona_test.maintain_metadata()
+    nona_test.lux.maintain_metadata()
     inverted_data_type = lux.config.executor.invert_data_type(
-        nona_test.data_type)
+        nona_test.lux.data_type)
     assert inverted_data_type["nominal"] == [
         "fully_nan",
         "some_nan",
@@ -155,9 +156,9 @@ def test_numeric_with_nan():
     a = df[["# Instances", "# Attributes"]]
     a._ipython_display_()
     assert (
-        len(a.recommendation["Distribution"]) == 2
+        len(a.lux.recommendation["Distribution"]) == 2
     ), "Testing a numeric columns with NaN, check that histograms are displayed"
-    assert "contains missing values" in a._message.to_html(
+    assert "contains missing values" in a.lux._message.to_html(
     ), "Warning message for NaN displayed"
     # a = a.dropna()
     # # TODO: Needs to be explicitly called, possible problem with metadata prpogation
@@ -165,7 +166,7 @@ def test_numeric_with_nan():
     # assert (
     #     len(a.recommendation["Distribution"]) == 2
     # ), "Example where dtype might be off after dropna(), check if histograms are still displayed"
-    assert "" in a._message.to_html(), "No warning message for NaN should be displayed"
+    assert "" in a.lux._message.to_html(), "No warning message for NaN should be displayed"
 
 
 def test_empty_filter(global_var):

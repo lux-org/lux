@@ -578,12 +578,12 @@ def test_all_column_current_vis_filter():
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     two_col_df = df[["Year", "Displacement"]]
     two_col_df._ipython_display_()
-    assert two_col_df.current_vis != None
-    assert two_col_df.current_vis[0]._all_column
+    assert two_col_df.lux.current_vis != None
+    assert two_col_df.lux.current_vis[0]._all_column
     three_col_df = df[["Year", "Displacement", "Origin"]]
     three_col_df._ipython_display_()
-    assert three_col_df.current_vis != None
-    assert three_col_df.current_vis[0]._all_column
+    assert three_col_df.lux.current_vis != None
+    assert three_col_df.lux.current_vis[0]._all_column
 
 
 def test_intent_override_all_column():

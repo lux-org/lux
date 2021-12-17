@@ -265,7 +265,7 @@ class VisList:
     def _ipython_display_(self):
         self._widget = None
         from IPython.display import display
-        from lux.core.frame import LuxDataFrame
+        from lux.core.frame import LuxDataFrame, LuxDataFrameMethods
 
         recommendation = {
             "action": "Vis List",
@@ -276,7 +276,7 @@ class VisList:
         check_import_lux_widget()
         import luxwidget
 
-        recJSON = LuxDataFrame.rec_to_JSON([recommendation])
+        recJSON = LuxDataFrameMethods.rec_to_JSON([recommendation])
         self._widget = luxwidget.LuxWidget(
             currentVis={},
             recommendations=recJSON,

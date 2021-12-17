@@ -44,7 +44,9 @@ def test_describe(global_var):
 
 def test_groupby_describe(global_var):
     df = pytest.college_df
-    result = df.groupby("FundingModel")["AdmissionRate"].describe()
+    result = df.groupby("FundingModel")
+    result = result["AdmissionRate"]
+    result = result.describe()
     result._ipython_display_()
     assert result.shape == (3, 8)
 
@@ -53,5 +55,5 @@ def test_convert_dtype(global_var):
     df = pytest.college_df
     cdf = df.convert_dtypes()
     cdf._ipython_display_()
-    assert list(cdf.recommendation.keys()) == [
+    assert list(cdf.lux.recommendation.keys()) == [
         "Correlation", "Distribution", "Occurrence"]

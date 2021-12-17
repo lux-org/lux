@@ -19,9 +19,9 @@ from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 
 
-def test_to_pandas(global_var):
-    df = pytest.car_df
-    df.to_pandas()
+# def test_to_pandas(global_var):
+#     df = pytest.car_df
+#     df.to_pandas()
 
 
 def test_display_LuxDataframe(global_var):

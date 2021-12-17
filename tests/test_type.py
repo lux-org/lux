@@ -149,16 +149,16 @@ def test_check_datetime():
 def test_check_datetime_numeric_values():
     car_df = pd.read_csv("lux/data/car.csv")
     car_df = car_df.rename(columns={"Year": "blah"})
-    car_df.maintain_metadata()
-    assert car_df.data_type["blah"] == "temporal"
+    car_df.lux.maintain_metadata()
+    assert car_df.lux.data_type["blah"] == "temporal"
 
     spotify_df = pd.read_csv(
         "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/spotify.csv"
     )
     spotify_df = spotify_df.rename(columns={"year": "blah"})
-    spotify_df.maintain_metadata()
-    assert spotify_df.data_type["blah"] == "temporal"
-    assert spotify_df.data_type["release_date"] == "temporal"
+    spotify_df.lux.maintain_metadata()
+    assert spotify_df.lux.data_type["blah"] == "temporal"
+    assert spotify_df.lux.data_type["release_date"] == "temporal"
 
 
 def test_check_stock():
