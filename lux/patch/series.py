@@ -32,12 +32,10 @@ def __init__(self: LuxSeries, *args, **kwargs):
 @patch(Series)
 @property
 def _constructor(self: LuxSeries):
-    def _construct_and_copy(*args, **kwargs) -> DataFrame:
-        series = self._super_constructor(*args, **kwargs)
-
-        # copies the accessor and sets the new dataframe
-        series._LUX_ = copy(self.lux)  # try deepcopy?
-        series._LUX_.series = series
+    def _construct_and_copy(*args, **kwargs) -> LuxSeries:
+        series = Series(*args, **kwargs)
+        series._LUX_ = LuxSeriesMethods.from_lux_object(
+            "series", series, self.lux)
 
         return series
 
@@ -47,7 +45,7 @@ def _constructor(self: LuxSeries):
 @patch(Series)
 @property
 def _constructor_expanddim(self: LuxSeries):
-    def _construct_and_copy(*args, **kwargs):
+    def _construct_and_copy(*args, **kwargs) -> LuxDataFrame:
         df = DataFrame(*args, **kwargs)
         df._LUX_ = LuxDataFrameMethods.from_lux_object("df", df, self.lux)
         return df

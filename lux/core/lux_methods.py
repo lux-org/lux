@@ -16,6 +16,7 @@
 import pandas as pd
 import typing as tp
 from lux.utils.utils import get_all_annotations
+from copy import copy
 
 
 # ------------------------------------------------------------------------------
@@ -56,8 +57,14 @@ class LuxMethods:
         attributes = {}
 
         for annotation_field in annotations:
-            attributes[annotation_field] = getattr(
-                other, annotation_field, None)
+            if annotation_field != field:
+                value = getattr(
+                    other, annotation_field, None)
+
+                if isinstance(value, (list, dict, set)):
+                    attributes[annotation_field] = copy(value)
+                else:
+                    attributes[annotation_field] = value
 
         attributes[field] = obj
 

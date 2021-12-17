@@ -31,11 +31,9 @@ def patch_library(DataFrame: tp.Type[LuxDataFrame], Series: tp.Type[LuxSeries]) 
     @property
     def _constructor(self: LuxDataFrame):
         def _construct_and_copy(*args, **kwargs) -> DataFrame:
-            df = self._super_constructor(*args, **kwargs)
-
-            # copies the accessor and sets the new dataframe
-            df._LUX_ = copy(self.lux)  # try deepcopy?
-            df._LUX_.df = df
+            df = DataFrame(*args, **kwargs)
+            df._LUX_ = LuxDataFrameMethods.from_lux_object(
+                "df", df, self.lux)
 
             return df
 

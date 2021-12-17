@@ -63,6 +63,7 @@ class LuxSeriesMethods(LuxMethods):
         self.name = None
         self._sampled = None
         self.pre_aggregated = None
+        self._recs_fresh = False
 
     def unique(self):
         """
