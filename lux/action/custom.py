@@ -39,13 +39,13 @@ def custom(ldf):
         "long_description": "Shows the list of visualizations generated based on user specified intent",
     }
 
-    recommendation["collection"] = ldf.current_vis
+    recommendation["collection"] = ldf.lux.current_vis
 
-    vlist = ldf.current_vis
+    vlist = ldf.lux.current_vis
     lux.config.executor.execute(vlist, ldf)
     for vis in vlist:
         vis.score = interestingness(vis, ldf)
-    # ldf.clear_intent()
+    # ldf.lux.clear_intent()
     vlist.sort(remove_invalid=True)
     return recommendation
 
@@ -71,9 +71,11 @@ def custom_actions(ldf):
             if display_condition is None or (display_condition is not None and display_condition(ldf)):
                 args = lux.config.actions[action_name].args
                 if args:
-                    recommendation = lux.config.actions[action_name].action(ldf, args)
+                    recommendation = lux.config.actions[action_name].action(
+                        ldf, args)
                 else:
-                    recommendation = lux.config.actions[action_name].action(ldf)
+                    recommendation = lux.config.actions[action_name].action(
+                        ldf)
                 recommendations.append(recommendation)
         return recommendations
     else:

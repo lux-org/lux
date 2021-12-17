@@ -68,7 +68,7 @@ In addition to dataframe visualizations at every step in the exploration, you ca
 For example, we might be interested in the attributes `AverageCost` and `SATAverage`.
 
 ```python
-df.intent = ["AverageCost","SATAverage"]
+df.lux.intent = ["AverageCost","SATAverage"]
 df
 ```
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/contextRec.gif?raw=true"

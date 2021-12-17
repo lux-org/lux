@@ -75,7 +75,7 @@ class Validator:
                             if not clause.attribute in list(ldf.columns):
                                 search_val = clause.attribute
                                 match_attr = False
-                                for attr, val_list in ldf.unique_values.items():
+                                for attr, val_list in ldf.lux.unique_values.items():
                                     if search_val in val_list:
                                         match_attr = attr
                                 if match_attr:

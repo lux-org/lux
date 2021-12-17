@@ -12,7 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+
 import pandas as pd
+import typing as tp
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
@@ -20,8 +22,9 @@ from lux.vis.VisList import VisList
 from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
-from lux.utils.utils import check_import_lux_widget
+from lux.utils.utils import check_import_lux_widget, patch, remove_method
 from typing import Dict, Union, List, Callable
+from lux.core.lux_methods import LuxMethods
 
 # from lux.executor.Executor import *
 import warnings
@@ -30,34 +33,29 @@ import lux
 
 
 class LuxDataFrame(pd.DataFrame):
-    """
-    A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
-    """
+    _metadata: tp.List[str]
+    _LUX_: "LuxDataFrameMethods"
 
-    # MUST register here for new properties!!
-    _metadata = [
-        "_intent",
-        "_inferred_intent",
-        "_data_type",
-        "unique_values",
-        "cardinality",
-        "_rec_info",
-        "_min_max",
-        "_current_vis",
-        "_widget",
-        "_recommendation",
-        "_prev",
-        "_history",
-        "_saved_export",
-        "_sampled",
-        "_toggle_pandas_display",
-        "_message",
-        "_pandas_only",
-        "pre_aggregated",
-        "_type_override",
-    ]
+    @property
+    def lux(self) -> "LuxDataFrameMethods":
+        ...
 
-    def __init__(self, *args, **kw):
+    def _ipython_display_(self):
+        ...
+
+
+# ------------------------------------------------------------------------------
+# Override Pandas
+# ------------------------------------------------------------------------------
+
+
+class LuxDataFrameMethods(LuxMethods):
+    df: LuxDataFrame
+    _prev: tp.Optional[LuxDataFrame]
+
+    def __init__(self, df):
+        self.df = df
+
         self._history = History()
         self._intent = []
         self._inferred_intent = []
@@ -66,7 +64,6 @@ class LuxDataFrame(pd.DataFrame):
         self._current_vis = []
         self._prev = None
         self._widget = None
-        super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.table_name = ""
         if lux.config.SQLconnection == "":
@@ -90,21 +87,9 @@ class LuxDataFrame(pd.DataFrame):
         self._min_max = None
         self.pre_aggregated = None
         self._type_override = {}
+        self._metadata_fresh = False
+        self._recs_fresh = False
         warnings.formatwarning = lux.warning_format
-
-    @property
-    def _constructor(self):
-        return LuxDataFrame
-
-    @property
-    def _constructor_sliced(self):
-        def f(*args, **kwargs):
-            s = LuxSeries(*args, **kwargs)
-            for attr in self._metadata:  # propagate metadata
-                s.__dict__[attr] = getattr(self, attr, None)
-            return s
-
-        return f
 
     @property
     def history(self):
@@ -120,10 +105,10 @@ class LuxDataFrame(pd.DataFrame):
         """
         Compute dataset metadata and statistics
         """
-        if len(self) > 0:
+        if len(self.df) > 0:
             if lux.config.executor.name != "SQLExecutor":
-                lux.config.executor.compute_stats(self)
-            lux.config.executor.compute_dataset_metadata(self)
+                lux.config.executor.compute_stats(self.df)
+            lux.config.executor.compute_dataset_metadata(self.df)
             self._infer_structure()
             self._metadata_fresh = True
 
@@ -141,7 +126,7 @@ class LuxDataFrame(pd.DataFrame):
         # Check that metadata has not yet been computed
         if lux.config.lazy_maintain:
             # Check that metadata has not yet been computed
-            if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
+            if not self._metadata_fresh:
                 # only compute metadata information if the dataframe is non-empty
                 self.compute_metadata()
         else:
@@ -170,43 +155,21 @@ class LuxDataFrame(pd.DataFrame):
             self._min_max = None
             self.pre_aggregated = None
 
-    #####################
-    ## Override Pandas ##
-    #####################
-    def __getattr__(self, name):
-        ret_value = super(LuxDataFrame, self).__getattr__(name)
-        self.expire_metadata()
-        self.expire_recs()
-        return ret_value
-
-    def _set_axis(self, axis, labels):
-        super(LuxDataFrame, self)._set_axis(axis, labels)
-        self.expire_metadata()
-        self.expire_recs()
-
-    def _update_inplace(self, *args, **kwargs):
-        super(LuxDataFrame, self)._update_inplace(*args, **kwargs)
-        self.expire_metadata()
-        self.expire_recs()
-
-    def _set_item(self, key, value):
-        super(LuxDataFrame, self)._set_item(key, value)
-        self.expire_metadata()
-        self.expire_recs()
-
     def _infer_structure(self):
         # If the dataframe is very small and the index column is not a range index, then it is likely that this is an aggregated data
-        is_multi_index_flag = self.index.nlevels != 1
-        not_int_index_flag = not pd.api.types.is_integer_dtype(self.index)
+        is_multi_index_flag = self.df.index.nlevels != 1
+        not_int_index_flag = not pd.api.types.is_integer_dtype(self.df.index)
 
         is_sql_tbl = lux.config.executor.name != "PandasExecutor"
 
-        small_df_flag = len(self) < 100 and is_sql_tbl
+        small_df_flag = len(self.df) < 100 and is_sql_tbl
         if self.pre_aggregated == None:
-            self.pre_aggregated = (is_multi_index_flag or not_int_index_flag) and small_df_flag
-            if "Number of Records" in self.columns:
+            self.pre_aggregated = (
+                is_multi_index_flag or not_int_index_flag) and small_df_flag
+            if "Number of Records" in self.df.columns:
                 self.pre_aggregated = True
-            self.pre_aggregated = "groupby" in [event.name for event in self.history] and not is_sql_tbl
+            self.pre_aggregated = "groupby" in [
+                event.name for event in self.history] and not is_sql_tbl
 
     @property
     def intent(self):
@@ -254,11 +217,11 @@ class LuxDataFrame(pd.DataFrame):
         from lux.processor.Validator import Validator
 
         self._intent = Parser.parse(self._intent)
-        Validator.validate_intent(self._intent, self)
+        Validator.validate_intent(self._intent, self.df)
         self.maintain_metadata()
         from lux.processor.Compiler import Compiler
 
-        self.current_vis = Compiler.compile_intent(self, self._intent)
+        self.current_vis = Compiler.compile_intent(self.df, self._intent)
 
     def copy_intent(self):
         # creates a true copy of the dataframe's intent
@@ -294,8 +257,9 @@ class LuxDataFrame(pd.DataFrame):
 
         Example
         ----------
-        df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/absenteeism.csv")
-        df.set_data_type({"ID":"id",
+        df = pd.read_csv(
+            "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/absenteeism.csv")
+        df.lux.set_data_type({"ID":"id",
                           "Reason for absence":"nominal"})
         """
         if self._type_override == None:
@@ -315,10 +279,10 @@ class LuxDataFrame(pd.DataFrame):
 
         self.expire_recs()
 
-    def to_pandas(self):
-        import lux.core
+    # def to_pandas(self):
+    #     import lux.core
 
-        return lux.core.originalDF(self, copy=False)
+    #     return lux.core.originalDF(self, copy=False)
 
     @property
     def recommendation(self):
@@ -326,7 +290,7 @@ class LuxDataFrame(pd.DataFrame):
             from lux.processor.Compiler import Compiler
 
             self.maintain_metadata()
-            self.current_vis = Compiler.compile_intent(self, self._intent)
+            self.current_vis = Compiler.compile_intent(self.df, self._intent)
             self.maintain_recs()
         return self._recommendation
 
@@ -346,8 +310,8 @@ class LuxDataFrame(pd.DataFrame):
             and self._current_vis[0].data is None
             and self._current_vis[0].intent
         )
-        if valid_current_vis and Validator.validate_intent(self._current_vis[0].intent, self):
-            lux.config.executor.execute(self._current_vis, self)
+        if valid_current_vis and Validator.validate_intent(self._current_vis[0].intent, self.df):
+            lux.config.executor.execute(self._current_vis, self.df)
         return self._current_vis
 
     @current_vis.setter
@@ -359,8 +323,8 @@ class LuxDataFrame(pd.DataFrame):
             rec_infolist.append(recommendations)
 
     def show_all_column_vis(self):
-        if len(self.columns) > 1 and len(self.columns) < 4 and self.intent == [] or self.intent is None:
-            vis = Vis(list(self.columns), self)
+        if len(self.df.columns) > 1 and len(self.df.columns) < 4 and self.intent == [] or self.intent is None:
+            vis = Vis(list(self.df.columns), source=self.df)
             if vis.mark != "":
                 vis._all_column = True
                 self.current_vis = VisList([vis])
@@ -374,25 +338,27 @@ class LuxDataFrame(pd.DataFrame):
 
         if self._prev is not None:
             rec_df = self._prev
-            rec_df._message = Message()
-            rec_df.maintain_metadata()  # the prev dataframe may not have been printed before
+            rec_df.lux._message = Message()
+            # the prev dataframe may not have been printed before
+            rec_df.lux.maintain_metadata()
             last_event = self.history._events[-1].name
-            rec_df._message.add(
+            rec_df.lux._message.add(
                 f"Lux is visualizing the previous version of the dataframe before you applied <code>{last_event}</code>."
             )
             show_prev = True
         else:
-            rec_df = self
-            rec_df._message = Message()
+            rec_df = self.df
+            rec_df.lux._message = Message()
         # Add warning message if there exist ID fields
         if len(rec_df) == 0:
-            rec_df._message.add(f"Lux cannot operate on an empty {is_series}.")
-        elif len(rec_df) < 5 and not rec_df.pre_aggregated:
-            rec_df._message.add(
+            rec_df.lux._message.add(
+                f"Lux cannot operate on an empty {is_series}.")
+        elif len(rec_df) < 5 :#and not rec_df.lux.pre_aggregated:
+            rec_df.lux._message.add(
                 f"The {is_series} is too small to visualize. To generate visualizations in Lux, the {is_series} must contain at least 5 rows."
             )
-        elif self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-            rec_df._message.add(
+        elif self.df.index.nlevels >= 2 or self.df.columns.nlevels >= 2:
+            rec_df.lux._message.add(
                 f"Lux does not currently support visualizations in a {is_series} "
                 f"with hierarchical indexes.\n"
                 f"Please convert the {is_series} into a flat "
@@ -400,18 +366,20 @@ class LuxDataFrame(pd.DataFrame):
             )
         else:
             id_fields_str = ""
-            inverted_data_type = lux.config.executor.invert_data_type(rec_df.data_type)
+            inverted_data_type = lux.config.executor.invert_data_type(
+                rec_df.lux.data_type)
             if len(inverted_data_type["id"]) > 0:
                 for id_field in inverted_data_type["id"]:
                     id_fields_str += f"<code>{id_field}</code>, "
                 id_fields_str = id_fields_str[:-2]
-                rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
+                rec_df.lux._message.add(
+                    f"{id_fields_str} is not visualized since it resembles an ID field.")
 
-        rec_df._prev = None  # reset _prev
+        rec_df.lux._prev = None  # reset _prev
 
         # If lazy, check that recs has not yet been computed
         lazy_but_not_computed = lux.config.lazy_maintain and (
-            not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh
+            not rec_df.lux._recs_fresh
         )
         eager = not lux.config.lazy_maintain
 
@@ -423,37 +391,37 @@ class LuxDataFrame(pd.DataFrame):
             from lux.action.column_group import column_group
 
             # TODO: Rewrite these as register action inside default actions
-            if rec_df.pre_aggregated:
+            if rec_df.lux.pre_aggregated:
                 if rec_df.columns.name is not None:
-                    rec_df._append_rec(rec_infolist, row_group(rec_df))
-                rec_df._append_rec(rec_infolist, column_group(rec_df))
-            elif not (len(rec_df) < 5 and not rec_df.pre_aggregated and not is_sql_tbl) and not (
-                self.index.nlevels >= 2 or self.columns.nlevels >= 2
+                    rec_df.lux._append_rec(rec_infolist, row_group(rec_df))
+                rec_df.lux._append_rec(rec_infolist, column_group(rec_df))
+            elif not (len(rec_df) < 5 and not rec_df.lux.pre_aggregated and not is_sql_tbl) and not (
+                self.df.index.nlevels >= 2 or self.df.columns.nlevels >= 2
             ):
                 from lux.action.custom import custom_actions
 
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
                 for rec in custom_action_collection:
-                    rec_df._append_rec(rec_infolist, rec)
+                    rec_df.lux._append_rec(rec_infolist, rec)
                 lux.config.update_actions["flag"] = False
 
             # Store _rec_info into a more user-friendly dictionary form
-            rec_df._recommendation = {}
+            rec_df.lux._recommendation = {}
             for rec_info in rec_infolist:
                 action_type = rec_info["action"]
                 vlist = rec_info["collection"]
                 if len(vlist) > 0:
-                    rec_df._recommendation[action_type] = vlist
-            rec_df._rec_info = rec_infolist
-            rec_df.show_all_column_vis()
+                    rec_df.lux._recommendation[action_type] = vlist
+            rec_df.lux._rec_info = rec_infolist
+            rec_df.lux.show_all_column_vis()
             if lux.config.render_widget:
-                self._widget = rec_df.render_widget()
+                self._widget = rec_df.lux.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
-            rec_df.show_all_column_vis()
+            rec_df.lux.show_all_column_vis()
             if lux.config.render_widget:
-                self._widget = rec_df.render_widget()
+                self._widget = rec_df.lux.render_widget()
         self._recs_fresh = True
 
     #######################################################
@@ -461,8 +429,7 @@ class LuxDataFrame(pd.DataFrame):
     #######################################################
     @property
     def widget(self):
-        if self._widget:
-            return self._widget
+        return self._widget
 
     @property
     def exported(self) -> Union[Dict[str, VisList], VisList]:
@@ -557,7 +524,7 @@ class LuxDataFrame(pd.DataFrame):
         self.set_intent_as_vis(vis)
 
         self.maintain_metadata()
-        self.current_vis = Compiler.compile_intent(self, self._intent)
+        self.current_vis = Compiler.compile_intent(self.df, self._intent)
         self.maintain_recs()
 
         with self.output:
@@ -565,77 +532,13 @@ class LuxDataFrame(pd.DataFrame):
             display(self._widget)
 
         self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
-        self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
-
-    def _ipython_display_(self):
-        from IPython.display import display
-        from IPython.display import clear_output
-        import ipywidgets as widgets
-
-        try:
-            if self._pandas_only:
-                display(self.display_pandas())
-                self._pandas_only = False
-            else:
-                if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-                    self.maintain_metadata()
-
-                    if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
-                        from lux.processor.Compiler import Compiler
-
-                        self.current_vis = Compiler.compile_intent(self, self._intent)
-
-                if lux.config.default_display == "lux":
-                    self._toggle_pandas_display = False
-                else:
-                    self._toggle_pandas_display = True
-
-                # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-                self.maintain_recs()
-
-                # Observers(callback_function, listen_to_this_variable)
-                self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
-                self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
-
-                button = widgets.Button(
-                    description="Toggle Pandas/Lux",
-                    layout=widgets.Layout(width="140px", top="5px"),
-                )
-                self.output = widgets.Output()
-                display(button, self.output)
-
-                def on_button_clicked(b):
-                    with self.output:
-                        if b:
-                            self._toggle_pandas_display = not self._toggle_pandas_display
-                        clear_output()
-                        if self._toggle_pandas_display:
-                            display(self.display_pandas())
-                        else:
-                            # b.layout.display = "none"
-                            display(self._widget)
-                            # b.layout.display = "inline-block"
-
-                button.on_click(on_button_clicked)
-                on_button_clicked(None)
-
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except Exception:
-            if lux.config.pandas_fallback:
-                warnings.warn(
-                    "\nUnexpected error in rendering Lux widget and recommendations. "
-                    "Falling back to Pandas display.\n"
-                    "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
-                    stacklevel=2,
-                )
-                warnings.warn(traceback.format_exc())
-                display(self.display_pandas())
-            else:
-                raise
+        self._widget.observe(self.set_intent_on_click,
+                             names="selectedIntentIndex")
 
     def display_pandas(self):
-        return self.to_pandas()
+        from IPython.display import display, HTML
+
+        display(HTML(self.df._repr_html_()))
 
     def render_widget(self, renderer: str = "altair", input_current_vis=""):
         """
@@ -678,16 +581,17 @@ class LuxDataFrame(pd.DataFrame):
         check_import_lux_widget()
         import luxwidget
 
-        widgetJSON = self.to_JSON(self._rec_info, input_current_vis=input_current_vis)
+        widgetJSON = self.to_JSON(
+            self._rec_info, input_current_vis=input_current_vis)
         return luxwidget.LuxWidget(
             currentVis=widgetJSON["current_vis"],
             recommendations=widgetJSON["recommendation"],
-            intent=LuxDataFrame.intent_to_string(self._intent),
+            intent=self.intent_to_string(self._intent),
             message=self._message.to_html(),
             config={"plottingScale": lux.config.plotting_scale},
         )
 
-    @staticmethod
+    @ staticmethod
     def intent_to_JSON(intent):
         from lux.utils import utils
 
@@ -699,7 +603,7 @@ class LuxDataFrame(pd.DataFrame):
         intent["filters"] = [clause.attribute for clause in filter_specs]
         return intent
 
-    @staticmethod
+    @ staticmethod
     def intent_to_string(intent):
         if intent:
             return ", ".join([clause.to_string() for clause in intent])
@@ -709,8 +613,8 @@ class LuxDataFrame(pd.DataFrame):
     def to_JSON(self, rec_infolist, input_current_vis=""):
         widget_spec = {}
         if self.current_vis:
-            lux.config.executor.execute(self.current_vis, self)
-            widget_spec["current_vis"] = LuxDataFrame.current_vis_to_JSON(
+            lux.config.executor.execute(self.current_vis, self.df)
+            widget_spec["current_vis"] = self.current_vis_to_JSON(
                 self.current_vis, input_current_vis
             )
         else:
@@ -718,16 +622,17 @@ class LuxDataFrame(pd.DataFrame):
         widget_spec["recommendation"] = []
 
         # Recommended Collection
-        recCollection = LuxDataFrame.rec_to_JSON(rec_infolist)
+        recCollection = self.rec_to_JSON(rec_infolist)
         widget_spec["recommendation"].extend(recCollection)
         return widget_spec
 
-    @staticmethod
+    @ staticmethod
     def current_vis_to_JSON(vlist, input_current_vis=""):
         current_vis_spec = {}
         numVC = len(vlist)  # number of visualizations in the vis list
         if numVC == 1:
-            current_vis_spec = vlist[0].to_code(language=lux.config.plotting_backend, prettyOutput=False)
+            current_vis_spec = vlist[0].to_code(
+                language=lux.config.plotting_backend, prettyOutput=False)
         elif numVC > 1:
             pass
         if vlist[0]._all_column:
@@ -736,7 +641,7 @@ class LuxDataFrame(pd.DataFrame):
             current_vis_spec["allcols"] = False
         return current_vis_spec
 
-    @staticmethod
+    @ staticmethod
     def rec_to_JSON(recs):
         rec_lst = []
         import copy
@@ -746,7 +651,8 @@ class LuxDataFrame(pd.DataFrame):
             if len(rec["collection"]) > 0:
                 rec["vspec"] = []
                 for vis in rec["collection"]:
-                    chart = vis.to_code(language=lux.config.plotting_backend, prettyOutput=False)
+                    chart = vis.to_code(
+                        language=lux.config.plotting_backend, prettyOutput=False)
                     rec["vspec"].append(chart)
                 rec_lst.append(rec)
                 # delete since not JSON serializable
@@ -784,9 +690,9 @@ class LuxDataFrame(pd.DataFrame):
             <link rel="lux" type="image/png" sizes="96x96" href="https://github.com/lux-org/lux-resources/blob/master/logo/favicon-96x96.png?raw=True">
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
             <!-- Load RequireJS, used by the IPywidgets for dependency management -->
-            <script 
-            src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js" 
-            integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" 
+            <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"
+            integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA="
             crossorigin="anonymous">
             </script>
 
@@ -794,18 +700,18 @@ class LuxDataFrame(pd.DataFrame):
             <script
                 data-jupyter-widgets-cdn="https://unpkg.com/"
                 data-jupyter-widgets-cdn-only
-                src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js" 
+                src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js"
                 crossorigin="anonymous">
             </script>
-            
+
             <style type="text/css">
-                #intentBtn, #warnBtn, #exportBtn{
+                # intentBtn, #warnBtn, #exportBtn{
                 display: none;
                 }
-                #deleteBtn {
-                right: 10px !important; 
+                # deleteBtn {
+                right: 10px !important;
                 }
-                #footer-description{
+                # footer-description{
                 margin: 10px;
                 text-align: right;
                 }
@@ -816,7 +722,7 @@ class LuxDataFrame(pd.DataFrame):
         <html>
         {header}
         <body>
-            
+
             <script type="application/vnd.jupyter.widget-state+json">
             {manager_state}
             </script>
@@ -824,7 +730,7 @@ class LuxDataFrame(pd.DataFrame):
             <script type="application/vnd.jupyter.widget-view+json">
                 {widget_view}
             </script>
-            
+
             <div id="footer-description">
             These visualizations were generated by <a href="https://github.com/lux-org/lux/" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/lux-org/lux-resources/master/logo/logo.png" width="65px" style="vertical-align: middle;"></img></a>
             </div>
@@ -844,31 +750,3 @@ class LuxDataFrame(pd.DataFrame):
             with open(filename, "w") as fp:
                 fp.write(rendered_template)
                 print(f"Saved HTML to {filename}")
-
-    # Overridden Pandas Functions
-    def head(self, n: int = 5):
-        ret_val = super(LuxDataFrame, self).head(n)
-        ret_val._prev = self
-        ret_val._history.append_event("head", n=5)
-        return ret_val
-
-    def tail(self, n: int = 5):
-        ret_val = super(LuxDataFrame, self).tail(n)
-        ret_val._prev = self
-        ret_val._history.append_event("tail", n=5)
-        return ret_val
-
-    def groupby(self, *args, **kwargs):
-        history_flag = False
-        if "history" not in kwargs or ("history" in kwargs and kwargs["history"]):
-            history_flag = True
-        if "history" in kwargs:
-            del kwargs["history"]
-        groupby_obj = super(LuxDataFrame, self).groupby(*args, **kwargs)
-        for attr in self._metadata:
-            groupby_obj.__dict__[attr] = getattr(self, attr, None)
-        if history_flag:
-            groupby_obj._history = groupby_obj._history.copy()
-            groupby_obj._history.append_event("groupby", *args, **kwargs)
-        groupby_obj.pre_aggregated = True
-        return groupby_obj

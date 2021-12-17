@@ -9,18 +9,24 @@ def register_default_actions():
     from lux.action.temporal import temporal
 
     # display conditions for default actions
-    no_vis = lambda ldf: (ldf.current_vis is None) or (
-        ldf.current_vis is not None and len(ldf.current_vis) == 0
+    def no_vis(ldf): return (ldf.lux.current_vis is None) or (
+        ldf.lux.current_vis is not None and len(ldf.lux.current_vis) == 0
     )
-    one_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) == 1
-    multiple_current_vis = lambda ldf: ldf.current_vis is not None and len(ldf.current_vis) > 1
+
+    def one_current_vis(ldf): return ldf.lux.current_vis is not None and len(
+        ldf.lux.current_vis) == 1
+
+    def multiple_current_vis(ldf): return ldf.lux.current_vis is not None and len(
+        ldf.lux.current_vis) > 1
 
     # globally register default actions
     lux.config.register_action("correlation", correlation, no_vis)
-    lux.config.register_action("distribution", univariate, no_vis, "quantitative")
+    lux.config.register_action(
+        "distribution", univariate, no_vis, "quantitative")
     lux.config.register_action("occurrence", univariate, no_vis, "nominal")
     lux.config.register_action("temporal", temporal, no_vis)
-    lux.config.register_action("geographical", univariate, no_vis, "geographical")
+    lux.config.register_action(
+        "geographical", univariate, no_vis, "geographical")
 
     lux.config.register_action("Enhance", enhance, one_current_vis)
     lux.config.register_action("Filter", add_filter, one_current_vis)

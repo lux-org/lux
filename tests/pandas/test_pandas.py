@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
+from tests.context import lux
 import pytest
 import pandas as pd
 
@@ -20,18 +20,18 @@ import pandas as pd
 def test_head_tail(global_var):
     df = pytest.car_df
     df._ipython_display_()
-    assert df._message.to_html() == ""
+    assert df.lux._message.to_html() == ""
     df.head()._ipython_display_()
     assert (
         "Lux is visualizing the previous version of the dataframe before you applied <code>head</code>."
-        in df._message.to_html()
+        in df.lux._message.to_html()
     )
     df._ipython_display_()
-    assert df._message.to_html() == ""
+    assert df.lux._message.to_html() == ""
     df.tail()._ipython_display_()
     assert (
         "Lux is visualizing the previous version of the dataframe before you applied <code>tail</code>."
-        in df._message.to_html()
+        in df.lux._message.to_html()
     )
 
 
@@ -44,7 +44,9 @@ def test_describe(global_var):
 
 def test_groupby_describe(global_var):
     df = pytest.college_df
-    result = df.groupby("FundingModel")["AdmissionRate"].describe()
+    result = df.groupby("FundingModel")
+    result = result["AdmissionRate"]
+    result = result.describe()
     result._ipython_display_()
     assert result.shape == (3, 8)
 
@@ -53,4 +55,5 @@ def test_convert_dtype(global_var):
     df = pytest.college_df
     cdf = df.convert_dtypes()
     cdf._ipython_display_()
-    assert list(cdf.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
+    assert list(cdf.lux.recommendation.keys()) == [
+        "Correlation", "Distribution", "Occurrence"]

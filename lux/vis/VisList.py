@@ -95,7 +95,8 @@ class VisList:
             )
             return []
         else:
-            exported_vis = VisList(list(map(self.__getitem__, exported_vis_lst["Vis List"])))
+            exported_vis = VisList(
+                list(map(self.__getitem__, exported_vis_lst["Vis List"])))
             return exported_vis
 
     def remove_duplicates(self) -> None:
@@ -154,7 +155,8 @@ class VisList:
                 filter_intents
                 and len(str(filter_intents.value)) + len(str(filter_intents.attribute)) > largest_filter
             ):
-                largest_filter = len(str(filter_intents.value)) + len(str(filter_intents.attribute))
+                largest_filter = len(str(filter_intents.value)) + \
+                    len(str(filter_intents.attribute))
         vis_repr = []
         largest_x_length = len(x_channel)
         largest_y_length = len(y_channel)
@@ -184,7 +186,8 @@ class VisList:
             if filter_intents:
                 y_channel = y_channel.ljust(largest_y_length)
             elif largest_filter != 0:
-                y_channel = y_channel.ljust(largest_y_length + largest_filter + 9)
+                y_channel = y_channel.ljust(
+                    largest_y_length + largest_filter + 9)
             else:
                 y_channel = y_channel.ljust(largest_y_length + largest_filter)
             if x_channel != "":
@@ -194,7 +197,8 @@ class VisList:
             aligned_mark = vis.mark.ljust(largest_mark)
             str_additional_channels = ""
             for channel in additional_channels:
-                str_additional_channels += ", " + channel[0] + ": " + channel[1]
+                str_additional_channels += ", " + \
+                    channel[0] + ": " + channel[1]
             if filter_intents:
                 aligned_filter = (
                     " -- ["
@@ -232,7 +236,8 @@ class VisList:
     def sort(self, remove_invalid=True, descending=True):
         # remove the items that have invalid (-1) score
         if remove_invalid:
-            self._collection = list(filter(lambda x: x.score != -1, self._collection))
+            self._collection = list(
+                filter(lambda x: x.score != -1, self._collection))
         if lux.config.sort == "none":
             return
         elif lux.config.sort == "ascending":
@@ -260,7 +265,7 @@ class VisList:
     def _ipython_display_(self):
         self._widget = None
         from IPython.display import display
-        from lux.core.frame import LuxDataFrame
+        from lux.core.frame import LuxDataFrame, LuxDataFrameMethods
 
         recommendation = {
             "action": "Vis List",
@@ -271,7 +276,7 @@ class VisList:
         check_import_lux_widget()
         import luxwidget
 
-        recJSON = LuxDataFrame.rec_to_JSON([recommendation])
+        recJSON = LuxDataFrameMethods.rec_to_JSON([recommendation])
         self._widget = luxwidget.LuxWidget(
             currentVis={},
             recommendations=recJSON,
@@ -307,7 +312,7 @@ class VisList:
             from lux.processor.Compiler import Compiler
 
             self._source = ldf
-            self._source.maintain_metadata()
+            self._source.lux.maintain_metadata()
             if len(self._input_lst) > 0:
                 approx = False
                 if self._is_vis_input():
@@ -321,16 +326,19 @@ class VisList:
                 else:
                     self._inferred_intent = Parser.parse(self._intent)
                     Validator.validate_intent(self._inferred_intent, ldf)
-                    self._collection = Compiler.compile_intent(ldf, self._inferred_intent)
+                    self._collection = Compiler.compile_intent(
+                        ldf, self._inferred_intent)
 
                 # Early pruning determination criteria
                 width_criteria = len(self._collection) > (lux.config.topk + 3)
-                length_criteria = len(ldf) > lux.config.early_pruning_sample_start
+                length_criteria = len(
+                    ldf) > lux.config.early_pruning_sample_start
                 if lux.config.early_pruning and width_criteria and length_criteria:
                     # print("Apply approx to this VisList")
-                    ldf._message.add_unique(
+                    ldf.lux._message.add_unique(
                         "Large search space detected: Lux is approximating the interestingness of recommended visualizations.",
                         priority=1,
                     )
                     approx = True
-                lux.config.executor.execute(self._collection, ldf, approx=approx)
+                lux.config.executor.execute(
+                    self._collection, ldf, approx=approx)

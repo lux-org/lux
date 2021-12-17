@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
+from tests.context import lux
 import pytest
 import pandas as pd
 from lux.vis.VisList import VisList
@@ -31,18 +31,20 @@ def test_vis_set_specs(global_var):
     vis = Vis(["Height", "SportType=Ball"], df)
     vis.set_intent(["Height", "SportType=Ice"])
     assert vis.get_attr_by_attr_name("SportType")[0].value == "Ice"
-    df.clear_intent()
+    df.lux.clear_intent()
 
 
 def test_vis_collection(global_var):
     df = pytest.olympic
     vlist = VisList(["Height", "SportType=Ball", "?"], df)
-    vis_with_year = list(filter(lambda x: x.get_attr_by_attr_name("Year") != [], vlist))[0]
+    vis_with_year = list(
+        filter(lambda x: x.get_attr_by_attr_name("Year") != [], vlist))[0]
     assert vis_with_year.get_attr_by_channel("x")[0].attribute == "Year"
     # remove 1 for vis with same filter attribute and remove 1 vis with for same attribute
     assert len(vlist) == len(df.columns) - 1 - 1
     vlist = VisList(["Height", "?"], df)
-    assert len(vlist) == len(df.columns) - 1  # remove 1 for vis with for same attribute
+    # remove 1 for vis with for same attribute
+    assert len(vlist) == len(df.columns) - 1
 
 
 def test_vis_collection_set_intent(global_var):
@@ -50,9 +52,10 @@ def test_vis_collection_set_intent(global_var):
     vlist = VisList(["Height", "SportType=Ice", "?"], df)
     vlist.set_intent(["Height", "SportType=Boat", "?"])
     for v in vlist._collection:
-        filter_vspec = list(filter(lambda x: x.channel == "", v._inferred_intent))[0]
+        filter_vspec = list(
+            filter(lambda x: x.channel == "", v._inferred_intent))[0]
         assert filter_vspec.value == "Boat"
-    df.clear_intent()
+    df.lux.clear_intent()
 
 
 def test_remove(global_var):
@@ -78,18 +81,20 @@ def test_remove_identity(global_var):
 def test_refresh_collection(global_var):
     df = pytest.car_df
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
-    df.set_intent([lux.Clause(attribute="Acceleration"), lux.Clause(attribute="Horsepower")])
+    df.lux.set_intent([lux.Clause(attribute="Acceleration"),
+                      lux.Clause(attribute="Horsepower")])
     df._ipython_display_()
-    enhanceCollection = df.recommendation["Enhance"]
+    enhanceCollection = df.lux.recommendation["Enhance"]
     enhanceCollection.refresh_source(df[df["Origin"] == "USA"])
-    df.clear_intent()
+    df.lux.clear_intent()
 
 
 def test_vis_custom_aggregation_as_str(global_var):
     df = pytest.college_df
     import numpy as np
 
-    vis = Vis(["HighestDegree", lux.Clause("AverageCost", aggregation="max")], df)
+    vis = Vis(["HighestDegree", lux.Clause(
+        "AverageCost", aggregation="max")], df)
     assert vis.get_attr_by_data_model("measure")[0].aggregation == "max"
     assert vis.get_attr_by_data_model("measure")[0]._aggregation_name == "max"
 
@@ -99,7 +104,8 @@ def test_vis_custom_aggregation_as_numpy_func(global_var):
     from lux.vis.Vis import Vis
     import numpy as np
 
-    vis = Vis(["HighestDegree", lux.Clause("AverageCost", aggregation=np.ptp)], df)
+    vis = Vis(["HighestDegree", lux.Clause(
+        "AverageCost", aggregation=np.ptp)], df)
     assert vis.get_attr_by_data_model("measure")[0].aggregation == np.ptp
     assert vis.get_attr_by_data_model("measure")[0]._aggregation_name == "ptp"
 
@@ -379,7 +385,8 @@ def test_histogram_uniform():
 
 
 def test_heatmap_chart(global_var):
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["price", "longitude"], df)
     vis_code = vis.to_altair()
@@ -406,7 +413,8 @@ def test_heatmap_chart(global_var):
 
 
 def test_colored_heatmap_chart(global_var):
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "vegalite"
     vis = Vis(["price", "longitude", "availability_365"], df)
     vis_code = vis.to_altair()
@@ -439,20 +447,20 @@ def test_vegalite_default_actions_registered(global_var):
     lux.config.plotting_backend = "vegalite"
     df._ipython_display_()
     # Histogram Chart
-    assert "Distribution" in df.recommendation
-    assert len(df.recommendation["Distribution"]) > 0
+    assert "Distribution" in df.lux.recommendation
+    assert len(df.lux.recommendation["Distribution"]) > 0
 
     # Occurrence Chart
-    assert "Occurrence" in df.recommendation
-    assert len(df.recommendation["Occurrence"]) > 0
+    assert "Occurrence" in df.lux.recommendation
+    assert len(df.lux.recommendation["Occurrence"]) > 0
 
     # Line Chart
-    assert "Temporal" in df.recommendation
-    assert len(df.recommendation["Temporal"]) > 0
+    assert "Temporal" in df.lux.recommendation
+    assert len(df.lux.recommendation["Temporal"]) > 0
 
     # Scatter Chart
-    assert "Correlation" in df.recommendation
-    assert len(df.recommendation["Correlation"]) > 0
+    assert "Correlation" in df.lux.recommendation
+    assert len(df.lux.recommendation["Correlation"]) > 0
 
 
 def test_vegalite_default_actions_registered_2(global_var):
@@ -465,16 +473,16 @@ def test_vegalite_default_actions_registered_2(global_var):
     lux.config.plotting_backend = "vegalite"
 
     # Choropleth Map
-    assert "Geographical" in df.recommendation
-    assert len(df.recommendation["Geographical"]) > 0
+    assert "Geographical" in df.lux.recommendation
+    assert len(df.lux.recommendation["Geographical"]) > 0
 
     # Occurrence Chart
-    assert "Occurrence" in df.recommendation
-    assert len(df.recommendation["Occurrence"]) > 0
+    assert "Occurrence" in df.lux.recommendation
+    assert len(df.lux.recommendation["Occurrence"]) > 0
 
     # Scatter Chart
-    assert "Correlation" in df.recommendation
-    assert len(df.recommendation["Correlation"]) > 0
+    assert "Correlation" in df.lux.recommendation
+    assert len(df.lux.recommendation["Correlation"]) > 0
 
 
 def test_matplotlib_default_actions_registered(global_var):
@@ -482,20 +490,20 @@ def test_matplotlib_default_actions_registered(global_var):
     df = pytest.car_df
     df._ipython_display_()
     # Histogram Chart
-    assert "Distribution" in df.recommendation
-    assert len(df.recommendation["Distribution"]) > 0
+    assert "Distribution" in df.lux.recommendation
+    assert len(df.lux.recommendation["Distribution"]) > 0
 
     # Occurrence Chart
-    assert "Occurrence" in df.recommendation
-    assert len(df.recommendation["Occurrence"]) > 0
+    assert "Occurrence" in df.lux.recommendation
+    assert len(df.lux.recommendation["Occurrence"]) > 0
 
     # Line Chart
-    assert "Temporal" in df.recommendation
-    assert len(df.recommendation["Temporal"]) > 0
+    assert "Temporal" in df.lux.recommendation
+    assert len(df.lux.recommendation["Temporal"]) > 0
 
     # Scatter Chart
-    assert "Correlation" in df.recommendation
-    assert len(df.recommendation["Correlation"]) > 0
+    assert "Correlation" in df.lux.recommendation
+    assert len(df.lux.recommendation["Correlation"]) > 0
 
 
 def test_matplotlib_default_actions_registered_2(global_var):
@@ -508,42 +516,46 @@ def test_matplotlib_default_actions_registered_2(global_var):
     lux.config.plotting_backend = "matplotlib"
 
     # Choropleth Map
-    assert "Geographical" in df.recommendation
-    assert len(df.recommendation["Geographical"]) > 0
+    assert "Geographical" in df.lux.recommendation
+    assert len(df.lux.recommendation["Geographical"]) > 0
 
     # Occurrence Chart
-    assert "Occurrence" in df.recommendation
-    assert len(df.recommendation["Occurrence"]) > 0
+    assert "Occurrence" in df.lux.recommendation
+    assert len(df.lux.recommendation["Occurrence"]) > 0
 
     # Scatter Chart
-    assert "Correlation" in df.recommendation
-    assert len(df.recommendation["Correlation"]) > 0
+    assert "Correlation" in df.lux.recommendation
+    assert len(df.lux.recommendation["Correlation"]) > 0
 
 
 def test_vegalite_heatmap_flag_config():
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "vegalite"
     df._ipython_display_()
     # Heatmap Chart
-    assert df.recommendation["Correlation"][0]._postbin
+    assert df.lux.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = False
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df = df.copy()
-    assert not df.recommendation["Correlation"][0]._postbin
-    assert "Geographical" not in df.recommendation
+    assert not df.lux.recommendation["Correlation"][0]._postbin
+    assert "Geographical" not in df.lux.recommendation
     lux.config.heatmap = True
 
 
 def test_matplotlib_heatmap_flag_config():
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     lux.config.plotting_backend = "matplotlib"
     df._ipython_display_()
     # Heatmap Chart
-    assert df.recommendation["Correlation"][0]._postbin
+    assert df.lux.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = False
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/airbnb_nyc.csv")
     df = df.copy()
-    assert not df.recommendation["Correlation"][0]._postbin
+    assert not df.lux.recommendation["Correlation"][0]._postbin
     lux.config.heatmap = True
     lux.config.plotting_backend = "vegalite"
 
@@ -557,28 +569,29 @@ def test_all_column_current_vis():
     )
     df.columns = ["Date", "Temp"]
     df._ipython_display_()
-    assert df.current_vis != None
+    assert df.lux.current_vis != None
 
 
 def test_all_column_current_vis_filter():
-    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.csv")
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/car.csv")
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
     two_col_df = df[["Year", "Displacement"]]
     two_col_df._ipython_display_()
-    assert two_col_df.current_vis != None
-    assert two_col_df.current_vis[0]._all_column
+    assert two_col_df.lux.current_vis != None
+    assert two_col_df.lux.current_vis[0]._all_column
     three_col_df = df[["Year", "Displacement", "Origin"]]
     three_col_df._ipython_display_()
-    assert three_col_df.current_vis != None
-    assert three_col_df.current_vis[0]._all_column
+    assert three_col_df.lux.current_vis != None
+    assert three_col_df.lux.current_vis[0]._all_column
 
 
 def test_intent_override_all_column():
     df = pytest.car_df
     df = df[["Year", "Displacement"]]
-    df.intent = ["Year"]
+    df.lux.intent = ["Year"]
     df._ipython_display_()
-    current_vis_code = df.current_vis[0].to_altair()
+    current_vis_code = df.lux.current_vis[0].to_altair()
     assert (
         "y = alt.Y('Record', type= 'quantitative', title='Number of Records'" in current_vis_code
     ), "All column not overriden by intent"

@@ -12,16 +12,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
+from tests.context import lux
 import pytest
 import pandas as pd
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 
 
-def test_to_pandas(global_var):
-    df = pytest.car_df
-    df.to_pandas()
+# def test_to_pandas(global_var):
+#     df = pytest.car_df
+#     df.to_pandas()
 
 
 def test_display_LuxDataframe(global_var):

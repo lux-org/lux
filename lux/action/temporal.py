@@ -40,7 +40,7 @@ def temporal(ldf):
         "long_description": "Temporal displays line charts for all attributes related to datetimes in the dataframe.",
     }
     for c in ldf.columns:
-        if ldf.data_type[c] == "temporal":
+        if ldf.lux.data_type[c] == "temporal":
             try:
                 generated_vis = create_temporal_vis(ldf, c)
                 vlist.extend(generated_vis)
@@ -50,7 +50,7 @@ def temporal(ldf):
     # If no temporal visualizations were generated via parsing datetime, fallback to default behavior.
     if len(vlist) == 0:
         intent = [lux.Clause("?", data_type="temporal")]
-        intent.extend(utils.get_filter_specs(ldf._intent))
+        intent.extend(utils.get_filter_specs(ldf.lux._intent))
         vlist = VisList(intent, ldf)
         for vis in vlist:
             vis.score = interestingness(vis, ldf)
@@ -88,11 +88,14 @@ def create_temporal_vis(ldf, col):
     """
     formatted_date = pd.to_datetime(ldf[col], format="%Y-%m-%d")
 
-    overall_vis = Vis([lux.Clause(col, data_type="temporal")], source=ldf, score=5)
+    overall_vis = Vis(
+        [lux.Clause(col, data_type="temporal")], source=ldf, score=5)
 
     year_col = col + " (year)"
-    year_df = LuxDataFrame({year_col: pd.to_datetime(formatted_date.dt.year, format="%Y")})
-    year_vis = Vis([lux.Clause(year_col, data_type="temporal")], source=year_df, score=4)
+    year_df = LuxDataFrame(
+        {year_col: pd.to_datetime(formatted_date.dt.year, format="%Y")})
+    year_vis = Vis([lux.Clause(year_col, data_type="temporal")],
+                   source=year_df, score=4)
 
     month_col = col + " (month)"
     month_df = LuxDataFrame({month_col: formatted_date.dt.month})
@@ -105,7 +108,8 @@ def create_temporal_vis(ldf, col):
     day_df.set_data_type(
         {day_col: "nominal"}
     )  # Since day is high cardinality 1-31, it can get recognized as quantitative
-    day_vis = Vis([lux.Clause(day_col, data_type="temporal", timescale="day")], source=day_df, score=2)
+    day_vis = Vis([lux.Clause(day_col, data_type="temporal",
+                  timescale="day")], source=day_df, score=2)
 
     week_col = col + " (day of week)"
     week_df = lux.LuxDataFrame({week_col: formatted_date.dt.dayofweek})

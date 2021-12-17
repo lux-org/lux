@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
+from tests.context import lux
 import pytest
 import pandas as pd
 import numpy as np
@@ -25,7 +25,7 @@ def test_dateformatter(global_var):
     # change pandas dtype for the column "Year" to datetype
     ldf["Year"] = pd.to_datetime(ldf["Year"], format="%Y")
     timestamp = np.datetime64("2019-08-26")
-    ldf.maintain_metadata()
+    ldf.lux.maintain_metadata()
     assert date_utils.date_formatter(timestamp, ldf) == "2019"
 
     ldf["Year"][0] = np.datetime64("1970-03-01")  # make month non unique
@@ -43,17 +43,18 @@ def test_period_selection(global_var):
 
     ldf["Year"] = pd.DatetimeIndex(ldf["Year"]).to_period(freq="A")
 
-    ldf.set_intent(
+    ldf.lux.set_intent(
         [
             lux.Clause(attribute=["Horsepower", "Weight", "Acceleration"]),
             lux.Clause(attribute="Year"),
         ]
     )
 
-    lux.config.executor.execute(ldf.current_vis, ldf)
+    lux.config.executor.execute(ldf.lux.current_vis, ldf)
 
-    assert all([type(vlist.data) == lux.core.frame.LuxDataFrame for vlist in ldf.current_vis])
-    assert all(ldf.current_vis[2].data.columns == ["Year", "Acceleration"])
+    assert all(
+        [isinstance(vlist.data, pd.DataFrame) for vlist in ldf.lux.current_vis])
+    assert all(ldf.lux.current_vis[2].data.columns == ["Year", "Acceleration"])
 
 
 def test_period_filter(global_var):
@@ -64,7 +65,7 @@ def test_period_filter(global_var):
     from lux.vis.Vis import Vis
 
     vis = Vis(["Acceleration", "Horsepower", "Year=1972"], ldf)
-    assert ldf.data_type["Year"] == "temporal"
+    assert ldf.lux.data_type["Year"] == "temporal"
     assert isinstance(vis._inferred_intent[2].value, str)
 
 
@@ -89,15 +90,15 @@ def test_refresh_inplace():
     )
     with pytest.warns(UserWarning, match="Lux detects that the attribute 'date' may be temporal."):
         df._ipython_display_()
-    assert df.data_type["date"] == "temporal"
+    assert df.lux.data_type["date"] == "temporal"
 
     from lux.vis.Vis import Vis
 
     vis = Vis(["date", "value"], df)
 
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
-    df.maintain_metadata()
-    inverted_data_type = lux.config.executor.invert_data_type(df.data_type)
+    df.lux.maintain_metadata()
+    inverted_data_type = lux.config.executor.invert_data_type(df.lux.data_type)
     assert inverted_data_type["temporal"][0] == "date"
 
     vis.refresh_source(df)

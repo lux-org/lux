@@ -20,91 +20,50 @@ import numpy as np
 from lux.history.history import History
 from lux.utils.message import Message
 from lux.vis.VisList import VisList
-from typing import Dict, Union, List, Callable
+from lux.core.lux_methods import LuxMethods
+import typing as tp
 
 
 class LuxSeries(pd.Series):
-    """
-    A subclass of pd.Series that supports all 1-D Series operations
-    """
-
-    _metadata = [
-        "_intent",
-        "_inferred_intent",
-        "_data_type",
-        "unique_values",
-        "cardinality",
-        "_rec_info",
-        "_min_max",
-        "plotting_style",
-        "_current_vis",
-        "_widget",
-        "_recommendation",
-        "_prev",
-        "_history",
-        "_saved_export",
-        "name",
-        "_sampled",
-        "_toggle_pandas_display",
-        "_message",
-        "_pandas_only",
-        "pre_aggregated",
-        "_type_override",
-        "name",
-    ]
-
-    _default_metadata = {
-        "_intent": list,
-        "_inferred_intent": list,
-        "_current_vis": list,
-        "_recommendation": list,
-        "_toggle_pandas_display": lambda: True,
-        "_pandas_only": lambda: False,
-        "_type_override": dict,
-        "_history": History,
-        "_message": Message,
-    }
-
-    def __init__(self, *args, **kw):
-        super(LuxSeries, self).__init__(*args, **kw)
-        for attr in self._metadata:
-            if attr in self._default_metadata:
-                self.__dict__[attr] = self._default_metadata[attr]()
-            else:
-                self.__dict__[attr] = None
+    _metadata: tp.List[str]
+    _LUX_: "LuxSeriesMethods"
 
     @property
-    def _constructor(self):
-        return LuxSeries
+    def lux(self) -> "LuxSeriesMethods":
+        ...
 
-    @property
-    def _constructor_expanddim(self):
-        from lux.core.frame import LuxDataFrame
 
-        def f(*args, **kwargs):
-            df = LuxDataFrame(*args, **kwargs)
-            for attr in self._metadata:
-                # if attr in self._default_metadata:
-                #     default = self._default_metadata[attr]
-                # else:
-                #     default = None
-                df.__dict__[attr] = getattr(self, attr, None)
-            return df
+class LuxSeriesMethods(LuxMethods):
+    series: pd.Series
+    _prev: tp.Optional[LuxSeries]
 
-        f._get_axis_number = LuxDataFrame._get_axis_number
-        return f
+    def __init__(self, series: pd.Series):
+        self.series = series
 
-    def to_pandas(self) -> pd.Series:
-        """
-        Convert Lux Series to Pandas Series
-
-        Returns
-        -------
-        pd.Series
-        """
-        import lux.core
-
-        return lux.core.originalSeries(self, copy=False)
+        # with default
+        self._intent = []
+        self._inferred_intent = []
+        self._current_vis = []
+        self._recommendation = []
+        self._toggle_pandas_display = True
+        self._pandas_only = False
+        self._type_override = {}
+        self._history = History()
+        self._message = Message()
+        # rest
+        self._data_type = None
+        self.unique_values = None
+        self.cardinality = None
+        self._rec_info = None
+        self._min_max = None
+        self.plotting_style = None
+        self._widget = None
+        self._prev = None
+        self._saved_export = None
+        self.name = None
+        self._sampled = None
+        self.pre_aggregated = None
+        self._recs_fresh = False
 
     def unique(self):
         """
@@ -123,91 +82,7 @@ class LuxSeries(pd.Series):
         if self.unique_values and self.name in self.unique_values.keys():
             return np.array(self.unique_values[self.name])
         else:
-            return super(LuxSeries, self).unique()
-
-    def _ipython_display_(self):
-        from IPython.display import display
-        from IPython.display import clear_output
-        import ipywidgets as widgets
-        from lux.core.frame import LuxDataFrame
-
-        series_repr = super(LuxSeries, self).__repr__()
-
-        ldf = LuxDataFrame(self)
-
-        # Default column name 0 causes errors
-        if self.name is None:
-            ldf = ldf.rename(columns={0: " "})
-        self._ldf = ldf
-
-        try:
-            # Ignore recommendations when Series a results of:
-            # 1) Values of the series are of dtype objects (df.dtypes)
-            is_dtype_series = (
-                all(isinstance(val, np.dtype) for val in self.values) and len(self.values) != 0
-            )
-            # 2) Mixed type, often a result of a "row" acting as a series (df.iterrows, df.iloc[0])
-            # Tolerant for NaNs + 1 type
-            mixed_dtype = len(set([type(val) for val in self.values])) > 2
-            if ldf._pandas_only or is_dtype_series or mixed_dtype:
-                print(series_repr)
-                ldf._pandas_only = False
-            else:
-                if not self.index.nlevels >= 2:
-                    ldf.maintain_metadata()
-
-                if lux.config.default_display == "lux":
-                    self._toggle_pandas_display = False
-                else:
-                    self._toggle_pandas_display = True
-
-                # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-                ldf.maintain_recs(is_series="Series")
-
-                # Observers(callback_function, listen_to_this_variable)
-                ldf._widget.observe(ldf.remove_deleted_recs, names="deletedIndices")
-                ldf._widget.observe(ldf.set_intent_on_click, names="selectedIntentIndex")
-
-                self._widget = ldf._widget
-                self._recommendation = ldf._recommendation
-
-                # box = widgets.Box(layout=widgets.Layout(display='inline'))
-                button = widgets.Button(
-                    description="Toggle Pandas/Lux",
-                    layout=widgets.Layout(width="140px", top="5px"),
-                )
-                ldf.output = widgets.Output()
-                # box.children = [button,output]
-                # output.children = [button]
-                # display(box)
-                display(button, ldf.output)
-
-                def on_button_clicked(b):
-                    with ldf.output:
-                        if b:
-                            self._toggle_pandas_display = not self._toggle_pandas_display
-                        clear_output()
-                        if self._toggle_pandas_display:
-                            print(series_repr)
-                        else:
-                            # b.layout.display = "none"
-                            display(ldf._widget)
-                            # b.layout.display = "inline-block"
-
-                button.on_click(on_button_clicked)
-                on_button_clicked(None)
-
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except Exception:
-            warnings.warn(
-                "\nUnexpected error in rendering Lux widget and recommendations. "
-                "Falling back to Pandas display.\n"
-                "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
-                stacklevel=2,
-            )
-            warnings.warn(traceback.format_exc())
-            display(self.to_pandas())
+            return self.series.unique()
 
     @property
     def recommendation(self):
@@ -218,13 +93,13 @@ class LuxSeries(pd.Series):
                 self.name = " "
             ldf = LuxDataFrame(self)
 
-            ldf.maintain_metadata()
-            ldf.maintain_recs()
-            self._recommendation = ldf._recommendation
+            ldf.lux.maintain_metadata()
+            ldf.lux.maintain_recs()
+            self._recommendation = ldf.lux._recommendation
         return self._recommendation
 
     @property
-    def exported(self) -> Union[Dict[str, VisList], VisList]:
+    def exported(self) -> tp.Union[tp.Dict[str, VisList], VisList]:
         """
         Get selected visualizations as exported Vis List
 
@@ -239,7 +114,7 @@ class LuxSeries(pd.Series):
 
         Returns
         -------
-        Union[Dict[str,VisList], VisList]
+        tp.Union[tp.Dict[str,VisList], VisList]
                 When there are no exported vis, return empty list -> []
                 When all the exported vis is from the same tab, return a VisList of selected visualizations. -> VisList(v1, v2...)
                 When the exported vis is from the different tabs, return a dictionary with the action name as key and selected visualizations in the VisList. -> {"Enhance": VisList(v1, v2...), "Filter": VisList(v5, v7...), ..}

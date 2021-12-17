@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
+from tests.context import lux
 import pytest
 import pandas as pd
 
@@ -126,22 +126,24 @@ def test_abbrev_agg():
 def test_int_columns(global_var):
     df = pd.read_csv("lux/data/college.csv")
     df.columns = range(len(df.columns))
-    assert list(df.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
-    df.intent = [8, 3]
-    assert list(df.recommendation.keys()) == ["Enhance", "Filter", "Generalize"]
-    df.intent = [0]
-    assert list(df.recommendation.keys()) == ["Enhance", "Filter"]
+    assert list(df.lux.recommendation.keys()) == [
+        "Correlation", "Distribution", "Occurrence"]
+    df.lux.intent = [8, 3]
+    assert list(df.lux.recommendation.keys()) == [
+        "Enhance", "Filter", "Generalize"]
+    df.lux.intent = [0]
+    assert list(df.lux.recommendation.keys()) == ["Enhance", "Filter"]
 
 
 def test_name_column(global_var):
     df = pd.read_csv("lux/data/car.csv")
     new_df = df.rename(columns={"Name": "name"})
-    assert list(new_df.recommendation.keys()) == [
+    assert list(new_df.lux.recommendation.keys()) == [
         "Correlation",
         "Distribution",
         "Occurrence",
         "Temporal",
     ]
-    assert len(new_df.recommendation["Correlation"])
+    assert len(new_df.lux.recommendation["Correlation"])
     assert new_df["name"][0] != None
     assert (new_df["name"].unique() != None)[0]

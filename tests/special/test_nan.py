@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
+from tests.context import lux
 import pytest
 import pandas as pd
 import numpy as np
@@ -25,8 +25,8 @@ def test_nan_column(global_var):
     old_geo = df["Geography"]
     df["Geography"] = np.nan
     df._ipython_display_()
-    for visList in df.recommendation.keys():
-        for vis in df.recommendation[visList]:
+    for visList in df.lux.recommendation.keys():
+        for vis in df.lux.recommendation[visList]:
             assert vis.get_attr_by_attr_name("Geography") == []
     df["Geography"] = old_geo
 
@@ -47,16 +47,18 @@ def test_nan_data_type_detection():
         {"fully_nan": np.nan, "some_nan": 11.0, "some_nan2": 0.0},
     ]
     test = pd.DataFrame(dataset)
-    test.maintain_metadata()
-    inverted_data_type = lux.config.executor.invert_data_type(test.data_type)
+    test.lux.maintain_metadata()
+    inverted_data_type = lux.config.executor.invert_data_type(
+        test.lux.data_type)
     assert inverted_data_type["nominal"] == [
         "fully_nan",
         "some_nan",
         "some_nan2",
     ], "Categorical columns containing NaNs should be treated as nominal data type"
     nona_test = test.dropna(subset=["some_nan"])
-    nona_test.maintain_metadata()
-    inverted_data_type = lux.config.executor.invert_data_type(nona_test.data_type)
+    nona_test.lux.maintain_metadata()
+    inverted_data_type = lux.config.executor.invert_data_type(
+        nona_test.lux.data_type)
     assert inverted_data_type["nominal"] == [
         "fully_nan",
         "some_nan",
@@ -112,7 +114,7 @@ def test_nan_series_occurence():
     nan_series = LuxSeries(dvalues)
     ldf = pd.DataFrame(nan_series, columns=["col"])
     ldf._ipython_display_()
-    assert ldf.recommendation["Occurrence"][0].mark == "bar"
+    assert ldf.lux.recommendation["Occurrence"][0].mark == "bar"
 
 
 def test_numeric_with_nan():
@@ -146,24 +148,25 @@ def test_numeric_with_nan():
         ]
     )
     assert (
-        df.data_type["# Instances"] == "quantitative"
+        df.lux.data_type["# Instances"] == "quantitative"
     ), "Testing a numeric columns with NaN, check if type can be detected correctly"
     assert (
-        df.data_type["# Attributes"] == "quantitative"
+        df.lux.data_type["# Attributes"] == "quantitative"
     ), "Testing a numeric columns with NaN, check if type can be detected correctly"
     a = df[["# Instances", "# Attributes"]]
     a._ipython_display_()
     assert (
-        len(a.recommendation["Distribution"]) == 2
+        len(a.lux.recommendation["Distribution"]) == 2
     ), "Testing a numeric columns with NaN, check that histograms are displayed"
-    assert "contains missing values" in a._message.to_html(), "Warning message for NaN displayed"
+    assert "contains missing values" in a.lux._message.to_html(
+    ), "Warning message for NaN displayed"
     # a = a.dropna()
     # # TODO: Needs to be explicitly called, possible problem with metadata prpogation
     # a._ipython_display_()
     # assert (
     #     len(a.recommendation["Distribution"]) == 2
     # ), "Example where dtype might be off after dropna(), check if histograms are still displayed"
-    assert "" in a._message.to_html(), "No warning message for NaN should be displayed"
+    assert "" in a.lux._message.to_html(), "No warning message for NaN should be displayed"
 
 
 def test_empty_filter(global_var):

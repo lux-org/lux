@@ -14,7 +14,6 @@
 
 import pandas as pd
 from .frame import LuxDataFrame
-from .groupby import LuxDataFrameGroupBy, LuxSeriesGroupBy
 from .series import LuxSeries
 
 global originalDF
@@ -23,51 +22,51 @@ originalDF = pd.core.frame.DataFrame
 originalSeries = pd.core.series.Series
 
 
-def setOption(overridePandas=True):
-    if overridePandas:
-        pd.DataFrame = (
-            pd.io.json._json.DataFrame
-        ) = (
-            pd.io.sql.DataFrame
-        ) = (
-            pd.io.excel.DataFrame
-        ) = (
-            pd.io.formats.DataFrame
-        ) = (
-            pd.io.sas.DataFrame
-        ) = (
-            pd.io.clipboards.DataFrame
-        ) = (
-            pd.io.common.DataFrame
-        ) = (
-            pd.io.feather_format.DataFrame
-        ) = (
-            pd.io.gbq.DataFrame
-        ) = (
-            pd.io.html.DataFrame
-        ) = (
-            pd.io.orc.DataFrame
-        ) = (
-            pd.io.parquet.DataFrame
-        ) = (
-            pd.io.pickle.DataFrame
-        ) = (
-            pd.io.pytables.DataFrame
-        ) = (
-            pd.io.spss.DataFrame
-        ) = (
-            pd.io.stata.DataFrame
-        ) = pd.io.api.DataFrame = pd.core.frame.DataFrame = pd._testing.DataFrame = LuxDataFrame
-        if pd.__version__ < "1.3.0":
-            pd.io.parsers.DataFrame = LuxDataFrame
-        else:
-            pd.io.parsers.readers.DataFrame = LuxDataFrame
-        pd.Series = pd.core.series.Series = pd.core.groupby.ops.Series = pd._testing.Series = LuxSeries
-        pd.core.groupby.generic.DataFrameGroupBy = LuxDataFrameGroupBy
-        pd.core.groupby.generic.SeriesGroupBy = LuxSeriesGroupBy
-    else:
-        pd.DataFrame = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = originalDF
-        pd.Series = originalSeries
+# def setOption(overridePandas=True):
+#     if overridePandas:
+#         pd.DataFrame = (
+#             pd.io.json._json.DataFrame
+#         ) = (
+#             pd.io.sql.DataFrame
+#         ) = (
+#             pd.io.excel.DataFrame
+#         ) = (
+#             pd.io.formats.DataFrame
+#         ) = (
+#             pd.io.sas.DataFrame
+#         ) = (
+#             pd.io.clipboards.DataFrame
+#         ) = (
+#             pd.io.common.DataFrame
+#         ) = (
+#             pd.io.feather_format.DataFrame
+#         ) = (
+#             pd.io.gbq.DataFrame
+#         ) = (
+#             pd.io.html.DataFrame
+#         ) = (
+#             pd.io.orc.DataFrame
+#         ) = (
+#             pd.io.parquet.DataFrame
+#         ) = (
+#             pd.io.pickle.DataFrame
+#         ) = (
+#             pd.io.pytables.DataFrame
+#         ) = (
+#             pd.io.spss.DataFrame
+#         ) = (
+#             pd.io.stata.DataFrame
+#         ) = pd.io.api.DataFrame = pd.core.frame.DataFrame = pd._testing.DataFrame = LuxDataFrame
+#         if pd.__version__ < "1.3.0":
+#             pd.io.parsers.DataFrame = LuxDataFrame
+#         else:
+#             pd.io.parsers.readers.DataFrame = LuxDataFrame
+#         pd.Series = pd.core.series.Series = pd.core.groupby.ops.Series = pd._testing.Series = LuxSeries
+#         pd.core.groupby.generic.DataFrameGroupBy = LuxDataFrameGroupBy
+#         pd.core.groupby.generic.SeriesGroupBy = LuxSeriesGroupBy
+#     else:
+#         pd.DataFrame = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = originalDF
+#         pd.Series = originalSeries
 
 
-setOption(overridePandas=True)
+# setOption(overridePandas=True)

@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
+from tests.context import lux
 import pytest
 import pandas as pd
 from lux.vis.Vis import Vis
@@ -27,7 +27,8 @@ def test_underspecified_no_vis(global_var, test_recs):
     assert len(sql_df.current_vis) == 0
 
     # test only one filter context case.
-    sql_df.set_intent([lux.Clause(attribute="origin", filter_op="=", value="USA")])
+    sql_df.set_intent(
+        [lux.Clause(attribute="origin", filter_op="=", value="USA")])
     test_recs(sql_df, no_vis_actions)
     assert len(sql_df.current_vis) == 0
 
@@ -36,7 +37,8 @@ def test_underspecified_single_vis(global_var, test_recs):
     one_vis_actions = ["Enhance", "Filter", "Generalize"]
     lux.config.heatmap = False
     sql_df = lux.LuxSQLTable(table_name="cars")
-    sql_df.set_intent([lux.Clause(attribute="milespergal"), lux.Clause(attribute="weight")])
+    sql_df.set_intent([lux.Clause(attribute="milespergal"),
+                      lux.Clause(attribute="weight")])
     test_recs(sql_df, one_vis_actions)
     assert len(sql_df.current_vis) == 1
     # assert sql_df.current_vis[0].mark == "scatter"
@@ -59,8 +61,8 @@ def test_set_intent_as_vis(global_var, test_recs):
 def test_recs():
     def test_recs_function(df, actions):
         df._ipython_display_()
-        assert len(df.recommendation) > 0
-        recKeys = list(df.recommendation.keys())
+        assert len(df.lux.recommendation) > 0
+        recKeys = list(df.lux.recommendation.keys())
         list_equal(recKeys, actions)
 
     return test_recs_function
@@ -68,7 +70,8 @@ def test_recs():
 
 def test_parse(global_var):
     sql_df = lux.LuxSQLTable(table_name="cars")
-    vlst = VisList([lux.Clause("origin=?"), lux.Clause(attribute="milespergal")], sql_df)
+    vlst = VisList([lux.Clause("origin=?"), lux.Clause(
+        attribute="milespergal")], sql_df)
     assert len(vlst) == 3
 
     sql_df = lux.LuxSQLTable(table_name="cars")
@@ -92,8 +95,10 @@ def test_sort_bar(global_var):
     sql_df = lux.LuxSQLTable(table_name="cars")
     vis = Vis(
         [
-            lux.Clause(attribute="acceleration", data_model="measure", data_type="quantitative"),
-            lux.Clause(attribute="origin", data_model="dimension", data_type="nominal"),
+            lux.Clause(attribute="acceleration",
+                       data_model="measure", data_type="quantitative"),
+            lux.Clause(attribute="origin", data_model="dimension",
+                       data_type="nominal"),
         ],
         sql_df,
     )
@@ -103,8 +108,10 @@ def test_sort_bar(global_var):
     sql_df = lux.LuxSQLTable(table_name="cars")
     vis = Vis(
         [
-            lux.Clause(attribute="acceleration", data_model="measure", data_type="quantitative"),
-            lux.Clause(attribute="name", data_model="dimension", data_type="nominal"),
+            lux.Clause(attribute="acceleration",
+                       data_model="measure", data_type="quantitative"),
+            lux.Clause(attribute="name", data_model="dimension",
+                       data_type="nominal"),
         ],
         sql_df,
     )
@@ -145,7 +152,8 @@ def test_specified_channel_enforced_vis_collection(global_var):
     sql_df = lux.LuxSQLTable(table_name="cars")
 
     visList = VisList(
-        [lux.Clause(attribute="?"), lux.Clause(attribute="milespergal", channel="x")],
+        [lux.Clause(attribute="?"), lux.Clause(
+            attribute="milespergal", channel="x")],
         sql_df,
     )
     for vis in visList:
@@ -155,7 +163,8 @@ def test_specified_channel_enforced_vis_collection(global_var):
 def test_autoencoding_scatter(global_var):
     sql_df = lux.LuxSQLTable(table_name="cars")
 
-    vis = Vis([lux.Clause(attribute="milespergal"), lux.Clause(attribute="weight")], df)
+    vis = Vis([lux.Clause(attribute="milespergal"),
+              lux.Clause(attribute="weight")], df)
     check_attribute_on_channel(vis, "milespergal", "x")
     check_attribute_on_channel(vis, "weight", "y")
 
@@ -189,11 +198,12 @@ def test_autoencoding_scatter(global_var):
                 lux.Clause(attribute="weight", channel="x"),
             ]
         )
-    df.clear_intent()
+    df.lux.clear_intent()
 
     sql_df = lux.LuxSQLTable(table_name="cars")
     visList = VisList(
-        [lux.Clause(attribute="?"), lux.Clause(attribute="milespergal", channel="x")],
+        [lux.Clause(attribute="?"), lux.Clause(
+            attribute="milespergal", channel="x")],
         sql_df,
     )
     for vis in visList:
@@ -203,7 +213,8 @@ def test_autoencoding_scatter(global_var):
 def test_autoencoding_scatter():
     sql_df = lux.LuxSQLTable(table_name="cars")
 
-    vis = Vis([lux.Clause(attribute="milespergal"), lux.Clause(attribute="weight")], sql_df)
+    vis = Vis([lux.Clause(attribute="milespergal"),
+              lux.Clause(attribute="weight")], sql_df)
     check_attribute_on_channel(vis, "milespergal", "x")
     check_attribute_on_channel(vis, "weight", "y")
 
@@ -240,7 +251,8 @@ def test_autoencoding_scatter():
 
     # test for sql executor
     sql_df = lux.LuxSQLTable(table_name="cars")
-    vis = Vis([lux.Clause(attribute="milespergal"), lux.Clause(attribute="weight")], sql_df)
+    vis = Vis([lux.Clause(attribute="milespergal"),
+              lux.Clause(attribute="weight")], sql_df)
     check_attribute_on_channel(vis, "milespergal", "x")
     check_attribute_on_channel(vis, "weight", "y")
 
@@ -291,7 +303,8 @@ def test_autoencoding_histogram(global_var):
 def test_autoencoding_line_chart(global_var):
     # test for sql executor
     sql_df = lux.LuxSQLTable(table_name="cars")
-    vis = Vis([lux.Clause(attribute="year"), lux.Clause(attribute="acceleration")], sql_df)
+    vis = Vis([lux.Clause(attribute="year"), lux.Clause(
+        attribute="acceleration")], sql_df)
     check_attribute_on_channel(vis, "year", "x")
     check_attribute_on_channel(vis, "acceleration", "y")
 
@@ -370,7 +383,8 @@ def test_populate_options(global_var):
 
     # test for sql executor
     sql_df = lux.LuxSQLTable(table_name="cars")
-    sql_df.set_intent([lux.Clause(attribute="?"), lux.Clause(attribute="milespergal")])
+    sql_df.set_intent([lux.Clause(attribute="?"),
+                      lux.Clause(attribute="milespergal")])
     col_set = set()
     for specOptions in Compiler.populate_wildcard_options(sql_df._intent, sql_df)["attributes"]:
         for clause in specOptions:

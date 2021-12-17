@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
+from tests.context import lux
 import pytest
 import pandas as pd
 import time
@@ -22,12 +22,13 @@ import time
 # python -m pytest -s tests/test_performance.py
 def test_lazy_maintain_performance_census(global_var):
     lux.config.lazy_maintain = True
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/census.csv?raw=true")
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/census.csv?raw=true")
     tic = time.perf_counter()
-    df.maintain_recs()
+    df.lux.maintain_recs()
     toc = time.perf_counter()
     delta = toc - tic
-    df.maintain_recs()
+    df.lux.maintain_recs()
     toc2 = time.perf_counter()
     delta2 = toc2 - toc
     print(f"1st display Performance: {delta:0.4f} seconds")
@@ -41,10 +42,10 @@ def test_lazy_maintain_performance_census(global_var):
 
     lux.config.lazy_maintain = False
     tic = time.perf_counter()
-    df.maintain_recs()
+    df.lux.maintain_recs()
     toc = time.perf_counter()
     delta = toc - tic
-    df.maintain_recs()
+    df.lux.maintain_recs()
     toc2 = time.perf_counter()
     delta2 = toc2 - toc
     print(f"1st display Performance: {delta:0.4f} seconds")
@@ -57,7 +58,7 @@ def test_lazy_maintain_performance_census(global_var):
         delta > 1
     ), "Subsequent recompute of recommendations on Census dataset took a total of {delta2:0.4f} seconds, shorter than expected."
 
-    assert df.data_type == {
+    assert df.lux.data_type == {
         "age": "quantitative",
         "workclass": "nominal",
         "fnlwgt": "quantitative",
@@ -77,24 +78,25 @@ def test_lazy_maintain_performance_census(global_var):
 
 
 def test_early_prune_performance_spotify():
-    df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/spotify.csv?raw=True")
-    df.maintain_metadata()
+    df = pd.read_csv(
+        "https://github.com/lux-org/lux-datasets/blob/master/data/spotify.csv?raw=True")
+    df.lux.maintain_metadata()
     # With Early Pruning
     lux.config.early_pruning = True
-    df.clear_intent()
+    df.lux.clear_intent()
     start = time.time()
-    df.maintain_recs()
+    df.lux.maintain_recs()
     end = time.time()
     with_prune_time = end - start
-    assert "Large search space detected" in df._message.to_html()
+    assert "Large search space detected" in df.lux._message.to_html()
     # Without Early Pruning
     lux.config.early_pruning = False
-    df.clear_intent()
+    df.lux.clear_intent()
     start = time.time()
-    df.maintain_recs()
+    df.lux.maintain_recs()
     end = time.time()
     without_prune_time = end - start
-    assert "Large search space detected" not in df._message.to_html()
+    assert "Large search space detected" not in df.lux._message.to_html()
     assert (
         without_prune_time > with_prune_time
     ), "Early pruning should speed up Spotify dataset recommendations"
