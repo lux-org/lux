@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from lux.core.frame import LuxDataFrame
-from .context import lux
+from tests.context import lux
 import pytest
 import pandas as pd
 import numpy as np

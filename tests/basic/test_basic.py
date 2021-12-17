@@ -1,6 +1,6 @@
 
 from IPython.core.display import display
-from .context import lux
+from tests.context import lux
 import pytest
 import pandas as pd
 import numpy as np

@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .context import lux
+from tests.context import lux
 import pytest
 import pandas as pd
 from lux.executor.SQLExecutor import SQLExecutor
