@@ -72,7 +72,6 @@ def test_temporal_action(global_var):
 
 
 def test_vary_filter_val(global_var):
-    lux.config.set_executor_type("Pandas")
     df = pytest.olympic
     vis = Vis(["Height", "SportType=Ball"], df)
     df.lux.set_intent_as_vis(vis)

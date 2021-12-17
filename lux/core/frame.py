@@ -353,7 +353,7 @@ class LuxDataFrameMethods(LuxMethods):
         if len(rec_df) == 0:
             rec_df.lux._message.add(
                 f"Lux cannot operate on an empty {is_series}.")
-        elif len(rec_df) < 5 and not rec_df.lux.pre_aggregated:
+        elif len(rec_df) < 5 :#and not rec_df.lux.pre_aggregated:
             rec_df.lux._message.add(
                 f"The {is_series} is too small to visualize. To generate visualizations in Lux, the {is_series} must contain at least 5 rows."
             )
