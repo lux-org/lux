@@ -11,6 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+# fmt: off
 
 import pandas as pd
 from lux.vis.VisList import VisList
@@ -281,6 +282,8 @@ class PandasExecutor(Executor):
         """
         import numpy as np
 
+        vis._vis_data = vis._vis_data.replace([np.inf, -np.inf], np.nan)
+
         bin_attribute = [x for x in vis._inferred_intent if x.bin_size != 0][0]
         bin_attr = bin_attribute.attribute
         series = vis.data[bin_attr]
@@ -379,6 +382,10 @@ class PandasExecutor(Executor):
         ----------
         vis : Vis
         """
+        import numpy as np
+
+        vis._vis_data = vis._vis_data.replace([np.inf, -np.inf], np.nan)
+
         pd.reset_option("mode.chained_assignment")
         with pd.option_context("mode.chained_assignment", None):
             x_attr = vis.get_attr_by_channel("x")[0].attribute

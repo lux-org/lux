@@ -15,6 +15,7 @@
 from .context import lux
 import pytest
 import pandas as pd
+import numpy as np
 
 
 def test_head_tail(global_var):
@@ -54,3 +55,21 @@ def test_convert_dtype(global_var):
     cdf = df.convert_dtypes()
     cdf._ipython_display_()
     assert list(cdf.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
+
+
+def test_heatmap_with_nans():
+    nrows = 100_000
+
+    # continuous
+    c1 = np.random.uniform(0, 1, size=nrows)
+    c1[2] = np.inf
+    c2 = np.random.uniform(0, 1, size=nrows)
+    c2[3] = np.inf
+
+    # discrete
+    d1 = np.random.randint(0, 2, size=nrows)
+    d2 = np.random.randint(0, 2, size=nrows)
+
+    df = pd.DataFrame({"c1": c1, "c2": c2, "d1": d1, "d2": d2})
+
+    df._ipython_display_()
