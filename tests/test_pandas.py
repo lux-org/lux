@@ -57,7 +57,7 @@ def test_convert_dtype(global_var):
     assert list(cdf.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
 
 
-def test_heatmap_with_nans():
+def test_infs():
     nrows = 100_000
 
     # continuous
