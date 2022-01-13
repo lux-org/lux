@@ -128,6 +128,10 @@ class AltairChart:
             if str(df[attr].dtype) == "Float64":
                 df[attr] = df[attr].astype(np.float64)
 
+            # Check for timedelta64[ms]
+            if df[attr].dtype.name == "timedelta64[ns]":
+                df[attr] = df[attr].dt.seconds
+
             # Altair can not visualize non-string columns
             # convert all non-string columns in to strings
             df = df.rename(columns={attr: str(attr)})
