@@ -73,3 +73,14 @@ def test_infs():
     df = pd.DataFrame({"c1": c1, "c2": c2, "d1": d1, "d2": d2})
 
     df._ipython_display_()
+
+
+def test_timedeltas():
+    nrows = 100_000
+
+    c1 = np.random.uniform(0, 10, size=nrows)
+    c2 = c1.astype("timedelta64[ms]")
+
+    df = pd.DataFrame({"c1": c1, "c2": c2})
+
+    df._ipython_display_()
