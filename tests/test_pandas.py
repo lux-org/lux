@@ -84,3 +84,14 @@ def test_timedeltas():
     df = pd.DataFrame({"c1": c1, "c2": c2})
 
     df._ipython_display_()
+
+
+def test_interval():
+    nrows = 100_000
+
+    c1 = pd.Interval(left=0, right=nrows)
+    c2 = np.random.uniform(0, 10, size=nrows)
+
+    df = pd.DataFrame({"c1": c1, "c2": c2})
+
+    df._ipython_display_()
