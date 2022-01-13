@@ -73,3 +73,17 @@ def test_infs():
     df = pd.DataFrame({"c1": c1, "c2": c2, "d1": d1, "d2": d2})
 
     df._ipython_display_()
+
+
+def test_datetime_index():
+    nrows = 100000
+
+    # create a datetime index, freq in seconds
+    dt = pd.date_range("1/1/2019", periods=nrows, freq="1s")
+
+    # continuous
+    c1 = np.random.uniform(0, 1, size=nrows)
+
+    df = pd.DataFrame({"c1": c1}, index=dt)
+
+    df._ipython_display_()
