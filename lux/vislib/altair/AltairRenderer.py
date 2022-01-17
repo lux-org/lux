@@ -124,9 +124,17 @@ class AltairRenderer:
                                 var_name for var_name, var_val in callers_local_vars if var_val is var
                             ]
                             all_vars.extend(possible_vars)
+                    for possible_var in all_vars:
+                        if possible_var[0] != "_":
+                            print(possible_var)
+
                     found_variable = [
                         possible_var for possible_var in all_vars if possible_var[0] != "_"
-                    ][0]
+                    ]
+                    if len(found_variable) > 0:
+                        found_variable = found_variable[0]
+                    else:
+                        found_variable = "df"
                 else:  # if vis._source was not set when the Vis was created
                     found_variable = "df"
                 if standalone:

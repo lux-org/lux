@@ -1,4 +1,4 @@
-lux.\_config.config.Config
+﻿lux.\_config.config.Config
 ==========================
 
 .. currentmodule:: lux._config.config
@@ -30,8 +30,11 @@ lux.\_config.config.Config
       ~Config.default_display
       ~Config.heatmap
       ~Config.interestingness_fallback
+      ~Config.label_len
+      ~Config.number_of_bars
       ~Config.pandas_fallback
       ~Config.plotting_backend
+      ~Config.plotting_scale
       ~Config.sampling
       ~Config.sampling_cap
       ~Config.sampling_start

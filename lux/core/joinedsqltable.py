@@ -29,7 +29,7 @@ import traceback
 import lux
 
 
-class LuxSQLTable(lux.LuxDataFrame):
+class JoinedSQLTable(lux.LuxSQLTable):
     """
     A subclass of Lux.LuxDataFrame that houses other variables and functions for generating visual recommendations. Does not support normal pandas functionality.
     """
@@ -55,68 +55,75 @@ class LuxSQLTable(lux.LuxDataFrame):
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
-        "_length",
-        "_setup_done",
+        "joins",
+        "using_view",
     ]
 
-    def __init__(self, *args, table_name="", **kw):
-        super(LuxSQLTable, self).__init__(*args, **kw)
+    def __init__(self, *args, joins=[], **kw):
+        super(JoinedSQLTable, self).__init__(*args, **kw)
+        from lux.executor.SQLExecutor import SQLExecutor
 
-        if lux.config.executor.name != "GeneralDatabaseExecutor":
-            from lux.executor.SQLExecutor import SQLExecutor
-
-            lux.config.executor = SQLExecutor()
-
-        self._length = 0
-        self._setup_done = False
-        if table_name != "":
-            self.set_SQL_table(table_name)
-        warnings.formatwarning = lux.warning_format
-
-    def __len__(self):
-        if self._setup_done:
-            return self._length
-        else:
-            return super(LuxSQLTable, self).__len__()
-
-    def set_SQL_table(self, t_name):
-        # function that ties the Lux Dataframe to a SQL database table
-        if self.table_name != "":
+        lux.config.executor = SQLExecutor()
+        # self._metadata.joins = []
+        tables = self.extract_tables(joins)
+        if len(tables) > 4:
             warnings.warn(
-                f"\nThis LuxSQLTable is already tied to a database table. Please create a new Lux dataframe and connect it to your table '{t_name}'.",
+                f"\nPlease provide a maximum of 4 (Four) unique tables to ensure optimal performance.",
                 stacklevel=2,
             )
-        else:
-            self.table_name = t_name
+        view_name = self.create_view(tables, joins)
+        self._length = 0
+        if view_name != "":
+            self.set_SQL_table(view_name)
+            # self._metadata.using_view = True
+        warnings.formatwarning = lux.warning_format
 
+    def len(self):
+        return self._length
+
+    def extract_tables(self, joins):
+        tables = set()
+        for condition in joins:
+            lhs = condition[0 : condition.index("=")].strip()
+            rhs = condition[condition.index("=") + 1 :].strip()
+            table1 = lhs[0 : lhs.index(".")].strip()
+            table2 = rhs[0 : rhs.index(".")].strip()
+            tables.add(table1)
+            tables.add(table2)
+        return tables
+
+    def create_view(self, tables, joins):
+        import psycopg2
+
+        dbc = lux.config.SQLconnection.cursor()
+        import time
+
+        curr_time = str(int(time.time()))
+        viewname = "lux_view_" + curr_time
+        table_entry = ""
+        for idx, table in enumerate(tables, 1):
+            table_entry += table
+            if idx < len(tables):
+                table_entry += ", "
+
+        condition_entry = ""
+        for idx, join in enumerate(joins, 1):
+            condition_entry += join
+            if idx < len(joins):
+                condition_entry += " AND "
         try:
-            lux.config.executor.compute_dataset_metadata(self)
+            #     # s = "CREATE VIEW {} AS SELECT * FROM cars_join cj JOIN cars_power_join cpj using (id)".format(viewname)
+            s = "CREATE VIEW {} AS SELECT * FROM {} where {}".format(
+                viewname, table_entry, condition_entry
+            )
+            # lux.config.executor.create_view(self)
+            dbc.execute(s)
+            lux.config.SQLconnection.commit()
         except Exception as error:
-            error_str = str(error)
-            if f'relation "{t_name}" does not exist' in error_str:
-                warnings.warn(
-                    f"\nThe table '{t_name}' does not exist in your database./",
-                    stacklevel=2,
-                )
-
-    def maintain_metadata(self):
-        # Check that metadata has not yet been computed
-        if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
-            # only compute metadata information if the dataframe is non-empty
-            lux.config.executor.compute_dataset_metadata(self)
-            self._infer_structure()
-            self._metadata_fresh = True
-
-    def expire_metadata(self):
-        """
-        Expire all saved metadata to trigger a recomputation the next time the data is required.
-        """
-        # self._metadata_fresh = False
-        # self._data_type = None
-        # self.unique_values = None
-        # self.cardinality = None
-        # self._min_max = None
-        # self.pre_aggregated = None
+            print("Exception : " + str(error))
+            viewname = ""
+        dbc.close()
+        return viewname
 
     def _ipython_display_(self):
         from IPython.display import HTML, Markdown, display
@@ -204,3 +211,19 @@ class LuxSQLTable(lux.LuxDataFrame):
                 display(self.display_pandas())
             else:
                 raise
+
+    # Overridden Pandas Functions
+    def head(self, n: int = 5):
+        return
+
+    def tail(self, n: int = 5):
+        return
+
+    def info(self, *args, **kwargs):
+        return
+
+    def describe(self, *args, **kwargs):
+        return
+
+    def groupby(self, *args, **kwargs):
+        return

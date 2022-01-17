@@ -16,11 +16,13 @@ from lux.vislib.matplotlib.MatplotlibChart import MatplotlibChart
 from lux.utils.utils import get_agg_title
 import pandas as pd
 import numpy as np
+import math
 import matplotlib.pyplot as plt
 from lux.utils.utils import matplotlib_setup
 from matplotlib.cm import ScalarMappable
 from lux.utils.date_utils import compute_date_granularity
 from matplotlib.ticker import MaxNLocator
+import lux
 
 
 class BarChart(MatplotlibChart):
@@ -44,13 +46,16 @@ class BarChart(MatplotlibChart):
         x_attr = self.vis.get_attr_by_channel("x")[0]
         y_attr = self.vis.get_attr_by_channel("y")[0]
 
-        x_attr_abv = x_attr.attribute
-        y_attr_abv = y_attr.attribute
-
-        if len(x_attr.attribute) > 25:
-            x_attr_abv = x_attr.attribute[:15] + "..." + x_attr.attribute[-10:]
-        if len(y_attr.attribute) > 25:
-            y_attr_abv = y_attr.attribute[:15] + "..." + y_attr.attribute[-10:]
+        # Deal with overlong string axes labels
+        x_attr_abv = str(x_attr.attribute)
+        y_attr_abv = str(y_attr.attribute)
+        label_len = lux.config.label_len
+        prefix_len = prefix_len = math.ceil(3.0 * label_len / 5.0)
+        suffix_len = label_len - prefix_len
+        if len(x_attr_abv) > label_len:
+            x_attr_abv = x_attr.attribute[:prefix_len] + "..." + x_attr.attribute[-suffix_len:]
+        if len(y_attr_abv) > label_len:
+            y_attr_abv = y_attr.attribute[:prefix_len] + "..." + y_attr.attribute[-suffix_len:]
 
         if x_attr.data_model == "measure":
             agg_title = get_agg_title(x_attr)
@@ -61,7 +66,7 @@ class BarChart(MatplotlibChart):
             measure_attr = y_attr.attribute
             bar_attr = x_attr.attribute
 
-        k = 10
+        k = lux.config.number_of_bars
         n_bars = len(self.data.iloc[:, 0].unique())
         if n_bars > k:  # Truncating to only top k
             remaining_bars = n_bars - k
@@ -79,9 +84,9 @@ class BarChart(MatplotlibChart):
             )
 
         df = self.data
-
-        bars = df[bar_attr].apply(lambda x: str(x))
-        measurements = df[measure_attr]
+        bar = df[bar_attr].apply(lambda x: str(x))
+        bars = list(bar)
+        measurements = list(df[measure_attr])
 
         plot_code = ""
 
@@ -89,7 +94,6 @@ class BarChart(MatplotlibChart):
         if len(color_attr) == 1:
             self.fig, self.ax = matplotlib_setup(6, 4)
             color_attr_name = color_attr[0].attribute
-            color_attr_type = color_attr[0].data_type
             colors = df[color_attr_name].values
             unique = list(set(colors))
             d_x = {}
@@ -101,22 +105,22 @@ class BarChart(MatplotlibChart):
                 d_x[colors[i]].append(bars[i])
                 d_y[colors[i]].append(measurements[i])
             for i in range(len(unique)):
-                self.ax.barh(d_x[unique[i]], d_y[unique[i]], label=unique[i])
-                plot_code += (
-                    f"ax.barh({d_x}[{unique}[{i}]], {d_y}[{unique}[{i}]], label={unique}[{i}])\n"
-                )
+                xval = d_x[unique[i]]
+                yval = d_y[unique[i]]
+                l = unique[i]
+                self.ax.barh(xval, yval, label=l)
+                plot_code += f"ax.barh({xval},{yval}, label='{l}')\n"
             self.ax.legend(
                 title=color_attr_name, bbox_to_anchor=(1.05, 1), loc="upper left", ncol=1, frameon=False
             )
-            plot_code += f"""ax.legend(
-                title='{color_attr_name}', 
-                bbox_to_anchor=(1.05, 1), 
-                loc='upper left', 
-                ncol=1, 
-                frameon=False,)\n"""
+            plot_code += f"""ax.legend(title='{color_attr_name}', 
+            bbox_to_anchor=(1.05, 1), 
+            loc='upper left', 
+            ncol=1, 
+            frameon=False)\n"""
         else:
-            self.ax.barh(bars, measurements, align="center")
-            plot_code += f"ax.barh(bars, measurements, align='center')\n"
+            self.ax.barh(bar, df[measure_attr], align="center")
+            plot_code += f"ax.barh({bar}, {df[measure_attr]}, align='center')\n"
 
         y_ticks_abbev = df[bar_attr].apply(lambda x: str(x)[:10] + "..." if len(str(x)) > 10 else str(x))
         self.ax.set_yticks(bars)
@@ -128,7 +132,7 @@ class BarChart(MatplotlibChart):
 
         self.code += "import numpy as np\n"
         self.code += "from math import nan\n"
-
+        self.code += f"df = pd.DataFrame({str(self.data.to_dict())})\n"
         self.code += f"fig, ax = plt.subplots()\n"
         self.code += f"bars = df['{bar_attr}']\n"
         self.code += f"measurements = df['{measure_attr}']\n"

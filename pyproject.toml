@@ -1,2 +1,3 @@
 [tool.black]
 line-length = 105
+force-exclude = 'Executor\.py$'

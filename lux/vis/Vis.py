@@ -238,7 +238,31 @@ class Vis:
 
         renderer = AltairRenderer(output_type="Altair")
         self._code = renderer.create_vis(self, standalone)
-        return self._code
+
+        if lux.config.executor.name == "PandasExecutor":
+            function_code = "def plot_data(source_df, vis):\n"
+            function_code += "\timport altair as alt\n"
+            function_code += "\tvisData = create_chart_data(source_df, vis)\n"
+        else:
+            function_code = "def plot_data(tbl, vis):\n"
+            function_code += "\timport altair as alt\n"
+            function_code += "\tvisData = create_chart_data(tbl, vis)\n"
+
+        vis_code_lines = self._code.split("\n")
+        for i in range(2, len(vis_code_lines) - 1):
+            function_code += "\t" + vis_code_lines[i] + "\n"
+        function_code += "\treturn chart\n#plot_data(your_df, vis) this creates an Altair plot using your source data and vis specification"
+        function_code = function_code.replace("alt.Chart(tbl)", "alt.Chart(visData)")
+
+        if "mark_circle" in function_code:
+            function_code = function_code.replace("plot_data", "plot_scatterplot")
+        elif "mark_bar" in function_code:
+            function_code = function_code.replace("plot_data", "plot_barchart")
+        elif "mark_line" in function_code:
+            function_code = function_code.replace("plot_data", "plot_linechart")
+        elif "mark_rect" in function_code:
+            function_code = function_code.replace("plot_data", "plot_heatmap")
+        return function_code
 
     def to_matplotlib(self) -> str:
         """
@@ -314,6 +338,21 @@ class Vis:
             return self.to_matplotlib()
         elif language == "matplotlib_svg":
             return self._to_matplotlib_svg()
+        elif language == "python":
+            lux.config.tracer.start_tracing()
+            lux.config.executor.execute(lux.vis.VisList.VisList(input_lst=[self]), self._source)
+            lux.config.tracer.stop_tracing()
+            self._trace_code = lux.config.tracer.process_executor_code(lux.config.tracer_relevant_lines)
+            lux.config.tracer_relevant_lines = []
+            return self._trace_code
+        elif language == "SQL":
+            if self._query:
+                return self._query
+            else:
+                warnings.warn(
+                    "The data for this Vis was not collected via a SQL database. Use the 'python' parameter to view the code used to generate the data.",
+                    stacklevel=2,
+                )
         else:
             warnings.warn(
                 "Unsupported plotting backend. Lux currently only support 'altair', 'vegalite', or 'matplotlib'",

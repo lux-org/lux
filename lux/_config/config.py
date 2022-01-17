@@ -6,6 +6,9 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 import lux
 import warnings
+from lux.utils.tracing_utils import LuxTracer
+import os
+from lux._config.template import postgres_template, mysql_template
 
 RegisteredOption = namedtuple("RegisteredOption", "name action display_condition args")
 
@@ -28,10 +31,16 @@ class Config:
         self._plotting_backend = "vegalite"
         self._plotting_scale = 1
         self._topk = 15
+        self._number_of_bars = 10  # max no of bars displayed (rest shown as "+ k more")
+        self._label_len = 25  # max length of x and y axis labels
         self._sort = "descending"
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
+        self.tracer_relevant_lines = []
+        self.tracer = LuxTracer()
+        self.query_templates = {}
+        self.handle_quotes = True
         #####################################
         #### Optimization Configurations ####
         #####################################
@@ -39,6 +48,7 @@ class Config:
         self._sampling_cap = 1000000
         self._sampling_flag = True
         self._heatmap_flag = True
+        self._heatmap_start = 5000
         self.lazy_maintain = True
         self.early_pruning = True
         self.early_pruning_sample_cap = 30000
@@ -46,6 +56,46 @@ class Config:
         self.early_pruning_sample_start = self.early_pruning_sample_cap * 1.5
         self.streaming = False
         self.render_widget = True
+
+    @property
+    def number_of_bars(self):
+        return self._number_of_bars
+
+    @number_of_bars.setter
+    def number_of_bars(self, k: int) -> None:
+        """
+        Parameters
+        ----------
+        k : int
+            Number of bars in output bar charts; rest are not displayed
+        """
+        if type(k) == int:
+            self._number_of_bars = k
+        else:
+            warnings.warn(
+                "The number of bars must be an integer.",
+                stacklevel=2,
+            )
+
+    @property
+    def label_len(self):
+        return self._label_len
+
+    @label_len.setter
+    def label_len(self, l: int) -> None:
+        """
+        Parameters
+        ----------
+        l : int
+            Maximum length of string axis labels
+        """
+        if type(l) == int:
+            self._label_len = l
+        else:
+            warnings.warn(
+                "The maximum length must be an integer.",
+                stacklevel=2,
+            )
 
     @property
     def topk(self):
@@ -377,11 +427,28 @@ class Config:
         self.set_executor_type("SQL")
         self.SQLconnection = connection
 
+    def read_query_template(self, query_template):
+        from lux.executor.SQLExecutor import SQLExecutor
+
+        query_dict = {}
+        if type(query_template) is str:
+            for line in query_template.split("\n"):
+                (key, val) = line.split(":")
+                query_dict[key] = val.strip()
+        else:
+            with open(query_file) as f:
+                for line in f:
+                    (key, val) = line.split(":")
+                    query_dict[key] = val.strip()
+        self.query_templates = query_dict
+        self.executor = SQLExecutor()
+
     def set_executor_type(self, exe):
         if exe == "SQL":
             from lux.executor.SQLExecutor import SQLExecutor
 
             self.executor = SQLExecutor()
+            self.read_query_template(postgres_template)
         elif exe == "Pandas":
             from lux.executor.PandasExecutor import PandasExecutor
 

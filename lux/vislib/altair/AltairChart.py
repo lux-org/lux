@@ -36,6 +36,8 @@ class AltairChart:
         self.tooltip = True
         # ----- START self.code modification -----
         self.code = ""
+        self.width = 160
+        self.height = 150
         self.chart = self.initialize_chart()
         # self.add_tooltip()
         self.encode_color()
@@ -71,7 +73,9 @@ class AltairChart:
             labelFont="Helvetica Neue",
         )
         plotting_scale = lux.config.plotting_scale
-        self.chart = self.chart.properties(width=160 * plotting_scale, height=150 * plotting_scale)
+        self.chart = self.chart.properties(
+            width=self.width * plotting_scale, height=self.height * plotting_scale
+        )
         self.code += (
             "\nchart = chart.configure_title(fontWeight=500,fontSize=13,font='Helvetica Neue')\n"
         )
@@ -79,9 +83,7 @@ class AltairChart:
         self.code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue',labelColor='#505050')\n"
         self.code += "chart = chart.configure_legend(titleFontWeight=500,titleFontSize=10,titleFont='Helvetica Neue',\n"
         self.code += "\t\t\t\t\tlabelFontWeight=400,labelFontSize=8,labelFont='Helvetica Neue')\n"
-        self.code += (
-            f"chart = chart.properties(width={160 * plotting_scale},height={150 * plotting_scale})\n"
-        )
+        self.code += f"chart = chart.properties(width={self.width * plotting_scale},height={self.height  * plotting_scale})\n"
 
     def encode_color(self):
         color_attr = self.vis.get_attr_by_channel("color")
