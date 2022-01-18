@@ -14,6 +14,7 @@
 
 from lux.vislib.altair.AltairChart import AltairChart
 import altair as alt
+import math
 
 alt.data_transformers.disable_max_rows()
 
@@ -51,10 +52,10 @@ class Histogram(AltairChart):
         markbar = compute_bin_width(self.data[msr_attr.attribute])
         step = abs(self.data[msr_attr.attribute][1] - self.data[msr_attr.attribute][0])
 
-        # Default when bin too small
+        # Default to Sturges' Rule variant when bin too small
         if markbar < (x_range / 24):
-            markbar = x_max - x_min / 12
-
+            bin_count = len(self.vis._source) ** (1 / 2)
+            markbar = 1.38 * math.ceil(x_range / bin_count)
         self.data = AltairChart.sanitize_dataframe(self.data)
         end_attr_abv = str(msr_attr.attribute) + "_end"
         self.data[end_attr_abv] = self.data[str(msr_attr.attribute)] + markbar
@@ -125,7 +126,6 @@ def compute_bin_width(series):
     Helper function that returns optimal bin size via Freedman Diaconis's Rule
     Source: https://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule
     """
-    import math
     import numpy as np
 
     data = np.asarray(series)
