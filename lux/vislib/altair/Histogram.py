@@ -55,7 +55,7 @@ class Histogram(AltairChart):
         # Default to Sturges' Rule variant when bin too small
         if markbar < (x_range / 24):
             bin_count = len(self.vis._source) ** (1 / 2)
-            markbar = 1.38 * math.ceil(x_range / bin_count)
+            markbar = 1.38 * x_range / bin_count
         self.data = AltairChart.sanitize_dataframe(self.data)
         end_attr_abv = str(msr_attr.attribute) + "_end"
         self.data[end_attr_abv] = self.data[str(msr_attr.attribute)] + markbar
