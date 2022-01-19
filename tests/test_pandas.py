@@ -86,7 +86,8 @@ def test_datetime_index():
     # continuous
     c1 = np.random.uniform(0, 1, size=nrows)
 
-    df = pd.DataFrame({"c1": c1}, index=dt)
+    data = np.random.uniform(0, 1, size=(nrows,50))
+    df = pd.DataFrame(data, index=dt)
 
     df._ipython_display_()
 
