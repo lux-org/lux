@@ -78,7 +78,7 @@ def test_infs():
 
 
 def test_datetime_index():
-    nrows = 100000
+    nrows = 10
 
     # create a datetime index, freq in seconds
     dt = pd.date_range("1/1/2019", periods=nrows, freq="1s")
