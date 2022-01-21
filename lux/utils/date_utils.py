@@ -12,8 +12,44 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import pandas as pd
+import re
+from typing import Any
+
 import lux
+import pandas as pd
+import numpy as np
+
+timedelta_re = re.compile(r"^timedelta64\[\w+\]$")
+
+
+def is_timedelta64_series(series: pd.Series) -> bool:
+    """
+    Check if the Series object is of timedelta64 type
+
+    Parameters
+    ----------
+    series : pd.Series
+
+    Returns
+    -------
+    is_date: bool
+    """
+    return pd.api.types.is_timedelta64_dtype(series)
+
+
+def timedelta64_to_float_seconds(series: pd.Series) -> pd.Series:
+    """
+    Convert a timedelta64 Series to a float Series in seconds
+
+    Parameters
+    ----------
+    series : pd.Series
+
+    Returns
+    -------
+    series: pd.Series
+    """
+    return series.view(np.int64) / 1_000_000_000
 
 
 def date_formatter(time_stamp, ldf):
