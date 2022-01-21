@@ -16,6 +16,8 @@ from .context import lux
 import pytest
 import pandas as pd
 import numpy as np
+from tempfile import TemporaryDirectory
+from pathlib import Path
 
 
 def test_head_tail(global_var):
@@ -86,6 +88,21 @@ def test_timedeltas():
     df._ipython_display_()
 
 
+def test_datetime_index():
+    nrows = 10
+
+    # create a datetime index, freq in seconds
+    dt = pd.date_range("1/1/2019", periods=nrows, freq="1s")
+
+    # continuous
+    c1 = np.random.uniform(0, 1, size=nrows)
+
+    data = np.random.uniform(0, 1, size=(nrows, 50))
+    df = pd.DataFrame(data, index=dt)
+
+    df._ipython_display_()
+
+
 def test_interval():
     nrows = 100_000
 
@@ -93,5 +110,24 @@ def test_interval():
     c2 = np.random.uniform(0, 10, size=nrows)
 
     df = pd.DataFrame({"c1": c1, "c2": c2})
+
+    df._ipython_display_()
+
+
+def test_datetime_index_serialize():
+    nrows = 100000
+
+    # create a datetime index, freq in seconds
+    dt = pd.date_range("1/1/2019", periods=nrows, freq="1s")
+
+    # continuous
+    c1 = np.random.uniform(0, 1, size=nrows)
+
+    df = pd.DataFrame({"c1": c1}, index=dt)
+
+    with TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        df.to_csv(tmpdir / "test.csv")
+        df = pd.read_csv(tmpdir / "test.csv", names=["date", "c1"], index_col="date", header=0)
 
     df._ipython_display_()
