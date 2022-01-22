@@ -12,11 +12,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import pandas as pd
-import numpy as np
-import altair as alt
-from lux.utils.date_utils import compute_date_granularity
+import re
+
 import lux
+import numpy as np
+import pandas as pd
+from lux.utils.date_utils import compute_date_granularity
+
+import altair as alt
 
 
 class AltairChart:
@@ -123,10 +126,16 @@ class AltairChart:
 
     @classmethod
     def sanitize_dataframe(self, df):
+        from lux.utils.date_utils import is_timedelta64_series, timedelta64_to_float_seconds
+
         for attr in df.columns:
             # Check if dtype is unrecognized by Altair (#247)
             if str(df[attr].dtype) == "Float64":
                 df[attr] = df[attr].astype(np.float64)
+
+            # Check for timedelta64[...] dtype
+            if is_timedelta64_series(df[attr]):
+                df[attr] = timedelta64_to_float_seconds(df[attr])
 
             # Altair can not visualize non-string columns
             # convert all non-string columns in to strings
