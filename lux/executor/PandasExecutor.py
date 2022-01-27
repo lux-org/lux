@@ -394,11 +394,17 @@ class PandasExecutor(Executor):
             x_attr = vis.get_attr_by_channel("x")[0].attribute
             y_attr = vis.get_attr_by_channel("y")[0].attribute
 
-            if vis.data[x_attr].dtype == np.dtype('O'):
-                vis.data[x_attr] = vis.data[x_attr].astype(float)
+            def _try_cast_float(series):
+                try:
+                    return series.astype(float)
+                except ValueError:
+                    return series
 
+            if vis.data[x_attr].dtype == np.dtype('O'):
+                vis.data[x_attr] = _try_cast_float(vis.data[x_attr])
+            
             if vis.data[y_attr].dtype == np.dtype('O'):
-                vis.data[y_attr] = vis.data[y_attr].astype(float)
+                vis.data[y_attr] = _try_cast_float(vis.data[y_attr])
 
             vis._vis_data["xBin"] = pd.cut(vis._vis_data[x_attr], bins=lux.config.heatmap_bin_size)
             vis._vis_data["yBin"] = pd.cut(vis._vis_data[y_attr], bins=lux.config.heatmap_bin_size)
