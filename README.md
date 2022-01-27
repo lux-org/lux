@@ -40,6 +40,7 @@ Check out our [notebook gallery](https://lux-api.readthedocs.io/en/latest/source
 <br>Or try out Lux on your own in a [live Jupyter Notebook](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=lab/tree/demo/hpi_covid_demo.ipynb)! 
 
 # Getting Started
+> **Note**: Lux is installed as `lux-api` and requires setup for [jupyter notebook](#setup-in-jupyter-notebook-vscode-jupyterhub) and [jupyter lab](#setup-in-jupyter-lab).
 
 To start using Lux, simply add an extra import statement along with your Pandas import.
 
