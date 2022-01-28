@@ -5,12 +5,16 @@ def show_versions():
     import pandas as pd
     import lux
     import luxwidget
+    import matplotlib
+    import altair
 
     df = pd.DataFrame(
         [
             ("lux", lux.__version__),
             ("pandas", pd.__version__),
             ("luxwidget", luxwidget.__version__),
+            ("matplotlib", matplotlib.__version__),
+            ("altair", altair.__version__),
         ],
         columns=["Package", "Version"],
     )
