@@ -21,7 +21,7 @@ from lux.utils.tracing_utils import LuxTracer
 from ._version import __version__, version_info
 from lux._config import config
 from lux._config.config import warning_format
-from lux.utils.debug_utils import show_versions
+from lux.utils.debug_utils import show_versions, check_luxwidget_enabled
 
 from lux._config import Config
 
@@ -30,3 +30,4 @@ config = Config()
 from lux.action.default import register_default_actions
 
 register_default_actions()
+check_luxwidget_enabled()
