@@ -40,7 +40,6 @@ Check out our [notebook gallery](https://lux-api.readthedocs.io/en/latest/source
 <br>Or try out Lux on your own in a [live Jupyter Notebook](https://mybinder.org/v2/gh/lux-org/lux-binder/master?urlpath=lab/tree/demo/hpi_covid_demo.ipynb)! 
 
 # Getting Started
-> **Note**: Lux is installed as `lux-api` and requires setup for [jupyter notebook](#setup-in-jupyter-notebook-vscode-jupyterhub) and [jupyter lab](#setup-in-jupyter-lab).
 
 To start using Lux, simply add an extra import statement along with your Pandas import.
 
@@ -56,6 +55,7 @@ df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/
 df
 ```
 When the dataframe is printed out, Lux automatically recommends a set of visualizations highlighting interesting trends and patterns in the dataset.
+
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/basicDemo.gif?raw=true"
      alt="Basic recommendations in Lux"
      style="width:900px" />
@@ -134,6 +134,8 @@ VisList(["Region=?","AverageCost"],df)
 To find out more about other features in Lux, see the complete documentation on [ReadTheDocs](https://lux-api.readthedocs.io/).
 
 # Installation & Setup
+
+> **Note**: Lux's official package name is `lux-api` (not `lux`). After installing the package, remember to run the setup instructions for your notebook IDE, e.g., [jupyter notebook](#setup-in-jupyter-notebook-vscode-jupyterhub) and [jupyter lab](#setup-in-jupyter-lab).
 
 To get started, please follow both the installation and setup instructions in your command line.
 `lux-api` can be installed through [PyPI](https://pypi.org/project/lux-api/) or [conda-forge](https://github.com/conda-forge/lux-api-feedstock). 
