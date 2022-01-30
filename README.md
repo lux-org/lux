@@ -55,6 +55,7 @@ df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/
 df
 ```
 When the dataframe is printed out, Lux automatically recommends a set of visualizations highlighting interesting trends and patterns in the dataset.
+
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/basicDemo.gif?raw=true"
      alt="Basic recommendations in Lux"
      style="width:900px" />
@@ -133,6 +134,8 @@ VisList(["Region=?","AverageCost"],df)
 To find out more about other features in Lux, see the complete documentation on [ReadTheDocs](https://lux-api.readthedocs.io/).
 
 # Installation & Setup
+
+> **Note**: Lux's official package name is `lux-api` (not `lux`). After installing the package, remember to run the setup instructions for your notebook IDE, e.g., [jupyter notebook](#setup-in-jupyter-notebook-vscode-jupyterhub) and [jupyter lab](#setup-in-jupyter-lab).
 
 To get started, please follow both the installation and setup instructions in your command line.
 `lux-api` can be installed through [PyPI](https://pypi.org/project/lux-api/) or [conda-forge](https://github.com/conda-forge/lux-api-feedstock). 
