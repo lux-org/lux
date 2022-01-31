@@ -58,6 +58,9 @@ class PandasExecutor(Executor):
         if SAMPLE_FLAG and len(ldf) > SAMPLE_THRESH:
             if ldf._sampled is None:  # memoize unfiltered sample df
                 final_df = ldf.sample(n=SAMPLE_THRESH, random_state=1)
+                ldf._sampled = final_df
+            else:
+                final_df = ldf._sampled
             ldf._message.add_unique(
                 f"Large dataframe detected: Lux is only visualizing a sample of {SAMPLE_THRESH} rows.",
                 priority=99,
@@ -105,7 +108,6 @@ class PandasExecutor(Executor):
         -------
         None
         """
-
         for vis in vislist:
             # The vis data starts off being original or sampled dataframe
             vis._source = ldf
@@ -375,7 +377,7 @@ class PandasExecutor(Executor):
         with pd.option_context("mode.chained_assignment", None):
             x_attr = vis.get_attr_by_channel("x")[0].attribute
             y_attr = vis.get_attr_by_channel("y")[0].attribute
-
+            vis._vis_data = vis._vis_data.copy()
             vis._vis_data["xBin"] = pd.cut(vis._vis_data[x_attr], bins=lux.config.heatmap_bin_size)
             vis._vis_data["yBin"] = pd.cut(vis._vis_data[y_attr], bins=lux.config.heatmap_bin_size)
 
@@ -560,3 +562,10 @@ class PandasExecutor(Executor):
             index_column_name = ldf_sampled.index.name
             ldf.unique_values[index_column_name] = list(ldf_sampled.index)
             ldf.cardinality[index_column_name] = len(ldf_sampled.index)
+        
+        #propogate computed stats to sampled df
+        if ldf._sampled is not None:
+            ldf._sampled.unique_values = ldf.unique_values
+            ldf._sampled._min_max = ldf._min_max
+            ldf._sampled.cardinality = ldf.cardinality
+            ldf._sampled._length = ldf._length
