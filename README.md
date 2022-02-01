@@ -117,7 +117,7 @@ Vis(["Region=New England","MedianEarnings"],df)
 
 ### Powerful language for working with collections of visualizations:
 
-Lux provides a powerful abstraction for working with collections of visualizations based on a partially specified queries. Users can provide a list or a wildcard to iterate over combinations of filter or attribute values and quickly browse through large numbers of visualizations. The partial specification is inspired by existing work on visualization query languages, including [ZQL](https://github.com/vega/compassql) and [CompassQL](https://github.com/vega/compassql).
+Lux provides a powerful abstraction for working with collections of visualizations based on a partially specified queries. Users can provide a list or a wildcard to iterate over combinations of filter or attribute values and quickly browse through large numbers of visualizations. The partial specification is inspired by existing work on visualization query languages, including [ZQL](http://www.vldb.org/pvldb/vol10/p457-siddiqui.pdf) and [CompassQL](https://github.com/vega/compassql).
 
 For example, we are interested in how the `AverageCost` distribution differs across different `Region`s.
 
