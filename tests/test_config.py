@@ -226,10 +226,10 @@ def test_sampling_flag_config():
     lux.config.early_pruning = False
     import numpy as np
 
-    N = int(1.1 * lux.config.sampling_cap)
+    N = int(1.1 * lux.config.sampling_thresh)
     df = pd.DataFrame({"col1": np.random.rand(N), "col2": np.random.rand(N)})
     df.maintain_recs()
-    assert len(df.recommendation["Correlation"][0].data) == lux.config.sampling_cap
+    assert len(df.recommendation["Correlation"][0].data) == lux.config.sampling_thresh
     lux.config.sampling = True
     lux.config.heatmap = True
     lux.config.early_pruning = True
@@ -239,13 +239,12 @@ def test_sampling_parameters_config():
     df = pd.read_csv("lux/data/car.csv")
     df._ipython_display_()
     assert df.recommendation["Correlation"][0].data.shape[0] == 392
-    lux.config.sampling_start = 50
-    lux.config.sampling_cap = 100
+    old_sampling_thresh = lux.config.sampling_thresh
+    lux.config.sampling_thresh = 100
     df = pd.read_csv("lux/data/car.csv")
     df._ipython_display_()
     assert df.recommendation["Correlation"][0].data.shape[0] == 100
-    lux.config.sampling_cap = 30000
-    lux.config.sampling_start = 10000
+    lux.config.sampling_thresh = old_sampling_thresh
 
 
 def test_heatmap_flag_config():

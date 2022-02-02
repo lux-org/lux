@@ -54,26 +54,21 @@ class PandasExecutor(Executor):
         ldf : LuxDataFrame
         """
         SAMPLE_FLAG = lux.config.sampling
-        SAMPLE_START = lux.config.sampling_start
-        SAMPLE_CAP = lux.config.sampling_cap
-        SAMPLE_FRAC = 0.75
+        SAMPLE_THRESH = lux.config.sampling_thresh
 
-        if SAMPLE_FLAG and len(ldf) > SAMPLE_CAP:
+        if SAMPLE_FLAG and len(ldf) > SAMPLE_THRESH:
             if ldf._sampled is None:  # memoize unfiltered sample df
-                ldf._sampled = ldf.sample(n=SAMPLE_CAP, random_state=1)
+                final_df = ldf.sample(n=SAMPLE_THRESH, random_state=1)
+                ldf._sampled = final_df
+            else:
+                final_df = ldf._sampled
             ldf._message.add_unique(
-                f"Large dataframe detected: Lux is only visualizing a sample capped at {SAMPLE_CAP} rows.",
-                priority=99,
-            )
-        elif SAMPLE_FLAG and len(ldf) > SAMPLE_START:
-            if ldf._sampled is None:  # memoize unfiltered sample df
-                ldf._sampled = ldf.sample(frac=SAMPLE_FRAC, random_state=1)
-            ldf._message.add_unique(
-                f"Large dataframe detected: Lux is visualizing a sample of {SAMPLE_FRAC}% of the dataframe ({len(ldf._sampled)} rows).",
+                f"Large dataframe detected: Lux is only visualizing a sample of {SAMPLE_THRESH} rows.",
                 priority=99,
             )
         else:
-            ldf._sampled = ldf
+            final_df = ldf
+        return final_df
 
     @staticmethod
     def execute_approx_sample(ldf: LuxDataFrame):
@@ -86,12 +81,13 @@ class PandasExecutor(Executor):
         ldf : LuxDataFrame
         """
         if ldf._approx_sample is None:
-            if len(ldf._sampled) > lux.config.early_pruning_sample_start:
-                ldf._approx_sample = ldf._sampled.sample(
+            ldf_sampled = PandasExecutor.execute_sampling(ldf)
+            if len(ldf_sampled) > lux.config.early_pruning_sample_start:
+                ldf._approx_sample = ldf_sampled.sample(
                     n=lux.config.early_pruning_sample_cap, random_state=1
                 )
             else:
-                ldf._approx_sample = ldf._sampled
+                ldf._approx_sample = ldf_sampled
 
     @staticmethod
     def execute(vislist: VisList, ldf: LuxDataFrame, approx=False):
@@ -113,12 +109,10 @@ class PandasExecutor(Executor):
         -------
         None
         """
-
-        PandasExecutor.execute_sampling(ldf)
         for vis in vislist:
             # The vis data starts off being original or sampled dataframe
             vis._source = ldf
-            vis._vis_data = ldf._sampled
+            vis._vis_data = ldf
             # Approximating vis for early pruning
             if approx:
                 vis._original_df = vis._vis_data
@@ -132,8 +126,8 @@ class PandasExecutor(Executor):
                 if clause.attribute != "Record":
                     attributes.add(clause.attribute)
             # TODO: Add some type of cap size on Nrows ?
+            vis._vis_data = PandasExecutor.execute_sampling(vis._vis_data)
             vis._vis_data = vis._vis_data[list(attributes)]
-
             if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
@@ -393,7 +387,7 @@ class PandasExecutor(Executor):
         with pd.option_context("mode.chained_assignment", None):
             x_attr = vis.get_attr_by_channel("x")[0].attribute
             y_attr = vis.get_attr_by_channel("y")[0].attribute
-
+            vis._vis_data = vis._vis_data.copy()
             vis._vis_data["xBin"] = pd.cut(vis._vis_data[x_attr], bins=lux.config.heatmap_bin_size)
             vis._vis_data["yBin"] = pd.cut(vis._vis_data[y_attr], bins=lux.config.heatmap_bin_size)
 
@@ -460,16 +454,16 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "geographical"
                 elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
 
-                    if ldf.cardinality[attr] != len(ldf) and (ldf.cardinality[attr] < 20):
+                    if ldf.cardinality[attr] != ldf._length and (ldf.cardinality[attr] < 20):
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
                 elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
                     # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                     if ldf.pre_aggregated:
-                        if ldf.cardinality[attr] == len(ldf):
+                        if ldf.cardinality[attr] == ldf._length:
                             ldf._data_type[attr] = "nominal"
-                    if ldf.cardinality[attr] / len(ldf) < 0.4 and ldf.cardinality[attr] < 20:
+                    if ldf.cardinality[attr] / ldf._length < 0.4 and ldf.cardinality[attr] < 20:
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
@@ -555,11 +549,17 @@ class PandasExecutor(Executor):
         return False
 
     def compute_stats(self, ldf: LuxDataFrame):
+        # use sample to compute statistics
+        if ldf._sampled is None:
+            ldf_sampled = PandasExecutor.execute_sampling(ldf)
+        else:
+            ldf_sampled = ldf._sampled
+
         # precompute statistics
         ldf.unique_values = {}
         ldf._min_max = {}
         ldf.cardinality = {}
-        ldf._length = len(ldf)
+        ldf._length = len(ldf_sampled)
 
         for attribute in ldf.columns:
 
@@ -569,13 +569,20 @@ class PandasExecutor(Executor):
             else:
                 attribute_repr = attribute
 
-            ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+            ldf.unique_values[attribute_repr] = list(ldf_sampled[attribute].unique())
             ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
 
-            if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(ldf.dtypes[attribute]):
-                ldf._min_max[attribute_repr] = (ldf[attribute].min(),ldf[attribute].max(),)
+            if pd.api.types.is_float_dtype(ldf_sampled.dtypes[attribute]) or pd.api.types.is_integer_dtype(ldf_sampled.dtypes[attribute]):
+                ldf._min_max[attribute_repr] = (ldf_sampled[attribute].min(),ldf_sampled[attribute].max(),)
 
-        if not pd.api.types.is_integer_dtype(ldf.index):
-            index_column_name = ldf.index.name
-            ldf.unique_values[index_column_name] = list(ldf.index)
-            ldf.cardinality[index_column_name] = len(ldf.index)
+        if not pd.api.types.is_integer_dtype(ldf_sampled.index):
+            index_column_name = ldf_sampled.index.name
+            ldf.unique_values[index_column_name] = list(ldf_sampled.index)
+            ldf.cardinality[index_column_name] = len(ldf_sampled.index)
+        
+        #propogate computed stats to sampled df
+        if ldf._sampled is not None:
+            ldf._sampled.unique_values = ldf.unique_values
+            ldf._sampled._min_max = ldf._min_max
+            ldf._sampled.cardinality = ldf.cardinality
+            ldf._sampled._length = ldf._length

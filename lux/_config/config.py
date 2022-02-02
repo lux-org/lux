@@ -44,8 +44,7 @@ class Config:
         #####################################
         #### Optimization Configurations ####
         #####################################
-        self._sampling_start = 100000
-        self._sampling_cap = 1000000
+        self._sampling_thresh = 100000
         self._sampling_flag = True
         self._heatmap_flag = True
         self._heatmap_start = 5000
@@ -186,55 +185,20 @@ class Config:
             )
 
     @property
-    def sampling_cap(self):
+    def sampling_thresh(self):
+        return self._sampling_thresh
+
+    @sampling_thresh.setter
+    def sampling_thresh(self, sample_number: int) -> None:
         """
         Parameters
         ----------
         sample_number : int
-            Cap on the number of rows to sample. Must be larger than _sampling_start
-        """
-        return self._sampling_cap
-
-    @sampling_cap.setter
-    def sampling_cap(self, sample_number: int) -> None:
-        """
-        Parameters
-        ----------
-        sample_number : int
-            Cap on the number of rows to sample. Must be larger than _sampling_start
-        """
-        if type(sample_number) == int:
-            assert sample_number >= self._sampling_start
-            self._sampling_cap = sample_number
-        else:
-            warnings.warn(
-                "The cap on the number samples must be an integer.",
-                stacklevel=2,
-            )
-
-    @property
-    def sampling_start(self):
-        """
-        Parameters
-        ----------
-        sample_number : int
-            Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
-
-        """
-        return self._sampling_start
-
-    @sampling_start.setter
-    def sampling_start(self, sample_number: int) -> None:
-        """
-        Parameters
-        ----------
-        sample_number : int
-            Number of rows required to begin sampling. Must be smaller or equal to _sampling_cap
+            Number of rows required to begin sampling.
 
         """
         if type(sample_number) == int:
-            assert sample_number <= self._sampling_cap
-            self._sampling_start = sample_number
+            self._sampling_thresh = sample_number
         else:
             warnings.warn(
                 "The sampling starting point must be an integer.",
