@@ -395,16 +395,20 @@ class PandasExecutor(Executor):
             y_attr = vis.get_attr_by_channel("y")[0].attribute
 
             if vis.data[x_attr].dtype == np.dtype('O'):
-                try:
-                    vis.data[x_attr] = vis.data[x_attr].astype(float)
-                except ValueError:
-                    pass
+                mixed_dtype = len(set(type(val) for val in vis.data[x_attr])) >= 2
+                if mixed_dtype:
+                    try:
+                        vis.data[x_attr] = vis.data[x_attr].astype(float)
+                    except ValueError:
+                        pass
 
             if vis.data[y_attr].dtype == np.dtype('O'):
-                try:
-                    vis.data[y_attr] = vis.data[y_attr].astype(float)
-                except ValueError:
-                    pass
+                mixed_dtype = len(set(type(val) for val in vis.data[y_attr])) >= 2
+                if mixed_dtype:
+                    try:
+                        vis.data[y_attr] = vis.data[y_attr].astype(float)
+                    except ValueError:
+                        pass
 
             vis._vis_data["xBin"] = pd.cut(vis._vis_data[x_attr], bins=lux.config.heatmap_bin_size)
             vis._vis_data["yBin"] = pd.cut(vis._vis_data[y_attr], bins=lux.config.heatmap_bin_size)
