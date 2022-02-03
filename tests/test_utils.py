@@ -14,3 +14,7 @@ class TestDebugUtils:
         assert "luxwidget" in versions
         assert "matplotlib" in versions
         assert "altair" in versions
+
+
+if __name__ == "__main__":
+    TestDebugUtils().test_show_info()
