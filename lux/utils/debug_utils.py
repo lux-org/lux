@@ -11,6 +11,7 @@ import platform
 
     df = pd.DataFrame(
         [
+            ("python", platform.python_version()),
             ("lux", lux.__version__),
             ("pandas", pd.__version__),
             ("luxwidget", luxwidget.__version__),
