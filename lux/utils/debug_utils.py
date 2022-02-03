@@ -7,6 +7,7 @@ def show_versions():
     import luxwidget
     import matplotlib
     import altair
+import platform
 
     df = pd.DataFrame(
         [
