@@ -135,7 +135,7 @@ def test_datetime_index_serialize():
 
 def test_cut_mixed_types():
 
-    a = [1, "2", 3, "4", 5, "6", 7, "8", 9, "10"] * 1_000
+    a = [1, "2", 3, "4", 5, "6", 7, "8", 9, "10"] * 1000
     b = np.random.uniform(0, 1, size=len(a))
 
     df = pd.DataFrame({"a": a, "b": b})
