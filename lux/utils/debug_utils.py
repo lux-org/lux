@@ -18,7 +18,7 @@ import platform
             ("matplotlib", matplotlib.__version__),
             ("altair", altair.__version__),
         ],
-        columns=["Package", "Version"],
+        columns=["", "Version"]
     )
 
     print(df.to_string(index=False))
