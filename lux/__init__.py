@@ -21,7 +21,7 @@ from lux.utils.tracing_utils import LuxTracer
 from ._version import __version__, version_info
 from lux._config import config
 from lux._config.config import warning_format
-from lux.utils.debug_utils import show_versions, check_luxwidget_enabled
+from lux.utils.debug_utils import debug_info, check_luxwidget_enabled
 
 from lux._config import Config
 

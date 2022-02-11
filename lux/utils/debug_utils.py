@@ -9,9 +9,13 @@ import subprocess
 from typing import Optional
 
 
-def show_versions(return_string: bool = False) -> Optional[str]:
+def debug_info(return_string: bool = False) -> Optional[str]:
     """
-    Prints the versions of the principal packages used by Lux for debugging purposes.
+    Prints all the informatation that could be useful for debugging purposes.
+    Currently, this includes:
+
+    * The versions of the packages used by Lux
+    * Info about the current state of luxwidget
 
     Parameters
     ----------
@@ -19,8 +23,8 @@ def show_versions(return_string: bool = False) -> Optional[str]:
 
     Returns
     -------
-    If return_string is True, returns a string with the versions else the versions
-    are printed and None is returned.
+    If return_string is True, returns a string with the debug info else the
+    string will be printed and None is returned.
     """
     import platform
 
@@ -49,8 +53,13 @@ def show_versions(return_string: bool = False) -> Optional[str]:
     str_rep = df.to_string(index=False, justify="left")
     luxwidget_msg = check_luxwidget_enabled(return_string=True)
 
+    assert str_rep is not None
+    assert luxwidget_msg is not None
+
     if luxwidget_msg:
-        str_rep += "\n" + luxwidget_msg
+        str_rep += "\n\n" + luxwidget_msg + "\n"
+    else:
+        str_rep += "\n\n" + "luxwidget is enabled" + "\n"
 
     if return_string:
         return str_rep

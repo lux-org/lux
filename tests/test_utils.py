@@ -2,9 +2,9 @@ import lux
 
 
 class TestDebugUtils:
-    def test_show_info(self):
+    def test_debug_info(self):
 
-        versions = lux.show_versions(return_string=True)
+        versions = lux.debug_info(return_string=True)
 
         assert versions is not None
 
@@ -17,4 +17,4 @@ class TestDebugUtils:
 
 
 if __name__ == "__main__":
-    TestDebugUtils().test_show_info()
+    TestDebugUtils().test_debug_info()
