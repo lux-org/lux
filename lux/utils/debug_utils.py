@@ -4,29 +4,58 @@ import re
 import subprocess
 import typing as tp
 
+import re
+import subprocess
+from typing import Optional
 
-def show_versions():
+
+def show_versions(return_string: bool = False) -> Optional[str]:
     """
     Prints the versions of the principal packages used by Lux for debugging purposes.
+
+    Parameters
+    ----------
+    return_string: Whether to return the versions as a string or print them.
+
+    Returns
+    -------
+    If return_string is True, returns a string with the versions else the versions
+    are printed and None is returned.
     """
-    import pandas as pd
+    import platform
+
+    import altair
     import lux
     import luxwidget
     import matplotlib
-    import altair
+    import pandas as pd
+
+    jupyter_versions_str = subprocess.check_output(["jupyter", "--version"])
+    jupyter_versions = re.findall(r"(\S+)\s+: (.+)\S*", jupyter_versions_str.decode("utf-8"))
 
     df = pd.DataFrame(
         [
+            ("python", platform.python_version()),
             ("lux", lux.__version__),
             ("pandas", pd.__version__),
             ("luxwidget", luxwidget.__version__),
             ("matplotlib", matplotlib.__version__),
             ("altair", altair.__version__),
-        ],
-        columns=["Package", "Version"],
+        ]
+        + jupyter_versions,
+        columns=["", "Version"],
     )
 
-    print(df.to_string(index=False))
+    str_rep = df.to_string(index=False, justify="left")
+    luxwidget_msg = check_luxwidget_enabled(return_string=True)
+
+    if luxwidget_msg:
+        str_rep += "\n" + luxwidget_msg
+
+    if return_string:
+        return str_rep
+    else:
+        print(str_rep)
 
 
 def notebook_enabled() -> tp.Tuple[bool, str]:
@@ -94,8 +123,7 @@ def is_lab_notebook():
     return any(re.search("jupyter-lab", x) for x in cmd)
 
 
-def check_luxwidget_enabled():
-
+def check_luxwidget_enabled(return_string: bool = False) -> Optional[str]:
     # get the ipython shell
     import IPython
 
@@ -103,7 +131,7 @@ def check_luxwidget_enabled():
 
     # return if the shell is not available
     if ip is None:
-        return
+        return ""
 
     if is_lab_notebook():
         enabled, msg = lab_enabled()
@@ -111,7 +139,14 @@ def check_luxwidget_enabled():
         enabled, msg = notebook_enabled()
 
     if not enabled:
-        print(f"WARNING: luxwidget is not enabled. Got: {msg}")
+        msg = f"WARNING: luxwidget is not enabled. Got: {msg}"
+    else:
+        msg = ""
+
+    if return_string:
+        return msg
+    else:
+        print(msg)
 
 
 def _strip_ansi(source):

@@ -148,7 +148,7 @@ class LuxSeries(pd.Series):
             )
             # 2) Mixed type, often a result of a "row" acting as a series (df.iterrows, df.iloc[0])
             # Tolerant for NaNs + 1 type
-            mixed_dtype = len(set([type(val) for val in self.values])) > 2
+            mixed_dtype = len(set(type(val) for val in self.values)) >= 2
             if ldf._pandas_only or is_dtype_series or mixed_dtype:
                 print(series_repr)
                 ldf._pandas_only = False

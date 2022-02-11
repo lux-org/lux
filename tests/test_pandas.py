@@ -131,3 +131,13 @@ def test_datetime_index_serialize():
         df = pd.read_csv(tmpdir / "test.csv", names=["date", "c1"], index_col="date", header=0)
 
     df._ipython_display_()
+
+
+def test_cut_mixed_types():
+
+    a = [1, "2", 3, "4", 5, "6", 7, "8", 9, "10"] * 1000
+    b = np.random.uniform(0, 1, size=len(a))
+
+    df = pd.DataFrame({"a": a, "b": b})
+
+    df._ipython_display_()

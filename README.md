@@ -55,6 +55,7 @@ df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/
 df
 ```
 When the dataframe is printed out, Lux automatically recommends a set of visualizations highlighting interesting trends and patterns in the dataset.
+
 <img src="https://github.com/lux-org/lux-resources/blob/master/readme_img/basicDemo.gif?raw=true"
      alt="Basic recommendations in Lux"
      style="width:900px" />
@@ -116,7 +117,7 @@ Vis(["Region=New England","MedianEarnings"],df)
 
 ### Powerful language for working with collections of visualizations:
 
-Lux provides a powerful abstraction for working with collections of visualizations based on a partially specified queries. Users can provide a list or a wildcard to iterate over combinations of filter or attribute values and quickly browse through large numbers of visualizations. The partial specification is inspired by existing work on visualization query languages, including [ZQL](https://github.com/vega/compassql) and [CompassQL](https://github.com/vega/compassql).
+Lux provides a powerful abstraction for working with collections of visualizations based on a partially specified queries. Users can provide a list or a wildcard to iterate over combinations of filter or attribute values and quickly browse through large numbers of visualizations. The partial specification is inspired by existing work on visualization query languages, including [ZQL](http://www.vldb.org/pvldb/vol10/p457-siddiqui.pdf) and [CompassQL](https://github.com/vega/compassql).
 
 For example, we are interested in how the `AverageCost` distribution differs across different `Region`s.
 
@@ -133,6 +134,8 @@ VisList(["Region=?","AverageCost"],df)
 To find out more about other features in Lux, see the complete documentation on [ReadTheDocs](https://lux-api.readthedocs.io/).
 
 # Installation & Setup
+
+> **Note**: Lux's official package name is `lux-api` (not `lux`). After installing the package, remember to run the setup instructions for your notebook IDE, e.g., [jupyter notebook](#setup-in-jupyter-notebook-vscode-jupyterhub) and [jupyter lab](#setup-in-jupyter-lab).
 
 To get started, please follow both the installation and setup instructions in your command line.
 `lux-api` can be installed through [PyPI](https://pypi.org/project/lux-api/) or [conda-forge](https://github.com/conda-forge/lux-api-feedstock). 
