@@ -28,10 +28,11 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Debugging information**
-Please run the following command and paste the output here:
+Please run the following code in your Jupyter Notebook/Lab:
 
-```bash
-python -c "import lux; lux.debug_info()"
+```python
+import lux
+lux.debug_info()
 ```
 
 **Additional context**
