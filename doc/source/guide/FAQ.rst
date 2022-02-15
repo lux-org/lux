@@ -106,7 +106,26 @@ To troubleshoot your Lux installation, we recommend cloning `this repo <https://
 
 The Lux Jupyter widget does not show up when I print a dataframe.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  - If you recieve the output message :code:`LuxWidget(...)` but you do not see Lux widget show up, it is possible that the widget is not installed correctly. Run :code:`jupyter nbextension list` on the terminal, and you should see the following as one of the listed items. 
+To check if luxwidget is enabled, run the following code in your Jupyter Notebook/Lab:
+  
+  .. code-block:: bash
+  
+    import lux
+    lux.debug_info()
+  
+    
+  - If you receive the output message :code:`❌ IPython shell not available. Please note that Lux must be used within a notebook interface (e.g., Jupyter notebook, Jupyter Lab, JupyterHub, or VSCode`, please run your code in a notebook interface such as those mentioned in the message.
+  
+  - If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Lab.` or :code:`❌ WARNING: luxwidget is not enabled in Jupyter Notebook.`, run the following code in your terminal to enable luxwidget:
+  
+  .. code-block:: bash
+  
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager
+    jupyter labextension install luxwidget
+    
+If the Lux Jupyter widget still does not show up, try the following:
+
+  - If you receive the output message :code:`LuxWidget(...)` but you do not see Lux widget show up, it is possible that the widget is not installed correctly. Run :code:`jupyter nbextension list` on the terminal, and you should see the following as one of the listed items. 
   
   .. code-block:: bash
   
