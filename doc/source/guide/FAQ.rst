@@ -116,13 +116,21 @@ To check if luxwidget is enabled, run the following code in your Jupyter Noteboo
     
   - If you receive the output message :code:`❌ IPython shell not available. Please note that Lux must be used within a notebook interface (e.g., Jupyter notebook, Jupyter Lab, JupyterHub, or VSCode`, please run your code in a notebook interface such as those mentioned in the message.
   
-  - If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Lab.` or :code:`❌ WARNING: luxwidget is not enabled in Jupyter Notebook.`, run the following code in your terminal to enable luxwidget:
+  - If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Lab.`, run the following code in your terminal to enable luxwidget:
   
   .. code-block:: bash
   
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install luxwidget
     
+  - If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Notebook.`, run the following code in your terminal to enable luxwidget:
+  
+  .. code-block:: bash
+  
+    jupyter nbextension install --py luxwidget
+    jupyter nbextension enable --py luxwidget
+   
+
 If the Lux Jupyter widget still does not show up, try the following:
 
   - If you receive the output message :code:`LuxWidget(...)` but you do not see Lux widget show up, it is possible that the widget is not installed correctly. Run :code:`jupyter nbextension list` on the terminal, and you should see the following as one of the listed items. 
