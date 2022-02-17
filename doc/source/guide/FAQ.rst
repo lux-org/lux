@@ -123,7 +123,7 @@ To check if luxwidget is enabled, run the following code in your Jupyter Noteboo
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install luxwidget
     
-  - If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Notebook.`, run the following code in your terminal to enable luxwidget:
+  - If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Notebook.`, run the following code in your terminal to enable luxwidget: 
   
   .. code-block:: bash
   
