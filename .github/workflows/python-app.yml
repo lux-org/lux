@@ -28,7 +28,7 @@ jobs:
         run: echo "NODE_PATH=$GITHUB_WORKSPACE/node_modules" >> $GITHUB_ENV
       - run: git remote add upstream https://github.com/lux-org/lux
       - run: git fetch upstream
-      - run: npx commitlint --from upstream/master --to HEAD --verbose
+      - run: npx commitlint --from upstream/master --to $(git log upstream/master..HEAD --pretty=format:"%h" | tail -1) --verbose
   pre-commit:
     name: Check pre-commit hooks
     runs-on: ubuntu-latest
