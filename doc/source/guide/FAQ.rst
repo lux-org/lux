@@ -106,24 +106,33 @@ To troubleshoot your Lux installation, we recommend cloning `this repo <https://
 
 The Lux Jupyter widget does not show up when I print a dataframe.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-To check if luxwidget is enabled, run the following code in your Jupyter Notebook/Lab:
+To check if your luxwidget configuration is set up correctly, please run the following code in your notebook to debug:
   
   .. code-block:: bash
   
     import lux
     lux.debug_info()
   
-    
-  - If you receive the output message :code:`❌ IPython shell not available. Please note that Lux must be used within a notebook interface (e.g., Jupyter notebook, Jupyter Lab, JupyterHub, or VSCode`, please run your code in a notebook interface such as those mentioned in the message.
+  We recommend using a simple example to test if your widget is showing correctly:
+
+  .. code-block:: bash
   
-  - If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Lab.`, run the following code in your terminal to enable luxwidget:
+    import lux
+    import pandas as pd
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/college.csv")
+    df
+
+  If you receive the output message :code:`❌ IPython shell not available. Please note that Lux must be used within a notebook interface
+  (e.g., Jupyter notebook, Jupyter Lab, JupyterHub, or VSCode`, please run your code in a notebook interface such as those mentioned in the message.
+  
+  If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Lab.`, run the following code in your terminal to enable luxwidget:
   
   .. code-block:: bash
   
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install luxwidget
     
-  - If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Notebook.`, run the following code in your terminal to enable luxwidget: 
+  If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Notebook.`, run the following code in your terminal to enable luxwidget: 
   
   .. code-block:: bash
   

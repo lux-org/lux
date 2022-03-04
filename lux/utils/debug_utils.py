@@ -7,7 +7,6 @@ import typing as tp
 import re
 import subprocess
 from typing import Optional
-from packaging import version
 
 
 def show_versions(return_string: bool = False) -> Optional[str]:
@@ -34,9 +33,7 @@ def show_versions(return_string: bool = False) -> Optional[str]:
     jupyter_versions = re.findall(r"(\S+)\s+: (.+)\S*", jupyter_versions_str.decode("utf-8"))
 
     str_lux_error = ""
-    str_lux_error += (
-        "'lux' library is not installed. You may need to run the following code in your command line:\n"
-    )
+    str_lux_error += "lux-api library is not installed. You may need to run the following code in your command line:\n"
     str_lux_error += "  pip install lux-api"
 
     # Check if correct lux library is installed
@@ -45,14 +42,14 @@ def show_versions(return_string: bool = False) -> Optional[str]:
     except ModuleNotFoundError:
         print(str_lux_error)
 
-    str_upgrade = ""
-    str_upgrade += "The upgraded version of lux is not installed."
-    str_upgrade += "You may need to run the following code in your command line:\n"
-    str_upgrade += "  pip install --upgrade lux-api"
     lux_version = lux.__version__
+    str_upgrade = f"The current version of lux is {lux_version}. We recommend upgrading the lux to version 0.3 and above."
+    str_upgrade += "To upgrade, please run the following code in your command line:\n"
+    str_upgrade += "  pip install --upgrade lux-api"
 
     # Check if lux needs to be upgraded
-    if version.parse(lux_version) < version.parse("0.3"):
+
+    if str(lux_version) < "0.3":
         print(str_upgrade)
 
     df = pd.DataFrame(
