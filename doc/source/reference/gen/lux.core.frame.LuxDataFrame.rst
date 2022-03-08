@@ -215,6 +215,7 @@
       ~LuxDataFrame.to_string
       ~LuxDataFrame.to_timestamp
       ~LuxDataFrame.to_xarray
+      ~LuxDataFrame.to_xml
       ~LuxDataFrame.transform
       ~LuxDataFrame.transpose
       ~LuxDataFrame.truediv

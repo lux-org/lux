@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~Config.__init__
+      ~Config.read_query_template
       ~Config.register_action
       ~Config.remove_action
       ~Config.set_SQL_connection

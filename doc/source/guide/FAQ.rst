@@ -106,7 +106,42 @@ To troubleshoot your Lux installation, we recommend cloning `this repo <https://
 
 The Lux Jupyter widget does not show up when I print a dataframe.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  - If you recieve the output message :code:`LuxWidget(...)` but you do not see Lux widget show up, it is possible that the widget is not installed correctly. Run :code:`jupyter nbextension list` on the terminal, and you should see the following as one of the listed items. 
+To check if your luxwidget configuration is set up correctly, please run the following code in your notebook to debug:
+  
+  .. code-block:: bash
+  
+    import lux
+    lux.debug_info()
+  
+  We recommend using a simple example to test if your widget is showing correctly:
+
+  .. code-block:: bash
+  
+    import lux
+    import pandas as pd
+    df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/college.csv")
+    df
+
+  If you receive the output message :code:`❌ IPython shell not available.`, please run your code in a notebook interface such as Jupyter notebook, Jupyter Lab, JupyterHub, or VSCode.
+  
+  If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Lab.`, run the following code in your terminal to enable luxwidget:
+  
+  .. code-block:: bash
+  
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager
+    jupyter labextension install luxwidget
+    
+  If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Notebook.`, run the following code in your terminal to enable luxwidget: 
+  
+  .. code-block:: bash
+  
+    jupyter nbextension install --py luxwidget
+    jupyter nbextension enable --py luxwidget
+   
+
+If the Lux Jupyter widget still does not show up, try the following:
+
+  - If you receive the output message :code:`LuxWidget(...)` but you do not see Lux widget show up, it is possible that the widget is not installed correctly. Run :code:`jupyter nbextension list` on the terminal, and you should see the following as one of the listed items. 
   
   .. code-block:: bash
   

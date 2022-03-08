@@ -17,6 +17,7 @@
       ~Executor.compute_data_model
       ~Executor.compute_data_model_lookup
       ~Executor.compute_data_type
+      ~Executor.compute_dataset_metadata
       ~Executor.compute_stats
       ~Executor.execute
       ~Executor.execute_2D_binning
