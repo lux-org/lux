@@ -122,7 +122,7 @@ To check if your luxwidget configuration is set up correctly, please run the fol
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/college.csv")
     df
 
-If you receive the output message :code:`❌ IPython shell not available. Please note that Lux must be used within a notebook interface`, please run your code in a notebook interface such as those mentioned in the message.
+  If you receive the output message :code:`❌ IPython shell not available.`, please run your code in a notebook interface such as Jupyter notebook, Jupyter Lab, JupyterHub, or VSCode.
   
   If you receive the output message :code:`❌ WARNING: luxwidget is not enabled in Jupyter Lab.`, run the following code in your terminal to enable luxwidget:
   
