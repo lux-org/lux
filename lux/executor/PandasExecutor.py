@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 import pandas as pd
+import numpy as np
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.core.frame import LuxDataFrame
@@ -57,7 +58,10 @@ class PandasExecutor(Executor):
 
         if SAMPLE_FLAG and len(ldf) > SAMPLE_THRESH:
             if ldf._sampled is None:  # memoize unfiltered sample df
-                final_df = ldf.sample(n=SAMPLE_THRESH, random_state=1)
+                # final_df = ldf.sample(n=SAMPLE_THRESH, random_state=1)
+                rs = np.random.RandomState(1)
+                remove_idxs = rs.choice(range(len(ldf)), len(ldf) - SAMPLE_THRESH, replace=False)
+                final_df = ldf.drop(remove_idxs)
                 ldf._sampled = final_df
             else:
                 final_df = ldf._sampled
