@@ -83,6 +83,7 @@
       ~LuxSeries.idxmax
       ~LuxSeries.idxmin
       ~LuxSeries.infer_objects
+      ~LuxSeries.info
       ~LuxSeries.interpolate
       ~LuxSeries.isin
       ~LuxSeries.isna

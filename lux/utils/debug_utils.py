@@ -31,6 +31,27 @@ def show_versions(return_string: bool = False) -> Optional[str]:
     header = "Package Versions\n----------------\n"
     jupyter_versions_str = subprocess.check_output(["jupyter", "--version"])
     jupyter_versions = re.findall(r"(\S+)\s+: (.+)\S*", jupyter_versions_str.decode("utf-8"))
+
+    str_lux_error = ""
+    str_lux_error += "lux-api library is not installed. You may need to run the following code in your command line:\n"
+    str_lux_error += "  pip install lux-api"
+
+    # Check if correct lux library is installed
+    try:
+        import lux
+    except ModuleNotFoundError:
+        print(str_lux_error)
+
+    lux_version = lux.__version__
+    str_upgrade = f"The current version of lux is {lux_version}. We recommend upgrading the lux to version 0.3 and above."
+    str_upgrade += "To upgrade, please run the following code in your command line:\n"
+    str_upgrade += "  pip install --upgrade lux-api"
+
+    # Check if lux needs to be upgraded
+
+    if str(lux_version) < "0.3":
+        print(str_upgrade)
+
     df = pd.DataFrame(
         [
             ("python", platform.python_version()),
