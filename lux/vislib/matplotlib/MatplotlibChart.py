@@ -68,6 +68,8 @@ class MatplotlibChart:
     def add_title(self):
         chart_title = self.vis.title
         if chart_title:
+            if len(chart_title) > 25:
+                chart_title = chart_title[:15] + "..." + chart_title[-10:]
             self.ax.set_title(chart_title)
             self.code += f"ax.set_title('{chart_title}')\n"
 

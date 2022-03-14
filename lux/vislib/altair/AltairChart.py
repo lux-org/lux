@@ -117,6 +117,8 @@ class AltairChart:
     def add_title(self):
         chart_title = self.vis.title
         if chart_title:
+            if len(chart_title) > 25:
+                chart_title = chart_title[:15] + "..." + chart_title[-10:]
             self.chart = self.chart.encode().properties(title=chart_title)
             if self.code != "":
                 self.code += f"chart = chart.encode().properties(title = '{chart_title}')"
