@@ -602,3 +602,4 @@ def test_abbrev_title():
     vis_code = vis.to_altair()
     print(vis_code)
     assert "long_attr = Lor...t laborum.'" in vis_code
+    lux.config.plotting_backend = "altair"
