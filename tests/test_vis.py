@@ -582,3 +582,24 @@ def test_intent_override_all_column():
     assert (
         "y = alt.Y('Record', type= 'quantitative', title='Number of Records'" in current_vis_code
     ), "All column not overriden by intent"
+
+
+def test_abbrev_title():
+    long_content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    dataset = [
+        {"long_attr": long_content, "normal": 3, "normal2": 1},
+        {"long_attr": long_content, "normal": 3, "normal2": 1},
+        {"long_attr": long_content, "normal": 2, "normal2": 1},
+        {"long_attr": long_content, "normal": 4, "normal2": 1},
+    ]
+    df = pd.DataFrame(dataset)
+    lux.config.plotting_backend = "matplotlib"
+    vis = Vis(["normal2", "normal", f"long_attr={long_content}"], df)
+    vis_code = vis.to_matplotlib()
+    print(vis_code)
+    assert "long_attr = Lor...t laborum.'" in vis_code
+
+    vis_code = vis.to_altair()
+    print(vis_code)
+    assert "long_attr = Lor...t laborum.'" in vis_code
+    lux.config.plotting_backend = "altair"
