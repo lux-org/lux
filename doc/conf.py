@@ -20,7 +20,7 @@
 
 import subprocess
 
-subprocess.call(["sh", "./docbuild.sh"])
+# subprocess.call(["sh", "./docbuild.sh"])
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
