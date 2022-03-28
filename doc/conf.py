@@ -18,9 +18,7 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# import subprocess
 
-# subprocess.call(["sh", "./docbuild.sh"])
 import os
 
 os.system("sh ./docbuild.sh")
