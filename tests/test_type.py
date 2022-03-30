@@ -357,7 +357,7 @@ def test_id_music_data():
 
 
 def test_id_absenteeism_data():
-    """ Tests whether an id named column is not recognized because even though it is named an id, it is not with its nature. """
+    """Tests whether an id named column is not recognized because even though it is named an id, it is not with its nature."""
     df = pd.read_csv("https://github.com/lux-org/lux-datasets/blob/master/data/absenteeism.csv?raw=true")
     df.maintain_metadata()
     assert df.data_type == {
