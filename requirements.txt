@@ -8,4 +8,3 @@ lux-widget>=0.1.4
 autopep8>=1.5
 iso3166
 psutil>=5.9.0
-sh
