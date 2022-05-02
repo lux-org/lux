@@ -159,8 +159,8 @@ If the Lux Jupyter widget still does not show up, try the following:
     pip uninstall lux-api
     pip uninstall lux-widget
 
-    jupyter nbextension uninstall --py luxWidget
-    jupyter nbextension disable --py luxWidget
+    jupyter nbextension uninstall --py luxwidget
+    jupyter nbextension disable --py luxwidget
 
     pip install lux-api
 
