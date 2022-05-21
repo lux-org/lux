@@ -151,6 +151,16 @@ If the Lux Jupyter widget still does not show up, try the following:
   - If you are able to import lux successfully and you do not see the "Toggle button" when you print the dataframe, it may be possible that Lux is not compatible with your browser. Lux is compatible with Google Chrome, but have not been extensively tested on Safari or Firefox.
   - If you recieve the error message :code:`A Jupyter widget could not be displayed because the widget state could not be found.` This could happen if the kernel storing the widget is no longer available, or if the widget state was not saved in the notebook. You may be able to create the widget by running the particular cell again. If this doesn't work, then you may want try restarting the notebook and rerun the cell.
   - If you receive the error message :code:`ModuleNotFoundError: No module named 'luxwidget'`, it is possible that your luxwidget and lux-api versions are not in sync. The latest version of lux-api requires luxwidget v0.1 or above. Try running the following code:
+  .. code-block:: bash
+  
+    pip uninstall lux-api
+    pip uninstall lux-widget
+    pip uninstall jupyterlab_widgets 
+    pip install lux-api
+    
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager
+    jupyter labextension install luxwidget
+
   - If you receive the error message :code:`PermissionError: [Errno 13] Permission denied.` during the execution of the command :code:`jupyter nbextension install --py luxwidget`, then you can add the flag :code:`--user` (:code:`jupyter nbextension enable --py --user luxwidget`).
   - Alternatively, if none of the above works. You can try creating a fresh virtual environment and follow the `quick install instructions <https://github.com/lux-org/lux#installation>`_.
 
