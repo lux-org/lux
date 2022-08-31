@@ -607,10 +607,12 @@ class LuxDataFrame(frame):
         import ipywidgets as widgets
 
         try:
+            print("just before ipython pandas")
             if self._pandas_only:
                 display(self.display_pandas())
                 self._pandas_only = False
             else:
+                print("in ipython display")
                 if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
                     self.maintain_metadata()
 
@@ -625,7 +627,12 @@ class LuxDataFrame(frame):
                     self._toggle_pandas_display = True
 
                 # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-                self.maintain_recs()
+                if backend.set_back =="holoviews":
+                    graph_all = self.maintain_recs()
+                    print("graphs type", type(graph_all))
+                    return graph_all
+                else:
+                    self.maintain_recs()
 
                 # Observers(callback_function, listen_to_this_variable)
                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")

@@ -14,7 +14,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import lux
-
+from global_backend import backend
+if backend.set_back =="holoviews": import cudf
 
 def convert_to_list(x):
     """
@@ -80,7 +81,10 @@ def check_if_id_like(df, attribute):
     high_cardinality = df.cardinality[attribute] > 500
     attribute_contain_id = re.search(r"id|ID|iD|Id", str(attribute)) is not None
     almost_all_vals_unique = df.cardinality[attribute] >= 0.98 * len(df)
-    is_string = pd.api.types.is_string_dtype(df[attribute])
+    if backend.set_back !="holoviews":   
+        is_string = pd.api.types.is_string_dtype(df[attribute]) 
+    else: 
+        is_string = isinstance(df[attribute],cudf.core.column.string.StringMethods)
     if is_string:
         # For string IDs, usually serial numbers or codes with alphanumerics have a consistent length (eg., CG-39405) with little deviation. For a high cardinality string field but not ID field (like Name or Brand), there is less uniformity across the string lengths.
         if len(df) > 50:
@@ -102,6 +106,8 @@ def check_if_id_like(df, attribute):
         if len(df) >= 2:
             series = df[attribute]
             diff = series.diff()
+            if backend.set_back =="holoviews":
+                diff = diff.to_pandas()
             evenly_spaced = all(diff.iloc[1:] == diff.iloc[1])
         else:
             evenly_spaced = True
