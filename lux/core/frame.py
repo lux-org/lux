@@ -487,8 +487,9 @@ class LuxDataFrame(frame):
                     self._widget = rec_df.render_widget()
         self._recs_fresh = True
         pd.DataFrame(rec_infolist).to_csv("interesting.csv")
-        graphs= plots(rec_df, rec_infolist)
-        return hv.Layout(graphs)
+        if backend.set_back =="holoviews":
+            graphs= plots(rec_df, rec_infolist)
+            return hv.Layout(graphs)
 
     #######################################################
     ############## LuxWidget Result Display ###############

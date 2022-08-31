@@ -306,9 +306,14 @@ def unevenness(vis: Vis, ldf: LuxDataFrame, measure_lst: list, dimension_lst: li
     v = v / v.sum()  # normalize by total to get ratio
     v = v.fillna(0)  # Some bar values may be NaN
     attr = dimension_lst[0].attribute
-    if isinstance(attr, pd._libs.tslibs.timestamps.Timestamp) or isinstance(attr, cudf.core.index.DatetimeIndex):
-        # If timestamp, use the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
-        attr = str(attr._date_repr)
+    # If timestamp, use the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+    if backend.set_back !="holoviews": 
+        if isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
+            attr = str(attr._date_repr)
+    else:
+        if isinstance(attr, cudf.core.index.DatetimeIndex):
+            attr = str(attr._date_repr)
+            
     C = ldf.cardinality[attr]
     D = (0.9) ** C  # cardinality-based discounting factor
     if backend.set_back !="holoviews":

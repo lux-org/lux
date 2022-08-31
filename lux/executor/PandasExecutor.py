@@ -24,8 +24,7 @@ import warnings
 import lux
 from lux.utils.tracing_utils import LuxTracer
 from global_backend import backend
-if backend.set_back =="holoviews": 
-    import cudf
+if backend.set_back =="holoviews": import cudf
 
 class PandasExecutor(Executor):
     """
@@ -488,7 +487,7 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "temporal"
                 elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
                     ldf._data_type[attr] = "temporal"
-                elif isinstance(attr, cudf.core.index.DatetimeIndex):
+                elif backend.set_back =="holoviews" and isinstance(attr, cudf.core.index.DatetimeIndex):
                     ldf._data_type[attr] = "temporal"
                 elif str(attr).lower() in temporal_var_list:
                     ldf._data_type[attr] = "temporal"
@@ -622,12 +621,17 @@ class PandasExecutor(Executor):
         ldf._length = len(ldf)
 
         for attribute in ldf.columns:
-
-            if isinstance(attribute, pd._libs.tslibs.timestamps.Timestamp) or isinstance(attribute, cudf.core.index.DatetimeIndex):
-                # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
-                attribute_repr = str(attribute._date_repr)
+            #If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+            if backend.set_back !="holoviews":
+                if isinstance(attribute, pd._libs.tslibs.timestamps.Timestamp):
+                    attribute_repr = str(attribute._date_repr)
+                else:
+                    attribute_repr = attribute
             else:
-                attribute_repr = attribute
+                if isinstance(attribute, cudf.core.index.DatetimeIndex):
+                    attribute_repr = str(attribute._date_repr)
+                else:
+                    attribute_repr = attribute
             if backend.set_back !="holoviews":
                 ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
             else:
