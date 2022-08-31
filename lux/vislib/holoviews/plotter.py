@@ -30,7 +30,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-
 def plots(df,dat):
     
     state_codes = {

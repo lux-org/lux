@@ -20,8 +20,7 @@ import pandas as pd
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
-from lux.plotting.plotter import plots
-#from lux.vis.VisList import VisList
+from lux.vislib.holoviews.plotter import plots
 import lux.vis.VisList as VT
 from lux.history.history import History
 from lux.utils.date_utils import is_datetime_series
@@ -31,25 +30,11 @@ from lux._config.config import Config
 from typing import Dict, Union, List, Callable
 import lux.executor.PandasExecutor as PE
 import lux.executor.Executor as EX
-#from lux.executor.PandasExecutor2 import PandasExecutor
 import geopandas as gpd
-# #these are added from pandasexecutor
-# from lux.executor.Executor import Executor
-# from lux.utils import utils
-# from lux.utils.date_utils import is_datetime_series, is_timedelta64_series, timedelta64_to_float_seconds
-# from lux.utils.utils import check_import_lux_widget, check_if_id_like, is_numeric_nan_column
-# from lux.utils.tracing_utils import LuxTracer
 
 import holoviews as hv
-# import datetime
 hv.extension('bokeh')
-# import re
 import cudf
-# import time
-# import cupy
-# from holoviews.operation.datashader import datashade, rasterize
-#from . import setOption
-# from lux.executor.Executor import *
 import warnings
 import traceback
 import lux

@@ -13,6 +13,8 @@
 #  limitations under the License.
 
 import pandas as pd
+import cudf
+from global_backend import backend
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
@@ -27,9 +29,14 @@ from typing import Dict, Union, List, Callable
 import warnings
 import traceback
 import lux
+if backend.set_back =="holoviews":
+    from lux.vislib.holoviews.plotter import plots
+    import holoviews as hv
+    hv.extension('bokeh')
 
+frame = pd.DataFrame if backend.set_back !="holoviews" else cudf.DataFrame
 
-class LuxDataFrame(pd.DataFrame):
+class LuxDataFrame(frame):
     """
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
     """
@@ -92,19 +99,34 @@ class LuxDataFrame(pd.DataFrame):
         self._type_override = {}
         warnings.formatwarning = lux.warning_format
 
-    @property
-    def _constructor(self):
-        return LuxDataFrame
+    if backend.set_back !="holoviews":
+        @property
+        def _constructor(self):
+            return LuxDataFrame
 
-    @property
-    def _constructor_sliced(self):
-        def f(*args, **kwargs):
-            s = LuxSeries(*args, **kwargs)
-            for attr in self._metadata:  # propagate metadata
-                s.__dict__[attr] = getattr(self, attr, None)
-            return s
+        @property
+        def _constructor_sliced(self):
+            def f(*args, **kwargs):
+                s = LuxSeries(*args, **kwargs)
+                for attr in self._metadata:  # propagate metadata
+                    s.__dict__[attr] = getattr(self, attr, None)
+                return s
 
-        return f
+            return f
+    else:
+        @property
+        def _constructor2(self):
+            return LuxDataFrame
+
+        @property
+        def _constructor_sliced2(self):
+            def f(*args, **kwargs):
+                s = LuxSeries(*args, **kwargs)
+                for attr in self._metadata:  # propagate metadata
+                    s.__dict__[attr] = getattr(self, attr, None)
+                return s
+
+            return f
 
     @property
     def history(self):
@@ -314,12 +336,19 @@ class LuxDataFrame(pd.DataFrame):
             self.data_type[attr] = types[attr]
 
         self.expire_recs()
+    
+    if backend.set_back !="holoviews":
+        def to_pandas(self):
+            import lux.core
 
-    def to_pandas(self):
-        import lux.core
+            return lux.core.originalDF(self, copy=False)
+    else:
+        def to_cudf(self):
+            import lux.core
 
-        return lux.core.originalDF(self, copy=False)
+            return lux.core.originalDF(self)
 
+    
     @property
     def recommendation(self):
         if self._recommendation is not None and self._recommendation == {}:
@@ -447,14 +476,19 @@ class LuxDataFrame(pd.DataFrame):
                     rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
             rec_df.show_all_column_vis()
-            if lux.config.render_widget:
-                self._widget = rec_df.render_widget()
+            if backend.set_back !="holoviews":
+                if lux.config.render_widget:
+                    self._widget = rec_df.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
             rec_df.show_all_column_vis()
-            if lux.config.render_widget:
-                self._widget = rec_df.render_widget()
+            if backend.set_back !="holoviews":
+                if lux.config.render_widget:
+                    self._widget = rec_df.render_widget()
         self._recs_fresh = True
+        pd.DataFrame(rec_infolist).to_csv("interesting.csv")
+        graphs= plots(rec_df, rec_infolist)
+        return hv.Layout(graphs)
 
     #######################################################
     ############## LuxWidget Result Display ###############

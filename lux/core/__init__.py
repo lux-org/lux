@@ -12,19 +12,32 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+print("core init")
 import pandas as pd
+import cudf
+from global_backend import backend
+if backend.set_back =="holoviews":
+    overrideCudf=True
+else:
+    overrideCudf=False
+    
 from .frame import LuxDataFrame
 from .groupby import LuxDataFrameGroupBy, LuxSeriesGroupBy
 from .series import LuxSeries
 
 global originalDF
 # Keep variable scope of original pandas df
-originalDF = pd.core.frame.DataFrame
-originalSeries = pd.core.series.Series
+originalDF = pd.core.frame.DataFrame if backend.set_back !="holoviews" else cudf.core.dataframe.DataFrame
+originalSeries = pd.core.series.Series if backend.set_back !="holoviews" else cudf.core.series.Series 
 
 
-def setOption(overridePandas=True):
-    if overridePandas:
+def setOption(overridePandas=True,overrideCudf=False):
+    if overrideCudf:
+        cudf.DataFrame = cudf.core.dataframe.DataFrame = LuxDataFrame
+        cudf.Series = cudf.core.series.Series  = LuxSeries
+        cudf.core.groupby.groupby.DataFrameGroupBy = LuxDataFrameGroupBy
+        cudf.core.groupby.groupby.SeriesGroupBy = LuxSeriesGroupBy
+    elif overridePandas:
         pd.DataFrame = (
             pd.io.json._json.DataFrame
         ) = (
@@ -69,5 +82,5 @@ def setOption(overridePandas=True):
         pd.DataFrame = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = originalDF
         pd.Series = originalSeries
 
-
-setOption(overridePandas=True)
+overridePandas=True
+setOption(overridePandas, overrideCudf)

@@ -13,13 +13,20 @@
 #  limitations under the License.
 
 # Register the commonly used modules (similar to how pandas does it: https://github.com/pandas-dev/pandas/blob/master/pandas/__init__.py)
+print("main init start")
+from global_backend import backend
 from lux.vis.Clause import Clause
+# if backend.set_back =="holoviews":
+#     print("cudf")
+#     from lux.core.frame_cudf import LuxDataFrame
+# else:
 from lux.core.frame import LuxDataFrame
 from lux.core.sqltable import LuxSQLTable
 from lux.core.joinedsqltable import JoinedSQLTable
 from lux.utils.tracing_utils import LuxTracer
 from ._version import __version__, version_info
 from lux._config import config
+
 from lux._config.config import warning_format
 from lux.utils.debug_utils import debug_info, check_luxwidget_enabled
 
@@ -31,3 +38,4 @@ from lux.action.default import register_default_actions
 
 register_default_actions()
 check_luxwidget_enabled()
+print("main init end")
