@@ -1,5 +1,6 @@
 import pandas as pd
-import cudf
+from global_backend import backend
+if backend.set_back =="holoviews": import cudf
 frame = pd.core.groupby.groupby.GroupBy if backend.set_back !="holoviews" else cudf.core.groupby.GroupBy
 class LuxGroupBy(frame):
 

@@ -23,9 +23,9 @@ from lux.utils.utils import check_import_lux_widget, check_if_id_like, is_numeri
 import warnings
 import lux
 from lux.utils.tracing_utils import LuxTracer
-import cudf
-
-
+from global_backend import backend
+if backend.set_back =="holoviews": 
+    import cudf
 
 class PandasExecutor(Executor):
     """
@@ -539,7 +539,7 @@ class PandasExecutor(Executor):
                 ldf._data_type[ldf.index.name] = "nominal"
         else:
             if not ldf.index.is_integer() and ldf.index.name:
-            ldf._data_type[ldf.index.name] = "nominal"
+                ldf._data_type[ldf.index.name] = "nominal"
 
         non_datetime_attrs = []
         for attr in ldf.columns:
@@ -638,7 +638,7 @@ class PandasExecutor(Executor):
                     ldf._min_max[attribute_repr] = (ldf[attribute].min(),ldf[attribute].max(),)
             else:
                 if ldf.dtypes[attribute] == 'int64' or ldf.dtypes[attribute] =='float64':
-                ldf._min_max[attribute_repr] = (ldf[attribute].min(),ldf[attribute].max(),)
+                    ldf._min_max[attribute_repr] = (ldf[attribute].min(),ldf[attribute].max(),)
         
         if backend.set_back !="holoviews" and not pd.api.types.is_integer_dtype(ldf.index):
             index_column_name = ldf.index.name

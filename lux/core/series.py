@@ -21,7 +21,8 @@ from lux.history.history import History
 from lux.utils.message import Message
 from lux.vis.VisList import VisList
 from typing import Dict, Union, List, Callable
-import cudf
+from global_backend import backend
+if backend.set_back =="holoviews": import cudf
 series = pd.Series if backend.set_back !="holoviews" else cudf.Series
 
 

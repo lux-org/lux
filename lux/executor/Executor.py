@@ -15,7 +15,7 @@ from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
 from lux.utils import utils
-
+from global_backend import backend
 
 class Executor:
     """

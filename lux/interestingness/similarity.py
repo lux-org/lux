@@ -18,6 +18,7 @@ import math
 import numpy as np
 from lux.vis.VisList import VisList
 from lux.utils.utils import get_filter_specs
+from global_backend import backend
 if backend.set_back =="holoviews": import cudf
 
 def interpolate(vis, length):

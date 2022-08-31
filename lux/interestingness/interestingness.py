@@ -26,7 +26,9 @@ from lux.utils.utils import get_filter_specs
 from lux.interestingness.similarity import preprocess, euclidean_dist
 from lux.vis.VisList import VisList
 import warnings
-import cudf
+from global_backend import backend
+if backend.set_back =="holoviews": 
+    import cudf
 
 
 def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:

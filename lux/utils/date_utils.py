@@ -102,7 +102,7 @@ def date_formatter(time_stamp, ldf):
 
     return date_str
 
-core_series_type = pd.core.series.Series if backend.set_back !="holoviews" else cudf.DatetimeIndex(date_column)
+core_series_type = pd.core.series.Series if backend.set_back !="holoviews" else pd.core.series.Series
 def compute_date_granularity(date_column: core_series_type):
     """
     Given a temporal column (pandas.core.series.Series), finds out the granularity of dates.
