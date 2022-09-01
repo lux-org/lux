@@ -16,10 +16,6 @@
 print("main init start")
 from global_backend import backend
 from lux.vis.Clause import Clause
-# if backend.set_back =="holoviews":
-#     print("cudf")
-#     from lux.core.frame_cudf import LuxDataFrame
-# else:
 from lux.core.frame import LuxDataFrame
 from lux.core.sqltable import LuxSQLTable
 from lux.core.joinedsqltable import JoinedSQLTable

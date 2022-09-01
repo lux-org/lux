@@ -135,6 +135,12 @@ class PandasExecutor(Executor):
             vis._vis_data = vis._vis_data[list(attributes)]
 
             if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
+                if backend.set_back =="holoviews":
+                    dic={}
+                    for col in vis._vis_data.columns:
+                        vals = vis._vis_data[col].unique()
+                        dic[col] = vals.to_arrow().to_pylist()
+                    vis.data.unique_values = dic
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
                 PandasExecutor.execute_binning(ldf, vis)
@@ -219,7 +225,7 @@ class PandasExecutor(Executor):
                 groupby_result = groupby_result.agg(agg_func)
                 intermediate = groupby_result.reset_index()
                 vis._vis_data = intermediate.__finalize__(vis.data)
-            result_vals = list(vis.data[groupby_attr.attribute])
+            result_vals = list(vis.data[groupby_attr.attribute]) if backend.set_back !="holoviews" else list(vis.data[groupby_attr.attribute].values_host)
             # create existing group by attribute combinations if color is specified
             # this is needed to check what combinations of group_by_attr and color_attr values have a non-zero number of elements in them
             if has_color:
@@ -463,18 +469,20 @@ class PandasExecutor(Executor):
     ############ Metadata: data type, model #############
     #######################################################
     def compute_dataset_metadata(self, ldf: LuxDataFrame):
+        print("in compute dataset meta")
         ldf._data_type = {}
         self.compute_data_type(ldf)
 
     def compute_data_type(self, ldf: LuxDataFrame):
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
-
+        print("in compute data type")
         for attr in list(ldf.columns):
             if attr in ldf._type_override:
                 ldf._data_type[attr] = ldf._type_override[attr]
             else:
+                #print("right 1")
                 temporal_var_list = ["month", "year", "day", "date", "time", "weekday"]
-
+                
                 if is_timedelta64_series(ldf[attr]):
                     ldf._data_type[attr] = "quantitative"
                     ldf._min_max[attr] = (
@@ -485,7 +493,8 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "temporal"
                 elif self._is_datetime_string(ldf[attr]):
                     ldf._data_type[attr] = "temporal"
-                elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
+                #print(1)
+                if isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
                     ldf._data_type[attr] = "temporal"
                 elif backend.set_back =="holoviews" and isinstance(attr, cudf.core.index.DatetimeIndex):
                     ldf._data_type[attr] = "temporal"
@@ -495,13 +504,14 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "temporal"
                 elif self._is_geographical_attribute(ldf[attr]):
                     ldf._data_type[attr] = "geographical"
-                elif (backend.set_back !="holoviews" and pd.api.types.is_float_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr] =='float64':
+                #print("fine here 0")
+                if (backend.set_back !="holoviews" and pd.api.types.is_float_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr] =='float64':
                     if ldf.cardinality[attr] != len(ldf) and (ldf.cardinality[attr] < 20):
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
-                
-                elif (backend.set_back !="holoviews" and pd.api.types.is_integer_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr]=='int64':
+                #print("fine here 1")
+                if (backend.set_back !="holoviews" and pd.api.types.is_integer_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr]=='int64':
                     # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                     if ldf.pre_aggregated:
                         if ldf.cardinality[attr] == len(ldf):
@@ -513,7 +523,8 @@ class PandasExecutor(Executor):
                     if check_if_id_like(ldf, attr):
                         ldf._data_type[attr] = "id"
                 # Eliminate this clause because a single NaN value can cause the dtype to be object
-                elif ( backend.set_back !="holoviews" and pd.api.types.is_string_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr]=='string':
+                #print("fine here 2")
+                if ( backend.set_back !="holoviews" and pd.api.types.is_string_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr]=='string':
                     # Check first if it's castable to float after removing NaN
                     is_numeric_nan, series = is_numeric_nan_column(ldf[attr])
                     if is_numeric_nan:
