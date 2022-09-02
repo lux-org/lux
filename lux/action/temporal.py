@@ -19,7 +19,8 @@ import pandas as pd
 from lux.core.frame import LuxDataFrame
 from lux.interestingness.interestingness import interestingness
 from lux.utils import utils
-import cudf
+from global_backend import backend
+if backend.set_back =="holoviews": import cudf
 
 def temporal(ldf):
     """
@@ -137,4 +138,4 @@ def create_temporal_vis(ldf, col):
         vlist.append(month_vis)
     if unique_week_values != 1:
         vlist.append(week_vis)
-    return vlist
+    return vlist 

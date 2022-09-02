@@ -489,12 +489,13 @@ class PandasExecutor(Executor):
                         timedelta64_to_float_seconds(ldf[attr].min()),
                         timedelta64_to_float_seconds(ldf[attr].max()),
                     )
-                elif is_datetime(ldf[attr]):
+                elif backend.set_back !="holoviews" and is_datetime(ldf[attr]):
+                    ldf._data_type[attr] = "temporal"
+                elif backend.set_back =="holoviews" and ldf.dtypes[attr]=='datetime64[ns]':
                     ldf._data_type[attr] = "temporal"
                 elif self._is_datetime_string(ldf[attr]):
                     ldf._data_type[attr] = "temporal"
-                #print(1)
-                if isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
+                elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
                     ldf._data_type[attr] = "temporal"
                 elif backend.set_back =="holoviews" and isinstance(attr, cudf.core.index.DatetimeIndex):
                     ldf._data_type[attr] = "temporal"
@@ -505,13 +506,13 @@ class PandasExecutor(Executor):
                 elif self._is_geographical_attribute(ldf[attr]):
                     ldf._data_type[attr] = "geographical"
                 #print("fine here 0")
-                if (backend.set_back !="holoviews" and pd.api.types.is_float_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr] =='float64':
+                elif (backend.set_back !="holoviews" and pd.api.types.is_float_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr] =='float64':
                     if ldf.cardinality[attr] != len(ldf) and (ldf.cardinality[attr] < 20):
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
                 #print("fine here 1")
-                if (backend.set_back !="holoviews" and pd.api.types.is_integer_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr]=='int64':
+                elif (backend.set_back !="holoviews" and pd.api.types.is_integer_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr]=='int64':
                     # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                     if ldf.pre_aggregated:
                         if ldf.cardinality[attr] == len(ldf):
@@ -524,7 +525,7 @@ class PandasExecutor(Executor):
                         ldf._data_type[attr] = "id"
                 # Eliminate this clause because a single NaN value can cause the dtype to be object
                 #print("fine here 2")
-                if ( backend.set_back !="holoviews" and pd.api.types.is_string_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr]=='string':
+                elif ( backend.set_back !="holoviews" and pd.api.types.is_string_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr]=='string':
                     # Check first if it's castable to float after removing NaN
                     is_numeric_nan, series = is_numeric_nan_column(ldf[attr])
                     if is_numeric_nan:
@@ -553,8 +554,12 @@ class PandasExecutor(Executor):
 
         non_datetime_attrs = []
         for attr in ldf.columns:
-            if ldf._data_type[attr] == "temporal" and not is_datetime(ldf[attr]):
-                non_datetime_attrs.append(attr)
+            if backend.set_back !="holoviews":
+                if ldf._data_type[attr] == "temporal" and not is_datetime(ldf[attr]):
+                    non_datetime_attrs.append(attr)
+            else:
+                if ldf._data_type[attr] == "temporal" and not ldf.dtypes[attr]=='datetime64[ns]':
+                    non_datetime_attrs.append(attr)
         warn_msg = ""
         if len(non_datetime_attrs) == 1:
             warn_msg += f"\nLux detects that the attribute '{non_datetime_attrs[0]}' may be temporal.\n"

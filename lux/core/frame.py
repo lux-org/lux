@@ -13,8 +13,8 @@
 #  limitations under the License.
 
 import pandas as pd
-import cudf
 from global_backend import backend
+if backend.set_back =="holoviews": import cudf
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
@@ -112,7 +112,6 @@ class LuxDataFrame(frame):
         super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.table_name = ""
-        print("frame init",lux.config.SQLconnection)
         if lux.config.SQLconnection == "":
             from lux.executor.PandasExecutor import PandasExecutor
 
@@ -550,6 +549,7 @@ class LuxDataFrame(frame):
         pd.DataFrame(rec_infolist).to_csv("interesting.csv")
         if backend.set_back =="holoviews":
             graphs= plots(rec_df, rec_infolist)
+            print(type(hv.Layout(graphs)))
             return hv.Layout(graphs)
 
     #######################################################
@@ -700,7 +700,7 @@ class LuxDataFrame(frame):
                 print("going to mainitain recs")
                 graph_all = self.maintain_recs()
                 print("graphs type", type(graph_all))
-                return graph_all
+                return hv.Layout(graph_all)
             else:
                 self.maintain_recs()
 
