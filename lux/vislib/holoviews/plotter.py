@@ -156,13 +156,13 @@ def plots(df,dat):
                 x.reset_index(inplace=True)
                 if not flag:
                     if geo in ["states","state","States","State", "STATES", "STATE"]:
-                        geography = gpd.read_file("us-states.json")
+                        geography = gpd.read_file("lux/vislib/holoviews/us-states.json")
                         if isinstance(x[geo].iloc[0],numpy.int64):
                             left_name = "fips_num"
                             geography[left_name] = geography["id"].apply(lambda x: int(state_codes[x]))
                         geography_pop = geography.merge(x.to_pandas(), left_on=left_name, right_on=geo)
                     elif geo in ["Country", "COUNTRY", "country", "COUNTRIES","countries", "Countries"]:
-                        geography = gpd.read_file("countries.geojson")
+                        geography = gpd.read_file("lux/vislib/holoviews/countries.geojson")
                         geography_pop = geography.merge(x.to_pandas(), left_on="ADMIN", right_on=geo)
                     flag =True
                 if geo in ["states","state","States","State", "STATES", "STATE"]:

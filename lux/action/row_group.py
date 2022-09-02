@@ -23,6 +23,7 @@ import pandas as pd
 
 
 def row_group(ldf):
+    print("called row group")
     recommendation = {
         "action": "Row Groups",
         "description": "Shows charts of possible visualizations with respect to the row-wise index.",

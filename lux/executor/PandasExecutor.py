@@ -224,7 +224,10 @@ class PandasExecutor(Executor):
                     groupby_result = vis.data.groupby(groupby_attr.attribute, dropna=False, history=False)
                 groupby_result = groupby_result.agg(agg_func)
                 intermediate = groupby_result.reset_index()
-                vis._vis_data = intermediate.__finalize__(vis.data)
+                if backend.set_back !="holoviews":
+                    vis._vis_data = intermediate.__finalize__(vis.data)
+                else: 
+                    vis._vis_data = intermediate
             result_vals = list(vis.data[groupby_attr.attribute]) if backend.set_back !="holoviews" else list(vis.data[groupby_attr.attribute].values_host)
             # create existing group by attribute combinations if color is specified
             # this is needed to check what combinations of group_by_attr and color_attr values have a non-zero number of elements in them
@@ -293,8 +296,8 @@ class PandasExecutor(Executor):
         None
         """
         import numpy as np
-
-        vis._vis_data = vis._vis_data.replace([np.inf, -np.inf], np.nan)
+        if backend.set_back !="holoviews":
+            vis._vis_data = vis._vis_data.replace([np.inf, -np.inf], np.nan)
 
         bin_attribute = [x for x in vis._inferred_intent if x.bin_size != 0][0]
         bin_attr = bin_attribute.attribute
@@ -329,6 +332,8 @@ class PandasExecutor(Executor):
             bin_start = bin_edges[0:-1]
             binned_result = np.array([bin_start, counts]).T
             vis._vis_data = cudf.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
+            #print("binning complete", vis._vis_data)
+            
 
     @staticmethod
     def execute_filter(vis: Vis) -> bool:
@@ -582,7 +587,7 @@ class PandasExecutor(Executor):
             warn_msg += f"\nIf {attr} is not a temporal attribute, please use override Lux's automatically detected type:"
             warn_msg += f"\n\tdf.set_data_type({{'{attr}':'quantitative'}})"
             warnings.warn(warn_msg, stacklevel=2)
-                
+        print("ldf types here",ldf._data_type)      
     @staticmethod
     def _is_datetime_string(series):
         if series.dtype == object:

@@ -20,9 +20,11 @@ from lux.utils import utils
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 import pandas as pd
-import cudf
+from global_backend import backend
+if backend.set_back =="holoviews": import cudf
 
 def column_group(ldf):
+    print("called column group")
     recommendation = {
         "action": "Column Groups",
         "description": "Shows charts of possible visualizations with respect to the column-wise index.",
