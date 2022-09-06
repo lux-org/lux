@@ -31,11 +31,10 @@ import traceback
 import lux
 if backend.set_back =="holoviews":
     from lux.vislib.holoviews.plotter import plots
-    import holoviews as hv
-    hv.extension('bokeh')
+    # import holoviews as hv
+    # hv.extension('bokeh')
 
 frame = pd.DataFrame if backend.set_back !="holoviews" else cudf.DataFrame
-print("frame is of type", frame)
 
 class LuxDataFrame(frame):
     """
@@ -76,16 +75,6 @@ class LuxDataFrame(frame):
         #super(LuxDataFrame, self).__init__(*args, **kw)
 
         table_name = ""
-        #print("frame init",lux.config.SQLconnection)
-        #if lux.config.SQLconnection == "":
-    #     from lux.executor.PandasExecutor import PandasExecutor
-
-    #     lux.config.executor = PandasExecutor()
-        # else:
-        #     from lux.executor.SQLExecutor import SQLExecutor
-
-            # lux.config.executor = SQLExecutor()
-
         _sampled = None
         _approx_sample = None
         _toggle_pandas_display = True
@@ -178,28 +167,18 @@ class LuxDataFrame(frame):
         """
         Compute dataset metadata and statistics
         """
-        print("inside compute metadata")
-        print("config name",lux.config.executor)
-        print(len(self))
         if len(self) > 0:
             if lux.config.executor.name != "SQLExecutor":
                 lux.config.executor.compute_stats(self)
-            print("before dataset meta")
             lux.config.executor.compute_dataset_metadata(self)
-            print("after dataset meta")
             self._infer_structure()
-            print("after infra")
             self._metadata_fresh = True
 
     def maintain_metadata(self):
         """
         Maintain dataset metadata and statistics (Compute only if needed)
         """
-        print("inside maintain meta")
-        #print(lux.config.executor.name)
-        # if backend.set_back !="holoviews":
         is_sql_tbl = lux.config.executor.name != "PandasExecutor"
-        print("is_sql_tbl",is_sql_tbl)
         if lux.config.SQLconnection != "" and is_sql_tbl:
             from lux.executor.SQLExecutor import SQLExecutor
 
@@ -207,10 +186,8 @@ class LuxDataFrame(frame):
         
         # Check that metadata has not yet been computed
         if lux.config.lazy_maintain:
-            print("inside lazy")
             # Check that metadata has not yet been computed
             if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
-                print("inside lazy condition")
                 # only compute metadata information if the dataframe is non-empty
                 self.compute_metadata()
         else:
@@ -442,7 +419,6 @@ class LuxDataFrame(frame):
                 self.current_vis = VisList([vis])
 
     def maintain_recs(self, is_series="DataFrame"):
-        print("now inside maintain_recs")
         if backend.set_back =="holoviews": 
             from lux.executor.PandasExecutor import PandasExecutor
             lux.config.executor = PandasExecutor()
@@ -456,20 +432,16 @@ class LuxDataFrame(frame):
         if self._prev is not None:
             rec_df = self._prev
             rec_df._message = Message()
-            print("from MR to MD")
             rec_df.maintain_metadata()  # the prev dataframe may not have been printed before
-            print("back to MR")
             last_event = self.history._events[-1].name
             rec_df._message.add(
                 f"Lux is visualizing the previous version of the dataframe before you applied <code>{last_event}</code>."
             )
-            print("end MR condition")
             show_prev = True
         else:
             rec_df = self
             rec_df._message = Message()
         # Add warning message if there exist ID fields
-        print("outside MR conditiom")
         if len(rec_df) == 0:
             rec_df._message.add(f"Lux cannot operate on an empty {is_series}.")
         elif len(rec_df) < 5 and not rec_df.pre_aggregated:
@@ -493,22 +465,17 @@ class LuxDataFrame(frame):
                 rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
 
         rec_df._prev = None  # reset _prev
-        print("befor lazy")
         # If lazy, check that recs has not yet been computed
         lazy_but_not_computed = lux.config.lazy_maintain and (
             not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh
         )
         eager = not lux.config.lazy_maintain
-        print("after eager")
         # Check that recs has not yet been computed
         if lazy_but_not_computed or eager:
-            print("inside super lazy condition")
             is_sql_tbl = lux.config.executor.name == "SQLExecutor"
-            print("past sql")
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
-            #print(column_group-2)
             # TODO: Rewrite these as register action inside default actions
             if rec_df.pre_aggregated:
                 if rec_df.columns.name is not None:
@@ -539,21 +506,18 @@ class LuxDataFrame(frame):
                     self._widget = rec_df.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
-            print("elif super lazy condition")
             rec_df.show_all_column_vis()
             if backend.set_back !="holoviews":
                 if lux.config.render_widget:
                     self._widget = rec_df.render_widget()
         self._recs_fresh = True
-        print("end of maintain_recs")
         if backend.set_back =="holoviews":
             pd.DataFrame(rec_infolist).to_csv("interesting.csv")
         else:
             pd.DataFrame(rec_infolist).to_csv("lux_interesting.csv")
         if backend.set_back =="holoviews":
             graphs= plots(rec_df, rec_infolist)
-            print(type(hv.Layout(graphs)))
-            return hv.Layout(graphs)
+            return graphs
 
     #######################################################
     ############## LuxWidget Result Display ###############
@@ -667,26 +631,21 @@ class LuxDataFrame(frame):
         self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
     def _ipython_display_(self):
-        print("ipython called")
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
         #try:
-        print("just before ipython pandas")
         if backend.set_back !="holoviews" and self._pandas_only:
             display(self.display_pandas())
             self._pandas_only = False
         else:
-            print("in ipython display")
             if backend.set_back =="holoviews": 
                 from lux.executor.PandasExecutor import PandasExecutor
                 lux.config.executor = PandasExecutor()
                 lux.config.SQLconnection = ""
 
             if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-                print("going to metadata")
                 self.maintain_metadata()
-                print("after metadata")
                 if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
                     from lux.processor.Compiler import Compiler
 
@@ -698,11 +657,8 @@ class LuxDataFrame(frame):
                 self._toggle_pandas_display = True
 
             # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-            print("almost to maintain recs")
             if backend.set_back =="holoviews":
-                print("going to mainitain recs")
                 graph_all = self.maintain_recs()
-                print("graphs type", type(graph_all))
                 return hv.Layout(graph_all)
             else:
                 self.maintain_recs()

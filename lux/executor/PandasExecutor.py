@@ -334,7 +334,6 @@ class PandasExecutor(Executor):
             bin_start = bin_edges[0:-1]
             binned_result = np.array([bin_start, counts]).T
             vis._vis_data = cudf.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
-            #print("binning complete", vis._vis_data)
             
 
     @staticmethod
@@ -476,18 +475,15 @@ class PandasExecutor(Executor):
     ############ Metadata: data type, model #############
     #######################################################
     def compute_dataset_metadata(self, ldf: LuxDataFrame):
-        print("in compute dataset meta")
         ldf._data_type = {}
         self.compute_data_type(ldf)
 
     def compute_data_type(self, ldf: LuxDataFrame):
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
-        print("in compute data type")
         for attr in list(ldf.columns):
             if attr in ldf._type_override:
                 ldf._data_type[attr] = ldf._type_override[attr]
             else:
-                #print("right 1")
                 temporal_var_list = ["month", "year", "day", "date", "time", "weekday"]
                 
                 if is_timedelta64_series(ldf[attr]):
@@ -512,13 +508,11 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "temporal"
                 elif self._is_geographical_attribute(ldf[attr]):
                     ldf._data_type[attr] = "geographical"
-                #print("fine here 0")
                 elif (backend.set_back !="holoviews" and pd.api.types.is_float_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr] =='float64':
                     if ldf.cardinality[attr] != len(ldf) and (ldf.cardinality[attr] < 20):
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
-                #print("fine here 1")
                 elif (backend.set_back !="holoviews" and pd.api.types.is_integer_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr]=='int64':
                     # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                     if ldf.pre_aggregated:
@@ -531,7 +525,6 @@ class PandasExecutor(Executor):
                     if check_if_id_like(ldf, attr):
                         ldf._data_type[attr] = "id"
                 # Eliminate this clause because a single NaN value can cause the dtype to be object
-                #print("fine here 2")
                 elif ( backend.set_back !="holoviews" and pd.api.types.is_string_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr]=='string':
                     # Check first if it's castable to float after removing NaN
                     is_numeric_nan, series = is_numeric_nan_column(ldf[attr])
@@ -589,7 +582,6 @@ class PandasExecutor(Executor):
             warn_msg += f"\nIf {attr} is not a temporal attribute, please use override Lux's automatically detected type:"
             warn_msg += f"\n\tdf.set_data_type({{'{attr}':'quantitative'}})"
             warnings.warn(warn_msg, stacklevel=2)
-        print("ldf types here",ldf._data_type)      
     @staticmethod
     def _is_datetime_string(series):
         if series.dtype == object:

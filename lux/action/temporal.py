@@ -129,10 +129,8 @@ def create_temporal_vis(ldf, col):
     unique_month_values = len(month_df[month_col].unique())
     unique_week_values = len(week_df[week_col].unique())
     vlist = []
-    print("year vis", year_vis)
     vlist.append(overall_vis)
     if unique_year_values != 1:
-        print("unique year", unique_year_values)
         vlist.append(year_vis)
     if unique_month_values != 1:
         vlist.append(month_vis)

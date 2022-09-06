@@ -23,7 +23,6 @@ if backend.set_back =="holoviews": import cudf
 
 # change ignore_transpose to false for now.
 def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
-    print("corelation called")
     """
     Generates bivariate visualizations that represent all pairwise relationships in the data.
 

@@ -11,8 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
-print("core init")
 import pandas as pd
 from global_backend import backend
 if backend.set_back =="holoviews":
@@ -30,17 +28,13 @@ global originalDF
 originalDF = pd.core.frame.DataFrame if backend.set_back !="holoviews" else cudf.core.dataframe.DataFrame
 originalSeries = pd.core.series.Series if backend.set_back !="holoviews" else cudf.core.series.Series 
 
-print("ooginl df", originalDF)
-
 def setOption(overridePandas=True,overrideCudf=False):
     if overrideCudf:
-        print("cudf called")
         cudf.DataFrame = cudf.core.dataframe.DataFrame = LuxDataFrame
         cudf.Series = cudf.core.series.Series  = LuxSeries
         cudf.core.groupby.groupby.DataFrameGroupBy = LuxDataFrameGroupBy
         cudf.core.groupby.groupby.SeriesGroupBy = LuxSeriesGroupBy
     elif overridePandas:
-        print("lux overriding pandas")
         pd.DataFrame = (
             pd.io.json._json.DataFrame
         ) = (
@@ -82,7 +76,6 @@ def setOption(overridePandas=True,overrideCudf=False):
         pd.core.groupby.generic.DataFrameGroupBy = LuxDataFrameGroupBy
         pd.core.groupby.generic.SeriesGroupBy = LuxSeriesGroupBy
     else:
-        print("pandas being called")
         pd.DataFrame = pd.io.parsers.DataFrame = pd.core.frame.DataFrame = originalDF
         pd.Series = originalSeries
 

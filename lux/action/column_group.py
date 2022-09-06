@@ -24,7 +24,6 @@ from global_backend import backend
 if backend.set_back =="holoviews": import cudf
 
 def column_group(ldf):
-    print("called column group")
     recommendation = {
         "action": "Column Groups",
         "description": "Shows charts of possible visualizations with respect to the column-wise index.",

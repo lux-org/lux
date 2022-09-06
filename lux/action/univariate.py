@@ -37,7 +37,6 @@ def univariate(ldf, *args):
             object with a collection of visualizations that result from the Distribution action.
     """
     import numpy as np
-    print("in univariate")
     if len(args) == 0:
         data_type_constraint = "quantitative"
     else:
@@ -49,7 +48,6 @@ def univariate(ldf, *args):
         possible_attributes = [
             c for c in ldf.columns if ldf.data_type[c] == "quantitative" and c != "Number of Records"
         ]
-        print("uni",possible_attributes)
         intent = [lux.Clause(possible_attributes)]
         intent.extend(filter_specs)
         examples = ""
@@ -100,5 +98,4 @@ def univariate(ldf, *args):
         vis.score = interestingness(vis, ldf)
     vlist.sort()
     recommendation["collection"] = vlist
-    print("univariate ending", vlist)
     return recommendation

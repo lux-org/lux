@@ -67,11 +67,7 @@ def custom_actions(ldf):
     """
     if len(lux.config.actions) > 0 and (len(ldf) > 0 or lux.config.executor.name != "PandasExecutor"):
         recommendations = []
-        print("inside custom_actions")
-        print("custom ldtype",ldf.dtypes)
         for action_name in lux.config.actions.keys():
-            
-            print("insode custom loop",action_name)
             display_condition = lux.config.actions[action_name].display_condition
             if display_condition is None or (display_condition is not None and display_condition(ldf)):
                 args = lux.config.actions[action_name].args
@@ -79,7 +75,6 @@ def custom_actions(ldf):
                     recommendation = lux.config.actions[action_name].action(ldf, args)
                 else:
                     recommendation = lux.config.actions[action_name].action(ldf)
-                print("\n cus if ", recommendation)
                 recommendations.append(recommendation)
         return recommendations
     else:
