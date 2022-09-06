@@ -13,7 +13,6 @@
 #  limitations under the License.
 
 # Register the commonly used modules (similar to how pandas does it: https://github.com/pandas-dev/pandas/blob/master/pandas/__init__.py)
-print("main init start")
 from global_backend import backend
 from lux.vis.Clause import Clause
 from lux.core.frame import LuxDataFrame
@@ -34,4 +33,3 @@ from lux.action.default import register_default_actions
 
 register_default_actions()
 check_luxwidget_enabled()
-print("main init end")
