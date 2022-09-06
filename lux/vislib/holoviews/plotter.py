@@ -29,7 +29,6 @@ import geopandas as gpd
 import warnings
 warnings.filterwarnings('ignore')
 
-
 def plots(df,dat):
     
     state_codes = {
@@ -46,6 +45,7 @@ def plots(df,dat):
     
     dat=pd.DataFrame(dat)
     df = df.to_cudf()
+    print("df type", type(df))
     adder = False
     flag = False
     left_name="name"
@@ -83,8 +83,11 @@ def plots(df,dat):
                     lis = list(zip(x[ylabel].iloc[:10].values_host, x.iloc[:10, 1].values_host))
                     print("extra inverse bar", time.time()-a)
                 else: lis = list(zip(x[ylabel].values_host, x.iloc[:, 1].values_host))
+                reduced_lis=[]
+                for i in range(len(lis)):
+                    reduced_lis.append((lis[i][0][:15],lis[i][1]))
                 if abs(x.iloc[:, 1].max())>10000: form = '%.1e'
-                curve = hv.Bars(lis).opts(invert_axes=True).opts(axiswise=True, xlabel=ylabel, ylabel =xlabel,xformatter=form, title = graph +" : "+str(grph_num), tools=["hover", ])
+                curve = hv.Bars(reduced_lis).opts(invert_axes=True).opts(axiswise=True, xlabel=ylabel, ylabel =xlabel,xformatter=form, title = graph +" : "+str(grph_num), tools=["hover", ])
                 grph_num+=1
                 if not adder: adder = curve
                 else: adder+=curve
@@ -142,17 +145,12 @@ def plots(df,dat):
                 else: adder+=curve
                 #print("time in scatterplot :", time.time() -starting)
             elif graph =="geographical":
-                print("geo")
+                #print("geo")
                 #starting = time.time()
                 geo = res[2]
                 vals = res[5]
                 #print(geo)
-                x=df.groupby(geo)
-                #print(x)
-                try:
-                    x=x.mean()
-                except:
-                    x=x.agg('mean')
+                x=df.groupby(geo).mean()
                 x.reset_index(inplace=True)
                 if not flag:
                     if geo in ["states","state","States","State", "STATES", "STATE"]:
@@ -161,16 +159,24 @@ def plots(df,dat):
                             left_name = "fips_num"
                             geography[left_name] = geography["id"].apply(lambda x: int(state_codes[x]))
                         geography_pop = geography.merge(x.to_pandas(), left_on=left_name, right_on=geo)
+                        
                     elif geo in ["Country", "COUNTRY", "country", "COUNTRIES","countries", "Countries"]:
                         geography = gpd.read_file("lux/vislib/holoviews/countries.geojson")
                         geography_pop = geography.merge(x.to_pandas(), left_on="ADMIN", right_on=geo)
+                        # geography_pop=geography_pop.drop(['ADMIN', "ISO_A3"], axis=1)
+                        # geography_pop =  geography_pop.reset_index()
+                        # geography_pop['index'] = geography_pop['index'].astype('float64')
+                        # print(geography_pop.dtypes)
+                        # print(geography_pop)
                     flag =True
                 if geo in ["states","state","States","State", "STATES", "STATE"]:
-                    curve = rasterize(hv.Polygons(data=geography_pop, vdims=[vals, geo])).opts(axiswise=True, xlim=(-170, -60), ylim=(10,75),  height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#, colorbar=True, colorbar_position="right"
+                    
+                    curve = rasterize(hv.Polygons(data=geography_pop, vdims=[vals])).opts(axiswise=True, xlim=(-170, -60), ylim=(10,75),  height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#, colorbar=True, colorbar_position="right" #geo
                 elif geo in ["Country", "COUNTRY", "country", "COUNTRIES","countries", "Countries"]:
+                    
                     curve =  rasterize(hv.Polygons(data=geography_pop, vdims=[vals, geo]).opts(colorbar=True, colorbar_position="right")).opts(axiswise=True, height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#, colorbar=True, colorbar_position="right"
                 grph_num+=1
                 if adder==False: adder = curve
                 else: adder+=curve
-                #print("time in choropleth :", time.time() -starting)
+                print("time in choropleth :", time.time() -starting)
     return adder

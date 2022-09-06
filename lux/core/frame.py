@@ -546,7 +546,10 @@ class LuxDataFrame(frame):
                     self._widget = rec_df.render_widget()
         self._recs_fresh = True
         print("end of maintain_recs")
-        pd.DataFrame(rec_infolist).to_csv("interesting.csv")
+        if backend.set_back =="holoviews":
+            pd.DataFrame(rec_infolist).to_csv("interesting.csv")
+        else:
+            pd.DataFrame(rec_infolist).to_csv("lux_interesting.csv")
         if backend.set_back =="holoviews":
             graphs= plots(rec_df, rec_infolist)
             print(type(hv.Layout(graphs)))

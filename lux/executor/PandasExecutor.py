@@ -146,11 +146,13 @@ class PandasExecutor(Executor):
                 PandasExecutor.execute_binning(ldf, vis)
             elif vis.mark == "heatmap":
                 # Early pruning based on interestingness of scatterplots
-                if approx:
-                    vis._mark = "scatter"
-                else:
-                    vis._mark = "heatmap"
-                    PandasExecutor.execute_2D_binning(vis)
+                if backend.set_back !="holoviews":
+                    if approx:
+                        vis._mark = "scatter"
+                    else:
+                        vis._mark = "heatmap"
+                        PandasExecutor.execute_2D_binning(vis)
+                else: vis._mark = "scatter"
             # Ensure that intent is not propogated to the vis data (bypass intent setter, since trigger vis.data metadata recompute)
             vis.data._intent = []
 

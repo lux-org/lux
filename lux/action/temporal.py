@@ -89,24 +89,23 @@ def create_temporal_vis(ldf, col):
     """
     if backend.set_back !="holoviews":
         formatted_date = pd.to_datetime(ldf[col], format="%Y-%m-%d")
-        date_time_format = pd.to_datetime(formatted_date.dt.year, format="%Y")
+        year_type = pd.to_datetime(formatted_date.dt.year, format="%Y")
         day_type = formatted_date.dt.day
         month_type = formatted_date.dt.month
         dow_type = formatted_date.dt.dayofweek
     else:
         formatted_date = cudf.to_datetime(ldf[col])
-        date_time_format = cudf.to_datetime(formatted_date.year)
+        year_type = cudf.to_datetime(formatted_date.year)
         day_type = formatted_date.day
         month_type = formatted_date.month
         dow_type = formatted_date.dayofweek
-
+    
     overall_vis = Vis([lux.Clause(col, data_type="temporal")], source=ldf, score=5)
 
     year_col = col + " (year)"
      
-    year_df = LuxDataFrame({year_col: date_time_format})
+    year_df = LuxDataFrame({year_col: year_type})
     year_vis = Vis([lux.Clause(year_col, data_type="temporal")], source=year_df, score=4)
-
     month_col = col + " (month)"
     month_df = LuxDataFrame({month_col: month_type})
     month_vis = Vis(
@@ -130,9 +129,10 @@ def create_temporal_vis(ldf, col):
     unique_month_values = len(month_df[month_col].unique())
     unique_week_values = len(week_df[week_col].unique())
     vlist = []
-
+    print("year vis", year_vis)
     vlist.append(overall_vis)
     if unique_year_values != 1:
+        print("unique year", unique_year_values)
         vlist.append(year_vis)
     if unique_month_values != 1:
         vlist.append(month_vis)
