@@ -14,7 +14,9 @@
 
 import pandas as pd
 from global_backend import backend
-if backend.set_back =="holoviews": import cudf
+if backend.set_back =="holoviews": 
+    import cudf
+    from lux.vislib.holoviews.plotter import plots
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
@@ -24,15 +26,12 @@ from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
+import time
 
 # from lux.executor.Executor import *
 import warnings
 import traceback
 import lux
-if backend.set_back =="holoviews":
-    from lux.vislib.holoviews.plotter import plots
-    # import holoviews as hv
-    # hv.extension('bokeh')
 
 frame = pd.DataFrame if backend.set_back !="holoviews" else cudf.DataFrame
 
@@ -419,6 +418,7 @@ class LuxDataFrame(frame):
                 self.current_vis = VisList([vis])
 
     def maintain_recs(self, is_series="DataFrame"):
+        beta = time.time()
         if backend.set_back =="holoviews": 
             from lux.executor.PandasExecutor import PandasExecutor
             lux.config.executor = PandasExecutor()
@@ -441,6 +441,7 @@ class LuxDataFrame(frame):
         else:
             rec_df = self
             rec_df._message = Message()
+
         # Add warning message if there exist ID fields
         if len(rec_df) == 0:
             rec_df._message.add(f"Lux cannot operate on an empty {is_series}.")
@@ -463,35 +464,41 @@ class LuxDataFrame(frame):
                     id_fields_str += f"<code>{id_field}</code>, "
                 id_fields_str = id_fields_str[:-2]
                 rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
-
+       
         rec_df._prev = None  # reset _prev
         # If lazy, check that recs has not yet been computed
         lazy_but_not_computed = lux.config.lazy_maintain and (
             not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh
         )
         eager = not lux.config.lazy_maintain
+       
         # Check that recs has not yet been computed
         if lazy_but_not_computed or eager:
             is_sql_tbl = lux.config.executor.name == "SQLExecutor"
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
+            
+            
             # TODO: Rewrite these as register action inside default actions
             if rec_df.pre_aggregated:
                 if rec_df.columns.name is not None:
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
+                
             elif not (len(rec_df) < 5 and not rec_df.pre_aggregated and not is_sql_tbl) and not (
                 self.index.nlevels >= 2 or self.columns.nlevels >= 2
             ):
                 from lux.action.custom import custom_actions
-
+            
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
+              
                 for rec in custom_action_collection:
                     rec_df._append_rec(rec_infolist, rec)
+               
                 lux.config.update_actions["flag"] = False
-
+             
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
             for rec_info in rec_infolist:
@@ -511,10 +518,11 @@ class LuxDataFrame(frame):
                 if lux.config.render_widget:
                     self._widget = rec_df.render_widget()
         self._recs_fresh = True
-        if backend.set_back =="holoviews":
-            pd.DataFrame(rec_infolist).to_csv("interesting.csv")
-        else:
-            pd.DataFrame(rec_infolist).to_csv("lux_interesting.csv")
+        # print("interesting time", time.time() - beta)
+        # if backend.set_back =="holoviews":
+        #     pd.DataFrame(rec_infolist).to_csv("interesting.csv")
+        # else:
+        #     pd.DataFrame(rec_infolist).to_csv("lux_interesting.csv")
         if backend.set_back =="holoviews":
             graphs= plots(rec_df, rec_infolist)
             return graphs
@@ -659,7 +667,7 @@ class LuxDataFrame(frame):
             # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
             if backend.set_back =="holoviews":
                 graph_all = self.maintain_recs()
-                return hv.Layout(graph_all)
+                return graph_all
             else:
                 self.maintain_recs()
 

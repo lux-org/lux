@@ -42,11 +42,15 @@ def temporal(ldf):
     }
     for c in ldf.columns:
         if ldf.data_type[c] == "temporal":
-            try:
+            if backend.set_back !="holoviews":
+                try:
+                    generated_vis = create_temporal_vis(ldf, c)
+                    vlist.extend(generated_vis)
+                except:
+                    pass
+            else: 
                 generated_vis = create_temporal_vis(ldf, c)
                 vlist.extend(generated_vis)
-            except:
-                pass
 
     # If no temporal visualizations were generated via parsing datetime, fallback to default behavior.
     if len(vlist) == 0:
@@ -69,7 +73,6 @@ def temporal(ldf):
     vlist.sort()
     recommendation["collection"] = vlist
     return recommendation
-
 
 def create_temporal_vis(ldf, col):
     """
@@ -99,37 +102,39 @@ def create_temporal_vis(ldf, col):
         day_type = formatted_date.day
         month_type = formatted_date.month
         dow_type = formatted_date.dayofweek
-    
+        
     overall_vis = Vis([lux.Clause(col, data_type="temporal")], source=ldf, score=5)
-
     year_col = col + " (year)"
      
     year_df = LuxDataFrame({year_col: year_type})
+   
     year_vis = Vis([lux.Clause(year_col, data_type="temporal")], source=year_df, score=4)
+  
     month_col = col + " (month)"
     month_df = LuxDataFrame({month_col: month_type})
     month_vis = Vis(
         [lux.Clause(month_col, data_type="temporal", timescale="month")], source=month_df, score=3
     )
-
+    
     day_col = col + " (day)"
     day_df = LuxDataFrame({day_col: day_type})
     day_df.set_data_type(
         {day_col: "nominal"}
     )  # Since day is high cardinality 1-31, it can get recognized as quantitative
     day_vis = Vis([lux.Clause(day_col, data_type="temporal", timescale="day")], source=day_df, score=2)
-
+    
     week_col = col + " (day of week)"
     week_df = lux.LuxDataFrame({week_col: dow_type})
     week_vis = Vis(
         [lux.Clause(week_col, data_type="temporal", timescale="day of week")], source=week_df, score=1
     )
-
+    
     unique_year_values = len(year_df[year_col].unique())
     unique_month_values = len(month_df[month_col].unique())
     unique_week_values = len(week_df[week_col].unique())
     vlist = []
     vlist.append(overall_vis)
+    
     if unique_year_values != 1:
         vlist.append(year_vis)
     if unique_month_values != 1:
@@ -137,3 +142,4 @@ def create_temporal_vis(ldf, col):
     if unique_week_values != 1:
         vlist.append(week_vis)
     return vlist 
+

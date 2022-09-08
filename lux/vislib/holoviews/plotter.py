@@ -83,17 +83,17 @@ def plots(df,dat):
                     #print("extra inverse bar", time.time()-a)
                 else: lis = list(zip(x[ylabel].values_host, x.iloc[:, 1].values_host))
                 reduced_lis=[]
-                # for i in range(len(lis)):
-                #     print(lis[i][0])
-                #     if (lis[i][0].isalpha() and len(lis[i][0])>15):
-                #         reduced_lis.append((lis[i][0][:15],lis[i][1]))
+                for i in range(len(lis)):
+                    if (isinstance(lis[i][0],str) and len(lis[i][0])>15):
+                        reduced_lis.append((lis[i][0][:15],lis[i][1]))
+                    else: reduced_lis.append((lis[i][0],lis[i][1]))
                 if abs(x.iloc[:, 1].max())>10000: form = '%.1e'
-                curve = hv.Bars(lis).opts(invert_axes=True).opts(axiswise=True, xlabel=ylabel, ylabel =xlabel,xformatter=form, title = graph +" : "+str(grph_num), tools=["hover", ])
+                curve = hv.Bars(reduced_lis).opts(invert_axes=True).opts(axiswise=True, xlabel=ylabel, ylabel =xlabel,xformatter=form, title = graph +" : "+str(grph_num), tools=["hover", ])
                 grph_num+=1
                 if not adder: adder = curve
                 else: adder+=curve
+                #print("time in inverted bar :", time.time() -starting)
             elif graph =="line":
-                #print("line")
                 #starting = time.time()
                 xlabel = res[2]
                 factor = re.search(xlabel + '(.*)y', "".join(res)).group(1)
@@ -112,11 +112,12 @@ def plots(df,dat):
                     x["count"] = x['date']
                 else:
                     x = df.rename(columns={xlabel: "date"})
-                    cols = df.columns
+                    cols = x.columns
                     for c in cols: 
                         if c!='date':
                             extra_name=c
                             break
+                    
                     x = x[['date',extra_name]]
                     x = x.rename(columns={extra_name: "count"})
 
@@ -146,40 +147,6 @@ def plots(df,dat):
                 else: adder+=curve
                 #print("time in scatterplot :", time.time() -starting)
             elif graph =="geographical":
-#                 #print("geo")
-#                 #starting = time.time()
-#                 geo = res[2]
-#                 vals = res[5]
-#                 #print(geo)
-#                 x=df.groupby(geo).mean()
-#                 x.reset_index(inplace=True)
-#                 if not flag:
-#                     if geo in ["states","state","States","State", "STATES", "STATE"]:
-#                         geography = gpd.read_file("lux/vislib/holoviews/us-states.json")
-#                         if isinstance(x[geo].iloc[0],numpy.int64):
-#                             left_name = "fips_num"
-#                             geography[left_name] = geography["id"].apply(lambda x: int(state_codes[x]))
-#                         geography_pop = geography.merge(x.to_pandas(), left_on=left_name, right_on=geo)
-                        
-#                     elif geo in ["Country", "COUNTRY", "country", "COUNTRIES","countries", "Countries"]:
-#                         geography = gpd.read_file("lux/vislib/holoviews/countries.geojson")
-#                         geography_pop = geography.merge(x.to_pandas(), left_on="ADMIN", right_on=geo)
-#                         # geography_pop=geography_pop.drop(['ADMIN', "ISO_A3"], axis=1)
-#                         # geography_pop =  geography_pop.reset_index()
-#                         # geography_pop['index'] = geography_pop['index'].astype('float64')
-#                         # print(geography_pop.dtypes)
-#                         # print(geography_pop)
-#                     flag =True
-#                 if geo in ["states","state","States","State", "STATES", "STATE"]:
-                    
-#                     curve = rasterize(hv.Polygons(data=geography_pop, vdims=[vals])).opts(axiswise=True, xlim=(-170, -60), ylim=(10,75),  height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#, colorbar=True, colorbar_position="right" #geo
-#                 elif geo in ["Country", "COUNTRY", "country", "COUNTRIES","countries", "Countries"]:
-                    
-#                     curve =  rasterize(hv.Polygons(data=geography_pop, vdims=[vals, geo]).opts(colorbar=True, colorbar_position="right")).opts(axiswise=True, height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#, colorbar=True, colorbar_position="right"
-#                 grph_num+=1
-#                 if adder==False: adder = curve
-#                 else: adder+=curve
-#                 print("time in choropleth :", time.time() -starting)
                 geo = res[2]
                 vals = res[5]
                 #print("geo", (df.groupby(geo)))
@@ -197,7 +164,7 @@ def plots(df,dat):
                         geography_pop = geography.merge(x.to_pandas(), left_on="ADMIN", right_on=geo)
                     flag =True
                 if geo in ["states","state","States","State", "STATES", "STATE"]:
-                    curve = hv.Polygons(data=geography_pop, vdims=[vals, geo]).opts(axiswise=True, xlim=(-170, -60), ylim=(10,75),  height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#, colorbar=True, colorbar_position="right"
+                    curve = hv.Polygons(data=geography_pop, vdims=[vals, geo]).opts(colorbar=True, colorbar_position="right", axiswise=True, xlim=(-170, -60), ylim=(10,75),  height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#, 
                 elif geo in ["Country", "COUNTRY", "country", "COUNTRIES","countries", "Countries"]:
                     curve =  hv.Polygons(geography_pop, vdims=[vals, geo]).opts(colorbar=True, colorbar_position="right",axiswise=True, height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#rasterize(hv.Polygons(data=data2, vdims=[vals, geo]).opts(colorbar=True, colorbar_position="right")).opts(axiswise=True, height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#, colorbar=True, colorbar_position="right"
                 grph_num+=1

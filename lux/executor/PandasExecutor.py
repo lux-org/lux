@@ -124,6 +124,7 @@ class PandasExecutor(Executor):
                 vis._original_df = vis._vis_data
                 PandasExecutor.execute_approx_sample(ldf)
                 vis._vis_data = ldf._approx_sample
+                dic={}
                 vis.approx = True
             filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
