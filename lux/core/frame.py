@@ -12,10 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+#  SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
 import pandas as pd
 from global_backend import backend
 if backend.set_back =="holoviews": 
     import cudf
+    # plots will plot the curves using holoviews and will not generate JSON 
     from lux.vislib.holoviews.plotter import plots
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause

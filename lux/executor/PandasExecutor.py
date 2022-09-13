@@ -12,6 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+#  SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
 import pandas as pd
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
@@ -137,6 +139,7 @@ class PandasExecutor(Executor):
 
             if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
                 if backend.set_back =="holoviews":
+                    #generate unique values when using cuDF
                     dic={}
                     for col in vis._vis_data.columns:
                         vals = vis._vis_data[col].unique()
@@ -153,7 +156,9 @@ class PandasExecutor(Executor):
                     else:
                         vis._mark = "heatmap"
                         PandasExecutor.execute_2D_binning(vis)
-                else: vis._mark = "scatter"
+                else: 
+                    #no need to generate heatmaps when using cuDf and holoviews as its computationally efficient
+                    vis._mark = "scatter"
             # Ensure that intent is not propogated to the vis data (bypass intent setter, since trigger vis.data metadata recompute)
             vis.data._intent = []
 

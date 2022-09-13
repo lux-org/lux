@@ -42,8 +42,9 @@ def plots(df,dat):
     'MN': '27', 'MI': '26', 'RI': '44', 'KS': '20', 'MT': '30', 'MS': '28',
     'SC': '45', 'KY': '21', 'OR': '41', 'SD': '46'
 }
-    
+    #the interesting values that are going to be used to plot the curves
     dat=pd.DataFrame(dat)
+    #we want to use original cuDF not the LuxDataFrame
     df = df.to_cudf()
     adder = False
     flag = False
@@ -56,7 +57,6 @@ def plots(df,dat):
             graph = res[-4]
             form = ""
             if graph =="histogram":
-                #print("histogram")
                 #starting = time.time()
                 xlabel = res[3]
                 ylabel = res[6]
@@ -76,17 +76,17 @@ def plots(df,dat):
                 ylabel = res[5]
                 x=df.groupby(ylabel).count()
                 x.reset_index(inplace=True)
+                #when the number of bars>10, we take the top 10 bars which have the highest frequency 
                 if x[ylabel].shape[0]>10: 
-                    a=time.time()
                     x=x.sort_values(x.columns[1],ascending=False)
                     lis = list(zip(x[ylabel].iloc[:10].values_host, x.iloc[:10, 1].values_host))
-                    #print("extra inverse bar", time.time()-a)
                 else: lis = list(zip(x[ylabel].values_host, x.iloc[:, 1].values_host))
                 reduced_lis=[]
                 for i in range(len(lis)):
                     if (isinstance(lis[i][0],str) and len(lis[i][0])>15):
                         reduced_lis.append((lis[i][0][:15],lis[i][1]))
                     else: reduced_lis.append((lis[i][0],lis[i][1]))
+                #change the format of the axis to display exponential values with one decimal point precision
                 if abs(x.iloc[:, 1].max())>10000: form = '%.1e'
                 curve = hv.Bars(reduced_lis).opts(invert_axes=True).opts(axiswise=True, xlabel=ylabel, ylabel =xlabel,xformatter=form, title = graph +" : "+str(grph_num), tools=["hover", ])
                 grph_num+=1
@@ -133,7 +133,6 @@ def plots(df,dat):
                 else: adder+=curve
                 #print("time in linecurve :", time.time() -starting)
             elif graph == "scatter":
-                #print("scatter")
                 #starting = time.time()
                 xlabel = res[2]
                 ylabel = res[4]
@@ -147,9 +146,9 @@ def plots(df,dat):
                 else: adder+=curve
                 #print("time in scatterplot :", time.time() -starting)
             elif graph =="geographical":
+                #starting = time.time()
                 geo = res[2]
                 vals = res[5]
-                #print("geo", (df.groupby(geo)))
                 x=df.groupby(geo).mean()
                 x.reset_index(inplace=True)
                 if not flag:
