@@ -1,5 +1,5 @@
 autopep8==1.7.0
-cudf==22.10.0a0+195.ga444c1762a
+cudf
 cupy==10.6.0
 geopandas==0.11.1
 ipython==8.5.0
@@ -7,7 +7,7 @@ ipywidgets==7.6.5
 iso3166==2.1.1
 jupyter_packaging==0.12.3
 numpy==1.22.0
-pandas==1.4.4
+pandas
 psutil==5.9.0
 psycopg2==2.9.3
 pytest==7.1.3
