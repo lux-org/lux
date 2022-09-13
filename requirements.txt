@@ -1,6 +1,6 @@
 autopep8==1.7.0
 cudf
-cupy==10.6.0
+cupy
 geopandas==0.11.1
 ipython==8.5.0
 ipywidgets==7.6.5
