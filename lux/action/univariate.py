@@ -16,7 +16,8 @@ from lux.interestingness.interestingness import interestingness
 from lux.vis.VisList import VisList
 import lux
 from lux.utils import utils
-
+from global_backend import backend
+#if backend.set_back =="holoviews": import cudf
 
 def univariate(ldf, *args):
     """
@@ -36,7 +37,6 @@ def univariate(ldf, *args):
             object with a collection of visualizations that result from the Distribution action.
     """
     import numpy as np
-
     if len(args) == 0:
         data_type_constraint = "quantitative"
     else:
@@ -61,6 +61,7 @@ def univariate(ldf, *args):
         # Doesn't make sense to generate a histogram if there is less than 5 datapoints (pre-aggregated)
         if len(ldf) < 5:
             ignore_rec_flag = True
+            
     elif data_type_constraint == "nominal":
         possible_attributes = [
             c for c in ldf.columns if ldf.data_type[c] == "nominal" and c != "Number of Records"

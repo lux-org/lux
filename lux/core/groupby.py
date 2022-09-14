@@ -1,7 +1,8 @@
 import pandas as pd
-
-
-class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
+from global_backend import backend
+if backend.set_back =="holoviews": import cudf
+frame = pd.core.groupby.groupby.GroupBy if backend.set_back !="holoviews" else cudf.core.groupby.GroupBy
+class LuxGroupBy(frame):
 
     _metadata = [
         "_intent",
@@ -82,11 +83,18 @@ class LuxGroupBy(pd.core.groupby.groupby.GroupBy):
     agg = aggregate
 
 
-class LuxDataFrameGroupBy(LuxGroupBy, pd.core.groupby.generic.DataFrameGroupBy):
+if backend.set_back !="holoviews":
+    df_frame = pd.core.groupby.generic.DataFrameGroupBy
+    series_frame = pd.core.groupby.generic.SeriesGroupBy
+else:
+    df_frame = cudf.core.groupby.groupby.DataFrameGroupBy
+    series_frame = cudf.core.groupby.groupby.SeriesGroupBy
+    
+class LuxDataFrameGroupBy(LuxGroupBy, df_frame):
     def __init__(self, *args, **kwargs):
         super(LuxDataFrameGroupBy, self).__init__(*args, **kwargs)
 
 
-class LuxSeriesGroupBy(LuxGroupBy, pd.core.groupby.generic.SeriesGroupBy):
+class LuxSeriesGroupBy(LuxGroupBy, series_frame):
     def __init__(self, *args, **kwargs):
         super(LuxSeriesGroupBy, self).__init__(*args, **kwargs)

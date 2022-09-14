@@ -12,6 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+#  SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
 import lux
 from lux.interestingness.interestingness import interestingness
 from lux.processor.Compiler import Compiler
@@ -20,7 +22,8 @@ from lux.utils import utils
 from lux.vis.Vis import Vis
 from lux.vis.VisList import VisList
 import pandas as pd
-
+from global_backend import backend
+if backend.set_back =="holoviews": import cudf
 
 def column_group(ldf):
     recommendation = {
@@ -34,7 +37,12 @@ def column_group(ldf):
     }
     collection = []
     ldf_flat = ldf
-    if isinstance(ldf.columns, pd.DatetimeIndex):
+    if backend.set_back !="holoviews":
+        date_ind = pd.DatetimeIndex
+    else:
+        date_ind = cudf.DatetimeIndex
+        
+    if isinstance(ldf.columns, date_ind):
         ldf_flat.columns = ldf_flat.columns.format()
 
     # use a single shared ldf_flat so that metadata doesn't need to be computed for every vis
@@ -44,7 +52,7 @@ def column_group(ldf):
             index_column_name = ldf.index.name
         else:
             index_column_name = "index"
-        if isinstance(ldf.columns, pd.DatetimeIndex):
+        if isinstance(ldf.columns, date_ind):
             ldf.columns = ldf.columns.to_native_types()
         for attribute in ldf.columns:
             if ldf[attribute].dtype != "object" and (attribute != "index"):

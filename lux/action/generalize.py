@@ -35,7 +35,7 @@ def generalize(ldf):
     """
     # takes in a dataObject and generates a list of new dataObjects, each with a single measure from the original object removed
     # -->  return list of dataObjects with corresponding interestingness scores
-
+    
     output = []
     excluded_columns = []
     attributes = list(filter(lambda x: x.value == "" and x.attribute != "Record", ldf._intent))

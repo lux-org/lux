@@ -12,17 +12,24 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+#  SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
 import re
 from typing import Any
-
+from global_backend import backend
 import lux
 import pandas as pd
 import numpy as np
+if backend.set_back =="holoviews": 
+    import cudf
+    series_type = cudf.Series
+else:
+    series_type = pd.Series
 
 timedelta_re = re.compile(r"^timedelta64\[\w+\]$")
 
 
-def is_timedelta64_series(series: pd.Series) -> bool:
+def is_timedelta64_series(series: series_type) -> bool:
     """
     Check if the Series object is of timedelta64 type
 
@@ -34,10 +41,10 @@ def is_timedelta64_series(series: pd.Series) -> bool:
     -------
     is_date: bool
     """
-    return pd.api.types.is_timedelta64_dtype(series)
+    return pd.api.types.is_timedelta64_dtype(series) if backend.set_back !="holoviews" else series.dtype=='timedelta[ns]'
 
 
-def timedelta64_to_float_seconds(series: pd.Series) -> pd.Series:
+def timedelta64_to_float_seconds(series: series_type) -> series_type:
     """
     Convert a timedelta64 Series to a float Series in seconds
 
@@ -78,7 +85,7 @@ def date_formatter(time_stamp, ldf):
 
     inverted_data_type = lux.config.executor.invert_data_type(ldf.data_type)
     # TODO: method for data_type_lookup to data_type
-    datetime = pd.to_datetime(time_stamp)
+    datetime = pd.to_datetime(time_stamp) if backend.set_back !="holoviews" else cudf.to_datetime(time_stamp)
     if inverted_data_type["temporal"]:
         # assumes only one temporal column, may need to change this function to recieve multiple temporal columns in the future
         date_column = ldf[inverted_data_type["temporal"][0]]
@@ -97,8 +104,8 @@ def date_formatter(time_stamp, ldf):
 
     return date_str
 
-
-def compute_date_granularity(date_column: pd.core.series.Series):
+core_series_type = pd.core.series.Series if backend.set_back !="holoviews" else pd.core.series.Series
+def compute_date_granularity(date_column: core_series_type):
     """
     Given a temporal column (pandas.core.series.Series), finds out the granularity of dates.
 
@@ -121,7 +128,7 @@ def compute_date_granularity(date_column: pd.core.series.Series):
     # supporting a limited set of Vega-Lite TimeUnit (https://vega.github.io/vega-lite/docs/timeunit.html)
     # corresponding to Pandas timescales
     date_fields = ["day", "month", "year", "dayofweek"]
-    date_index = pd.DatetimeIndex(date_column)
+    date_index = pd.DatetimeIndex(date_column) if backend.set_back !="holoviews" else cudf.DatetimeIndex(date_column)
     for field in date_fields:
         # can be changed to sum(getattr(date_index, field)) != 0
         if hasattr(date_index, field) and len(getattr(date_index, field).unique()) != 1:
@@ -129,7 +136,7 @@ def compute_date_granularity(date_column: pd.core.series.Series):
     return "year"  # if none, then return year by default
 
 
-def is_datetime_series(series: pd.Series) -> bool:
+def is_datetime_series(series: series_type) -> bool:
 
     """
     Check if the Series object is of datetime type
@@ -142,7 +149,10 @@ def is_datetime_series(series: pd.Series) -> bool:
     -------
     is_date: bool
     """
-    return pd.api.types.is_datetime64_any_dtype(series) or pd.api.types.is_period_dtype(series)
+    if backend.set_back !="holoviews":
+        return pd.api.types.is_datetime64_any_dtype(series) or pd.api.types.is_period_dtype(series)
+    else:
+        return isinstance(series, cudf.DatetimeIndex)
 
 
 def is_datetime_string(string: str) -> bool:

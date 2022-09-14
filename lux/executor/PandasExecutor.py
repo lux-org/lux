@@ -12,6 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+#  SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
 import pandas as pd
 from lux.vis.VisList import VisList
 from lux.vis.Vis import Vis
@@ -23,8 +25,8 @@ from lux.utils.utils import check_import_lux_widget, check_if_id_like, is_numeri
 import warnings
 import lux
 from lux.utils.tracing_utils import LuxTracer
-
-
+from global_backend import backend
+if backend.set_back =="holoviews": import cudf
 
 class PandasExecutor(Executor):
     """
@@ -124,6 +126,7 @@ class PandasExecutor(Executor):
                 vis._original_df = vis._vis_data
                 PandasExecutor.execute_approx_sample(ldf)
                 vis._vis_data = ldf._approx_sample
+                dic={}
                 vis.approx = True
             filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
@@ -135,16 +138,27 @@ class PandasExecutor(Executor):
             vis._vis_data = vis._vis_data[list(attributes)]
 
             if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
+                if backend.set_back =="holoviews":
+                    #generate unique values when using cuDF
+                    dic={}
+                    for col in vis._vis_data.columns:
+                        vals = vis._vis_data[col].unique()
+                        dic[col] = vals.to_arrow().to_pylist()
+                    vis.data.unique_values = dic
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
                 PandasExecutor.execute_binning(ldf, vis)
             elif vis.mark == "heatmap":
                 # Early pruning based on interestingness of scatterplots
-                if approx:
+                if backend.set_back !="holoviews":
+                    if approx:
+                        vis._mark = "scatter"
+                    else:
+                        vis._mark = "heatmap"
+                        PandasExecutor.execute_2D_binning(vis)
+                else: 
+                    #no need to generate heatmaps when using cuDf and holoviews as its computationally efficient
                     vis._mark = "scatter"
-                else:
-                    vis._mark = "heatmap"
-                    PandasExecutor.execute_2D_binning(vis)
             # Ensure that intent is not propogated to the vis data (bypass intent setter, since trigger vis.data metadata recompute)
             vis.data._intent = []
 
@@ -218,8 +232,11 @@ class PandasExecutor(Executor):
                     groupby_result = vis.data.groupby(groupby_attr.attribute, dropna=False, history=False)
                 groupby_result = groupby_result.agg(agg_func)
                 intermediate = groupby_result.reset_index()
-                vis._vis_data = intermediate.__finalize__(vis.data)
-            result_vals = list(vis.data[groupby_attr.attribute])
+                if backend.set_back !="holoviews":
+                    vis._vis_data = intermediate.__finalize__(vis.data)
+                else: 
+                    vis._vis_data = intermediate
+            result_vals = list(vis.data[groupby_attr.attribute]) if backend.set_back !="holoviews" else list(vis.data[groupby_attr.attribute].values_host)
             # create existing group by attribute combinations if color is specified
             # this is needed to check what combinations of group_by_attr and color_attr values have a non-zero number of elements in them
             if has_color:
@@ -233,7 +250,10 @@ class PandasExecutor(Executor):
                 if len(result_vals) != N_unique_vals * color_cardinality:
                     columns = vis.data.columns
                     if has_color:
-                        df = pd.DataFrame({columns[0]: attr_unique_vals * color_cardinality,columns[1]: pd.Series(color_attr_vals).repeat(N_unique_vals),})
+                        if backend.set_back !="holoviews":
+                            df = pd.DataFrame({columns[0]: attr_unique_vals * color_cardinality,columns[1]: pd.Series(color_attr_vals).repeat(N_unique_vals),})
+                        else:
+                            df = cudf.DataFrame({columns[0]: attr_unique_vals * color_cardinality,columns[1]: cudf.Series(color_attr_vals).repeat(N_unique_vals),})
                         vis._vis_data = vis.data.merge(df,on=[columns[0], columns[1]],how="right",suffixes=["", "_right"],)
                         for col in columns[2:]:
                             # Triggers __setitem__
@@ -243,7 +263,10 @@ class PandasExecutor(Executor):
                         vis._vis_data = vis.data[[groupby_attr.attribute, color_attr.attribute, measure_attr.attribute]]
 
                     else:
-                        df = pd.DataFrame({columns[0]: attr_unique_vals})
+                        if backend.set_back !="holoviews":
+                            df = pd.DataFrame({columns[0]: attr_unique_vals})
+                        else:
+                            df = cudf.DataFrame({columns[0]: attr_unique_vals})
                         vis._vis_data = vis.data.merge(df, on=columns[0], how="right", suffixes=["", "_right"])
 
                         for col in columns[1:]:
@@ -281,30 +304,43 @@ class PandasExecutor(Executor):
         None
         """
         import numpy as np
-
-        vis._vis_data = vis._vis_data.replace([np.inf, -np.inf], np.nan)
+        if backend.set_back !="holoviews":
+            vis._vis_data = vis._vis_data.replace([np.inf, -np.inf], np.nan)
 
         bin_attribute = [x for x in vis._inferred_intent if x.bin_size != 0][0]
         bin_attr = bin_attribute.attribute
         series = vis.data[bin_attr]
+        
+        if backend.set_back !="holoviews":
+            if series.hasnans:
+                ldf._message.add_unique(
+                    f"The column <code>{bin_attr}</code> contains missing values, not shown in the displayed histogram.",
+                    priority=100,
+                )
+                series = series.dropna()
+            if pd.api.types.is_object_dtype(series):
+                series = series.astype("float", errors="ignore")
 
-        if series.hasnans:
-            ldf._message.add_unique(
-                f"The column <code>{bin_attr}</code> contains missing values, not shown in the displayed histogram.",
-                priority=100,
-            )
+            if is_timedelta64_series(series):
+                series = timedelta64_to_float_seconds(series)
+
+            counts, bin_edges = np.histogram(series, bins=bin_attribute.bin_size)
+            # bin_edges of size N+1, so need to compute bin_start as the bin location
+            bin_start = bin_edges[0:-1]
+            binned_result = np.array([bin_start, counts]).T
+            vis._vis_data = pd.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
+        else:
             series = series.dropna()
-        if pd.api.types.is_object_dtype(series):
-            series = series.astype("float", errors="ignore")
-
-        if is_timedelta64_series(series):
-            series = timedelta64_to_float_seconds(series)
-
-        counts, bin_edges = np.histogram(series, bins=bin_attribute.bin_size)
-        # bin_edges of size N+1, so need to compute bin_start as the bin location
-        bin_start = bin_edges[0:-1]
-        binned_result = np.array([bin_start, counts]).T
-        vis._vis_data = pd.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
+            if series.dtype=='object':
+                series = series.astype("float", errors="ignore")
+            if is_timedelta64_series(series):
+                series = timedelta64_to_float_seconds(series)
+            counts, bin_edges = np.histogram(series.to_pandas(), bins=bin_attribute.bin_size)
+            # bin_edges of size N+1, so need to compute bin_start as the bin location
+            bin_start = bin_edges[0:-1]
+            binned_result = np.array([bin_start, counts]).T
+            vis._vis_data = cudf.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
+            
 
     @staticmethod
     def execute_filter(vis: Vis) -> bool:
@@ -330,9 +366,10 @@ class PandasExecutor(Executor):
             return True
         else:
             return False
-
+    
+    df_frame = pd.DataFrame if backend.set_back !="holoviews" else cudf.DataFrame
     @staticmethod
-    def apply_filter(df: pd.DataFrame, attribute: str, op: str, val: object) -> pd.DataFrame:
+    def apply_filter(df: df_frame, attribute: str, op: str, val: object) -> df_frame:
         """
         Helper function for applying filter to a dataframe
 
@@ -449,24 +486,27 @@ class PandasExecutor(Executor):
 
     def compute_data_type(self, ldf: LuxDataFrame):
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
-
         for attr in list(ldf.columns):
             if attr in ldf._type_override:
                 ldf._data_type[attr] = ldf._type_override[attr]
             else:
                 temporal_var_list = ["month", "year", "day", "date", "time", "weekday"]
-
+                
                 if is_timedelta64_series(ldf[attr]):
                     ldf._data_type[attr] = "quantitative"
                     ldf._min_max[attr] = (
                         timedelta64_to_float_seconds(ldf[attr].min()),
                         timedelta64_to_float_seconds(ldf[attr].max()),
                     )
-                elif is_datetime(ldf[attr]):
+                elif backend.set_back !="holoviews" and is_datetime(ldf[attr]):
+                    ldf._data_type[attr] = "temporal"
+                elif backend.set_back =="holoviews" and ldf.dtypes[attr]=='datetime64[ns]':
                     ldf._data_type[attr] = "temporal"
                 elif self._is_datetime_string(ldf[attr]):
                     ldf._data_type[attr] = "temporal"
                 elif isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
+                    ldf._data_type[attr] = "temporal"
+                elif backend.set_back =="holoviews" and isinstance(attr, cudf.core.index.DatetimeIndex):
                     ldf._data_type[attr] = "temporal"
                 elif str(attr).lower() in temporal_var_list:
                     ldf._data_type[attr] = "temporal"
@@ -474,13 +514,12 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "temporal"
                 elif self._is_geographical_attribute(ldf[attr]):
                     ldf._data_type[attr] = "geographical"
-                elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
-
+                elif (backend.set_back !="holoviews" and pd.api.types.is_float_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr] =='float64':
                     if ldf.cardinality[attr] != len(ldf) and (ldf.cardinality[attr] < 20):
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
-                elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
+                elif (backend.set_back !="holoviews" and pd.api.types.is_integer_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr]=='int64':
                     # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                     if ldf.pre_aggregated:
                         if ldf.cardinality[attr] == len(ldf):
@@ -492,7 +531,7 @@ class PandasExecutor(Executor):
                     if check_if_id_like(ldf, attr):
                         ldf._data_type[attr] = "id"
                 # Eliminate this clause because a single NaN value can cause the dtype to be object
-                elif pd.api.types.is_string_dtype(ldf.dtypes[attr]):
+                elif ( backend.set_back !="holoviews" and pd.api.types.is_string_dtype(ldf.dtypes[attr])) or ldf.dtypes[attr]=='string':
                     # Check first if it's castable to float after removing NaN
                     is_numeric_nan, series = is_numeric_nan_column(ldf[attr])
                     if is_numeric_nan:
@@ -512,40 +551,62 @@ class PandasExecutor(Executor):
                     ldf._data_type[attr] = "temporal"
                 else:
                     ldf._data_type[attr] = "nominal"
-        if not pd.api.types.is_integer_dtype(ldf.index) and ldf.index.name:
-            ldf._data_type[ldf.index.name] = "nominal"
+        if backend.set_back !="holoviews":
+            if not pd.api.types.is_integer_dtype(ldf.index) and ldf.index.name:
+                ldf._data_type[ldf.index.name] = "nominal"
+        else:
+            if not ldf.index.is_integer() and ldf.index.name:
+                ldf._data_type[ldf.index.name] = "nominal"
 
         non_datetime_attrs = []
         for attr in ldf.columns:
-            if ldf._data_type[attr] == "temporal" and not is_datetime(ldf[attr]):
-                non_datetime_attrs.append(attr)
+            if backend.set_back !="holoviews":
+                if ldf._data_type[attr] == "temporal" and not is_datetime(ldf[attr]):
+                    non_datetime_attrs.append(attr)
+            else:
+                if ldf._data_type[attr] == "temporal" and not ldf.dtypes[attr]=='datetime64[ns]':
+                    non_datetime_attrs.append(attr)
         warn_msg = ""
         if len(non_datetime_attrs) == 1:
             warn_msg += f"\nLux detects that the attribute '{non_datetime_attrs[0]}' may be temporal.\n"
         elif len(non_datetime_attrs) > 1:
             warn_msg += f"\nLux detects that attributes {non_datetime_attrs} may be temporal.\n"
         if len(non_datetime_attrs) > 0:
-            warn_msg += "To display visualizations for these attributes accurately, please convert temporal attributes to Datetime objects.\nFor example, you can convert a Year attribute (e.g., 1998, 1971, 1982) using pd.to_datetime by specifying the `format` as '%Y'.\n\nHere is a starter template that you can use for converting the temporal fields:\n"
+            if backend.set_back !="holoviews":
+                warn_msg += "To display visualizations for these attributes accurately, please convert temporal attributes to Datetime objects.\nFor example, you can convert a Year attribute (e.g., 1998, 1971, 1982) using pd.to_datetime by specifying the `format` as '%Y'.\n\nHere is a starter template that you can use for converting the temporal fields:\n"
+                for attr in non_datetime_attrs:
+                    warn_msg += f"\tdf['{attr}'] = pd.to_datetime(df['{attr}'], format='<replace-with-datetime-format>')\n"
+                warn_msg += "\nSee more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html"
+                warn_msg += f"\nIf {attr} is not a temporal attribute, please use override Lux's automatically detected type:"
+                warn_msg += f"\n\tdf.set_data_type({{'{attr}':'quantitative'}})"
+                warnings.warn(warn_msg, stacklevel=2)
+            else: 
+                 warn_msg += "To display visualizations for these attributes accurately, please convert temporal attributes to Datetime objects.\nFor example, you can convert a Year attribute (e.g., 1998, 1971, 1982) using cudf.to_datetime by specifying the `format` as '%Y'.\n\nHere is a starter template that you can use for converting the temporal fields:\n"
             for attr in non_datetime_attrs:
-                warn_msg += f"\tdf['{attr}'] = pd.to_datetime(df['{attr}'], format='<replace-with-datetime-format>')\n"
-            warn_msg += "\nSee more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html"
+                warn_msg += f"\tdf['{attr}'] = cudf.to_datetime(df['{attr}'], format='<replace-with-datetime-format>')\n"
+            #warn_msg += "\nSee more at: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html"
             warn_msg += f"\nIf {attr} is not a temporal attribute, please use override Lux's automatically detected type:"
             warn_msg += f"\n\tdf.set_data_type({{'{attr}':'quantitative'}})"
             warnings.warn(warn_msg, stacklevel=2)
-
     @staticmethod
     def _is_datetime_string(series):
         if series.dtype == object:
             not_numeric = False
             try:
-                pd.to_numeric(series)
+                if backend.set_back !="holoviews":
+                    pd.to_numeric(series)
+                else:
+                    cudf.to_numeric(series)
             except Exception as e:
                 not_numeric = True
 
             datetime_col = None
             if not_numeric:
                 try:
-                    datetime_col = pd.to_datetime(series)
+                    if backend.set_back !="holoviews":
+                        datetime_col = pd.to_datetime(series)
+                    else:
+                        datetime_col = cudf.to_datetime(series)
                 except Exception as e:
                     return False
             if datetime_col is not None:
@@ -564,7 +625,10 @@ class PandasExecutor(Executor):
         if is_int_dtype:
             try:
                 temp = series.astype(str)
-                pd.to_datetime(temp)
+                if backend.set_back !="holoviews":
+                    pd.to_datetime(temp)
+                else:
+                    cudf.to_datetime(temp)
                 return True
             except Exception:
                 return False
@@ -578,20 +642,35 @@ class PandasExecutor(Executor):
         ldf._length = len(ldf)
 
         for attribute in ldf.columns:
-
-            if isinstance(attribute, pd._libs.tslibs.timestamps.Timestamp):
-                # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
-                attribute_repr = str(attribute._date_repr)
+            #If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+            if backend.set_back !="holoviews":
+                if isinstance(attribute, pd._libs.tslibs.timestamps.Timestamp):
+                    attribute_repr = str(attribute._date_repr)
+                else:
+                    attribute_repr = attribute
             else:
-                attribute_repr = attribute
-
-            ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+                if isinstance(attribute, cudf.core.index.DatetimeIndex):
+                    attribute_repr = str(attribute._date_repr)
+                else:
+                    attribute_repr = attribute
+            if backend.set_back !="holoviews":
+                ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
+            else:
+                ldf.unique_values[attribute_repr] = list(ldf[attribute].unique().values_host)
             ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
-
-            if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(ldf.dtypes[attribute]):
-                ldf._min_max[attribute_repr] = (ldf[attribute].min(),ldf[attribute].max(),)
-
-        if not pd.api.types.is_integer_dtype(ldf.index):
+            if backend.set_back !="holoviews":
+                if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(ldf.dtypes[attribute]):
+                    ldf._min_max[attribute_repr] = (ldf[attribute].min(),ldf[attribute].max(),)
+            else:
+                if ldf.dtypes[attribute] == 'int64' or ldf.dtypes[attribute] =='float64':
+                    ldf._min_max[attribute_repr] = (ldf[attribute].min(),ldf[attribute].max(),)
+        
+        if backend.set_back !="holoviews" and not pd.api.types.is_integer_dtype(ldf.index):
             index_column_name = ldf.index.name
             ldf.unique_values[index_column_name] = list(ldf.index)
             ldf.cardinality[index_column_name] = len(ldf.index)
+        
+        if backend.set_back =="holoviews" and not ldf.index.is_integer():
+            index_column_name = ldf.index.name
+            ldf.unique_values[index_column_name] = list(ldf.index.values_host)
+            ldf.cardinality[index_column_name] = len(ldf.index.values_host)

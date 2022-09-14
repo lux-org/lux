@@ -12,13 +12,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+#  SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
 import lux
 import pandas as pd
 import math
 import numpy as np
 from lux.vis.VisList import VisList
 from lux.utils.utils import get_filter_specs
-
+from global_backend import backend
+if backend.set_back =="holoviews": import cudf
 
 def interpolate(vis, length):
     """
@@ -67,7 +70,13 @@ def interpolate(vis, length):
                     interpolated_y_vals[i] = (
                         yVals[count - 1] + (interpolated_x - xVals[count - 1]) / x_diff * yDiff
                     )
-            vis.data = pd.DataFrame(
+            if backend.set_back !="holoviews":
+                vis.data = pd.DataFrame(
+                    list(zip(interpolated_x_vals, interpolated_y_vals)),
+                    columns=[xAxis, yAxis],
+                )
+            else:
+                vis.data = cudf.DataFrame(
                 list(zip(interpolated_x_vals, interpolated_y_vals)),
                 columns=[xAxis, yAxis],
             )

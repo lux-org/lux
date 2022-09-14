@@ -12,13 +12,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+#  SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
 import lux
 from lux.interestingness.interestingness import interestingness
 from lux.processor.Compiler import Compiler
 from lux.core.frame import LuxDataFrame
 from lux.vis.VisList import VisList
 from lux.utils import utils
-
+from global_backend import backend
+if backend.set_back =="holoviews": import cudf
 
 # change ignore_transpose to false for now.
 def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):

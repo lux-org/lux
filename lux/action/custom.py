@@ -12,12 +12,15 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+#  SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
 from lux.interestingness.interestingness import interestingness
 import lux
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.executor.SQLExecutor import SQLExecutor
 import lux
-
+from global_backend import backend
+if backend.set_back =="holoviews": import cudf
 
 def custom(ldf):
     """

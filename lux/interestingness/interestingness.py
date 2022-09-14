@@ -12,6 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+#  SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
 from lux.core.frame import LuxDataFrame
 from lux.vis.Vis import Vis
 from lux.executor.PandasExecutor import PandasExecutor
@@ -26,6 +28,9 @@ from lux.utils.utils import get_filter_specs
 from lux.interestingness.similarity import preprocess, euclidean_dist
 from lux.vis.VisList import VisList
 import warnings
+from global_backend import backend
+if backend.set_back =="holoviews": 
+    import cudf
 
 
 def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
@@ -180,7 +185,7 @@ def get_filtered_size(filter_specs, ldf):
 def skewness(v):
     from scipy.stats import skew
 
-    return skew(v)
+    return skew(v) if backend.set_back !="holoviews" else skew(v.to_numpy())
 
 
 def weighted_avg(x, w):
@@ -303,15 +308,23 @@ def unevenness(vis: Vis, ldf: LuxDataFrame, measure_lst: list, dimension_lst: li
     v = v / v.sum()  # normalize by total to get ratio
     v = v.fillna(0)  # Some bar values may be NaN
     attr = dimension_lst[0].attribute
-    if isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
-        # If timestamp, use the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
-        attr = str(attr._date_repr)
+    # If timestamp, use the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
+    if backend.set_back !="holoviews": 
+        if isinstance(attr, pd._libs.tslibs.timestamps.Timestamp):
+            attr = str(attr._date_repr)
+    else:
+        if isinstance(attr, cudf.core.index.DatetimeIndex):
+            attr = str(attr._date_repr)
+            
     C = ldf.cardinality[attr]
     D = (0.9) ** C  # cardinality-based discounting factor
-    v_flat = pd.Series([1 / C] * len(v))
+    if backend.set_back !="holoviews":
+        v_flat = pd.Series([1 / C] * len(v))
+    else:
+        v_flat = cudf.Series([1 / C] * len(v))
     if is_datetime(v):
         v = v.astype("int")
-    return D * euclidean(v, v_flat)
+    return D * euclidean(v, v_flat) if backend.set_back !="holoviews" else D * euclidean(v.to_numpy(), v_flat.to_numpy())
 
 
 def mutual_information(v_x: list, v_y: list) -> int:
@@ -357,12 +370,15 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
     with warnings.catch_warnings():
         warnings.filterwarnings("error")
         try:
-            score = np.abs(pearsonr(v_x, v_y)[0])
+            if backend.set_back !="holoviews":
+                score = np.abs(pearsonr(v_x, v_y)[0])
+            else:
+                score = np.abs(pearsonr(v_x.to_numpy(),v_y.to_numpy())[0])
         except:
             # RuntimeWarning: invalid value encountered in true_divide (occurs when v_x and v_y are uniform, stdev in denominator is zero, leading to spearman's correlation as nan), ignore these cases.
             score = -1
 
-    if pd.isnull(score):
+    if not score or pd.isnull(score):
         return -1
     else:
         return score

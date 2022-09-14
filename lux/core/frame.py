@@ -12,7 +12,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+#  SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
 import pandas as pd
+from global_backend import backend
+if backend.set_back =="holoviews": 
+    import cudf
+    # plots will plot the curves using holoviews and will not generate JSON 
+    from lux.vislib.holoviews.plotter import plots
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
@@ -22,14 +29,16 @@ from lux.utils.date_utils import is_datetime_series
 from lux.utils.message import Message
 from lux.utils.utils import check_import_lux_widget
 from typing import Dict, Union, List, Callable
+import time
 
 # from lux.executor.Executor import *
 import warnings
 import traceback
 import lux
 
+frame = pd.DataFrame if backend.set_back !="holoviews" else cudf.DataFrame
 
-class LuxDataFrame(pd.DataFrame):
+class LuxDataFrame(frame):
     """
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
     """
@@ -56,6 +65,31 @@ class LuxDataFrame(pd.DataFrame):
         "pre_aggregated",
         "_type_override",
     ]
+    if backend.set_back =="holoviews": 
+        _history = History()
+        _intent = []
+        _inferred_intent = []
+        _recommendation = {}
+        _saved_export = None
+        _current_vis = []
+        _prev = None
+        _widget = None
+        #super(LuxDataFrame, self).__init__(*args, **kw)
+
+        table_name = ""
+        _sampled = None
+        _approx_sample = None
+        _toggle_pandas_display = True
+        _message = Message()
+        _pandas_only = False
+        # Metadata
+        _data_type = {}
+        unique_values = None
+        cardinality = None
+        _min_max = None
+        pre_aggregated = None
+        _type_override = {}
+       # warnings.formatwarning = lux.warning_format
 
     def __init__(self, *args, **kw):
         self._history = History()
@@ -92,19 +126,34 @@ class LuxDataFrame(pd.DataFrame):
         self._type_override = {}
         warnings.formatwarning = lux.warning_format
 
-    @property
-    def _constructor(self):
-        return LuxDataFrame
+    if backend.set_back !="holoviews":
+        @property
+        def _constructor(self):
+            return LuxDataFrame
 
-    @property
-    def _constructor_sliced(self):
-        def f(*args, **kwargs):
-            s = LuxSeries(*args, **kwargs)
-            for attr in self._metadata:  # propagate metadata
-                s.__dict__[attr] = getattr(self, attr, None)
-            return s
+        @property
+        def _constructor_sliced(self):
+            def f(*args, **kwargs):
+                s = LuxSeries(*args, **kwargs)
+                for attr in self._metadata:  # propagate metadata
+                    s.__dict__[attr] = getattr(self, attr, None)
+                return s
 
-        return f
+            return f
+    else:
+        @property
+        def _constructor2(self):
+            return LuxDataFrame
+
+        @property
+        def _constructor_sliced2(self):
+            def f(*args, **kwargs):
+                s = LuxSeries(*args, **kwargs)
+                for attr in self._metadata:  # propagate metadata
+                    s.__dict__[attr] = getattr(self, attr, None)
+                return s
+
+            return f
 
     @property
     def history(self):
@@ -132,12 +181,11 @@ class LuxDataFrame(pd.DataFrame):
         Maintain dataset metadata and statistics (Compute only if needed)
         """
         is_sql_tbl = lux.config.executor.name != "PandasExecutor"
-
         if lux.config.SQLconnection != "" and is_sql_tbl:
             from lux.executor.SQLExecutor import SQLExecutor
 
-            # lux.config.executor = SQLExecutor()
-
+        # lux.config.executor = SQLExecutor()
+        
         # Check that metadata has not yet been computed
         if lux.config.lazy_maintain:
             # Check that metadata has not yet been computed
@@ -314,12 +362,19 @@ class LuxDataFrame(pd.DataFrame):
             self.data_type[attr] = types[attr]
 
         self.expire_recs()
+    
+    if backend.set_back !="holoviews":
+        def to_pandas(self):
+            import lux.core
 
-    def to_pandas(self):
-        import lux.core
+            return lux.core.originalDF(self, copy=False)
+    else:
+        def to_cudf(self):
+            import lux.core
 
-        return lux.core.originalDF(self, copy=False)
+            return lux.core.originalDF(self)
 
+    
     @property
     def recommendation(self):
         if self._recommendation is not None and self._recommendation == {}:
@@ -366,6 +421,11 @@ class LuxDataFrame(pd.DataFrame):
                 self.current_vis = VisList([vis])
 
     def maintain_recs(self, is_series="DataFrame"):
+        beta = time.time()
+        if backend.set_back =="holoviews": 
+            from lux.executor.PandasExecutor import PandasExecutor
+            lux.config.executor = PandasExecutor()
+            lux.config.SQLconnection = ""
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
         if lux.config.update_actions["flag"] == True:
@@ -384,6 +444,7 @@ class LuxDataFrame(pd.DataFrame):
         else:
             rec_df = self
             rec_df._message = Message()
+
         # Add warning message if there exist ID fields
         if len(rec_df) == 0:
             rec_df._message.add(f"Lux cannot operate on an empty {is_series}.")
@@ -406,38 +467,41 @@ class LuxDataFrame(pd.DataFrame):
                     id_fields_str += f"<code>{id_field}</code>, "
                 id_fields_str = id_fields_str[:-2]
                 rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
-
+       
         rec_df._prev = None  # reset _prev
-
         # If lazy, check that recs has not yet been computed
         lazy_but_not_computed = lux.config.lazy_maintain and (
             not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh
         )
         eager = not lux.config.lazy_maintain
-
+       
         # Check that recs has not yet been computed
         if lazy_but_not_computed or eager:
             is_sql_tbl = lux.config.executor.name == "SQLExecutor"
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
-
+            
+            
             # TODO: Rewrite these as register action inside default actions
             if rec_df.pre_aggregated:
                 if rec_df.columns.name is not None:
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
+                
             elif not (len(rec_df) < 5 and not rec_df.pre_aggregated and not is_sql_tbl) and not (
                 self.index.nlevels >= 2 or self.columns.nlevels >= 2
             ):
                 from lux.action.custom import custom_actions
-
+            
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
+              
                 for rec in custom_action_collection:
                     rec_df._append_rec(rec_infolist, rec)
+               
                 lux.config.update_actions["flag"] = False
-
+             
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
             for rec_info in rec_infolist:
@@ -447,14 +511,24 @@ class LuxDataFrame(pd.DataFrame):
                     rec_df._recommendation[action_type] = vlist
             rec_df._rec_info = rec_infolist
             rec_df.show_all_column_vis()
-            if lux.config.render_widget:
-                self._widget = rec_df.render_widget()
+            if backend.set_back !="holoviews":
+                if lux.config.render_widget:
+                    self._widget = rec_df.render_widget()
         # re-render widget for the current dataframe if previous rec is not recomputed
         elif show_prev:
             rec_df.show_all_column_vis()
-            if lux.config.render_widget:
-                self._widget = rec_df.render_widget()
+            if backend.set_back !="holoviews":
+                if lux.config.render_widget:
+                    self._widget = rec_df.render_widget()
         self._recs_fresh = True
+        # print("interesting time", time.time() - beta)
+        # if backend.set_back =="holoviews":
+        #     pd.DataFrame(rec_infolist).to_csv("interesting.csv")
+        # else:
+        #     pd.DataFrame(rec_infolist).to_csv("lux_interesting.csv")
+        if backend.set_back =="holoviews":
+            graphs= plots(rec_df, rec_infolist)
+            return graphs
 
     #######################################################
     ############## LuxWidget Result Display ###############
@@ -571,68 +645,75 @@ class LuxDataFrame(pd.DataFrame):
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
+        #try:
+        if backend.set_back !="holoviews" and self._pandas_only:
+            display(self.display_pandas())
+            self._pandas_only = False
+        else:
+            if backend.set_back =="holoviews": 
+                from lux.executor.PandasExecutor import PandasExecutor
+                lux.config.executor = PandasExecutor()
+                lux.config.SQLconnection = ""
 
-        try:
-            if self._pandas_only:
-                display(self.display_pandas())
-                self._pandas_only = False
+            if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
+                self.maintain_metadata()
+                if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
+                    from lux.processor.Compiler import Compiler
+
+                    self.current_vis = Compiler.compile_intent(self, self._intent)
+
+            if lux.config.default_display == "lux":
+                self._toggle_pandas_display = False
             else:
-                if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-                    self.maintain_metadata()
+                self._toggle_pandas_display = True
 
-                    if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
-                        from lux.processor.Compiler import Compiler
-
-                        self.current_vis = Compiler.compile_intent(self, self._intent)
-
-                if lux.config.default_display == "lux":
-                    self._toggle_pandas_display = False
-                else:
-                    self._toggle_pandas_display = True
-
-                # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+            # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
+            if backend.set_back =="holoviews":
+                graph_all = self.maintain_recs()
+                return graph_all
+            else:
                 self.maintain_recs()
 
-                # Observers(callback_function, listen_to_this_variable)
-                self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
-                self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
+            # Observers(callback_function, listen_to_this_variable)
+            self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
+            self._widget.observe(self.set_intent_on_click, names="selectedIntentIndex")
 
-                button = widgets.Button(
-                    description="Toggle Pandas/Lux",
-                    layout=widgets.Layout(width="140px", top="5px"),
-                )
-                self.output = widgets.Output()
-                display(button, self.output)
+            button = widgets.Button(
+                description="Toggle Pandas/Lux",
+                layout=widgets.Layout(width="140px", top="5px"),
+            )
+            self.output = widgets.Output()
+            display(button, self.output)
 
-                def on_button_clicked(b):
-                    with self.output:
-                        if b:
-                            self._toggle_pandas_display = not self._toggle_pandas_display
-                        clear_output()
-                        if self._toggle_pandas_display:
-                            display(self.display_pandas())
-                        else:
-                            # b.layout.display = "none"
-                            display(self._widget)
-                            # b.layout.display = "inline-block"
+            def on_button_clicked(b):
+                with self.output:
+                    if b:
+                        self._toggle_pandas_display = not self._toggle_pandas_display
+                    clear_output()
+                    if self._toggle_pandas_display:
+                        display(self.display_pandas())
+                    else:
+                        # b.layout.display = "none"
+                        display(self._widget)
+                        # b.layout.display = "inline-block"
 
-                button.on_click(on_button_clicked)
-                on_button_clicked(None)
+            button.on_click(on_button_clicked)
+            on_button_clicked(None)
 
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except Exception:
-            if lux.config.pandas_fallback:
-                warnings.warn(
-                    "\nUnexpected error in rendering Lux widget and recommendations. "
-                    "Falling back to Pandas display.\n"
-                    "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
-                    stacklevel=2,
-                )
-                warnings.warn(traceback.format_exc())
-                display(self.display_pandas())
-            else:
-                raise
+        # except (KeyboardInterrupt, SystemExit):
+        #     raise
+        # except Exception:
+        #     if lux.config.pandas_fallback:
+        #         warnings.warn(
+        #             "\nUnexpected error in rendering Lux widget and recommendations. "
+        #             "Falling back to Pandas display.\n"
+        #             "Please report the following issue on Github: https://github.com/lux-org/lux/issues \n",
+        #             stacklevel=2,
+        #         )
+        #         warnings.warn(traceback.format_exc())
+        #         display(self.display_pandas())
+        #     else:
+        #         raise
 
     def display_pandas(self):
         return self.to_pandas()

@@ -18,7 +18,6 @@ from lux.utils.utils import check_import_lux_widget
 import lux
 import warnings
 
-
 class Vis:
     """
     Vis Object represents a collection of fully fleshed out specifications required for data fetching and visualization.
@@ -386,9 +385,8 @@ class Vis:
             from lux.processor.Parser import Parser
             from lux.processor.Validator import Validator
             from lux.processor.Compiler import Compiler
-
             self.check_not_vislist_intent()
-
+        
             ldf.maintain_metadata()
             self._source = ldf
             self._inferred_intent = Parser.parse(self._intent)

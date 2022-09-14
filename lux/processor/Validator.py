@@ -21,6 +21,7 @@ import warnings
 import pandas as pd
 import lux
 import lux.utils.utils
+from global_backend import backend
 
 
 class Validator:

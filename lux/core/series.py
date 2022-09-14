@@ -12,6 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+#  SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
 import pandas as pd
 import lux
 import warnings
@@ -21,9 +23,12 @@ from lux.history.history import History
 from lux.utils.message import Message
 from lux.vis.VisList import VisList
 from typing import Dict, Union, List, Callable
+from global_backend import backend
+if backend.set_back =="holoviews": import cudf
+series = pd.Series if backend.set_back !="holoviews" else cudf.Series
 
 
-class LuxSeries(pd.Series):
+class LuxSeries(series):
     """
     A subclass of pd.Series that supports all 1-D Series operations
     """
@@ -72,39 +77,73 @@ class LuxSeries(pd.Series):
                 self.__dict__[attr] = self._default_metadata[attr]()
             else:
                 self.__dict__[attr] = None
+    
+    if backend.set_back !="holoviews":
+        @property
+        def _constructor(self):
+            return LuxSeries
 
-    @property
-    def _constructor(self):
-        return LuxSeries
+        @property
+        def _constructor_expanddim(self):
+            from lux.core.frame import LuxDataFrame
 
-    @property
-    def _constructor_expanddim(self):
-        from lux.core.frame import LuxDataFrame
+            def f(*args, **kwargs):
+                df = LuxDataFrame(*args, **kwargs)
+                for attr in self._metadata:
+                    # if attr in self._default_metadata:
+                    #     default = self._default_metadata[attr]
+                    # else:
+                    #     default = None
+                    df.__dict__[attr] = getattr(self, attr, None)
+                return df
 
-        def f(*args, **kwargs):
-            df = LuxDataFrame(*args, **kwargs)
-            for attr in self._metadata:
-                # if attr in self._default_metadata:
-                #     default = self._default_metadata[attr]
-                # else:
-                #     default = None
-                df.__dict__[attr] = getattr(self, attr, None)
-            return df
+            f._get_axis_number = LuxDataFrame._get_axis_number
+            return f
 
-        f._get_axis_number = LuxDataFrame._get_axis_number
-        return f
+        def to_pandas(self) -> pd.Series:
+            """
+            Convert Lux Series to Pandas Series
 
-    def to_pandas(self) -> pd.Series:
-        """
-        Convert Lux Series to Pandas Series
+            Returns
+            -------
+            pd.Series
+            """
+            import lux.core
 
-        Returns
-        -------
-        pd.Series
-        """
-        import lux.core
+            return lux.core.originalSeries(self, copy=False)
+    else:
+        @property
+        def _constructor2(self):
+            return LuxSeries
 
-        return lux.core.originalSeries(self, copy=False)
+        @property
+        def _constructor_expanddim2(self):
+            from lux.core.frame import LuxDataFrame
+
+            def f(*args, **kwargs):
+                df = LuxDataFrame(*args, **kwargs)
+                for attr in self._metadata:
+                    # if attr in self._default_metadata:
+                    #     default = self._default_metadata[attr]
+                    # else:
+                    #     default = None
+                    df.__dict__[attr] = getattr(self, attr, None)
+                return df
+
+            f._get_axis_number = LuxDataFrame._get_axis_number
+            return f
+
+        def to_pandas2(self) -> cudf.Series:
+            """
+            Convert Lux Series to Pandas Series
+
+            Returns
+            -------
+            pd.Series
+            """
+            import lux.core
+
+            return lux.core.originalSeries(self, copy=False)
 
     def unique(self):
         """
