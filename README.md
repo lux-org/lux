@@ -1,3 +1,18 @@
+# Personal Changes to LUX
+This branch of LUX is big data optimized, capable of running both the original lux as well as a GPU optimized version running cuDF with HoloViews as plotting engine. It is capable of a speed up of 9X when dealing with datasets in the millions of rows (measured on the NVIDIA RTX A3000 Laptop GPU). To run the cuDF + HoloViews implementation, open main.ipynb and see comments.
+
+## Further Instructions:
+
+1) You need to create a  [<code>RAPIDS</code>](https://rapids.ai/start.html) environment containing cuDF (suggested RAPIDS version as 22.10) <br />
+2) After installing the packages in requirements.txt, run the following commands <br />
+```python
+conda install -c conda-forge cartopy -y
+pip install pyogrio
+conda install -c pyviz spatialpandas
+```
+3) It currently does not support intents
+<br />
+
 <p align="center"><a href="#"><img width=60% alt="" src="https://github.com/lux-org/lux-resources/blob/master/readme_img/logo.png?raw=true"></a></p>
 <h2 align="center">A Python API for Intelligent Visual Discovery</h2>
 
