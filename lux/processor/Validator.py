@@ -108,7 +108,7 @@ class Validator:
                 warn_msg += validate_clause(clause)
         if warn_msg != "" and not suppress_warning:
             warnings.warn(
-                "\nThe following issues are ecountered when validating the parsed intent:" + warn_msg,
+                "\nThe following issues are encountered when validating the parsed intent:" + warn_msg,
                 stacklevel=2,
             )
 
