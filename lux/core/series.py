@@ -11,6 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+from __future__ import annotations
 
 import pandas as pd
 import lux
@@ -23,7 +24,7 @@ from lux.vis.VisList import VisList
 from typing import Dict, Union, List, Callable
 
 
-class LuxSeries(pd.Series):
+class LuxSeriesMixin:
     """
     A subclass of pd.Series that supports all 1-D Series operations
     """
@@ -66,33 +67,12 @@ class LuxSeries(pd.Series):
     }
 
     def __init__(self, *args, **kw):
-        super(LuxSeries, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         for attr in self._metadata:
             if attr in self._default_metadata:
                 self.__dict__[attr] = self._default_metadata[attr]()
             else:
                 self.__dict__[attr] = None
-
-    @property
-    def _constructor(self):
-        return LuxSeries
-
-    @property
-    def _constructor_expanddim(self):
-        from lux.core.frame import LuxDataFrame
-
-        def f(*args, **kwargs):
-            df = LuxDataFrame(*args, **kwargs)
-            for attr in self._metadata:
-                # if attr in self._default_metadata:
-                #     default = self._default_metadata[attr]
-                # else:
-                #     default = None
-                df.__dict__[attr] = getattr(self, attr, None)
-            return df
-
-        f._get_axis_number = LuxDataFrame._get_axis_number
-        return f
 
     def to_pandas(self) -> pd.Series:
         """
@@ -123,7 +103,7 @@ class LuxSeries(pd.Series):
         if self.unique_values and self.name in self.unique_values.keys():
             return np.array(self.unique_values[self.name])
         else:
-            return super(LuxSeries, self).unique()
+            return super().unique()
 
     def _ipython_display_(self):
         from IPython.display import display
@@ -131,7 +111,7 @@ class LuxSeries(pd.Series):
         import ipywidgets as widgets
         from lux.core.frame import LuxDataFrame
 
-        series_repr = super(LuxSeries, self).__repr__()
+        series_repr = super().__repr__()
 
         ldf = LuxDataFrame(self)
 
@@ -252,7 +232,7 @@ class LuxSeries(pd.Series):
             history_flag = True
         if "history" in kwargs:
             del kwargs["history"]
-        groupby_obj = super(LuxSeries, self).groupby(*args, **kwargs)
+        groupby_obj = super().groupby(*args, **kwargs)
         for attr in self._metadata:
             groupby_obj.__dict__[attr] = getattr(self, attr, None)
         if history_flag:
@@ -260,3 +240,26 @@ class LuxSeries(pd.Series):
             groupby_obj._history.append_event("groupby", *args, **kwargs)
         groupby_obj.pre_aggregated = True
         return groupby_obj
+
+
+class LuxSeries(LuxSeriesMixin, pd.Series):
+    @property
+    def _constructor(self):
+        return LuxSeries
+
+    @property
+    def _constructor_expanddim(self):
+        from lux.core.frame import LuxDataFrame
+
+        def f(*args, **kwargs):
+            df = LuxDataFrame(*args, **kwargs)
+            for attr in self._metadata:
+                # if attr in self._default_metadata:
+                #     default = self._default_metadata[attr]
+                # else:
+                #     default = None
+                df.__dict__[attr] = getattr(self, attr, None)
+            return df
+
+        f._get_axis_number = LuxDataFrame._get_axis_number
+        return f

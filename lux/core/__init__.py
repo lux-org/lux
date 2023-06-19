@@ -70,4 +70,4 @@ def setOption(overridePandas=True):
         pd.Series = originalSeries
 
 
-setOption(overridePandas=True)
+setOption(overridePandas=False)
