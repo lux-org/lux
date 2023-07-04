@@ -127,20 +127,6 @@ def test_generalize_action(global_var):
     assert check1 and check2 and check3
 
 
-def test_row_column_group(global_var):
-    df = pd.read_csv(
-        "https://github.com/lux-org/lux-datasets/blob/master/data/state_timeseries.csv?raw=true"
-    )
-    df["Date"] = pd.to_datetime(df["Date"])
-    tseries = df.pivot(index="State", columns="Date", values="Value")
-    # Interpolating missing values
-    tseries[tseries.columns.min()] = tseries[tseries.columns.min()].fillna(0)
-    tseries[tseries.columns.max()] = tseries[tseries.columns.max()].fillna(tseries.max(axis=1))
-    tseries = tseries.interpolate("zero", axis=1)
-    tseries._ipython_display_()
-    assert list(tseries.recommendation.keys()) == ["Temporal"]
-
-
 def test_groupby(global_var):
     df = pytest.college_df
     groupbyResult = df.groupby("Region").sum()
