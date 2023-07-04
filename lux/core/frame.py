@@ -29,7 +29,7 @@ import traceback
 import lux
 
 
-class LuxDataFrame(pd.DataFrame):
+class LuxDataFrameMixin:
     """
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
     """
@@ -58,6 +58,8 @@ class LuxDataFrame(pd.DataFrame):
     ]
 
     def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+
         self._history = History()
         self._intent = []
         self._inferred_intent = []
@@ -66,7 +68,6 @@ class LuxDataFrame(pd.DataFrame):
         self._current_vis = []
         self._prev = None
         self._widget = None
-        super(LuxDataFrame, self).__init__(*args, **kw)
 
         self.table_name = ""
         if lux.config.SQLconnection == "":
@@ -91,20 +92,6 @@ class LuxDataFrame(pd.DataFrame):
         self.pre_aggregated = None
         self._type_override = {}
         warnings.formatwarning = lux.warning_format
-
-    @property
-    def _constructor(self):
-        return LuxDataFrame
-
-    @property
-    def _constructor_sliced(self):
-        def f(*args, **kwargs):
-            s = LuxSeries(*args, **kwargs)
-            for attr in self._metadata:  # propagate metadata
-                s.__dict__[attr] = getattr(self, attr, None)
-            return s
-
-        return f
 
     @property
     def history(self):
@@ -174,23 +161,23 @@ class LuxDataFrame(pd.DataFrame):
     ## Override Pandas ##
     #####################
     def __getattr__(self, name):
-        ret_value = super(LuxDataFrame, self).__getattr__(name)
+        ret_value = super().__getattr__(name)
         self.expire_metadata()
         self.expire_recs()
         return ret_value
 
     def _set_axis(self, axis, labels):
-        super(LuxDataFrame, self)._set_axis(axis, labels)
+        super()._set_axis(axis, labels)
         self.expire_metadata()
         self.expire_recs()
 
     def _update_inplace(self, *args, **kwargs):
-        super(LuxDataFrame, self)._update_inplace(*args, **kwargs)
+        super()._update_inplace(*args, **kwargs)
         self.expire_metadata()
         self.expire_recs()
 
     def _set_item(self, key, value):
-        super(LuxDataFrame, self)._set_item(key, value)
+        super()._set_item(key, value)
         self.expire_metadata()
         self.expire_recs()
 
@@ -847,13 +834,13 @@ class LuxDataFrame(pd.DataFrame):
 
     # Overridden Pandas Functions
     def head(self, n: int = 5):
-        ret_val = super(LuxDataFrame, self).head(n)
+        ret_val = super().head(n)
         ret_val._prev = self
         ret_val._history.append_event("head", n=5)
         return ret_val
 
     def tail(self, n: int = 5):
-        ret_val = super(LuxDataFrame, self).tail(n)
+        ret_val = super().tail(n)
         ret_val._prev = self
         ret_val._history.append_event("tail", n=5)
         return ret_val
@@ -864,7 +851,7 @@ class LuxDataFrame(pd.DataFrame):
             history_flag = True
         if "history" in kwargs:
             del kwargs["history"]
-        groupby_obj = super(LuxDataFrame, self).groupby(*args, **kwargs)
+        groupby_obj = super().groupby(*args, **kwargs)
         for attr in self._metadata:
             groupby_obj.__dict__[attr] = getattr(self, attr, None)
         if history_flag:
@@ -872,3 +859,19 @@ class LuxDataFrame(pd.DataFrame):
             groupby_obj._history.append_event("groupby", *args, **kwargs)
         groupby_obj.pre_aggregated = True
         return groupby_obj
+
+
+class LuxDataFrame(LuxDataFrameMixin, pd.DataFrame):
+    @property
+    def _constructor(self):
+        return LuxDataFrame
+
+    @property
+    def _constructor_sliced(self):
+        def f(*args, **kwargs):
+            s = LuxSeries(*args, **kwargs)
+            for attr in self._metadata:  # propagate metadata
+                s.__dict__[attr] = getattr(self, attr, None)
+            return s
+
+        return f
