@@ -41,7 +41,7 @@ jobs:
     - name: Set up Python 3.10
       uses: actions/setup-python@v2
       with:
-        python-version: 3.10
+        python-version: 3.10.12
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -49,15 +49,6 @@ jobs:
         pip install wheel
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
-        pip install sqlalchemy
-
-        # pip uninstall -y  lux-widget
-        # pip install git+git://github.com/lux-org/lux-widget.git
-        # # Temporary Fix (#372)
-        # cd /opt/hostedtoolcache/Python/3.7.10/x64/lib/python3.7/site-packages/luxwidget/
-        # mkdir labextension
-        # cd labextension
-        # wget https://raw.githubusercontent.com/lux-org/lux-widget/master/luxwidget/nbextension/package.json
 
     - name: Test with Pytest and Code Coverage Report
       run: |
