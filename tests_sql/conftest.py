@@ -1,14 +1,10 @@
 import pytest
 import pandas as pd
-import psycopg2
 import lux
 
 
 @pytest.fixture(scope="session")
 def global_var():
-    connection = psycopg2.connect("host=localhost dbname=postgres user=postgres password=lux")
-    lux.config.set_SQL_connection(connection)
-
     url = "https://github.com/lux-org/lux-datasets/blob/master/data/olympic.csv?raw=true"
     pytest.olympic = pd.read_csv(url)
     pytest.car_df = pd.read_csv("lux/data/car.csv")
