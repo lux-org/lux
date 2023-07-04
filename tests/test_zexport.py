@@ -15,8 +15,6 @@
 from .context import lux
 import pytest
 import pandas as pd
-import numpy as np
-import psycopg2
 from lux.vis.Vis import Vis
 from lux.executor.PandasExecutor import PandasExecutor
 

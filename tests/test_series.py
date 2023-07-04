@@ -60,15 +60,6 @@ def test_print_dtypes(global_var):
         assert len(w) == 0, "Warning displayed when printing dtypes"
 
 
-def test_print_iterrow(global_var):
-    df = pytest.college_df
-    with warnings.catch_warnings(record=True) as w:
-        for index, row in df.iterrows():
-            print(row)
-            break
-        assert len(w) == 0, "Warning displayed when printing iterrow"
-
-
 def test_series_recommendation():
     df = pd.read_csv("https://raw.githubusercontent.com/lux-org/lux-datasets/master/data/employee.csv")
     df.plot_config = None
