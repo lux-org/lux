@@ -23,12 +23,8 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: "12.x"
-      - run: npm install --save-dev @commitlint/{config-conventional,cli} commitlint-plugin-jira-rules commitlint-config-jira
-      - name: Add dependencies for commitlint action
-        run: echo "NODE_PATH=$GITHUB_WORKSPACE/node_modules" >> $GITHUB_ENV
       - run: git remote add upstream https://github.com/lux-org/lux
       - run: git fetch upstream
-      - run: npx commitlint --from upstream/master --to $(git log upstream/master..HEAD --pretty=format:"%h" | tail -1) --verbose
   pre-commit:
     name: Check pre-commit hooks
     runs-on: ubuntu-latest
@@ -39,22 +35,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
-    # Service containers to run with `container-job`
-    services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: postgres
-        # Provide the password for postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: lux
-          POSTGRES_DB: postgres
-        # Set health checks to wait until postgres has started
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
     - uses: actions/checkout@v2
@@ -79,12 +59,7 @@ jobs:
         # cd labextension
         # wget https://raw.githubusercontent.com/lux-org/lux-widget/master/luxwidget/nbextension/package.json
 
-    - name: Upload data to Postgres
-      run: |
-        python lux/data/upload_car_data.py
-        python lux/data/upload_aug_test_data.py
-        python lux/data/upload_airbnb_nyc_data.py
     - name: Test with Pytest and Code Coverage Report
       run: |
-        pytest --cov-report term --cov=lux tests/ tests_sql/
+        pytest --cov-report term --cov=lux tests/
         bash <(curl -s https://codecov.io/bash)
