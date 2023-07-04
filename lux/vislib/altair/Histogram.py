@@ -131,5 +131,5 @@ def compute_bin_width(series):
     data = np.asarray(series)
     num_pts = data.size
     IQR = np.subtract(*np.percentile(data, [75, 25]))
-    size = 2 * IQR * (num_pts**-1 / 3)
+    size = 2 * IQR * (num_pts ** -1 / 3)
     return round(size * 3.5, 2)

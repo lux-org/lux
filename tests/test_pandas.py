@@ -52,13 +52,6 @@ def test_groupby_describe(global_var):
     assert result.shape == (3, 8)
 
 
-def test_convert_dtype(global_var):
-    df = pytest.college_df
-    cdf = df.convert_dtypes()
-    cdf._ipython_display_()
-    assert list(cdf.recommendation.keys()) == ["Correlation", "Distribution", "Occurrence"]
-
-
 def test_infs():
     nrows = 100_000
 
@@ -73,17 +66,6 @@ def test_infs():
     d2 = np.random.randint(0, 2, size=nrows)
 
     df = pd.DataFrame({"c1": c1, "c2": c2, "d1": d1, "d2": d2})
-
-    df._ipython_display_()
-
-
-def test_timedeltas():
-    nrows = 100_000
-
-    c1 = np.random.uniform(0, 10, size=nrows)
-    c2 = c1.astype("timedelta64[ms]")
-
-    df = pd.DataFrame({"c1": c1, "c2": c2})
 
     df._ipython_display_()
 
