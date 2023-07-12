@@ -176,6 +176,26 @@ Note that JupyterLab and VSCode is supported only for lux-widget version >=0.1.2
 
 If you encounter issues with the installation, please refer to [this page](https://lux-api.readthedocs.io/en/latest/source/guide/FAQ.html#troubleshooting-tips) to troubleshoot the installation. Follow [these instructions](https://lux-api.readthedocs.io/en/latest/source/getting_started/installation.html#manual-installation-dev-setup) to set up Lux for development purposes.
 
+# Setup with Docker
+
+Alternatively, if you would like to install and run a local jupypter notebook server on docker, use the following command:
+
+```
+docker compose up
+```
+
+or build the image yourself:
+
+```
+docker build -t lux .
+```
+
+and run it:
+
+```
+docker run lux
+```
+
 # Support and Resources
 
 Lux is undergoing active development. If you are using Lux, we would love to hear from you! 
