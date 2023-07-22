@@ -144,16 +144,15 @@ Lux currently only support Vega-Lite and matplotlib, and we plan to add support 
 Change the sampling parameters 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To speed up the visualization processing, by default, Lux performs random sampling on datasets with more than 10000 rows. For datasets over 30000 rows, Lux will randomly sample 30000 rows from the dataset.
+To speed up the visualization processing, by default, Lux performs random sampling on datasets with more than 100000 rows. Specifically, for datasets over 100000 rows, Lux will randomly sample 100000 rows from the dataset.
 
-If we want to change these parameters, we can set the `sampling_start` and `sampling_cap` via `lux.config` to change the default form of output. The `sampling_start` is by default set to 10000 and the `sampling_cap` is by default set to 30000. In the following block, we increase these sampling bounds.
+If we want to change these parameters, we can set the `sampling_thresh` via `lux.config` to change the default form of output. The `sampling_thresh` is by default set to 100000. In the following block, we increase this sampling threshold.
 
 .. code-block:: python
 
-    lux.config.sampling_start = 20000
-    lux.config.sampling_cap = 40000
+    lux.config.sampling_thresh = 500000
 
-If we want Lux to use the full dataset in the visualization, we can also disable sampling altogether (but note that this may result in long processing times). Below is an example if disabling the sampling:
+If we want Lux to use the full dataset in the visualization, we can also disable sampling altogether (but note that this may result in long processing times). Below is an example of disabling the sampling:
 
 .. code-block:: python
 
