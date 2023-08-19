@@ -47,7 +47,7 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
         lux.Clause("?", data_model="measure"),
     ]
     intent.extend(filter_specs)
-    vlist = VisList(intent, ldf)
+    vlist = VisList(intent, ldf, action="correlation")
     examples = ""
     if len(vlist) > 1:
         measures = vlist[0].get_attr_by_data_model("measure")

@@ -25,10 +25,11 @@ import lux
 class VisList:
     """VisList is a list of Vis objects."""
 
-    def __init__(self, input_lst: Union[List[Vis], List[Clause]], source=None):
+    def __init__(self, input_lst: Union[List[Vis], List[Clause]], source=None, action=None):
         # Overloaded Constructor
         self._source = source
         self._input_lst = input_lst
+        self._action = action
         if len(input_lst) > 0:
             if self._is_vis_input():
                 self._collection = input_lst
@@ -229,18 +230,17 @@ class VisList:
     def set(self, field_name, field_val):
         return NotImplemented
 
-    def sort(self, remove_invalid=True, descending=True):
+    def sort(self, remove_invalid=True):
         # remove the items that have invalid (-1) score
         if remove_invalid:
             self._collection = list(filter(lambda x: x.score != -1, self._collection))
-        if lux.config.sort == "none":
-            return
-        elif lux.config.sort == "ascending":
-            descending = False
-        elif lux.config.sort == "descending":
-            descending = True
-        # sort in-place by “score” by default if available, otherwise user-specified field to sort by
-        self._collection.sort(key=lambda x: x.score, reverse=descending)
+        if lux.config.sort is not None:
+            if self._action is None or lux.config.ordering_actions.get(self._action) is None:
+                ordering_function = lux.config.ordering
+            else:
+                ordering_function = lux.config.ordering_actions.get(self._action)
+            # sort in-place by “score” by default if available, otherwise user-specified field to sort by
+            ordering_function(self._collection, lux.config.sort)
 
     def showK(self):
         k = lux.config.topk

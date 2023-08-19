@@ -62,7 +62,7 @@ def enhance(ldf):
         clause.channel = ""
     intent = filters + attr_specs
     intent.append("?")
-    vlist = lux.vis.VisList.VisList(intent, ldf)
+    vlist = lux.vis.VisList.VisList(intent, ldf, action="Enhance")
 
     # Then use the data populated in the vis list to compute score
     for vis in vlist:

@@ -6,6 +6,7 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 import lux
 import warnings
+from lux.utils.orderings import Ordering, OrderingDict, resolve_value
 from lux.utils.tracing_utils import LuxTracer
 import os
 from lux._config.template import postgres_template, mysql_template
@@ -31,9 +32,12 @@ class Config:
         self._plotting_backend = "vegalite"
         self._plotting_scale = 1
         self._topk = 15
+        self._sort = True
+        self._ordering = Ordering.interestingness
+        self._ordering_actions = OrderingDict({})
         self._number_of_bars = 10  # max no of bars displayed (rest shown as "+ k more")
         self._label_len = 25  # max length of x and y axis labels
-        self._sort = "descending"
+        self._sort = True
         self._pandas_fallback = True
         self._interestingness_fallback = True
         self.heatmap_bin_size = 40
@@ -127,8 +131,6 @@ class Config:
     @sort.setter
     def sort(self, flag: Union[str]):
         """
-        Setting parameter to determine sort order of each action
-
         Parameters
         ----------
         flag : Union[str]
@@ -137,12 +139,36 @@ class Config:
         """
         flag = flag.lower()
         if isinstance(flag, str) and flag in ["none", "ascending", "descending"]:
-            self._sort = flag
+            if flag == "none":
+                self._sort = None
+            elif flag == "ascending":
+                self._sort = False
+            else:
+                self._sort = True
         else:
             warnings.warn(
                 "Parameter to lux.config.sort must be one of the following: 'none', 'ascending', or 'descending'.",
                 stacklevel=2,
             )
+
+    @property
+    def ordering(self):
+        return self._ordering
+
+    @ordering.setter
+    def ordering(self, value):
+        """
+        Parameters
+        ----------
+        value : Union[str, Callable]
+                "interestingness", “alphabetical_by_title”, “alphabetical_by_x”, “alphabetical_by_y” , or Callable
+                Default available sorters or custom sorter
+        """
+        self._ordering = resolve_value(value)
+
+    @property
+    def ordering_actions(self):
+        return self._ordering_actions
 
     @property
     def pandas_fallback(self):

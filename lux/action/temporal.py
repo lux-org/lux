@@ -51,11 +51,11 @@ def temporal(ldf):
     if len(vlist) == 0:
         intent = [lux.Clause("?", data_type="temporal")]
         intent.extend(utils.get_filter_specs(ldf._intent))
-        vlist = VisList(intent, ldf)
+        vlist = VisList(intent, ldf, action="temporal")
         for vis in vlist:
             vis.score = interestingness(vis, ldf)
     else:
-        vlist = VisList(vlist)
+        vlist = VisList(vlist, action="temporal")
         recommendation["long_description"] += (
             " Lux displays the overall temporal trend first,"
             + " followed by trends across other timescales (e.g., year, month, week, day)."
