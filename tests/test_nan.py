@@ -173,3 +173,52 @@ def test_empty_filter(global_var):
     fdf._ipython_display_()
     assert fdf.data_type == None
     assert len(df[df["Origin"] == "U"]) == 0
+
+
+def test_fully_null_columns_not_in_recommendation():
+    df = pd.DataFrame(
+        {
+            "A": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            "B": [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+            "C": ["x", "y", "z", "x", "y", "z", "x", "y", "z", "x"],
+            "D": [10.5, 20.3, np.nan, 40.1, 50.2, 60.5, 70.3, 80.1, 90.2, 100.5],
+            "E": [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+        }
+    )
+
+    df.maintain_metadata()
+
+    assert "B" in df._fully_null_columns, "Column B should be detected as fully null"
+    assert "E" in df._fully_null_columns, "Column E should be detected as fully null"
+    assert "A" not in df._fully_null_columns, "Column A should not be detected as fully null"
+    assert "C" not in df._fully_null_columns, "Column C should not be detected as fully null"
+    assert "D" not in df._fully_null_columns, "Column D should not be detected as fully null (has some non-null values)"
+
+    df._ipython_display_()
+
+    for visList in df.recommendation.keys():
+        for vis in df.recommendation[visList]:
+            vis_attrs = [clause.attribute for clause in vis._inferred_intent]
+            assert "B" not in vis_attrs, f"Fully null column 'B' should not appear in recommendation: {vis}"
+            assert "E" not in vis_attrs, f"Fully null column 'E' should not appear in recommendation: {vis}"
+
+
+def test_fully_null_quantitative_column():
+    df = pd.DataFrame(
+        {
+            "valid_quant": [1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5],
+            "null_quant": [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+        }
+    )
+
+    df.maintain_metadata()
+
+    assert df.data_type["valid_quant"] == "quantitative"
+    assert "null_quant" in df._fully_null_columns
+
+    df._ipython_display_()
+
+    if "Distribution" in df.recommendation:
+        for vis in df.recommendation["Distribution"]:
+            vis_attrs = [clause.attribute for clause in vis._inferred_intent]
+            assert "null_quant" not in vis_attrs, f"Fully null column should not appear in Distribution: {vis}"

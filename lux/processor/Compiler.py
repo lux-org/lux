@@ -480,7 +480,7 @@ class Compiler:
                 else:
                     options = convert_to_list(clause.attribute)
                 for optStr in options:
-                    if str(optStr) not in clause.exclude:
+                    if str(optStr) not in clause.exclude and str(optStr) not in ldf._fully_null_columns:
                         spec_copy = copy.copy(clause)
                         spec_copy.attribute = optStr
                         spec_options.append(spec_copy)
