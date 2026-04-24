@@ -40,7 +40,7 @@ def temporal(ldf):
         "long_description": "Temporal displays line charts for all attributes related to datetimes in the dataframe.",
     }
     for c in ldf.columns:
-        if ldf.data_type[c] == "temporal":
+        if ldf.data_type[c] == "temporal" and c not in ldf._fully_null_columns:
             try:
                 generated_vis = create_temporal_vis(ldf, c)
                 vlist.extend(generated_vis)

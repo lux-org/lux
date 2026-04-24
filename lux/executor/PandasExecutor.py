@@ -622,6 +622,7 @@ class PandasExecutor(Executor):
         ldf._min_max = {}
         ldf.cardinality = {}
         ldf._length = len(ldf)
+        ldf._fully_null_columns = set()
 
         for attribute in ldf.columns:
             if isinstance(attribute, pd._libs.tslibs.timestamps.Timestamp):
@@ -632,6 +633,9 @@ class PandasExecutor(Executor):
 
             ldf.unique_values[attribute_repr] = list(ldf[attribute].unique())
             ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
+
+            if ldf[attribute].count() == 0:
+                ldf._fully_null_columns.add(attribute_repr)
 
             if pd.api.types.is_float_dtype(ldf.dtypes[attribute]) or pd.api.types.is_integer_dtype(
                 ldf.dtypes[attribute]

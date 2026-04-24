@@ -55,6 +55,7 @@ class LuxDataFrameMixin:
         "_pandas_only",
         "pre_aggregated",
         "_type_override",
+        "_fully_null_columns",
     ]
 
     def __init__(self, *args, **kw):
@@ -91,6 +92,7 @@ class LuxDataFrameMixin:
         self._min_max = None
         self.pre_aggregated = None
         self._type_override = {}
+        self._fully_null_columns = set()
         warnings.formatwarning = lux.warning_format
 
     @property
@@ -156,6 +158,7 @@ class LuxDataFrameMixin:
             self.cardinality = None
             self._min_max = None
             self.pre_aggregated = None
+            self._fully_null_columns = set()
 
     #####################
     ## Override Pandas ##

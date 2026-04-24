@@ -46,7 +46,7 @@ def univariate(ldf, *args):
     ignore_rec_flag = False
     if data_type_constraint == "quantitative":
         possible_attributes = [
-            c for c in ldf.columns if ldf.data_type[c] == "quantitative" and c != "Number of Records"
+            c for c in ldf.columns if ldf.data_type[c] == "quantitative" and c != "Number of Records" and c not in ldf._fully_null_columns
         ]
         intent = [lux.Clause(possible_attributes)]
         intent.extend(filter_specs)
@@ -63,7 +63,7 @@ def univariate(ldf, *args):
             ignore_rec_flag = True
     elif data_type_constraint == "nominal":
         possible_attributes = [
-            c for c in ldf.columns if ldf.data_type[c] == "nominal" and c != "Number of Records"
+            c for c in ldf.columns if ldf.data_type[c] == "nominal" and c != "Number of Records" and c not in ldf._fully_null_columns
         ]
         examples = ""
         if len(possible_attributes) >= 1:
@@ -77,7 +77,7 @@ def univariate(ldf, *args):
         }
     elif data_type_constraint == "geographical":
         possible_attributes = [
-            c for c in ldf.columns if ldf.data_type[c] == "geographical" and c != "Number of Records"
+            c for c in ldf.columns if ldf.data_type[c] == "geographical" and c != "Number of Records" and c not in ldf._fully_null_columns
         ]
         examples = ""
         if len(possible_attributes) >= 1:
